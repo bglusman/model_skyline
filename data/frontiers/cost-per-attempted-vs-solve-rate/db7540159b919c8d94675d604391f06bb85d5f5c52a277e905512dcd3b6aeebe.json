@@ -1,0 +1,2201 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "kind": "frontier",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "snapshot_id": "db7540159b919c8d94675d604391f06bb85d5f5c52a277e905512dcd3b6aeebe",
+  "config_hash": "792b0b9c9475b2c3cd170b3a31eed111690572f30aa22dcc55c17195a02e91e2",
+  "catalog_hash": "a6804744e2f3172e3f6b8dc9af10687d91f87ce866361811bf23bc075b7d2dd2",
+  "engine_version": "0.3.0",
+  "generated_at": "2026-08-30T19:43:34.685832Z",
+  "frontier_id": "cost-per-attempted-vs-solve-rate",
+  "workload": {
+    "id": "aider-polyglot",
+    "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+    "unit": "polyglot_case"
+  },
+  "order_by": "usd_per_attempted_workunit",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "usd_per_attempted_workunit",
+      "goal": "minimize",
+      "unit": "USD/attempted_workunit",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "solve_rate_2",
+      "goal": "maximize",
+      "unit": "ratio",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    }
+  ],
+  "members": [
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-08-06-04-54-48--gpt-oss-120b-high-polyglot",
+        "model_id": "gpt-oss-120b (high)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.003291555555555555555555555555555556",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.003291333333333333333333333333333333",
+          "upper": "0.003291777777777777777777777777777778",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-06T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.4177777777777777777777777777777778",
+          "unit": "ratio",
+          "lower": "0.3552435515015695973595097766309323",
+          "upper": "0.4830724591082435089441456338520895",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-06T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.85.3.dev",
+        "benchmark_date": "2025-08-06",
+        "pass_num_2": 94,
+        "commit_hash": "1af0e59"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-10-03-09-21-36--deepseek-v3.2-chat",
+        "model_id": "DeepSeek-V3.2-Exp (Chat)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.003891555555555555555555555555555556",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.003891333333333333333333333333333333",
+          "upper": "0.003891777777777777777777777777777778",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-10-03T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.7022222222222222222222222222222222",
+          "unit": "ratio",
+          "lower": "0.6394837391540798681536314760560952",
+          "upper": "0.758171477994758167694134946809987",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-10-03T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.86.2.dev",
+        "benchmark_date": "2025-10-03",
+        "pass_num_2": 158,
+        "commit_hash": "cbb5376"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-10-03-09-45-34--deepseek-v3.2-reasoner",
+        "model_id": "DeepSeek-V3.2-Exp (Reasoner)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.005797777777777777777777777777777778",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.005797555555555555555555555555555556",
+          "upper": "0.005798",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-10-03T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.7422222222222222222222222222222222",
+          "unit": "ratio",
+          "lower": "0.6813382194862286512697641305429587",
+          "upper": "0.7949740735821597652951429034394915",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-10-03T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.86.2.dev",
+        "benchmark_date": "2025-10-03",
+        "pass_num_2": 167,
+        "commit_hash": "cbb5376"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "model_id": "gpt-5 (low)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "low",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.04609466666666666666666666666666667",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.04609444444444444444444444444444444",
+          "upper": "0.04609488888888888888888888888888889",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-25T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.8133333333333333333333333333333333",
+          "unit": "ratio",
+          "lower": "0.7573169041834719169910178396752826",
+          "upper": "0.8588301905196727319599169474029326",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-25T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "reasoning_effort": "low",
+        "aider_version": "0.86.2.dev",
+        "benchmark_date": "2025-08-25",
+        "pass_num_2": 183,
+        "commit_hash": "32faf82"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+        "model_id": "gpt-5 (medium)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "medium",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.07863555555555555555555555555555556",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.07863533333333333333333333333333333",
+          "upper": "0.07863577777777777777777777777777778",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-25T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.8666666666666666666666666666666667",
+          "unit": "ratio",
+          "lower": "0.8160406625343363498879439739854155",
+          "upper": "0.9049825333948754733525116279146237",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-25T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "reasoning_effort": "medium",
+        "aider_version": "0.86.2.dev",
+        "benchmark_date": "2025-08-25",
+        "pass_num_2": 195,
+        "commit_hash": "32faf82"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-08-23-15-47-21--gpt-5-high",
+        "model_id": "gpt-5 (high)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "high",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.1292573333333333333333333333333333",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.1292571111111111111111111111111111",
+          "upper": "0.1292575555555555555555555555555556",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-23T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.88",
+          "unit": "ratio",
+          "lower": "0.8310376629422354488855445582911975",
+          "upper": "0.9162045582934931679272912473142977",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-23T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "reasoning_effort": "high",
+        "aider_version": "0.86.2.dev",
+        "benchmark_date": "2025-08-23",
+        "pass_num_2": 198,
+        "commit_hash": "32faf82"
+      },
+      "dominated_by": []
+    }
+  ],
+  "evaluated": [
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-08-06-04-54-48--gpt-oss-120b-high-polyglot",
+        "model_id": "gpt-oss-120b (high)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.003291555555555555555555555555555556",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.003291333333333333333333333333333333",
+          "upper": "0.003291777777777777777777777777777778",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-06T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.4177777777777777777777777777777778",
+          "unit": "ratio",
+          "lower": "0.3552435515015695973595097766309323",
+          "upper": "0.4830724591082435089441456338520895",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-06T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.85.3.dev",
+        "benchmark_date": "2025-08-06",
+        "pass_num_2": 94,
+        "commit_hash": "1af0e59"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-10-03-09-21-36--deepseek-v3.2-chat",
+        "model_id": "DeepSeek-V3.2-Exp (Chat)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.003891555555555555555555555555555556",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.003891333333333333333333333333333333",
+          "upper": "0.003891777777777777777777777777777778",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-10-03T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.7022222222222222222222222222222222",
+          "unit": "ratio",
+          "lower": "0.6394837391540798681536314760560952",
+          "upper": "0.758171477994758167694134946809987",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-10-03T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.86.2.dev",
+        "benchmark_date": "2025-10-03",
+        "pass_num_2": 158,
+        "commit_hash": "cbb5376"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-03-24-15-41-33--deepseek-v3-0324-polyglot-diff",
+        "model_id": "DeepSeek V3 (0324)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.004961777777777777777777777777777778",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.004961555555555555555555555555555556",
+          "upper": "0.004962",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-03-24T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.5511111111111111111111111111111111",
+          "unit": "ratio",
+          "lower": "0.4858053110376064461778653175303189",
+          "upper": "0.6147009526373745958495921300072625",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-03-24T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.78.1.dev",
+        "benchmark_date": "2025-03-24",
+        "pass_num_2": 124,
+        "commit_hash": "502b863"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-10-03-09-21-36--deepseek-v3.2-chat"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-10-03-09-45-34--deepseek-v3.2-reasoner",
+        "model_id": "DeepSeek-V3.2-Exp (Reasoner)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.005797777777777777777777777777777778",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.005797555555555555555555555555555556",
+          "upper": "0.005798",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-10-03T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.7422222222222222222222222222222222",
+          "unit": "ratio",
+          "lower": "0.6813382194862286512697641305429587",
+          "upper": "0.7949740735821597652951429034394915",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-10-03T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.86.2.dev",
+        "benchmark_date": "2025-10-03",
+        "pass_num_2": 167,
+        "commit_hash": "cbb5376"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "model_id": "gpt-5 (low)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "low",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.04609466666666666666666666666666667",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.04609444444444444444444444444444444",
+          "upper": "0.04609488888888888888888888888888889",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-25T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.8133333333333333333333333333333333",
+          "unit": "ratio",
+          "lower": "0.7573169041834719169910178396752826",
+          "upper": "0.8588301905196727319599169474029326",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-25T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "reasoning_effort": "low",
+        "aider_version": "0.86.2.dev",
+        "benchmark_date": "2025-08-25",
+        "pass_num_2": 183,
+        "commit_hash": "32faf82"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-01-23-19-14-48--r1-architect-sonnet",
+        "model_id": "DeepSeek R1 + claude-3-5-sonnet-20241022",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.05908133333333333333333333333333333",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.05908111111111111111111111111111111",
+          "upper": "0.05908155555555555555555555555555556",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-01-23T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.64",
+          "unit": "ratio",
+          "lower": "0.5754152911736375018534850534519617",
+          "upper": "0.6998844745447888306565070854553261",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-01-23T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "architect",
+        "aider_version": "0.72.3.dev",
+        "benchmark_date": "2025-01-23",
+        "pass_num_2": 144,
+        "commit_hash": "05a77c7"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "aider-polyglot/2025-10-03-09-21-36--deepseek-v3.2-chat",
+        "aider-polyglot/2025-10-03-09-45-34--deepseek-v3.2-reasoner"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction",
+        "model_id": "o3",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.06111866666666666666666666666666667",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.06111844444444444444444444444444444",
+          "upper": "0.06111888888888888888888888888888889",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-06-25T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.7688888888888888888888888888888889",
+          "unit": "ratio",
+          "lower": "0.7095725895005266612839796630854589",
+          "upper": "0.8191777541808953424256877783079033",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-06-25T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.84.1.dev",
+        "benchmark_date": "2025-06-25",
+        "pass_num_2": 173,
+        "commit_hash": "c48fea6"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-08-25-14-16-37--gpt-5-low"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-01-17-19-44-33--sonnet-baseline-jan-17",
+        "model_id": "claude-3-5-sonnet-20241022",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.064028",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.06402777777777777777777777777777778",
+          "upper": "0.06402822222222222222222222222222222",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-01-17T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.5155555555555555555555555555555556",
+          "unit": "ratio",
+          "lower": "0.4505438020391653021956053843419922",
+          "upper": "0.5800450608184376236388381866477068",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-01-17T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.71.2.dev",
+        "benchmark_date": "2025-01-17",
+        "pass_num_2": 116,
+        "commit_hash": "6451d59"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-01-23-19-14-48--r1-architect-sonnet",
+        "aider-polyglot/2025-03-24-15-41-33--deepseek-v3-0324-polyglot-diff",
+        "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction",
+        "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "aider-polyglot/2025-10-03-09-21-36--deepseek-v3.2-chat",
+        "aider-polyglot/2025-10-03-09-45-34--deepseek-v3.2-reasoner"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+        "model_id": "gpt-5 (medium)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "medium",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.07863555555555555555555555555555556",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.07863533333333333333333333333333333",
+          "upper": "0.07863577777777777777777777777777778",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-25T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.8666666666666666666666666666666667",
+          "unit": "ratio",
+          "lower": "0.8160406625343363498879439739854155",
+          "upper": "0.9049825333948754733525116279146237",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-25T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "reasoning_effort": "medium",
+        "aider_version": "0.86.2.dev",
+        "benchmark_date": "2025-08-25",
+        "pass_num_2": 195,
+        "commit_hash": "32faf82"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-02-24-19-54-07--sonnet37-diff",
+        "model_id": "claude-3-7-sonnet-20250219 (no thinking)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.07875155555555555555555555555555556",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.07875133333333333333333333333333333",
+          "upper": "0.07875177777777777777777777777777778",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-02-24T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.6044444444444444444444444444444444",
+          "unit": "ratio",
+          "lower": "0.5393145842134475356710473626724716",
+          "upper": "0.6660677806876006806459308996869336",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-02-24T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.74.4.dev",
+        "benchmark_date": "2025-02-24",
+        "pass_num_2": 136,
+        "commit_hash": "75e9ee6"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-01-23-19-14-48--r1-architect-sonnet",
+        "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction",
+        "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+        "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "aider-polyglot/2025-10-03-09-21-36--deepseek-v3.2-chat",
+        "aider-polyglot/2025-10-03-09-45-34--deepseek-v3.2-reasoner"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2024-12-22-21-26-35--polyglot-o1mini-whole",
+        "model_id": "o1-mini-2024-09-12",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.08256444444444444444444444444444444",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.08256422222222222222222222222222222",
+          "upper": "0.08256466666666666666666666666666667",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2024-12-22T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.3288888888888888888888888888888889",
+          "unit": "ratio",
+          "lower": "0.2708236255122145015563030955440432",
+          "upper": "0.3926988830541533142648176235692722",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2024-12-22T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "whole",
+        "aider_version": "0.69.2.dev",
+        "benchmark_date": "2024-12-22",
+        "pass_num_2": 74,
+        "commit_hash": "37df899"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-01-17-19-44-33--sonnet-baseline-jan-17",
+        "aider-polyglot/2025-01-23-19-14-48--r1-architect-sonnet",
+        "aider-polyglot/2025-02-24-19-54-07--sonnet37-diff",
+        "aider-polyglot/2025-03-24-15-41-33--deepseek-v3-0324-polyglot-diff",
+        "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction",
+        "aider-polyglot/2025-08-06-04-54-48--gpt-oss-120b-high-polyglot",
+        "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+        "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "aider-polyglot/2025-10-03-09-21-36--deepseek-v3.2-chat",
+        "aider-polyglot/2025-10-03-09-45-34--deepseek-v3.2-reasoner"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-03-29-05-24-55--chatgpt4o-mar28-diff",
+        "model_id": "chatgpt-4o-latest (2025-03-29)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.08774044444444444444444444444444444",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.08774022222222222222222222222222222",
+          "upper": "0.08774066666666666666666666666666667",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-03-29T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.4533333333333333333333333333333333",
+          "unit": "ratio",
+          "lower": "0.3896132635888093939411533985142772",
+          "upper": "0.518620147838381828555515888516627",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-03-29T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.79.3.dev",
+        "benchmark_date": "2025-03-29",
+        "pass_num_2": 102,
+        "commit_hash": "0decbad"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-01-17-19-44-33--sonnet-baseline-jan-17",
+        "aider-polyglot/2025-01-23-19-14-48--r1-architect-sonnet",
+        "aider-polyglot/2025-02-24-19-54-07--sonnet37-diff",
+        "aider-polyglot/2025-03-24-15-41-33--deepseek-v3-0324-polyglot-diff",
+        "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction",
+        "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+        "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "aider-polyglot/2025-10-03-09-21-36--deepseek-v3.2-chat",
+        "aider-polyglot/2025-10-03-09-45-34--deepseek-v3.2-reasoner"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-06-25-21-04-24--o3-price-reduction-high",
+        "model_id": "o3 (high)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "high",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.09433733333333333333333333333333333",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.09433711111111111111111111111111111",
+          "upper": "0.09433755555555555555555555555555556",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-06-25T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.8133333333333333333333333333333333",
+          "unit": "ratio",
+          "lower": "0.7573169041834719169910178396752826",
+          "upper": "0.8588301905196727319599169474029326",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-06-25T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "reasoning_effort": "high",
+        "aider_version": "0.84.1.dev",
+        "benchmark_date": "2025-06-25",
+        "pass_num_2": 183,
+        "commit_hash": "c48fea6"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+        "aider-polyglot/2025-08-25-14-16-37--gpt-5-low"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-05-24-22-10-36--sonnet4-diff-exuser-think32k",
+        "model_id": "claude-sonnet-4-20250514 (32k thinking)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.1181133333333333333333333333333333",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.1181131111111111111111111111111111",
+          "upper": "0.1181135555555555555555555555555556",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-05-24T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.6133333333333333333333333333333333",
+          "unit": "ratio",
+          "lower": "0.5483068269170070174515308678754871",
+          "upper": "0.6745548881883857279137008636208887",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-05-24T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.83.3.dev",
+        "benchmark_date": "2025-05-24",
+        "pass_num_2": 138,
+        "commit_hash": "e3cb907"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-01-23-19-14-48--r1-architect-sonnet",
+        "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction",
+        "aider-polyglot/2025-06-25-21-04-24--o3-price-reduction-high",
+        "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+        "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "aider-polyglot/2025-10-03-09-21-36--deepseek-v3.2-chat",
+        "aider-polyglot/2025-10-03-09-45-34--deepseek-v3.2-reasoner"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-08-23-15-47-21--gpt-5-high",
+        "model_id": "gpt-5 (high)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "high",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.1292573333333333333333333333333333",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.1292571111111111111111111111111111",
+          "upper": "0.1292575555555555555555555555555556",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-23T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.88",
+          "unit": "ratio",
+          "lower": "0.8310376629422354488855445582911975",
+          "upper": "0.9162045582934931679272912473142977",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-08-23T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "reasoning_effort": "high",
+        "aider_version": "0.86.2.dev",
+        "benchmark_date": "2025-08-23",
+        "pass_num_2": 198,
+        "commit_hash": "32faf82"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-02-24-21-47-23--sonnet37-diff-think-32k-64k",
+        "model_id": "claude-3-7-sonnet-20250219 (32k thinking tokens)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.163708",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.1637077777777777777777777777777778",
+          "upper": "0.1637082222222222222222222222222222",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-02-24T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.6488888888888888888888888888888889",
+          "unit": "ratio",
+          "lower": "0.5844964096998160442820679511176105",
+          "upper": "0.7082827062229548172761776569266479",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-02-24T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.75.1.dev",
+        "benchmark_date": "2025-02-24",
+        "pass_num_2": 146,
+        "commit_hash": "60d11a6, 93edbda"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction",
+        "aider-polyglot/2025-06-25-21-04-24--o3-price-reduction-high",
+        "aider-polyglot/2025-08-23-15-47-21--gpt-5-high",
+        "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+        "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "aider-polyglot/2025-10-03-09-21-36--deepseek-v3.2-chat",
+        "aider-polyglot/2025-10-03-09-45-34--deepseek-v3.2-reasoner"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-06-06-16-36-21--gemini0605-32k-think-diff-fenced",
+        "model_id": "gemini-2.5-pro-preview-06-05 (32k think)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.2216986666666666666666666666666667",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.2216984444444444444444444444444444",
+          "upper": "0.2216988888888888888888888888888889",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-06-06T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.8311111111111111111111111111111111",
+          "unit": "ratio",
+          "lower": "0.7766944773678162592208540819147841",
+          "upper": "0.8744113177440174478265876434373725",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-06-06T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff-fenced",
+        "aider_version": "0.84.1.dev",
+        "benchmark_date": "2025-06-06",
+        "pass_num_2": 187,
+        "commit_hash": "f827f22"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-08-23-15-47-21--gpt-5-high",
+        "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-05-25-20-40-51--opus4-diff-exuser",
+        "model_id": "claude-opus-4-20250514 (32k thinking)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.2922151111111111111111111111111111",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.2922148888888888888888888888888889",
+          "upper": "0.2922153333333333333333333333333333",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-05-25T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.72",
+          "unit": "ratio",
+          "lower": "0.6580162456574198330045285130583849",
+          "upper": "0.7745976719001072609397448480816387",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-05-25T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.83.3.dev",
+        "benchmark_date": "2025-05-25",
+        "pass_num_2": 162,
+        "commit_hash": "9ef3211"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-06-06-16-36-21--gemini0605-32k-think-diff-fenced",
+        "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction",
+        "aider-polyglot/2025-06-25-21-04-24--o3-price-reduction-high",
+        "aider-polyglot/2025-08-23-15-47-21--gpt-5-high",
+        "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+        "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "aider-polyglot/2025-10-03-09-45-34--deepseek-v3.2-reasoner"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-05-25-19-57-20--opus4-diff-exuser",
+        "model_id": "claude-opus-4-20250514 (no think)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.3050013333333333333333333333333333",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.3050011111111111111111111111111111",
+          "upper": "0.3050015555555555555555555555555556",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-05-25T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.7066666666666666666666666666666667",
+          "unit": "ratio",
+          "lower": "0.6441068292951242272489845069315157",
+          "upper": "0.7622880629558860731229086505030519",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-05-25T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "aider_version": "0.83.3.dev",
+        "benchmark_date": "2025-05-25",
+        "pass_num_2": 159,
+        "commit_hash": "9ef3211"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-05-25-20-40-51--opus4-diff-exuser",
+        "aider-polyglot/2025-06-06-16-36-21--gemini0605-32k-think-diff-fenced",
+        "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction",
+        "aider-polyglot/2025-06-25-21-04-24--o3-price-reduction-high",
+        "aider-polyglot/2025-08-23-15-47-21--gpt-5-high",
+        "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+        "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "aider-polyglot/2025-10-03-09-45-34--deepseek-v3.2-reasoner"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-06-28-00-38-18--o3-pro-high",
+        "model_id": "o3-pro (high)",
+        "provider": "unknown",
+        "endpoint": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "high",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "axes": {
+        "usd_per_attempted_workunit": {
+          "value": "0.6503328888888888888888888888888889",
+          "unit": "USD/attempted_workunit",
+          "lower": "0.6503326666666666666666666666666667",
+          "upper": "0.6503331111111111111111111111111111",
+          "dependencies": [
+            "signals.usd_per_attempted_workunit"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-06-28T00:00:00Z",
+          "minimum_sample_count": 225
+        },
+        "solve_rate_2": {
+          "value": "0.8488888888888888888888888888888889",
+          "unit": "ratio",
+          "lower": "0.7962602371050974049054209605037077",
+          "upper": "0.8898042584154253602385277031223903",
+          "dependencies": [
+            "signals.solve_rate_2"
+          ],
+          "source_ids": [
+            "aider-polyglot-leaderboard"
+          ],
+          "sources": [
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-08-30T19:43:34.184619Z"
+            }
+          ],
+          "oldest_observed_at": "2025-06-28T00:00:00Z",
+          "minimum_sample_count": 225
+        }
+      },
+      "metadata": {
+        "edit_format": "diff",
+        "reasoning_effort": "high",
+        "aider_version": "0.85.1.dev",
+        "benchmark_date": "2025-06-28",
+        "pass_num_2": 191,
+        "commit_hash": "5318380"
+      },
+      "dominated_by": [
+        "aider-polyglot/2025-08-23-15-47-21--gpt-5-high",
+        "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium"
+      ]
+    }
+  ],
+  "rejected": [],
+  "sources": [
+    {
+      "id": "aider-polyglot-leaderboard",
+      "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+      "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+      "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+      "license": "Apache-2.0",
+      "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+      "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+      "retrieved_at": "2026-08-30T19:43:34.184619Z"
+    }
+  ],
+  "source_watermarks": {
+    "aider-polyglot-leaderboard": "2025-10-03T00:00:00Z"
+  }
+}
