@@ -5,11 +5,12 @@ import json
 import re
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal, localcontext
+from enum import StrEnum
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any, Self
 
 import duckdb
-from pydantic import Field, ValidationError, field_validator
+from pydantic import Field, ValidationError, field_validator, model_validator
 
 from model_skyline.canonical import POLICY_DECIMAL_CONTEXT
 from model_skyline.models import (
@@ -21,6 +22,68 @@ from model_skyline.models import (
     SourceReference,
     WorkloadReference,
 )
+
+TRACE_CLASS_ID_PATTERN = r"^[a-z0-9][a-z0-9_-]*(/[a-z0-9][a-z0-9_-]*){0,4}$"
+MAX_TRACE_CLASS_ID_LENGTH = 128
+
+TraceClassId = Annotated[
+    str,
+    Field(pattern=TRACE_CLASS_ID_PATTERN, max_length=MAX_TRACE_CLASS_ID_LENGTH),
+]
+
+
+class TraceClassificationMethod(StrEnum):
+    """How a trace's task class was decided (ADR 0002)."""
+
+    HARNESS_TAG = "harness_tag"
+    OPERATOR = "operator"
+    REGISTERED_CLASSIFIER = "registered_classifier"
+    ORACLE = "oracle"
+
+
+class TraceClassificationSource(FrozenModel):
+    """Versioned provenance for one task-class decision.
+
+    Deterministic classifiers are registered code referenced by ``id`` and
+    ``version`` (with ``sha256`` digest when available); model-based
+    classifiers must be versioned oracles behind the oracle boundary. Only
+    code and version identifiers are recorded here — never executable logic.
+    """
+
+    method: TraceClassificationMethod
+    id: str | None = Field(default=None, min_length=1)
+    version: str | None = Field(default=None, min_length=1)
+    sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def versioned_methods_require_identity(self) -> Self:
+        if self.method in {
+            TraceClassificationMethod.REGISTERED_CLASSIFIER,
+            TraceClassificationMethod.ORACLE,
+        }:
+            missing = sorted(
+                name
+                for name, value in (("id", self.id), ("version", self.version))
+                if value is None
+            )
+            if missing:
+                raise ValueError(
+                    f"source method {self.method.value!r} requires: {', '.join(missing)}"
+                )
+        return self
+
+
+class TraceClassification(FrozenModel):
+    """Optional task-class annotation on a request trace (ADR 0002).
+
+    The object is present-or-absent as a unit; inside it every member is
+    required so no incoherent partial state (source without class, class
+    without confidence) can be expressed.
+    """
+
+    class_id: TraceClassId
+    source: TraceClassificationSource
+    confidence: CanonicalDecimal = Field(ge=0, le=1, max_digits=18, decimal_places=9)
 
 
 class RequestTrace(FrozenModel):
@@ -69,6 +132,7 @@ class RequestTrace(FrozenModel):
     output_tokens_per_second: CanonicalDecimal | None = Field(
         default=None, ge=0, max_digits=38, decimal_places=9
     )
+    trace_classification: TraceClassification | None = None
 
     @field_validator("timestamp")
     @classmethod
@@ -77,6 +141,18 @@ class RequestTrace(FrozenModel):
             raise ValueError("timestamp must include a timezone")
         return value
 
+
+TRACE_CLASSIFICATION_STRUCT = (
+    'STRUCT(class_id VARCHAR, "source" STRUCT("method" VARCHAR, id VARCHAR, '
+    '"version" VARCHAR, sha256 VARCHAR), confidence DECIMAL(18,9))'
+)
+# DuckDB renders reserved member names with quotes; the schema of an accepted
+# Parquet STRUCT may only differ from the canonical form in the precision and
+# scale of the confidence member (scale at most 9, like every other meter).
+TRACE_CLASSIFICATION_STRUCT_RE = re.compile(
+    r'^STRUCT\(class_id VARCHAR, "source" STRUCT\("method" VARCHAR, id VARCHAR, '
+    r'"version" VARCHAR, sha256 VARCHAR\), confidence DECIMAL\((\d+),(\d+)\)\)$'
+)
 
 TRACE_COLUMNS = {
     "timestamp": "TIMESTAMPTZ",
@@ -100,6 +176,7 @@ TRACE_COLUMNS = {
     "other_cost_usd": "DECIMAL(38,12)",
     "ttft_ms": "DECIMAL(38,9)",
     "output_tokens_per_second": "DECIMAL(38,9)",
+    "trace_classification": TRACE_CLASSIFICATION_STRUCT,
 }
 
 REQUIRED_TRACE_COLUMNS = frozenset(
@@ -243,6 +320,18 @@ def _canonical_parquet_relation(
                 raise TraceAggregationError(
                     f"{path} column {name} must be VARCHAR, got {source_type}"
                 )
+        elif name == "trace_classification":
+            struct_match = TRACE_CLASSIFICATION_STRUCT_RE.fullmatch(source_type or "")
+            if struct_match is None:
+                raise TraceAggregationError(
+                    f"{path} column {name} must be the canonical classification "
+                    f"STRUCT, got {source_type}"
+                )
+            if int(struct_match.group(2)) > 9:
+                raise TraceAggregationError(
+                    f"{path} column {name} confidence member has scale {struct_match.group(2)}; "
+                    f"maximum is 9"
+                )
         else:
             decimal_match = DECIMAL_TYPE_RE.fullmatch(source_type)
             if decimal_match is not None:
@@ -368,6 +457,13 @@ WHERE timestamp IS NULL
    OR request_id IS NULL OR request_id = ''
    OR attempt_id IS NULL OR attempt_id = ''
    OR work_unit_success IS NULL OR work_unit_success < 0 OR work_unit_success > 1
+   OR (trace_classification IS NOT NULL
+       AND (trace_classification.class_id IS NULL
+            OR trace_classification."source" IS NULL
+            OR trace_classification."source"."method" IS NULL
+            OR trace_classification.confidence IS NULL
+            OR trace_classification.confidence < 0
+            OR trace_classification.confidence > 1))
    OR coalesce(input_uncached_tokens, 0) < 0
    OR coalesce(input_cache_read_tokens, 0) < 0
    OR coalesce(input_cache_write_5m_tokens, 0) < 0

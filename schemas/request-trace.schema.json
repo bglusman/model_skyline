@@ -1,6 +1,109 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:model-skyline:schema:v1alpha1:request-trace",
+  "$defs": {
+    "TraceClassification": {
+      "additionalProperties": false,
+      "description": "Optional task-class annotation on a request trace (ADR 0002).\n\nThe object is present-or-absent as a unit; inside it every member is\nrequired so no incoherent partial state (source without class, class\nwithout confidence) can be expressed.",
+      "properties": {
+        "class_id": {
+          "maxLength": 128,
+          "pattern": "^[a-z0-9][a-z0-9_-]*(/[a-z0-9][a-z0-9_-]*){0,4}$",
+          "title": "Class Id",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/TraceClassificationSource"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!-)(?=[+]?(?:0*(?:\\.\\d*)?|0*1(?:\\.0*)?)$)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,9}|(?=[\\d.]{1,19}0*$)\\d{0,9}\\.\\d{0,9}0*$))$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "title": "Confidence"
+        }
+      },
+      "required": [
+        "class_id",
+        "source",
+        "confidence"
+      ],
+      "title": "TraceClassification",
+      "type": "object"
+    },
+    "TraceClassificationMethod": {
+      "description": "How a trace's task class was decided (ADR 0002).",
+      "enum": [
+        "harness_tag",
+        "operator",
+        "registered_classifier",
+        "oracle"
+      ],
+      "title": "TraceClassificationMethod",
+      "type": "string"
+    },
+    "TraceClassificationSource": {
+      "additionalProperties": false,
+      "description": "Versioned provenance for one task-class decision.\n\nDeterministic classifiers are registered code referenced by ``id`` and\n``version`` (with ``sha256`` digest when available); model-based\nclassifiers must be versioned oracles behind the oracle boundary. Only\ncode and version identifiers are recorded here \u2014 never executable logic.",
+      "properties": {
+        "method": {
+          "$ref": "#/$defs/TraceClassificationMethod"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "method"
+      ],
+      "title": "TraceClassificationSource",
+      "type": "object"
+    }
+  },
   "additionalProperties": false,
   "description": "Canonical request-level trace row consumed by the DuckDB aggregator.",
   "properties": {
@@ -266,6 +369,17 @@
       ],
       "default": null,
       "title": "Output Tokens Per Second"
+    },
+    "trace_classification": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TraceClassification"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     }
   },
   "required": [
