@@ -42,7 +42,7 @@ def _canonical_hash(value: Any, *, length: int = 64) -> str:
     return content_hash(value)[:length]
 
 
-def _catalog_hash(catalog: ObservationCatalog) -> str:
+def catalog_hash(catalog: ObservationCatalog) -> str:
     """Hash a catalog independently of its non-semantic offering order."""
 
     canonical_catalog = catalog.model_copy(
@@ -54,6 +54,12 @@ def _catalog_hash(catalog: ObservationCatalog) -> str:
         }
     )
     return _canonical_hash(canonical_catalog)
+
+
+def frontier_hash(snapshot: FrontierSnapshot) -> str:
+    """Recompute a frontier snapshot's content identity."""
+
+    return _canonical_hash(snapshot.model_dump(mode="json", exclude={"snapshot_id"}))
 
 
 def _decimal_seconds(earlier: datetime, later: datetime) -> Decimal:
@@ -577,7 +583,7 @@ class FrontierEngine:
                     workload,
                 )
             ),
-            catalog_hash=_catalog_hash(catalog),
+            catalog_hash=catalog_hash(catalog),
             engine_version=VERSION,
             generated_at=now,
             frontier_id=frontier_id,

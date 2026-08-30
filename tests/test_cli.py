@@ -54,6 +54,29 @@ def test_cli_evaluate_and_select() -> None:
     assert payload["default"]["offering"]["provider"] == "qualityworks"
 
 
+def test_cli_publishes_complete_project(tmp_path: Path) -> None:
+    output = tmp_path.resolve() / "site"
+    result = runner.invoke(
+        app,
+        [
+            "publish-project",
+            str(EXAMPLE / "frontier.yaml"),
+            str(output),
+            "--project-id",
+            "coding-demo",
+            "--catalog",
+            str(EXAMPLE / "observations.json"),
+            "--as-of",
+            "2026-08-29T19:00:00Z",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "2 frontiers, 1 selections" in result.output
+    assert (output / "latest.json").is_file()
+    assert (output / "feeds" / "coding-value.xml").is_file()
+
+
 def test_cli_exports_contract_schemas(tmp_path) -> None:
     output = tmp_path / "schemas"
     result = runner.invoke(app, ["export-schemas", str(output)])
@@ -61,6 +84,8 @@ def test_cli_exports_contract_schemas(tmp_path) -> None:
     assert result.exit_code == 0, result.output
     assert (output / "project-config.schema.json").is_file()
     assert (output / "selection-snapshot.schema.json").is_file()
+    assert (output / "publication-manifest.schema.json").is_file()
+    assert (output / "frontier-history.schema.json").is_file()
     assert (output / "request-trace.schema.json").is_file()
     assert (output / "project-config.schema.json").read_bytes() == (
         ROOT / "schemas" / "project-config.schema.json"
@@ -71,4 +96,4 @@ def test_cli_reports_package_version() -> None:
     result = runner.invoke(app, ["--version"])
 
     assert result.exit_code == 0
-    assert result.output.strip() == "0.2.0"
+    assert result.output.strip() == "0.3.0"

@@ -6,6 +6,7 @@ from collections.abc import Iterable
 from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
+from pathlib import PurePosixPath
 from typing import Annotated, Any, Literal, Self
 
 from pydantic import (
@@ -41,6 +42,12 @@ MAX_SNAPSHOT_TTL_SECONDS = 31_536_000
 MAX_CAPABILITIES = 128
 CAPABILITY_NAME_PATTERN = r"^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$"
 PUBLIC_SOURCE_URL_PATTERN = r"^https?://[^@?#]+$"
+PORTABLE_PUBLICATION_ID_PATTERN = r"^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$"
+SHA256_PATTERN = r"^[0-9a-f]{64}$"
+RELATIVE_ARTIFACT_PATH_PATTERN = (
+    r"^(?:[a-z0-9][a-z0-9._-]{0,254}/)*"
+    r"[a-z0-9][a-z0-9._-]{0,254}\.(?:csv|json|txt|xml)$"
+)
 
 
 def _bounded_decimal_input(value: Any) -> Any:
@@ -109,6 +116,31 @@ SnapshotTtlSeconds = Annotated[
 CapabilityName = Annotated[
     str,
     Field(min_length=1, max_length=64, pattern=CAPABILITY_NAME_PATTERN),
+]
+PortablePublicationId = Annotated[
+    str,
+    Field(min_length=1, max_length=128, pattern=PORTABLE_PUBLICATION_ID_PATTERN),
+]
+Sha256Digest = Annotated[str, Field(pattern=SHA256_PATTERN)]
+
+
+def _safe_relative_artifact_path(value: str) -> str:
+    path = PurePosixPath(value)
+    if (
+        path.is_absolute()
+        or not path.parts
+        or any(part in {"", ".", ".."} or part.startswith(".") for part in path.parts)
+    ):
+        raise ValueError("artifact path must contain only safe relative path segments")
+    if "\\" in value or "//" in value:
+        raise ValueError("artifact path must use canonical forward-slash separators")
+    return value
+
+
+RelativeArtifactPath = Annotated[
+    str,
+    Field(min_length=1, max_length=512, pattern=RELATIVE_ARTIFACT_PATH_PATTERN),
+    AfterValidator(_safe_relative_artifact_path),
 ]
 
 
@@ -687,3 +719,168 @@ class SelectionSnapshot(FrozenModel):
     @property
     def choices(self) -> tuple[ModelChoice, ...]:
         return (self.default, *self.fallbacks)
+
+
+class PublishedFile(FrozenModel):
+    """Digest-addressed file reference relative to a publication root."""
+
+    path: RelativeArtifactPath
+    sha256: Sha256Digest
+    media_type: str = Field(min_length=1, max_length=128)
+
+
+class PublishedCatalog(FrozenModel):
+    workload: WorkloadReference
+    catalog_hash: Sha256Digest
+
+
+class PublicationPolicy(FrozenModel):
+    """The operator's explicit redistribution decision for this publication."""
+
+    public: bool = False
+    allowed_licenses: tuple[str, ...] = ()
+    authorized_source_ids: tuple[str, ...] = ()
+
+    @field_validator("allowed_licenses", "authorized_source_ids", mode="before")
+    @classmethod
+    def values_are_sorted_unique(cls, value: Any) -> tuple[str, ...]:
+        if not isinstance(value, (list, tuple)) or any(
+            not isinstance(item, str) or not item for item in value
+        ):
+            raise ValueError("publication policy lists must contain non-empty strings")
+        if len(value) != len(set(value)):
+            raise ValueError("publication policy lists must not contain duplicates")
+        return tuple(sorted(value))
+
+
+class FrontierHistoryEntry(FrozenModel):
+    snapshot_id: Sha256Digest
+    generated_at: datetime
+    workload: WorkloadReference
+    config_hash: Sha256Digest
+    catalog_hash: Sha256Digest
+    axis_hash: Sha256Digest
+    view_hash: Sha256Digest
+    snapshot: PublishedFile
+
+    @field_validator("generated_at")
+    @classmethod
+    def generated_at_has_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            raise ValueError("generated_at must include a timezone")
+        return value
+
+
+class FrontierHistory(FrozenModel):
+    schema_version: Literal["model-skyline/v1alpha1"] = "model-skyline/v1alpha1"
+    kind: Literal["frontier-history"] = "frontier-history"
+    frontier_id: PortablePublicationId
+    entries: tuple[FrontierHistoryEntry, ...]
+
+    @model_validator(mode="after")
+    def entries_are_newest_first_and_unique(self) -> Self:
+        ids = [entry.snapshot_id for entry in self.entries]
+        if len(ids) != len(set(ids)):
+            raise ValueError("frontier history snapshot ids must be unique")
+        order = [(entry.generated_at, entry.snapshot_id) for entry in self.entries]
+        if order != sorted(order, reverse=True):
+            raise ValueError("frontier history entries must be newest first")
+        for entry in self.entries:
+            expected = f"frontiers/{self.frontier_id}/{entry.snapshot_id}.json"
+            if entry.snapshot.path != expected:
+                raise ValueError(f"history snapshot path must be {expected!r}")
+        return self
+
+
+class PublishedFrontier(FrozenModel):
+    """Immutable files for one frontier in a committed publication set.
+
+    Conventional ``latest.json``, ``table.csv``, ``table.txt``, ``history.json``,
+    and feed paths are mutable discovery aliases and deliberately do not appear
+    in a historical manifest.
+    """
+
+    frontier_id: PortablePublicationId
+    snapshot_id: Sha256Digest
+    snapshot: PublishedFile
+    csv: PublishedFile
+    table: PublishedFile
+    history: PublishedFile
+    feed: PublishedFile
+
+    @model_validator(mode="after")
+    def files_match_identity(self) -> Self:
+        expected = {
+            "snapshot": f"frontiers/{self.frontier_id}/{self.snapshot_id}.json",
+            "csv": f"frontiers/{self.frontier_id}/{self.snapshot_id}.csv",
+            "table": f"frontiers/{self.frontier_id}/{self.snapshot_id}.txt",
+            "history": (f"frontiers/{self.frontier_id}/history-{self.history.sha256}.json"),
+            "feed": f"feeds/{self.frontier_id}/{self.feed.sha256}.xml",
+        }
+        for field_name, expected_path in expected.items():
+            if getattr(self, field_name).path != expected_path:
+                raise ValueError(f"{field_name} path must be {expected_path!r}")
+        return self
+
+
+class PublishedSelection(FrozenModel):
+    """Immutable file for one agent route in a committed publication set."""
+
+    selection_id: PortablePublicationId
+    snapshot_id: Sha256Digest
+    frontier_id: PortablePublicationId
+    frontier_snapshot_id: Sha256Digest
+    snapshot: PublishedFile
+
+    @model_validator(mode="after")
+    def files_match_identity(self) -> Self:
+        expected_snapshot = f"selections/{self.selection_id}/{self.snapshot_id}.json"
+        if self.snapshot.path != expected_snapshot:
+            raise ValueError(f"snapshot path must be {expected_snapshot!r}")
+        return self
+
+
+class PublicationManifest(FrozenModel):
+    """Commit marker for one internally consistent multi-artifact publication."""
+
+    schema_version: Literal["model-skyline/v1alpha1"] = "model-skyline/v1alpha1"
+    kind: Literal["publication"] = "publication"
+    hash_algorithm: Literal["sha256-rfc8785-v1"] = "sha256-rfc8785-v1"
+    publication_id: Sha256Digest
+    project_id: PortablePublicationId
+    previous_publication_id: Sha256Digest | None = None
+    project_hash: Sha256Digest
+    generated_at: datetime
+    catalogs: tuple[PublishedCatalog, ...] = Field(min_length=1)
+    policy: PublicationPolicy = Field(default_factory=PublicationPolicy)
+    frontiers: tuple[PublishedFrontier, ...] = Field(min_length=1)
+    selections: tuple[PublishedSelection, ...] = ()
+
+    @field_validator("generated_at")
+    @classmethod
+    def generated_at_has_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            raise ValueError("generated_at must include a timezone")
+        return value
+
+    @model_validator(mode="after")
+    def entries_are_coherent(self) -> Self:
+        catalog_workloads = [entry.workload.id for entry in self.catalogs]
+        frontier_ids = [entry.frontier_id for entry in self.frontiers]
+        selection_ids = [entry.selection_id for entry in self.selections]
+        if len(catalog_workloads) != len(set(catalog_workloads)):
+            raise ValueError("published catalog workload ids must be unique")
+        if len(frontier_ids) != len(set(frontier_ids)):
+            raise ValueError("published frontier ids must be unique")
+        if len(selection_ids) != len(set(selection_ids)):
+            raise ValueError("published selection ids must be unique")
+        frontier_snapshots = {entry.frontier_id: entry.snapshot_id for entry in self.frontiers}
+        for selection in self.selections:
+            expected_snapshot = frontier_snapshots.get(selection.frontier_id)
+            if expected_snapshot is None:
+                raise ValueError("published selections must reference a published frontier")
+            if selection.frontier_snapshot_id != expected_snapshot:
+                raise ValueError(
+                    "published selection must reference the current published frontier snapshot"
+                )
+        return self

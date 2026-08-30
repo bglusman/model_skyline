@@ -40,6 +40,7 @@ from model_skyline.io import (
     load_frontier_snapshot,
     public_schemas,
 )
+from model_skyline.publisher import PublicationError, publish_project
 from model_skyline.renderers import render_csv, render_rss, render_table
 from model_skyline.selection import select_models
 from model_skyline.traces import TraceAggregationError, aggregate_traces, enrich_catalog
@@ -207,6 +208,95 @@ def select(
         snapshot = select_models(loaded_config, frontier_snapshot, selection)
         _emit(dump_json(snapshot), output)
     except (InputError, OSError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("publish-project")
+def publish_project_command(
+    config: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_directory: Annotated[Path, typer.Argument(file_okay=False)],
+    project_id: Annotated[
+        str,
+        typer.Option("--project-id", help="portable stable id for this publication root"),
+    ],
+    catalogs: Annotated[
+        list[Path] | None,
+        typer.Option(
+            "--catalog",
+            exists=True,
+            readable=True,
+            help="observation catalog; repeat for distinct workloads",
+        ),
+    ] = None,
+    frontiers: Annotated[
+        list[str] | None,
+        typer.Option("--frontier", help="frontier to publish; repeat, or omit for all matches"),
+    ] = None,
+    selections: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--selection",
+            help="selection to publish; repeat, or omit for all matching selections",
+        ),
+    ] = None,
+    as_of: Annotated[str | None, typer.Option("--as-of")] = None,
+    base_url: Annotated[
+        str | None,
+        typer.Option("--base-url", help="artifact URL prefix used for immutable RSS links"),
+    ] = None,
+    feed_items: Annotated[
+        int,
+        typer.Option("--feed-items", min=1, max=1000, help="meaningful RSS changes to retain"),
+    ] = 20,
+    public: Annotated[
+        bool,
+        typer.Option(
+            "--public",
+            help="enforce explicit source redistribution authorization and HTTPS links",
+        ),
+    ] = False,
+    allow_licenses: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--allow-license",
+            help="source license authorized for public redistribution; repeat",
+        ),
+    ] = None,
+    authorize_sources: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--authorize-source",
+            help="source id with separately documented redistribution authority; repeat",
+        ),
+    ] = None,
+) -> None:
+    """Publish immutable history, current views, RSS, and agent fallback manifests."""
+
+    try:
+        if not catalogs:
+            raise ValueError("at least one --catalog is required")
+        result = publish_project(
+            load_config(config),
+            [load_catalog(path) for path in catalogs],
+            output_directory,
+            project_id=project_id,
+            frontier_ids=frontiers,
+            selection_ids=selections,
+            generated_at=_as_of(as_of),
+            base_url=base_url,
+            feed_items=feed_items,
+            public=public,
+            allowed_licenses=allow_licenses or (),
+            authorized_source_ids=authorize_sources or (),
+        )
+        verb = "published" if result.changed else "unchanged"
+        typer.echo(
+            f"{verb}: publication {result.manifest.publication_id} "
+            f"({len(result.manifest.frontiers)} frontiers, "
+            f"{len(result.manifest.selections)} selections)"
+        )
+        typer.echo(result.manifest_path)
+    except (InputError, OSError, PublicationError, ValueError) as exc:
         _error(exc)
 
 

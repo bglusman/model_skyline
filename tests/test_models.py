@@ -15,6 +15,7 @@ from model_skyline.models import (
     Observation,
     ObservationRequirements,
     OfferingKey,
+    PublishedFile,
     SelectionDefinition,
     SourceReference,
     WorkloadProfile,
@@ -180,3 +181,23 @@ def test_capabilities_reject_ambiguous_or_noncanonical_values(
 ) -> None:
     with pytest.raises(ValidationError, match=message):
         _offering(capabilities)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "a/../b.json",
+        "a/./b.json",
+        "a//b.json",
+        "/absolute.json",
+        r"a\b.json",
+        ".hidden.json",
+    ],
+)
+def test_published_file_paths_cannot_escape_an_artifact_root(path: str) -> None:
+    with pytest.raises(ValidationError):
+        PublishedFile(
+            path=path,
+            sha256="0" * 64,
+            media_type="application/json",
+        )

@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import html
 import io
+from collections.abc import Iterable, Mapping
 from datetime import UTC
 from email.utils import format_datetime
 from typing import Any
@@ -99,19 +100,212 @@ def _changes(
     return tuple(sorted(current_ids - previous_ids)), tuple(sorted(previous_ids - current_ids))
 
 
+def frontier_view(snapshot: FrontierSnapshot) -> tuple[Any, ...]:
+    """Return the routing- and display-relevant semantic frontier view."""
+
+    return tuple(
+        (
+            item.offering.model_dump(mode="json"),
+            tuple(
+                (
+                    axis.metric,
+                    item.axes[axis.metric].model_dump(
+                        mode="json",
+                        include={"value", "lower", "upper"},
+                    ),
+                )
+                for axis in snapshot.axes
+            ),
+            item.metadata,
+        )
+        for item in snapshot.members
+    )
+
+
+def _baseline_reset(current: FrontierSnapshot, previous: FrontierSnapshot | None) -> bool:
+    return previous is None or (
+        previous.workload != current.workload
+        or previous.config_hash != current.config_hash
+        or previous.axes != current.axes
+        or previous.order_by != current.order_by
+        or previous.uncertainty != current.uncertainty
+    )
+
+
+def _rank_and_value_changes(
+    current: FrontierSnapshot,
+    previous: FrontierSnapshot | None,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    if previous is None:
+        return (), ()
+    current_by_id = {
+        item.offering.offering_id: (rank, item)
+        for rank, item in enumerate(current.members, start=1)
+    }
+    previous_by_id = {
+        item.offering.offering_id: (rank, item)
+        for rank, item in enumerate(previous.members, start=1)
+    }
+    common = sorted(set(current_by_id) & set(previous_by_id))
+    rank_changes = tuple(
+        f"{offering_id}:{previous_by_id[offering_id][0]}->{current_by_id[offering_id][0]}"
+        for offering_id in common
+        if previous_by_id[offering_id][0] != current_by_id[offering_id][0]
+    )
+    value_changes = tuple(
+        offering_id
+        for offering_id in common
+        if any(
+            current_by_id[offering_id][1].axes[axis.metric]
+            != previous_by_id[offering_id][1].axes[axis.metric]
+            for axis in current.axes
+        )
+    )
+    return rank_changes, value_changes
+
+
+def _append_rss_item(
+    channel: ET.Element,
+    snapshot: FrontierSnapshot,
+    previous: FrontierSnapshot | None,
+    *,
+    link: str | None,
+    baseline_reset: bool,
+) -> None:
+    entrants, removals = _changes(snapshot, None if baseline_reset else previous)
+    rank_changes, value_changes = _rank_and_value_changes(
+        snapshot,
+        None if baseline_reset else previous,
+    )
+    item = ET.SubElement(channel, "item")
+    if baseline_reset:
+        title = f"Frontier {_display(snapshot.snapshot_id)}: baseline reset"
+    else:
+        title = (
+            f"Frontier {_display(snapshot.snapshot_id)}: +{len(entrants)} / -{len(removals)}"
+            f" / ranks {len(rank_changes)} / values {len(value_changes)}"
+        )
+    ET.SubElement(item, "title").text = title
+    guid = ET.SubElement(item, "guid", {"isPermaLink": "false"})
+    guid.text = _display(snapshot.snapshot_id)
+    ET.SubElement(item, "pubDate").text = format_datetime(snapshot.generated_at.astimezone(UTC))
+    if link:
+        ET.SubElement(item, "link").text = _display(link)
+
+    def escaped(value: Any) -> str:
+        return html.escape(_display(value), quote=True)
+
+    ordered = "".join(
+        "<li>"
+        + escaped(member.offering.offering_id)
+        + " — "
+        + "; ".join(
+            f"{escaped(axis.metric)}: "
+            f"{escaped(member.axes[axis.metric].value)} {escaped(axis.unit)}"
+            for axis in snapshot.axes
+        )
+        + "</li>"
+        for member in snapshot.members
+    )
+    description = (
+        f"<p>Baseline reset: {'yes' if baseline_reset else 'no'}</p>"
+        f"<p>Entrants: {', '.join(escaped(value) for value in entrants) or 'none'}</p>"
+        f"<p>Removals: {', '.join(escaped(value) for value in removals) or 'none'}</p>"
+        f"<p>Rank changes: "
+        f"{', '.join(escaped(value) for value in rank_changes) or 'none'}</p>"
+        f"<p>Value changes: "
+        f"{', '.join(escaped(value) for value in value_changes) or 'none'}</p>"
+        f"<ol>{ordered}</ol>"
+    )
+    ET.SubElement(item, "description").text = description
+    ET.SubElement(item, f"{{{RSS_NAMESPACE}}}snapshotId").text = _display(snapshot.snapshot_id)
+    ET.SubElement(item, f"{{{RSS_NAMESPACE}}}baselineReset").text = (
+        "true" if baseline_reset else "false"
+    )
+    for offering_id in entrants:
+        ET.SubElement(item, f"{{{RSS_NAMESPACE}}}entrant").text = _display(offering_id)
+    for offering_id in removals:
+        ET.SubElement(item, f"{{{RSS_NAMESPACE}}}removal").text = _display(offering_id)
+    for change in rank_changes:
+        ET.SubElement(item, f"{{{RSS_NAMESPACE}}}rankChange").text = _display(change)
+    for offering_id in value_changes:
+        ET.SubElement(item, f"{{{RSS_NAMESPACE}}}valueChange").text = _display(offering_id)
+
+
+def render_rss_history(
+    snapshots: Iterable[FrontierSnapshot],
+    *,
+    max_items: int = 20,
+    channel_link: str | None = None,
+    item_links: Mapping[str, str] | None = None,
+) -> str:
+    """Render retained semantic changes from validated immutable snapshots."""
+
+    if not 1 <= max_items <= 1000:
+        raise ValueError("RSS max_items must be between 1 and 1000")
+    by_id: dict[str, FrontierSnapshot] = {}
+    for snapshot in snapshots:
+        existing = by_id.get(snapshot.snapshot_id)
+        if existing is not None and existing != snapshot:
+            raise ValueError("one RSS snapshot id maps to multiple artifacts")
+        by_id[snapshot.snapshot_id] = snapshot
+    if not by_id:
+        raise ValueError("RSS history requires at least one snapshot")
+    ordered = sorted(
+        by_id.values(),
+        key=lambda value: (value.generated_at, value.snapshot_id),
+    )
+    frontier_ids = {snapshot.frontier_id for snapshot in ordered}
+    if len(frontier_ids) != 1:
+        raise ValueError("RSS history snapshots must use one frontier id")
+
+    meaningful: list[tuple[FrontierSnapshot, FrontierSnapshot | None, bool]] = []
+    previous: FrontierSnapshot | None = None
+    for snapshot in ordered:
+        reset = _baseline_reset(snapshot, previous)
+        if reset or previous is None or frontier_view(snapshot) != frontier_view(previous):
+            meaningful.append((snapshot, previous, reset))
+        previous = snapshot
+    retained = list(reversed(meaningful[-max_items:]))
+    latest = ordered[-1]
+
+    rss = ET.Element("rss", {"version": "2.0"})
+    channel = ET.SubElement(rss, "channel")
+    ET.SubElement(channel, "title").text = f"{_display(latest.frontier_id)} model skyline"
+    ET.SubElement(
+        channel, "description"
+    ).text = f"Changes to the {_display(latest.frontier_id)} workload-specific Pareto frontier."
+    ET.SubElement(channel, "link").text = _display(
+        channel_link or f"urn:model-skyline:{latest.frontier_id}"
+    )
+    ET.SubElement(channel, "lastBuildDate").text = format_datetime(
+        latest.generated_at.astimezone(UTC)
+    )
+    links = item_links or {}
+    for snapshot, prior, reset in retained:
+        _append_rss_item(
+            channel,
+            snapshot,
+            prior,
+            link=links.get(snapshot.snapshot_id),
+            baseline_reset=reset,
+        )
+    ET.indent(rss, space="  ")
+    return ET.tostring(rss, encoding="unicode", xml_declaration=True) + "\n"
+
+
 def render_rss(
     snapshot: FrontierSnapshot,
     *,
     previous: FrontierSnapshot | None = None,
     link: str | None = None,
 ) -> str:
-    """Render one change item; a publisher can retain items from older snapshots."""
+    """Render one change item; publishers should use :func:`render_rss_history`."""
 
     if previous is not None and (
         previous.frontier_id != snapshot.frontier_id or previous.workload != snapshot.workload
     ):
         raise ValueError("previous RSS snapshot must use the same frontier and workload")
-    entrants, removals = _changes(snapshot, previous)
     rss = ET.Element("rss", {"version": "2.0"})
     channel = ET.SubElement(rss, "channel")
     ET.SubElement(channel, "title").text = f"{_display(snapshot.frontier_id)} model skyline"
@@ -124,40 +318,12 @@ def render_rss(
     ET.SubElement(channel, "lastBuildDate").text = format_datetime(
         snapshot.generated_at.astimezone(UTC)
     )
-    item = ET.SubElement(channel, "item")
-    ET.SubElement(
-        item, "title"
-    ).text = f"Frontier {_display(snapshot.snapshot_id)}: +{len(entrants)} / -{len(removals)}"
-    guid = ET.SubElement(item, "guid", {"isPermaLink": "false"})
-    guid.text = _display(snapshot.snapshot_id)
-    ET.SubElement(item, "pubDate").text = format_datetime(snapshot.generated_at.astimezone(UTC))
-    if link:
-        ET.SubElement(item, "link").text = _display(link)
-
-    def escaped(value: Any) -> str:
-        return html.escape(_display(value), quote=True)
-
-    ordered = "".join(
-        "<li>"
-        + escaped(item.offering.offering_id)
-        + " — "
-        + "; ".join(
-            f"{escaped(axis.metric)}: {escaped(item.axes[axis.metric].value)} {escaped(axis.unit)}"
-            for axis in snapshot.axes
-        )
-        + "</li>"
-        for item in snapshot.members
+    _append_rss_item(
+        channel,
+        snapshot,
+        previous,
+        link=link,
+        baseline_reset=_baseline_reset(snapshot, previous),
     )
-    description = (
-        f"<p>Entrants: {', '.join(escaped(value) for value in entrants) or 'none'}</p>"
-        f"<p>Removals: {', '.join(escaped(value) for value in removals) or 'none'}</p>"
-        f"<ol>{ordered}</ol>"
-    )
-    ET.SubElement(item, "description").text = description
-    ET.SubElement(item, f"{{{RSS_NAMESPACE}}}snapshotId").text = _display(snapshot.snapshot_id)
-    for offering_id in entrants:
-        ET.SubElement(item, f"{{{RSS_NAMESPACE}}}entrant").text = _display(offering_id)
-    for offering_id in removals:
-        ET.SubElement(item, f"{{{RSS_NAMESPACE}}}removal").text = _display(offering_id)
     ET.indent(rss, space="  ")
     return ET.tostring(rss, encoding="unicode", xml_declaration=True) + "\n"
