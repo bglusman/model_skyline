@@ -444,7 +444,7 @@ def aggregate_traces(
     now = retrieved_at or datetime.now(UTC)
     raw_sha256 = _sha256_file(trace_path)
     source = SourceReference(
-        id=source_id or f"trace:{trace_path.name}",
+        id=source_id or f"trace:sha256:{raw_sha256}",
         methodology=(
             "Strict canonical request traces aggregated with DuckDB; failures are retained."
         ),

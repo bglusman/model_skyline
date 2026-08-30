@@ -76,7 +76,9 @@ def test_trace_aggregation_retains_failed_work_units_and_cache_meters(tmp_path) 
     summary = aggregate_traces(path, workload=WORKLOAD)
     signals = summary.offerings["provider/model@tier"]
 
-    assert summary.source.raw_sha256 == hashlib.sha256(path.read_bytes()).hexdigest()
+    raw_sha256 = hashlib.sha256(path.read_bytes()).hexdigest()
+    assert summary.source.raw_sha256 == raw_sha256
+    assert summary.source.id == f"trace:sha256:{raw_sha256}"
     assert signals["work_unit_count"].value == Decimal(2)
     assert signals["success_rate"].value == Decimal("0.5")
     assert signals["request_count_per_work_unit"].value == Decimal("1.5")

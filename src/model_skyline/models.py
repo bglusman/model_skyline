@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from collections import Counter
+from collections.abc import Iterable
 from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
@@ -39,6 +40,7 @@ MAX_SELECTION_CANDIDATES = 10_000
 MAX_SNAPSHOT_TTL_SECONDS = 31_536_000
 MAX_CAPABILITIES = 128
 CAPABILITY_NAME_PATTERN = r"^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$"
+PUBLIC_SOURCE_URL_PATTERN = r"^https?://[^@?#]+$"
 
 
 def _bounded_decimal_input(value: Any) -> Any:
@@ -173,11 +175,35 @@ class UncertaintyMode(StrEnum):
     ROBUST = "robust"
 
 
+def _public_source_url(value: AnyHttpUrl) -> AnyHttpUrl:
+    if value.username is not None or value.password is not None:
+        raise ValueError("public source URLs cannot contain user information")
+    if value.query is not None:
+        raise ValueError("public source URLs cannot contain a query string")
+    if value.fragment is not None:
+        raise ValueError("public source URLs cannot contain a fragment")
+    return value
+
+
+PublicSourceUrl = Annotated[
+    AnyHttpUrl,
+    AfterValidator(_public_source_url),
+    WithJsonSchema(
+        {
+            "type": "string",
+            "format": "uri",
+            "pattern": PUBLIC_SOURCE_URL_PATTERN,
+            "maxLength": 2083,
+        }
+    ),
+]
+
+
 class SourceReference(FrozenModel):
     id: str = Field(min_length=1)
     version: str | None = None
-    url: AnyHttpUrl | None = None
-    terms_url: AnyHttpUrl | None = None
+    url: PublicSourceUrl | None = None
+    terms_url: PublicSourceUrl | None = None
     license: str | None = None
     methodology: str | None = None
     raw_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
@@ -189,6 +215,21 @@ class SourceReference(FrozenModel):
         if value is not None and value.tzinfo is None:
             raise ValueError("retrieved_at must include a timezone")
         return value
+
+
+def _ensure_consistent_source_ids(
+    sources: Iterable[SourceReference | None],
+    *,
+    scope: str,
+) -> None:
+    descriptors: dict[str, SourceReference] = {}
+    for source in sources:
+        if source is None:
+            continue
+        existing = descriptors.get(source.id)
+        if existing is not None and existing != source:
+            raise ValueError(f"source id {source.id!r} maps to multiple descriptors in {scope}")
+        descriptors[source.id] = source
 
 
 class WorkloadReference(FrozenModel):
@@ -258,6 +299,14 @@ class OfferingObservation(FrozenModel):
     metadata: CanonicalJsonObject = Field(default_factory=dict)
     default_source: SourceReference | None = None
 
+    @model_validator(mode="after")
+    def source_ids_are_consistent(self) -> Self:
+        _ensure_consistent_source_ids(
+            [self.default_source, *(observation.source for observation in self.signals.values())],
+            scope=f"offering {self.offering.offering_id!r}",
+        )
+        return self
+
 
 class ObservationCatalog(StrictModel):
     schema_version: Literal["model-skyline/v1alpha1"]
@@ -270,6 +319,17 @@ class ObservationCatalog(StrictModel):
         duplicates = sorted(value for value, count in Counter(values).items() if count > 1)
         if duplicates:
             raise ValueError(f"offering_id values must be unique: {', '.join(duplicates)}")
+        _ensure_consistent_source_ids(
+            (
+                source
+                for offering in self.offerings
+                for source in (
+                    offering.default_source,
+                    *(observation.source for observation in offering.signals.values()),
+                )
+            ),
+            scope="observation catalog",
+        )
         return self
 
 
@@ -284,6 +344,11 @@ class WorkloadProfile(StrictModel):
     variables: dict[str, CanonicalDecimal] = Field(default_factory=dict)
     assumptions: CanonicalJsonObject = Field(default_factory=dict)
     sources: list[SourceReference] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def source_ids_are_consistent(self) -> Self:
+        _ensure_consistent_source_ids(self.sources, scope="workload profile")
+        return self
 
 
 class ObservationRequirements(StrictModel):
@@ -400,6 +465,10 @@ class ProjectConfig(StrictModel):
                     raise ValueError(
                         f"selection {selection_id!r} order_by is not a frontier metric"
                     )
+        _ensure_consistent_source_ids(
+            (source for workload in self.workloads.values() for source in workload.sources),
+            scope="project workloads",
+        )
         return self
 
 
@@ -442,6 +511,7 @@ class AxisEstimate(FrozenModel):
         expected_source_ids = tuple(sorted({source.id for source in self.sources}))
         if self.source_ids != expected_source_ids:
             raise ValueError("source_ids must match the embedded axis sources")
+        _ensure_consistent_source_ids(self.sources, scope="axis estimate")
         return self
 
 
@@ -528,6 +598,7 @@ class FrontierSnapshot(FrozenModel):
         if set(member_ids) != expected_members:
             raise ValueError("members must be exactly the evaluated non-dominated offerings")
         evaluated_id_set = set(evaluated_ids)
+        artifact_sources = list(self.sources)
         snapshot_source_ids = {source.id for source in self.sources}
         for item in self.evaluated:
             if item.offering.offering_id in item.dominated_by:
@@ -535,8 +606,10 @@ class FrontierSnapshot(FrozenModel):
             if not set(item.dominated_by) <= evaluated_id_set:
                 raise ValueError("dominance explanations must reference evaluated offerings")
             for estimate in item.axes.values():
+                artifact_sources.extend(estimate.sources)
                 if any(source not in self.sources for source in estimate.sources):
                     raise ValueError("axis sources must be present in snapshot sources")
+        _ensure_consistent_source_ids(artifact_sources, scope="frontier snapshot")
         if not set(self.source_watermarks) <= snapshot_source_ids:
             raise ValueError("source watermarks must reference snapshot sources")
         return self
@@ -600,6 +673,15 @@ class SelectionSnapshot(FrozenModel):
                 raise ValueError("selection exceeds max_per_provider")
         if any(self.order_by not in choice.axes for choice in choices):
             raise ValueError("every selection choice must contain the ordering axis")
+        _ensure_consistent_source_ids(
+            (
+                source
+                for choice in choices
+                for estimate in choice.axes.values()
+                for source in estimate.sources
+            ),
+            scope="selection snapshot",
+        )
         return self
 
     @property

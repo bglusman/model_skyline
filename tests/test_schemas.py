@@ -78,6 +78,17 @@ def test_generated_config_schema_enforces_decimal_sign_constraints(
         _valid(schema, payload)
 
 
+def test_generated_catalog_schema_rejects_secret_bearing_source_urls(
+    example_catalog: ObservationCatalog,
+) -> None:
+    schema = generated_schemas()["observation-catalog.schema.json"]
+    payload = example_catalog.model_dump(mode="json")
+    payload["offerings"][0]["default_source"]["url"] = "https://example.test/source?api_key=secret"
+
+    with pytest.raises(JsonSchemaValidationError):
+        _valid(schema, payload)
+
+
 @pytest.mark.parametrize("max_age", [0, "0", "0.0"])
 def test_generated_config_schema_enforces_optional_decimal_constraints(
     example_config: ProjectConfig,

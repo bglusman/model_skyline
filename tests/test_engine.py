@@ -12,10 +12,12 @@ from model_skyline.engine import FrontierEngine, dominates
 from model_skyline.models import (
     ObservationCatalog,
     ObservationRequirements,
+    OracleMetric,
     ProjectConfig,
     SourceReference,
     WorkloadReference,
 )
+from model_skyline.oracles import OracleContext, OracleRegistry
 
 NOW = datetime(2026, 8, 29, 19, tzinfo=UTC)
 
@@ -165,6 +167,73 @@ def test_axis_artifacts_preserve_formula_dependencies_and_sources(
     assert estimate.sources[0].license == "CC0-1.0"
     assert snapshot.sources == estimate.sources
     assert len(snapshot.catalog_hash) == 64
+
+
+def test_catalog_rejects_one_source_id_with_multiple_descriptors(
+    example_catalog: ObservationCatalog,
+) -> None:
+    payload = example_catalog.model_dump(mode="json")
+    payload["offerings"][1]["default_source"]["version"] = "conflicting-version"
+
+    with pytest.raises(ValidationError, match="multiple descriptors"):
+        ObservationCatalog.model_validate(payload)
+
+
+def test_frontier_snapshot_rejects_one_source_id_with_multiple_descriptors(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    snapshot = FrontierEngine().calculate(
+        example_config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+    payload = snapshot.model_dump(mode="json")
+    conflicting = {**payload["sources"][0], "version": "conflicting-version"}
+    payload["sources"].append(conflicting)
+
+    with pytest.raises(ValidationError, match="multiple descriptors"):
+        type(snapshot).model_validate(payload)
+
+
+class _LeakyOracle:
+    def evaluate(self, context: OracleContext):
+        raise RuntimeError("request failed: https://user:password@internal.example/?api_key=secret")
+
+
+def test_published_oracle_rejection_does_not_expose_exception_details(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    metric = OracleMetric(
+        kind="oracle",
+        oracle="private-judge",
+        oracle_version="1",
+        unit="ratio",
+    )
+    config = example_config.model_copy(
+        update={
+            "metrics": {
+                **example_config.metrics,
+                "coding_session_success": metric,
+            }
+        }
+    )
+    registry = OracleRegistry()
+    registry.register("private-judge", "1", _LeakyOracle())
+
+    snapshot = FrontierEngine(registry).calculate(
+        config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+    reasons = [reason for rejected in snapshot.rejected for reason in rejected.reasons]
+
+    assert reasons
+    assert all("oracle 'private-judge' version '1' failed" in reason for reason in reasons)
+    assert all("password" not in reason and "api_key" not in reason for reason in reasons)
 
 
 def test_formula_provenance_includes_workload_and_metadata_sources(

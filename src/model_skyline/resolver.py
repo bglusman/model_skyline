@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import threading
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -21,6 +21,76 @@ class ResolverError(RuntimeError):
 
 
 Loader = Callable[[str, str | None, float], tuple[Mapping[str, Any] | None, str | None]]
+DEFAULT_MAX_ARTIFACT_BYTES = 10 * 1024 * 1024
+
+
+def _normalize_host(value: str) -> str:
+    if not isinstance(value, str):
+        raise ValueError("allowed_hosts must contain only strings")
+    candidate = value.strip().rstrip(".").casefold()
+    if candidate.startswith("[") and candidate.endswith("]"):
+        candidate = candidate[1:-1]
+    if not candidate:
+        raise ValueError("allowed_hosts cannot contain an empty hostname")
+    try:
+        return candidate.encode("idna").decode("ascii")
+    except UnicodeError as exc:
+        raise ValueError(f"invalid allowed hostname {value!r}") from exc
+
+
+def _normalize_allowed_hosts(values: Iterable[str] | None) -> frozenset[str] | None:
+    if values is None:
+        return None
+    if isinstance(values, str):
+        raise ValueError("allowed_hosts must be a collection of hostnames, not a string")
+    return frozenset(_normalize_host(value) for value in values)
+
+
+def _validate_source_policy(
+    source: str,
+    *,
+    allow_insecure_http: bool,
+    allow_local_file: bool,
+    allowed_hosts: frozenset[str] | None,
+) -> None:
+    parsed = urlparse(source)
+    scheme = parsed.scheme.casefold()
+    if scheme in {"http", "https"}:
+        if scheme == "http" and not allow_insecure_http:
+            raise ValueError("plain HTTP selection sources require allow_insecure_http=True")
+        if parsed.username is not None or parsed.password is not None:
+            raise ValueError("selection source URLs cannot contain user information")
+        try:
+            hostname = parsed.hostname
+        except ValueError as exc:
+            raise ValueError("selection source URL has an invalid hostname or port") from exc
+        if hostname is None:
+            raise ValueError("network selection sources require a hostname")
+        if allowed_hosts is not None and _normalize_host(hostname) not in allowed_hosts:
+            raise ValueError(f"selection source host {hostname!r} is not allowed")
+        return
+    if scheme in {"", "file"}:
+        if not allow_local_file:
+            raise ValueError("local selection sources require allow_local_file=True")
+        if scheme == "file" and parsed.netloc:
+            raise ValueError("file selection sources cannot contain a remote host")
+        if parsed.query or parsed.fragment:
+            raise ValueError("file selection sources cannot contain a query or fragment")
+        return
+    raise ValueError(f"unsupported selection source scheme {parsed.scheme!r}")
+
+
+def _bounded_file_bytes(path: Path, maximum: int) -> bytes:
+    try:
+        if path.stat().st_size > maximum:
+            raise ResolverError(f"selection artifact exceeds {maximum} bytes")
+        with path.open("rb") as stream:
+            payload = stream.read(maximum + 1)
+    except OSError as exc:
+        raise ResolverError(f"cannot read local selection artifact: {exc}") from exc
+    if len(payload) > maximum:
+        raise ResolverError(f"selection artifact exceeds {maximum} bytes")
+    return payload
 
 
 class DynamicResolver:
@@ -29,6 +99,8 @@ class DynamicResolver:
     Call ``resolve()`` once at the beginning of a work unit and retain the
     returned snapshot for all of its requests and subagents. This prevents a
     live policy refresh from changing models halfway through a trajectory.
+    The built-in loader enforces transport, host, local-file, and artifact-size
+    policy. A custom loader is trusted to enforce equivalent limits.
     """
 
     def __init__(
@@ -44,6 +116,9 @@ class DynamicResolver:
         max_clock_skew: timedelta = timedelta(minutes=5),
         timeout_seconds: float = 10.0,
         allow_insecure_http: bool = False,
+        allow_local_file: bool = False,
+        allowed_hosts: Iterable[str] | None = None,
+        max_artifact_bytes: int = DEFAULT_MAX_ARTIFACT_BYTES,
         loader: Loader | None = None,
         clock: Callable[[], datetime] | None = None,
     ) -> None:
@@ -55,14 +130,25 @@ class DynamicResolver:
             raise ValueError("max_clock_skew cannot be negative")
         if timeout_seconds <= 0:
             raise ValueError("timeout_seconds must be positive")
+        if (
+            isinstance(max_artifact_bytes, bool)
+            or not isinstance(max_artifact_bytes, int)
+            or max_artifact_bytes <= 0
+        ):
+            raise ValueError("max_artifact_bytes must be a positive integer")
         if not expected_selection_id:
             raise ValueError("expected_selection_id must be non-empty")
         if expected_workload_version is not None and expected_workload_id is None:
             raise ValueError("expected_workload_version requires expected_workload_id")
         self.source = str(source)
-        parsed_source = urlparse(self.source)
-        if parsed_source.scheme == "http" and not allow_insecure_http:
-            raise ValueError("plain HTTP selection sources require allow_insecure_http=True")
+        self.allowed_hosts = _normalize_allowed_hosts(allowed_hosts)
+        if loader is None:
+            _validate_source_policy(
+                self.source,
+                allow_insecure_http=allow_insecure_http,
+                allow_local_file=allow_local_file,
+                allowed_hosts=self.allowed_hosts,
+            )
         self.expected_selection_id = expected_selection_id
         self.expected_frontier_id = expected_frontier_id
         self.expected_workload_id = expected_workload_id
@@ -71,7 +157,28 @@ class DynamicResolver:
         self.stale_if_error = stale_if_error
         self.max_clock_skew = max_clock_skew
         self.timeout_seconds = timeout_seconds
-        self._loader = loader or self._load
+        self.max_artifact_bytes = max_artifact_bytes
+        self._loader: Loader
+        if loader is None:
+
+            def default_loader(
+                source_value: str,
+                etag: str | None,
+                timeout: float,
+            ) -> tuple[Mapping[str, Any] | None, str | None]:
+                return self._load(
+                    source_value,
+                    etag,
+                    timeout,
+                    allow_insecure_http=allow_insecure_http,
+                    allow_local_file=allow_local_file,
+                    allowed_hosts=self.allowed_hosts,
+                    max_artifact_bytes=max_artifact_bytes,
+                )
+
+            self._loader = default_loader
+        else:
+            self._loader = loader
         self._clock = clock or (lambda: datetime.now(UTC))
         self._lock = threading.Lock()
         self._cached: SelectionSnapshot | None = None
@@ -83,26 +190,69 @@ class DynamicResolver:
         source: str,
         etag: str | None,
         timeout_seconds: float,
+        *,
+        allow_insecure_http: bool = False,
+        allow_local_file: bool = False,
+        allowed_hosts: Iterable[str] | None = None,
+        max_artifact_bytes: int = DEFAULT_MAX_ARTIFACT_BYTES,
     ) -> tuple[Mapping[str, Any] | None, str | None]:
+        if (
+            isinstance(max_artifact_bytes, bool)
+            or not isinstance(max_artifact_bytes, int)
+            or max_artifact_bytes <= 0
+        ):
+            raise ValueError("max_artifact_bytes must be a positive integer")
+        normalized_hosts = _normalize_allowed_hosts(allowed_hosts)
+        _validate_source_policy(
+            source,
+            allow_insecure_http=allow_insecure_http,
+            allow_local_file=allow_local_file,
+            allowed_hosts=normalized_hosts,
+        )
         parsed = urlparse(source)
         if parsed.scheme in {"http", "https"}:
             headers = {"Accept": "application/json"}
             if etag:
                 headers["If-None-Match"] = etag
-            response = httpx.get(source, headers=headers, timeout=timeout_seconds)
-            if response.status_code == 304:
-                return None, etag
-            response.raise_for_status()
+            with httpx.stream(
+                "GET",
+                source,
+                headers=headers,
+                timeout=timeout_seconds,
+                follow_redirects=False,
+            ) as response:
+                if response.status_code == 304:
+                    return None, etag
+                response.raise_for_status()
+                content_length = response.headers.get("content-length")
+                if content_length is not None:
+                    try:
+                        declared_size = int(content_length)
+                    except ValueError as exc:
+                        raise ResolverError(
+                            "selection source returned an invalid Content-Length"
+                        ) from exc
+                    if declared_size < 0 or declared_size > max_artifact_bytes:
+                        raise ResolverError(
+                            f"selection artifact exceeds {max_artifact_bytes} bytes"
+                        )
+                content = bytearray()
+                for chunk in response.iter_bytes():
+                    content.extend(chunk)
+                    if len(content) > max_artifact_bytes:
+                        raise ResolverError(
+                            f"selection artifact exceeds {max_artifact_bytes} bytes"
+                        )
+                next_etag = response.headers.get("etag")
             payload = json.loads(
-                response.content,
+                content,
                 parse_float=Decimal,
                 parse_constant=Decimal,
             )
-            next_etag = response.headers.get("etag")
         elif parsed.scheme in {"", "file"}:
             path = Path(parsed.path if parsed.scheme == "file" else source)
             payload = json.loads(
-                path.read_text(encoding="utf-8"),
+                _bounded_file_bytes(path, max_artifact_bytes),
                 parse_float=Decimal,
                 parse_constant=Decimal,
             )

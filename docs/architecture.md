@@ -141,6 +141,12 @@ populated only when every evaluated signal observation supplies that field;
 `null` means the aggregate is incomplete or unknown, never a minimum computed
 from only the known subset.
 
+A source id maps to exactly one full descriptor within a catalog, project, or
+published snapshot. Reusing an id with a different version, URL, methodology,
+hash, or retrieval time is rejected rather than conflating watermarks. Source
+URLs are public citations: user information, query strings, and fragments are
+forbidden because snapshots must never publish signed URLs or credentials.
+
 Formula output units are declared but dimensional analysis is not yet
 implemented. Robust interval propagation through formulas is also deferred;
 today a robust frontier rejects formula axes rather than manufacturing unsafe
@@ -166,6 +172,8 @@ oracle clients should use an HTTP or JSONL-subprocess protocol and return:
 
 Results should be cached by a content hash covering workload, offering,
 inputs, oracle implementation, prompt, and judge model.
+Arbitrary oracle exception text is never copied into a public rejection
+artifact; adapters should send detailed diagnostics to a private, redacted log.
 
 ## Work-unit cost
 
@@ -311,7 +319,12 @@ The resolver verifies content hash, semantic identity, expiry, future skew,
 and monotonic generation time. It returns defensive copies so callers cannot
 mutate its in-memory last-known-good value. Hashes do not stop a publisher or
 network attacker from replacing and re-hashing content; use HTTPS and a trusted
-origin. Signed manifests are a future option for untrusted distribution.
+origin. The built-in loader accepts HTTPS by default, can enforce an exact host
+allowlist, and caps artifacts at 10 MiB. Plain HTTP and local files require
+separate explicit opt-ins; file URLs with remote hosts are rejected. A custom
+loader is a trusted integration boundary and must enforce equivalent transport
+and size controls. Signed manifests are a future option for untrusted
+distribution.
 
 There is not yet a scheduled/persistent publisher. The CLI emits one snapshot
 or RSS item, and the resolver cache is process-local. A production “always

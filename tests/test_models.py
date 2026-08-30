@@ -11,10 +11,13 @@ from model_skyline.models import (
     MAX_SAFE_INTEGER,
     MAX_SELECTION_CANDIDATES,
     MAX_SNAPSHOT_TTL_SECONDS,
+    AxisEstimate,
     Observation,
     ObservationRequirements,
     OfferingKey,
     SelectionDefinition,
+    SourceReference,
+    WorkloadProfile,
 )
 
 
@@ -87,6 +90,60 @@ def test_sample_count_integers_stay_in_the_interoperable_json_domain() -> None:
 def test_operational_integers_do_not_coerce_non_integer_inputs(unsafe_count: object) -> None:
     with pytest.raises(ValidationError, match="valid integer"):
         SelectionDefinition.model_validate({"frontier": "coding", "count": unsafe_count})
+
+
+@pytest.mark.parametrize("field", ["url", "terms_url"])
+@pytest.mark.parametrize(
+    ("url", "message"),
+    [
+        ("https://user:password@example.test/source", "user information"),
+        ("https://example.test/source?api_key=secret", "query string"),
+        ("https://example.test/source#private", "fragment"),
+    ],
+)
+def test_public_source_urls_reject_secret_bearing_components(
+    field: str,
+    url: str,
+    message: str,
+) -> None:
+    with pytest.raises(ValidationError, match=message):
+        SourceReference(id="public-source", **{field: url})
+
+
+def test_public_source_url_accepts_an_uncredentialed_path() -> None:
+    source = SourceReference(
+        id="public-source",
+        url="https://example.test/public/source.json",
+    )
+
+    assert str(source.url) == "https://example.test/public/source.json"
+
+
+def test_axis_estimate_rejects_one_source_id_with_multiple_descriptors() -> None:
+    first = SourceReference(id="benchmark", version="1")
+    second = SourceReference(id="benchmark", version="2")
+
+    with pytest.raises(ValidationError, match="multiple descriptors"):
+        AxisEstimate(
+            value="1",
+            unit="ratio",
+            source_ids=("benchmark",),
+            sources=(first, second),
+        )
+
+
+def test_workload_rejects_one_source_id_with_multiple_descriptors() -> None:
+    with pytest.raises(ValidationError, match="multiple descriptors"):
+        WorkloadProfile(
+            unit="task",
+            version="1",
+            harness="harness@1",
+            cohort="cohort@1",
+            sources=[
+                SourceReference(id="workload-study", version="1"),
+                SourceReference(id="workload-study", version="2"),
+            ],
+        )
 
 
 def _offering(capabilities: object) -> OfferingKey:

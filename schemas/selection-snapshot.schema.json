@@ -275,7 +275,8 @@
           "anyOf": [
             {
               "format": "uri",
-              "minLength": 1,
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
               "type": "string"
             },
             {
@@ -289,7 +290,8 @@
           "anyOf": [
             {
               "format": "uri",
-              "minLength": 1,
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
               "type": "string"
             },
             {

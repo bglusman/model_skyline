@@ -359,7 +359,9 @@ class FrontierEngine:
                 options=definition.options,
             )
         except OracleError as exc:
-            raise EvaluationError(f"metric {metric_id!r}: {exc}") from exc
+            raise EvaluationError(
+                f"oracle {definition.oracle!r} version {definition.oracle_version!r} failed"
+            ) from exc
         self._validate_observation(
             observation,
             definition,

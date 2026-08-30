@@ -20,11 +20,102 @@ def test_default_resolver_loader_preserves_decimal_literals(tmp_path) -> None:
     exact = "0.123456789012345678901234567890123456789"
     path.write_text(f'{{"value": {exact}}}', encoding="utf-8")
 
-    payload, etag = DynamicResolver._load(str(path), None, 1)
+    payload, etag = DynamicResolver._load(
+        str(path),
+        None,
+        1,
+        allow_local_file=True,
+    )
 
     assert payload is not None
     assert payload["value"] == Decimal(exact)
     assert etag is None
+
+
+def test_builtin_resolver_requires_explicit_local_file_opt_in(tmp_path) -> None:
+    path = tmp_path / "selection.json"
+
+    with pytest.raises(ValueError, match="allow_local_file"):
+        DynamicResolver(path, expected_selection_id="selection")
+
+    resolver = DynamicResolver(
+        path,
+        expected_selection_id="selection",
+        allow_local_file=True,
+    )
+    assert resolver.source == str(path)
+
+
+def test_builtin_loader_rejects_oversized_local_artifacts(tmp_path) -> None:
+    path = tmp_path / "selection.json"
+    path.write_bytes(b'{"oversized":"value"}')
+
+    with pytest.raises(ResolverError, match="exceeds 8 bytes"):
+        DynamicResolver._load(
+            str(path),
+            None,
+            1,
+            allow_local_file=True,
+            max_artifact_bytes=8,
+        )
+
+
+def test_builtin_loader_bounds_decompressed_remote_body(monkeypatch) -> None:
+    class Response:
+        status_code = 200
+        headers: dict[str, str] = {}
+
+        def raise_for_status(self) -> None:
+            pass
+
+        def iter_bytes(self):
+            yield b'{"first":'
+            yield b'"second"}'
+
+    class Stream:
+        def __enter__(self):
+            return Response()
+
+        def __exit__(self, *args):
+            return False
+
+    monkeypatch.setattr(
+        "model_skyline.resolver.httpx.stream",
+        lambda *args, **kwargs: Stream(),
+    )
+
+    with pytest.raises(ResolverError, match="exceeds 12 bytes"):
+        DynamicResolver._load(
+            "https://trusted.example/selection.json",
+            None,
+            1,
+            allowed_hosts={"trusted.example"},
+            max_artifact_bytes=12,
+        )
+
+
+def test_builtin_resolver_enforces_an_exact_host_allowlist() -> None:
+    with pytest.raises(ValueError, match="is not allowed"):
+        DynamicResolver(
+            "https://other.example/selection.json",
+            expected_selection_id="selection",
+            allowed_hosts={"trusted.example"},
+        )
+
+    resolver = DynamicResolver(
+        "https://TRUSTED.example/selection.json",
+        expected_selection_id="selection",
+        allowed_hosts={"trusted.example."},
+    )
+    assert resolver.allowed_hosts == frozenset({"trusted.example"})
+
+
+def test_builtin_resolver_rejects_http_by_default() -> None:
+    with pytest.raises(ValueError, match="plain HTTP"):
+        DynamicResolver(
+            "http://example.test/selection.json",
+            expected_selection_id="selection",
+        )
 
 
 def _selection(config: ProjectConfig, catalog: ObservationCatalog):

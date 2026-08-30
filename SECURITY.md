@@ -1,8 +1,9 @@
 # Security policy
 
-This project is pre-release. Please report suspected vulnerabilities privately
-to the repository maintainers rather than opening a public issue. A dedicated
-security contact will be added before the first public release.
+This project is pre-release. Please report suspected vulnerabilities through
+GitHub private vulnerability reporting: open the repository's **Security** tab,
+choose **Advisories**, and select **Report a vulnerability**. Do not open a
+public issue for an undisclosed vulnerability.
 
 High-priority reports include formula or YAML/JSON code execution, snapshot
 hash bypass, unsafe URL/file resolution, oracle command injection, trace data
@@ -18,6 +19,6 @@ Resolvers therefore require HTTPS by default and should pin expected selection,
 frontier, and workload identities. Use a trusted origin until signed-manifest
 support exists.
 
-Before public launch, the repository owner must enable private security
-advisories or publish a monitored security email here. Until then, this checkout
-is not accepting confidential vulnerability material.
+The repository owner must enable GitHub private vulnerability reporting as
+part of creating the public repository. If the private reporting button is not
+visible, do not include confidential details in a public issue.
