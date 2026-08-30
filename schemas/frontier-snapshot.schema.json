@@ -1,0 +1,586 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:frontier-snapshot",
+  "$defs": {
+    "AxisDescriptor": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "goal": {
+          "$ref": "#/$defs/Goal"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "epsilon_absolute": {
+          "default": "0",
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Epsilon Absolute",
+          "type": "string"
+        },
+        "epsilon_relative": {
+          "default": "0",
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Epsilon Relative",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "goal",
+        "unit"
+      ],
+      "title": "AxisDescriptor",
+      "type": "object"
+    },
+    "AxisEstimate": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Value",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "dependencies": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "sources": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SourceReference"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "oldest_observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oldest Observed At"
+        },
+        "minimum_sample_count": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum Sample Count"
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "title": "AxisEstimate",
+      "type": "object"
+    },
+    "EvaluatedOffering": {
+      "additionalProperties": false,
+      "properties": {
+        "offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "axes": {
+          "additionalProperties": {
+            "$ref": "#/$defs/AxisEstimate"
+          },
+          "title": "Axes",
+          "type": "object"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        },
+        "dominated_by": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Dominated By",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering",
+        "axes"
+      ],
+      "title": "EvaluatedOffering",
+      "type": "object"
+    },
+    "Goal": {
+      "enum": [
+        "minimize",
+        "maximize"
+      ],
+      "title": "Goal",
+      "type": "string"
+    },
+    "JsonValue": {},
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    },
+    "RejectedOffering": {
+      "additionalProperties": false,
+      "properties": {
+        "offering_id": {
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "reasons"
+      ],
+      "title": "RejectedOffering",
+      "type": "object"
+    },
+    "SourceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "terms_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terms Url"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        },
+        "methodology": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Methodology"
+        },
+        "raw_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Sha256"
+        },
+        "retrieved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrieved At"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "SourceReference",
+      "type": "object"
+    },
+    "UncertaintyMode": {
+      "enum": [
+        "point",
+        "robust"
+      ],
+      "title": "UncertaintyMode",
+      "type": "string"
+    },
+    "WorkloadReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "unit"
+      ],
+      "title": "WorkloadReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/v1alpha1",
+      "default": "model-skyline/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "frontier",
+      "default": "frontier",
+      "title": "Kind",
+      "type": "string"
+    },
+    "hash_algorithm": {
+      "const": "sha256-rfc8785-v1",
+      "default": "sha256-rfc8785-v1",
+      "title": "Hash Algorithm",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "config_hash": {
+      "title": "Config Hash",
+      "type": "string"
+    },
+    "catalog_hash": {
+      "title": "Catalog Hash",
+      "type": "string"
+    },
+    "engine_version": {
+      "title": "Engine Version",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "frontier_id": {
+      "title": "Frontier Id",
+      "type": "string"
+    },
+    "workload": {
+      "$ref": "#/$defs/WorkloadReference"
+    },
+    "order_by": {
+      "title": "Order By",
+      "type": "string"
+    },
+    "uncertainty": {
+      "$ref": "#/$defs/UncertaintyMode"
+    },
+    "axes": {
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/AxisDescriptor"
+        },
+        {
+          "$ref": "#/$defs/AxisDescriptor"
+        }
+      ],
+      "title": "Axes",
+      "type": "array"
+    },
+    "members": {
+      "items": {
+        "$ref": "#/$defs/EvaluatedOffering"
+      },
+      "title": "Members",
+      "type": "array"
+    },
+    "evaluated": {
+      "items": {
+        "$ref": "#/$defs/EvaluatedOffering"
+      },
+      "title": "Evaluated",
+      "type": "array"
+    },
+    "rejected": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/RejectedOffering"
+      },
+      "title": "Rejected",
+      "type": "array"
+    },
+    "sources": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/SourceReference"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "source_watermarks": {
+      "additionalProperties": {
+        "format": "date-time",
+        "type": "string"
+      },
+      "title": "Source Watermarks",
+      "type": "object"
+    }
+  },
+  "required": [
+    "snapshot_id",
+    "config_hash",
+    "catalog_hash",
+    "engine_version",
+    "generated_at",
+    "frontier_id",
+    "workload",
+    "order_by",
+    "uncertainty",
+    "axes",
+    "members",
+    "evaluated"
+  ],
+  "title": "FrontierSnapshot",
+  "type": "object"
+}

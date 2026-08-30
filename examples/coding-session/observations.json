@@ -1,0 +1,631 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "workload": {
+    "id": "coding-session-v1",
+    "version": "1.0.0",
+    "unit": "successful_coding_session"
+  },
+  "offerings": [
+    {
+      "offering": {
+        "offering_id": "fastcloud/quick-small@us-standard",
+        "model_id": "quick-small-2026-08",
+        "provider": "fastcloud",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "synthetic-coding-harness@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "context_window": 128000,
+        "fixture": "synthetic"
+      },
+      "default_source": {
+        "id": "model-skyline-synthetic-coding-fixture",
+        "version": "1",
+        "license": "CC0-1.0",
+        "methodology": "Synthetic values for contract and dominance tests; not model claims."
+      },
+      "signals": {
+        "success_rate": {
+          "value": "0.62",
+          "unit": "ratio",
+          "sample_count": 50,
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "ttft_p95_ms": {
+          "value": "300",
+          "unit": "milliseconds",
+          "sample_count": 400,
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "120000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "1500000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_5m_tokens_per_success": {
+          "value": "180000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_1h_tokens_per_success": {
+          "value": "0",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "45000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "reasoning_tokens_per_success": {
+          "value": "15000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "tool_calls_per_success": {
+          "value": "80",
+          "unit": "calls/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "web_search_calls_per_success": {
+          "value": "0.2",
+          "unit": "calls/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "sandbox_seconds_per_success": {
+          "value": "400",
+          "unit": "seconds/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "request_count_per_success": {
+          "value": "120",
+          "unit": "requests/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "cache_storage_token_hours_per_success": {
+          "value": "250000",
+          "unit": "token_hours/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "other_cost_usd_per_success": {
+          "value": "0.03",
+          "unit": "USD/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "0.50",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.05",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_5m_usd_per_million": {
+          "value": "0.625",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_1h_usd_per_million": {
+          "value": "0.80",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "2.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "reasoning_usd_per_million": {
+          "value": "2.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "tool_call_usd": {
+          "value": "0.0002",
+          "unit": "USD/call",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "web_search_usd": {
+          "value": "0.01",
+          "unit": "USD/call",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "sandbox_usd_per_second": {
+          "value": "0.00002",
+          "unit": "USD/second",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "request_usd": {
+          "value": "0.00001",
+          "unit": "USD/request",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "cache_storage_usd_per_million_token_hour": {
+          "value": "0.02",
+          "unit": "USD/million_token_hours",
+          "observed_at": "2026-08-29T18:00:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "balancedai/mid-agent@us-standard",
+        "model_id": "mid-agent-2026-07",
+        "provider": "balancedai",
+        "endpoint": "messages",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "synthetic-coding-harness@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "context_window": 200000,
+        "fixture": "synthetic"
+      },
+      "default_source": {
+        "id": "model-skyline-synthetic-coding-fixture",
+        "version": "1",
+        "license": "CC0-1.0",
+        "methodology": "Synthetic values for contract and dominance tests; not model claims."
+      },
+      "signals": {
+        "success_rate": {
+          "value": "0.76",
+          "unit": "ratio",
+          "sample_count": 50,
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "ttft_p95_ms": {
+          "value": "450",
+          "unit": "milliseconds",
+          "sample_count": 410,
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "150000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "1400000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_5m_tokens_per_success": {
+          "value": "200000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_1h_tokens_per_success": {
+          "value": "0",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "50000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "reasoning_tokens_per_success": {
+          "value": "20000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "tool_calls_per_success": {
+          "value": "70",
+          "unit": "calls/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "web_search_calls_per_success": {
+          "value": "0.15",
+          "unit": "calls/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "sandbox_seconds_per_success": {
+          "value": "350",
+          "unit": "seconds/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "request_count_per_success": {
+          "value": "105",
+          "unit": "requests/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "cache_storage_token_hours_per_success": {
+          "value": "220000",
+          "unit": "token_hours/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "other_cost_usd_per_success": {
+          "value": "0.04",
+          "unit": "USD/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "1.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.10",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_5m_usd_per_million": {
+          "value": "1.25",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_1h_usd_per_million": {
+          "value": "2.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "4.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "reasoning_usd_per_million": {
+          "value": "4.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "tool_call_usd": {
+          "value": "0.0002",
+          "unit": "USD/call",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "web_search_usd": {
+          "value": "0.01",
+          "unit": "USD/call",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "sandbox_usd_per_second": {
+          "value": "0.00002",
+          "unit": "USD/second",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "request_usd": {
+          "value": "0.00001",
+          "unit": "USD/request",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "cache_storage_usd_per_million_token_hour": {
+          "value": "0.02",
+          "unit": "USD/million_token_hours",
+          "observed_at": "2026-08-29T18:00:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "qualityworks/large-reasoner@us-priority",
+        "model_id": "large-reasoner-2026-08-15",
+        "provider": "qualityworks",
+        "endpoint": "responses",
+        "region": "us",
+        "service_tier": "priority",
+        "reasoning_effort": "medium",
+        "agent_harness": "synthetic-coding-harness@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "context_window": 256000,
+        "fixture": "synthetic"
+      },
+      "default_source": {
+        "id": "model-skyline-synthetic-coding-fixture",
+        "version": "1",
+        "license": "CC0-1.0",
+        "methodology": "Synthetic values for contract and dominance tests; not model claims."
+      },
+      "signals": {
+        "success_rate": {
+          "value": "0.88",
+          "unit": "ratio",
+          "sample_count": 50,
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "ttft_p95_ms": {
+          "value": "900",
+          "unit": "milliseconds",
+          "sample_count": 390,
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "180000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "1600000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_5m_tokens_per_success": {
+          "value": "250000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_1h_tokens_per_success": {
+          "value": "0",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "60000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "reasoning_tokens_per_success": {
+          "value": "25000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "tool_calls_per_success": {
+          "value": "65",
+          "unit": "calls/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "web_search_calls_per_success": {
+          "value": "0.1",
+          "unit": "calls/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "sandbox_seconds_per_success": {
+          "value": "300",
+          "unit": "seconds/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "request_count_per_success": {
+          "value": "90",
+          "unit": "requests/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "cache_storage_token_hours_per_success": {
+          "value": "200000",
+          "unit": "token_hours/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "other_cost_usd_per_success": {
+          "value": "0.05",
+          "unit": "USD/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "2.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.20",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_5m_usd_per_million": {
+          "value": "2.50",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_1h_usd_per_million": {
+          "value": "4.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "8.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "reasoning_usd_per_million": {
+          "value": "8.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "tool_call_usd": {
+          "value": "0.0002",
+          "unit": "USD/call",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "web_search_usd": {
+          "value": "0.01",
+          "unit": "USD/call",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "sandbox_usd_per_second": {
+          "value": "0.00002",
+          "unit": "USD/second",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "request_usd": {
+          "value": "0.00001",
+          "unit": "USD/request",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "cache_storage_usd_per_million_token_hour": {
+          "value": "0.02",
+          "unit": "USD/million_token_hours",
+          "observed_at": "2026-08-29T18:00:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "fastcloud/legacy-mid@us-standard",
+        "model_id": "legacy-mid-2026-03",
+        "provider": "fastcloud",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "synthetic-coding-harness@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "context_window": 128000,
+        "fixture": "synthetic-dominated"
+      },
+      "default_source": {
+        "id": "model-skyline-synthetic-coding-fixture",
+        "version": "1",
+        "license": "CC0-1.0",
+        "methodology": "Synthetic values for contract and dominance tests; not model claims."
+      },
+      "signals": {
+        "success_rate": {
+          "value": "0.70",
+          "unit": "ratio",
+          "sample_count": 50,
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "ttft_p95_ms": {
+          "value": "600",
+          "unit": "milliseconds",
+          "sample_count": 380,
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "180000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "1200000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_5m_tokens_per_success": {
+          "value": "200000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_1h_tokens_per_success": {
+          "value": "0",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "55000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "reasoning_tokens_per_success": {
+          "value": "20000",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "tool_calls_per_success": {
+          "value": "75",
+          "unit": "calls/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "web_search_calls_per_success": {
+          "value": "0.2",
+          "unit": "calls/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "sandbox_seconds_per_success": {
+          "value": "380",
+          "unit": "seconds/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "request_count_per_success": {
+          "value": "110",
+          "unit": "requests/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "cache_storage_token_hours_per_success": {
+          "value": "230000",
+          "unit": "token_hours/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "other_cost_usd_per_success": {
+          "value": "0.05",
+          "unit": "USD/success",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "1.50",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.15",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_5m_usd_per_million": {
+          "value": "1.875",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "input_cache_write_1h_usd_per_million": {
+          "value": "3.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "6.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "reasoning_usd_per_million": {
+          "value": "6.00",
+          "unit": "USD/million_tokens",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "tool_call_usd": {
+          "value": "0.0002",
+          "unit": "USD/call",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "web_search_usd": {
+          "value": "0.01",
+          "unit": "USD/call",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "sandbox_usd_per_second": {
+          "value": "0.00002",
+          "unit": "USD/second",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "request_usd": {
+          "value": "0.00001",
+          "unit": "USD/request",
+          "observed_at": "2026-08-29T18:00:00Z"
+        },
+        "cache_storage_usd_per_million_token_hour": {
+          "value": "0.02",
+          "unit": "USD/million_token_hours",
+          "observed_at": "2026-08-29T18:00:00Z"
+        }
+      }
+    }
+  ]
+}

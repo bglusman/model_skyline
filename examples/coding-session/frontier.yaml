@@ -1,0 +1,111 @@
+schema_version: model-skyline/v1alpha1
+
+workloads:
+  coding-session-v1:
+    unit: successful_coding_session
+    version: "1.0.0"
+    harness: synthetic-coding-harness@1
+    cohort: synthetic-four-offering-fixture@1
+    benchmark: synthetic-coding-session
+    budget:
+      max_agent_turns: 200
+    description: >-
+      Illustrative multi-request coding-agent session. Quantity signals are
+      aggregated across retries and failed sessions before price multiplication.
+    variables: {}
+    assumptions:
+      cache_mode: observed
+      includes_failed_attempts: true
+      pricing_mode: synthetic_current_price_counterfactual
+      fixture_data: synthetic
+
+metrics:
+  total_cost_per_success:
+    kind: formula
+    unit: USD/success
+    description: >-
+      Declared model, request, cache-retention, tool, sandbox, and other charges
+      divided by successful work units. Failed work units remain in every numerator.
+    expression: >-
+      (
+        signals.input_uncached_tokens_per_success
+          * signals.input_uncached_usd_per_million
+        + signals.input_cache_read_tokens_per_success
+          * signals.input_cache_read_usd_per_million
+        + signals.input_cache_write_5m_tokens_per_success
+          * signals.input_cache_write_5m_usd_per_million
+        + signals.input_cache_write_1h_tokens_per_success
+          * signals.input_cache_write_1h_usd_per_million
+        + signals.output_tokens_per_success
+          * signals.output_usd_per_million
+        + signals.reasoning_tokens_per_success
+          * signals.reasoning_usd_per_million
+      ) / 1000000
+      + signals.cache_storage_token_hours_per_success
+          * signals.cache_storage_usd_per_million_token_hour / 1000000
+      + signals.request_count_per_success * signals.request_usd
+      + signals.tool_calls_per_success * signals.tool_call_usd
+      + signals.web_search_calls_per_success * signals.web_search_usd
+      + signals.sandbox_seconds_per_success * signals.sandbox_usd_per_second
+      + signals.other_cost_usd_per_success
+    requirements:
+      max_age_hours: 8760
+
+  coding_session_success:
+    kind: signal
+    signal: success_rate
+    unit: ratio
+    description: Fractional successful coding sessions for this offering and harness.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 20
+
+  ttft_p95:
+    kind: signal
+    signal: ttft_p95_ms
+    unit: milliseconds
+    requirements:
+      max_age_hours: 168
+      minimum_samples: 20
+
+frontiers:
+  coding-value:
+    workload: coding-session-v1
+    axes:
+      - metric: total_cost_per_success
+        goal: minimize
+        epsilon_relative: 0.02
+      - metric: coding_session_success
+        goal: maximize
+        epsilon_absolute: 0.01
+    order_by: total_cost_per_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [tools, structured_output]
+      allow_unknown_age: false
+    metadata_fields: [context_window, fixture]
+
+  coding-responsiveness:
+    workload: coding-session-v1
+    axes:
+      - metric: ttft_p95
+        goal: minimize
+      - metric: coding_session_success
+        goal: maximize
+        epsilon_absolute: 0.01
+    order_by: ttft_p95
+    uncertainty: point
+    eligibility:
+      required_capabilities: [tools, structured_output]
+      allow_unknown_age: false
+    metadata_fields: [context_window, fixture]
+
+selections:
+  coding-agent-defaults:
+    frontier: coding-value
+    strategy: lexicographic
+    count: 3
+    order_by: coding_session_success
+    max_per_provider: 1
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available

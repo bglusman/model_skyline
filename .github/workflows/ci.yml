@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --frozen --extra dev
+      - run: uv run ruff format --check src tests
+      - run: uv run ruff check src tests
+      - run: uv run mypy src
+      - run: uv run pytest
+      - name: Verify generated schemas
+        run: |
+          uv run modelskyline regenerate-schemas schemas
+          git diff --exit-code -- schemas
+
+  package:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.14"
+      - run: uv build
+      - run: uv venv --python 3.14 /tmp/modelskyline-wheel
+      - run: uv pip install --python /tmp/modelskyline-wheel/bin/python dist/*.whl
+      - run: /tmp/modelskyline-wheel/bin/modelskyline --version
+      - run: /tmp/modelskyline-wheel/bin/modelskyline export-schemas /tmp/modelskyline-schemas
+      - run: diff -ru schemas /tmp/modelskyline-schemas
+      - run: >-
+          /tmp/modelskyline-wheel/bin/modelskyline evaluate
+          examples/coding-session/frontier.yaml
+          examples/coding-session/observations.json
+          coding-value
+          --as-of 2026-08-29T19:00:00Z

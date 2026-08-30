@@ -1,0 +1,704 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:project-config",
+  "$defs": {
+    "EligibilityPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "providers": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Providers",
+          "type": "array"
+        },
+        "regions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Regions",
+          "type": "array"
+        },
+        "required_capabilities": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Capabilities",
+          "type": "array"
+        },
+        "allow_unknown_age": {
+          "default": true,
+          "title": "Allow Unknown Age",
+          "type": "boolean"
+        }
+      },
+      "title": "EligibilityPolicy",
+      "type": "object"
+    },
+    "FormulaMetric": {
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "requirements": {
+          "$ref": "#/$defs/ObservationRequirements"
+        },
+        "kind": {
+          "const": "formula",
+          "title": "Kind",
+          "type": "string"
+        },
+        "expression": {
+          "minLength": 1,
+          "title": "Expression",
+          "type": "string"
+        }
+      },
+      "required": [
+        "unit",
+        "kind",
+        "expression"
+      ],
+      "title": "FormulaMetric",
+      "type": "object"
+    },
+    "FrontierAxis": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "minLength": 1,
+          "title": "Metric",
+          "type": "string"
+        },
+        "goal": {
+          "$ref": "#/$defs/Goal"
+        },
+        "epsilon_absolute": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "default": "0",
+          "title": "Epsilon Absolute"
+        },
+        "epsilon_relative": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "default": "0",
+          "title": "Epsilon Relative"
+        }
+      },
+      "required": [
+        "metric",
+        "goal"
+      ],
+      "title": "FrontierAxis",
+      "type": "object"
+    },
+    "FrontierDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "workload": {
+          "minLength": 1,
+          "title": "Workload",
+          "type": "string"
+        },
+        "axes": {
+          "items": {
+            "$ref": "#/$defs/FrontierAxis"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Axes",
+          "type": "array"
+        },
+        "order_by": {
+          "minLength": 1,
+          "title": "Order By",
+          "type": "string"
+        },
+        "uncertainty": {
+          "$ref": "#/$defs/UncertaintyMode",
+          "default": "point"
+        },
+        "eligibility": {
+          "$ref": "#/$defs/EligibilityPolicy"
+        },
+        "metadata_fields": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Metadata Fields",
+          "type": "array"
+        }
+      },
+      "required": [
+        "workload",
+        "axes",
+        "order_by"
+      ],
+      "title": "FrontierDefinition",
+      "type": "object"
+    },
+    "Goal": {
+      "enum": [
+        "minimize",
+        "maximize"
+      ],
+      "title": "Goal",
+      "type": "string"
+    },
+    "InsufficientCandidates": {
+      "enum": [
+        "error",
+        "return_available"
+      ],
+      "title": "InsufficientCandidates",
+      "type": "string"
+    },
+    "JsonValue": {},
+    "ObservationRequirements": {
+      "additionalProperties": false,
+      "properties": {
+        "max_age_hours": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                {
+                  "pattern": "^(?!-)(?![+]?0*(?:\\.0*)?$)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                  "type": "string",
+                  "maxLength": 1024
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Age Hours"
+        },
+        "max_future_skew_minutes": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "default": "5",
+          "title": "Max Future Skew Minutes"
+        },
+        "minimum_samples": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum Samples"
+        },
+        "require_bounds": {
+          "default": false,
+          "title": "Require Bounds",
+          "type": "boolean"
+        },
+        "require_source": {
+          "default": false,
+          "title": "Require Source",
+          "type": "boolean"
+        }
+      },
+      "title": "ObservationRequirements",
+      "type": "object"
+    },
+    "OracleMetric": {
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "requirements": {
+          "$ref": "#/$defs/ObservationRequirements"
+        },
+        "kind": {
+          "const": "oracle",
+          "title": "Kind",
+          "type": "string"
+        },
+        "oracle": {
+          "minLength": 1,
+          "title": "Oracle",
+          "type": "string"
+        },
+        "oracle_version": {
+          "minLength": 1,
+          "title": "Oracle Version",
+          "type": "string"
+        },
+        "options": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Options",
+          "type": "object"
+        }
+      },
+      "required": [
+        "unit",
+        "kind",
+        "oracle",
+        "oracle_version"
+      ],
+      "title": "OracleMetric",
+      "type": "object"
+    },
+    "SelectionDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "frontier": {
+          "minLength": 1,
+          "title": "Frontier",
+          "type": "string"
+        },
+        "strategy": {
+          "const": "lexicographic",
+          "default": "lexicographic",
+          "title": "Strategy",
+          "type": "string"
+        },
+        "count": {
+          "default": 3,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Count",
+          "type": "integer"
+        },
+        "order_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Order By"
+        },
+        "max_per_provider": {
+          "anyOf": [
+            {
+              "maximum": 10000,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Per Provider"
+        },
+        "snapshot_ttl_seconds": {
+          "default": 3600,
+          "maximum": 31536000,
+          "minimum": 1,
+          "title": "Snapshot Ttl Seconds",
+          "type": "integer"
+        },
+        "on_insufficient": {
+          "$ref": "#/$defs/InsufficientCandidates",
+          "default": "return_available"
+        }
+      },
+      "required": [
+        "frontier"
+      ],
+      "title": "SelectionDefinition",
+      "type": "object"
+    },
+    "SignalMetric": {
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "requirements": {
+          "$ref": "#/$defs/ObservationRequirements"
+        },
+        "kind": {
+          "const": "signal",
+          "title": "Kind",
+          "type": "string"
+        },
+        "signal": {
+          "minLength": 1,
+          "title": "Signal",
+          "type": "string"
+        }
+      },
+      "required": [
+        "unit",
+        "kind",
+        "signal"
+      ],
+      "title": "SignalMetric",
+      "type": "object"
+    },
+    "SourceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "terms_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terms Url"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        },
+        "methodology": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Methodology"
+        },
+        "raw_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Sha256"
+        },
+        "retrieved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrieved At"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "SourceReference",
+      "type": "object"
+    },
+    "UncertaintyMode": {
+      "enum": [
+        "point",
+        "robust"
+      ],
+      "title": "UncertaintyMode",
+      "type": "string"
+    },
+    "WorkloadProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "harness": {
+          "minLength": 1,
+          "title": "Harness",
+          "type": "string"
+        },
+        "cohort": {
+          "minLength": 1,
+          "title": "Cohort",
+          "type": "string"
+        },
+        "benchmark": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Benchmark"
+        },
+        "budget": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                "type": "string",
+                "maxLength": 1024
+              }
+            ]
+          },
+          "title": "Budget",
+          "type": "object"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "variables": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                "type": "string",
+                "maxLength": 1024
+              }
+            ]
+          },
+          "title": "Variables",
+          "type": "object"
+        },
+        "assumptions": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Assumptions",
+          "type": "object"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceReference"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "unit",
+        "version",
+        "harness",
+        "cohort"
+      ],
+      "title": "WorkloadProfile",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "workloads": {
+      "additionalProperties": {
+        "$ref": "#/$defs/WorkloadProfile"
+      },
+      "title": "Workloads",
+      "type": "object"
+    },
+    "metrics": {
+      "additionalProperties": {
+        "discriminator": {
+          "mapping": {
+            "formula": "#/$defs/FormulaMetric",
+            "oracle": "#/$defs/OracleMetric",
+            "signal": "#/$defs/SignalMetric"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/SignalMetric"
+          },
+          {
+            "$ref": "#/$defs/FormulaMetric"
+          },
+          {
+            "$ref": "#/$defs/OracleMetric"
+          }
+        ]
+      },
+      "title": "Metrics",
+      "type": "object"
+    },
+    "frontiers": {
+      "additionalProperties": {
+        "$ref": "#/$defs/FrontierDefinition"
+      },
+      "title": "Frontiers",
+      "type": "object"
+    },
+    "selections": {
+      "additionalProperties": {
+        "$ref": "#/$defs/SelectionDefinition"
+      },
+      "title": "Selections",
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "workloads",
+    "metrics",
+    "frontiers"
+  ],
+  "title": "ProjectConfig",
+  "type": "object"
+}

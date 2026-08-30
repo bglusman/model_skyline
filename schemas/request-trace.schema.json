@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:request-trace",
+  "additionalProperties": false,
+  "description": "Canonical request-level trace row consumed by the DuckDB aggregator.",
+  "properties": {
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "workload_id": {
+      "minLength": 1,
+      "title": "Workload Id",
+      "type": "string"
+    },
+    "workload_version": {
+      "minLength": 1,
+      "title": "Workload Version",
+      "type": "string"
+    },
+    "work_unit_id": {
+      "minLength": 1,
+      "title": "Work Unit Id",
+      "type": "string"
+    },
+    "offering_id": {
+      "minLength": 1,
+      "title": "Offering Id",
+      "type": "string"
+    },
+    "request_id": {
+      "minLength": 1,
+      "title": "Request Id",
+      "type": "string"
+    },
+    "attempt_id": {
+      "minLength": 1,
+      "title": "Attempt Id",
+      "type": "string"
+    },
+    "work_unit_success": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?=[+]?(?:0*(?:\\.\\d*)?|0*1(?:\\.0*)?)$)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,9}|(?=[\\d.]{1,19}0*$)\\d{0,9}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "title": "Work Unit Success"
+    },
+    "input_uncached_tokens": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,29}|(?=[\\d.]{1,39}0*$)\\d{0,29}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "default": "0",
+      "title": "Input Uncached Tokens"
+    },
+    "input_cache_read_tokens": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,29}|(?=[\\d.]{1,39}0*$)\\d{0,29}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "default": "0",
+      "title": "Input Cache Read Tokens"
+    },
+    "input_cache_write_5m_tokens": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,29}|(?=[\\d.]{1,39}0*$)\\d{0,29}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "default": "0",
+      "title": "Input Cache Write 5M Tokens"
+    },
+    "input_cache_write_1h_tokens": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,29}|(?=[\\d.]{1,39}0*$)\\d{0,29}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "default": "0",
+      "title": "Input Cache Write 1H Tokens"
+    },
+    "cache_storage_token_hours": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,29}|(?=[\\d.]{1,39}0*$)\\d{0,29}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "default": "0",
+      "title": "Cache Storage Token Hours"
+    },
+    "output_tokens": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,29}|(?=[\\d.]{1,39}0*$)\\d{0,29}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "default": "0",
+      "title": "Output Tokens"
+    },
+    "reasoning_tokens": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,29}|(?=[\\d.]{1,39}0*$)\\d{0,29}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "default": "0",
+      "title": "Reasoning Tokens"
+    },
+    "tool_calls": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,29}|(?=[\\d.]{1,39}0*$)\\d{0,29}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "default": "0",
+      "title": "Tool Calls"
+    },
+    "web_search_calls": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,29}|(?=[\\d.]{1,39}0*$)\\d{0,29}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "default": "0",
+      "title": "Web Search Calls"
+    },
+    "sandbox_seconds": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,29}|(?=[\\d.]{1,39}0*$)\\d{0,29}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "default": "0",
+      "title": "Sandbox Seconds"
+    },
+    "other_cost_usd": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,26}|(?=[\\d.]{1,39}0*$)\\d{0,26}\\.\\d{0,12}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "default": "0",
+      "title": "Other Cost Usd"
+    },
+    "ttft_ms": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ttft Ms"
+    },
+    "output_tokens_per_second": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Tokens Per Second"
+    }
+  },
+  "required": [
+    "timestamp",
+    "workload_id",
+    "workload_version",
+    "work_unit_id",
+    "offering_id",
+    "request_id",
+    "attempt_id",
+    "work_unit_success"
+  ],
+  "title": "RequestTrace",
+  "type": "object"
+}
