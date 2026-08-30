@@ -7,6 +7,8 @@
   licensing, URLs, and methodology in `config_hash`.
 - Keep refreshed source provenance bound into immutable snapshot history without
   emitting a duplicate RSS policy-reset event when the frontier view is unchanged.
+- Preserve retained 0.3.0 history as an auditable one-time policy-hash baseline;
+  later identical 0.3.1 refreshes do not add further semantic feed events.
 
 ## 0.3.0 - 2026-08-30
 

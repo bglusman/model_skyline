@@ -157,13 +157,14 @@ option must not be exposed directly to untrusted application input.
 `SourceReference.retrieved_at` records an acquisition event, not an evaluation
 policy choice, so it is the one workload-source field excluded from a frontier's
 `config_hash`. Source id, version, raw digest, URLs, license, and methodology
-remain policy-bound. Catalog and snapshot identities still retain retrieval time:
-an identical refresh can therefore advance immutable provenance history without
-appearing as a new semantic RSS event. Oracles may receive the full workload for
-provenance, but should treat retrieval time as non-semantic when caching; a
-value-affecting recency rule belongs in versioned workload variables, oracle
-options, or observation timestamps, and semantic oracle changes require a new
-`oracle_version`.
+remain policy-bound. Every workload source is also embedded in the frontier
+snapshot, and catalog sources remain bound by `catalog_hash`, so retrieval time
+is still covered by immutable provenance identities. An identical refresh can
+therefore advance snapshot history without appearing as a new semantic RSS
+event. Oracles may receive the full workload for provenance, but should treat
+retrieval time as non-semantic when caching; a value-affecting recency rule
+belongs in versioned workload variables, oracle options, or observation
+timestamps, and semantic oracle changes require a new `oracle_version`.
 
 Formula output units are declared but dimensional analysis is not yet
 implemented. Robust interval propagation through formulas is also deferred;

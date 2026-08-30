@@ -11,7 +11,11 @@ from xml.etree import ElementTree as ET
 import pytest
 
 from model_skyline import publisher
-from model_skyline.io import load_frontier_history, load_publication_manifest
+from model_skyline.io import (
+    load_frontier_history,
+    load_frontier_snapshot,
+    load_publication_manifest,
+)
 from model_skyline.models import (
     ObservationCatalog,
     ProjectConfig,
@@ -569,26 +573,17 @@ def test_workload_source_refresh_extends_history_without_duplicate_feed_event(
         update={"sources": [source]}
     )
     config = example_config.model_copy(update={"workloads": {"coding-session-v1": workload}})
-    catalog = example_catalog.model_copy(deep=True)
-    catalog.offerings = [
-        offering.model_copy(update={"default_source": source}) for offering in catalog.offerings
-    ]
-    first = _publish(root, config, catalog)
+    first = _publish(root, config, example_catalog)
 
     refreshed_source = source.model_copy(update={"retrieved_at": NOW + timedelta(minutes=5)})
     refreshed_workload = workload.model_copy(update={"sources": [refreshed_source]})
     refreshed_config = config.model_copy(
         update={"workloads": {"coding-session-v1": refreshed_workload}}
     )
-    refreshed_catalog = catalog.model_copy(deep=True)
-    refreshed_catalog.offerings = [
-        offering.model_copy(update={"default_source": refreshed_source})
-        for offering in refreshed_catalog.offerings
-    ]
     second = _publish(
         root,
         refreshed_config,
-        refreshed_catalog,
+        example_catalog,
         at=NOW + timedelta(minutes=10),
     )
 
@@ -597,7 +592,12 @@ def test_workload_source_refresh_extends_history_without_duplicate_feed_event(
     history = load_frontier_history(root / "frontiers" / "coding-value" / "history.json")
     assert len(history.entries) == 2
     assert history.entries[0].snapshot_id != history.entries[1].snapshot_id
-    assert history.entries[0].catalog_hash != history.entries[1].catalog_hash
+    assert history.entries[0].catalog_hash == history.entries[1].catalog_hash
+    latest_snapshot = load_frontier_snapshot(root / history.entries[0].snapshot.path)
+    refreshed_provenance = next(
+        item for item in latest_snapshot.sources if item.id == "coding-workload-study"
+    )
+    assert refreshed_provenance.retrieved_at == NOW + timedelta(minutes=5)
     feed = ET.parse(root / "feeds" / "coding-value.xml")
     assert len(feed.findall("./channel/item")) == 1
 
