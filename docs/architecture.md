@@ -196,15 +196,17 @@ artifact; adapters should send detailed diagnostics to a private, redacted log.
 
 ## Work-unit cost
 
-Token price alone is not the economic objective. Canonical request traces keep
-mutually exclusive billing meters:
+Token price alone is not the economic objective. Canonical usage traces keep
+explicit billing meters:
 
 - uncached input tokens;
 - cache-read tokens;
-- cache-write tokens by retention tier;
+- cache-write tokens by retention tier, or an explicit unknown-retention bucket;
 - cache storage token-hours;
-- output and reasoning tokens;
+- an optional inclusive input-token total;
+- non-reasoning output and reasoning tokens, plus an optional inclusive total;
 - request, tool, web-search, media, and other provider charges;
+- optional estimated and authoritative billed all-in costs as alternative cost bases;
 - sandbox/compute duration;
 - attempts, retries, and failed work units.
 
@@ -231,11 +233,68 @@ aggregate summary is bound to its workload and records the raw input file's
 SHA-256, so it cannot be applied to a different workload catalog or silently
 lose source identity.
 
-Canonical input billing meters are mutually exclusive. In particular, an
-adapter must not report reasoning tokens separately if the provider's output
-counter already includes them. The observed cache-hit rate is cache reads
-divided by uncached input plus cache reads plus cache writes across retention
-tiers.
+Trace ingestion is intentionally finite: JSONL is capped at 256 MiB, Parquet
+at 1 GiB, and either representation at one million rows, 10,000 distinct
+offerings, and 500,000 work-unit groups. Before reading a DuckDB relation, the
+aggregator sets two worker threads, a 256 MiB DuckDB memory limit, and a 512 MiB
+spill limit. Spill files live under the private input-snapshot temporary
+directory rather than the working tree and are removed with that snapshot.
+Aggregate results are fetched in bounded batches. These controls bound the
+engine's configured resources and output cardinality; they are not an OS-level
+sandbox or a substitute for process/container quotas when ingesting hostile
+files.
+
+The compatibility contract `request-trace.schema.json` remains the published
+v1alpha1 format, including its legacy zero defaults. New producers declare
+`model-skyline/request-trace/v1alpha2` and validate against
+`request-trace-v1alpha2.schema.json`. That Draft 2020-12 schema enforces
+row-local scope/count rules, request-only timing, cache-write representation,
+and complete producer/collector provenance. JSON Schema cannot compare
+arbitrary exact Decimal fields, so it is not the complete trust boundary:
+consumers MUST also run the `RequestTrace` semantic validator for input/output
+total arithmetic and the trace aggregator for cross-row identity, scope,
+outcome, offering, timestamp, and provenance coherence.
+
+Despite its compatibility name, `RequestTrace` can declare `observation_unit`
+as `request`, `attempt`, or `work_unit`. A request row contributes one model
+request. An aggregate row contributes its explicit `model_request_count`; when
+the framework does not expose that count, request-count signals are omitted
+rather than fabricated as one. Request and attempt rows derive attempts from
+`attempt_id`; a work-unit aggregate must provide `attempt_count` or leave the
+attempt signal unknown. One work unit cannot mix observation granularities,
+and attempt/work-unit aggregates must be unique for their declared scope.
+`request_id` is the unique trace-record id for aggregate rows and should be a
+local pseudonym rather than a raw framework session id.
+
+Unsupported meters are `null`, not measured zero. A quantity is published only
+when every contributing row reports it, so partial telemetry cannot silently
+undercount a work unit. Input billing buckets are mutually exclusive. Generic
+`input_cache_write_tokens` represents the complete write total when retention
+is not exposed and is mutually exclusive with the 5m/1h representation. It
+cannot be priced with a retention-specific rate without an explicit operator
+rule. Either complete representation can support cache-hit calculation without
+inventing zero-valued retention buckets. `input_total_tokens` preserves an
+upstream inclusive counter when a disjoint cache split is unavailable and is
+validated against the split whenever all buckets are known. `output_tokens` excludes reasoning;
+when an upstream total includes
+reasoning, an adapter with a reliable split subtracts it and also records
+`output_total_tokens`. If no split exists, only the inclusive total is reported.
+Likewise, `estimated_total_cost_usd`, `provider_reported_total_cost_usd`, and
+`billed_total_cost_usd` overlap the component meters and are alternative cost
+bases, never extra charges to add to a reconstructed bill. Runtime/client price
+calculations belong in the estimated meter; only provider billing
+reconciliation belongs in the billed meter. `provider_marginal_cost_usd` can
+record the provider charge, including an explicit zero for an included
+subscription call, but is intentionally labeled as marginal rather than total
+economic cost. Every USD formula declares exactly one basis, and static formula
+analysis rejects overlap among the four canonical all-in signal families before
+evaluation. Other `signals.*usd*` names are treated as operator-declared
+reconstructed components; an operator must not disguise an invoice or total
+under a custom component name. Explicit per-signal accounting roles remain a
+future schema improvement.
+The observed cache-hit rate is emitted only when every input/cache bucket is
+known, and is cache reads divided by uncached input plus cache reads plus all
+cache writes.
 
 Two cache modes are planned:
 
@@ -268,7 +327,11 @@ epsilon = epsilon_absolute
 ```
 
 Within epsilon, values are treated as practically equivalent. A difference
-must exceed epsilon to count as meaningfully better.
+must exceed epsilon to count as meaningfully better. Policy comparisons round
+both axis operands symmetrically to the fixed 34-significant-digit,
+round-half-even Decimal context before tolerance arithmetic; snapshots retain the original observation
+precision. This avoids comparing one exact high-precision operand with a
+rounded add/subtract result.
 
 For `robust` uncertainty, A dominates B only when A's pessimistic interval
 bound is no worse than B's optimistic bound on both axes and meaningfully
@@ -281,11 +344,34 @@ replace it if measurements show the need.
 
 ## Selection and publication
 
-The alpha selection strategy is explicitly `lexicographic` on one declared
-frontier axis, with the other axis as a stable tie-breaker and optional maximum
-offerings per provider.
-Planned policies include threshold-then-optimize, target proximity, normalized
-knee point, minimum residence time, and admission from later Pareto layers.
+The published single-frontier selection strategy is explicitly `lexicographic`
+on one declared frontier axis, with the other axis as a stable tie-breaker and
+optional maximum offerings per provider.
+
+The additive multi-frontier library contract implements the overlap/proximity
+policy in [ADR 0002](adr/0002-multi-frontier-overlap-and-proximity.md). It builds
+a content-addressed descriptive sidecar over one exact frontier snapshot, then
+re-ranks only the members of a primary frontier using ordered priority groups.
+Within each group, exact-membership count, near-only count, and an ordered
+per-frontier distance vector are compared before moving to the next group and
+the primary ordering. Missing exact offering routes are explicit and rank after
+measured evidence. Provider diversity is applied to the fully re-ranked stream.
+The policy binds exact frontier and sidecar hashes plus individual freshness
+limits; cross-workload evidence is intentional. Its schemas are
+`frontier-proximity.schema.json` and
+`multi-frontier-selection-snapshot.schema.json`.
+
+The multi-frontier JSON Schema is structural, not an authenticity boundary.
+Before routing, a consumer must pin the authorized selection ID and policy,
+authenticate its publication channel or manifest, and run the source-backed
+`verify_multi_frontier_selection_snapshot` replay against every bound artifact.
+
+This release exposes the resolved exact-snapshot layer in Python and JSON
+Schema. Static logical references in `ProjectConfig`, CLI materialization,
+publisher layout, and `DynamicResolver` support are not implemented yet and
+must not be inferred from the existing single-frontier feed. Other planned
+policies include threshold-then-optimize, normalized knee point, minimum
+residence time, and admission from later Pareto layers.
 
 Fallback diversity is a list-level property and should grow beyond provider to
 model family, region, and shared infrastructure failure domains. Availability,
@@ -410,6 +496,15 @@ The committed Draft 2020-12 schemas have stable URN `$id` values and ship in
 the wheel. `export-schemas` copies those release contracts byte-for-byte;
 maintainers use the hidden `regenerate-schemas` command under the locked
 toolchain and review the diff.
+
+The current contracts add optional `OfferingKey.billing_mode` to catalogs and
+frontier/selection snapshots, and `FormulaMetric.cost_basis` to project
+configuration. Catalog payloads that omit `billing_mode` remain valid, but an
+older closed-schema validator will reject a newly serialized `billing_mode`
+field even when it is `null`; publishers and consumers should therefore roll
+these artifacts together. Likewise, existing USD formula configurations must
+choose a `cost_basis` before loading under the new semantic validator, which is
+an intentional ambiguity-closing compatibility break.
 
 The resolver verifies content hash, semantic identity, expiry, future skew,
 and monotonic generation time. It returns defensive copies so callers cannot

@@ -6,12 +6,14 @@ provider, endpoint, region, tier, and configuration), publishes immutable
 artifacts, and turns a frontier into a current agent default with ordered
 fallbacks.
 
-> **Status:** working alpha. Frontier evaluation, trace aggregation, selection
-> artifacts, a static multi-frontier publisher with retained RSS history, an
-> in-process resolver, and pinned Aider and MCPMark benchmark adapters are
-> implemented, along with a scheduled Aider-only publication workflow. GitHub
-> Pages activation and monitoring, effective-dated price cards, and native
-> agent-framework integrations are next. Schemas may change during the alpha.
+> **Status:** working alpha. Frontier evaluation, failure/cache-aware trace
+> aggregation, selection artifacts, retained RSS publication, an in-process
+> resolver, pinned benchmark imports, and strict Codex, Claude, OpenClaw, and
+> Hermes telemetry adapters are implemented. Multi-frontier overlap/proximity
+> selection is available as a hash-bound library contract; CLI, publisher, and
+> resolver wiring for that additive contract is next. Effective-dated price
+> cards and native framework-side selection consumers also remain. Schemas may
+> change during the alpha.
 > “ModelSkyline” is a working name chosen to avoid collision with several
 > existing projects called Pareto Router.
 
@@ -165,6 +167,23 @@ default = selection.default.offering
 fallbacks = [choice.offering for choice in selection.fallbacks]
 ```
 
+For selection across several independently published frontiers, the library
+can build a content-addressed proximity sidecar and re-rank only the exact
+members of a primary frontier. Ordered priority groups compare exact overlap,
+near-only overlap, and per-frontier Decimal distance before the original
+primary order; complete `OfferingKey` equality prevents model aliases from
+crossing provider, billing, region, tier, or harness boundaries. See
+[`ADR 0002`](docs/adr/0002-multi-frontier-overlap-and-proximity.md). The current
+API is the resolved exact-snapshot layer; it is not yet emitted by
+`publish-project` or accepted by `DynamicResolver`.
+
+Agent consumers must pin the expected selection ID and overlap policy from
+trusted configuration, then call `verify_multi_frontier_selection_snapshot`
+with the primary and secondary source artifacts and a timezone-aware trusted
+current time before routing. The verifier rejects expired and implausibly
+future-dated snapshots. A matching content hash detects mutation but does not
+authenticate who chose the policy; see the ADR's trust-boundary section.
+
 ## Run with pinned real benchmark data
 
 The Aider adapter downloads an immutable Apache-2.0 Polyglot leaderboard file,
@@ -211,6 +230,17 @@ turn a useful benchmark into a misleading bill estimate.
 Both adapters use point estimates for frontier membership. Their Wilson bounds
 are descriptive binomial reference intervals under an IID task-sampling
 assumption; they are not measurements of run-to-run or serving variance.
+
+## Agent-framework telemetry
+
+The v1alpha2 trace contract and pinned adapters cover Codex `exec --json`,
+Claude Agent SDK final result messages, signed OpenClaw model-call projections,
+and Hermes usage reports or ledger-complete v26 sessions. They retain failures,
+preserve unknown rather than inventing zero, and require explicit route/outcome
+attestations for fields the upstream framework does not expose. Raw prompts,
+responses, tool payloads, paths, and credentials are deliberately outside the
+adapter outputs. See [`docs/framework-integrations.md`](docs/framework-integrations.md)
+for exact supported versions, limitations, and examples.
 
 See `docs/architecture.md` for semantics and `docs/research.md` for prior art,
 data sources, workload evidence, licenses, and integration recommendations.

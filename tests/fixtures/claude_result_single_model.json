@@ -1,0 +1,42 @@
+{
+  "subtype": "success",
+  "duration_ms": 4321,
+  "duration_api_ms": 3210,
+  "is_error": false,
+  "num_turns": 3,
+  "session_id": "synthetic-session-content-must-not-persist",
+  "total_cost_usd": 0.123456789012,
+  "usage": {
+    "input_tokens": 7,
+    "output_tokens": 89,
+    "cache_creation_input_tokens": 400,
+    "cache_read_input_tokens": 1200
+  },
+  "result": "SYNTHETIC_RESULT_CONTENT_MUST_NOT_PERSIST",
+  "structured_output": {
+    "private": "SYNTHETIC_STRUCTURED_OUTPUT_MUST_NOT_PERSIST"
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Read",
+      "tool_input": {
+        "file_path": "/synthetic/private/path-must-not-persist"
+      }
+    }
+  ],
+  "model_usage": {
+    "claude-sonnet-4-6": {
+      "inputTokens": 7,
+      "outputTokens": 89,
+      "cacheReadInputTokens": 1200,
+      "cacheCreationInputTokens": 400,
+      "webSearchRequests": 2,
+      "costUSD": 0.123456789012,
+      "costBasis": "list",
+      "contextWindow": 200000,
+      "maxOutputTokens": 64000,
+      "canonicalModel": "claude-sonnet-4-6",
+      "provider": "firstParty"
+    }
+  }
+}

@@ -23,6 +23,7 @@ metrics:
   total_cost_per_success:
     kind: formula
     unit: USD/success
+    cost_basis: reconstructed_components
     description: >-
       Declared model, request, cache-retention, tool, sandbox, and other charges
       divided by successful work units. Failed work units remain in every numerator.

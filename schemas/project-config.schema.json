@@ -2,6 +2,18 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:model-skyline:schema:v1alpha1:project-config",
   "$defs": {
+    "CostFormulaBasis": {
+      "description": "Mutually exclusive accounting basis used by a USD formula metric.",
+      "enum": [
+        "reconstructed_components",
+        "estimated_total",
+        "provider_reported_total",
+        "billed_total",
+        "provider_marginal"
+      ],
+      "title": "CostFormulaBasis",
+      "type": "string"
+    },
     "EligibilityPolicy": {
       "additionalProperties": false,
       "properties": {
@@ -70,6 +82,17 @@
           "minLength": 1,
           "title": "Expression",
           "type": "string"
+        },
+        "cost_basis": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CostFormulaBasis"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -78,7 +101,41 @@
         "expression"
       ],
       "title": "FormulaMetric",
-      "type": "object"
+      "type": "object",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "unit": {
+                "anyOf": [
+                  {
+                    "const": "USD"
+                  },
+                  {
+                    "pattern": "^USD/",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "unit"
+            ]
+          },
+          "then": {
+            "properties": {
+              "cost_basis": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "cost_basis"
+            ]
+          }
+        }
+      ]
     },
     "FrontierAxis": {
       "additionalProperties": false,

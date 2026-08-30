@@ -29,7 +29,7 @@ from model_skyline.adapters.mcpmark import (
     load_mcpmark_catalogs,
     write_mcpmark_import,
 )
-from model_skyline.engine import FrontierEngine
+from model_skyline.engine import FrontierEngine, validate_formula_cost_basis
 from model_skyline.formula import compile_formula
 from model_skyline.io import (
     InputError,
@@ -118,9 +118,10 @@ def validate(
     try:
         loaded_config = load_config(config)
         loaded_catalog = load_catalog(catalog)
-        for metric in loaded_config.metrics.values():
+        for metric_id, metric in loaded_config.metrics.items():
             if metric.kind == "formula":
                 compile_formula(metric.expression)
+                validate_formula_cost_basis(metric_id, metric)
         workload = loaded_config.workloads.get(loaded_catalog.workload.id)
         if (
             workload is None

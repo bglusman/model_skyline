@@ -170,6 +170,22 @@ def compile_formula(expression: str) -> Tree[Token]:
     return tree
 
 
+def referenced_formula_paths(expression: str) -> frozenset[str]:
+    """Return every syntactic path in a validated formula, including lazy branches."""
+
+    root = compile_formula(expression)
+    paths: set[str] = set()
+    stack: list[Tree[Token] | Token] = [root]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, Token):
+            continue
+        if node.data == "path":
+            paths.add(".".join(_path_parts(node)))
+        stack.extend(reversed(node.children))
+    return frozenset(paths)
+
+
 class _Evaluator:
     def __init__(self, context: Mapping[str, Any]) -> None:
         self.context = context

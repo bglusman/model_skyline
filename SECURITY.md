@@ -13,6 +13,17 @@ ModelSkyline snapshots never need provider API keys. Keep secrets in the
 execution gateway or adapter environment and do not place them in policy,
 observations, metadata, RSS, or published artifacts.
 
+Framework adapters accept narrower accounting projections than the raw
+runtime surfaces. Keep Codex JSONL, Claude result/transcript state, OpenClaw
+events, Hermes reports/databases, collector HMAC keys, and pseudonymization
+keys outside the repository and publication tree. Raw framework data can hold
+prompts, responses, commands, paths, tool arguments, session identifiers, and
+credentials even when the returned canonical trace does not. Route and outcome
+attestations are operator claims, not cryptographic proof. Only exact reviewed
+producer/version tuples are eligible for trusted trace provenance; adding a
+producer requires source, license/terms, schema, privacy, and failure-path
+review.
+
 `publish-project --public` is a redistribution guard, not a PII, prompt, or
 secret scrubber. It requires an HTTPS base URL and explicit license or
 source-id authorization for every cited source in retained history, but it
