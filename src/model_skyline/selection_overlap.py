@@ -9,7 +9,7 @@ from typing import Annotated, Any, Literal, Self
 from pydantic import AfterValidator, Field, field_validator, model_validator
 
 from model_skyline.canonical import POLICY_DECIMAL_CONTEXT, canonical_bytes, content_hash
-from model_skyline.engine import dominance_axis_relation, frontier_hash
+from model_skyline.engine import dominance_axis_relation, frontier_hash_matches
 from model_skyline.models import (
     MAX_SELECTION_CANDIDATES,
     AxisDescriptor,
@@ -731,9 +731,9 @@ def build_frontier_proximity_snapshot(
 ) -> FrontierProximitySnapshot:
     """Build an immutable distance sidecar without changing frontier membership."""
 
-    actual_hash = frontier_hash(frontier)
-    if frontier.snapshot_id != actual_hash:
+    if not frontier_hash_matches(frontier):
         raise ValueError("source frontier snapshot hash mismatch")
+    actual_hash = frontier.snapshot_id
     if len(frontier.evaluated) > MAX_PROXIMITY_CANDIDATES:
         raise ValueError(
             f"proximity candidate universe exceeds {MAX_PROXIMITY_CANDIDATES} offerings"
@@ -930,9 +930,9 @@ def _validate_secondary_input(
 ) -> None:
     frontier = value.frontier
     proximity = value.proximity
-    actual_frontier_hash = frontier_hash(frontier)
-    if frontier.snapshot_id != actual_frontier_hash:
+    if not frontier_hash_matches(frontier):
         raise ValueError(f"secondary frontier {reference.frontier_id!r} hash mismatch")
+    actual_frontier_hash = frontier.snapshot_id
     if reference.frontier_id != frontier.frontier_id:
         raise ValueError(f"secondary frontier {reference.frontier_id!r} identity mismatch")
     if reference.frontier_snapshot_id != frontier.snapshot_id:
@@ -1080,9 +1080,9 @@ def select_models_across_frontiers(
             f"selection {selection_id!r} expects frontier {definition.frontier!r}, "
             f"not {primary.frontier_id!r}"
         )
-    actual_primary_hash = frontier_hash(primary)
-    if primary.snapshot_id != actual_primary_hash:
+    if not frontier_hash_matches(primary):
         raise ValueError("primary frontier snapshot hash mismatch")
+    actual_primary_hash = primary.snapshot_id
     if len(primary.members) > MAX_SELECTION_CANDIDATES:
         raise ValueError("primary frontier exceeds the selection candidate limit")
     primary_identities = [_offering_identity(item.offering) for item in primary.members]

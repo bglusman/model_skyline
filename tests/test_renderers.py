@@ -6,9 +6,37 @@ from xml.etree import ElementTree as ET
 
 from model_skyline.engine import FrontierEngine
 from model_skyline.models import ObservationCatalog, ProjectConfig
-from model_skyline.renderers import render_csv, render_rss, render_rss_history
+from model_skyline.renderers import frontier_view, render_csv, render_rss, render_rss_history
 
 RSS_NAMESPACE = "urn:model-skyline:rss:1.0"
+
+
+def test_semantic_view_treats_absent_and_null_billing_mode_as_equivalent(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    snapshot = FrontierEngine().calculate(
+        example_config,
+        example_catalog,
+        "coding-value",
+        generated_at=datetime(2026, 8, 29, 19, tzinfo=UTC),
+    )
+    assert all("billing_mode" not in item[0] for item in frontier_view(snapshot))
+
+    catalog = example_catalog.model_copy(deep=True)
+    catalog.offerings = [
+        item.model_copy(
+            update={"offering": item.offering.model_copy(update={"billing_mode": "managed"})}
+        )
+        for item in catalog.offerings
+    ]
+    changed = FrontierEngine().calculate(
+        example_config,
+        catalog,
+        "coding-value",
+        generated_at=datetime(2026, 8, 29, 20, tzinfo=UTC),
+    )
+    assert any(item[0].get("billing_mode") == "managed" for item in frontier_view(changed))
 
 
 def test_rss_escapes_dynamic_values_inside_embedded_html(

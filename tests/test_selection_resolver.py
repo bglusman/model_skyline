@@ -7,10 +7,11 @@ from typing import Any
 
 import pytest
 
+from model_skyline.canonical import content_hash
 from model_skyline.engine import FrontierEngine
 from model_skyline.models import ObservationCatalog, ProjectConfig
 from model_skyline.resolver import DynamicResolver, ResolverError
-from model_skyline.selection import select_models, selection_hash
+from model_skyline.selection import select_models, selection_hash, selection_hash_matches
 
 NOW = datetime(2026, 8, 29, 19, tzinfo=UTC)
 
@@ -141,6 +142,31 @@ def test_selection_is_quality_ordered_and_hash_bound(
     ]
     assert snapshot.snapshot_id == selection_hash(snapshot)
     assert snapshot.frontier_snapshot_id
+
+
+def test_resolver_accepts_pre_field_and_v040_null_billing_hashes(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    snapshot = _selection(example_config, example_catalog)
+    pre_field_payload = snapshot.model_dump(mode="json")
+    for choice in (pre_field_payload["default"], *pre_field_payload["fallbacks"]):
+        if choice["offering"]["billing_mode"] is None:
+            choice["offering"].pop("billing_mode")
+
+    restored = type(snapshot).model_validate(pre_field_payload)
+    assert selection_hash_matches(restored)
+    resolver = DynamicResolver(
+        "https://example.test/selection.json",
+        expected_selection_id="coding-agent-defaults",
+        loader=lambda *_args: (pre_field_payload, None),
+        clock=lambda: NOW,
+    )
+    assert resolver.resolve().snapshot_id == snapshot.snapshot_id
+
+    explicit_null_hash = content_hash(snapshot.model_dump(mode="json", exclude={"snapshot_id"}))
+    assert explicit_null_hash != snapshot.snapshot_id
+    assert selection_hash_matches(snapshot.model_copy(update={"snapshot_id": explicit_null_hash}))
 
 
 def test_resolver_uses_bounded_last_known_good(

@@ -126,9 +126,27 @@ def select_models(
         default=choices[0],
         fallbacks=choices[1:],
     )
-    snapshot_id = _hash(value.model_dump(mode="json", exclude={"snapshot_id"}), length=64)
+    snapshot_id = selection_hash(value)
     return value.model_copy(update={"snapshot_id": snapshot_id})
 
 
 def selection_hash(snapshot: SelectionSnapshot) -> str:
+    payload = snapshot.model_dump(mode="json", exclude={"snapshot_id"})
+    for choice in (payload["default"], *payload["fallbacks"]):
+        offering = choice["offering"]
+        if offering.get("billing_mode") is None:
+            offering.pop("billing_mode", None)
+    return _hash(payload, length=64)
+
+
+def _explicit_null_billing_mode_selection_hash(snapshot: SelectionSnapshot) -> str:
     return _hash(snapshot.model_dump(mode="json", exclude={"snapshot_id"}), length=64)
+
+
+def selection_hash_matches(snapshot: SelectionSnapshot) -> bool:
+    """Accept the stable absent/null hash or v0.4.0's explicit-null encoding."""
+
+    return snapshot.snapshot_id in {
+        selection_hash(snapshot),
+        _explicit_null_billing_mode_selection_hash(snapshot),
+    }

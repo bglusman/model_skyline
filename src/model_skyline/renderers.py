@@ -100,12 +100,19 @@ def _changes(
     return tuple(sorted(current_ids - previous_ids)), tuple(sorted(previous_ids - current_ids))
 
 
+def _offering_view(item: Any) -> dict[str, Any]:
+    payload: dict[str, Any] = item.offering.model_dump(mode="json")
+    if payload.get("billing_mode") is None:
+        payload.pop("billing_mode", None)
+    return payload
+
+
 def frontier_view(snapshot: FrontierSnapshot) -> tuple[Any, ...]:
     """Return the routing- and display-relevant semantic frontier view."""
 
     return tuple(
         (
-            item.offering.model_dump(mode="json"),
+            _offering_view(item),
             tuple(
                 (
                     axis.metric,

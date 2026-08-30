@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 import httpx
 
 from model_skyline.models import SelectionSnapshot
-from model_skyline.selection import selection_hash
+from model_skyline.selection import selection_hash, selection_hash_matches
 
 
 class ResolverError(RuntimeError):
@@ -273,7 +273,7 @@ class DynamicResolver:
     def _validated(self, payload: Mapping[str, Any]) -> SelectionSnapshot:
         snapshot = SelectionSnapshot.model_validate(payload)
         expected = selection_hash(snapshot)
-        if snapshot.snapshot_id != expected:
+        if not selection_hash_matches(snapshot):
             raise ResolverError(
                 f"selection snapshot hash mismatch: expected {expected}, "
                 f"received {snapshot.snapshot_id}"
