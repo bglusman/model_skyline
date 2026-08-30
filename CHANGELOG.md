@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1 - 2026-08-30
+
+- Treat workload-source retrieval timestamps as volatile acquisition provenance
+  rather than frontier policy, while retaining source identity, version, digest,
+  licensing, URLs, and methodology in `config_hash`.
+- Keep refreshed source provenance bound into immutable snapshot history without
+  emitting a duplicate RSS policy-reset event when the frontier view is unchanged.
+
 ## 0.3.0 - 2026-08-30
 
 - Add `publish-project` for coherent multi-workload frontier, retained-history,

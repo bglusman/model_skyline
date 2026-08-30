@@ -451,6 +451,71 @@ def test_frontier_config_hash_ignores_unrelated_selection_changes(
     assert original.config_hash == recalculated.config_hash
 
 
+def test_frontier_config_hash_ignores_only_workload_source_retrieval_time(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    source = SourceReference(
+        id="coding-workload-study",
+        version="2026-08",
+        url="https://example.test/coding-workload-study.json",
+        license="CC-BY-4.0",
+        methodology="Pinned workload study fixture.",
+        raw_sha256="a" * 64,
+        retrieved_at=NOW,
+    )
+    workload = example_config.workloads["coding-session-v1"].model_copy(
+        update={"sources": [source]}
+    )
+    config = example_config.model_copy(update={"workloads": {"coding-session-v1": workload}})
+    original = FrontierEngine().calculate(
+        config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    refreshed_source = source.model_copy(update={"retrieved_at": NOW + timedelta(minutes=5)})
+    refreshed_workload = workload.model_copy(update={"sources": [refreshed_source]})
+    refreshed_config = config.model_copy(
+        update={"workloads": {"coding-session-v1": refreshed_workload}}
+    )
+    refreshed = FrontierEngine().calculate(
+        refreshed_config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    changed_digest_source = refreshed_source.model_copy(update={"raw_sha256": "b" * 64})
+    changed_digest_workload = workload.model_copy(update={"sources": [changed_digest_source]})
+    changed_digest_config = config.model_copy(
+        update={"workloads": {"coding-session-v1": changed_digest_workload}}
+    )
+    changed_digest = FrontierEngine().calculate(
+        changed_digest_config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    changed_version_source = refreshed_source.model_copy(update={"version": "2026-09"})
+    changed_version_workload = workload.model_copy(update={"sources": [changed_version_source]})
+    changed_version_config = config.model_copy(
+        update={"workloads": {"coding-session-v1": changed_version_workload}}
+    )
+    changed_version = FrontierEngine().calculate(
+        changed_version_config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    assert original.config_hash == refreshed.config_hash
+    assert original.config_hash != changed_digest.config_hash
+    assert original.config_hash != changed_version.config_hash
+
+
 def test_catalog_rejects_non_finite_metadata(
     example_catalog: ObservationCatalog,
 ) -> None:

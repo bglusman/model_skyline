@@ -154,6 +154,17 @@ fail-closed hostname allowlist, refuse redirects, bound bytes and time, and pin
 release sources by digest. A custom hostname must be explicitly allowed; this
 option must not be exposed directly to untrusted application input.
 
+`SourceReference.retrieved_at` records an acquisition event, not an evaluation
+policy choice, so it is the one workload-source field excluded from a frontier's
+`config_hash`. Source id, version, raw digest, URLs, license, and methodology
+remain policy-bound. Catalog and snapshot identities still retain retrieval time:
+an identical refresh can therefore advance immutable provenance history without
+appearing as a new semantic RSS event. Oracles may receive the full workload for
+provenance, but should treat retrieval time as non-semantic when caching; a
+value-affecting recency rule belongs in versioned workload variables, oracle
+options, or observation timestamps, and semantic oracle changes require a new
+`oracle_version`.
+
 Formula output units are declared but dimensional analysis is not yet
 implemented. Robust interval propagation through formulas is also deferred;
 today a robust frontier rejects formula axes rather than manufacturing unsafe
@@ -381,8 +392,9 @@ Decimals serialize as finite fixed-point JSON strings. Hash inputs use
 lowercase hexadecimal SHA-256; the algorithm identifier is
 `sha256-rfc8785-v1`. `snapshot_id` excludes only its own field. Frontier
 `config_hash` covers the selected frontier, workload, and its two metric
-definitions; `catalog_hash` covers the complete canonical observation catalog.
-Selection `policy_hash` covers its id and definition.
+definitions, with only workload-source `retrieved_at` acquisition timestamps
+normalized away; `catalog_hash` covers the complete canonical observation
+catalog. Selection `policy_hash` covers its id and definition.
 
 File loaders parse JSON and YAML decimal literals directly as `Decimal`; they
 never pass policy, price, observation, or epsilon values through binary
