@@ -6,8 +6,11 @@ import io
 from datetime import UTC
 from email.utils import format_datetime
 from typing import Any
+
 # ElementTree is used only to construct RSS; this module never parses XML.
-from xml.etree import ElementTree as ET  # nosemgrep: python.lang.security.use-defused-xml.use-defused-xml
+from xml.etree import (
+    ElementTree as ET,
+)  # nosemgrep: python.lang.security.use-defused-xml.use-defused-xml
 
 from model_skyline.models import FrontierSnapshot
 
