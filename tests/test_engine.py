@@ -451,6 +451,107 @@ def test_frontier_config_hash_ignores_unrelated_selection_changes(
     assert original.config_hash == recalculated.config_hash
 
 
+def test_frontier_config_hash_ignores_only_workload_source_retrieval_time(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    source = SourceReference(
+        id="coding-workload-study",
+        version="2026-08",
+        url="https://example.test/coding-workload-study.json",
+        license="CC-BY-4.0",
+        methodology="Pinned workload study fixture.",
+        raw_sha256="a" * 64,
+        retrieved_at=NOW,
+    )
+    workload = example_config.workloads["coding-session-v1"].model_copy(
+        update={"sources": [source]}
+    )
+    config = example_config.model_copy(update={"workloads": {"coding-session-v1": workload}})
+    original = FrontierEngine().calculate(
+        config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    refreshed_source = source.model_copy(update={"retrieved_at": NOW + timedelta(minutes=5)})
+    refreshed_workload = workload.model_copy(update={"sources": [refreshed_source]})
+    refreshed_config = config.model_copy(
+        update={"workloads": {"coding-session-v1": refreshed_workload}}
+    )
+    refreshed = FrontierEngine().calculate(
+        refreshed_config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    assert original.config_hash == refreshed.config_hash
+    assert original.catalog_hash == refreshed.catalog_hash
+    assert original.snapshot_id != refreshed.snapshot_id
+    refreshed_provenance = next(
+        item for item in refreshed.sources if item.id == "coding-workload-study"
+    )
+    assert refreshed_provenance.retrieved_at == NOW + timedelta(minutes=5)
+
+
+@pytest.mark.parametrize(
+    "source_update",
+    [
+        {"id": "revised-workload-study"},
+        {"version": "2026-09"},
+        {"url": "https://example.test/revised-study.json"},
+        {"terms_url": "https://example.test/revised-terms"},
+        {"license": "ODC-BY-1.0"},
+        {"methodology": "Revised pinned workload study fixture."},
+        {"raw_sha256": "b" * 64},
+    ],
+    ids=("id", "version", "url", "terms-url", "license", "methodology", "raw-digest"),
+)
+def test_frontier_config_hash_binds_workload_source_semantic_fields(
+    source_update: dict[str, object],
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    source = SourceReference(
+        id="coding-workload-study",
+        version="2026-08",
+        url="https://example.test/coding-workload-study.json",
+        terms_url="https://example.test/terms",
+        license="CC-BY-4.0",
+        methodology="Pinned workload study fixture.",
+        raw_sha256="a" * 64,
+        retrieved_at=NOW,
+    )
+    workload = example_config.workloads["coding-session-v1"].model_copy(
+        update={"sources": [source]}
+    )
+    config = example_config.model_copy(update={"workloads": {"coding-session-v1": workload}})
+    original = FrontierEngine().calculate(
+        config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    changed_source = SourceReference.model_validate(
+        {**source.model_dump(mode="json"), **source_update}
+    )
+    changed_workload = workload.model_copy(update={"sources": [changed_source]})
+    changed_config = config.model_copy(
+        update={"workloads": {"coding-session-v1": changed_workload}}
+    )
+    changed = FrontierEngine().calculate(
+        changed_config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    assert original.config_hash != changed.config_hash
+
+
 def test_catalog_rejects_non_finite_metadata(
     example_catalog: ObservationCatalog,
 ) -> None:

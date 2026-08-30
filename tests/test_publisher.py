@@ -11,8 +11,17 @@ from xml.etree import ElementTree as ET
 import pytest
 
 from model_skyline import publisher
-from model_skyline.io import load_frontier_history, load_publication_manifest
-from model_skyline.models import ObservationCatalog, ProjectConfig, PublishedFile
+from model_skyline.io import (
+    load_frontier_history,
+    load_frontier_snapshot,
+    load_publication_manifest,
+)
+from model_skyline.models import (
+    ObservationCatalog,
+    ProjectConfig,
+    PublishedFile,
+    SourceReference,
+)
 from model_skyline.publisher import PublicationError, publication_hash, publish_project
 from model_skyline.resolver import DynamicResolver
 
@@ -543,6 +552,54 @@ def test_source_descriptor_retrieval_time_can_evolve_across_history(
     assert result.changed
     history = load_frontier_history(root / "frontiers" / "coding-value" / "history.json")
     assert len(history.entries) == 2
+
+
+def test_workload_source_refresh_extends_history_without_duplicate_feed_event(
+    tmp_path: Path,
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    root = _root(tmp_path)
+    source = SourceReference(
+        id="coding-workload-study",
+        version="2026-08",
+        url="https://example.test/coding-workload-study.json",
+        license="CC-BY-4.0",
+        methodology="Pinned workload study fixture.",
+        raw_sha256="a" * 64,
+        retrieved_at=NOW,
+    )
+    workload = example_config.workloads["coding-session-v1"].model_copy(
+        update={"sources": [source]}
+    )
+    config = example_config.model_copy(update={"workloads": {"coding-session-v1": workload}})
+    first = _publish(root, config, example_catalog)
+
+    refreshed_source = source.model_copy(update={"retrieved_at": NOW + timedelta(minutes=5)})
+    refreshed_workload = workload.model_copy(update={"sources": [refreshed_source]})
+    refreshed_config = config.model_copy(
+        update={"workloads": {"coding-session-v1": refreshed_workload}}
+    )
+    second = _publish(
+        root,
+        refreshed_config,
+        example_catalog,
+        at=NOW + timedelta(minutes=10),
+    )
+
+    assert second.changed
+    assert second.manifest.previous_publication_id == first.manifest.publication_id
+    history = load_frontier_history(root / "frontiers" / "coding-value" / "history.json")
+    assert len(history.entries) == 2
+    assert history.entries[0].snapshot_id != history.entries[1].snapshot_id
+    assert history.entries[0].catalog_hash == history.entries[1].catalog_hash
+    latest_snapshot = load_frontier_snapshot(root / history.entries[0].snapshot.path)
+    refreshed_provenance = next(
+        item for item in latest_snapshot.sources if item.id == "coding-workload-study"
+    )
+    assert refreshed_provenance.retrieved_at == NOW + timedelta(minutes=5)
+    feed = ET.parse(root / "feeds" / "coding-value.xml")
+    assert len(feed.findall("./channel/item")) == 1
 
 
 def test_size_preflight_happens_before_any_artifact_write(

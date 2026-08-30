@@ -129,3 +129,39 @@ def test_retained_rss_detects_routable_identity_change_at_same_values(
 
     assert len(root.findall("./channel/item")) == 2
     assert root.findtext(f"./channel/item/{{{RSS_NAMESPACE}}}baselineReset") == "false"
+
+
+def test_retained_rss_emits_one_policy_hash_migration_reset_then_stabilizes(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    initial = (
+        FrontierEngine()
+        .calculate(
+            example_config,
+            example_catalog,
+            "coding-value",
+            generated_at=datetime(2026, 8, 29, 19, tzinfo=UTC),
+        )
+        .model_copy(update={"config_hash": "a" * 64})
+    )
+    migrated = initial.model_copy(
+        update={
+            "snapshot_id": "b" * 64,
+            "config_hash": "c" * 64,
+            "generated_at": datetime(2026, 8, 29, 20, tzinfo=UTC),
+        }
+    )
+    stable_refresh = migrated.model_copy(
+        update={
+            "snapshot_id": "d" * 64,
+            "generated_at": datetime(2026, 8, 29, 21, tzinfo=UTC),
+        }
+    )
+
+    root = ET.fromstring(render_rss_history([initial, migrated, stable_refresh]))
+    items = root.findall("./channel/item")
+
+    assert len(items) == 2
+    assert items[0].findtext("guid") == "b" * 64
+    assert items[0].findtext(f"{{{RSS_NAMESPACE}}}baselineReset") == "true"

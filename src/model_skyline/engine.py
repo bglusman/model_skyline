@@ -428,8 +428,11 @@ class FrontierEngine:
     def _sources(
         catalog: ObservationCatalog,
         evaluated: Iterable[EvaluatedOffering],
+        workload: WorkloadProfile,
     ) -> tuple[SourceReference, ...]:
         by_hash: dict[str, SourceReference] = {}
+        for workload_source in workload.sources:
+            by_hash[content_hash(workload_source)] = workload_source
         for offering in catalog.offerings:
             candidates = [offering.default_source]
             candidates.extend(observation.source for observation in offering.signals.values())
@@ -450,12 +453,18 @@ class FrontierEngine:
         workload_id: str,
         workload: WorkloadProfile,
     ) -> dict[str, Any]:
+        workload_policy = workload.model_dump(
+            mode="json",
+            exclude={"sources": {"__all__": {"retrieved_at"}}},
+        )
         return {
             "schema_version": config.schema_version,
             "frontier_id": frontier_id,
             "frontier": frontier.model_dump(mode="json"),
             "workload_id": workload_id,
-            "workload": workload.model_dump(mode="json"),
+            # Acquisition time is volatile provenance, not an evaluation-policy input.
+            # Source identity, version, digest, licensing, URLs, and methodology remain.
+            "workload": workload_policy,
             "metrics": {
                 axis.metric: config.metrics[axis.metric].model_dump(mode="json")
                 for axis in frontier.axes
@@ -594,7 +603,7 @@ class FrontierEngine:
             members=members,
             evaluated=evaluated,
             rejected=tuple(sorted(rejected, key=lambda item: item.offering_id)),
-            sources=self._sources(catalog, evaluated),
+            sources=self._sources(catalog, evaluated, workload),
             source_watermarks=self._watermarks(catalog),
         )
         snapshot_id = _canonical_hash(snapshot.model_dump(mode="json", exclude={"snapshot_id"}))
