@@ -12,9 +12,11 @@ from yaml.nodes import ScalarNode
 
 from model_skyline.models import (
     MAX_DECIMAL_INPUT_LENGTH,
+    FrontierHistory,
     FrontierSnapshot,
     ObservationCatalog,
     ProjectConfig,
+    PublicationManifest,
     SelectionSnapshot,
 )
 
@@ -99,6 +101,22 @@ def load_selection_snapshot(path: str | Path) -> SelectionSnapshot:
     return _validate(SelectionSnapshot, value, path)
 
 
+def load_publication_manifest(path: str | Path) -> PublicationManifest:
+    try:
+        value = json.loads(_read(path), parse_float=Decimal, parse_constant=Decimal)
+    except json.JSONDecodeError as exc:
+        raise InputError(f"cannot parse JSON {path}: {exc}") from exc
+    return _validate(PublicationManifest, value, path)
+
+
+def load_frontier_history(path: str | Path) -> FrontierHistory:
+    try:
+        value = json.loads(_read(path), parse_float=Decimal, parse_constant=Decimal)
+    except json.JSONDecodeError as exc:
+        raise InputError(f"cannot parse JSON {path}: {exc}") from exc
+    return _validate(FrontierHistory, value, path)
+
+
 def dump_json(model: BaseModel) -> str:
     return model.model_dump_json(indent=2) + "\n"
 
@@ -125,6 +143,8 @@ SCHEMA_IDS = {
     "observation-catalog.schema.json": ("urn:model-skyline:schema:v1alpha1:observation-catalog"),
     "frontier-snapshot.schema.json": ("urn:model-skyline:schema:v1alpha1:frontier-snapshot"),
     "selection-snapshot.schema.json": ("urn:model-skyline:schema:v1alpha1:selection-snapshot"),
+    "publication-manifest.schema.json": ("urn:model-skyline:schema:v1alpha1:publication-manifest"),
+    "frontier-history.schema.json": "urn:model-skyline:schema:v1alpha1:frontier-history",
     "request-trace.schema.json": "urn:model-skyline:schema:v1alpha1:request-trace",
 }
 
@@ -198,6 +218,10 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         "observation-catalog.schema.json": ObservationCatalog.model_json_schema(mode="validation"),
         "frontier-snapshot.schema.json": FrontierSnapshot.model_json_schema(mode="serialization"),
         "selection-snapshot.schema.json": SelectionSnapshot.model_json_schema(mode="serialization"),
+        "publication-manifest.schema.json": PublicationManifest.model_json_schema(
+            mode="serialization"
+        ),
+        "frontier-history.schema.json": FrontierHistory.model_json_schema(mode="serialization"),
         "request-trace.schema.json": RequestTrace.model_json_schema(mode="validation"),
     }
     result: dict[str, dict[str, Any]] = {}

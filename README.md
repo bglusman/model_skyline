@@ -7,9 +7,11 @@ artifacts, and turns a frontier into a current agent default with ordered
 fallbacks.
 
 > **Status:** working alpha. Frontier evaluation, trace aggregation, selection
-> artifacts, an in-process resolver, and pinned Aider and MCPMark benchmark
-> adapters are implemented. A scheduled publisher, effective-dated price cards,
-> and native runtime clients are next. Schemas may change during the alpha.
+> artifacts, a static multi-frontier publisher with retained RSS history, an
+> in-process resolver, and pinned Aider and MCPMark benchmark adapters are
+> implemented, along with a scheduled Aider-only publication workflow. GitHub
+> Pages activation and monitoring, effective-dated price cards, and native
+> agent-framework integrations are next. Schemas may change during the alpha.
 > “ModelSkyline” is a working name chosen to avoid collision with several
 > existing projects called Pareto Router.
 
@@ -103,6 +105,47 @@ uv run modelskyline select \
   --as-of 2026-08-29T19:00:00Z \
   --output selection.json
 ```
+
+Or publish every matching frontier and selection as one coherent static site:
+
+```console
+uv run modelskyline publish-project \
+  examples/coding-session/frontier.yaml \
+  ./site \
+  --project-id coding-demo \
+  --catalog examples/coding-session/observations.json \
+  --as-of 2026-08-29T19:00:00Z \
+  --base-url https://control.example/model-skyline
+```
+
+The site contains immutable JSON, CSV, text, history, feed, selection, and
+publication-manifest artifacts alongside convenient mutable `latest` and table
+aliases. Readers that need a coherent multi-file view start at the root
+`latest.json` manifest and follow only its digest-checked immutable references.
+RSS retains meaningful changes rather than emitting a duplicate item for an
+unchanged ordered view.
+
+Public redistribution is an explicit, fail-closed mode. It requires an HTTPS
+base URL and authorization for every source retained in history, either by an
+allowed license or a separately documented exact source-id override:
+
+```console
+uv run modelskyline publish-project \
+  examples/coding-session/frontier.yaml \
+  ./public-site \
+  --project-id coding-demo \
+  --catalog examples/coding-session/observations.json \
+  --as-of 2026-08-29T19:00:00Z \
+  --base-url https://control.example/model-skyline \
+  --public \
+  --allow-license CC0-1.0
+```
+
+`--public` is a redistribution guard, not a privacy scanner or legal opinion.
+Operators must separately remove prompts, secrets, personal data, private
+endpoints, and other sensitive metadata. The output directory is a dedicated
+publisher-owned namespace; see `docs/architecture.md` and `SECURITY.md` before
+using it on a shared or adversarial filesystem.
 
 An agent resolves once at the beginning of a work unit and retains that
 snapshot throughout the trajectory:

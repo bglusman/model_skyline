@@ -26,6 +26,15 @@ properties include input-order invariance, no dominated returned member,
 explicit rejection of missing/stale data, deterministic ties, correct
 minimize/maximize reversal, and failure-inclusive cost-per-success.
 
+Publisher changes must preserve the root `latest.json` commit-marker contract:
+all immutable files named by a manifest are durable before that manifest, and
+the root marker is replaced after every mutable alias. Test interrupted writes,
+idempotent retry, immutable collision/corruption, history validation, and
+full-refresh behavior. Existing publication sets are additive; do not interpret
+an omitted frontier or selection as implicit retirement. Keep publication paths
+portable and bounded, and do not weaken the dedicated-root, no-symlink, or
+single-writer assumptions without a documented threat-model change.
+
 ## Data and benchmarks
 
 Do not commit third-party model outputs, traces, benchmark questions, or price
@@ -40,6 +49,14 @@ Every imported observation should preserve:
 - offering/provider/region/tier identity;
 - sample count and uncertainty when available;
 - methodology and raw-artifact hash.
+
+For a public publisher fixture or deployment, record the exact license values
+passed to `--allow-license` and the external justification for every
+`--authorize-source` override. The public-mode check is not a legal conclusion
+or a privacy scanner. Review generated artifacts separately for prompts,
+secrets, personal data, private endpoints, and sensitive free-form metadata.
+Do not commit or deploy benchmark data merely because an adapter can download
+or analyze it locally.
 
 ## Security
 

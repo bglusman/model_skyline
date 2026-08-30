@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.3.0 - 2026-08-30
+
+- Add `publish-project` for coherent multi-workload frontier, retained-history,
+  RSS, and default/fallback selection publication.
+- Add content-addressed frontier JSON/CSV/text, history, feed, selection, and
+  publication-manifest artifacts with convenient mutable discovery aliases.
+- Make root `latest.json` the last-written cross-artifact commit marker, with
+  advisory single-writer locking, atomic file replacement, immutable collision
+  checks, out-of-root temporary staging, idempotent reruns, and fail-closed
+  chain and digest validation.
+- Preserve every previously published frontier and selection on refresh while
+  allowing additive expansion; reject implicit retirement, timestamp rollback,
+  and conflicting snapshots at one timestamp.
+- Add a public redistribution mode requiring HTTPS links and explicit license
+  or exact source-id authority across the complete retained history, while
+  rejecting unmanaged and unreachable publication content.
+- Default new publication files to owner-only permissions and fail closed on
+  unreadable tree entries; license checks cover every validated ancestor
+  manifest even if a current history view is damaged or pruned.
+- Add a least-privilege scheduled workflow that rebuilds the redistributable
+  Aider-only publication and advances durable `gh-pages` history without force
+  pushes; repository Pages activation remains an operator setting.
+- Publish `PublicationManifest` and `FrontierHistory` JSON Schema contracts and
+  emit RSS only for meaningful view changes or policy/axis baseline resets.
+
 ## 0.2.0 - 2026-08-30
 
 - Add pinned, hash-verified Aider Polyglot import and four historical

@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:publication-manifest",
+  "$defs": {
+    "PublicationPolicy": {
+      "additionalProperties": false,
+      "description": "The operator's explicit redistribution decision for this publication.",
+      "properties": {
+        "public": {
+          "default": false,
+          "title": "Public",
+          "type": "boolean"
+        },
+        "allowed_licenses": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowed Licenses",
+          "type": "array"
+        },
+        "authorized_source_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Authorized Source Ids",
+          "type": "array"
+        }
+      },
+      "title": "PublicationPolicy",
+      "type": "object"
+    },
+    "PublishedCatalog": {
+      "additionalProperties": false,
+      "properties": {
+        "workload": {
+          "$ref": "#/$defs/WorkloadReference"
+        },
+        "catalog_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Catalog Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "workload",
+        "catalog_hash"
+      ],
+      "title": "PublishedCatalog",
+      "type": "object"
+    },
+    "PublishedFile": {
+      "additionalProperties": false,
+      "description": "Digest-addressed file reference relative to a publication root.",
+      "properties": {
+        "path": {
+          "maxLength": 512,
+          "minLength": 1,
+          "pattern": "^(?:[a-z0-9][a-z0-9._-]{0,254}/)*[a-z0-9][a-z0-9._-]{0,254}\\.(?:csv|json|txt|xml)$",
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "media_type"
+      ],
+      "title": "PublishedFile",
+      "type": "object"
+    },
+    "PublishedFrontier": {
+      "additionalProperties": false,
+      "description": "Immutable files for one frontier in a committed publication set.\n\nConventional ``latest.json``, ``table.csv``, ``table.txt``, ``history.json``,\nand feed paths are mutable discovery aliases and deliberately do not appear\nin a historical manifest.",
+      "properties": {
+        "frontier_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Frontier Id",
+          "type": "string"
+        },
+        "snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/PublishedFile"
+        },
+        "csv": {
+          "$ref": "#/$defs/PublishedFile"
+        },
+        "table": {
+          "$ref": "#/$defs/PublishedFile"
+        },
+        "history": {
+          "$ref": "#/$defs/PublishedFile"
+        },
+        "feed": {
+          "$ref": "#/$defs/PublishedFile"
+        }
+      },
+      "required": [
+        "frontier_id",
+        "snapshot_id",
+        "snapshot",
+        "csv",
+        "table",
+        "history",
+        "feed"
+      ],
+      "title": "PublishedFrontier",
+      "type": "object"
+    },
+    "PublishedSelection": {
+      "additionalProperties": false,
+      "description": "Immutable file for one agent route in a committed publication set.",
+      "properties": {
+        "selection_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Selection Id",
+          "type": "string"
+        },
+        "snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "frontier_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Frontier Id",
+          "type": "string"
+        },
+        "frontier_snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Frontier Snapshot Id",
+          "type": "string"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/PublishedFile"
+        }
+      },
+      "required": [
+        "selection_id",
+        "snapshot_id",
+        "frontier_id",
+        "frontier_snapshot_id",
+        "snapshot"
+      ],
+      "title": "PublishedSelection",
+      "type": "object"
+    },
+    "WorkloadReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "unit"
+      ],
+      "title": "WorkloadReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Commit marker for one internally consistent multi-artifact publication.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/v1alpha1",
+      "default": "model-skyline/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "publication",
+      "default": "publication",
+      "title": "Kind",
+      "type": "string"
+    },
+    "hash_algorithm": {
+      "const": "sha256-rfc8785-v1",
+      "default": "sha256-rfc8785-v1",
+      "title": "Hash Algorithm",
+      "type": "string"
+    },
+    "publication_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Publication Id",
+      "type": "string"
+    },
+    "project_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "previous_publication_id": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Previous Publication Id"
+    },
+    "project_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Project Hash",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "catalogs": {
+      "items": {
+        "$ref": "#/$defs/PublishedCatalog"
+      },
+      "minItems": 1,
+      "title": "Catalogs",
+      "type": "array"
+    },
+    "policy": {
+      "$ref": "#/$defs/PublicationPolicy"
+    },
+    "frontiers": {
+      "items": {
+        "$ref": "#/$defs/PublishedFrontier"
+      },
+      "minItems": 1,
+      "title": "Frontiers",
+      "type": "array"
+    },
+    "selections": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PublishedSelection"
+      },
+      "title": "Selections",
+      "type": "array"
+    }
+  },
+  "required": [
+    "publication_id",
+    "project_id",
+    "project_hash",
+    "generated_at",
+    "catalogs",
+    "frontiers"
+  ],
+  "title": "PublicationManifest",
+  "type": "object"
+}

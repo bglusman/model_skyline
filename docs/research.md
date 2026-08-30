@@ -47,6 +47,102 @@ Additional research baselines to evaluate include
 [Unified Routing and Cascading](https://arxiv.org/abs/2410.10347). Do not copy
 code from repositories without a clear license.
 
+## Agent-framework integration seams and priority
+
+This is an implementation plan based on the official surfaces reviewed on the
+research date, not a claim that any native integration is present in
+ModelSkyline today. The integration boundary should remain the published
+selection/frontier schemas plus canonical request traces. Each adapter must pin
+or record its upstream API version, map a route to the complete offering
+identity, preserve the framework/harness version, and pin one selection for a
+whole work unit rather than re-resolving midway through an agent trajectory.
+
+### 1. OpenClaw: first bidirectional reference integration
+
+OpenClaw has the best combination of a dynamic selection seam and useful
+telemetry. Its official plugin documentation and types expose a
+`before_model_resolve` hook that can override provider/model choice before a
+run, while its model configuration already owns ordered fallback execution.
+The same typed hook surface includes model-call/output events, and its
+OpenTelemetry documentation covers model usage and timing. That supports one
+small plugin that resolves a ModelSkyline selection at work-unit start, maps
+the selected offering to OpenClaw's provider/model identity, leaves retries to
+OpenClaw, and emits cache-, token-, latency-, outcome-, and fallback-aware
+canonical traces afterward.
+
+The reviewed official sources are pinned to OpenClaw commit `ad00ba8`:
+
+- [plugin hook lifecycle](https://github.com/openclaw/openclaw/blob/ad00ba847d891a95792de8d5ec5de696756c910d/docs/plugins/hooks.md);
+- [typed hook contracts](https://github.com/openclaw/openclaw/blob/ad00ba847d891a95792de8d5ec5de696756c910d/src/plugins/hook-types.ts);
+- [model selection and fallbacks](https://github.com/openclaw/openclaw/blob/ad00ba847d891a95792de8d5ec5de696756c910d/docs/concepts/models.md);
+- [gateway OpenTelemetry](https://github.com/openclaw/openclaw/blob/ad00ba847d891a95792de8d5ec5de696756c910d/docs/gateway/opentelemetry.md).
+
+The adapter must not collapse OpenClaw's provider, model, profile, or gateway
+route into a bare model id. Hook contracts can change, so the first plugin
+should pin a tested OpenClaw range and fail closed on unknown event shapes.
+
+### 2. Hermes Agent: telemetry bridge, then selection mapping
+
+Hermes is the quickest second path to real local usage and session evidence.
+Its official CLI exposes usage data, its observer supports structured
+observability, session storage retains the trajectory boundary needed for a
+work-unit aggregate, and its provider configuration already describes fallback
+behavior. Start with a read-only importer that maps usage/session records to
+canonical traces without prompts or tool payloads. Only then add a consumer
+that translates published choices into the provider/model configuration Hermes
+actually supports; do not imply that a ModelSkyline list has native semantics
+until failure ordering and stickiness have been verified end to end.
+
+The reviewed official sources are pinned to Hermes Agent commit `4f22543`:
+
+- [CLI commands and usage](https://github.com/NousResearch/hermes-agent/blob/4f22543509d1b91dc45bcb369447126c5eb14fb7/website/docs/reference/cli-commands.md);
+- [observability observer](https://github.com/NousResearch/hermes-agent/blob/4f22543509d1b91dc45bcb369447126c5eb14fb7/docs/observability/README.md);
+- [fallback-provider configuration](https://github.com/NousResearch/hermes-agent/blob/4f22543509d1b91dc45bcb369447126c5eb14fb7/website/docs/user-guide/features/fallback-providers.md);
+- [session storage](https://github.com/NousResearch/hermes-agent/blob/4f22543509d1b91dc45bcb369447126c5eb14fb7/website/docs/developer-guide/session-storage.md).
+
+### 3. Claude: typed cost/cache ingestion with a bounded native chain
+
+Claude Agent SDK result types provide a strong typed ingestion surface for
+reported total cost and usage, including cache creation/read counters. Claude
+Code also documents fallback-model chains with a maximum of three models. A
+first adapter can therefore ingest result messages into canonical traces and
+generate a bounded chain from a selection when every offering maps to an
+explicit supported Claude model/configuration.
+
+Relevant official references are the
+[pinned Python SDK types at `af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/blob/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6/src/claude_agent_sdk/types.py),
+[Agent SDK cost tracking](https://code.claude.com/docs/en/agent-sdk/cost-tracking),
+[fallback model chains](https://code.claude.com/docs/en/model-config#fallback-model-chains),
+and [Agent SDK observability](https://code.claude.com/docs/en/agent-sdk/observability).
+The hosted runtime is commercial, and OpenTelemetry/event configuration can
+carry sensitive prompt or tool context. Collection must be opt-in and redacted
+before any trace or derived metadata reaches a public publication.
+
+### 4. Codex: trace consumer and per-run choice before fallback orchestration
+
+Codex provides two useful official machine interfaces. `codex exec --json`
+streams JSONL events whose completed-turn record includes token usage, while
+the App Server protocol has an explicit model on thread start and typed thread
+token-usage notifications. Its advanced configuration also exposes
+OpenTelemetry. These are credible telemetry and per-run model-selection seams.
+No official ordered model-fallback contract was found in the reviewed Codex
+surfaces, so the initial integration should ingest Codex events and set one
+selected default per work unit; an external controller must own fallback
+orchestration unless Codex later publishes such a contract.
+
+Official references are
+[`codex exec` non-interactive mode](https://learn.chatgpt.com/docs/non-interactive-mode),
+the [App Server guide](https://learn.chatgpt.com/docs/app-server), the pinned
+[`ThreadStartParams` schema](https://github.com/openai/codex/blob/94cbbddafc1776d5e377bca1b05932c697e82238/codex-rs/app-server-protocol/schema/json/v2/ThreadStartParams.json),
+the pinned
+[`ThreadTokenUsageUpdatedNotification` schema](https://github.com/openai/codex/blob/94cbbddafc1776d5e377bca1b05932c697e82238/codex-rs/app-server-protocol/schema/json/v2/ThreadTokenUsageUpdatedNotification.json),
+and [observability configuration](https://learn.chatgpt.com/docs/config-file/config-advanced#observability-and-telemetry).
+
+Across all four integrations, raw framework events should stay local by
+default. The reusable output is a workload-bound, content-hashed aggregate or
+redacted canonical trace with explicit cache-counter semantics—not a dump of
+prompts, responses, tool arguments, repository paths, or environment values.
+
 ## Catalog, price, and performance sources
 
 | Source | Useful fields | Access/licensing and caveats | Recommendation |

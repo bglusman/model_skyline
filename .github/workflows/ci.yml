@@ -54,3 +54,12 @@ jobs:
           examples/coding-session/observations.json
           coding-value
           --as-of 2026-08-29T19:00:00Z
+      - run: >-
+          /tmp/modelskyline-wheel/bin/modelskyline publish-project
+          examples/coding-session/frontier.yaml
+          /tmp/modelskyline-published
+          --project-id package-smoke
+          --catalog examples/coding-session/observations.json
+          --as-of 2026-08-29T19:00:00Z
+          --base-url https://example.invalid/model-skyline
+      - run: test -s /tmp/modelskyline-published/latest.json

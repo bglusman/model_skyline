@@ -280,23 +280,99 @@ model family, region, and shared infrastructure failure domains. Availability,
 rate limits, and health are short-lived runtime eligibility overlays; they do
 not mutate benchmark snapshots.
 
-Recommended publication layout:
+`publish-project` evaluates all selected frontiers and their selections at one
+UTC timestamp, then commits one internally coherent publication. Repeating
+`--catalog` supplies at most one catalog per workload. Omitting `--frontier`
+selects every configured frontier whose workload has a supplied catalog;
+omitting `--selection` selects every configured selection backed by those
+frontiers.
+
+The implemented publication layout is:
 
 ```text
+latest.json                                      # mutable project commit marker
+publications/<publication-id>.json               # immutable project manifest
 frontiers/<id>/<snapshot-id>.json
+frontiers/<id>/<snapshot-id>.csv
+frontiers/<id>/<snapshot-id>.txt
+frontiers/<id>/history-<history-sha256>.json
 frontiers/<id>/latest.json
+frontiers/<id>/history.json
 frontiers/<id>/table.csv
 frontiers/<id>/table.txt
 selections/<id>/<snapshot-id>.json
 selections/<id>/latest.json
+feeds/<frontier-id>/<feed-sha256>.xml
 feeds/<frontier-id>.xml
 ```
 
-JSON is the contract. CSV/table are human views. RSS is a change feed: one item
-summarizes entrants, removals, and the current ordered list, linking to the
-full immutable snapshot. A publisher should retain items from prior snapshots.
-CSV neutralizes spreadsheet-formula prefixes in textual cells by default;
-`--raw-csv` is available for systems that require exact raw text.
+JSON and its published schemas are the contract. CSV/table are human views.
+RSS retains semantic changes across committed snapshots: items summarize
+entrants, removals, rank or value changes, and the current ordered view while
+linking to the full immutable snapshot when a base URL is configured. A new
+snapshot whose ordered view is unchanged extends history without adding a
+duplicate feed item. A workload, axis, policy, or offering-identity change is a
+baseline reset rather than a misleading point-by-point diff. CSV neutralizes
+spreadsheet-formula prefixes in textual cells.
+
+Snapshot ids and artifact SHA-256 values name immutable files. A publication
+manifest names only immutable files and links to its immutable predecessor;
+the conventional `latest.json`, `history.json`, tables, selection aliases, and
+flat feed paths are mutable discovery conveniences. A coherent reader begins
+with root `latest.json`, verifies its `publication_id`, and follows the
+manifest's immutable, digest-bearing references. It must not assemble a
+project view by independently reading several mutable aliases.
+
+Publication is ordered so primary immutable snapshots and derived artifacts
+become durable first, the immutable publication manifest is written after all
+files it names, mutable aliases are atomically replaced one at a time, and root
+`latest.json` is replaced last. The process takes an advisory writer lock in
+the output directory's parent and fsyncs files and directories where supported.
+If a process stops before the last step, root `latest.json` still commits the
+previous project view even if some aliases already show complete newer files.
+Temporary files use unguessable names in the output root's parent, outside the
+managed and served namespace, and only the creating process removes them. A
+hard crash can leave a harmless sibling for operator cleanup; the publisher
+does not infer ownership of pre-existing files from their names. Consequently,
+the root and its parent must share a filesystem. The next identical run
+validates the last committed chain and repairs aliases. Immutable collisions,
+missing files, digest mismatches, timestamp rollback, unmanaged paths, and
+symlinks fail closed.
+
+An existing root is intentionally **full-refresh and additive**. Every
+previously published frontier and selection must be included on every run;
+new ones may be added, but omission is rejected instead of being interpreted
+as retirement. There is no retirement operation in this alpha. Publish a new
+project root (and, when appropriate, a new project id) when a set must shrink.
+All frontier snapshots in a publication share one timestamp. Time is monotonic,
+and one timestamp cannot identify two different snapshots for a frontier.
+
+Public mode adds an HTTPS-base-URL requirement and checks the sources of both
+the candidate and the entire retained frontier history. Every source must have
+a license named by `--allow-license` or an exact id named by
+`--authorize-source`, representing separately documented authority. It also
+rejects aliases or immutable files not reachable from the committed chain or
+the exact candidate, so an interrupted candidate can be retried but arbitrary
+orphan content cannot silently become part of a public tree. These checks make
+redistribution intent explicit; they do not determine that a license applies,
+provide legal advice, or inspect content for secrets, prompts, personal data,
+or private endpoints. Privacy review and source-rights verification remain
+operator responsibilities.
+
+The filesystem trust boundary is also explicit: the output root and every
+parent directory must be exclusively writable by the publisher identity.
+Path-component and symlink checks reduce accidents, but the implementation has
+check-then-use windows and does not defend against a hostile local actor that
+can concurrently alter those directories. Use a dedicated directory on a
+trusted filesystem and serve a copy or read-only view to less-trusted users.
+
+History reconstruction is alpha-scale. Each run reconstructs a retained
+frontier history in O(n) entries and also validates the complete publication
+manifest chain; practical work and I/O therefore grow with retained history.
+Current hard limits include 10,000 history entries/manifests, 100,000 existing
+files, 64 MiB per artifact, and 1,000 RSS items. Sharded/checkpointed history is
+required before using one root for very long-running high-frequency
+publication.
 
 ## Canonical artifacts and resolver trust
 
@@ -333,10 +409,17 @@ loader is a trusted integration boundary and must enforce equivalent transport
 and size controls. Signed manifests are a future option for untrusted
 distribution.
 
-There is not yet a scheduled/persistent publisher. The CLI emits one snapshot
-or RSS item, and the resolver cache is process-local. A production “always
-current” deployment still needs scheduling, atomic `latest` updates, retained
-history/feed items, monitoring, and persistent last-known-good storage.
+The static publisher provides persistent history, coherent project commit
+markers, retained feeds, and atomic single-file aliases. The repository's
+scheduled GitHub Actions workflow imports only the pinned Apache-2.0 Aider
+bundle, restores durable history from `gh-pages`, validates a public
+publication in a read-only build job, and uses a separate write-authorized job
+to advance that branch without force-pushing. The repository's Pages setting
+still must be activated, and the workflow does not provide monitoring,
+publisher authentication/signatures, a general hosted service, or persistent
+resolver cache. Production “always current” operation still needs a trusted
+static origin plus alerting and an explicit retention policy. The resolver
+cache remains process-local.
 
 ## Near-term roadmap
 
@@ -347,12 +430,14 @@ history/feed items, monitoring, and persistent last-known-good storage.
    cache-aware coding cost; then OpenTelemetry GenAI and OpenInference inputs.
 3. Current provider/catalog joins for the implemented Aider and MCPMark
    benchmark adapters, with explicit historical versus counterfactual labels.
-4. Broader licensed research, customer-service, and terminal-task adapters.
-5. HTTP/subprocess oracle protocol with content-addressed result cache.
-6. Formula dimensional analysis and safe interval propagation.
-7. Publisher/service with ETags, atomic `latest` pointers, snapshot history,
-   RSS retention, and health overlays.
-8. Thin TypeScript and framework-specific clients (PydanticAI first, then
-   LangChain/LangGraph, Vercel AI SDK, and generic OpenAI-compatible agents).
+4. Activate and monitor Pages for the scheduled Aider publication, then add
+   ETag-aware serving and persistent resolver state.
+5. OpenClaw and Hermes telemetry/selection adapters, then Claude and Codex
+   consumers; the researched seams are listed in `research.md` and none of
+   these native integrations is implemented yet.
+6. Broader licensed research, customer-service, and terminal-task adapters.
+7. HTTP/subprocess oracle protocol with content-addressed result cache.
+8. Formula dimensional analysis and safe interval propagation.
 9. Selection hysteresis, failure-domain diversity, capability thresholds, and
    recomputation after dynamic filtering.
+10. Manifest authentication and checkpointed or sharded publication history.

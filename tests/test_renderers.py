@@ -6,7 +6,9 @@ from xml.etree import ElementTree as ET
 
 from model_skyline.engine import FrontierEngine
 from model_skyline.models import ObservationCatalog, ProjectConfig
-from model_skyline.renderers import render_csv, render_rss
+from model_skyline.renderers import render_csv, render_rss, render_rss_history
+
+RSS_NAMESPACE = "urn:model-skyline:rss:1.0"
 
 
 def test_rss_escapes_dynamic_values_inside_embedded_html(
@@ -76,3 +78,54 @@ def test_csv_neutralizes_spreadsheet_formula_headers(
     )
 
     assert render_csv(snapshot).splitlines()[0].endswith("'=HYPERLINK")
+
+
+def test_single_item_rss_resets_cleanly_when_axis_contract_changes(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    previous = FrontierEngine().calculate(
+        example_config,
+        example_catalog,
+        "coding-value",
+        generated_at=datetime(2026, 8, 29, 19, tzinfo=UTC),
+    )
+    responsiveness = FrontierEngine().calculate(
+        example_config,
+        example_catalog,
+        "coding-responsiveness",
+        generated_at=datetime(2026, 8, 29, 20, tzinfo=UTC),
+    )
+    current = responsiveness.model_copy(update={"frontier_id": previous.frontier_id})
+
+    root = ET.fromstring(render_rss(current, previous=previous))
+
+    assert root.findtext(f"./channel/item/{{{RSS_NAMESPACE}}}baselineReset") == "true"
+
+
+def test_retained_rss_detects_routable_identity_change_at_same_values(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    previous = FrontierEngine().calculate(
+        example_config,
+        example_catalog,
+        "coding-value",
+        generated_at=datetime(2026, 8, 29, 19, tzinfo=UTC),
+    )
+    catalog = example_catalog.model_copy(deep=True)
+    first = catalog.offerings[0]
+    catalog.offerings[0] = first.model_copy(
+        update={"offering": first.offering.model_copy(update={"provider": "alternate-route"})}
+    )
+    current = FrontierEngine().calculate(
+        example_config,
+        catalog,
+        "coding-value",
+        generated_at=datetime(2026, 8, 29, 20, tzinfo=UTC),
+    )
+
+    root = ET.fromstring(render_rss_history([previous, current]))
+
+    assert len(root.findall("./channel/item")) == 2
+    assert root.findtext(f"./channel/item/{{{RSS_NAMESPACE}}}baselineReset") == "false"

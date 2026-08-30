@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
+from copy import deepcopy
 from datetime import UTC, datetime
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator
@@ -10,6 +13,7 @@ from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
 from model_skyline.engine import FrontierEngine
 from model_skyline.io import generated_schemas, public_schemas
 from model_skyline.models import AxisEstimate, ObservationCatalog, ProjectConfig
+from model_skyline.publisher import publish_project
 from model_skyline.selection import select_models
 
 NOW = datetime(2026, 8, 29, 19, tzinfo=UTC)
@@ -45,6 +49,38 @@ def test_committed_schemas_validate_real_public_artifacts(
     _valid(schemas["frontier-snapshot.schema.json"], frontier.model_dump(mode="json"))
     _valid(schemas["selection-snapshot.schema.json"], selection.model_dump(mode="json"))
     assert all(schema["$id"].startswith("urn:model-skyline:schema:") for schema in schemas.values())
+
+
+def test_committed_publication_schemas_validate_publisher_artifacts(
+    tmp_path: Path,
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    schemas = public_schemas()
+    result = publish_project(
+        example_config,
+        [example_catalog],
+        tmp_path.resolve() / "site",
+        project_id="schema-test",
+        generated_at=NOW,
+    )
+    history = result.manifest.frontiers[0].history
+
+    _valid(
+        schemas["publication-manifest.schema.json"],
+        result.manifest.model_dump(mode="json"),
+    )
+    _valid(
+        schemas["frontier-history.schema.json"],
+        json.loads((tmp_path.resolve() / "site" / history.path).read_text()),
+    )
+
+    payload = result.manifest.model_dump(mode="json")
+    for unsafe in ("a/../b.json", "a//b.json", "a/./b.json", r"a\b.json"):
+        invalid = deepcopy(payload)
+        invalid["frontiers"][0]["snapshot"]["path"] = unsafe
+        with pytest.raises(JsonSchemaValidationError):
+            _valid(schemas["publication-manifest.schema.json"], invalid)
 
 
 def test_decimal_artifact_serialization_is_fixed_point() -> None:

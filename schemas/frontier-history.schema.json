@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:frontier-history",
+  "$defs": {
+    "FrontierHistoryEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "workload": {
+          "$ref": "#/$defs/WorkloadReference"
+        },
+        "config_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "catalog_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Catalog Hash",
+          "type": "string"
+        },
+        "axis_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Axis Hash",
+          "type": "string"
+        },
+        "view_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "View Hash",
+          "type": "string"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/PublishedFile"
+        }
+      },
+      "required": [
+        "snapshot_id",
+        "generated_at",
+        "workload",
+        "config_hash",
+        "catalog_hash",
+        "axis_hash",
+        "view_hash",
+        "snapshot"
+      ],
+      "title": "FrontierHistoryEntry",
+      "type": "object"
+    },
+    "PublishedFile": {
+      "additionalProperties": false,
+      "description": "Digest-addressed file reference relative to a publication root.",
+      "properties": {
+        "path": {
+          "maxLength": 512,
+          "minLength": 1,
+          "pattern": "^(?:[a-z0-9][a-z0-9._-]{0,254}/)*[a-z0-9][a-z0-9._-]{0,254}\\.(?:csv|json|txt|xml)$",
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "media_type"
+      ],
+      "title": "PublishedFile",
+      "type": "object"
+    },
+    "WorkloadReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "unit"
+      ],
+      "title": "WorkloadReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/v1alpha1",
+      "default": "model-skyline/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "frontier-history",
+      "default": "frontier-history",
+      "title": "Kind",
+      "type": "string"
+    },
+    "frontier_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+      "title": "Frontier Id",
+      "type": "string"
+    },
+    "entries": {
+      "items": {
+        "$ref": "#/$defs/FrontierHistoryEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+    }
+  },
+  "required": [
+    "frontier_id",
+    "entries"
+  ],
+  "title": "FrontierHistory",
+  "type": "object"
+}

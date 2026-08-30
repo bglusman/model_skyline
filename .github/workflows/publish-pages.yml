@@ -1,0 +1,171 @@
+name: Publish Aider data
+
+on:
+  schedule:
+    - cron: "43 6 * * 1"
+  workflow_dispatch:
+
+# A publication is one non-force update of the durable gh-pages history. Keep
+# scheduled and manual runs from racing each other.
+concurrency:
+  group: modelskyline-aider-publication
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  build:
+    if: >-
+      github.repository == 'bglusman/model_skyline' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.14"
+          enable-cache: true
+      - run: uv sync --frozen
+
+      - name: Restore retained publication state
+        shell: bash
+        env:
+          PUBLICATION_SITE: ${{ runner.temp }}/modelskyline-site
+        run: |
+          set -euo pipefail
+          mkdir -p "${PUBLICATION_SITE}/data"
+          gh_pages_ref="$(git ls-remote --heads origin refs/heads/gh-pages)"
+          if [[ -n "${gh_pages_ref}" ]]; then
+            git fetch --no-tags --depth=1 origin \
+              gh-pages:refs/remotes/origin/gh-pages
+            if git cat-file -e origin/gh-pages:data 2>/dev/null; then
+              git archive origin/gh-pages data | tar -x -C "${PUBLICATION_SITE}"
+            fi
+          fi
+
+      - name: Import the pinned Aider Polyglot source
+        shell: bash
+        env:
+          AIDER_PROJECT: ${{ runner.temp }}/aider-project
+        run: |
+          set -euo pipefail
+          uv run modelskyline import-aider-polyglot \
+            "${AIDER_PROJECT}" \
+            --expected-sha256 \
+            85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de
+
+      # This intentionally publishes only the pinned Apache-2.0 Aider bundle.
+      # MCPMark's current source metadata is NOASSERTION and must not be added.
+      - name: Build and validate the public publication
+        shell: bash
+        env:
+          AIDER_PROJECT: ${{ runner.temp }}/aider-project
+          PUBLICATION_ROOT: ${{ runner.temp }}/modelskyline-site/data
+        run: |
+          set -euo pipefail
+          uv run modelskyline publish-project \
+            "${AIDER_PROJECT}/frontier.yaml" \
+            "${PUBLICATION_ROOT}" \
+            --project-id aider-polyglot \
+            --catalog "${AIDER_PROJECT}/observations.json" \
+            --base-url "https://bglusman.github.io/model_skyline/data" \
+            --public \
+            --allow-license Apache-2.0
+          test -s "${PUBLICATION_ROOT}/latest.json"
+
+      - name: Upload validated publication
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: aider-publication
+          path: ${{ runner.temp }}/modelskyline-site/data
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 1
+
+  publish:
+    needs: build
+    if: >-
+      github.repository == 'bglusman/model_skyline' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download validated publication
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: aider-publication
+          path: ${{ runner.temp }}/aider-publication
+
+      # This job receives write authority but never installs dependencies or
+      # executes repository or artifact code.
+      - name: Check out repository for authenticated Git transport
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+
+      - name: Commit publication without rewriting history
+        shell: bash
+        env:
+          INCOMING_ROOT: ${{ runner.temp }}/aider-publication
+        run: |
+          set -euo pipefail
+          test -s "${INCOMING_ROOT}/latest.json"
+          if find "${INCOMING_ROOT}" -type l -print -quit | grep -q .; then
+            echo "Refusing to publish an artifact containing symbolic links" >&2
+            exit 1
+          fi
+
+          incoming_id="$(jq -er '.publication_id | select(type == "string")' \
+            "${INCOMING_ROOT}/latest.json")"
+          incoming_previous_id="$(jq -r '.previous_publication_id // empty' \
+            "${INCOMING_ROOT}/latest.json")"
+          [[ "${incoming_id}" =~ ^[0-9a-f]{64}$ ]]
+          [[ -z "${incoming_previous_id}" || \
+            "${incoming_previous_id}" =~ ^[0-9a-f]{64}$ ]]
+
+          gh_pages_ref="$(git ls-remote --heads origin refs/heads/gh-pages)"
+          if [[ -n "${gh_pages_ref}" ]]; then
+            git fetch --no-tags --depth=1 origin \
+              gh-pages:refs/remotes/origin/gh-pages
+            if git cat-file -e origin/gh-pages:data/latest.json 2>/dev/null; then
+              current_id="$(git show origin/gh-pages:data/latest.json | \
+                jq -er '.publication_id | select(type == "string")')"
+              if [[ "${incoming_id}" != "${current_id}" && \
+                "${incoming_previous_id}" != "${current_id}" ]]; then
+                echo "The durable publication advanced after this build; retry the run" >&2
+                exit 1
+              fi
+            elif [[ -n "${incoming_previous_id}" ]]; then
+              echo "The durable publication history disappeared after this build" >&2
+              exit 1
+            fi
+            git switch --create gh-pages --track origin/gh-pages
+            git rm --recursive --quiet --ignore-unmatch data
+          else
+            if [[ -n "${incoming_previous_id}" ]]; then
+              echo "The gh-pages branch disappeared after this build" >&2
+              exit 1
+            fi
+            git switch --orphan gh-pages
+          fi
+
+          mkdir -p data
+          cp -a "${INCOMING_ROOT}/." data/
+          git add --all -- data
+          if git diff --cached --quiet; then
+            echo "Publication content is unchanged"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Publish Aider frontier snapshot"
+          git push origin HEAD:gh-pages
