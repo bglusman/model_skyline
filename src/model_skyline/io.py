@@ -64,7 +64,12 @@ def _validate(model: type[ModelT], value: Any, path: str | Path) -> ModelT:
 
 def load_config(path: str | Path) -> ProjectConfig:
     try:
-        value = yaml.load(_read(path), Loader=_DecimalSafeLoader)
+        # This SafeLoader subclass only replaces float construction with exact Decimal.
+        loader = _DecimalSafeLoader(_read(path))
+        try:
+            value = loader.get_single_data()
+        finally:
+            loader.dispose()
     except yaml.YAMLError as exc:
         raise InputError(f"cannot parse YAML {path}: {exc}") from exc
     return _validate(ProjectConfig, value, path)

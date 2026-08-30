@@ -1,0 +1,102 @@
+- dirname: 2025-01-01--alpha-diff
+  test_cases: 225
+  total_tests: 225
+  model: alpha-model
+  edit_format: diff
+  commit_hash: abc1234, 012abcd
+  pass_rate_1: 53.3
+  pass_rate_2: 80.0
+  pass_num_1: 120
+  pass_num_2: 180
+  percent_cases_well_formed: 99.6
+  error_outputs: 2
+  test_timeouts: 1
+  command: aider --model alpha-model
+  date: 2025-01-01
+  versions: 1.2.3
+  seconds_per_case: 10.25
+  total_cost: 18.00
+
+- dirname: 2025-01-02--beta-whole
+  test_cases: 225
+  total_tests: 225
+  model: beta-model
+  edit_format: whole
+  commit_hash: "0123456"
+  pass_rate_1: 40.0
+  pass_rate_2: 60.0
+  pass_num_1: 90
+  pass_num_2: 135
+  percent_cases_well_formed: 100.0
+  command: aider --model beta-model
+  date: 2025-01-02
+  versions: 1.2.3
+  seconds_per_case: 4.5
+  total_cost: 2.25
+
+- dirname: 2025-01-03--dirty-architect
+  test_cases: 225
+  total_tests: 225
+  model: gamma-model + editor-model
+  edit_format: architect
+  editor_model: editor-model
+  editor_edit_format: editor-diff
+  reasoning_effort: high
+  commit_hash: def5678, abc0000-dirty
+  pass_rate_1: 62.2
+  pass_rate_2: 84.4
+  pass_num_1: 140
+  pass_num_2: 190
+  command: aider --architect --model gamma-model --editor-model editor-model
+  date: 2025-01-03
+  versions: 1.2.3.dev
+  seconds_per_case: 20
+  total_cost: 30
+
+- dirname: 2025-01-04--zero-cost
+  test_cases: 225
+  total_tests: 225
+  model: unpriced-model
+  edit_format: diff
+  commit_hash: fed9876
+  pass_rate_1: 22.2
+  pass_rate_2: 44.4
+  pass_num_1: 50
+  pass_num_2: 100
+  command: aider --model unpriced-model
+  date: 2025-01-04
+  versions: 1.2.3
+  seconds_per_case: 3
+  total_cost: 0
+
+- dirname: 2025-01-05--incomplete
+  test_cases: 224
+  total_tests: 225
+  model: incomplete-model
+  edit_format: diff
+  commit_hash: aaa9876
+  pass_rate_1: 22.3
+  pass_rate_2: 44.6
+  pass_num_1: 50
+  pass_num_2: 100
+  command: aider --model incomplete-model
+  date: 2025-01-05
+  versions: 1.2.3
+  seconds_per_case: 3
+  total_cost: 1
+
+- dirname: 2025-01-06--incoherent
+  test_cases: 225
+  total_tests: 225
+  model: incoherent-model
+  edit_format: diff
+  commit_hash: bbb9876
+  pass_rate_1: 53.3
+  pass_rate_2: 70.0
+  pass_num_1: 120
+  pass_num_2: 180
+  command: aider --model incoherent-model
+  date: 2025-01-06
+  versions: 1.2.3
+  seconds_per_case: 3
+  total_cost: 1

@@ -2,6 +2,7 @@
 
 - Status: accepted for `v1alpha1`, with an integration checkpoint
 - Date: 2026-08-29
+- Checkpoint update: 2026-08-30
 
 ## Context
 
@@ -47,8 +48,9 @@ trace-analysis, and columnar-data interoperability remain stronger in Python.
   reimplement frontier semantics.
 - A future native kernel can be extracted behind the same contracts without
   invalidating published artifacts.
-- The bundled alpha currently proves Pydantic, DuckDB, Lark, and RFC 8785
-  integration, but its data are synthetic. The next milestone must ship a real
-  catalog/price adapter plus a real trace/benchmark adapter (initially
-  models.dev/LiteLLM and TraceLab/Aider). If it does not, reopen this ADR rather
-  than carrying Python for hypothetical ecosystem value.
+- The alpha now ships pinned real-data adapters for Aider Polyglot and MCPMark
+  Verified while keeping upstream bytes out of the repository. This satisfies
+  the benchmark/evaluation half of the checkpoint. A models.dev/LiteLLM price
+  adapter and empirical TraceLab/operator trace adapter remain the next test;
+  if they do not gain material value from Python, reopen this ADR rather than
+  carrying the language for hypothetical ecosystem value.

@@ -6,10 +6,10 @@ provider, endpoint, region, tier, and configuration), publishes immutable
 artifacts, and turns a frontier into a current agent default with ordered
 fallbacks.
 
-> **Status:** working alpha core. Frontier evaluation, trace aggregation,
-> selection artifacts, and an in-process resolver are implemented. Live data
-> adapters, a scheduled publisher, and effective-dated price cards are the next
-> vertical slice. Schemas may change before the first tagged release.
+> **Status:** working alpha. Frontier evaluation, trace aggregation, selection
+> artifacts, an in-process resolver, and pinned Aider and MCPMark benchmark
+> adapters are implemented. A scheduled publisher, effective-dated price cards,
+> and native runtime clients are next. Schemas may change during the alpha.
 > “ModelSkyline” is a working name chosen to avoid collision with several
 > existing projects called Pareto Router.
 
@@ -55,10 +55,10 @@ immutable JSON snapshots are the interoperability boundary; agent runtimes do
 not need to embed Python.
 
 Python is a conditional choice, not an assumption: Pydantic, DuckDB/Parquet,
-and the evaluation ecosystem justify it for collectors and analysis. The next
-milestone must prove that choice with real catalog, trace, and benchmark
-adapters. Runtime clients remain native to their agent frameworks, beginning
-with TypeScript.
+and the evaluation ecosystem justify it for collectors and analysis. The real
+benchmark adapters exercise that ecosystem-facing role; JSON Schema and
+immutable artifacts remain the boundary. Runtime clients should remain native
+to their agent frameworks, beginning with TypeScript.
 
 ## Install from a source checkout
 
@@ -121,6 +121,53 @@ selection = resolver.resolve()  # pin this object for the whole work unit
 default = selection.default.offering
 fallbacks = [choice.offering for choice in selection.fallbacks]
 ```
+
+## Run with pinned real benchmark data
+
+The Aider adapter downloads an immutable Apache-2.0 Polyglot leaderboard file,
+verifies its SHA-256, rejects incomplete, unpriced, zero-cost, incoherent, and
+dirty-harness rows, and writes a normal ModelSkyline project:
+
+```console
+uv run modelskyline import-aider-polyglot ./aider-real
+uv run modelskyline evaluate \
+  ./aider-real/frontier.yaml \
+  ./aider-real/observations.json \
+  cost-per-attempted-vs-solve-rate
+```
+
+This is a mixed historical leaderboard comparison, not a controlled same-date
+provider experiment, current price, or availability claim. Aider versions,
+edit formats, and run conditions vary. Its aggregate cost does not expose cache
+meter splits or non-model infrastructure charges, and its reported
+`seconds_per_case` excludes unit-test execution. The adapter therefore labels
+that metric as agent edit/generation time and preserves all caveats in the
+generated project and manifest.
+
+Remote imports are fail-closed: the pinned host is allowed by default, redirects
+are refused, and a custom remote requires an explicit repeated `--allow-host`.
+Local files need no network allowlist.
+
+MCPMark Verified demonstrates workload-dependent agent behavior across
+filesystem, GitHub, Notion, Playwright, and Postgres tasks:
+
+```console
+uv run modelskyline import-mcpmark-verified ./mcpmark-real
+uv run modelskyline evaluate \
+  ./mcpmark-real/frontier.yaml \
+  ./mcpmark-real/observations-github.json \
+  github-quality-time
+```
+
+Its experiment-results repository had no declared license at the pinned
+revision, so no results are vendored and generated outputs should be treated as
+locally analyzed data, not redistributed. It deliberately emits no cost:
+the source lacks provider route and cache telemetry, and inventing those would
+turn a useful benchmark into a misleading bill estimate.
+
+Both adapters use point estimates for frontier membership. Their Wilson bounds
+are descriptive binomial reference intervals under an IID task-sampling
+assumption; they are not measurements of run-to-run or serving variance.
 
 See `docs/architecture.md` for semantics and `docs/research.md` for prior art,
 data sources, workload evidence, licenses, and integration recommendations.

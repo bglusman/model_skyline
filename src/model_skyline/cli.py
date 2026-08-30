@@ -8,6 +8,27 @@ from typing import Annotated
 
 import typer
 
+from model_skyline.adapters.aider import (
+    DEFAULT_ALLOWED_HOSTS as AIDER_DEFAULT_ALLOWED_HOSTS,
+)
+from model_skyline.adapters.aider import (
+    DEFAULT_SOURCE_URL as AIDER_DEFAULT_SOURCE_URL,
+)
+from model_skyline.adapters.aider import (
+    AiderAdapterError,
+    import_aider_polyglot,
+    write_aider_import,
+)
+from model_skyline.adapters.mcpmark import (
+    MCPMARK_DEFAULT_ALLOWED_HOSTS,
+    MCPMARK_VERIFIED_SHA256,
+    MCPMARK_VERIFIED_URL,
+    MCPMarkAdapterError,
+    build_mcpmark_project_config,
+    fetch_mcpmark_catalogs,
+    load_mcpmark_catalogs,
+    write_mcpmark_import,
+)
 from model_skyline.engine import FrontierEngine
 from model_skyline.formula import compile_formula
 from model_skyline.io import (
@@ -65,6 +86,13 @@ def _as_of(value: str | None) -> datetime | None:
     if result.tzinfo is None:
         raise ValueError("--as-of must include a timezone")
     return result
+
+
+def _retrieved_at(value: str | None) -> datetime | None:
+    try:
+        return _as_of(value)
+    except ValueError as exc:
+        raise ValueError(str(exc).replace("--as-of", "--retrieved-at")) from exc
 
 
 def _emit(value: str, output: Path | None) -> None:
@@ -201,6 +229,170 @@ def aggregate_trace_command(
         enriched = enrich_catalog(loaded_catalog, summary)
         _emit(dump_json(enriched), output)
     except (InputError, OSError, TraceAggregationError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("import-aider-polyglot")
+def import_aider_polyglot_command(
+    output_directory: Annotated[Path, typer.Argument(file_okay=False)],
+    source: Annotated[
+        str | None,
+        typer.Option(
+            "--source",
+            help="local YAML path or HTTPS URL; defaults to the pinned official leaderboard",
+        ),
+    ] = None,
+    expected_sha256: Annotated[
+        str | None,
+        typer.Option("--expected-sha256", help="optional exact source-byte digest"),
+    ] = None,
+    source_version: Annotated[
+        str | None,
+        typer.Option("--source-version", help="upstream commit or release identifier"),
+    ] = None,
+    retrieved_at: Annotated[
+        str | None,
+        typer.Option(
+            "--retrieved-at",
+            help="timezone-aware provenance timestamp for a local source",
+        ),
+    ] = None,
+    allow_host: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--allow-host",
+            help=("explicit HTTPS hostname allowlist for a custom remote source; may be repeated"),
+        ),
+    ] = None,
+    include_dirty: Annotated[
+        bool,
+        typer.Option("--include-dirty", help="include runs whose benchmark checkout was dirty"),
+    ] = False,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace the three generated files if present"),
+    ] = False,
+    timeout_seconds: Annotated[
+        float,
+        typer.Option("--timeout-seconds", min=0.1, max=60.0),
+    ] = 20.0,
+) -> None:
+    """Create a reproducible frontier project from Aider's Polyglot leaderboard."""
+
+    try:
+        result = import_aider_polyglot(
+            source or AIDER_DEFAULT_SOURCE_URL,
+            expected_sha256=expected_sha256,
+            source_version=source_version,
+            retrieved_at=_retrieved_at(retrieved_at),
+            include_dirty=include_dirty,
+            timeout_seconds=timeout_seconds,
+            allowed_hosts=allow_host or AIDER_DEFAULT_ALLOWED_HOSTS,
+        )
+        targets = write_aider_import(result, output_directory, overwrite=overwrite)
+        typer.echo(
+            f"imported {len(result.catalog.offerings)} of {result.rows_seen} Aider rows "
+            f"({len(result.rejections)} rejected)"
+        )
+        for target in targets:
+            typer.echo(target)
+    except (AiderAdapterError, OSError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("import-mcpmark-verified")
+def import_mcpmark_verified_command(
+    output_directory: Annotated[Path, typer.Argument(file_okay=False)],
+    source: Annotated[
+        str | None,
+        typer.Option(
+            "--source",
+            help="local JSON path or HTTPS URL; defaults to the pinned verified summary",
+        ),
+    ] = None,
+    expected_sha256: Annotated[
+        str | None,
+        typer.Option(
+            "--expected-sha256",
+            help="exact source-byte digest; the pinned default is verified automatically",
+        ),
+    ] = None,
+    source_version: Annotated[
+        str | None,
+        typer.Option("--source-version", help="upstream commit or release identifier"),
+    ] = None,
+    retrieved_at: Annotated[
+        str | None,
+        typer.Option(
+            "--retrieved-at",
+            help="timezone-aware provenance timestamp for a local source",
+        ),
+    ] = None,
+    allow_host: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--allow-host",
+            help=("explicit HTTPS hostname allowlist for a custom remote source; may be repeated"),
+        ),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace generated files if present"),
+    ] = False,
+    timeout_seconds: Annotated[
+        float,
+        typer.Option("--timeout-seconds", min=0.1, max=60.0),
+    ] = 15.0,
+) -> None:
+    """Create experimental workload projects from MCPMark Verified telemetry."""
+
+    try:
+        if source is None:
+            catalogs = fetch_mcpmark_catalogs(
+                url=MCPMARK_VERIFIED_URL,
+                source_version=source_version,
+                required_sha256=(
+                    MCPMARK_VERIFIED_SHA256 if expected_sha256 is None else expected_sha256
+                ),
+                timeout_seconds=timeout_seconds,
+                allowed_hosts=allow_host or MCPMARK_DEFAULT_ALLOWED_HOSTS,
+            )
+        elif "://" in source:
+            if retrieved_at is not None:
+                raise ValueError("--retrieved-at is only available for local MCPMark sources")
+            catalogs = fetch_mcpmark_catalogs(
+                url=source,
+                source_version=source_version,
+                required_sha256=expected_sha256,
+                timeout_seconds=timeout_seconds,
+                allowed_hosts=allow_host or MCPMARK_DEFAULT_ALLOWED_HOSTS,
+            )
+        else:
+            catalogs = load_mcpmark_catalogs(
+                source,
+                source_version=source_version,
+                required_sha256=expected_sha256,
+                retrieved_at=_retrieved_at(retrieved_at),
+            )
+        config = build_mcpmark_project_config(catalogs)
+        targets = write_mcpmark_import(
+            catalogs,
+            config,
+            output_directory,
+            overwrite=overwrite,
+        )
+        counts = ", ".join(
+            f"{section}={len(catalog.offerings)}" for section, catalog in catalogs.items()
+        )
+        source_label = (
+            "MCPMark Verified"
+            if catalogs["overall"].workload.id == "mcpmark-verified-overall"
+            else "operator-supplied MCPMark summary"
+        )
+        typer.echo(f"imported {source_label} telemetry ({counts})")
+        for target in targets:
+            typer.echo(target)
+    except (MCPMarkAdapterError, OSError, ValueError) as exc:
         _error(exc)
 
 

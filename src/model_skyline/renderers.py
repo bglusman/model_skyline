@@ -8,9 +8,7 @@ from email.utils import format_datetime
 from typing import Any
 
 # ElementTree is used only to construct RSS; this module never parses XML.
-from xml.etree import (
-    ElementTree as ET,
-)  # nosemgrep: python.lang.security.use-defused-xml.use-defused-xml
+from xml.etree import ElementTree as ET  # nosec B405  # nosemgrep
 
 from model_skyline.models import FrontierSnapshot
 

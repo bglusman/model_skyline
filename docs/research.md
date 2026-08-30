@@ -1,6 +1,6 @@
 # Prior art, data sources, and workload research
 
-Research snapshot: **2026-08-29**. Model catalogs, benchmark results, API terms,
+Research snapshot: **2026-08-30**. Model catalogs, benchmark results, API terms,
 and licenses change; adapters must pin source versions and re-check terms.
 
 ## Finding and project position
@@ -131,17 +131,86 @@ counterfactual.
 
 ## Ready-made task-specific sources
 
-- [Aider Polyglot leaderboard data](https://github.com/Aider-AI/aider/blob/main/aider/website/_data/polyglot_leaderboard.yml)
-  already combines pass rate, total cost, and time/case with command and Git
-  hashes, making it an unusually convenient coding Pareto adapter. The live
-  YAML also contains zero and explicitly marked incorrect cost values, so an
-  adapter must validate records and pin the source commit rather than ingesting
-  it blindly.
+### Implemented: Aider Polyglot
+
+The Aider adapter pins
+[`cb6a152`](https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml)
+and raw SHA-256
+`85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de`.
+The repository and leaderboard are Apache-2.0. The file has 69 historical runs;
+the strict import admits 20 after requiring all 225 cases, positive cost and
+time, coherent exact pass counts, and a clean benchmark checkout. This is a
+mixed historical leaderboard cohort, not a controlled experiment: admitted
+rows still differ in Aider version, date, edit format, optional editor model,
+and provider conditions. The generated harness and workload labels say so.
+
+`pass_num_2` means cumulative tasks solved after Aider's optional repair edit,
+not independent pass@2 sampling. `total_cost` is Aider's aggregate recorded
+model-call cost across first and repair calls. It can reflect caching only to
+the extent that the historical Aider/provider accounting did; there are no
+cache read/write token splits, and local test execution or other infrastructure
+is excluded. The adapter therefore publishes historical cost per attempted and
+solved case but never relabels it as a current-price estimate.
+
+The upstream `seconds_per_case` timer covers the Aider agent edit/generation
+loop and stops before subsequent unit-test execution, so ModelSkyline publishes
+it as `agent_edit_seconds_per_case`, not end-to-end task latency. Upstream cost
+is displayed at finite decimal precision; derived cost observations carry
+bounds that propagate half of the least displayed `total_cost` unit rather than
+implying exact recurring decimal precision.
+
+Solve-rate bounds are descriptive Wilson 95% binomial reference intervals under
+an IID task-sampling assumption. They do not capture repeated-run, serving,
+provider, or temporal variance, and the included frontiers intentionally use
+point dominance.
+
+On that strict cohort, cost per attempted case versus two-edit solve rate has
+six frontier members: gpt-oss-120b high, DeepSeek V3.2 Experimental Chat and
+Reasoner, and GPT-5 low, medium, and high. Changing the cost axis to cost per
+solved case removes gpt-oss-120b because the denominator now embeds quality.
+That difference is a useful demonstration of why frontier formulas must be
+operator-visible.
+
+### Implemented experimentally: MCPMark Verified
+
+The MCPMark adapter pins the
+[`b8a62a9` verified summary](https://github.com/eval-sys/mcpmark-experiments/blob/b8a62a98cc3b596c9d2e8a7879478df37a582c46/verified/summary.json)
+with SHA-256
+`1854f62b24dac18370dcfb61f87c6f2ef0dbdfce31ffa20cb29170c2a01753d3`.
+It produces separate catalogs for 127 tasks across filesystem, GitHub, Notion,
+Playwright, and Postgres, plus the overall mixture. Six models have complete
+single-run pass rate, agent time, turn, and input/output token telemetry; two
+score-only rows are excluded.
+
+The code benchmark repository is Apache-2.0, but the separate experiments
+repository had no license at the pinned revision. ModelSkyline therefore does
+not vendor those results and labels their license `NOASSERTION`. The verified
+summary also has no provider endpoint, cache split, tool charge, or cost. A
+models.dev price join is technically possible for the six aliases, but it would
+be a route-assumed current-price counterfactual, not observed cost; the initial
+adapter deliberately limits itself to quality/time and quality/input-token
+frontiers.
+
+These workload-specific results differ materially. For example, the
+quality/time frontier has four members for filesystem and Notion, three for
+GitHub and Postgres, and only DeepSeek V4 Pro plus GPT-5.6 SOL for Playwright.
+The quality/input-token frontier changes membership again. An overall aggregate
+is consequently not a safe substitute for an operator's workload mix.
+
+MCPMark solve-rate bounds have the same limited interpretation: descriptive
+single-suite binomial reference intervals, not run-to-run confidence or evidence
+that fixed tasks are genuinely IID. Generated manifests and workload
+assumptions carry that caveat.
+
+### Additional candidates
+
 - [BFCL](https://gorilla.cs.berkeley.edu/leaderboard) covers function/tool
   selection with subscores, raw responses, cost, and latency.
-- [MCPMark](https://github.com/eval-sys/mcpmark) and
-  [MCP-Universe](https://github.com/SalesforceAIResearch/MCP-Universe) exercise
-  real multi-turn computer/MCP environments with programmatic verification.
+- [tau2-bench](https://github.com/sierra-research/tau2-bench) is MIT-licensed
+  and publishes agent trajectory cost and pass rates for airline, retail, and
+  telecom, but excludes simulator, judge, retrieval, and tool infrastructure.
+- [MCP-Universe](https://github.com/SalesforceAIResearch/MCP-Universe) expands
+  programmatically verified multi-turn computer/MCP environments.
 - [GAIA](https://huggingface.co/datasets/gaia-benchmark/GAIA) is useful general
   agent evaluation but gated; do not redistribute it.
 - [TwinRouterBench](https://github.com/CommonstackAI/TwinRouterBench) is

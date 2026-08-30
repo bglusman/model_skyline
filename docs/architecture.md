@@ -35,10 +35,12 @@ policy execution between Python and Node becomes a proven requirement. A Go
 service becomes worthwhile if a standalone operator daemon becomes the
 primary distribution model.
 
-The current repository proves Pydantic, DuckDB, Lark, and protocol boundaries,
-but all bundled observations are synthetic. Keeping Python is conditional on
-the next milestone shipping at least one real catalog/price adapter and one
-real trace/benchmark adapter. Otherwise ADR 0001 must be reopened.
+The repository now uses that ecosystem for pinned, real Aider and MCPMark
+benchmark adapters in addition to Pydantic, DuckDB, Lark, and protocol
+boundaries. Bundled fixtures remain synthetic; upstream data is fetched and
+verified rather than silently vendored. The next language checkpoint is a real
+effective-price adapter and an empirical trace adapter. If those do not benefit
+materially from Python, ADR 0001 should be reopened.
 
 ## Non-negotiable invariants
 
@@ -48,7 +50,8 @@ real trace/benchmark adapter. Otherwise ADR 0001 must be reopened.
   endpoint, region, tier, quantization, reasoning configuration, and agent
   harness can change its position.
 - A metric is scoped to a versioned workload and has a unit, source, timestamp,
-  sample count, and optional confidence bounds.
+  sample count, and optional uncertainty/reference bounds whose statistical
+  interpretation must be declared by the workload.
 - An observation catalog is bound to exactly one workload id, version, and
   work-unit definition; the engine rejects cross-workload reuse. Offering
   harness identity must match the workload harness.
@@ -146,6 +149,10 @@ published snapshot. Reusing an id with a different version, URL, methodology,
 hash, or retrieval time is rejected rather than conflating watermarks. Source
 URLs are public citations: user information, query strings, and fragments are
 forbidden because snapshots must never publish signed URLs or credentials.
+Remote benchmark retrieval is an operator-controlled action: adapters use a
+fail-closed hostname allowlist, refuse redirects, bound bytes and time, and pin
+release sources by digest. A custom hostname must be explicitly allowed; this
+option must not be exposed directly to untrusted application input.
 
 Formula output units are declared but dimensional analysis is not yet
 implemented. Robust interval propagation through formulas is also deferred;
@@ -333,17 +340,19 @@ history/feed items, monitoring, and persistent last-known-good storage.
 
 ## Near-term roadmap
 
-1. One real vertical slice: models.dev/LiteLLM pricing plus Aider Polyglot, and
-   a TraceLab coding-trace adapter.
-2. Effective-dated `PriceCard` schema joined to request event time and official
+1. Effective-dated `PriceCard` schema seeded from models.dev/LiteLLM and joined
+   to request event time and official
    provider pricing/cache policies.
-3. Trace adapters for OpenTelemetry GenAI, OpenInference, and common agent
-   framework usage events; then broader coding and tool-use benchmarks.
-4. HTTP/subprocess oracle protocol with content-addressed result cache.
-5. Formula dimensional analysis and safe interval propagation.
-6. Publisher/service with ETags, atomic `latest` pointers, snapshot history,
+2. A TraceLab release adapter plus operator-trace profiles for observed
+   cache-aware coding cost; then OpenTelemetry GenAI and OpenInference inputs.
+3. Current provider/catalog joins for the implemented Aider and MCPMark
+   benchmark adapters, with explicit historical versus counterfactual labels.
+4. Broader licensed research, customer-service, and terminal-task adapters.
+5. HTTP/subprocess oracle protocol with content-addressed result cache.
+6. Formula dimensional analysis and safe interval propagation.
+7. Publisher/service with ETags, atomic `latest` pointers, snapshot history,
    RSS retention, and health overlays.
-7. Thin TypeScript and framework-specific clients (PydanticAI first, then
+8. Thin TypeScript and framework-specific clients (PydanticAI first, then
    LangChain/LangGraph, Vercel AI SDK, and generic OpenAI-compatible agents).
-8. Selection hysteresis, failure-domain diversity, capability thresholds, and
+9. Selection hysteresis, failure-domain diversity, capability thresholds, and
    recomputation after dynamic filtering.
