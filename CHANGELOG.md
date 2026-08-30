@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.0 - 2026-08-30
+
+- Add content-addressed frontier-proximity sidecars and multi-frontier selection
+  snapshots based on the Hermes-track overlap proposal, with exact offering
+  identity, per-frontier freshness/tolerance, ordered priority groups, explicit
+  missing evidence, and diversity applied after re-ranking.
+- Add a v1alpha2 canonical trace contract for request-, attempt-, and work-unit
+  aggregates with unknown-preserving meters, inclusive token totals, generic or
+  retention-tier cache writes, timing scope, and reviewed producer provenance;
+  retain the v1alpha1 schema byte-for-byte for compatibility.
+- Separate reconstructed, estimated, provider-reported, billed, and provider-
+  marginal cost bases so formula policy cannot silently add overlapping bills.
+- Add fail-closed, content-free adapters for pinned Codex, Claude Agent SDK,
+  OpenClaw, and Hermes Agent telemetry, including failure rows and exact route
+  attestations where upstream events do not expose identity.
+- Validate Codex 0.144.2 against live successful and failed `codex exec --json`
+  streams, and re-run pinned Aider and MCPMark imports to demonstrate that
+  frontier membership changes by workload and cost denominator.
+
 ## 0.3.1 - 2026-08-30
 
 - Treat workload-source retrieval timestamps as volatile acquisition provenance

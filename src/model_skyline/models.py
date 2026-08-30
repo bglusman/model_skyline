@@ -306,6 +306,7 @@ class OfferingKey(FrozenModel):
     model_id: str = Field(min_length=1)
     provider: str = Field(min_length=1)
     endpoint: str | None = None
+    billing_mode: str | None = None
     region: str | None = None
     service_tier: str | None = None
     quantization: str | None = None
@@ -402,9 +403,26 @@ class SignalMetric(MetricBase):
     signal: str = Field(min_length=1)
 
 
+class CostFormulaBasis(StrEnum):
+    """Mutually exclusive accounting basis used by a USD formula metric."""
+
+    RECONSTRUCTED_COMPONENTS = "reconstructed_components"
+    ESTIMATED_TOTAL = "estimated_total"
+    PROVIDER_REPORTED_TOTAL = "provider_reported_total"
+    BILLED_TOTAL = "billed_total"
+    PROVIDER_MARGINAL = "provider_marginal"
+
+
 class FormulaMetric(MetricBase):
     kind: Literal["formula"]
     expression: str = Field(min_length=1)
+    cost_basis: CostFormulaBasis | None = None
+
+    @model_validator(mode="after")
+    def usd_formulas_declare_one_cost_basis(self) -> Self:
+        if (self.unit == "USD" or self.unit.startswith("USD/")) and self.cost_basis is None:
+            raise ValueError("USD formula metrics must declare one cost_basis")
+        return self
 
 
 class OracleMetric(MetricBase):

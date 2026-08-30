@@ -12,6 +12,7 @@ from model_skyline.models import (
     MAX_SELECTION_CANDIDATES,
     MAX_SNAPSHOT_TTL_SECONDS,
     AxisEstimate,
+    FormulaMetric,
     Observation,
     ObservationRequirements,
     OfferingKey,
@@ -57,6 +58,15 @@ def test_canonical_decimal_accepts_normal_json_and_yaml_numbers() -> None:
     assert Observation(value=0.125, unit="ratio").value == Decimal("0.125")
     assert Observation(value=1_000_000, unit="tokens").value == Decimal("1E+6")
     assert Observation(value="1e-1000", unit="ratio").value == Decimal("1e-1000")
+
+
+def test_usd_formula_requires_an_explicit_cost_basis() -> None:
+    with pytest.raises(ValidationError, match="must declare one cost_basis"):
+        FormulaMetric(
+            kind="formula",
+            unit="USD/work_unit",
+            expression="signals.other_cost_usd_per_work_unit",
+        )
 
 
 @pytest.mark.parametrize(

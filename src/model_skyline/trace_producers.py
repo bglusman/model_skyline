@@ -1,0 +1,198 @@
+"""Reviewed producer identities accepted in canonical request traces.
+
+Trace rows carry only a compact producer key.  Public source metadata is
+resolved from this code-owned registry so untrusted row strings can never
+become URLs, license claims, or publication prose.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Mapping
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from types import MappingProxyType
+from typing import Final
+
+from model_skyline.models import SourceReference
+
+ProducerKey = tuple[str, str, str, str, str, str | None, str | None]
+_REVIEWED_AT: Final = datetime(2026, 8, 30, tzinfo=UTC)
+
+
+@dataclass(frozen=True, slots=True)
+class TrustedTraceProducer:
+    key: ProducerKey
+    source: SourceReference
+
+
+def _source(
+    *,
+    source_id: str,
+    version: str,
+    url: str,
+    terms_url: str,
+    license_name: str,
+    methodology: str,
+) -> SourceReference:
+    return SourceReference(
+        id=source_id,
+        version=version,
+        url=url,
+        terms_url=terms_url,
+        license=license_name,
+        methodology=methodology,
+        retrieved_at=_REVIEWED_AT,
+    )
+
+
+_CODEX_LICENSE = (
+    "https://github.com/openai/codex/blob/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a/LICENSE"
+)
+_CLAUDE_LICENSE = (
+    "https://github.com/anthropics/claude-agent-sdk-python/blob/"
+    "af5ff1b9f2f279575f89b78f17572c6e35fbc2b6/LICENSE"
+)
+_HERMES_LICENSE = (
+    "https://github.com/NousResearch/hermes-agent/blob/"
+    "4f22543509d1b91dc45bcb369447126c5eb14fb7/LICENSE"
+)
+_OPENCLAW_LICENSE = (
+    "https://github.com/openclaw/openclaw/blob/2a6c333225e5c886bfd630e36037fb7b206408ef/LICENSE"
+)
+
+_TRACE_PRODUCERS: dict[ProducerKey, TrustedTraceProducer] = {}
+
+
+def _register(producer: TrustedTraceProducer) -> None:
+    if producer.key in _TRACE_PRODUCERS:
+        raise RuntimeError("duplicate trusted trace producer key")
+    _TRACE_PRODUCERS[producer.key] = producer
+
+
+for _codex_version, _codex_commit in (
+    ("0.144.2", "a6645b6b8a656360fa16fb7e1c6721d0697d3d6a"),
+    ("0.151.0", "78c290807ce710180111df227df3b7a4fe845452"),
+):
+    _register(
+        TrustedTraceProducer(
+            key=(
+                "model-skyline/codex-exec-jsonl",
+                "1",
+                "openai/codex",
+                _codex_version,
+                _codex_commit,
+                None,
+                None,
+            ),
+            source=_source(
+                source_id=f"producer:openai-codex:{_codex_version}",
+                version=_codex_commit,
+                url=(
+                    "https://github.com/openai/codex/blob/"
+                    f"{_codex_commit}/sdk/typescript/src/events.ts"
+                ),
+                terms_url=_CODEX_LICENSE,
+                license_name="Apache-2.0",
+                methodology=(
+                    "Exact reviewed Codex exec JSONL event contract; adapter accepts only the "
+                    "pinned release and commit."
+                ),
+            ),
+        )
+    )
+
+_register(
+    TrustedTraceProducer(
+        key=(
+            "model-skyline/claude-agent-sdk-result",
+            "1",
+            "anthropics/claude-agent-sdk-python+claude-code",
+            "0.2.148+cli.2.1.251",
+            "af5ff1b9f2f279575f89b78f17572c6e35fbc2b6",
+            None,
+            None,
+        ),
+        source=_source(
+            source_id="producer:anthropic-claude-agent-sdk:0.2.148-cli-2.1.251",
+            version="af5ff1b9f2f279575f89b78f17572c6e35fbc2b6",
+            url=(
+                "https://github.com/anthropics/claude-agent-sdk-python/blob/"
+                "af5ff1b9f2f279575f89b78f17572c6e35fbc2b6/"
+                "src/claude_agent_sdk/types.py"
+            ),
+            terms_url=_CLAUDE_LICENSE,
+            license_name="MIT",
+            methodology=(
+                "Exact reviewed Claude Agent SDK ResultMessage contract with the bundled "
+                "Claude Code CLI version pinned separately by the adapter."
+            ),
+        ),
+    )
+)
+
+_register(
+    TrustedTraceProducer(
+        key=(
+            "model-skyline/hermes-agent-aggregate",
+            "1",
+            "nousresearch/hermes-agent",
+            "0.20.6",
+            "4f22543509d1b91dc45bcb369447126c5eb14fb7",
+            None,
+            None,
+        ),
+        source=_source(
+            source_id="producer:nousresearch-hermes-agent:0.20.6",
+            version="4f22543509d1b91dc45bcb369447126c5eb14fb7",
+            url=(
+                "https://github.com/NousResearch/hermes-agent/blob/"
+                "4f22543509d1b91dc45bcb369447126c5eb14fb7/agent/usage_pricing.py"
+            ),
+            terms_url=_HERMES_LICENSE,
+            license_name="MIT",
+            methodology=(
+                "Exact reviewed Hermes Agent v26 usage-ledger and aggregate-report subset; "
+                "adapter requires explicit route attestations."
+            ),
+        ),
+    )
+)
+
+_register(
+    TrustedTraceProducer(
+        key=(
+            "model-skyline/openclaw-model-call",
+            "1alpha2",
+            "openclaw/openclaw",
+            "2026.8.1",
+            "2a6c333225e5c886bfd630e36037fb7b206408ef",
+            "model-skyline/openclaw-trusted-projector",
+            "1",
+        ),
+        source=_source(
+            source_id="producer:openclaw-model-call:2026.8.1",
+            version="2a6c333225e5c886bfd630e36037fb7b206408ef",
+            url=(
+                "https://github.com/openclaw/openclaw/blob/"
+                "2a6c333225e5c886bfd630e36037fb7b206408ef/"
+                "src/infra/diagnostic-events.ts"
+            ),
+            terms_url=_OPENCLAW_LICENSE,
+            license_name="MIT",
+            methodology=(
+                "Exact reviewed OpenClaw model-call diagnostic projection; canonical envelope "
+                "must be authenticated by the pinned trusted projector."
+            ),
+        ),
+    )
+)
+
+TRUSTED_TRACE_PRODUCERS: Final[Mapping[ProducerKey, TrustedTraceProducer]] = MappingProxyType(
+    _TRACE_PRODUCERS
+)
+
+
+def trusted_trace_producer(key: ProducerKey) -> TrustedTraceProducer | None:
+    """Resolve an exact reviewed producer key without interpreting its strings."""
+
+    return TRUSTED_TRACE_PRODUCERS.get(key)

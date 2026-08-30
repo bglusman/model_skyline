@@ -22,6 +22,24 @@ def test_cli_validates_example_contracts() -> None:
     assert "4 offerings" in result.output
 
 
+def test_cli_validate_rejects_mismatched_cost_basis(tmp_path: Path) -> None:
+    config = tmp_path / "frontier.yaml"
+    config.write_text(
+        (EXAMPLE / "frontier.yaml")
+        .read_text(encoding="utf-8")
+        .replace("cost_basis: reconstructed_components", "cost_basis: billed_total"),
+        encoding="utf-8",
+    )
+
+    result = runner.invoke(
+        app,
+        ["validate", str(config), str(EXAMPLE / "observations.json")],
+    )
+
+    assert result.exit_code == 2
+    assert "does not reference that cost basis" in result.output
+
+
 def test_cli_evaluate_and_select() -> None:
     evaluate = runner.invoke(
         app,
@@ -87,6 +105,7 @@ def test_cli_exports_contract_schemas(tmp_path) -> None:
     assert (output / "publication-manifest.schema.json").is_file()
     assert (output / "frontier-history.schema.json").is_file()
     assert (output / "request-trace.schema.json").is_file()
+    assert (output / "request-trace-v1alpha2.schema.json").is_file()
     assert (output / "project-config.schema.json").read_bytes() == (
         ROOT / "schemas" / "project-config.schema.json"
     ).read_bytes()
@@ -96,4 +115,4 @@ def test_cli_reports_package_version() -> None:
     result = runner.invoke(app, ["--version"])
 
     assert result.exit_code == 0
-    assert result.output.strip() == "0.3.1"
+    assert result.output.strip() == "0.4.0"

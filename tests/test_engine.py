@@ -10,6 +10,8 @@ from pydantic import ValidationError
 
 from model_skyline.engine import FrontierEngine, dominates
 from model_skyline.models import (
+    CostFormulaBasis,
+    FormulaMetric,
     ObservationCatalog,
     ObservationRequirements,
     OracleMetric,
@@ -20,6 +22,54 @@ from model_skyline.models import (
 from model_skyline.oracles import OracleContext, OracleRegistry
 
 NOW = datetime(2026, 8, 29, 19, tzinfo=UTC)
+
+
+@pytest.mark.parametrize(
+    ("basis", "expression", "message"),
+    [
+        (
+            CostFormulaBasis.RECONSTRUCTED_COMPONENTS,
+            "signals.estimated_total_cost_usd_per_success",
+            "alternative all-in cost basis",
+        ),
+        (
+            CostFormulaBasis.BILLED_TOTAL,
+            ("signals.billed_total_cost_usd_per_success + signals.other_cost_usd_per_success"),
+            "mixes billed_total",
+        ),
+        (
+            CostFormulaBasis.ESTIMATED_TOTAL,
+            "signals.billed_total_cost_usd_per_success",
+            "does not reference that cost basis",
+        ),
+    ],
+)
+def test_cost_formula_bases_cannot_overlap(
+    basis: CostFormulaBasis,
+    expression: str,
+    message: str,
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    metric = FormulaMetric(
+        kind="formula",
+        unit="USD/success",
+        expression=expression,
+        cost_basis=basis,
+    )
+    config = example_config.model_copy(
+        update={
+            "metrics": {**example_config.metrics, "total_cost_per_success": metric},
+        }
+    )
+
+    with pytest.raises(ValueError, match=message):
+        FrontierEngine().calculate(
+            config,
+            example_catalog,
+            "coding-value",
+            generated_at=NOW,
+        )
 
 
 def test_example_frontier_and_dominance_explanation(

@@ -6,10 +6,16 @@ from decimal import Decimal, localcontext
 from typing import Any
 
 from model_skyline.canonical import POLICY_DECIMAL_CONTEXT, content_hash
-from model_skyline.formula import FormulaError, compile_formula, evaluate_formula
+from model_skyline.formula import (
+    FormulaError,
+    compile_formula,
+    evaluate_formula,
+    referenced_formula_paths,
+)
 from model_skyline.models import (
     AxisDescriptor,
     AxisEstimate,
+    CostFormulaBasis,
     EvaluatedOffering,
     FormulaMetric,
     FrontierAxis,
@@ -36,6 +42,68 @@ from model_skyline.version import VERSION
 
 class EvaluationError(ValueError):
     """A candidate cannot be evaluated under the declared policy."""
+
+
+_TOTAL_COST_SIGNAL_PREFIXES = {
+    CostFormulaBasis.ESTIMATED_TOTAL: "estimated_total_cost_usd",
+    CostFormulaBasis.PROVIDER_REPORTED_TOTAL: "provider_reported_total_cost_usd",
+    CostFormulaBasis.BILLED_TOTAL: "billed_total_cost_usd",
+    CostFormulaBasis.PROVIDER_MARGINAL: "provider_marginal_cost_usd",
+}
+
+
+def _cost_signal_basis(path: str) -> CostFormulaBasis | None:
+    if not path.startswith("signals."):
+        return None
+    signal = path.removeprefix("signals.")
+    for basis, prefix in _TOTAL_COST_SIGNAL_PREFIXES.items():
+        if signal == prefix or signal.startswith(f"{prefix}_"):
+            return basis
+    return None
+
+
+def validate_formula_cost_basis(metric_id: str, definition: FormulaMetric) -> None:
+    """Reject a USD formula that omits or mixes mutually exclusive bill bases."""
+
+    paths = referenced_formula_paths(definition.expression)
+    signal_paths = {path for path in paths if path.startswith("signals.")}
+    referenced_bases = {
+        basis for path in signal_paths if (basis := _cost_signal_basis(path)) is not None
+    }
+    usd_signal_paths = {
+        path for path in signal_paths if "usd" in path.removeprefix("signals.").lower()
+    }
+    basis = definition.cost_basis
+    if basis is None:
+        if usd_signal_paths or referenced_bases:
+            raise ValueError(
+                f"metric {metric_id!r} references cost signals but declares no cost_basis"
+            )
+        return
+    if basis is CostFormulaBasis.RECONSTRUCTED_COMPONENTS:
+        if referenced_bases:
+            raise ValueError(
+                f"metric {metric_id!r} declares reconstructed_components but references an "
+                "alternative all-in cost basis"
+            )
+        return
+    expected_prefix = _TOTAL_COST_SIGNAL_PREFIXES[basis]
+    selected_paths = {
+        path
+        for path in signal_paths
+        if (
+            path.removeprefix("signals.") == expected_prefix
+            or path.removeprefix("signals.").startswith(f"{expected_prefix}_")
+        )
+    }
+    if not selected_paths:
+        raise ValueError(
+            f"metric {metric_id!r} declares {basis.value} but does not reference that cost basis"
+        )
+    if referenced_bases != {basis} or usd_signal_paths != selected_paths:
+        raise ValueError(
+            f"metric {metric_id!r} mixes {basis.value} with another cost basis or component"
+        )
 
 
 def _canonical_hash(value: Any, *, length: int = 64) -> str:
@@ -116,43 +184,63 @@ def _tolerance(axis: FrontierAxis, left: Decimal, right: Decimal) -> Decimal:
     return axis.epsilon_absolute + axis.epsilon_relative * max(abs(left), abs(right))
 
 
+def dominance_axis_relation(
+    candidate: EvaluatedOffering,
+    other: EvaluatedOffering,
+    axis: FrontierAxis | AxisDescriptor,
+    uncertainty: UncertaintyMode,
+    *,
+    epsilon_relative: Decimal | None = None,
+) -> tuple[bool, bool]:
+    """Return ``(no_worse, meaningfully_better)`` for one exact axis.
+
+    Proximity calculations call this with a candidate relative epsilon so their
+    serialized interval boundaries use the identical Decimal operation order
+    as frontier membership.
+    """
+
+    with localcontext(POLICY_DECIMAL_CONTEXT):
+        candidate_estimate = candidate.axes[axis.metric]
+        other_estimate = other.axes[axis.metric]
+        if uncertainty is UncertaintyMode.ROBUST:
+            if candidate_estimate.lower is None or candidate_estimate.upper is None:
+                raise EvaluationError("robust dominance requires candidate confidence bounds")
+            if other_estimate.lower is None or other_estimate.upper is None:
+                raise EvaluationError("robust dominance requires comparison confidence bounds")
+            if axis.goal is Goal.MINIMIZE:
+                left, right = candidate_estimate.upper, other_estimate.lower
+            else:
+                left, right = candidate_estimate.lower, other_estimate.upper
+        else:
+            left, right = candidate_estimate.value, other_estimate.value
+
+        # Policy comparisons use one symmetric Decimal34 representation of
+        # each operand. Without this, an exact >34-digit value can be compared
+        # against a rounded add/subtract result and violate the normalized
+        # epsilon bound or make equivalent algebra depend on operand order.
+        left, right = +left, +right
+        relative = axis.epsilon_relative if epsilon_relative is None else epsilon_relative
+        tolerance = axis.epsilon_absolute + relative * max(abs(left), abs(right))
+        if axis.goal is Goal.MINIMIZE:
+            return left <= right + tolerance, left < right - tolerance
+        return left >= right - tolerance, left > right + tolerance
+
+
 def dominates(
     candidate: EvaluatedOffering,
     other: EvaluatedOffering,
-    axes: Iterable[FrontierAxis],
+    axes: Iterable[FrontierAxis | AxisDescriptor],
     uncertainty: UncertaintyMode,
 ) -> bool:
     """Return whether candidate dominates other under point or robust intervals."""
 
-    with localcontext(POLICY_DECIMAL_CONTEXT):
-        meaningfully_better = False
-        for axis in axes:
-            candidate_estimate = candidate.axes[axis.metric]
-            other_estimate = other.axes[axis.metric]
-            if uncertainty is UncertaintyMode.ROBUST:
-                if candidate_estimate.lower is None or candidate_estimate.upper is None:
-                    raise EvaluationError("robust dominance requires candidate confidence bounds")
-                if other_estimate.lower is None or other_estimate.upper is None:
-                    raise EvaluationError("robust dominance requires comparison confidence bounds")
-                if axis.goal is Goal.MINIMIZE:
-                    left, right = candidate_estimate.upper, other_estimate.lower
-                else:
-                    left, right = candidate_estimate.lower, other_estimate.upper
-            else:
-                left, right = candidate_estimate.value, other_estimate.value
-
-            tolerance = _tolerance(axis, left, right)
-            if axis.goal is Goal.MINIMIZE:
-                if left > right + tolerance:
-                    return False
-                if left < right - tolerance:
-                    meaningfully_better = True
-            else:
-                if left < right - tolerance:
-                    return False
-                if left > right + tolerance:
-                    meaningfully_better = True
-        return meaningfully_better
+    meaningfully_better = False
+    for axis in axes:
+        no_worse, better = dominance_axis_relation(candidate, other, axis, uncertainty)
+        if not no_worse:
+            return False
+        meaningfully_better = meaningfully_better or better
+    return meaningfully_better
 
 
 def sort_offerings(
@@ -497,6 +585,7 @@ class FrontierEngine:
                     raise ValueError(
                         f"metric {axis.metric!r} has an invalid formula: {exc}"
                     ) from exc
+                validate_formula_cost_basis(axis.metric, definition)
         expected_workload = WorkloadReference(
             id=workload_id,
             version=workload.version,
