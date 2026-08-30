@@ -191,6 +191,11 @@ def _prepare_root(output_directory: str | Path) -> Path:
     status = _lstat(root)
     if status is None or stat.S_ISLNK(status.st_mode) or not stat.S_ISDIR(status.st_mode):
         raise PublicationError("publication root must be a real directory")
+    parent_status = _lstat(root.parent)
+    if parent_status is None or parent_status.st_dev != status.st_dev:
+        raise PublicationError(
+            "publication root must share a filesystem with its parent for atomic staging"
+        )
     return root
 
 
@@ -232,37 +237,6 @@ def _writer_lock(root: Path) -> Iterator[None]:
         yield
     finally:
         os.close(descriptor)
-
-
-def _cleanup_stale_temps(root: Path) -> None:
-    """Remove only regular temporary files created by this publisher."""
-
-    touched: set[Path] = set()
-    for current_value, directory_names, file_names in os.walk(
-        root,
-        followlinks=False,
-        onerror=_walk_error,
-    ):
-        current = Path(current_value)
-        directory_names[:] = [
-            name for name in directory_names if not stat.S_ISLNK((current / name).lstat().st_mode)
-        ]
-        for name in file_names:
-            if not (name.startswith(".model-skyline-") and name.endswith(".tmp")):
-                continue
-            path = current / name
-            status = _lstat(path)
-            if status is None:
-                continue
-            if stat.S_ISLNK(status.st_mode) or not stat.S_ISREG(status.st_mode):
-                raise PublicationError(f"refusing to clean unexpected temporary path: {path}")
-            try:
-                path.unlink()
-            except OSError as exc:
-                raise PublicationError(f"cannot clean stale temporary file {path}: {exc}") from exc
-            touched.add(current)
-    for directory in touched:
-        _sync_directory(directory)
 
 
 def _is_allowed_directory(parts: tuple[str, ...]) -> bool:
@@ -320,7 +294,7 @@ def _is_allowed_file(parts: tuple[str, ...]) -> bool:
     return False
 
 
-def _validate_existing_tree(root: Path, *, allow_owned_temps: bool = False) -> None:
+def _validate_existing_tree(root: Path) -> None:
     seen = 0
     for current_value, directory_names, file_names in os.walk(
         root,
@@ -357,8 +331,7 @@ def _validate_existing_tree(root: Path, *, allow_owned_temps: bool = False) -> N
             if not stat.S_ISREG(status.st_mode):
                 raise PublicationError(f"publication entry is not a regular file: {child}")
             child_parts = (*parts, name)
-            is_owned_temp = name.startswith(".model-skyline-") and name.endswith(".tmp")
-            if not _is_allowed_file(child_parts) and not (allow_owned_temps and is_owned_temp):
+            if not _is_allowed_file(child_parts):
                 raise PublicationError(
                     f"unmanaged file in publication root: {PurePosixPath(*child_parts)}"
                 )
@@ -682,12 +655,16 @@ def _ensure_parent(root: Path, target: Path) -> None:
         raise PublicationError("artifact path escaped the publication root") from exc
 
 
-def _write_temp(target: Path, payload: bytes) -> Path:
+def _write_temp(root: Path, target: Path, payload: bytes) -> Path:
     if len(payload) > MAX_ARTIFACT_BYTES:
         raise PublicationError(
             f"artifact {target} exceeds the {MAX_ARTIFACT_BYTES}-byte publication limit"
         )
-    descriptor, name = tempfile.mkstemp(dir=target.parent, prefix=".model-skyline-", suffix=".tmp")
+    descriptor, name = tempfile.mkstemp(
+        dir=root.parent,
+        prefix=".model-skyline-",
+        suffix=".tmp",
+    )
     temporary = Path(name)
     try:
         with os.fdopen(descriptor, "wb") as handle:
@@ -712,7 +689,7 @@ def _write_immutable(root: Path, relative_path: str, payload: bytes) -> None:
                 f"immutable artifact collision with different bytes: {relative_path}"
             )
         return
-    temporary = _write_temp(target, payload)
+    temporary = _write_temp(root, target, payload)
     try:
         try:
             os.link(temporary, target)
@@ -749,7 +726,7 @@ def _replace_mutable(root: Path, relative_path: str, payload: bytes) -> None:
         existing = _read_regular(target)
         if existing == payload:
             return
-    temporary = _write_temp(target, payload)
+    temporary = _write_temp(root, target, payload)
     try:
         os.replace(temporary, target)
         _sync_directory(target.parent)
@@ -952,8 +929,6 @@ def publish_project(
     root = _prepare_root(output_directory)
 
     with _writer_lock(root):
-        _validate_existing_tree(root, allow_owned_temps=True)
-        _cleanup_stale_temps(root)
         _validate_existing_tree(root)
         previous = _load_previous_manifest(root, project_id)
         manifest_chain = _validated_manifest_chain(root, previous)

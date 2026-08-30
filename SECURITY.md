@@ -31,12 +31,17 @@ confusion, but they contain check-then-use windows and do not defend against a
 hostile concurrent local user who can mutate the root or its parents. Publish
 on a trusted filesystem, then expose a copy or read-only view to untrusted
 consumers. Do not mix operator notes, web assets, or other applications' files
-into the managed root.
+into the managed root. The root and its parent must share a filesystem so
+temporary files can be staged as unguessable siblings and atomically committed.
+Only the creating process removes those files; a hard crash can leave a sibling
+for operator inspection and cleanup, but no pre-existing file is deleted based
+only on a temporary-looking name.
 
 New publication roots and artifacts default to owner-only permissions (`0700`
-for the root and `0600` for files on POSIX). Existing directory permissions are not changed.
-When a different service identity must host public output, copy it into a
-separate read-only serving tree and set that tree's permissions deliberately.
+for the root and `0600` for files on POSIX). Existing directory permissions are
+not changed. When a different service identity must host public output, copy it
+into a separate read-only serving tree and set that tree's permissions
+deliberately.
 
 Snapshot hashes detect corruption and provide content identity; they are not
 signatures. A party that can replace a manifest can also recompute its hash.

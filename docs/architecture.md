@@ -330,8 +330,12 @@ files it names, mutable aliases are atomically replaced one at a time, and root
 the output directory's parent and fsyncs files and directories where supported.
 If a process stops before the last step, root `latest.json` still commits the
 previous project view even if some aliases already show complete newer files.
-The next identical run removes only publisher-owned stale temporary files,
-validates the last committed chain, and repairs aliases. Immutable collisions,
+Temporary files use unguessable names in the output root's parent, outside the
+managed and served namespace, and only the creating process removes them. A
+hard crash can leave a harmless sibling for operator cleanup; the publisher
+does not infer ownership of pre-existing files from their names. Consequently,
+the root and its parent must share a filesystem. The next identical run
+validates the last committed chain and repairs aliases. Immutable collisions,
 missing files, digest mismatches, timestamp rollback, unmanaged paths, and
 symlinks fail closed.
 

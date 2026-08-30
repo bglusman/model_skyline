@@ -8,8 +8,8 @@
   publication-manifest artifacts with convenient mutable discovery aliases.
 - Make root `latest.json` the last-written cross-artifact commit marker, with
   advisory single-writer locking, atomic file replacement, immutable collision
-  checks, stale-temporary recovery, idempotent reruns, and fail-closed chain and
-  digest validation.
+  checks, out-of-root temporary staging, idempotent reruns, and fail-closed
+  chain and digest validation.
 - Preserve every previously published frontier and selection on refresh while
   allowing additive expansion; reject implicit retirement, timestamp rollback,
   and conflicting snapshots at one timestamp.

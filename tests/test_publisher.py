@@ -373,7 +373,7 @@ def test_writer_lock_and_immutable_corruption_fail_closed(
         _publish(root, example_config, example_catalog)
 
 
-def test_owned_stale_temp_is_recovered_under_the_writer_lock(
+def test_preexisting_temp_shaped_file_is_preserved_and_fails_closed(
     tmp_path: Path,
     example_config: ProjectConfig,
     example_catalog: ObservationCatalog,
@@ -383,10 +383,10 @@ def test_owned_stale_temp_is_recovered_under_the_writer_lock(
     stale = root / ".model-skyline-interrupted.tmp"
     stale.write_text("partial\n", encoding="utf-8")
 
-    result = _publish(root, example_config, example_catalog)
+    with pytest.raises(PublicationError, match="unmanaged file"):
+        _publish(root, example_config, example_catalog)
 
-    assert result.changed
-    assert not stale.exists()
+    assert stale.read_text(encoding="utf-8") == "partial\n"
 
 
 def test_tree_traversal_errors_fail_closed(
