@@ -148,7 +148,7 @@ jobs:
               exit 1
             fi
             git switch --create gh-pages --track origin/gh-pages
-            git rm --recursive --quiet --ignore-unmatch data
+            git rm -r --quiet --ignore-unmatch data
           else
             if [[ -n "${incoming_previous_id}" ]]; then
               echo "The gh-pages branch disappeared after this build" >&2
