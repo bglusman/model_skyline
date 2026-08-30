@@ -113,21 +113,53 @@ def _canonical_hash(value: Any, *, length: int = 64) -> str:
 def catalog_hash(catalog: ObservationCatalog) -> str:
     """Hash a catalog independently of its non-semantic offering order."""
 
-    canonical_catalog = catalog.model_copy(
+    payload = catalog.model_copy(
         update={
             "offerings": sorted(
                 catalog.offerings,
                 key=lambda item: item.offering.offering_id,
             )
         }
-    )
-    return _canonical_hash(canonical_catalog)
+    ).model_dump(mode="json")
+    for item in payload["offerings"]:
+        offering = item["offering"]
+        if offering.get("billing_mode") is None:
+            offering.pop("billing_mode", None)
+    return _canonical_hash(payload)
 
 
 def frontier_hash(snapshot: FrontierSnapshot) -> str:
     """Recompute a frontier snapshot's content identity."""
 
+    payload = snapshot.model_dump(mode="json", exclude={"snapshot_id"})
+    for collection_name in ("members", "evaluated"):
+        collection = payload[collection_name]
+        for item in collection:
+            offering = item["offering"]
+            if offering.get("billing_mode") is None:
+                offering.pop("billing_mode", None)
+    return _canonical_hash(payload)
+
+
+def _explicit_null_billing_mode_frontier_hash(snapshot: FrontierSnapshot) -> str:
+    """Recompute the v0.4.0 hash from its short-lived explicit-null encoding.
+
+    Pydantic materializes a missing optional field as ``None``. Without this
+    narrowly scoped compatibility candidate, v0.4.0 artifacts that included
+    ``billing_mode: null`` would appear corrupt after restoring the intended
+    absent/null equivalence.
+    """
+
     return _canonical_hash(snapshot.model_dump(mode="json", exclude={"snapshot_id"}))
+
+
+def frontier_hash_matches(snapshot: FrontierSnapshot) -> bool:
+    """Accept the stable absent/null hash or v0.4.0's explicit-null encoding."""
+
+    return snapshot.snapshot_id in {
+        frontier_hash(snapshot),
+        _explicit_null_billing_mode_frontier_hash(snapshot),
+    }
 
 
 def _decimal_seconds(earlier: datetime, later: datetime) -> Decimal:
@@ -695,5 +727,5 @@ class FrontierEngine:
             sources=self._sources(catalog, evaluated, workload),
             source_watermarks=self._watermarks(catalog),
         )
-        snapshot_id = _canonical_hash(snapshot.model_dump(mode="json", exclude={"snapshot_id"}))
+        snapshot_id = frontier_hash(snapshot)
         return snapshot.model_copy(update={"snapshot_id": snapshot_id})

@@ -8,10 +8,18 @@ from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 from pydantic import ValidationError
 
-from model_skyline.engine import FrontierEngine, dominates
+from model_skyline.canonical import content_hash
+from model_skyline.engine import (
+    FrontierEngine,
+    catalog_hash,
+    dominates,
+    frontier_hash,
+    frontier_hash_matches,
+)
 from model_skyline.models import (
     CostFormulaBasis,
     FormulaMetric,
+    FrontierSnapshot,
     ObservationCatalog,
     ObservationRequirements,
     OracleMetric,
@@ -128,6 +136,54 @@ def test_frontier_is_invariant_to_catalog_order(
     ]
     assert snapshot.catalog_hash == expected.catalog_hash
     assert snapshot.snapshot_id == expected.snapshot_id
+
+
+def test_absent_and_null_billing_mode_have_stable_hash_compatibility(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    snapshot = FrontierEngine().calculate(
+        example_config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+    assert snapshot.snapshot_id == frontier_hash(snapshot)
+
+    pre_field_payload = snapshot.model_dump(mode="json")
+    for collection_name in ("members", "evaluated"):
+        for item in pre_field_payload[collection_name]:
+            if item["offering"]["billing_mode"] is None:
+                item["offering"].pop("billing_mode")
+    restored = FrontierSnapshot.model_validate(pre_field_payload)
+    assert restored.snapshot_id == snapshot.snapshot_id
+    assert frontier_hash_matches(restored)
+
+    explicit_null_payload = snapshot.model_dump(mode="json", exclude={"snapshot_id"})
+    explicit_null_hash = content_hash(explicit_null_payload)
+    assert explicit_null_hash != snapshot.snapshot_id
+    assert frontier_hash_matches(snapshot.model_copy(update={"snapshot_id": explicit_null_hash}))
+
+    catalog_payload = example_catalog.model_dump(mode="json")
+    catalog_payload["offerings"].sort(key=lambda item: item["offering"]["offering_id"])
+    for item in catalog_payload["offerings"]:
+        if item["offering"]["billing_mode"] is None:
+            item["offering"].pop("billing_mode")
+    assert catalog_hash(example_catalog) == content_hash(catalog_payload)
+
+    routed_catalog = example_catalog.model_copy(deep=True)
+    first = routed_catalog.offerings[0]
+    routed_catalog.offerings[0] = first.model_copy(
+        update={"offering": first.offering.model_copy(update={"billing_mode": "managed"})}
+    )
+    routed_snapshot = FrontierEngine().calculate(
+        example_config,
+        routed_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+    assert catalog_hash(routed_catalog) != catalog_hash(example_catalog)
+    assert routed_snapshot.snapshot_id != snapshot.snapshot_id
 
 
 def test_no_frontier_member_is_dominated(

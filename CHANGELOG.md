@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.1 - 2026-08-30
+
+- Restore retained v0.3 publication validation after the optional
+  `OfferingKey.billing_mode` addition by treating absent and null values as the
+  same hash/view state, while continuing to verify v0.4.0's short-lived
+  explicit-null hashes.
+- Revalidate the pinned Aider retained-history and RSS automation against the
+  live `gh-pages` chain; history advances without a spurious semantic feed
+  event.
+
 ## 0.4.0 - 2026-08-30
 
 - Add content-addressed frontier-proximity sidecars and multi-frontier selection

@@ -27,7 +27,7 @@ from urllib.parse import urlsplit, urlunsplit
 from pydantic import BaseModel, ValidationError
 
 from model_skyline.canonical import content_hash
-from model_skyline.engine import FrontierEngine, catalog_hash, frontier_hash
+from model_skyline.engine import FrontierEngine, catalog_hash, frontier_hash_matches
 from model_skyline.io import dump_json
 from model_skyline.models import (
     PORTABLE_PUBLICATION_ID_PATTERN,
@@ -46,7 +46,7 @@ from model_skyline.models import (
     SourceReference,
 )
 from model_skyline.renderers import frontier_view, render_csv, render_rss_history, render_table
-from model_skyline.selection import select_models, selection_hash
+from model_skyline.selection import select_models, selection_hash_matches
 
 MAX_EXISTING_FILES = 100_000
 MAX_ARTIFACT_BYTES = 64 * 1024 * 1024
@@ -93,6 +93,34 @@ def _axis_hash(snapshot: FrontierSnapshot) -> str:
 
 def _view_hash(snapshot: FrontierSnapshot) -> str:
     return content_hash(frontier_view(snapshot))
+
+
+def _explicit_null_billing_mode_view_hash(snapshot: FrontierSnapshot) -> str:
+    value = tuple(
+        (
+            item.offering.model_dump(mode="json"),
+            tuple(
+                (
+                    axis.metric,
+                    item.axes[axis.metric].model_dump(
+                        mode="json",
+                        include={"value", "lower", "upper"},
+                    ),
+                )
+                for axis in snapshot.axes
+            ),
+            item.metadata,
+        )
+        for item in snapshot.members
+    )
+    return content_hash(value)
+
+
+def _view_hash_matches(snapshot: FrontierSnapshot, expected: str) -> bool:
+    return expected in {
+        _view_hash(snapshot),
+        _explicit_null_billing_mode_view_hash(snapshot),
+    }
 
 
 def _portable_id(value: str, *, kind: str) -> str:
@@ -411,7 +439,7 @@ def _validate_manifest_semantics(root: Path, manifest: PublicationManifest) -> N
         if (
             frontier_snapshot.frontier_id != published_frontier.frontier_id
             or frontier_snapshot.snapshot_id != published_frontier.snapshot_id
-            or frontier_hash(frontier_snapshot) != frontier_snapshot.snapshot_id
+            or not frontier_hash_matches(frontier_snapshot)
             or frontier_snapshot.generated_at != manifest.generated_at
             or catalog is None
             or catalog.workload != frontier_snapshot.workload
@@ -429,7 +457,7 @@ def _validate_manifest_semantics(root: Path, manifest: PublicationManifest) -> N
         if (
             selection_snapshot.selection_id != published_selection.selection_id
             or selection_snapshot.snapshot_id != published_selection.snapshot_id
-            or selection_hash(selection_snapshot) != selection_snapshot.snapshot_id
+            or not selection_hash_matches(selection_snapshot)
             or selection_snapshot.frontier_id != published_selection.frontier_id
             or selection_snapshot.frontier_snapshot_id != published_selection.frontier_snapshot_id
             or frontier is None
@@ -473,13 +501,13 @@ def _load_history_snapshot(
     if (
         snapshot.frontier_id != frontier_id
         or snapshot.snapshot_id != entry.snapshot_id
-        or frontier_hash(snapshot) != snapshot.snapshot_id
+        or not frontier_hash_matches(snapshot)
         or entry.generated_at != snapshot.generated_at
         or entry.workload != snapshot.workload
         or entry.config_hash != snapshot.config_hash
         or entry.catalog_hash != snapshot.catalog_hash
         or entry.axis_hash != _axis_hash(snapshot)
-        or entry.view_hash != _view_hash(snapshot)
+        or not _view_hash_matches(snapshot, entry.view_hash)
         or entry.snapshot.sha256 != _sha256(payload)
     ):
         raise PublicationError(

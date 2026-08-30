@@ -477,11 +477,15 @@ publication.
 Decimals serialize as finite fixed-point JSON strings. Hash inputs use
 [RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) canonical JSON followed by
 lowercase hexadecimal SHA-256; the algorithm identifier is
-`sha256-rfc8785-v1`. `snapshot_id` excludes only its own field. Frontier
-`config_hash` covers the selected frontier, workload, and its two metric
+`sha256-rfc8785-v1`. Snapshot identity hashes exclude `snapshot_id` itself;
+apart from the null normalization described below, all remaining fields are
+included. Frontier `config_hash` covers the selected frontier, workload, and its two metric
 definitions, with only workload-source `retrieved_at` acquisition timestamps
 normalized away; `catalog_hash` covers the complete canonical observation
-catalog. Selection `policy_hash` covers its id and definition.
+catalog. Selection `policy_hash` covers its id and definition. The sole field
+normalization exception is described below: `FrontierSnapshot`,
+`SelectionSnapshot`, frontier semantic-view, and `ObservationCatalog` hash
+inputs omit `OfferingKey.billing_mode` when its value is null.
 
 File loaders parse JSON and YAML decimal literals directly as `Decimal`; they
 never pass policy, price, observation, or epsilon values through binary
@@ -505,6 +509,13 @@ field even when it is `null`; publishers and consumers should therefore roll
 these artifacts together. Likewise, existing USD formula configurations must
 choose a `cost_basis` before loading under the new semantic validator, which is
 an intentional ambiguity-closing compatibility break.
+
+`FrontierSnapshot`, `SelectionSnapshot`, `ObservationCatalog`, and frontier
+semantic-view hashes normalize a missing `billing_mode` and an explicit null
+to the same state. This preserves immutable v0.3 frontier, history, RSS, and
+selection identities after Pydantic loads the new optional field. Verification
+also recognizes the explicit-null frontier, selection, and view hashes emitted
+briefly by v0.4.0, but new artifacts use the stable normalized encoding.
 
 The resolver verifies content hash, semantic identity, expiry, future skew,
 and monotonic generation time. It returns defensive copies so callers cannot
