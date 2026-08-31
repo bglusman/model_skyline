@@ -1,0 +1,430 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "workload": {
+    "id": "brian-agent-turn-v1",
+    "version": "1.0.0",
+    "unit": "successful_turn"
+  },
+  "offerings": [
+    {
+      "offering": {
+        "offering_id": "opencode-go/glm-5.3",
+        "model_id": "glm-5.3",
+        "provider": "opencode-go",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "aa_intelligence_index": 60,
+        "monthly_cap_usd": "15",
+        "purchase_model": "subscription"
+      },
+      "default_source": {
+        "id": "brian-subscription-relative-v1",
+        "version": "1",
+        "license": "MIT (derived); upstream terms preserved",
+        "methodology": "Cost = relative monthly subscription cap burned per successful turn at the user's observed 30-day the agent runtime token shape; quality = AA Intelligence Index. Excluded offerings: Qwen3.8 Max (no independent AA score for 2.4T flagship), Kimi K3 / MiniMax M3 / GPT 5.6 Luna / Grok 4.5 (no verified AA number gathered 2026-08-31)."
+      },
+      "signals": {
+        "aa_intelligence_index": {
+          "value": "60",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "14592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "166621",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "1.4",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.26",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "4.4",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "monthly_cap_usd": {
+          "value": "15",
+          "unit": "USD/month",
+          "observed_at": "2026-08-31T21:00:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "clinepass/glm-5.3",
+        "model_id": "glm-5.3",
+        "provider": "clinepass",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "aa_intelligence_index": 60,
+        "monthly_cap_usd": "35",
+        "purchase_model": "subscription"
+      },
+      "default_source": {
+        "id": "brian-subscription-relative-v1",
+        "version": "1",
+        "license": "MIT (derived); upstream terms preserved",
+        "methodology": "Cost = relative monthly subscription cap burned per successful turn at the user's observed 30-day the agent runtime token shape; quality = AA Intelligence Index. Excluded offerings: Qwen3.8 Max (no independent AA score for 2.4T flagship), Kimi K3 / MiniMax M3 / GPT 5.6 Luna / Grok 4.5 (no verified AA number gathered 2026-08-31)."
+      },
+      "signals": {
+        "aa_intelligence_index": {
+          "value": "60",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "14592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "166621",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "1.4",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.26",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "4.4",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "monthly_cap_usd": {
+          "value": "35",
+          "unit": "USD/month",
+          "observed_at": "2026-08-31T21:00:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "opencode-go/deepseek-v4-flash-peak",
+        "model_id": "deepseek-v4-flash-0731",
+        "provider": "opencode-go",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "peak",
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "aa_intelligence_index": 50,
+        "monthly_cap_usd": "30",
+        "purchase_model": "subscription"
+      },
+      "default_source": {
+        "id": "brian-subscription-relative-v1",
+        "version": "1",
+        "license": "MIT (derived); upstream terms preserved",
+        "methodology": "Cost = relative monthly subscription cap burned per successful turn at the user's observed 30-day the agent runtime token shape; quality = AA Intelligence Index. Excluded offerings: Qwen3.8 Max (no independent AA score for 2.4T flagship), Kimi K3 / MiniMax M3 / GPT 5.6 Luna / Grok 4.5 (no verified AA number gathered 2026-08-31)."
+      },
+      "signals": {
+        "aa_intelligence_index": {
+          "value": "50",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "14592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "166621",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "0.44",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.014",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "1.32",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "monthly_cap_usd": {
+          "value": "30",
+          "unit": "USD/month",
+          "observed_at": "2026-08-31T21:00:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "opencode-go/deepseek-v4-flash-offpeak",
+        "model_id": "deepseek-v4-flash-0731",
+        "provider": "opencode-go",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "off-peak",
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "aa_intelligence_index": 50,
+        "monthly_cap_usd": "30",
+        "purchase_model": "subscription"
+      },
+      "default_source": {
+        "id": "brian-subscription-relative-v1",
+        "version": "1",
+        "license": "MIT (derived); upstream terms preserved",
+        "methodology": "Cost = relative monthly subscription cap burned per successful turn at the user's observed 30-day the agent runtime token shape; quality = AA Intelligence Index. Excluded offerings: Qwen3.8 Max (no independent AA score for 2.4T flagship), Kimi K3 / MiniMax M3 / GPT 5.6 Luna / Grok 4.5 (no verified AA number gathered 2026-08-31)."
+      },
+      "signals": {
+        "aa_intelligence_index": {
+          "value": "50",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "14592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "166621",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "0.22",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.007",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "0.66",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "monthly_cap_usd": {
+          "value": "30",
+          "unit": "USD/month",
+          "observed_at": "2026-08-31T21:00:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "clinepass/deepseek-v4-flash-peak",
+        "model_id": "deepseek-v4-flash-0731",
+        "provider": "clinepass",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "peak",
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "aa_intelligence_index": 50,
+        "monthly_cap_usd": "35",
+        "purchase_model": "subscription"
+      },
+      "default_source": {
+        "id": "brian-subscription-relative-v1",
+        "version": "1",
+        "license": "MIT (derived); upstream terms preserved",
+        "methodology": "Cost = relative monthly subscription cap burned per successful turn at the user's observed 30-day the agent runtime token shape; quality = AA Intelligence Index. Excluded offerings: Qwen3.8 Max (no independent AA score for 2.4T flagship), Kimi K3 / MiniMax M3 / GPT 5.6 Luna / Grok 4.5 (no verified AA number gathered 2026-08-31)."
+      },
+      "signals": {
+        "aa_intelligence_index": {
+          "value": "50",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "14592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "166621",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "0.44",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.014",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "1.32",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "monthly_cap_usd": {
+          "value": "35",
+          "unit": "USD/month",
+          "observed_at": "2026-08-31T21:00:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "clinepass/deepseek-v4-flash-offpeak",
+        "model_id": "deepseek-v4-flash-0731",
+        "provider": "clinepass",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "off-peak",
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "aa_intelligence_index": 50,
+        "monthly_cap_usd": "35",
+        "purchase_model": "subscription"
+      },
+      "default_source": {
+        "id": "brian-subscription-relative-v1",
+        "version": "1",
+        "license": "MIT (derived); upstream terms preserved",
+        "methodology": "Cost = relative monthly subscription cap burned per successful turn at the user's observed 30-day the agent runtime token shape; quality = AA Intelligence Index. Excluded offerings: Qwen3.8 Max (no independent AA score for 2.4T flagship), Kimi K3 / MiniMax M3 / GPT 5.6 Luna / Grok 4.5 (no verified AA number gathered 2026-08-31)."
+      },
+      "signals": {
+        "aa_intelligence_index": {
+          "value": "50",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "14592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "166621",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "0.22",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.007",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "0.66",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T21:00:00Z"
+        },
+        "monthly_cap_usd": {
+          "value": "35",
+          "unit": "USD/month",
+          "observed_at": "2026-08-31T21:00:00Z"
+        }
+      }
+    }
+  ]
+}

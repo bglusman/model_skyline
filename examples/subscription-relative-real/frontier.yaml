@@ -1,0 +1,77 @@
+# Brian's subscription-relative frontier v1 (2026-08-31)
+# Cost axis: share of monthly subscription cap burned per successful agent turn,
+# at the real OpenClaw 30-day token shape. Quality axis: AA Intelligence Index.
+schema_version: model-skyline/v1alpha1
+
+workloads:
+  brian-agent-turn-v1:
+    unit: successful_turn
+    version: "1.0.0"
+    harness: hermes-openclaw-agent@1
+    cohort: openclaw-main-30day-20260830-shape
+    description: >-
+      Relative subscription burn per successful agent turn for Brian's real
+      workload shape (1,336 observed turns, 30 days), priced at each
+      subscription's API-equivalent rates against its monthly cap.
+    variables: {}
+    assumptions:
+      cache_mode: observed
+      includes_failed_attempts: true
+      pricing_mode: subscription_relative_cap_share
+      fixture_data: real
+      quality_source: artificial-analysis-index-v4.1.1
+      clinepass_cap_assumption: usd35_per_month_midpoint_of_2x_to_5x_advertised
+
+metrics:
+  aa_intelligence_index:
+    kind: signal
+    signal: aa_intelligence_index
+    unit: index
+    description: Artificial Analysis Intelligence Index v4.1.1 (0-100).
+    requirements:
+      max_age_hours: 8760
+
+  cap_share_per_success:
+    kind: formula
+    unit: fraction_of_monthly_cap
+    description: >-
+      API-equivalent cost of one successful turn at this subscription's rates,
+      divided by the offering's monthly dollar cap. Lower = more turns/month.
+    expression: >-
+      (
+        signals.input_uncached_tokens_per_success
+          * signals.input_uncached_usd_per_million
+        + signals.input_cache_read_tokens_per_success
+          * signals.input_cache_read_usd_per_million
+        + signals.output_tokens_per_success
+          * signals.output_usd_per_million
+      ) / 1000000 / signals.monthly_cap_usd
+    requirements:
+      max_age_hours: 8760
+
+frontiers:
+  brian-subscription-value:
+    workload: brian-agent-turn-v1
+    axes:
+      - metric: cap_share_per_success
+        goal: minimize
+        epsilon_relative: 0.02
+      - metric: aa_intelligence_index
+        goal: maximize
+        epsilon_absolute: 0.5
+    order_by: cap_share_per_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [tools, structured_output]
+      allow_unknown_age: false
+    metadata_fields: [aa_intelligence_index, monthly_cap_usd]
+
+selections:
+  brian-agent-defaults:
+    frontier: brian-subscription-value
+    strategy: lexicographic
+    count: 3
+    order_by: aa_intelligence_index
+    max_per_provider: 2
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
