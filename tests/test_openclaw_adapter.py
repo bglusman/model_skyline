@@ -10,9 +10,14 @@ from typing import Any
 import pytest
 
 from model_skyline.adapters.openclaw import (
+    OPENCLAW_ADAPTER_VERSION,
+    OPENCLAW_ATTEMPT_SETUP_URL,
+    OPENCLAW_ATTEMPT_STREAM_URL,
     OPENCLAW_COLLECTOR_ID,
     OPENCLAW_COLLECTOR_VERSION,
     OPENCLAW_DIAGNOSTIC_TYPES_URL,
+    OPENCLAW_MODEL_LIFECYCLE_URL,
+    OPENCLAW_MODEL_OBSERVATION_URL,
     OPENCLAW_REVIEWED_COMMIT,
     OPENCLAW_REVIEWED_VERSION,
     OPENCLAW_TRACE_SCHEMA_VERSION,
@@ -22,7 +27,7 @@ from model_skyline.adapters.openclaw import (
     compute_openclaw_projection_signature,
 )
 from model_skyline.models import OfferingKey, WorkloadReference
-from model_skyline.traces import aggregate_traces
+from model_skyline.traces import TraceAggregationError, aggregate_traces
 
 OFFERING = OfferingKey(
     offering_id="anthropic/claude-test@direct-us",
@@ -44,6 +49,9 @@ def _payload() -> dict[str, Any]:
         "workload_version": "1.2.0",
         "work_unit_id": "synthetic-case-17",
         "work_unit_success": "1",
+        "runAttempt": 1,
+        "segmentEventsComplete": True,
+        "usageComplete": True,
         "event": {
             "type": "model.call.completed",
             "ts": 1_788_123_456_789,
@@ -90,7 +98,7 @@ def _resign(payload: dict[str, Any]) -> None:
     )
 
 
-def test_request_level_event_maps_normalized_usage_without_raw_ids() -> None:
+def test_model_call_event_maps_attested_complete_usage_without_raw_ids() -> None:
     payload = _payload()
 
     trace = _adapt(payload)
@@ -100,8 +108,9 @@ def test_request_level_event_maps_normalized_usage_without_raw_ids() -> None:
     assert trace.workload_version == "1.2.0"
     assert trace.work_unit_id == "synthetic-case-17"
     assert trace.offering_id == "anthropic/claude-test@direct-us"
-    assert trace.observation_unit == "request"
-    assert trace.model_request_count == 1
+    assert trace.observation_unit == "model_call"
+    assert trace.adapter_version == OPENCLAW_ADAPTER_VERSION
+    assert trace.model_request_count is None
     assert trace.work_unit_success == Decimal(1)
     assert trace.input_uncached_tokens == Decimal(1_250)
     assert trace.input_cache_read_tokens == Decimal(8_000)
@@ -117,7 +126,7 @@ def test_request_level_event_maps_normalized_usage_without_raw_ids() -> None:
     assert trace.other_cost_usd is None
     assert trace.estimated_total_cost_usd is None
     assert trace.billed_total_cost_usd is None
-    assert trace.request_id.startswith("openclaw:request:hmac-sha256:")
+    assert trace.request_id.startswith("openclaw:model-call:hmac-sha256:")
     assert trace.attempt_id.startswith("openclaw:attempt:hmac-sha256:")
     serialized = str(trace.model_dump(mode="json"))
     assert "run-synthetic-17" not in serialized
@@ -141,6 +150,89 @@ def test_pseudonymous_ids_are_stable_and_domain_separated() -> None:
     rotated = _adapt(rotated_payload, collector_key=rotated_key)
     assert rotated.request_id != first.request_id
     assert rotated.attempt_id != first.attempt_id
+
+
+def test_reused_upstream_ids_are_scoped_to_the_signed_work_unit(tmp_path: Path) -> None:
+    first_payload = _payload()
+    second_payload = _payload()
+    second_payload["work_unit_id"] = "synthetic-case-18"
+    _resign(second_payload)
+
+    first = _adapt(first_payload)
+    second = _adapt(second_payload)
+
+    assert first.request_id != second.request_id
+    assert first.attempt_id != second.attempt_id
+
+    trace_path = tmp_path / "openclaw-reused-upstream-ids.jsonl"
+    trace_path.write_text(
+        "\n".join(json.dumps(trace.model_dump(mode="json")) for trace in (first, second)) + "\n",
+        encoding="utf-8",
+    )
+    summary = aggregate_traces(
+        trace_path,
+        workload=WorkloadReference(id="coding-issue", version="1.2.0", unit="coding_issue"),
+    )
+    signals = summary.offerings["anthropic/claude-test@direct-us"]
+    assert "request_count_per_work_unit" not in signals
+    assert signals["attempt_count_per_work_unit"].value == Decimal(1)
+
+
+def test_exact_model_call_replay_keeps_stable_id_and_is_rejected(tmp_path: Path) -> None:
+    first = _adapt()
+    replay = _adapt()
+    assert first.request_id == replay.request_id
+
+    trace_path = tmp_path / "openclaw-exact-replay.jsonl"
+    trace_path.write_text(
+        first.model_dump_json() + "\n" + replay.model_dump_json() + "\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(TraceAggregationError, match="duplicate"):
+        aggregate_traces(
+            trace_path,
+            workload=WorkloadReference(id="coding-issue", version="1.2.0", unit="coding_issue"),
+        )
+
+
+@pytest.mark.parametrize("value", [False, 0, 1, "true", None])
+def test_segment_completeness_must_be_explicit_literal_true(value: Any) -> None:
+    payload = _payload()
+    payload["segmentEventsComplete"] = value
+
+    with pytest.raises(OpenClawAdapterError, match="safe-envelope"):
+        _adapt(payload)
+
+
+def test_incomplete_usage_must_be_omitted_and_stays_unknown() -> None:
+    payload = _payload()
+    payload["usageComplete"] = False
+    del payload["event"]["usage"]
+    _resign(payload)
+
+    trace = _adapt(payload)
+
+    assert trace.observation_unit == "model_call"
+    assert trace.model_request_count is None
+    assert trace.input_uncached_tokens is None
+    assert trace.output_total_tokens is None
+
+
+def test_incomplete_usage_cannot_publish_latest_response_meters() -> None:
+    payload = _payload()
+    payload["usageComplete"] = False
+
+    with pytest.raises(OpenClawAdapterError, match="safe-envelope"):
+        _adapt(payload)
+
+
+@pytest.mark.parametrize("field", ["segmentEventsComplete", "usageComplete"])
+def test_completeness_attestations_are_required(field: str) -> None:
+    payload = _payload()
+    del payload[field]
+
+    with pytest.raises(OpenClawAdapterError, match="safe-envelope"):
+        _adapt(payload)
 
 
 def test_signed_envelope_is_parsed_once_before_route_mapping(
@@ -177,7 +269,9 @@ def test_unknown_retention_cache_writes_use_only_the_generic_meter() -> None:
     assert trace.input_cache_write_1h_tokens is None
 
 
-def test_adapter_output_aggregates_as_exactly_one_model_request(tmp_path: Path) -> None:
+def test_adapter_output_preserves_usage_without_inventing_provider_request_count(
+    tmp_path: Path,
+) -> None:
     payload = _payload()
     payload["event"]["usage"]["cacheWrite"] = 375
     _resign(payload)
@@ -194,9 +288,90 @@ def test_adapter_output_aggregates_as_exactly_one_model_request(tmp_path: Path) 
     )
 
     signals = summary.offerings["anthropic/claude-test@direct-us"]
-    assert signals["request_count_per_work_unit"].value == Decimal(1)
+    assert "request_count_per_work_unit" not in signals
     assert signals["input_cache_write_tokens_per_work_unit"].value == Decimal(375)
     assert signals["output_total_tokens_per_work_unit"].value == Decimal(160)
+
+
+def test_two_calls_in_one_attempt_share_attempt_identity(tmp_path: Path) -> None:
+    first_payload = _payload()
+    second_payload = _payload()
+    second_payload["event"]["callId"] = "run-synthetic-17:model-call:3"
+    second_payload["event"]["seq"] = 42
+    _resign(second_payload)
+
+    first = _adapt(first_payload)
+    second = _adapt(second_payload)
+
+    assert first.request_id != second.request_id
+    assert first.attempt_id == second.attempt_id
+
+    trace_path = tmp_path / "openclaw-two-calls.jsonl"
+    trace_path.write_text(
+        "\n".join(json.dumps(trace.model_dump(mode="json")) for trace in (first, second)) + "\n",
+        encoding="utf-8",
+    )
+
+    summary = aggregate_traces(
+        trace_path,
+        workload=WorkloadReference(id="coding-issue", version="1.2.0", unit="coding_issue"),
+    )
+
+    signals = summary.offerings["anthropic/claude-test@direct-us"]
+    assert "request_count_per_work_unit" not in signals
+    assert signals["attempt_count_per_work_unit"].value == Decimal(1)
+
+
+def test_retry_with_reused_call_id_has_distinct_request_and_attempt_ids(tmp_path: Path) -> None:
+    first_payload = _payload()
+    retry_payload = _payload()
+    retry_payload["runAttempt"] = 2
+    retry_payload["event"]["seq"] = 42
+    _resign(retry_payload)
+
+    first = _adapt(first_payload)
+    retry = _adapt(retry_payload)
+
+    assert first.request_id != retry.request_id
+    assert first.attempt_id != retry.attempt_id
+
+    trace_path = tmp_path / "openclaw-retry.jsonl"
+    trace_path.write_text(
+        "\n".join(json.dumps(trace.model_dump(mode="json")) for trace in (first, retry)) + "\n",
+        encoding="utf-8",
+    )
+    summary = aggregate_traces(
+        trace_path,
+        workload=WorkloadReference(id="coding-issue", version="1.2.0", unit="coding_issue"),
+    )
+    signals = summary.offerings["anthropic/claude-test@direct-us"]
+    assert "request_count_per_work_unit" not in signals
+    assert signals["attempt_count_per_work_unit"].value == Decimal(2)
+
+
+def test_known_undercounting_adapter_version_is_rejected(tmp_path: Path) -> None:
+    legacy = _adapt().model_copy(update={"adapter_version": "1alpha2"})
+    trace_path = tmp_path / "openclaw-legacy-adapter.jsonl"
+    trace_path.write_text(legacy.model_dump_json() + "\n", encoding="utf-8")
+
+    with pytest.raises(TraceAggregationError, match="not in the reviewed registry"):
+        aggregate_traces(
+            trace_path,
+            workload=WorkloadReference(
+                id="coding-issue",
+                version="1.2.0",
+                unit="coding_issue",
+            ),
+        )
+
+
+@pytest.mark.parametrize("run_attempt", [0, -1, 1.5, True, None])
+def test_attempt_ordinal_must_be_a_positive_safe_integer(run_attempt: Any) -> None:
+    payload = _payload()
+    payload["runAttempt"] = run_attempt
+
+    with pytest.raises(OpenClawAdapterError, match="safe-envelope"):
+        _adapt(payload)
 
 
 def test_error_terminal_is_supported_when_usage_is_complete() -> None:
@@ -254,7 +429,7 @@ def test_content_and_context_fields_are_rejected_without_echo(field: str) -> Non
         ("reasoningTokens", ("output_tokens", "reasoning_tokens")),
     ],
 )
-def test_partial_usage_preserves_request_and_keeps_missing_buckets_unknown(
+def test_partial_complete_usage_preserves_call_and_keeps_missing_buckets_unknown(
     field: str,
     unknown_attributes: tuple[str, ...],
 ) -> None:
@@ -264,12 +439,12 @@ def test_partial_usage_preserves_request_and_keeps_missing_buckets_unknown(
 
     trace = _adapt(payload)
 
-    assert trace.model_request_count == 1
+    assert trace.model_request_count is None
     for attribute in unknown_attributes:
         assert getattr(trace, attribute) is None
 
 
-def test_pre_usage_error_still_counts_request_without_fabricated_meters() -> None:
+def test_pre_usage_error_preserves_model_call_without_fabricated_meters() -> None:
     payload = _payload()
     payload["work_unit_success"] = "0"
     payload["event"].update(
@@ -284,7 +459,7 @@ def test_pre_usage_error_still_counts_request_without_fabricated_meters() -> Non
 
     trace = _adapt(payload)
 
-    assert trace.model_request_count == 1
+    assert trace.model_request_count is None
     assert trace.work_unit_success == 0
     assert trace.input_uncached_tokens is None
     assert trace.output_total_tokens is None
@@ -374,6 +549,10 @@ def test_unsafe_offering_identity_is_rejected_without_echo(
 def test_source_pin_is_full_commit_and_used_by_primary_type_url() -> None:
     assert len(OPENCLAW_REVIEWED_COMMIT) == 40
     assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_DIAGNOSTIC_TYPES_URL
+    assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_ATTEMPT_SETUP_URL
+    assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_ATTEMPT_STREAM_URL
+    assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_MODEL_LIFECYCLE_URL
+    assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_MODEL_OBSERVATION_URL
 
 
 def test_requires_trusted_collector_and_binds_full_runtime_route() -> None:

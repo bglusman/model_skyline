@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from decimal import Decimal
 from importlib.resources import files
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar
 
 import yaml
 from pydantic import BaseModel, ValidationError
@@ -151,6 +152,7 @@ SCHEMA_IDS = {
     ),
     "request-trace.schema.json": "urn:model-skyline:schema:v1alpha1:request-trace",
     "request-trace-v1alpha2.schema.json": "urn:model-skyline:schema:v1alpha2:request-trace",
+    "request-trace-v1alpha3.schema.json": "urn:model-skyline:schema:v1alpha3:request-trace",
     "gateway-selection-pointer.schema.json": (
         "urn:model-skyline:schema:gateway-selection-pointer:v1alpha1"
     ),
@@ -227,7 +229,11 @@ def _non_null_property(name: str) -> dict[str, Any]:
     }
 
 
-def _request_trace_v1alpha2_conditionals(schema: dict[str, Any]) -> None:
+def _request_trace_conditionals(
+    schema: dict[str, Any],
+    *,
+    allow_model_call: bool,
+) -> None:
     """Add cross-field structure that Pydantic cannot emit as JSON Schema."""
 
     producer_fields = (
@@ -274,6 +280,14 @@ def _request_trace_v1alpha2_conditionals(schema: dict[str, Any]) -> None:
         "arithmetic between input/output totals and their components, and file-level aggregation "
         "adds cross-row identity, scope, outcome, offering, timestamp, and provenance checks."
     )
+    aggregate_units = ["attempt"]
+    non_request_units = ["attempt", "work_unit"]
+    if allow_model_call:
+        aggregate_units.insert(0, "model_call")
+        non_request_units.insert(0, "model_call")
+    aggregate_unit_schema: dict[str, Any] = (
+        {"enum": aggregate_units} if allow_model_call else {"const": "attempt"}
+    )
     schema["allOf"] = [
         {
             "if": {
@@ -294,14 +308,14 @@ def _request_trace_v1alpha2_conditionals(schema: dict[str, Any]) -> None:
         },
         {
             "if": {
-                "properties": {"observation_unit": {"const": "attempt"}},
+                "properties": {"observation_unit": aggregate_unit_schema},
                 "required": ["observation_unit"],
             },
             "then": {"properties": {"attempt_count": {"type": "null"}}},
         },
         {
             "if": {
-                "properties": {"observation_unit": {"enum": ["attempt", "work_unit"]}},
+                "properties": {"observation_unit": {"enum": non_request_units}},
                 "required": ["observation_unit"],
             },
             "then": {
@@ -356,6 +370,36 @@ def _request_trace_v1alpha2_conditionals(schema: dict[str, Any]) -> None:
     ]
 
 
+def _configure_request_trace_schema(
+    schema: dict[str, Any],
+    *,
+    version: Literal["v1alpha2", "v1alpha3"],
+) -> None:
+    properties = schema["properties"]
+    schema_version = properties["schema_version"]
+    schema_version.clear()
+    schema_version.update(
+        {
+            "const": f"model-skyline/request-trace/{version}",
+            "title": "Schema Version",
+            "type": "string",
+        }
+    )
+    allow_model_call = version == "v1alpha3"
+    if not allow_model_call:
+        properties["observation_unit"]["description"] = "Granularity represented by this row."
+        properties["observation_unit"]["enum"] = ["request", "attempt", "work_unit"]
+        properties["model_request_count"]["description"] = (
+            "Actual model requests represented by an aggregate row; unknown when omitted. "
+            "Request rows implicitly represent one."
+        )
+        properties["attempt_count"]["description"] = (
+            "Actual attempts represented by a work-unit row; unknown when omitted. "
+            "Request and attempt rows derive attempts from attempt_id."
+        )
+    _request_trace_conditionals(schema, allow_model_call=allow_model_call)
+
+
 def _project_config_conditionals(schema: dict[str, Any]) -> None:
     """Mirror FormulaMetric's USD accounting-basis invariant in JSON Schema."""
 
@@ -397,6 +441,7 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
     from model_skyline.selection_overlap import generated_overlap_schemas
     from model_skyline.traces import RequestTrace
 
+    request_trace_schema = RequestTrace.model_json_schema(mode="validation")
     generated = {
         "project-config.schema.json": ProjectConfig.model_json_schema(mode="validation"),
         "observation-catalog.schema.json": ObservationCatalog.model_json_schema(mode="validation"),
@@ -406,7 +451,8 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
             mode="serialization"
         ),
         "frontier-history.schema.json": FrontierHistory.model_json_schema(mode="serialization"),
-        "request-trace-v1alpha2.schema.json": RequestTrace.model_json_schema(mode="validation"),
+        "request-trace-v1alpha2.schema.json": deepcopy(request_trace_schema),
+        "request-trace-v1alpha3.schema.json": deepcopy(request_trace_schema),
         "gateway-selection-pointer.schema.json": GatewaySelectionPointer.model_json_schema(
             mode="serialization"
         ),
@@ -422,7 +468,9 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         if name == "project-config.schema.json":
             _project_config_conditionals(schema)
         if name == "request-trace-v1alpha2.schema.json":
-            _request_trace_v1alpha2_conditionals(schema)
+            _configure_request_trace_schema(schema, version="v1alpha2")
+        if name == "request-trace-v1alpha3.schema.json":
+            _configure_request_trace_schema(schema, version="v1alpha3")
         generated_schema = {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": SCHEMA_IDS[name],

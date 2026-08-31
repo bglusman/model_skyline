@@ -31,8 +31,10 @@ from model_skyline.models import (
 from model_skyline.trace_producers import ProducerKey, trusted_trace_producer
 
 TRACE_COHERENCE_DECIMAL_PRECISION = 50
-TRACE_SCHEMA_VERSION = "model-skyline/request-trace/v1alpha2"
+TRACE_SCHEMA_VERSION = "model-skyline/request-trace/v1alpha3"
+PREVIOUS_TRACE_SCHEMA_VERSION = "model-skyline/request-trace/v1alpha2"
 LEGACY_TRACE_SCHEMA_VERSION = "model-skyline/request-trace/v1alpha1"
+SUPPORTED_TRACE_SCHEMA_VERSIONS = frozenset({PREVIOUS_TRACE_SCHEMA_VERSION, TRACE_SCHEMA_VERSION})
 MAX_TRACE_JSONL_BYTES = 256 * 1024 * 1024
 MAX_TRACE_PARQUET_BYTES = 1024 * 1024 * 1024
 MAX_TRACE_JSONL_LINE_BYTES = 4 * 1024 * 1024
@@ -60,7 +62,10 @@ def _exact_decimal_sum(values: list[Decimal]) -> Decimal:
 class RequestTrace(FrozenModel):
     """Canonical usage row consumed by the DuckDB work-unit aggregator."""
 
-    schema_version: Literal["model-skyline/request-trace/v1alpha2"]
+    schema_version: Literal[
+        "model-skyline/request-trace/v1alpha2",
+        "model-skyline/request-trace/v1alpha3",
+    ]
     timestamp: datetime
     workload_id: str = Field(min_length=1)
     workload_version: str = Field(min_length=1)
@@ -74,22 +79,26 @@ class RequestTrace(FrozenModel):
         ),
     )
     attempt_id: str = Field(min_length=1)
-    observation_unit: Literal["request", "attempt", "work_unit"] = Field(
+    observation_unit: Literal["request", "model_call", "attempt", "work_unit"] = Field(
         default="request",
-        description="Granularity represented by this row.",
+        description=(
+            "Granularity represented by this row: provider request, logical model call, "
+            "attempt, or work unit."
+        ),
     )
     model_request_count: SafeCount | None = Field(
         default=None,
         description=(
-            "Actual model requests represented by an aggregate row; unknown when omitted. "
-            "Request rows implicitly represent one."
+            "Actual provider requests represented by an aggregate row; unknown when omitted. "
+            "Request rows implicitly represent one. A model-call row represents one logical "
+            "model invocation, not necessarily one provider request."
         ),
     )
     attempt_count: SafeCount | None = Field(
         default=None,
         description=(
             "Actual attempts represented by a work-unit row; unknown when omitted. "
-            "Request and attempt rows derive attempts from attempt_id."
+            "Request, model-call, and attempt rows derive attempts from attempt_id."
         ),
     )
     adapter_id: str | None = Field(
@@ -260,6 +269,11 @@ class RequestTrace(FrozenModel):
 
     @model_validator(mode="after")
     def request_scope_is_coherent(self) -> RequestTrace:
+        if (
+            self.schema_version == PREVIOUS_TRACE_SCHEMA_VERSION
+            and self.observation_unit == "model_call"
+        ):
+            raise ValueError("model_call observations require request-trace v1alpha3")
         producer_fields = (
             self.adapter_id,
             self.adapter_version,
@@ -732,9 +746,9 @@ def _validate_json_lines(path: Path) -> tuple[int, str]:
                         payload = {
                             **{name: Decimal(0) for name in LEGACY_DEFAULT_ZERO_COLUMNS},
                             **payload,
-                            "schema_version": TRACE_SCHEMA_VERSION,
+                            "schema_version": PREVIOUS_TRACE_SCHEMA_VERSION,
                         }
-                    elif row_schema != TRACE_SCHEMA_VERSION:
+                    elif row_schema not in SUPPORTED_TRACE_SCHEMA_VERSIONS:
                         raise _InvalidTraceJson
                     if detected_schema is None:
                         detected_schema = row_schema
@@ -790,11 +804,23 @@ def _canonical_parquet_relation(
     column_types = {
         name: str(data_type) for name, data_type in zip(columns, relation.types, strict=True)
     }
-    detected_schema = (
-        TRACE_SCHEMA_VERSION if "schema_version" in columns else LEGACY_TRACE_SCHEMA_VERSION
-    )
+    if "schema_version" not in columns:
+        detected_schema = LEGACY_TRACE_SCHEMA_VERSION
+    else:
+        if column_types["schema_version"] != "VARCHAR":
+            raise TraceAggregationError(
+                f"trace column schema_version must be VARCHAR, got {column_types['schema_version']}"
+            )
+        schema_rows = relation.project('"schema_version"').distinct().limit(2).fetchall()
+        if len(schema_rows) != 1 or schema_rows[0][0] not in SUPPORTED_TRACE_SCHEMA_VERSIONS:
+            raise TraceAggregationError(
+                "trace Parquet has a mixed, null, or unsupported schema version"
+            )
+        detected_schema = str(schema_rows[0][0])
     allowed_columns = (
-        set(TRACE_COLUMNS) if detected_schema == TRACE_SCHEMA_VERSION else set(LEGACY_TRACE_COLUMNS)
+        set(LEGACY_TRACE_COLUMNS)
+        if detected_schema == LEGACY_TRACE_SCHEMA_VERSION
+        else set(TRACE_COLUMNS)
     )
     missing = sorted(REQUIRED_TRACE_COLUMNS - set(columns))
     extras = sorted(set(columns) - allowed_columns)
@@ -821,7 +847,9 @@ def _canonical_parquet_relation(
         source_type = column_types.get(name)
         if source_type is None:
             if name == "schema_version":
-                projections.append(f"'{TRACE_SCHEMA_VERSION}'::{target_type} AS \"{name}\"")
+                projections.append(
+                    f"'{PREVIOUS_TRACE_SCHEMA_VERSION}'::{target_type} AS \"{name}\""
+                )
             elif name == "observation_unit":
                 projections.append(f"'request'::{target_type} AS \"{name}\"")
             elif (
@@ -874,7 +902,7 @@ def _legacy_json_projection(relation: Any) -> Any:
     projections: list[str] = []
     for name, target_type in TRACE_COLUMNS.items():
         if name == "schema_version":
-            projections.append(f"'{TRACE_SCHEMA_VERSION}'::{target_type} AS \"{name}\"")
+            projections.append(f"'{PREVIOUS_TRACE_SCHEMA_VERSION}'::{target_type} AS \"{name}\"")
         elif name in LEGACY_DEFAULT_ZERO_COLUMNS:
             projections.append(f'coalesce("{name}", 0::{target_type}) AS "{name}"')
         else:
@@ -1063,7 +1091,13 @@ TRACE_VALIDATION_SQL = """
 SELECT count(*)
 FROM request_traces
 WHERE timestamp IS NULL
-   OR schema_version IS NULL OR schema_version != 'model-skyline/request-trace/v1alpha2'
+   OR schema_version IS NULL
+   OR schema_version NOT IN (
+       'model-skyline/request-trace/v1alpha2',
+       'model-skyline/request-trace/v1alpha3'
+   )
+   OR (schema_version = 'model-skyline/request-trace/v1alpha2'
+       AND observation_unit = 'model_call')
    OR workload_id IS NULL OR workload_id = ''
    OR workload_version IS NULL OR workload_version = ''
    OR work_unit_id IS NULL OR work_unit_id = ''
@@ -1080,7 +1114,7 @@ WHERE timestamp IS NULL
        '[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F-\\x9F\\x{FFFE}\\x{FFFF}]'
    )
    OR (observation_unit IS NOT NULL
-       AND observation_unit NOT IN ('request', 'attempt', 'work_unit'))
+       AND observation_unit NOT IN ('request', 'model_call', 'attempt', 'work_unit'))
    OR model_request_count < 0
    OR model_request_count > 9007199254740991
    OR attempt_count < 0

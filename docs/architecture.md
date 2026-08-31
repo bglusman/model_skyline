@@ -248,26 +248,34 @@ sandbox or a substitute for process/container quotas when ingesting hostile
 files.
 
 The compatibility contract `request-trace.schema.json` remains the published
-v1alpha1 format, including its legacy zero defaults. New producers declare
-`model-skyline/request-trace/v1alpha2` and validate against
-`request-trace-v1alpha2.schema.json`. That Draft 2020-12 schema enforces
-row-local scope/count rules, request-only timing, cache-write representation,
-and complete producer/collector provenance. JSON Schema cannot compare
+v1alpha1 format, including its legacy zero defaults. The retained
+`model-skyline/request-trace/v1alpha2` contract validates against
+`request-trace-v1alpha2.schema.json` and remains byte-for-byte unchanged.
+`model-skyline/request-trace/v1alpha3` validates against
+`request-trace-v1alpha3.schema.json` and adds only the `model_call` observation
+scope needed by logical-call telemetry such as OpenClaw's. Both Draft 2020-12
+schemas enforce row-local scope/count rules, request-only timing, cache-write
+representation, and complete producer/collector provenance. A single input
+must use exactly one supported schema version. JSON Schema cannot compare
 arbitrary exact Decimal fields, so it is not the complete trust boundary:
 consumers MUST also run the `RequestTrace` semantic validator for input/output
 total arithmetic and the trace aggregator for cross-row identity, scope,
 outcome, offering, timestamp, and provenance coherence.
 
-Despite its compatibility name, `RequestTrace` can declare `observation_unit`
-as `request`, `attempt`, or `work_unit`. A request row contributes one model
-request. An aggregate row contributes its explicit `model_request_count`; when
-the framework does not expose that count, request-count signals are omitted
-rather than fabricated as one. Request and attempt rows derive attempts from
-`attempt_id`; a work-unit aggregate must provide `attempt_count` or leave the
-attempt signal unknown. One work unit cannot mix observation granularities,
-and attempt/work-unit aggregates must be unique for their declared scope.
-`request_id` is the unique trace-record id for aggregate rows and should be a
-local pseudonym rather than a raw framework session id.
+`RequestTrace` can declare `observation_unit` as `request`, `attempt`, or
+`work_unit` under v1alpha2, with v1alpha3 additionally allowing `model_call`. A
+request row contributes one actual provider request. A `model_call` row
+represents one logical model invocation, which may span an unknown number of
+provider requests because of retries or transport behavior. Aggregate rows contribute only an explicit
+`model_request_count`; when the framework does not expose that count,
+request-count signals are omitted rather than fabricated as one. Request,
+model-call, and attempt rows derive attempts from distinct `attempt_id` values;
+a work-unit aggregate must provide `attempt_count` or leave the attempt signal
+unknown. Multiple model-call rows may share an attempt, but one work unit cannot
+mix observation granularities, and attempt/work-unit aggregates must be unique
+for their declared scope. `request_id` is the unique trace-record id for
+aggregate rows and should be a local pseudonym rather than a raw framework
+session id.
 
 Unsupported meters are `null`, not measured zero. A quantity is published only
 when every contributing row reports it, so partial telemetry cannot silently

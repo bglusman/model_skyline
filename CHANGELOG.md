@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.5.1 - 2026-08-31
+
+- Require the trusted OpenClaw projector to correlate each model-call child span
+  to its per-attempt `run.started` parent, assign a one-based ordinal,
+  independently prove asynchronous segment completeness, reject dropped
+  events, and attest whether usage covers hidden transport retries. Logical
+  calls now use the canonical `model_call` scope with unknown provider-request
+  count, incomplete usage is omitted, and workload/work-unit identity scopes
+  pseudonymous ids. Request-trace v1alpha3 adds that scope while the released
+  v1alpha2 schema remains byte-for-byte unchanged. The corrected producer is
+  adapter `1alpha3` / collector `3`; ambiguous older projector rows fail closed.
+- Bounded-retry concurrent WAL activation, then serialize SQLite schema
+  initialization through one immediate transaction with an idempotent metadata
+  insert and post-insert version check, removing first-start races without
+  changing the stored schema.
+- Preserve bounded expiry diagnostics and block subsequent admissions when a
+  fresh post-synchronization clock crosses a signed gateway hard expiry.
+- Align the Claude Agent SDK adapter with pinned `0.2.148`: its Python
+  `ModelUsage` type omits runtime `costBasis`, while the bundled CLI can pass it
+  through. Metered results accept present `list`/`managed` values and fail
+  closed on `unknown`; optional model/provider identity is cross-checked, and
+  caller route/pricing attestation remains mandatory. Adapter `2` validates
+  crash identity while ignoring unused crash pricing metadata and leaving every
+  crash meter unknown; historical adapter `1` remains accepted.
+
 ## 0.5.0 - 2026-08-30
 
 - Add a gateway-neutral signed selection profile: a threshold Ed25519 DSSE

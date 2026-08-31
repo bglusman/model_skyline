@@ -38,6 +38,7 @@ from model_skyline.traces import RequestTrace
 CLAUDE_AGENT_SDK_VERSION = "0.2.148"
 CLAUDE_AGENT_SDK_COMMIT = "af5ff1b9f2f279575f89b78f17572c6e35fbc2b6"
 CLAUDE_CODE_CLI_VERSION = "2.1.251"
+CLAUDE_ADAPTER_VERSION = "2"
 CLAUDE_AGENT_SDK_TYPES_URL = (
     "https://raw.githubusercontent.com/anthropics/claude-agent-sdk-python/"
     f"{CLAUDE_AGENT_SDK_COMMIT}/src/claude_agent_sdk/types.py"
@@ -96,7 +97,9 @@ class ClaudeRouteMapping(FrozenModel):
 
     The attestation covers every main-agent, subagent, fallback, and internal
     model call represented by the cumulative result, including a stable
-    provider and pricing basis for the entire accounting segment.
+    provider and pricing basis for the entire accounting segment.  It also
+    supplies the route identity when the SDK's optional ``canonicalModel`` or
+    ``provider`` fields are absent.
     """
 
     offering: OfferingKey
@@ -144,8 +147,6 @@ class _ClaudeModelUsage:
     output_total_tokens: Decimal
     web_search_calls: Decimal
     cost_usd: Decimal
-    canonical_model: str
-    provider: str
 
 
 def _nonnegative_count(container: Mapping[str, Any], field: str) -> Decimal:
@@ -211,14 +212,19 @@ def _model_key(value: Any, *, field: str = "expected_model_key") -> str:
     return value
 
 
-def _extract_single_model_usage(
+def _single_model_usage_entry(
     message: ClaudeResultMessageLike,
     *,
     route: ClaudeRouteMapping,
-) -> _ClaudeModelUsage:
+    require_priced_basis: bool = True,
+) -> Mapping[str, Any] | None:
     model_usage = message.model_usage
-    if not isinstance(model_usage, Mapping) or not model_usage:
-        raise ClaudeAdapterError("Claude ResultMessage.model_usage is required")
+    if model_usage is None:
+        return None
+    if not isinstance(model_usage, Mapping):
+        raise ClaudeAdapterError("Claude ResultMessage.model_usage must be a mapping")
+    if not model_usage:
+        return None
     if len(model_usage) != 1:
         raise ClaudeAdapterError(
             "Claude ResultMessage uses multiple models; one offering cannot represent "
@@ -230,17 +236,29 @@ def _extract_single_model_usage(
         raise ClaudeAdapterError("Claude model_usage key does not match the reviewed route")
     if not isinstance(raw_usage, Mapping):
         raise ClaudeAdapterError("Claude model_usage entry must be a mapping")
-    if not {"canonicalModel", "provider", "costBasis"}.issubset(raw_usage):
-        raise ClaudeAdapterError(
-            "Claude model_usage must expose canonicalModel, provider, and costBasis"
-        )
-    canonical_model = _model_key(raw_usage["canonicalModel"], field="canonicalModel")
-    provider = _model_key(raw_usage["provider"], field="provider")
-    if provider != route.upstream_provider:
-        raise ClaudeAdapterError("Claude model_usage provider does not match the route mapping")
-    cost_basis = raw_usage["costBasis"]
-    if cost_basis not in {"list", "managed"}:
-        raise ClaudeAdapterError("Claude model_usage costBasis is not a priced basis")
+    if "canonicalModel" in raw_usage:
+        canonical_model = _model_key(raw_usage["canonicalModel"], field="canonicalModel")
+        if canonical_model != route.offering.model_id:
+            raise ClaudeAdapterError("Claude canonicalModel does not match the offering identity")
+    if "provider" in raw_usage:
+        provider = _model_key(raw_usage["provider"], field="provider")
+        if provider != route.upstream_provider:
+            raise ClaudeAdapterError("Claude model_usage provider does not match the route mapping")
+    if require_priced_basis and "costBasis" in raw_usage:
+        cost_basis = raw_usage["costBasis"]
+        if not isinstance(cost_basis, str) or cost_basis not in {"list", "managed"}:
+            raise ClaudeAdapterError("Claude model_usage costBasis is not a priced basis")
+    return raw_usage
+
+
+def _extract_single_model_usage(
+    message: ClaudeResultMessageLike,
+    *,
+    route: ClaudeRouteMapping,
+) -> _ClaudeModelUsage:
+    raw_usage = _single_model_usage_entry(message, route=route)
+    if raw_usage is None:
+        raise ClaudeAdapterError("Claude ResultMessage.model_usage is required")
 
     counts = {field: _nonnegative_count(raw_usage, field) for field in _MODEL_USAGE_COUNT_FIELDS}
     for field in _MODEL_USAGE_CAPACITY_FIELDS:
@@ -263,16 +281,7 @@ def _extract_single_model_usage(
         output_total_tokens=counts["outputTokens"],
         web_search_calls=counts["webSearchRequests"],
         cost_usd=model_cost,
-        canonical_model=canonical_model,
-        provider=provider,
     )
-
-
-def _validated_offering(route: ClaudeRouteMapping, *, canonical_model: str) -> OfferingKey:
-    offering = route.offering
-    if offering.model_id != canonical_model:
-        raise ClaudeAdapterError("Claude canonicalModel does not match the offering identity")
-    return offering
 
 
 def adapt_claude_result(
@@ -302,9 +311,11 @@ def adapt_claude_result(
     does not break per-model writes into 5-minute and 1-hour buckets.
 
     The caller must supply identifiers, judged outcome, timestamp, installed
-    SDK version, and final-result attestation.  None are derived from Claude's
-    session id, result content, tool payloads, or other potentially sensitive
-    message fields.
+    SDK version, final-result attestation, and an explicitly attested route and
+    pricing mapping.  Optional upstream route fields are cross-checked when
+    present; the caller mapping binds the route when they are absent.  None are
+    derived from Claude's session id, result content, tool payloads, or other
+    potentially sensitive message fields.
     """
 
     if sdk_version != CLAUDE_AGENT_SDK_VERSION:
@@ -355,6 +366,12 @@ def adapt_claude_result(
     if subtype == "error_during_execution":
         # Claude's documented crash result may zero every accounting field.  A
         # failure row is still valuable, but those zeroes are not measurements.
+        # Validate any identity evidence that did survive so a conflicting or
+        # multi-model crash cannot be attributed to the attested offering.
+        try:
+            _single_model_usage_entry(message, route=route, require_priced_basis=False)
+        except AttributeError:
+            raise ClaudeAdapterError("input must be a typed Claude ResultMessage") from None
         usage = None
         safe_offering = route.offering
     else:
@@ -362,7 +379,7 @@ def adapt_claude_result(
             usage = _extract_single_model_usage(message, route=route)
         except AttributeError:
             raise ClaudeAdapterError("input must be a typed Claude ResultMessage") from None
-        safe_offering = _validated_offering(route, canonical_model=usage.canonical_model)
+        safe_offering = route.offering
 
     try:
         return RequestTrace(
@@ -377,7 +394,7 @@ def adapt_claude_result(
             observation_unit="attempt",
             model_request_count=None,
             adapter_id="model-skyline/claude-agent-sdk-result",
-            adapter_version="1",
+            adapter_version=CLAUDE_ADAPTER_VERSION,
             upstream_system="anthropics/claude-agent-sdk-python+claude-code",
             upstream_version=(f"{CLAUDE_AGENT_SDK_VERSION}+cli.{CLAUDE_CODE_CLI_VERSION}"),
             upstream_commit=CLAUDE_AGENT_SDK_COMMIT,

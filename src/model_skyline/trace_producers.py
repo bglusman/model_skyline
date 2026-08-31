@@ -101,34 +101,35 @@ for _codex_version, _codex_commit in (
         )
     )
 
-_register(
-    TrustedTraceProducer(
-        key=(
-            "model-skyline/claude-agent-sdk-result",
-            "1",
-            "anthropics/claude-agent-sdk-python+claude-code",
-            "0.2.148+cli.2.1.251",
-            "af5ff1b9f2f279575f89b78f17572c6e35fbc2b6",
-            None,
-            None,
-        ),
-        source=_source(
-            source_id="producer:anthropic-claude-agent-sdk:0.2.148-cli-2.1.251",
-            version="af5ff1b9f2f279575f89b78f17572c6e35fbc2b6",
-            url=(
-                "https://github.com/anthropics/claude-agent-sdk-python/blob/"
-                "af5ff1b9f2f279575f89b78f17572c6e35fbc2b6/"
-                "src/claude_agent_sdk/types.py"
+for _claude_adapter_version in ("1", "2"):
+    _register(
+        TrustedTraceProducer(
+            key=(
+                "model-skyline/claude-agent-sdk-result",
+                _claude_adapter_version,
+                "anthropics/claude-agent-sdk-python+claude-code",
+                "0.2.148+cli.2.1.251",
+                "af5ff1b9f2f279575f89b78f17572c6e35fbc2b6",
+                None,
+                None,
             ),
-            terms_url=_CLAUDE_LICENSE,
-            license_name="MIT",
-            methodology=(
-                "Exact reviewed Claude Agent SDK ResultMessage contract with the bundled "
-                "Claude Code CLI version pinned separately by the adapter."
+            source=_source(
+                source_id="producer:anthropic-claude-agent-sdk:0.2.148-cli-2.1.251",
+                version="af5ff1b9f2f279575f89b78f17572c6e35fbc2b6",
+                url=(
+                    "https://github.com/anthropics/claude-agent-sdk-python/blob/"
+                    "af5ff1b9f2f279575f89b78f17572c6e35fbc2b6/"
+                    "src/claude_agent_sdk/types.py"
+                ),
+                terms_url=_CLAUDE_LICENSE,
+                license_name="MIT",
+                methodology=(
+                    "Exact reviewed Claude Agent SDK ResultMessage contract with the bundled "
+                    "Claude Code CLI version pinned separately by the adapter."
+                ),
             ),
-        ),
+        )
     )
-)
 
 _register(
     TrustedTraceProducer(
@@ -162,12 +163,12 @@ _register(
     TrustedTraceProducer(
         key=(
             "model-skyline/openclaw-model-call",
-            "1alpha2",
+            "1alpha3",
             "openclaw/openclaw",
             "2026.8.1",
             "2a6c333225e5c886bfd630e36037fb7b206408ef",
             "model-skyline/openclaw-trusted-projector",
-            "1",
+            "3",
         ),
         source=_source(
             source_id="producer:openclaw-model-call:2026.8.1",
@@ -180,8 +181,11 @@ _register(
             terms_url=_OPENCLAW_LICENSE,
             license_name="MIT",
             methodology=(
-                "Exact reviewed OpenClaw model-call diagnostic projection; canonical envelope "
-                "must be authenticated by the pinned trusted projector."
+                "Exact reviewed OpenClaw model-call diagnostic projection; the trusted "
+                "projector correlates each model-call child span to its per-attempt "
+                "run.started parent, independently proves asynchronous segment "
+                "completeness, rejects dropped events, and authenticates completeness "
+                "attestations in the canonical envelope."
             ),
         ),
     )
