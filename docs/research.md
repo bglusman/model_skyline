@@ -329,16 +329,25 @@ GitHub and Postgres, and only DeepSeek V4 Pro plus GPT-5.6 SOL for Playwright.
 The quality/input-token frontier changes membership again. An overall aggregate
 is consequently not a safe substitute for an operator's workload mix.
 
-### Researched next: public quality evidence collectors
+### Implemented Harbor capture and recommended quality-source bundle
 
-The best first additional live adapter is Harbor's supported
+The implemented Harbor adapter parses captured output from Harbor's supported
 [`leaderboard show ... --json`](https://www.harborframework.com/docs/hosted-harbor/cli-leaderboards)
-interface. A 2026-08-31 live test with Harbor 0.22.0 and the public
+CLI/API surface. A 2026-08-31 live test with Harbor 0.22.0 and the public
 `terminal-bench/terminal-bench/4-0-0` board returned board and dataset-version
 UUIDs, embedded schemas, row UUIDs, model/agent/effort identity, accuracy and
 intervals, pass@k, reported cost, duration, and token/cache fields without
 authentication. The safe architecture pins the CLI in a collector and parses
 captured JSON; it does not execute a command named by project configuration.
+
+The official Terminal-Bench repository also publishes richer, commit-addressed
+JSON under [`leaderboard/submissions`](https://github.com/harbor-framework/terminal-bench/tree/main/leaderboard/submissions)
+and [`leaderboard/runs`](https://github.com/harbor-framework/terminal-bench/tree/main/leaderboard/runs).
+Those artifacts add dataset refs, agent versions and kwargs, retry policy,
+source-job ids, and trial-id sets. They are a valuable future identity and
+cross-check source, but the implemented capture adapter does not ingest or
+claim those fields today. Any future correlation to a CLI/API row must itself be
+an exact, reviewed assertion at a pinned repository commit.
 
 Cache semantics need board-specific validation. In the audited Terminal-Bench
 4.0 rows, reported total tokens equaled uncached input plus output even when a
@@ -347,22 +356,158 @@ cached + output relation. An adapter must preserve the upstream reported total
 cost and mark an unproven cache decomposition unknown rather than reconstructing
 spend from suggestive field names.
 
-For coding, the next source should be the commit-addressed
-[SWE-bench `evaluation/bash-only`](https://github.com/SWE-bench/experiments/tree/main/evaluation/bash-only)
-subset. It fixes mini-SWE-agent as the harness and exposes metadata plus
-per-instance results. Identity is model + agent version + reasoning effort +
-attempt policy; multi-model submissions are composite systems. The general
-leaderboard cannot safely be model-name joined because entries may name
-multiple or no underlying models.
+The recommended target general-agent bundle has three required quality
+components: **Harbor/Terminal-Bench** for general terminal-agent work,
+**SWE-bench Verified bash-only** for repository issue resolution, and
+**tau2-bench** for stateful policy-and-tool work. In the v1alpha1 contracts,
+these remain separate workload-specific cost/performance frontiers. Bundle
+selection uses hard required-component coverage followed by exact
+multi-frontier overlap/proximity; a missing required component makes a candidate
+ineligible. The bundle does not average benchmark scores or renormalize around
+missing evidence. A weighted scalar is a distinct, versioned composite workload
+and formula or materialized observation with its own frontier—not a bundle
+selection strategy.
 
-ARC-AGI-2 exposes useful leaderboard JSON, but the current
-[ARC Prize terms](https://arcprize.org/terms) prohibit automated/scripted and
-systematic retrieval. Scheduled ingestion requires written permission; v0.6
-should accept only an operator-provided local snapshot. BFCL's result CSV is
-also straightforward, but the separate result archive currently has no
-declared data license. None of these sources provides a native RSS evidence
-feed. Poll supported JSON/CLI or pinned repository files, preserve source terms
-and hashes, and let ModelSkyline emit RSS only after reviewed exact mapping.
+| Signal | Authoritative machine-readable interface | v1alpha1 role |
+| --- | --- | --- |
+| Harbor/Terminal-Bench | Implemented capture of [supported CLI/API JSON](https://www.harborframework.com/docs/hosted-harbor/cli-leaderboards); richer [commit-addressed repository JSON](https://github.com/harbor-framework/terminal-bench/tree/main/leaderboard) is future identity enrichment | Required general-agent component |
+| SWE-bench Verified bash-only | Submission directories under official [`evaluation/bash-only`](https://github.com/SWE-bench/experiments/tree/main/evaluation/bash-only), with `metadata.yaml` and, for admissible new rows, `per_instance_details.json` | Required coding component |
+| tau2-bench | Official submission [`manifest.json`](https://github.com/sierra-research/tau2-bench/blob/main/web/leaderboard/public/submissions/manifest.json), [`schema.json`](https://github.com/sierra-research/tau2-bench/blob/main/web/leaderboard/public/submissions/schema.json), and one `submission.json` per manifest entry | Required stateful tool/policy component |
+| ARC-AGI-2 | Operator-produced official-harness [`results.json`](https://github.com/arcprize/arc-agi-benchmarking/blob/main/results/random-baseline-sample/results.json) plus a required identity sidecar | Optional fourth, manual/local reasoning component |
+| BFCL | Versioned aggregate CSVs such as [`data_overall.csv`](https://github.com/HuanzhiMao/BFCL-Result/blob/main/2025-12-16/score/data_overall.csv) | Alternate tool component for function-calling-heavy profiles |
+
+BFCL should normally replace, not be added on top of, the tool-oriented part of
+the bundle. Its function selection, multi-turn, web-search, and memory categories
+overlap materially with tau2 and some Harbor tasks; including both without a
+separately declared composite workload would count tool competence repeatedly.
+ARC-AGI-2 adds a more distinct abstract-reasoning signal, but its collection
+constraints make it an opt-in local component rather than a default scheduled
+source.
+
+#### Identity and admission rules
+
+Leaderboard display names are evidence, never join keys. A collector should
+first create an immutable benchmark subject, then resolve that subject through a
+reviewed, versioned alias assertion to a ModelSkyline model or offering. Do not
+fuzzy-match an unknown name, and do not attach a score to a purchasable route
+when the evaluated provider, endpoint, weights, quantization, or system cannot be
+proved equivalent. Ambiguous rows, routers, ensembles, and agent systems remain
+useful evidence with `subject_type = composite_system` or `research_only`; they
+must not masquerade as a single route.
+
+Every normalized observation needs acquisition provenance, an exact row locator,
+a raw digest, and the semantic benchmark/task-set identity the source actually
+establishes. Selection-grade admission additionally needs operator evidence for
+material evaluator and subject details such as harness and agent version/config,
+provider/model identifier, system prompt or scaffold, reasoning effort,
+attempts/trials, budget, modality, and tool or retrieval configuration. A field
+the source does not report stays unknown; it must not be inferred from a display
+name. That gap may limit the row to research evidence or an explicitly reviewed
+quality projection rather than an exact subject-to-route assertion. Alias
+assertions need their own provenance, effective interval, reviewer, and
+confidence. A later price change invalidates only cost observations whose
+dependency set includes that price; it does not invalidate a benchmark quality
+observation or its subject mapping.
+
+Source-specific admission requirements are stricter:
+
+- **Harbor:** the implemented collector binds exact captured bytes and digest,
+  parser version, board and dataset-version UUIDs, complete embedded schemas,
+  rank/release-date column contract, row UUID, every source metadata field,
+  model/agent labels and organizations, reasoning effort, and result fields.
+  The board's required `metadata.date` is explicitly presented as Release Date
+  and is part of subject identity. A Harbor row measures an agent-model
+  configuration, not a bare model, but the current CLI/API capture generally
+  does not report the agent version, kwargs, scaffold configuration, or exact
+  execution route. Those details remain unknown unless separately established
+  by reviewed operator evidence; the importer does not manufacture them. Its
+  recorded tokens, cache
+  tokens, and total cost are historical run telemetry, not a current-route price
+  quote. Future repository ingestion must additionally bind the repository
+  commit, exact submission/run paths, dataset ref, agent version/kwargs, retry
+  policy, source jobs, and trial set. The official repository is
+  [Apache-2.0](https://github.com/harbor-framework/terminal-bench/blob/main/LICENSE).
+- **SWE-bench:** require the exact 500-instance id set or digest, the
+  `mini-swe-agent` version/config generation, attempts, agent, reasoning effort,
+  and complete `tags.model` list. The official
+  [bash-only definition](https://www.swebench.com/verified.html) warns that v1
+  parsed-string actions and v2 tool-calling actions are not directly comparable;
+  never pool those harness generations. Prefer rows with per-instance outcomes
+  and quarantine older aggregate-only rows. The experiments repository has no
+  repository license at this snapshot, so retain only a private audit copy when
+  permitted, publish hashes and normalized facts with upstream links, and mark
+  redistribution rights `NOASSERTION`.
+- **tau2-bench:** preserve domain (`airline`, `retail`, `telecom`, or
+  `banking_knowledge`), base task set, tau2 version, user simulator, text/voice
+  modality, standard/custom classification, retrieval configuration, reasoning
+  effort, trial count, and verification flags. Do not silently average domains.
+  The official [submission guide](https://github.com/sierra-research/tau2-bench/blob/main/docs/leaderboard-submission.md)
+  says custom systems include routers and ensembles, while “standard” describes
+  the benchmark scaffold and does not prove a single-model product. The source is
+  [MIT-licensed](https://github.com/sierra-research/tau2-bench/blob/main/LICENSE),
+  but public submission JSON contains submitter contact details: exclude all
+  `contact_info` fields from normalized/public artifacts and do not automatically
+  fetch externally hosted trajectories. Optional reported cost is historical and
+  not methodologically uniform enough to substitute for ModelSkyline costing.
+- **ARC-AGI-2:** `results.json` contains aggregate and per-task score, attempts,
+  cost, token, and duration fields but does not establish the evaluated subject.
+  Require a sidecar containing the ARC dataset revision and task/split digest,
+  harness revision, provider and actual model id, model kwargs and reasoning
+  configuration, attempts/retries/budget, and pricing date. The public dataset is
+  [Apache-2.0](https://github.com/arcprize/ARC-AGI-2/blob/main/LICENSE) and the
+  harness is [MIT-licensed](https://github.com/arcprize/arc-agi-benchmarking/blob/main/LICENSE.md),
+  but [ARC Prize terms](https://arcprize.org/terms) prohibit automated/non-human
+  and systematic retrieval from its site. Collect local/operator artifacts only
+  unless ARC grants written permission. The official
+  [community leaderboard](https://github.com/arcprize/ARC-AGI-Community-Leaderboard)
+  describes ARC-AGI-1/2 results as self-reported and unverified and has no
+  repository license; use it for discovery, not selection-grade ingestion.
+- **BFCL:** pin the result-archive revision/date, BFCL evaluator revision and
+  category, and the exact internal model-map key and model configuration. At the
+  leaderboard's documented evaluator revision, the
+  [`ModelConfig` source](https://github.com/ShishirPatil/gorilla/blob/f7cf7359b7ac615a0b294831c5ba2bc95ee4a000/berkeley-function-call-leaderboard/bfcl_eval/constants/model_config.py)
+  explicitly says `model_name` may not be unique. Preserve FC-versus-prompt mode,
+  provider/handler, reasoning configuration, and composite-agent status instead
+  of joining the CSV display label. The
+  [main BFCL documentation](https://github.com/ShishirPatil/gorilla/blob/main/berkeley-function-call-leaderboard/README.md)
+  licenses leaderboard statistics and data under Apache-2.0, but the separate
+  [BFCL-Result archive](https://github.com/HuanzhiMao/BFCL-Result) has no license
+  at this snapshot; treat archive redistribution as `NOASSERTION`. Import only
+  aggregate/category CSVs, not raw responses containing prompts, web content, or
+  inference logs. BFCL's reported cost uses evaluator-time price constants and
+  is not a current cache-aware route cost.
+
+None of these sources publishes a native RSS evidence feed. Scheduled collectors
+should poll supported GitHub or Hugging Face revision APIs with conditional,
+low-cadence requests, record retrieval time and source commit, and emit
+ModelSkyline RSS only after a normalized semantic change. GitHub's
+[Acceptable Use Policy](https://docs.github.com/en/site-policy/acceptable-use-policies/github-acceptable-use-policies)
+distinguishes API collection from scraping, but API availability does not grant
+copyright or redistribution rights. Each collector therefore needs an explicit
+mode (`git_api`, `supported_api`, or `manual_only`), terms URL and review date,
+cadence, and redistribution assertion. Raw logs, trajectories, prompts, provider
+responses, web snippets, contacts, and secrets stay out of public bundles; retain
+only an allowlisted projection and hashes, or hashes alone when retention is not
+permitted.
+
+#### Why BrowseComp and GAIA are not first collectors
+
+[BrowseComp's official implementation](https://github.com/openai/simple-evals/blob/main/browsecomp_eval.py)
+is valuable for operator-run search evaluation, but the
+[simple-evals README](https://github.com/openai/simple-evals/blob/main/README.md)
+states that it stopped adding new-model benchmark results in July 2025. There is
+no official current result feed, and a result also depends on the browser/search
+stack plus judge model and prompt. Support it first through generic local evidence
+with dataset, code, search-stack, and grader revisions bound into identity.
+
+GAIA's official
+[`results_public` dataset](https://huggingface.co/datasets/gaia-benchmark/results_public)
+offers Parquet aggregates, but it declares no license, lacks a stable row id, and
+contains free-form names for many composite systems. The underlying
+[GAIA dataset](https://huggingface.co/datasets/gaia-benchmark/GAIA) is gated and
+forbids resharing outside its gated/private Hugging Face access path. GAIA can
+be accepted as operator-supplied `research_only` composite evidence, but it is
+not a safe first scheduled or redistributable collector.
 
 MCPMark solve-rate bounds have the same limited interpretation: descriptive
 single-suite binomial reference intervals, not run-to-run confidence or evidence
@@ -371,11 +516,11 @@ assumptions carry that caveat.
 
 ### Additional candidates
 
-- [BFCL](https://gorilla.cs.berkeley.edu/leaderboard) covers function/tool
-  selection with subscores, raw responses, cost, and latency.
-- [tau2-bench](https://github.com/sierra-research/tau2-bench) is MIT-licensed
-  and publishes agent trajectory cost and pass rates for airline, retail, and
-  telecom, but excludes simulator, judge, retrieval, and tool infrastructure.
+- [BFCL](https://gorilla.cs.berkeley.edu/leaderboard), discussed above, covers
+  function/tool selection with category subscores, cost, and latency.
+- [tau2-bench](https://github.com/sierra-research/tau2-bench), discussed above,
+  publishes pass rates and optional agent trajectory cost by domain, but excludes
+  simulator, judge, retrieval, and tool infrastructure from that cost.
 - [MCP-Universe](https://github.com/SalesforceAIResearch/MCP-Universe) expands
   programmatically verified multi-turn computer/MCP environments.
 - [GAIA](https://huggingface.co/datasets/gaia-benchmark/GAIA) is useful general

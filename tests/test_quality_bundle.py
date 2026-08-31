@@ -7,8 +7,11 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
+import model_skyline.io as io_module
+import model_skyline.quality_bundle as quality_bundle_module
 from model_skyline.canonical import content_hash
 from model_skyline.engine import frontier_hash
+from model_skyline.io import dump_json, load_quality_bundle_policy
 from model_skyline.models import (
     AxisDescriptor,
     AxisEstimate,
@@ -204,6 +207,32 @@ def test_bundle_enforces_required_components_and_minimum_coverage() -> None:
     assert snapshot.snapshot_id == quality_bundle_snapshot_hash(snapshot)
 
 
+def test_bundle_artifact_size_bound_matches_pretty_json_round_trip(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    offering = _offering("a")
+    frontiers = {
+        "coding": _frontier("coding-quality", [(offering, "0.9")]),
+        "tools": _frontier("tools-quality", [(offering, "0.8")]),
+    }
+    policy = _policy(frontiers, required=("coding", "tools"), minimum=2)
+    payload = dump_json(policy)
+    exact_limit = len(payload.encode("utf-8"))
+    monkeypatch.setattr(quality_bundle_module, "MAX_QUALITY_ARTIFACT_BYTES", exact_limit)
+    monkeypatch.setattr(io_module, "MAX_QUALITY_ARTIFACT_BYTES", exact_limit)
+
+    bounded = QualityBundlePolicy.model_validate(policy.model_dump(mode="json"))
+    path = tmp_path / "quality-policy.json"
+    path.write_text(dump_json(bounded), encoding="utf-8")
+
+    assert load_quality_bundle_policy(path) == bounded
+
+    monkeypatch.setattr(quality_bundle_module, "MAX_QUALITY_ARTIFACT_BYTES", exact_limit - 1)
+    with pytest.raises(ValidationError, match="serialized bytes"):
+        QualityBundlePolicy.model_validate(policy.model_dump(mode="json"))
+
+
 def test_minimum_measured_count_is_a_hard_gate_beyond_required_components() -> None:
     a = _offering("a")
     b = _offering("b")
@@ -378,7 +407,7 @@ def test_component_binding_rejects_source_hash_and_identity_tampering() -> None:
                     COST_AXIS,
                 )
             },
-            "metric axes mismatch",
+            "axis estimate unit does not match",
         ),
     ],
 )
@@ -779,3 +808,34 @@ def test_frontier_rejection_is_missing_without_exact_quarantine_identity() -> No
     assert candidate.components[1].status is QualityCoverageStatus.MISSING
     assert candidate.missing_component_ids == ("tools",)
     assert not candidate.quarantined_component_ids
+
+
+def test_component_frontiers_are_revalidated_before_offering_indexing() -> None:
+    offering = _offering("a")
+    coding = _frontier("coding-quality", [(offering, "0.9")])
+    tools = _frontier("tools-quality", [(offering, "0.8")])
+    duplicate = coding.evaluated[0].model_copy(
+        update={
+            "axes": {
+                "quality": AxisEstimate(value="0.1", unit="ratio"),
+                "cost": AxisEstimate(value="2", unit="USD/task"),
+            }
+        }
+    )
+    provisional = coding.model_copy(
+        update={
+            "snapshot_id": "0" * 64,
+            "evaluated": (*coding.evaluated, duplicate),
+        }
+    )
+    forged = provisional.model_copy(update={"snapshot_id": frontier_hash(provisional)})
+    frontiers = {"coding": forged, "tools": tools}
+    policy = _policy(frontiers, required=("coding",), minimum=1)
+
+    with pytest.raises(ValidationError, match="evaluated offering ids must be unique"):
+        build_quality_bundle_snapshot(
+            policy,
+            frontiers,
+            [offering],
+            generated_at=NOW,
+        )

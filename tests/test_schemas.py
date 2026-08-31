@@ -23,6 +23,15 @@ NOW = datetime(2026, 8, 29, 19, tzinfo=UTC)
 TRACE_V2 = "model-skyline/request-trace/v1alpha2"
 TRACE_V3 = "model-skyline/request-trace/v1alpha3"
 SCHEMA_ROOT = Path(__file__).resolve().parents[1] / "schemas"
+QUALITY_SCHEMA_NAMES = (
+    "harbor-terminal-bench-import-config.schema.json",
+    "quality-evidence.schema.json",
+    "quality-reconciliation.schema.json",
+    "quality-import-report.schema.json",
+    "quality-bundle-policy.schema.json",
+    "quality-bundle-snapshot.schema.json",
+    "quality-gated-selection-snapshot.schema.json",
+)
 
 
 def _valid(schema: dict, payload: object) -> None:
@@ -141,6 +150,133 @@ def test_released_request_trace_v1alpha2_schema_bytes_are_immutable() -> None:
 )
 def test_committed_request_trace_schemas_match_generator(name: str) -> None:
     assert public_schemas()[name] == generated_schemas()[name]
+
+
+@pytest.mark.parametrize("name", QUALITY_SCHEMA_NAMES)
+def test_committed_quality_schemas_match_generator(name: str) -> None:
+    generated = generated_schemas()[name]
+
+    Draft202012Validator.check_schema(generated)
+    assert public_schemas()[name] == generated
+
+
+def test_quality_import_report_schema_is_explicitly_local_only() -> None:
+    schema = generated_schemas()["quality-import-report.schema.json"]
+
+    assert "not publication-safe" in schema["$comment"]
+    assert schema["properties"]["publication_safe"]["const"] is False
+
+
+def test_quality_reconciliation_schema_requires_complete_offering_key() -> None:
+    schema = generated_schemas()["quality-reconciliation.schema.json"]
+    offering = {
+        "offering_id": "provider/model@route",
+        "model_id": "model-version",
+        "provider": "provider",
+        "endpoint": None,
+        "billing_mode": None,
+        "region": None,
+        "service_tier": None,
+        "quantization": None,
+        "reasoning_effort": None,
+        "agent_harness": None,
+        "capabilities": [],
+    }
+    payload = {
+        "schema_version": "model-skyline/quality-reconciliation/v1alpha1",
+        "entries": [
+            {
+                "row_id": "row-1",
+                "adapter_id": "adapter",
+                "projection_version": "1",
+                "expected_source_identity_sha256": "a" * 64,
+                "expected_subject_identity_sha256": "b" * 64,
+                "expected_raw_audit_sha256": None,
+                "relationship": "reviewed_quality_projection",
+                "offering": offering,
+                "review_evidence": "Reviewed exact source and subject records.",
+                "reviewed_at": "2026-08-31T12:00:00Z",
+            }
+        ],
+    }
+    _valid(schema, payload)
+
+    incomplete = deepcopy(payload)
+    del incomplete["entries"][0]["offering"]["agent_harness"]
+    with pytest.raises(JsonSchemaValidationError):
+        _valid(schema, incomplete)
+
+
+@pytest.mark.parametrize(
+    "name",
+    (
+        "quality-reconciliation.schema.json",
+        "quality-import-report.schema.json",
+        "quality-bundle-snapshot.schema.json",
+        "quality-gated-selection-snapshot.schema.json",
+    ),
+)
+def test_every_quality_route_artifact_requires_all_offering_fields(name: str) -> None:
+    schema = generated_schemas()[name]
+    offering = schema["$defs"]["OfferingKey"]
+
+    assert set(offering["required"]) == set(offering["properties"])
+
+
+def test_quality_evidence_schema_requires_exactly_one_result_state() -> None:
+    root = generated_schemas()["quality-evidence.schema.json"]
+    row_schema = {"$defs": root["$defs"], **root["$defs"]["QualityEvidenceRow"]}
+    subject = {
+        "row_id": "row-1",
+        "kind": "single_model_system",
+        "system_label": "one fixed model system",
+        "model_claims": [{"model_id": "model-version", "claims": {}}],
+        "benchmark_agent": None,
+        "route_disclosure": "unknown",
+        "reasoning_claims": {},
+        "attempt_claims": {},
+    }
+    result = {
+        "primary_metric": "score",
+        "measurements": [
+            {
+                "id": "score",
+                "role": "quality",
+                "value": "0.8",
+                "unit": "ratio",
+                "lower": None,
+                "upper": None,
+                "sample_count": 100,
+            }
+        ],
+        "counts": [],
+        "observed_at": "2026-08-31T12:00:00Z",
+        "metadata": {},
+    }
+    _valid(row_schema, {"subject": subject, "result": result, "invalid_result": None})
+
+    with pytest.raises(JsonSchemaValidationError):
+        _valid(row_schema, {"subject": subject})
+    with pytest.raises(JsonSchemaValidationError):
+        _valid(
+            row_schema,
+            {
+                "subject": subject,
+                "result": result,
+                "invalid_result": {
+                    "code": "bad-result",
+                    "detail": "The source values were incoherent.",
+                    "selected_value_sha256": None,
+                },
+            },
+        )
+
+
+def test_quality_bundle_policy_schema_marks_set_fields_unique() -> None:
+    schema = generated_schemas()["quality-bundle-policy.schema.json"]
+
+    assert schema["properties"]["components"]["uniqueItems"] is True
+    assert schema["properties"]["required_component_ids"]["uniqueItems"] is True
 
 
 @pytest.mark.parametrize(

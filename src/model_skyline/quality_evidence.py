@@ -8,8 +8,9 @@ routing instruction.
 
 ``QualityImportReport`` is a local audit/import structure, not a publication
 projection.  Its rights scope answers whether a downstream full or derived
-projection is permitted; the report itself intentionally retains labels,
-claims, metadata, and review evidence that might not be redistributable.
+projection is permitted; the report itself retains row and content digests,
+mapped results and offerings, reconciliation outcomes, and review-derived
+record metadata that might not be redistributable.
 
 Mapping expiry is not inferred from ``reviewed_at``.  Hosts must enforce any
 mutable route-attestation validity clock separately until a typed validity
@@ -24,12 +25,21 @@ from __future__ import annotations
 
 import hashlib
 from collections import Counter, defaultdict
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Annotated, Any, Literal, Self
+from types import MappingProxyType
+from typing import Annotated, Any, Literal, Self, cast
 
-from pydantic import AfterValidator, BaseModel, Field, field_validator, model_validator
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    Field,
+    JsonValue,
+    PlainSerializer,
+    field_validator,
+    model_validator,
+)
 
 from model_skyline.canonical import canonical_bytes, content_hash
 from model_skyline.models import (
@@ -50,6 +60,7 @@ MAX_JSON_BYTES = 1_000_000
 MAX_JSON_NODES = 100_000
 MAX_JSON_DEPTH = 32
 MAX_RAW_SOURCE_BYTES = 64_000_000
+MAX_QUALITY_ARTIFACT_BYTES = 64_000_000
 MAX_TEXT = 2_048
 MAX_LOCATOR = 4_096
 
@@ -61,6 +72,53 @@ QUALITY_DIGEST_VERSION = "model-skyline/quality-content/v1"
 Identifier = Annotated[str, Field(min_length=1, max_length=512)]
 ShortText = Annotated[str, Field(min_length=1, max_length=MAX_TEXT)]
 Locator = Annotated[str, Field(min_length=1, max_length=MAX_LOCATOR)]
+
+
+class _ImmutableJsonObject(Mapping[str, Any]):
+    """Deep-copy-safe immutable wrapper for a canonical JSON object."""
+
+    __slots__ = ("_values",)
+    _values: Mapping[str, Any]
+
+    def __init__(self, values: dict[str, Any]) -> None:
+        object.__setattr__(self, "_values", MappingProxyType(values))
+
+    def __getitem__(self, key: str) -> Any:
+        return self._values[key]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._values)
+
+    def __len__(self) -> int:
+        return len(self._values)
+
+    def __setattr__(self, _name: str, _value: Any) -> None:
+        raise TypeError("canonical JSON evidence is immutable")
+
+    def __deepcopy__(self, _memo: dict[int, Any]) -> _ImmutableJsonObject:
+        return self
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, Mapping) and dict(self.items()) == dict(other.items())
+
+    def __repr__(self) -> str:
+        return repr(dict(self.items()))
+
+
+def _freeze_json(value: Any) -> Any:
+    if isinstance(value, dict):
+        return _ImmutableJsonObject({key: _freeze_json(child) for key, child in value.items()})
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze_json(child) for child in value)
+    return value
+
+
+def _thaw_json(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _thaw_json(child) for key, child in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_thaw_json(child) for child in value]
+    return value
 
 
 def _bounded_canonical_object(value: dict[str, Any]) -> dict[str, Any]:
@@ -83,12 +141,13 @@ def _bounded_canonical_object(value: dict[str, Any]) -> dict[str, Any]:
     encoded = canonical_bytes(value)
     if len(encoded) > MAX_JSON_BYTES:
         raise ValueError(f"canonical JSON object exceeds {MAX_JSON_BYTES} bytes")
-    return value
+    return cast(dict[str, Any], _freeze_json(value))
 
 
 BoundedCanonicalObject = Annotated[
     CanonicalJsonObject,
     AfterValidator(_bounded_canonical_object),
+    PlainSerializer(_thaw_json, return_type=dict[str, JsonValue]),
 ]
 
 
@@ -99,6 +158,25 @@ class _QualityDomainModel(FrozenModel):
     def canonical_domain_is_bounded(self) -> Self:
         if len(canonical_bytes(self.model_dump(mode="json"))) > MAX_JSON_BYTES:
             raise ValueError(f"quality identity domain exceeds {MAX_JSON_BYTES} bytes")
+        return self
+
+
+class _QualityArtifactModel(FrozenModel):
+    """Bound complete interchange artifacts, not only their nested domains."""
+
+    @model_validator(mode="after")
+    def canonical_artifact_is_bounded(self) -> Self:
+        if len(canonical_bytes(self.model_dump(mode="json"))) > MAX_QUALITY_ARTIFACT_BYTES:
+            raise ValueError(
+                f"quality artifact exceeds {MAX_QUALITY_ARTIFACT_BYTES} canonical bytes"
+            )
+        # `dump_json` is the supported human-readable interchange writer. Its
+        # trailing newline must still fit the same raw-input limit so every
+        # artifact this package emits can be loaded again.
+        if len(self.model_dump_json(indent=2).encode("utf-8")) + 1 > MAX_QUALITY_ARTIFACT_BYTES:
+            raise ValueError(
+                f"quality artifact exceeds {MAX_QUALITY_ARTIFACT_BYTES} serialized bytes"
+            )
         return self
 
 
@@ -496,8 +574,13 @@ class QualityEvidenceRow(FrozenModel):
         return selected.content_sha256
 
 
-class QualityEvidenceSet(FrozenModel):
-    """Route-free normalized evidence emitted by one trusted adapter projection."""
+class QualityEvidenceSet(_QualityArtifactModel):
+    """Route-free normalized evidence emitted by one trusted adapter projection.
+
+    One rights assertion governs every row. Adapters must split mixed-license or
+    mixed-terms inputs into separate evidence sets rather than applying the most
+    permissive row's rights to the complete source.
+    """
 
     schema_version: Literal["model-skyline/quality-evidence/v1alpha1"]
     raw_audit: QualityRawAudit
@@ -569,7 +652,7 @@ class QualityReconciliationEntry(FrozenModel):
         return value
 
 
-class QualityReconciliation(FrozenModel):
+class QualityReconciliation(_QualityArtifactModel):
     """Operator-reviewed mappings; duplicate targets are quarantined in the report."""
 
     schema_version: Literal["model-skyline/quality-reconciliation/v1alpha1"]
@@ -612,13 +695,11 @@ class QualityImportOutcome(StrEnum):
 
 
 class MappedQualityRow(FrozenModel):
-    """A result that survived exact reconciliation and may feed an adapter catalog."""
+    """A compact mapped result that joins to source evidence by row id and digests."""
 
     row_id: Identifier
     relationship: QualityMappingRelationship
     offering: OfferingKey
-    source_identity: QualitySourceIdentity
-    subject: QualitySubjectIdentity
     result: QualityResult
     source_identity_sha256: Sha256Digest
     subject_identity_sha256: Sha256Digest
@@ -628,16 +709,8 @@ class MappedQualityRow(FrozenModel):
 
     @model_validator(mode="after")
     def declared_digests_match_content(self) -> Self:
-        expected = {
-            "source_identity_sha256": self.source_identity.content_sha256,
-            "subject_identity_sha256": self.subject.content_sha256,
-            "result_sha256": self.result.content_sha256,
-        }
-        for field, digest in expected.items():
-            if getattr(self, field) != digest:
-                raise ValueError(f"{field} does not match mapped content")
-        if self.row_id != self.subject.row_id:
-            raise ValueError("mapped row_id must match subject row_id")
+        if self.result_sha256 != self.result.content_sha256:
+            raise ValueError("result_sha256 does not match mapped content")
         if (
             self.relationship is QualityMappingRelationship.EXACT_SUBJECT_ROUTE
             and self.evidence_result_sha256 != self.result_sha256
@@ -671,12 +744,13 @@ class QualityImportRecord(FrozenModel):
     offering: OfferingKey | None = None
 
 
-class QualityImportReport(FrozenModel):
+class QualityImportReport(_QualityArtifactModel):
     """Deterministic local inventory for one reconciliation.
 
     This model is never a publication-safe projection.  In particular,
     ``publication_scope=derived`` only records the rights check applied before
-    returning mapped rows; it does not redact subject or result metadata.
+    returning mapped rows; it does not make mapped results, offerings, row
+    digests, or reconciliation outcomes publication-safe.
     """
 
     schema_version: Literal["model-skyline/quality-import-report/v1alpha1"]
@@ -825,6 +899,13 @@ def reconcile_quality_evidence(
     if not isinstance(publication_scope, QualityPublicationScope):
         raise TypeError("publication_scope must be a QualityPublicationScope")
 
+    # Pydantic's model_copy/model_construct deliberately bypass validation. Treat
+    # even typed caller objects as an untrusted boundary, detach their nested
+    # values, and rerun every uniqueness/content invariant before dictionary
+    # indexing could collapse an ambiguous duplicate.
+    evidence = QualityEvidenceSet.model_validate(evidence.model_dump(mode="json"))
+    reconciliation = QualityReconciliation.model_validate(reconciliation.model_dump(mode="json"))
+
     rows = {row.row_id: row for row in evidence.rows}
     entries = {entry.row_id: entry for entry in reconciliation.entries}
     duplicate_target_rows = _duplicate_target_rows(reconciliation.entries)
@@ -955,8 +1036,6 @@ def reconcile_quality_evidence(
                 row_id=row_id,
                 relationship=entry.relationship,
                 offering=entry.offering,
-                source_identity=evidence.source_identity,
-                subject=row.subject,
                 result=mapped_result,
                 source_identity_sha256=evidence.source_identity_sha256,
                 subject_identity_sha256=row.subject_identity_sha256,

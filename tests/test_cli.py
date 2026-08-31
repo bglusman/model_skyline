@@ -5,7 +5,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from model_skyline.cli import app
+from model_skyline.cli import _safe_error_message, app
 
 ROOT = Path(__file__).parents[1]
 EXAMPLE = ROOT / "examples" / "coding-session"
@@ -111,6 +111,9 @@ def test_cli_exports_contract_schemas(tmp_path) -> None:
     assert (output / "gateway-selection-pointer.schema.json").is_file()
     assert (output / "gateway-selection-envelope.schema.json").is_file()
     assert (output / "gateway-trust-policy.schema.json").is_file()
+    assert (output / "cross-frontier-selection-policy.schema.json").is_file()
+    assert (output / "frontier-proximity.schema.json").is_file()
+    assert (output / "quality-gated-selection-snapshot.schema.json").is_file()
     assert (output / "project-config.schema.json").read_bytes() == (
         ROOT / "schemas" / "project-config.schema.json"
     ).read_bytes()
@@ -120,7 +123,20 @@ def test_cli_reports_package_version() -> None:
     result = runner.invoke(app, ["--version"])
 
     assert result.exit_code == 0
-    assert result.output.strip() == "0.6.0"
+    assert result.output.strip() == "0.7.0"
+
+
+def test_cli_error_messages_escape_terminal_controls_and_are_bounded() -> None:
+    message = _safe_error_message(ValueError("before\x1b[31m\u202eafter\n" + ("x" * 10_000)))
+
+    assert "\x1b" not in message
+    assert "\u202e" not in message
+    assert "\n" not in message
+    assert "\\u001b" in message
+    assert "\\u202e" in message
+    assert "\\u000a" in message
+    assert message.endswith("…[truncated]")
+    assert len(message) <= 4_110
 
 
 def test_cli_verifies_language_neutral_gateway_bundle(tmp_path: Path) -> None:

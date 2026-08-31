@@ -12,10 +12,14 @@ fallbacks.
 > strict Codex, Claude, OpenClaw, and Hermes telemetry adapters are implemented.
 > A signed, durable, fail-closed
 > gateway selection protocol is available as a `v1alpha1` contract with Python
-> reference resolver and language-neutral conformance vectors. Multi-frontier
-> overlap/proximity selection is available as a hash-bound library contract;
-> publisher wiring and native framework-side consumers remain. Schemas may
-> change during the alpha.
+> reference resolver and language-neutral conformance vectors. Exact normalized
+> quality evidence/reconciliation, two-to-four benchmark coverage bundles, and a
+> live-tested Harbor Terminal-Bench adapter are also implemented. Multi-frontier
+> overlap/proximity now has hash-bound library, JSON Schema, and CLI paths; a
+> bundle-bound artifact gates and recomputes every participating frontier before
+> `DynamicResolver` exposes its default and fallbacks. `publish-project`, the
+> signed gateway profile, and native framework-side consumers do not yet publish
+> or authenticate that wrapper. Schemas may change during the alpha.
 > “ModelSkyline” is a working name chosen to avoid collision with several
 > existing projects called Pareto Router.
 
@@ -40,11 +44,24 @@ excluded with reasons rather than silently imputed.
 
 Published benchmark results normally enter as workload-bound signals; an
 `OracleMetric` is reserved for a trusted host-run evaluator or judge and is
-library-embedding-only in v0.6. A quality bundle may combine two to four exact,
-reviewed benchmark identities—such as SWE-bench Verified, ARC-AGI-2, and an
-agent/tool benchmark—using explicit formulas or, preferably when evidence
-disagrees, multi-frontier overlap. Leaderboard names are never fuzzy-matched to
-routable offerings. See [ADR 0004](docs/adr/0004-quality-evidence-and-benchmark-bundles.md).
+library-embedding-only; a remote oracle protocol is still deferred. The
+v1alpha1 quality-evidence contract separates raw, source, subject, result, and
+rights identities before an exact reviewed reconciliation to a complete
+offering. A projection from an upstream model label may carry only explicitly
+typed quality evidence; source cost, latency, and token fields cannot silently
+become production-route measurements. A quality bundle gates candidates on two
+to four operator-declared benchmark frontiers without forcing them into one
+average. Distinct component IDs and snapshot hashes do not prove statistical
+independence; operators must not duplicate one benchmark under several IDs.
+The recommended target general-agent policy uses fixed-harness SWE-bench,
+Terminal-Bench/Harbor, and tau2-bench; operator-supplied ARC-AGI-2 evidence can
+be a fourth reasoning component. Harbor is implemented and live-tested;
+SWE-bench and tau2-bench remain operator-supplied inputs until their dedicated
+collectors ship. Leaderboard names are never fuzzy-matched to routable
+offerings. See
+[ADR 0004](docs/adr/0004-quality-evidence-and-benchmark-bundles.md). The first
+live implementation is the fail-closed
+[Harbor Terminal-Bench adapter](docs/harbor-terminal-bench.md).
 
 Prices and usage are not one indivisible "cost" field. Input, output,
 cache-read, cache-write, request, tool, and other rates and quantities should
@@ -189,8 +206,35 @@ default = selection.default.offering
 fallbacks = [choice.offering for choice in selection.fallbacks]
 ```
 
+For a quality-gated selection, always pin the stable bundle ID as well:
+
+```python
+resolver = DynamicResolver(
+    "https://control.example/selections/coding-quality/latest.json",
+    expected_selection_id="coding-agent-defaults",
+    expected_frontier_id="coding-value",
+    expected_workload_id="coding-session-v1",
+    expected_workload_version="1.0.0",
+    expected_quality_bundle_id="general-agent-quality",
+)
+selection = resolver.resolve()
+```
+
+That pin rejects a downgrade to an ordinary single-frontier selection. The
+bundle ID authorizes versions of that operator policy to advance. Set
+`expected_quality_bundle_version` and
+`expected_quality_bundle_policy_hash` as additional exact pins when automatic
+policy evolution is not desired. Within one process, the resolver rejects
+selection and bundle-generation rollback or same-generation equivocation; that
+floor is not durable across restarts. Replay the exact policy and sources with
+`verify_quality_gated_selection_snapshot` whenever the consumer owns them.
+Unlike ordinary convenience selections, a quality-gated artifact fails hard at
+its earliest benchmark, primary, secondary, or nested-selection deadline;
+`stale_if_error` cannot extend it. The example URL represents an operator-owned,
+atomically updated trusted channel—`publish-project` does not create it yet.
+
 For an untrusted distribution path or an invisible gateway-side logical model,
-use the signed gateway profile instead of the unsigned convenience resolver.
+the signed gateway profile authenticates ordinary single-frontier selections.
 It authenticates a small DSSE pointer, binds the exact publication and
 selection bytes, prevents rollback with a durable SQLite checkpoint, maps only
 complete offerings pre-registered in local policy, and pins one route for the
@@ -235,6 +279,12 @@ This CLI performs static verification only. Production admission uses the
 resolver plus durable store so every update is checked against an anti-rollback
 floor.
 
+Gateway-pointer v1alpha1 accepts only `kind: "selection"`; it does not yet
+authenticate `kind: "quality-gated-selection"`. Until the signed profile and
+publisher are extended, distribute quality-gated artifacts only through a
+trusted channel, pin `expected_quality_bundle_id`, and do not infer durable
+anti-rollback protection from their content hashes.
+
 The HTTP origin must serve the pointer envelope as
 `application/vnd.model-skyline.gateway-selection-pointer.v1alpha1+dsse` and
 both referenced artifacts as `application/json`; filename suffixes alone are
@@ -247,24 +297,82 @@ the [gateway integration guide](docs/gateway-integrations.md). Signing-key
 custody and publication are deliberately operator concerns; the first CLI will
 be verification-only rather than accepting private key material casually.
 
-For selection across several independently published frontiers, the library
-can build a content-addressed proximity sidecar and re-rank only the exact
-members of a primary frontier. Ordered priority groups compare exact overlap,
-near-only overlap, and per-frontier Decimal distance before the original
-primary order; complete `OfferingKey` equality prevents model aliases from
-crossing provider, billing, region, tier, or harness boundaries. See
-[`ADR 0002`](docs/adr/0002-multi-frontier-overlap-and-proximity.md). The current
-API is the resolved exact-snapshot layer; it is not yet emitted by
-`publish-project` or accepted by `DynamicResolver`.
+For selection across several exact frontier snapshots, the library and CLI can
+build content-addressed proximity sidecars and apply ordered overlap/proximity
+priority groups. Exact-membership count, near-only membership, and per-frontier
+Decimal distance precede the original primary order. Complete `OfferingKey`
+equality prevents an upstream model label from crossing provider, billing,
+region, tier, or harness boundaries. See
+[`ADR 0002`](docs/adr/0002-multi-frontier-overlap-and-proximity.md).
 
-Agent consumers must pin the expected selection ID and overlap policy from
-trusted configuration, then call `verify_multi_frontier_selection_snapshot`
-with the primary and secondary source artifacts and a timezone-aware trusted
-current time before routing. The verifier rejects expired and implausibly
-future-dated snapshots. A matching content hash detects mutation but does not
-authenticate who chose the policy; see the ADR's trust-boundary section.
+The quality-bound path makes the ordering operational: it first requires an
+explicit measured/missing/quarantined record for every primary candidate,
+removes hard-ineligible routes, recomputes Pareto membership and proximity on
+the primary and every bound secondary frontier, and only then chooses the
+default and fallbacks. Start with the runnable, network-free
+[`examples/quality-gated`](examples/quality-gated/) three-benchmark example; it
+constructs every exact binding in code, proves a missing benchmark excludes one
+route, and fully replays the result. For operator-produced artifacts, a typical
+command sequence is:
+
+```console
+modelskyline build-frontier-proximity swe.json -o swe-proximity.json
+modelskyline build-frontier-proximity harbor.json -o harbor-proximity.json
+modelskyline build-quality-bundle quality-policy.json \
+  --component-frontier swe=swe.json \
+  --component-frontier harbor=harbor.json \
+  --candidate-frontier economic-primary.json \
+  -o quality-bundle.json
+modelskyline select-quality-gated frontier.yaml economic-primary.json \
+  quality-policy.json quality-bundle.json overlap-policy.json \
+  coding-agent-defaults \
+  --secondary-frontier swe.json --proximity swe-proximity.json \
+  --secondary-frontier harbor.json --proximity harbor-proximity.json \
+  -o quality-selection.json
+modelskyline verify-quality-gated-selection frontier.yaml \
+  quality-policy.json quality-bundle.json economic-primary.json \
+  quality-selection.json overlap-policy.json coding-agent-defaults \
+  --component-frontier swe=swe.json \
+  --component-frontier harbor=harbor.json \
+  --secondary-frontier swe.json --proximity swe-proximity.json \
+  --secondary-frontier harbor.json --proximity harbor-proximity.json
+```
+
+The policy files deliberately bind exact snapshot and sidecar hashes, so they
+are authored after those inputs exist. Add a third tau2 component for the
+recommended general-agent profile and an operator-supplied ARC-AGI-2 fourth
+only when its distinct workload is material. The CLI bundle builder currently
+emits measured or missing coverage; independently sourced quarantine records
+and their provenance use the library API.
+
+Source-owning consumers should pin the expected selection and bundle policy,
+then run `verify-quality-gated-selection` or call
+`verify_quality_gated_selection_snapshot` with every exact source artifact and
+a trusted current time. The selection builder itself source-replays every
+positive measured-coverage claim against its bound component frontier before
+routing; the full verifier additionally replays the independently supplied
+candidate universe and quarantine records. Both reject expiry, excessive
+future skew, omitted candidates or components, and different source inputs. A
+matching content hash detects mutation but does not authenticate who chose the
+policy. `publish-project` and the signed gateway profile do not yet emit or
+authenticate this additive artifact.
 
 ## Run with pinned real benchmark data
+
+Custom/local benchmark adapters can emit the language-neutral quality evidence
+and reviewed reconciliation contracts, then use the generic fail-closed join:
+
+```console
+uv run modelskyline reconcile-quality-evidence \
+  normalized-evidence.json reviewed-reconciliation.json \
+  --publication-scope internal \
+  --output import-report.json
+```
+
+The first live collector integration consumes a local, separately captured
+Harbor Terminal-Bench response and produces route-free evidence, a typed
+mapping report, and quality-only observations for explicitly reviewed routes.
+See the [Harbor workflow and its cost/cache caveats](docs/harbor-terminal-bench.md).
 
 The Aider adapter downloads an immutable Apache-2.0 Polyglot leaderboard file,
 verifies its SHA-256, rejects incomplete, unpriced, zero-cost, incoherent, and

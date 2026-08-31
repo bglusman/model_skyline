@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import stat
 from pathlib import Path
 from typing import Any, cast
 
@@ -158,3 +159,50 @@ def test_rejects_symlink_target_and_parent_component(tmp_path: Path) -> None:
             manifest_name="import.json",
         )
     assert not (real_parent / "other-bundle").exists()
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX permission modes")
+def test_bundle_supports_exact_private_directory_and_file_modes(tmp_path: Path) -> None:
+    output = tmp_path / "private-bundle"
+
+    targets = publish_text_bundle(
+        output,
+        _bundle("private"),
+        manifest_name="import.json",
+        directory_mode=0o700,
+        file_mode=0o600,
+    )
+
+    assert stat.S_IMODE(output.stat().st_mode) == 0o700
+    assert all(stat.S_IMODE(target.stat().st_mode) == 0o600 for target in targets)
+
+
+def test_explicit_file_mode_fails_before_filesystem_without_nofollow(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output = tmp_path / "new-parent" / "private-bundle"
+    monkeypatch.delattr(_publication.os, "O_NOFOLLOW", raising=False)
+
+    with pytest.raises(BundlePublicationError, match="POSIX no-follow file creation"):
+        publish_text_bundle(
+            output,
+            _bundle("private"),
+            manifest_name="import.json",
+            directory_mode=0o700,
+            file_mode=0o600,
+        )
+
+    assert not output.parent.exists()
+
+
+def test_default_public_bundle_does_not_require_nofollow(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output = tmp_path / "public-bundle"
+    monkeypatch.delattr(_publication.os, "O_NOFOLLOW", raising=False)
+
+    targets = publish_text_bundle(output, _bundle("public"), manifest_name="import.json")
+
+    assert targets == (output / "data.txt", output / "import.json")

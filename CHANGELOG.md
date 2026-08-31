@@ -1,5 +1,52 @@
 # Changelog
 
+## 0.7.0 - 2026-08-31
+
+- Add language-neutral normalized quality-evidence, reviewed reconciliation,
+  and deterministic import-report contracts. Source, subject, result, raw,
+  rights, and complete production-offering identities are independently
+  content-addressed; mutable aliases, composites, identity drift, invalid rows,
+  and ambiguous targets fail closed instead of being fuzzy-matched.
+- Distinguish an exact evaluated route from a reviewed quality-only projection.
+  A projection may transfer only explicitly typed quality measurements and
+  counts; benchmark-reported cost, latency, tokens, cache fields, and result
+  metadata remain route-free evidence.
+- Add content-addressed quality-bundle policy and snapshot contracts for two to
+  four operator-declared benchmark frontiers. Required components, minimum
+  measured coverage, per-component freshness/evidence deadlines, exact complete
+  offering identity, and typed missing/quarantine states are hard gates; scores
+  are not forced into an average. Unique artifacts do not by themselves prove
+  statistical independence, so duplicate benchmark evidence remains an
+  operator policy error.
+- Add a bundle-bound quality selection artifact, source-backed replay verifier,
+  runnable synthetic three-benchmark example, proximity/policy schemas, and CLI
+  build plus full-verification paths. The builder requires the separately
+  expected policy and source-replays every positive measured-coverage claim.
+  Hard-ineligible routes are removed before dominance and proximity are
+  recomputed across every participating frontier, preventing an excluded route
+  from suppressing an eligible default. `DynamicResolver` requires an explicit
+  bundle-ID pin for this artifact, supports exact version/policy-hash pins,
+  rejects process-local selection/bundle rollback and equivocation, and never
+  extends the wrapper's evidence deadline through stale-on-error behavior.
+  `publish-project` and the signed gateway-pointer profile do not yet support
+  the new wrapper.
+- Add a fail-closed Harbor 0.22.0 Terminal-Bench adapter with inspect/import CLI
+  workflows, private atomic audit bundles, exact complete board/schema/row and
+  release-date/subject-metadata identities, quality-only current-row projection,
+  strict reviewed-row admission, source cost/cache caveats, and a public
+  import-config schema. A repeated live 4.0-board test normalized 10 rows, mapped
+  one exact reviewed projection, and left nine unreviewed routes excluded.
+- Add a generic `reconcile-quality-evidence` CLI and public quality/Harbor JSON
+  Schemas, bounded regular-file loaders, duplicate-key detection, deep immutable
+  evidence bags, whole-artifact limits, and adversarial tests for Pydantic
+  validation bypass, symlinks, FIFOs, file races, excessive depth, and output
+  amplification.
+- Recommend a target quality bundle of fixed-harness SWE-bench,
+  Harbor/Terminal-Bench, and tau2-bench, with operator-supplied ARC-AGI-2 as an
+  optional fourth reasoning signal and BFCL as a tool-focused substitute. Each
+  collector retains exact harness/cohort identity and independent rights,
+  automation, freshness, and PII constraints.
+
 ## 0.6.0 - 2026-08-31
 
 - Add a fail-closed models.dev adapter that combines reviewed exact Aider route

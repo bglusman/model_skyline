@@ -133,11 +133,45 @@ def _validate_directory_contents(
     return True
 
 
-def _write_payload(path: Path, payload: bytes) -> None:
-    with path.open("xb") as handle:
-        handle.write(payload)
-        handle.flush()
-        os.fsync(handle.fileno())
+def _explicit_mode_open_flags() -> int:
+    """Return fail-closed flags for payloads that promise an exact mode."""
+
+    nofollow = getattr(os, "O_NOFOLLOW", 0)
+    if os.name != "posix" or nofollow == 0 or not hasattr(os, "fchmod"):
+        raise BundlePublicationError(
+            "explicit bundle file modes require POSIX no-follow file creation"
+        )
+    return os.O_WRONLY | os.O_CREAT | os.O_EXCL | nofollow | getattr(os, "O_CLOEXEC", 0)
+
+
+def _write_payload(path: Path, payload: bytes, *, mode: int | None = None) -> None:
+    if mode is None:
+        with path.open("xb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        return
+
+    descriptor = os.open(path, _explicit_mode_open_flags(), mode)
+    try:
+        with os.fdopen(descriptor, "wb", closefd=True) as handle:
+            descriptor = -1
+            os.fchmod(handle.fileno(), mode)
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+
+
+def _validate_mode(value: int | None, *, label: str, optional: bool = False) -> None:
+    if optional and value is None:
+        return
+    if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= 0o777:
+        raise BundlePublicationError(
+            f"{label} must be an integer permission mode from 0000 to 0777"
+        )
 
 
 def _sync_directory(path: Path) -> None:
@@ -174,15 +208,28 @@ def publish_text_bundle(
     *,
     manifest_name: str,
     overwrite: bool = False,
+    directory_mode: int = 0o755,
+    file_mode: int | None = None,
 ) -> tuple[Path, ...]:
     """Publish a flat text bundle atomically at the directory boundary.
 
     All rendering is supplied and UTF-8 encoded before the filesystem is
     touched.  Existing directories must be empty or contain only this bundle's
     regular files; this lets overwrite replace the whole managed directory
-    without deleting unrelated user data.
+    without deleting unrelated user data.  ``file_mode=None`` preserves the
+    existing umask-derived adapter default; callers handling private evidence
+    can request exact restrictive file and directory modes.  Explicit file
+    modes require POSIX no-follow creation and fail before filesystem changes
+    when that capability is unavailable.
     """
 
+    _validate_mode(directory_mode, label="directory_mode")
+    _validate_mode(file_mode, label="file_mode", optional=True)
+    # An explicit mode is used for private adapter bundles.  Validate the
+    # security primitive before creating a parent or staging directory; the
+    # default, umask-derived public path remains portable.
+    if file_mode is not None:
+        _explicit_mode_open_flags()
     rendered = _render_payloads(files, manifest_name=manifest_name)
     expected_names = tuple(name for name, _payload in rendered)
     requested_directory = Path(output_directory)
@@ -208,10 +255,13 @@ def publish_text_bundle(
     try:
         stage = Path(tempfile.mkdtemp(dir=parent, prefix=".model-skyline-stage-"))
         for name, payload in rendered:
-            _write_payload(stage / name, payload)
+            if file_mode is None:
+                _write_payload(stage / name, payload)
+            else:
+                _write_payload(stage / name, payload, mode=file_mode)
         # mkdtemp starts private.  Match a conventional project directory only
         # after its complete contents, including the last-written manifest, exist.
-        stage.chmod(0o755)
+        stage.chmod(directory_mode)
         _sync_directory(stage)
 
         # Close the inspection-to-publication window as far as portable Python

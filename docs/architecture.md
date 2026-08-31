@@ -126,6 +126,22 @@ materially from Python, ADR 0001 should be reopened.
   validity window. Semantic validators reject duplicate or policy-incoherent
   choices before a resolver accepts the artifact.
 
+`QualityEvidenceSet` and `QualityReconciliation`
+: Route-free, domain-hashed benchmark evidence plus exact operator-reviewed
+  mappings to complete offering identities. Reconciliation distinguishes an
+  exact measured route from a quality-only reviewed projection and quarantines
+  identity drift, mutable aliases, composites, invalid results, and ambiguous
+  duplicate targets.
+
+`QualityBundlePolicy` and `QualityBundleSnapshot`
+: A content-addressed two-to-four-component coverage gate over exact frontier
+  snapshots that the operator declares as distinct benchmark evidence. It
+  retains each benchmark's own units and estimates, matches every `OfferingKey`
+  field exactly, and prevents candidates with insufficient required evidence
+  from becoming eligible. Unique IDs and hashes prevent literal artifact reuse;
+  they do not prove statistical independence or detect repackaged duplicate
+  evidence.
+
 ## Metric evaluation
 
 Signal metrics copy a canonical observation after checking unit, freshness,
@@ -195,7 +211,7 @@ the formula engine propagated component intervals. Separate workload frontiers
 plus the overlap policy in [ADR 0002](adr/0002-multi-frontier-overlap-and-proximity.md)
 are preferable when a scalar blend would hide tradeoffs.
 
-Oracle metrics are an interface, not a configuration escape hatch. In v0.6,
+Oracle metrics are an interface, not a configuration escape hatch. In v0.7,
 they are usable only by a Python application that registers implementations in
 an `OracleRegistry` and passes it to `FrontierEngine`. The stock `evaluate`,
 `select`, and project publisher paths construct an empty registry; an oracle
@@ -225,9 +241,10 @@ artifact; adapters should send detailed diagnostics to a private, redacted log.
 
 [ADR 0004](adr/0004-quality-evidence-and-benchmark-bundles.md) defines the
 quality-evidence boundary, reviewed benchmark-to-offering mappings, a small
-benchmark-bundle design, and the adapter/discovery path. The bundle is a
-logical composition of existing workload catalogs and frontiers in v0.6, not a
-new implemented wire artifact.
+benchmark-bundle design, and the adapter/discovery path. The v1alpha1 evidence,
+reconciliation, import-report, bundle-policy, and bundle-snapshot models are
+language-neutral JSON Schema boundaries. They deliberately do not define a
+remote-code or remote-oracle transport.
 
 ## Work-unit cost
 
@@ -391,30 +408,57 @@ The published single-frontier selection strategy is explicitly `lexicographic`
 on one declared frontier axis, with the other axis as a stable tie-breaker and
 optional maximum offerings per provider.
 
-The additive multi-frontier library contract implements the overlap/proximity
-policy in [ADR 0002](adr/0002-multi-frontier-overlap-and-proximity.md). It builds
-a content-addressed descriptive sidecar over one exact frontier snapshot, then
-re-ranks only the members of a primary frontier using ordered priority groups.
-Within each group, exact-membership count, near-only count, and an ordered
-per-frontier distance vector are compared before moving to the next group and
-the primary ordering. Missing exact offering routes are explicit and rank after
-measured evidence. Provider diversity is applied to the fully re-ranked stream.
-The policy binds exact frontier and sidecar hashes plus individual freshness
-limits; cross-workload evidence is intentional. Its schemas are
-`frontier-proximity.schema.json` and
-`multi-frontier-selection-snapshot.schema.json`.
+The additive multi-frontier contract implements the overlap/proximity policy in
+[ADR 0002](adr/0002-multi-frontier-overlap-and-proximity.md). It builds a
+content-addressed descriptive sidecar over one exact frontier snapshot, then
+re-ranks members of a primary frontier using ordered priority groups. Within
+each group, exact-membership count, near-only count, and an ordered per-frontier
+distance vector are compared before moving to the next group and the primary
+ordering. Missing exact offering routes are explicit and rank after measured
+evidence. Provider diversity is applied to the fully re-ranked stream. The
+policy binds exact frontier and sidecar hashes plus individual freshness limits;
+cross-workload evidence is intentional. Its library, CLI sidecar builder, and
+schemas (`cross-frontier-selection-policy.schema.json`,
+`frontier-proximity.schema.json`, and
+`multi-frontier-selection-snapshot.schema.json`) are implemented.
+
+`QualityGatedSelectionSnapshot` is the operational composition boundary for a
+two-to-four-component benchmark bundle. It binds the bundle ID/version/policy
+and exact snapshot, requires coverage for every primary candidate, removes
+ineligible complete `OfferingKey` values, recomputes dominance and proximity on
+the primary and every secondary feasible set, and then applies the bound
+overlap policy. Before deriving eligibility, the builder requires the separate
+expected quality policy and replays every positive measured-coverage claim
+against the exact component frontiers already bound by the overlap policy.
+Its validity is the earliest quality-evidence, original primary, original
+secondary, or nested-selection deadline. The CLI builds the bundle, sidecars,
+and final wrapper and can fully replay them with
+`verify-quality-gated-selection`; `DynamicResolver` accepts the wrapper only
+when the caller pins `expected_quality_bundle_id`. Optional version and policy
+hash pins freeze policy evolution. Unlike ordinary convenience selections,
+resolver stale-on-error cannot extend this hard deadline.
+The wire contract is `quality-gated-selection-snapshot.schema.json`; its nested
+derived policy binds recomputed sidecars, while the wrapper separately binds the
+exact source overlap policy for full replay.
+
+The unsigned resolver's bundle-generation rollback and same-generation
+equivocation floor is process-local, just like its cache. It is defense in depth
+for a trusted atomic channel, not a replacement for the signed gateway's durable
+checkpoint. Gateway-pointer v1alpha1 does not accept this wrapper.
 
 The multi-frontier JSON Schema is structural, not an authenticity boundary.
 Before routing, a consumer must pin the authorized selection ID and policy,
 authenticate its publication channel or manifest, and run the source-backed
 `verify_multi_frontier_selection_snapshot` replay against every bound artifact.
 
-This release exposes the resolved exact-snapshot layer in Python and JSON
-Schema. Static logical references in `ProjectConfig`, CLI materialization,
-publisher layout, and `DynamicResolver` support are not implemented yet and
-must not be inferred from the existing single-frontier feed. Other planned
-policies include threshold-then-optimize, normalized knee point, minimum
-residence time, and admission from later Pareto layers.
+This release exposes the resolved exact-snapshot layer in Python, JSON Schema,
+CLI materialization, and the trusted-channel convenience resolver. Static
+logical overlap references in `ProjectConfig`, `publish-project` layout,
+gateway-pointer signatures/durable anti-rollback, and native framework clients
+are not implemented yet and must not be inferred from the existing
+single-frontier feed. Other planned policies include threshold-then-optimize,
+normalized knee point, minimum residence time, and admission from later Pareto
+layers.
 
 Fallback diversity is a list-level property and should grow beyond provider to
 model family, region, and shared infrastructure failure domains. Availability,
@@ -560,8 +604,9 @@ selection identities after Pydantic loads the new optional field. Verification
 also recognizes the explicit-null frontier, selection, and view hashes emitted
 briefly by v0.4.0, but new artifacts use the stable normalized encoding.
 
-The unsigned convenience resolver verifies content hash, semantic identity, expiry, future skew,
-and monotonic generation time. It returns defensive copies so callers cannot
+The unsigned convenience resolver verifies content hash, semantic identity,
+expiry, future skew, and monotonic generation time. It returns defensive copies
+so callers cannot
 mutate its in-memory last-known-good value. Hashes do not stop a publisher or
 network attacker from replacing and re-hashing content; use HTTPS and a trusted
 origin. The built-in loader accepts HTTPS by default, can enforce an exact host
@@ -576,7 +621,10 @@ durable SQLite anti-rollback state, exact target mapping, strict hard expiry,
 and per-work-unit `PinnedGatewayRoute` are described in ADR 0003. Cross-language
 fixtures ship in the repository and wheel. The signed resolver is additive: it
 does not make ordinary frontier/publication hashes signatures, and it does not
-place provider credentials or endpoints in remote artifacts.
+place provider credentials or endpoints in remote artifacts. Gateway-pointer
+v1alpha1 admits only the ordinary `kind: "selection"` artifact; the additive
+quality-gated wrapper still requires a trusted distribution channel and has no
+durable signed anti-rollback path in v0.7.
 
 The static publisher provides persistent history, coherent project commit
 markers, retained feeds, and atomic single-file aliases. One scheduled workflow
@@ -609,9 +657,10 @@ last-known-good bundle.
    reviewed signed gateway channel and signing-key operational profile.
 5. Build Wardwright as the first native signed-protocol consumer, followed by
    gateway and framework adapters described in `gateway-integrations.md`.
-6. A Harbor leaderboard JSON/Terminal-Bench adapter, fixed-harness SWE-bench
-   results, then Inspect/lm-eval adapters and broader licensed research,
-   customer-service, and reasoning bundles under ADR 0004.
+6. Operationalize the implemented Harbor Terminal-Bench evidence adapter; add
+   fixed-harness SWE-bench and tau2-bench collectors, then a local/manual
+   ARC-AGI-2 importer and broader licensed research, customer-service, and
+   reasoning bundles under ADR 0004.
 7. HTTP/subprocess oracle protocol, declared option schemas, exact result
    bindings, and a content-addressed result cache.
 8. Formula dimensional analysis and safe interval propagation.

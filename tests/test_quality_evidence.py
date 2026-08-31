@@ -1,14 +1,21 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import os
+import stat
 from datetime import UTC, datetime, timedelta, timezone
 from decimal import Decimal
+from pathlib import Path
 from typing import Any
 
 import pytest
 from pydantic import ValidationError
+from typer.testing import CliRunner
 
+import model_skyline.quality_evidence as quality_evidence_module
 from model_skyline.canonical import canonical_bytes
+from model_skyline.cli import app
 from model_skyline.quality_evidence import (
     EVIDENCE_SCHEMA_VERSION,
     RECONCILIATION_SCHEMA_VERSION,
@@ -272,6 +279,109 @@ def test_content_hashes_are_canonical_domain_separated_and_exact_raw_bytes() -> 
         quality_raw_sha256("not bytes")  # type: ignore[arg-type]
 
 
+def test_cli_reconciles_generic_normalized_quality_evidence(tmp_path) -> None:
+    evidence = _evidence()
+    reconciliation = _reconciliation(_entry(evidence))
+    evidence_path = tmp_path / "evidence.json"
+    reconciliation_path = tmp_path / "reconciliation.json"
+    evidence_path.write_text(evidence.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    reconciliation_path.write_text(
+        reconciliation.model_dump_json(indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "reconcile-quality-evidence",
+            str(evidence_path),
+            str(reconciliation_path),
+            "--publication-scope",
+            "derived",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    assert payload["publication_scope"] == "derived"
+    assert payload["records"][0]["outcome"] == "mapped"
+    assert payload["mapped_rows"][0]["offering"]["offering_id"] == "offering/row-1"
+
+
+def test_cli_reconciliation_private_output_requires_explicit_overwrite(
+    tmp_path: Path,
+) -> None:
+    evidence = _evidence()
+    reconciliation = _reconciliation(_entry(evidence))
+    evidence_path = tmp_path / "evidence.json"
+    reconciliation_path = tmp_path / "reconciliation.json"
+    output = tmp_path / "report.json"
+    evidence_path.write_text(evidence.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    reconciliation_path.write_text(
+        reconciliation.model_dump_json(indent=2) + "\n",
+        encoding="utf-8",
+    )
+    command = [
+        "reconcile-quality-evidence",
+        str(evidence_path),
+        str(reconciliation_path),
+        "--output",
+        str(output),
+    ]
+    runner = CliRunner()
+
+    created = runner.invoke(app, command)
+    assert created.exit_code == 0, created.output
+    original = output.read_bytes()
+    if os.name == "posix":
+        assert stat.S_IMODE(output.stat().st_mode) == 0o600
+
+    refused = runner.invoke(app, command)
+    assert refused.exit_code == 2
+    assert "refusing to overwrite" in refused.output
+    assert output.read_bytes() == original
+
+    replaced = runner.invoke(app, [*command, "--overwrite"])
+    assert replaced.exit_code == 0, replaced.output
+    assert json.loads(output.read_text(encoding="utf-8"))["records"][0]["outcome"] == "mapped"
+    if os.name == "posix":
+        assert stat.S_IMODE(output.stat().st_mode) == 0o600
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX symlink safety")
+def test_cli_reconciliation_output_does_not_follow_symlink(tmp_path: Path) -> None:
+    evidence = _evidence()
+    reconciliation = _reconciliation(_entry(evidence))
+    evidence_path = tmp_path / "evidence.json"
+    reconciliation_path = tmp_path / "reconciliation.json"
+    victim = tmp_path / "victim.json"
+    output = tmp_path / "report.json"
+    evidence_path.write_text(evidence.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    reconciliation_path.write_text(
+        reconciliation.model_dump_json(indent=2) + "\n",
+        encoding="utf-8",
+    )
+    victim.write_text("unchanged\n", encoding="utf-8")
+    output.symlink_to(victim)
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "reconcile-quality-evidence",
+            str(evidence_path),
+            str(reconciliation_path),
+            "--output",
+            str(output),
+            "--overwrite",
+        ],
+    )
+
+    assert result.exit_code == 2
+    assert "symbolic link" in result.output
+    assert victim.read_text(encoding="utf-8") == "unchanged\n"
+    assert output.is_symlink()
+
+
 def test_normalized_models_are_bounded_canonical_and_timezone_stable() -> None:
     result = QualityResult(
         primary_metric="z-score",
@@ -355,9 +465,9 @@ def test_exact_mapping_keeps_evaluator_and_production_harness_separate() -> None
 
     assert _outcomes(report) == {"row-1": QualityImportOutcome.MAPPED}
     mapped = report.mapped_rows[0]
-    assert mapped.source_identity.evaluator_harness.id == "evaluation-only-harness"
-    assert mapped.subject.benchmark_agent is not None
-    assert mapped.subject.benchmark_agent.id == "submitted-benchmark-agent"
+    assert evidence.source_identity.evaluator_harness.id == "evaluation-only-harness"
+    assert evidence.rows[0].subject.benchmark_agent is not None
+    assert evidence.rows[0].subject.benchmark_agent.id == "submitted-benchmark-agent"
     assert mapped.offering.agent_harness is None
     assert mapped.source_identity_sha256 == evidence.source_identity_sha256
     assert mapped.subject_identity_sha256 == evidence.rows[0].subject_identity_sha256
@@ -558,3 +668,84 @@ def test_subject_kind_and_result_invariants_reject_ambiguous_evidence() -> None:
             ),
             observed_at=NOW,
         )
+
+
+def test_complete_quality_artifacts_have_a_hard_byte_limit(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    evidence = _evidence()
+    reconciliation = _reconciliation(_entry(evidence))
+    report = reconcile_quality_evidence(evidence, reconciliation)
+
+    serialized_limit = len(evidence.model_dump_json(indent=2).encode("utf-8")) + 1
+    monkeypatch.setattr(
+        quality_evidence_module,
+        "MAX_QUALITY_ARTIFACT_BYTES",
+        serialized_limit,
+    )
+    assert QualityEvidenceSet.model_validate(evidence.model_dump(mode="json")) == evidence
+    monkeypatch.setattr(
+        quality_evidence_module,
+        "MAX_QUALITY_ARTIFACT_BYTES",
+        serialized_limit - 1,
+    )
+    with pytest.raises(ValidationError, match="serialized bytes"):
+        QualityEvidenceSet.model_validate(evidence.model_dump(mode="json"))
+
+    monkeypatch.setattr(quality_evidence_module, "MAX_QUALITY_ARTIFACT_BYTES", 1)
+
+    for artifact in (evidence, reconciliation, report):
+        with pytest.raises(ValidationError, match="quality artifact exceeds"):
+            type(artifact).model_validate(artifact.model_dump(mode="json"))
+
+
+def test_canonical_evidence_bags_are_deeply_immutable() -> None:
+    evidence = _evidence()
+    report = reconcile_quality_evidence(evidence, _reconciliation(_entry(evidence)))
+    component = QualityComponentIdentity(
+        id="nested-component",
+        version="1",
+        configuration={"values": [1, 2]},
+    )
+
+    with pytest.raises(TypeError):
+        evidence.source_identity.scope["task_set_sha256"] = "b" * 64
+    with pytest.raises(TypeError):
+        component.configuration["values"][0] = 3  # type: ignore[index]
+    with pytest.raises(TypeError):
+        report.mapped_rows[0].result.metadata["telemetry_method"] = "tampered"
+
+    copied = evidence.model_copy(deep=True)
+    assert copied.model_dump(mode="json") == evidence.model_dump(mode="json")
+    assert canonical_bytes(copied.source_identity.scope) == canonical_bytes(
+        evidence.source_identity.scope
+    )
+
+
+def test_frozen_nested_evidence_bags_still_reject_terminal_and_bidi_controls() -> None:
+    for unsafe in ("safe\x1b[31munsafe", "safe\u202eunsafe"):
+        with pytest.raises(ValidationError, match="control"):
+            QualityComponentIdentity(
+                id="nested-component",
+                version="1",
+                configuration={"nested": {"value": unsafe}},
+            )
+
+
+def test_reconciliation_revalidates_model_copy_bypass_before_indexing() -> None:
+    evidence = _evidence()
+    reconciliation = _reconciliation(_entry(evidence))
+    entry = reconciliation.entries[0]
+    conflicting = entry.model_copy(
+        update={
+            "offering": entry.offering.model_copy(update={"offering_id": "attacker/other-route"})
+        }
+    )
+    duplicate_mapping = reconciliation.model_copy(update={"entries": (entry, conflicting)})
+
+    with pytest.raises(ValidationError, match="duplicate quality reconciliation row"):
+        reconcile_quality_evidence(evidence, duplicate_mapping)
+
+    duplicate_evidence = evidence.model_copy(update={"rows": (evidence.rows[0],) * 2})
+    with pytest.raises(ValidationError, match="duplicate quality evidence row"):
+        reconcile_quality_evidence(duplicate_evidence, reconciliation)

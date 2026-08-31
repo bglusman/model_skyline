@@ -10,7 +10,7 @@ from lark import Lark, Token, Tree
 from lark.exceptions import LarkError
 
 from model_skyline.canonical import POLICY_DECIMAL_CONTEXT
-from model_skyline.models import _bounded_canonical_decimal
+from model_skyline.models import bounded_canonical_decimal
 
 GRAMMAR = r"""
 ?start: comparison
@@ -407,7 +407,7 @@ def evaluate_formula(expression: str, context: Mapping[str, Any]) -> FormulaResu
             f"formula result exceeds {MAX_FORMULA_SIGNIFICANT_DIGITS} significant digits"
         )
     try:
-        canonical_value = _bounded_canonical_decimal(value)
+        canonical_value = bounded_canonical_decimal(value)
     except ValueError as exc:
         raise FormulaError(f"formula result is outside the public decimal contract: {exc}") from exc
     return FormulaResult(

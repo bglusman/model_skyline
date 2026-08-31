@@ -22,6 +22,7 @@ from model_skyline.models import (
     SnapshotTtlSeconds,
     WorkloadReference,
 )
+from model_skyline.quality_evidence import MAX_QUALITY_ARTIFACT_BYTES
 from model_skyline.selection_overlap import MAX_OFFERING_IDENTITY_BYTES
 
 MAX_QUALITY_BUNDLE_COMPONENTS = 4
@@ -57,8 +58,21 @@ def _canonical_reason_codes(value: Any) -> tuple[str, ...]:
     return tuple(sorted(value))
 
 
+def _require_quality_bundle_artifact_bound(artifact: FrozenModel) -> None:
+    """Keep canonical and supported pretty-JSON forms inside the input cap."""
+
+    if len(canonical_bytes(artifact.model_dump(mode="json"))) > MAX_QUALITY_ARTIFACT_BYTES:
+        raise ValueError(
+            f"quality bundle artifact exceeds {MAX_QUALITY_ARTIFACT_BYTES} canonical bytes"
+        )
+    if len(artifact.model_dump_json(indent=2).encode("utf-8")) + 1 > (MAX_QUALITY_ARTIFACT_BYTES):
+        raise ValueError(
+            f"quality bundle artifact exceeds {MAX_QUALITY_ARTIFACT_BYTES} serialized bytes"
+        )
+
+
 class QualityBundleComponent(FrozenModel):
-    """One exact, independently calculated quality frontier."""
+    """One exact frontier declared as a distinct quality component by policy."""
 
     component_id: ComponentId
     frontier_id: str = Field(min_length=1, max_length=256)
@@ -148,6 +162,7 @@ class QualityBundlePolicy(FrozenModel):
             raise ValueError(
                 "minimum measured components cannot be smaller than the required component set"
             )
+        _require_quality_bundle_artifact_bound(self)
         return self
 
 
@@ -316,6 +331,7 @@ class _QualityBundleSnapshotContent(FrozenModel):
             )
             if candidate.eligible != expected_eligibility:
                 raise ValueError("candidate eligibility does not match hard coverage policy")
+        _require_quality_bundle_artifact_bound(self)
         return self
 
 
@@ -351,7 +367,11 @@ def _validated_component_frontiers(
     measurements: dict[str, dict[bytes, AxisEstimate]] = {}
     freshness_deadlines: list[datetime] = []
     for component in policy.components:
-        frontier = component_frontiers[component.component_id]
+        supplied_frontier = component_frontiers[component.component_id]
+        # model_copy/model_construct bypass Pydantic validation. Detach and
+        # revalidate before any dictionary projection could collapse duplicate
+        # or otherwise incoherent evaluated offerings.
+        frontier = FrontierSnapshot.model_validate(supplied_frontier.model_dump(mode="json"))
         if not frontier_hash_matches(frontier):
             raise ValueError(f"quality component {component.component_id!r} frontier hash mismatch")
         if frontier.frontier_id != component.frontier_id:

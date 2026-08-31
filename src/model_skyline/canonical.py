@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Mapping
 from decimal import Context
 from typing import Any
 
@@ -8,6 +9,16 @@ import rfc8785
 
 POLICY_DECIMAL_CONTEXT = Context(prec=34)
 HASH_ALGORITHM = "sha256-rfc8785-v1"
+
+
+def _materialize_json(value: Any) -> Any:
+    """Convert immutable JSON mappings/sequences to encoder-native containers."""
+
+    if isinstance(value, Mapping):
+        return {key: _materialize_json(child) for key, child in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_materialize_json(child) for child in value]
+    return value
 
 
 def canonical_bytes(value: Any) -> bytes:
@@ -20,6 +31,7 @@ def canonical_bytes(value: Any) -> bytes:
 
     if hasattr(value, "model_dump"):
         value = value.model_dump(mode="json")
+    value = _materialize_json(value)
     try:
         return rfc8785.dumps(value)
     except (rfc8785.CanonicalizationError, TypeError, ValueError) as exc:
