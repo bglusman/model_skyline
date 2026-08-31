@@ -151,6 +151,13 @@ SCHEMA_IDS = {
     ),
     "request-trace.schema.json": "urn:model-skyline:schema:v1alpha1:request-trace",
     "request-trace-v1alpha2.schema.json": "urn:model-skyline:schema:v1alpha2:request-trace",
+    "gateway-selection-pointer.schema.json": (
+        "urn:model-skyline:schema:gateway-selection-pointer:v1alpha1"
+    ),
+    "gateway-selection-envelope.schema.json": (
+        "urn:model-skyline:schema:gateway-selection-envelope:v1alpha1"
+    ),
+    "gateway-trust-policy.schema.json": ("urn:model-skyline:schema:gateway-trust-policy:v1alpha1"),
 }
 
 
@@ -382,6 +389,11 @@ def _project_config_conditionals(schema: dict[str, Any]) -> None:
 def generated_schemas() -> dict[str, dict[str, Any]]:
     """Generate candidate schemas from models for maintainer review."""
 
+    from model_skyline.gateway import (
+        DsseEnvelope,
+        GatewaySelectionPointer,
+        GatewayTrustPolicy,
+    )
     from model_skyline.selection_overlap import generated_overlap_schemas
     from model_skyline.traces import RequestTrace
 
@@ -395,6 +407,14 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         ),
         "frontier-history.schema.json": FrontierHistory.model_json_schema(mode="serialization"),
         "request-trace-v1alpha2.schema.json": RequestTrace.model_json_schema(mode="validation"),
+        "gateway-selection-pointer.schema.json": GatewaySelectionPointer.model_json_schema(
+            mode="serialization"
+        ),
+        "gateway-selection-envelope.schema.json": DsseEnvelope.model_json_schema(
+            by_alias=True,
+            mode="serialization",
+        ),
+        "gateway-trust-policy.schema.json": GatewayTrustPolicy.model_json_schema(mode="validation"),
     }
     result: dict[str, dict[str, Any]] = {}
     for name, schema in generated.items():
@@ -403,10 +423,18 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
             _project_config_conditionals(schema)
         if name == "request-trace-v1alpha2.schema.json":
             _request_trace_v1alpha2_conditionals(schema)
-        result[name] = {
+        generated_schema = {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": SCHEMA_IDS[name],
             **schema,
         }
+        if name.startswith("gateway-"):
+            generated_schema["$comment"] = (
+                "Structural validation is not routing authorization. Consumers MUST also "
+                "perform the signature, canonical-byte, time, sequence, semantic-artifact, "
+                "exact OfferingKey mapping, capability, and atomic-install verification order "
+                "defined by docs/adr/0003-signed-gateway-selection-protocol.md."
+            )
+        result[name] = generated_schema
     result.update(generated_overlap_schemas())
     return result

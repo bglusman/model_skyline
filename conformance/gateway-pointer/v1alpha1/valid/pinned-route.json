@@ -1,0 +1,104 @@
+{
+  "admission_source": "fresh",
+  "audience": "wardwright-prod",
+  "channel": "coding-defaults",
+  "frontier_id": "coding-value",
+  "frontier_snapshot_id": "eb489f126c7f901a037a3c35bdba1d2dceb6ac421e8674e51947bd95f77b3556",
+  "hard_expires_at": "2026-08-29T19:30:00Z",
+  "issuer": "https://control.example/model-skyline",
+  "payload_sha256": "42ebc1beff3ac21827293787d37381c7bbbd64c8559ad4502856afed42f0c997",
+  "policy_hash": "484bbe5f346bc2e054f72f691ffd3ba80e944dc263c446384983da0ed4a93577",
+  "required_capabilities": [
+    "structured_output",
+    "tools"
+  ],
+  "selection_id": "coding-agent-defaults",
+  "selection_snapshot_id": "7c4ef29e1d0c820f31b321960878209663bcfd6eee110cbe0726c16e7ae3eb97",
+  "sequence": 7,
+  "targets": [
+    {
+      "capabilities": [
+        "structured_output",
+        "text",
+        "tools"
+      ],
+      "offering": {
+        "agent_harness": "synthetic-coding-harness@1",
+        "billing_mode": null,
+        "capabilities": [
+          "structured_output",
+          "text",
+          "tools"
+        ],
+        "endpoint": "responses",
+        "model_id": "large-reasoner-2026-08-15",
+        "offering_id": "qualityworks/large-reasoner@us-priority",
+        "provider": "qualityworks",
+        "quantization": null,
+        "reasoning_effort": "medium",
+        "region": "us",
+        "service_tier": "priority"
+      },
+      "target_id": "target-0",
+      "target_revision": "0000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "capabilities": [
+        "structured_output",
+        "text",
+        "tools"
+      ],
+      "offering": {
+        "agent_harness": "synthetic-coding-harness@1",
+        "billing_mode": null,
+        "capabilities": [
+          "structured_output",
+          "text",
+          "tools"
+        ],
+        "endpoint": "messages",
+        "model_id": "mid-agent-2026-07",
+        "offering_id": "balancedai/mid-agent@us-standard",
+        "provider": "balancedai",
+        "quantization": null,
+        "reasoning_effort": null,
+        "region": "us",
+        "service_tier": "standard"
+      },
+      "target_id": "target-1",
+      "target_revision": "0000000000000000000000000000000000000000000000000000000000000002"
+    },
+    {
+      "capabilities": [
+        "structured_output",
+        "text",
+        "tools"
+      ],
+      "offering": {
+        "agent_harness": "synthetic-coding-harness@1",
+        "billing_mode": null,
+        "capabilities": [
+          "structured_output",
+          "text",
+          "tools"
+        ],
+        "endpoint": "openai-compatible",
+        "model_id": "quick-small-2026-08",
+        "offering_id": "fastcloud/quick-small@us-standard",
+        "provider": "fastcloud",
+        "quantization": null,
+        "reasoning_effort": null,
+        "region": "us",
+        "service_tier": "standard"
+      },
+      "target_id": "target-2",
+      "target_revision": "0000000000000000000000000000000000000000000000000000000000000003"
+    }
+  ],
+  "trust_namespace": "gateway-conformance",
+  "workload": {
+    "id": "coding-session-v1",
+    "unit": "successful_coding_session",
+    "version": "1.0.0"
+  }
+}

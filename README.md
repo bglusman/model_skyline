@@ -9,10 +9,11 @@ fallbacks.
 > **Status:** working alpha. Frontier evaluation, failure/cache-aware trace
 > aggregation, selection artifacts, retained RSS publication, an in-process
 > resolver, pinned benchmark imports, and strict Codex, Claude, OpenClaw, and
-> Hermes telemetry adapters are implemented. Multi-frontier overlap/proximity
-> selection is available as a hash-bound library contract; CLI, publisher, and
-> resolver wiring for that additive contract is next. Effective-dated price
-> cards and native framework-side selection consumers also remain. Schemas may
+> Hermes telemetry adapters are implemented. A signed, durable, fail-closed
+> gateway selection protocol is available as a `v1alpha1` contract with Python
+> reference resolver and language-neutral conformance vectors. Multi-frontier
+> overlap/proximity selection is available as a hash-bound library contract;
+> publisher wiring and native framework-side consumers remain. Schemas may
 > change during the alpha.
 > “ModelSkyline” is a working name chosen to avoid collision with several
 > existing projects called Pareto Router.
@@ -166,6 +167,64 @@ selection = resolver.resolve()  # pin this object for the whole work unit
 default = selection.default.offering
 fallbacks = [choice.offering for choice in selection.fallbacks]
 ```
+
+For an untrusted distribution path or an invisible gateway-side logical model,
+use the signed gateway profile instead of the unsigned convenience resolver.
+It authenticates a small DSSE pointer, binds the exact publication and
+selection bytes, prevents rollback with a durable SQLite checkpoint, maps only
+complete offerings pre-registered in local policy, and pins one route for the
+whole work unit:
+
+```console
+uv sync --extra gateway
+```
+
+```python
+from pathlib import Path
+
+from model_skyline.gateway import parse_gateway_trust_policy
+from model_skyline.gateway_resolver import SignedGatewayResolver
+from model_skyline.gateway_store import SqliteGatewayInstallationStore
+
+policy = parse_gateway_trust_policy(Path("gateway-policy.json").read_bytes())
+state_directory = Path("private-gateway-state")
+state_directory.mkdir(mode=0o700, exist_ok=True)
+with SqliteGatewayInstallationStore(state_directory / "gateway-state.sqlite3") as store:
+    resolver = SignedGatewayResolver(
+        "https://control.example/model-skyline/channels/coding-defaults.dsse.json",
+        policy=policy,
+        store=store,
+    )
+    route = resolver.resolve()  # retain this route for the complete trajectory
+```
+
+Verify the bundled cross-language example and print its pinned three-target
+route without installing state:
+
+```console
+uv run --extra gateway modelskyline verify-gateway-bundle \
+  conformance/gateway-pointer/v1alpha1/valid/envelope.dsse.json \
+  conformance/gateway-pointer/v1alpha1/artifacts/publication.json \
+  conformance/gateway-pointer/v1alpha1/artifacts/selection.json \
+  conformance/gateway-pointer/v1alpha1/valid/trust-policy.json \
+  --at 2026-08-29T19:00:00Z
+```
+
+This CLI performs static verification only. Production admission uses the
+resolver plus durable store so every update is checked against an anti-rollback
+floor.
+
+The HTTP origin must serve the pointer envelope as
+`application/vnd.model-skyline.gateway-selection-pointer.v1alpha1+dsse` and
+both referenced artifacts as `application/json`; filename suffixes alone are
+not enough. The reference fetcher requests identity encoding and rejects
+redirects, partial responses, compression, or a different media type.
+
+Start with [ADR 0003](docs/adr/0003-signed-gateway-selection-protocol.md), the
+[portable accept/reject vectors](conformance/gateway-pointer/v1alpha1/), and
+the [gateway integration guide](docs/gateway-integrations.md). Signing-key
+custody and publication are deliberately operator concerns; the first CLI will
+be verification-only rather than accepting private key material casually.
 
 For selection across several independently published frontiers, the library
 can build a content-addressed proximity sidecar and re-rank only the exact
