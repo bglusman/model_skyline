@@ -11,6 +11,7 @@ import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from model_skyline.gateway import (
+    GatewaySequenceCheckpoint,
     GatewayTrustPolicy,
     StoredGatewayBundle,
     build_gateway_pointer,
@@ -173,6 +174,32 @@ class AdvancingEnvelopeFetcher(EnvelopeFetcher):
             timeout_seconds=timeout_seconds,
             etag=etag,
         )
+
+
+class AdvancingLoadStore:
+    def __init__(
+        self,
+        store: SqliteGatewayInstallationStore,
+        clock_state: dict[str, datetime],
+        advanced_time: datetime,
+    ) -> None:
+        self.store = store
+        self.clock_state = clock_state
+        self.advanced_time = advanced_time
+        self.load_count = 0
+
+    def load(self, **identity: str) -> StoredGatewayBundle | None:
+        bundle = self.store.load(**identity)
+        self.load_count += 1
+        if self.load_count >= 2:
+            self.clock_state["now"] = self.advanced_time
+        return bundle
+
+    def current(self, **identity: str) -> GatewaySequenceCheckpoint | None:
+        return self.store.current(**identity)
+
+    def install(self, bundle: StoredGatewayBundle) -> None:
+        self.store.install(bundle)
 
 
 @pytest.mark.parametrize(
@@ -399,6 +426,28 @@ def test_network_delay_cannot_install_or_admit_a_now_expired_generation(tmp_path
 
     assert checkpoint is not None
     assert checkpoint.sequence == 7
+
+
+def test_durable_sync_delay_cannot_admit_a_now_expired_generation(tmp_path: Path) -> None:
+    database = tmp_path / "state-delayed-store" / "gateway.sqlite3"
+    clock_state = {"now": NOW}
+    with SqliteGatewayInstallationStore(database) as store:
+        store.install(_bundle(7))
+        advancing_store = AdvancingLoadStore(
+            store,
+            clock_state,
+            NOW + timedelta(minutes=31),
+        )
+        resolver = SignedGatewayResolver(
+            SOURCE,
+            policy=_policy(),
+            store=advancing_store,
+            fetcher=OfflineFetcher(),
+            clock=lambda: clock_state["now"],
+        )
+
+        with pytest.raises(GatewayResolverError, match="expiry"):
+            resolver.resolve(force_refresh=True)
 
 
 def test_resolver_fails_closed_if_its_wall_clock_moves_backward(tmp_path: Path) -> None:

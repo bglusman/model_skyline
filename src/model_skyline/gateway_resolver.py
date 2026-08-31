@@ -607,6 +607,9 @@ class SignedGatewayResolver:
                 raise GatewayResolverError(
                     f"durable gateway synchronization failed closed: {exc}"
                 ) from exc
+            # Durable reads and verification are untrusted-duration work. Pin
+            # against a fresh clock value so they cannot cross hard expiry.
+            now = self._now()
             if self._active is None:
                 raise GatewayResolverError("no verified gateway selection is installed")
             try:
