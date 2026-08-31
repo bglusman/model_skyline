@@ -52,6 +52,7 @@ from model_skyline.models import (
     WorkloadProfile,
     WorkloadReference,
 )
+from model_skyline.version import VERSION
 
 MODELS_DEV_API_URL = "https://models.dev/api.json"
 MODELS_DEV_SCHEMA_COMMIT = "4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2"
@@ -402,7 +403,7 @@ def _download_https(
                 headers={
                     "Accept": "application/json",
                     "Accept-Encoding": "identity",
-                    "User-Agent": "model-skyline-models-dev-adapter/0.6",
+                    "User-Agent": f"model-skyline-models-dev-adapter/{VERSION}",
                 },
             ) as client,
             client.stream("GET", validated_url) as response,

@@ -24,6 +24,7 @@ from model_skyline.engine import FrontierEngine
 from model_skyline.io import load_catalog, load_config, load_frontier_history
 from model_skyline.publisher import publish_project
 from model_skyline.renderers import frontier_view
+from model_skyline.version import VERSION
 
 FIXTURES = Path(__file__).parent / "fixtures"
 AIDER_FIXTURE = FIXTURES / "aider_polyglot_tiny.yml"
@@ -447,6 +448,7 @@ def test_source_loader_and_parser_fail_closed_on_network_and_json_ambiguity(tmp_
 
     def injected_transport(request: httpx.Request) -> httpx.Response:
         assert request.headers["accept-encoding"] == "identity"
+        assert request.headers["user-agent"] == (f"model-skyline-models-dev-adapter/{VERSION}")
         return httpx.Response(
             200,
             headers={"Content-Type": "application/json"},
