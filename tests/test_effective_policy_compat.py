@@ -87,9 +87,7 @@ def test_configured_source_age_map_is_bound_into_config_hash(
         generated_at=NOW,
     )
     expected_policy = _pre_v06_effective_policy(example_config, "coding-value")
-    expected_policy["frontier"]["eligibility"]["max_source_age_hours"] = {
-        source.id: "48"
-    }
+    expected_policy["frontier"]["eligibility"]["max_source_age_hours"] = {source.id: "48"}
 
     assert snapshot.config_hash != baseline.config_hash
     assert snapshot.config_hash == content_hash(expected_policy)
