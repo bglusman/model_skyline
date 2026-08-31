@@ -474,15 +474,6 @@ class EligibilityPolicy(StrictModel):
     allow_unknown_age: bool = True
     max_source_age_hours: dict[SourceFreshnessId, PositiveSourceAge] = Field(default_factory=dict)
 
-    @model_validator(mode="after")
-    def source_age_limits_are_positive(self) -> Self:
-        for source_id, limit in self.max_source_age_hours.items():
-            if not source_id or len(source_id) > 512:
-                raise ValueError("source age-limit ids must contain 1-512 characters")
-            if limit <= 0:
-                raise ValueError("source age limits must be positive")
-        return self
-
 
 class FrontierDefinition(StrictModel):
     workload: str = Field(min_length=1)
