@@ -1,0 +1,787 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:quality-bundle-snapshot",
+  "$defs": {
+    "AxisDescriptor": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "goal": {
+          "$ref": "#/$defs/Goal"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "epsilon_absolute": {
+          "default": "0",
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Epsilon Absolute",
+          "type": "string"
+        },
+        "epsilon_relative": {
+          "default": "0",
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Epsilon Relative",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "goal",
+        "unit"
+      ],
+      "title": "AxisDescriptor",
+      "type": "object"
+    },
+    "AxisEstimate": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Value",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "dependencies": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "sources": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SourceReference"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "oldest_observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oldest Observed At"
+        },
+        "minimum_sample_count": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum Sample Count"
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "title": "AxisEstimate",
+      "type": "object"
+    },
+    "Goal": {
+      "enum": [
+        "minimize",
+        "maximize"
+      ],
+      "title": "Goal",
+      "type": "string"
+    },
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "billing_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Billing Mode"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider",
+        "endpoint",
+        "billing_mode",
+        "region",
+        "service_tier",
+        "quantization",
+        "reasoning_effort",
+        "agent_harness",
+        "capabilities"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    },
+    "QualityBundleCandidateCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/QualityComponentCoverage"
+          },
+          "maxItems": 4,
+          "minItems": 2,
+          "title": "Components",
+          "type": "array"
+        },
+        "measured_component_count": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Measured Component Count",
+          "type": "integer"
+        },
+        "missing_component_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Missing Component Ids",
+          "type": "array"
+        },
+        "quarantined_component_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Quarantined Component Ids",
+          "type": "array"
+        },
+        "failed_required_component_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Failed Required Component Ids",
+          "type": "array"
+        },
+        "eligible": {
+          "title": "Eligible",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "offering",
+        "components",
+        "measured_component_count",
+        "eligible"
+      ],
+      "title": "QualityBundleCandidateCoverage",
+      "type": "object"
+    },
+    "QualityBundleComponent": {
+      "additionalProperties": false,
+      "description": "One exact frontier declared as a distinct quality component by policy.",
+      "properties": {
+        "component_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "frontier_id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Frontier Id",
+          "type": "string"
+        },
+        "frontier_snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Frontier Snapshot Id",
+          "type": "string"
+        },
+        "frontier_snapshot_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Frontier Snapshot Hash",
+          "type": "string"
+        },
+        "config_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "catalog_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Catalog Hash",
+          "type": "string"
+        },
+        "workload": {
+          "$ref": "#/$defs/WorkloadReference"
+        },
+        "axes": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/AxisDescriptor"
+            },
+            {
+              "$ref": "#/$defs/AxisDescriptor"
+            }
+          ],
+          "title": "Axes",
+          "type": "array"
+        },
+        "quality_metric": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Quality Metric",
+          "type": "string"
+        },
+        "max_age_seconds": {
+          "maximum": 31536000,
+          "minimum": 1,
+          "title": "Max Age Seconds",
+          "type": "integer"
+        },
+        "evidence_valid_until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Valid Until"
+        }
+      },
+      "required": [
+        "component_id",
+        "frontier_id",
+        "frontier_snapshot_id",
+        "frontier_snapshot_hash",
+        "config_hash",
+        "catalog_hash",
+        "workload",
+        "axes",
+        "quality_metric",
+        "max_age_seconds"
+      ],
+      "title": "QualityBundleComponent",
+      "type": "object"
+    },
+    "QualityBundlePolicy": {
+      "additionalProperties": false,
+      "description": "Hard coverage policy over two to four separate quality frontiers.",
+      "properties": {
+        "schema_version": {
+          "const": "model-skyline/quality-bundle-policy/v1alpha1",
+          "default": "model-skyline/quality-bundle-policy/v1alpha1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "const": "quality-bundle-policy",
+          "default": "quality-bundle-policy",
+          "title": "Kind",
+          "type": "string"
+        },
+        "bundle_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Bundle Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "strategy": {
+          "const": "separate-frontiers",
+          "default": "separate-frontiers",
+          "title": "Strategy",
+          "type": "string"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/QualityBundleComponent"
+          },
+          "maxItems": 4,
+          "minItems": 2,
+          "title": "Components",
+          "type": "array"
+        },
+        "required_component_ids": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Required Component Ids",
+          "type": "array"
+        },
+        "minimum_measured_components": {
+          "maximum": 4,
+          "minimum": 1,
+          "title": "Minimum Measured Components",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "bundle_id",
+        "version",
+        "components",
+        "required_component_ids",
+        "minimum_measured_components"
+      ],
+      "title": "QualityBundlePolicy",
+      "type": "object"
+    },
+    "QualityComponentCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "frontier_snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Frontier Snapshot Id",
+          "type": "string"
+        },
+        "quality_metric": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Quality Metric",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/QualityCoverageStatus"
+        },
+        "estimate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AxisEstimate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quarantine_reason_codes": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 32,
+          "title": "Quarantine Reason Codes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "component_id",
+        "frontier_snapshot_id",
+        "quality_metric",
+        "status"
+      ],
+      "title": "QualityComponentCoverage",
+      "type": "object"
+    },
+    "QualityCoverageStatus": {
+      "enum": [
+        "measured",
+        "missing",
+        "quarantined"
+      ],
+      "title": "QualityCoverageStatus",
+      "type": "string"
+    },
+    "SourceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "terms_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terms Url"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        },
+        "methodology": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Methodology"
+        },
+        "raw_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Sha256"
+        },
+        "retrieved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrieved At"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "SourceReference",
+      "type": "object"
+    },
+    "WorkloadReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "unit"
+      ],
+      "title": "WorkloadReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Immutable coverage matrix over exact component frontier snapshots.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/quality-bundle-snapshot/v1alpha1",
+      "default": "model-skyline/quality-bundle-snapshot/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "quality-bundle-snapshot",
+      "default": "quality-bundle-snapshot",
+      "title": "Kind",
+      "type": "string"
+    },
+    "hash_algorithm": {
+      "const": "sha256-rfc8785-v1",
+      "default": "sha256-rfc8785-v1",
+      "title": "Hash Algorithm",
+      "type": "string"
+    },
+    "policy_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Policy Hash",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "valid_until": {
+      "format": "date-time",
+      "title": "Valid Until",
+      "type": "string"
+    },
+    "policy": {
+      "$ref": "#/$defs/QualityBundlePolicy"
+    },
+    "candidate_universe_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Candidate Universe Hash",
+      "type": "string"
+    },
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/QualityBundleCandidateCoverage"
+      },
+      "maxItems": 10000,
+      "minItems": 1,
+      "title": "Candidates",
+      "type": "array"
+    },
+    "snapshot_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "policy_hash",
+    "generated_at",
+    "valid_until",
+    "policy",
+    "candidate_universe_hash",
+    "candidates",
+    "snapshot_id"
+  ],
+  "title": "QualityBundleSnapshot",
+  "type": "object",
+  "$comment": "Consumers must verify this snapshot against its exact policy and component frontier artifacts, enforce its validity window, and authenticate its distribution channel before using it for routing. JSON Schema does not enforce unique candidate/component identities, hashes, coverage counts, or eligibility; run the ModelSkyline semantic and source-artifact verifiers."
+}

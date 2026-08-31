@@ -320,7 +320,6 @@ class FrontierEngine:
     def _eligibility_reasons(
         offering: OfferingObservation,
         frontier: FrontierDefinition,
-        workload: WorkloadProfile,
     ) -> list[str]:
         policy = frontier.eligibility
         key = offering.offering
@@ -329,11 +328,6 @@ class FrontierEngine:
             reasons.append(f"provider {key.provider!r} is not eligible")
         if policy.regions and key.region not in policy.regions:
             reasons.append(f"region {key.region!r} is not eligible")
-        if key.agent_harness != workload.harness:
-            reasons.append(
-                f"agent harness {key.agent_harness!r} does not match "
-                f"workload harness {workload.harness!r}"
-            )
         missing = sorted(set(policy.required_capabilities) - set(key.capabilities))
         if missing:
             reasons.append(f"required capabilities are missing: {', '.join(missing)}")
@@ -690,7 +684,7 @@ class FrontierEngine:
         accepted: list[EvaluatedOffering] = []
         rejected: list[RejectedOffering] = []
         for offering in catalog.offerings:
-            reasons = self._eligibility_reasons(offering, frontier, workload)
+            reasons = self._eligibility_reasons(offering, frontier)
             estimates: dict[str, AxisEstimate] = {}
             if not reasons:
                 for axis in frontier.axes:

@@ -66,6 +66,14 @@ Snapshot hashes detect corruption and provide content identity; they are not
 signatures. A party that can replace a manifest can also recompute its hash.
 The unsigned `DynamicResolver` therefore requires HTTPS by default and should
 pin expected selection, frontier, and workload identities on a trusted origin.
+Network source URLs cannot contain query strings or fragments, so do not put
+credentials in a resolver URL. Local-file sources require explicit opt-in and
+POSIX no-follow, nonblocking regular-file reads. Quality-gated artifacts also
+require an `expected_quality_bundle_id`; callers may additionally pin
+`expected_quality_bundle_version` and `expected_quality_bundle_policy_hash`.
+Wrapper and embedded-bundle rollback/equivocation checks retain only an
+in-process floor. Restarting the resolver loses that floor; it is not a durable
+anti-rollback substitute for the signed gateway profile.
 
 For untrusted distribution, use the signed gateway profile in
 [`ADR 0003`](docs/adr/0003-signed-gateway-selection-protocol.md). Its security

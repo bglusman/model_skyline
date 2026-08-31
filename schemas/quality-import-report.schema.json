@@ -1,0 +1,563 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:quality-import-report",
+  "$defs": {
+    "JsonValue": {},
+    "MappedQualityRow": {
+      "additionalProperties": false,
+      "description": "A compact mapped result that joins to source evidence by row id and digests.",
+      "properties": {
+        "row_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Row Id",
+          "type": "string"
+        },
+        "relationship": {
+          "$ref": "#/$defs/QualityMappingRelationship"
+        },
+        "offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "result": {
+          "$ref": "#/$defs/QualityResult"
+        },
+        "source_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Identity Sha256",
+          "type": "string"
+        },
+        "subject_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Subject Identity Sha256",
+          "type": "string"
+        },
+        "result_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Result Sha256",
+          "type": "string"
+        },
+        "evidence_result_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Evidence Result Sha256",
+          "type": "string"
+        },
+        "rights_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Rights Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "row_id",
+        "relationship",
+        "offering",
+        "result",
+        "source_identity_sha256",
+        "subject_identity_sha256",
+        "result_sha256",
+        "evidence_result_sha256",
+        "rights_sha256"
+      ],
+      "title": "MappedQualityRow",
+      "type": "object"
+    },
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "billing_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Billing Mode"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider",
+        "endpoint",
+        "billing_mode",
+        "region",
+        "service_tier",
+        "quantization",
+        "reasoning_effort",
+        "agent_harness",
+        "capabilities"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    },
+    "QualityCount": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/QualityMeasurementRole"
+        },
+        "value": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Value",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "role",
+        "value"
+      ],
+      "title": "QualityCount",
+      "type": "object"
+    },
+    "QualityImportOutcome": {
+      "enum": [
+        "mapped",
+        "unmapped",
+        "identity_drift",
+        "research_only_composite",
+        "unknown_route",
+        "mutable_alias",
+        "invalid_result",
+        "duplicate_target",
+        "license_blocked",
+        "missing_required_row"
+      ],
+      "title": "QualityImportOutcome",
+      "type": "string"
+    },
+    "QualityImportRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "row_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Row Id",
+          "type": "string"
+        },
+        "outcome": {
+          "$ref": "#/$defs/QualityImportOutcome"
+        },
+        "source_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Identity Sha256",
+          "type": "string"
+        },
+        "subject_identity_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subject Identity Sha256"
+        },
+        "evidence_result_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Result Sha256"
+        },
+        "expected_source_identity_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Source Identity Sha256"
+        },
+        "expected_subject_identity_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Subject Identity Sha256"
+        },
+        "relationship": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/QualityMappingRelationship"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "offering": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OfferingKey"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "row_id",
+        "outcome",
+        "source_identity_sha256"
+      ],
+      "title": "QualityImportRecord",
+      "type": "object"
+    },
+    "QualityMappingRelationship": {
+      "description": "What the reviewer is asserting about a subject and production target.",
+      "enum": [
+        "exact_subject_route",
+        "reviewed_quality_projection"
+      ],
+      "title": "QualityMappingRelationship",
+      "type": "string"
+    },
+    "QualityMeasurement": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/QualityMeasurementRole"
+        },
+        "value": {
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Value",
+          "type": "string"
+        },
+        "unit": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "sample_count": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sample Count"
+        }
+      },
+      "required": [
+        "id",
+        "role",
+        "value",
+        "unit"
+      ],
+      "title": "QualityMeasurement",
+      "type": "object"
+    },
+    "QualityMeasurementRole": {
+      "description": "Controls which evidence can be projected onto a reviewed production route.",
+      "enum": [
+        "quality",
+        "cost",
+        "latency",
+        "token_usage",
+        "other"
+      ],
+      "title": "QualityMeasurementRole",
+      "type": "string"
+    },
+    "QualityPublicationScope": {
+      "enum": [
+        "internal",
+        "derived",
+        "full"
+      ],
+      "title": "QualityPublicationScope",
+      "type": "string"
+    },
+    "QualityResult": {
+      "additionalProperties": false,
+      "description": "A valid normalized result; adapter-rejected rows use ``QualityInvalidResult``.",
+      "properties": {
+        "primary_metric": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Primary Metric",
+          "type": "string"
+        },
+        "measurements": {
+          "items": {
+            "$ref": "#/$defs/QualityMeasurement"
+          },
+          "maxItems": 128,
+          "minItems": 1,
+          "title": "Measurements",
+          "type": "array"
+        },
+        "counts": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/QualityCount"
+          },
+          "maxItems": 128,
+          "title": "Counts",
+          "type": "array"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "primary_metric",
+        "measurements",
+        "observed_at"
+      ],
+      "title": "QualityResult",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Deterministic local inventory for one reconciliation.\n\nThis model is never a publication-safe projection.  In particular,\n``publication_scope=derived`` only records the rights check applied before\nreturning mapped rows; it does not make mapped results, offerings, row\ndigests, or reconciliation outcomes publication-safe.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/quality-import-report/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "raw_audit_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Raw Audit Sha256",
+      "type": "string"
+    },
+    "source_identity_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Identity Sha256",
+      "type": "string"
+    },
+    "rights_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Rights Sha256",
+      "type": "string"
+    },
+    "reconciliation_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Reconciliation Sha256",
+      "type": "string"
+    },
+    "publication_scope": {
+      "$ref": "#/$defs/QualityPublicationScope"
+    },
+    "publication_safe": {
+      "const": false,
+      "default": false,
+      "title": "Publication Safe",
+      "type": "boolean"
+    },
+    "records": {
+      "items": {
+        "$ref": "#/$defs/QualityImportRecord"
+      },
+      "maxItems": 20000,
+      "title": "Records",
+      "type": "array"
+    },
+    "mapped_rows": {
+      "items": {
+        "$ref": "#/$defs/MappedQualityRow"
+      },
+      "maxItems": 10000,
+      "title": "Mapped Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "raw_audit_sha256",
+    "source_identity_sha256",
+    "rights_sha256",
+    "reconciliation_sha256",
+    "publication_scope",
+    "records",
+    "mapped_rows"
+  ],
+  "title": "QualityImportReport",
+  "type": "object",
+  "$comment": "This local audit report is intentionally not publication-safe. Its publication_safe field is always false; consumers must create a separately reviewed derived or full publication projection under the source rights. JSON Schema does not enforce unique row or offering identities, content digests, or the reconciliation-derived outcome inventory; run the ModelSkyline semantic validator before use."
+}

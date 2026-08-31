@@ -1,0 +1,401 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:harbor-terminal-bench-import-config",
+  "$defs": {
+    "JsonValue": {},
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string",
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string",
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string",
+          "not": {
+            "const": "unknown"
+          },
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "billing_mode": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Billing Mode"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness",
+          "not": {
+            "type": "null"
+          }
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array",
+          "contains": {
+            "const": "tools"
+          },
+          "minContains": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider",
+        "endpoint",
+        "billing_mode",
+        "region",
+        "service_tier",
+        "quantization",
+        "reasoning_effort",
+        "agent_harness",
+        "capabilities"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    },
+    "QualityMappingRelationship": {
+      "description": "What the reviewer is asserting about a subject and production target.",
+      "enum": [
+        "exact_subject_route",
+        "reviewed_quality_projection"
+      ],
+      "title": "QualityMappingRelationship",
+      "type": "string"
+    },
+    "QualityPublicationPermission": {
+      "enum": [
+        "unrestricted",
+        "derived_only",
+        "prohibited",
+        "unknown"
+      ],
+      "title": "QualityPublicationPermission",
+      "type": "string"
+    },
+    "QualityPublicationScope": {
+      "enum": [
+        "internal",
+        "derived",
+        "full"
+      ],
+      "title": "QualityPublicationScope",
+      "type": "string"
+    },
+    "QualityReconciliation": {
+      "additionalProperties": false,
+      "description": "Operator-reviewed mappings; duplicate targets are quarantined in the report.",
+      "properties": {
+        "schema_version": {
+          "const": "model-skyline/quality-reconciliation/v1alpha1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "entries": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/QualityReconciliationEntry"
+          },
+          "maxItems": 10000,
+          "title": "Entries",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version"
+      ],
+      "title": "QualityReconciliation",
+      "type": "object"
+    },
+    "QualityReconciliationEntry": {
+      "additionalProperties": false,
+      "description": "One reviewed row-to-route assertion, independent of result and rights.",
+      "properties": {
+        "row_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Row Id",
+          "type": "string"
+        },
+        "adapter_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Adapter Id",
+          "type": "string"
+        },
+        "projection_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Projection Version",
+          "type": "string"
+        },
+        "expected_source_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Expected Source Identity Sha256",
+          "type": "string"
+        },
+        "expected_subject_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Expected Subject Identity Sha256",
+          "type": "string"
+        },
+        "expected_raw_audit_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Raw Audit Sha256"
+        },
+        "relationship": {
+          "$ref": "#/$defs/QualityMappingRelationship"
+        },
+        "offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "review_evidence": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Review Evidence",
+          "type": "string",
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+        },
+        "reviewed_at": {
+          "format": "date-time",
+          "title": "Reviewed At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "row_id",
+        "adapter_id",
+        "projection_version",
+        "expected_source_identity_sha256",
+        "expected_subject_identity_sha256",
+        "relationship",
+        "offering",
+        "review_evidence",
+        "reviewed_at"
+      ],
+      "title": "QualityReconciliationEntry",
+      "type": "object"
+    },
+    "QualityRights": {
+      "additionalProperties": false,
+      "description": "A reviewed rights assertion independent of score and route identity.",
+      "properties": {
+        "license_expression": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "License Expression",
+          "type": "string",
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+        },
+        "terms_locator": {
+          "format": "uri",
+          "maxLength": 4096,
+          "minLength": 1,
+          "pattern": "^https://(?:[A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?|\\[[0-9A-Fa-f:]+\\])(?::[0-9]{1,5})?(?:/[^\\u0000-\\u0020\\u007f-\\u009f?#]*)?$",
+          "type": "string"
+        },
+        "publication_permission": {
+          "$ref": "#/$defs/QualityPublicationPermission"
+        },
+        "reviewed_at": {
+          "format": "date-time",
+          "title": "Reviewed At",
+          "type": "string"
+        },
+        "review_evidence": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Review Evidence",
+          "type": "string",
+          "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "license_expression",
+        "publication_permission",
+        "reviewed_at",
+        "review_evidence",
+        "terms_locator"
+      ],
+      "title": "QualityRights",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Acquisition provenance, rights review, and exact generic reconciliation.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/harbor-terminal-bench-import-config/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_url": {
+      "maxLength": 2083,
+      "minLength": 1,
+      "title": "Source Url",
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://(?:[A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?|\\[[0-9A-Fa-f:]+\\])(?::[0-9]{1,5})?(?:/[^\\u0000-\\u0020\\u007f-\\u009f?#]*)?$"
+    },
+    "methodology_url": {
+      "maxLength": 2083,
+      "minLength": 1,
+      "title": "Methodology Url",
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://(?:[A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?|\\[[0-9A-Fa-f:]+\\])(?::[0-9]{1,5})?(?:/[^\\u0000-\\u0020\\u007f-\\u009f?#]*)?$"
+    },
+    "capture_tool": {
+      "const": "harbor",
+      "title": "Capture Tool",
+      "type": "string"
+    },
+    "capture_tool_version": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Capture Tool Version",
+      "type": "string",
+      "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\ud800-\\udfff\\ufffe\\uffff]+$"
+    },
+    "publication_scope": {
+      "$ref": "#/$defs/QualityPublicationScope",
+      "default": "internal"
+    },
+    "rights": {
+      "$ref": "#/$defs/QualityRights"
+    },
+    "reconciliation": {
+      "$ref": "#/$defs/QualityReconciliation"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_url",
+    "methodology_url",
+    "capture_tool",
+    "capture_tool_version",
+    "rights",
+    "reconciliation"
+  ],
+  "title": "HarborTerminalBenchImportConfig",
+  "type": "object",
+  "$comment": "This configuration contains reviewed acquisition provenance, rights, and exact row reconciliation only; raw Harbor leaderboard bytes are a separate bounded input. Structural validation does not attest capture authenticity, publication rights, or route identity, and no configured command is executed. Consumers MUST run ModelSkyline semantic validation, which additionally rejects private or special-use URL hosts, invalid ports, duplicate set members, unsafe nested text, incomplete OfferingKeys, and inconsistent reconciliation data."
+}

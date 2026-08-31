@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import os
+import stat
 from copy import deepcopy
 from decimal import Decimal
 from importlib.resources import files
@@ -20,6 +23,18 @@ from model_skyline.models import (
     PublicationManifest,
     SelectionSnapshot,
 )
+from model_skyline.quality_bundle import QualityBundlePolicy, QualityBundleSnapshot
+from model_skyline.quality_evidence import (
+    MAX_QUALITY_ARTIFACT_BYTES,
+    QualityEvidenceSet,
+    QualityImportReport,
+    QualityReconciliation,
+)
+from model_skyline.quality_selection import QualityGatedSelectionSnapshot
+from model_skyline.selection_overlap import (
+    CrossFrontierSelectionPolicy,
+    FrontierProximitySnapshot,
+)
 
 
 class InputError(ValueError):
@@ -27,6 +42,14 @@ class InputError(ValueError):
 
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
+
+# The public quality contracts permit 10,000 evidence rows.  Two million
+# container tokens leaves room for those rows to carry realistically rich
+# measurements while rejecting flat-container allocation attacks well before
+# the 64 MB byte limit is reached.  Contract models impose tighter limits on
+# extension-bag depth after parsing; this separate limit protects json.loads.
+MAX_QUALITY_JSON_NESTING_DEPTH = 64
+MAX_QUALITY_JSON_STRUCTURAL_TOKENS = 2_000_000
 
 
 class _DecimalSafeLoader(yaml.SafeLoader):
@@ -58,11 +81,149 @@ def _read(path: str | Path) -> str:
         raise InputError(f"cannot read {source}: {exc}") from exc
 
 
+def _read_bounded_regular_file(path: str | Path, maximum: int) -> bytes:
+    source = Path(path)
+    flags = (
+        os.O_RDONLY
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+        | getattr(os, "O_NONBLOCK", 0)
+    )
+    try:
+        descriptor = os.open(source, flags)
+    except OSError as exc:
+        raise InputError(f"cannot open quality artifact {source}: {exc}") from exc
+    try:
+        with os.fdopen(descriptor, "rb", closefd=True) as handle:
+            before = os.fstat(handle.fileno())
+            if not stat.S_ISREG(before.st_mode):
+                raise InputError(f"quality artifact is not a regular file: {source}")
+            if before.st_size > maximum:
+                raise InputError(f"quality artifact exceeds the {maximum}-byte input limit")
+            raw = handle.read(maximum + 1)
+            after = os.fstat(handle.fileno())
+    except InputError:
+        raise
+    except OSError as exc:
+        raise InputError(f"cannot read quality artifact {source}: {exc}") from exc
+    identity_before = (
+        before.st_dev,
+        before.st_ino,
+        before.st_size,
+        before.st_mtime_ns,
+        before.st_ctime_ns,
+    )
+    identity_after = (
+        after.st_dev,
+        after.st_ino,
+        after.st_size,
+        after.st_mtime_ns,
+        after.st_ctime_ns,
+    )
+    if identity_before != identity_after or len(raw) != before.st_size:
+        raise InputError(f"quality artifact changed while it was being read: {source}")
+    if len(raw) > maximum:
+        raise InputError(f"quality artifact exceeds the {maximum}-byte input limit")
+    return raw
+
+
+def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            digest = hashlib.sha256(key.encode("utf-8")).hexdigest()
+            raise InputError(
+                f"quality artifact contains duplicate JSON key length={len(key)} sha256={digest}"
+            )
+        result[key] = value
+    return result
+
+
+def _preflight_quality_json_structure(raw: bytes) -> None:
+    """Bound container allocation before decoding JSON into Python objects.
+
+    ASCII JSON punctuation cannot occur inside a multibyte UTF-8 code point, so
+    scanning bytes avoids allocating a decoded string for inputs that already
+    exceed these limits.  This is deliberately not a JSON syntax validator;
+    ``json.loads`` remains responsible for syntax after the resource checks.
+    """
+
+    depth = 0
+    structural_tokens = 0
+    in_string = False
+    escaped = False
+
+    quote = 0x22
+    backslash = 0x5C
+    openers = b"{["
+    closers = b"}]"
+    structural = b"{}[],:"
+
+    for byte in raw:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif byte == backslash:
+                escaped = True
+            elif byte == quote:
+                in_string = False
+            continue
+
+        if byte == quote:
+            in_string = True
+            continue
+        if byte in openers:
+            depth += 1
+            if depth > MAX_QUALITY_JSON_NESTING_DEPTH:
+                raise InputError(
+                    "cannot parse quality artifact JSON: nesting exceeds the "
+                    f"{MAX_QUALITY_JSON_NESTING_DEPTH}-level limit"
+                )
+        elif byte in closers and depth:
+            # Malformed or mismatched delimiters are left to json.loads.  Never
+            # let an unmatched closer make depth negative during this preflight.
+            depth -= 1
+
+        if byte in structural:
+            structural_tokens += 1
+            if structural_tokens > MAX_QUALITY_JSON_STRUCTURAL_TOKENS:
+                raise InputError(
+                    "cannot parse quality artifact JSON: structure exceeds the "
+                    f"{MAX_QUALITY_JSON_STRUCTURAL_TOKENS}-token limit"
+                )
+
+
+def _load_quality_json(path: str | Path) -> Any:
+    raw = _read_bounded_regular_file(path, MAX_QUALITY_ARTIFACT_BYTES)
+    _preflight_quality_json_structure(raw)
+    try:
+        text = raw.decode("utf-8")
+        return json.loads(
+            text,
+            parse_float=Decimal,
+            parse_constant=Decimal,
+            object_pairs_hook=_unique_json_object,
+        )
+    except InputError:
+        raise
+    except (UnicodeDecodeError, json.JSONDecodeError, RecursionError, ValueError) as exc:
+        raise InputError(f"cannot parse quality artifact JSON {path}: {exc}") from exc
+
+
 def _validate(model: type[ModelT], value: Any, path: str | Path) -> ModelT:
     try:
         return model.model_validate(value)
     except ValidationError as exc:
         raise InputError(f"{path} does not match {model.__name__}:\n{exc}") from exc
+
+
+def _validate_sensitive(model: type[ModelT], value: Any, path: str | Path) -> ModelT:
+    """Validate a local audit artifact without echoing its rejected contents."""
+
+    try:
+        return model.model_validate(value)
+    except ValidationError as exc:
+        raise InputError(f"{path} does not match {model.__name__}") from exc
 
 
 def load_config(path: str | Path) -> ProjectConfig:
@@ -118,6 +279,54 @@ def load_frontier_history(path: str | Path) -> FrontierHistory:
     return _validate(FrontierHistory, value, path)
 
 
+def load_quality_evidence(path: str | Path) -> QualityEvidenceSet:
+    return _validate_sensitive(QualityEvidenceSet, _load_quality_json(path), path)
+
+
+def load_quality_reconciliation(path: str | Path) -> QualityReconciliation:
+    return _validate_sensitive(QualityReconciliation, _load_quality_json(path), path)
+
+
+def load_quality_import_report(path: str | Path) -> QualityImportReport:
+    return _validate_sensitive(QualityImportReport, _load_quality_json(path), path)
+
+
+def load_quality_bundle_policy(path: str | Path) -> QualityBundlePolicy:
+    return _validate_sensitive(QualityBundlePolicy, _load_quality_json(path), path)
+
+
+def load_quality_bundle_snapshot(path: str | Path) -> QualityBundleSnapshot:
+    return _validate_sensitive(QualityBundleSnapshot, _load_quality_json(path), path)
+
+
+def load_quality_gated_selection_snapshot(
+    path: str | Path,
+) -> QualityGatedSelectionSnapshot:
+    return _validate_sensitive(
+        QualityGatedSelectionSnapshot,
+        _load_quality_json(path),
+        path,
+    )
+
+
+def load_cross_frontier_selection_policy(
+    path: str | Path,
+) -> CrossFrontierSelectionPolicy:
+    return _validate_sensitive(
+        CrossFrontierSelectionPolicy,
+        _load_quality_json(path),
+        path,
+    )
+
+
+def load_frontier_proximity_snapshot(path: str | Path) -> FrontierProximitySnapshot:
+    return _validate_sensitive(
+        FrontierProximitySnapshot,
+        _load_quality_json(path),
+        path,
+    )
+
+
 def dump_json(model: BaseModel) -> str:
     return model.model_dump_json(indent=2) + "\n"
 
@@ -147,6 +356,9 @@ SCHEMA_IDS = {
     "publication-manifest.schema.json": ("urn:model-skyline:schema:v1alpha1:publication-manifest"),
     "frontier-history.schema.json": "urn:model-skyline:schema:v1alpha1:frontier-history",
     "frontier-proximity.schema.json": "urn:model-skyline:schema:v1alpha1:frontier-proximity",
+    "cross-frontier-selection-policy.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:cross-frontier-selection-policy"
+    ),
     "multi-frontier-selection-snapshot.schema.json": (
         "urn:model-skyline:schema:v1alpha1:multi-frontier-selection-snapshot"
     ),
@@ -160,6 +372,25 @@ SCHEMA_IDS = {
         "urn:model-skyline:schema:gateway-selection-envelope:v1alpha1"
     ),
     "gateway-trust-policy.schema.json": ("urn:model-skyline:schema:gateway-trust-policy:v1alpha1"),
+    "harbor-terminal-bench-import-config.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:harbor-terminal-bench-import-config"
+    ),
+    "quality-evidence.schema.json": "urn:model-skyline:schema:v1alpha1:quality-evidence",
+    "quality-reconciliation.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:quality-reconciliation"
+    ),
+    "quality-import-report.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:quality-import-report"
+    ),
+    "quality-bundle-policy.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:quality-bundle-policy"
+    ),
+    "quality-bundle-snapshot.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:quality-bundle-snapshot"
+    ),
+    "quality-gated-selection-snapshot.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:quality-gated-selection-snapshot"
+    ),
 }
 
 
@@ -430,9 +661,173 @@ def _project_config_conditionals(schema: dict[str, Any]) -> None:
     ]
 
 
+def _quality_evidence_conditionals(schema: dict[str, Any]) -> None:
+    """Mirror evidence row and subject-kind invariants in JSON Schema."""
+
+    definitions = schema.get("$defs")
+    if not isinstance(definitions, dict):
+        return
+    evidence_row = definitions.get("QualityEvidenceRow")
+    if isinstance(evidence_row, dict):
+        evidence_row["oneOf"] = [
+            {
+                "properties": {
+                    "result": {"not": {"type": "null"}},
+                    "invalid_result": {"type": "null"},
+                },
+                "required": ["result"],
+            },
+            {
+                "properties": {
+                    "result": {"type": "null"},
+                    "invalid_result": {"not": {"type": "null"}},
+                },
+                "required": ["invalid_result"],
+            },
+        ]
+    subject = definitions.get("QualitySubjectIdentity")
+    if isinstance(subject, dict):
+        subject["allOf"] = [
+            {
+                "if": {
+                    "properties": {"kind": {"const": "single_model_system"}},
+                    "required": ["kind"],
+                },
+                "then": {
+                    "properties": {"model_claims": {"minItems": 1, "maxItems": 1}},
+                    "required": ["model_claims"],
+                },
+            },
+            {
+                "if": {
+                    "properties": {"kind": {"const": "composite_system"}},
+                    "required": ["kind"],
+                },
+                "then": {
+                    "properties": {"model_claims": {"minItems": 1}},
+                    "required": ["model_claims"],
+                },
+            },
+            {
+                "if": {
+                    "properties": {"kind": {"const": "undisclosed_system"}},
+                    "required": ["kind"],
+                },
+                "then": {"properties": {"model_claims": {"maxItems": 0}}},
+            },
+        ]
+
+
+def _quality_complete_offering_key(schema: dict[str, Any]) -> None:
+    """Require every complete OfferingKey field in quality wire artifacts."""
+
+    definitions = schema.get("$defs")
+    if not isinstance(definitions, dict):
+        return
+    offering = definitions.get("OfferingKey")
+    if not isinstance(offering, dict):
+        return
+    properties = offering.get("properties")
+    if isinstance(properties, dict):
+        offering["required"] = list(properties)
+
+
+def _harbor_import_config_conditionals(schema: dict[str, Any]) -> None:
+    """Expose adapter URL, review-text, and Terminal-Bench target invariants."""
+
+    safe_text = (
+        r"^[^\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f"
+        r"\u202a-\u202e\u2066-\u2069\ud800-\udfff\ufffe\uffff]+$"
+    )
+    safe_https = (
+        r"^https://(?:[A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?"
+        r"|\[[0-9A-Fa-f:]+\])(?::[0-9]{1,5})?"
+        r"(?:/[^\u0000-\u0020\u007f-\u009f?#]*)?$"
+    )
+    properties = schema.get("properties")
+    definitions = schema.get("$defs")
+    if not isinstance(properties, dict) or not isinstance(definitions, dict):
+        return
+    for field in ("source_url", "methodology_url"):
+        value = properties.get(field)
+        if isinstance(value, dict):
+            value.update({"format": "uri", "pattern": safe_https})
+    capture_version = properties.get("capture_tool_version")
+    if isinstance(capture_version, dict):
+        capture_version["pattern"] = safe_text
+
+    rights = definitions.get("QualityRights")
+    if isinstance(rights, dict):
+        rights_properties = rights.get("properties")
+        if isinstance(rights_properties, dict):
+            rights_properties["terms_locator"] = {
+                "format": "uri",
+                "maxLength": 4096,
+                "minLength": 1,
+                "pattern": safe_https,
+                "type": "string",
+            }
+            for field in ("license_expression", "review_evidence"):
+                value = rights_properties.get(field)
+                if isinstance(value, dict):
+                    value["pattern"] = safe_text
+        required = rights.get("required")
+        if isinstance(required, list) and "terms_locator" not in required:
+            required.append("terms_locator")
+
+    entry = definitions.get("QualityReconciliationEntry")
+    if isinstance(entry, dict):
+        entry_properties = entry.get("properties")
+        if isinstance(entry_properties, dict):
+            review_evidence = entry_properties.get("review_evidence")
+            if isinstance(review_evidence, dict):
+                review_evidence["pattern"] = safe_text
+
+    offering = definitions.get("OfferingKey")
+    if not isinstance(offering, dict):
+        return
+    offering_properties = offering.get("properties")
+    if not isinstance(offering_properties, dict):
+        return
+    provider = offering_properties.get("provider")
+    if isinstance(provider, dict):
+        provider["not"] = {"const": "unknown"}
+    agent_harness = offering_properties.get("agent_harness")
+    if isinstance(agent_harness, dict):
+        agent_harness["not"] = {"type": "null"}
+    capabilities = offering_properties.get("capabilities")
+    if isinstance(capabilities, dict):
+        capabilities["contains"] = {"const": "tools"}
+        capabilities["minContains"] = 1
+        capabilities["uniqueItems"] = True
+    for value in offering_properties.values():
+        if not isinstance(value, dict):
+            continue
+        if value.get("type") == "string":
+            value.setdefault("pattern", safe_text)
+        variants = value.get("anyOf")
+        if isinstance(variants, list):
+            for variant in variants:
+                if isinstance(variant, dict) and variant.get("type") == "string":
+                    variant.setdefault("pattern", safe_text)
+
+
+def _quality_bundle_policy_conditionals(schema: dict[str, Any]) -> None:
+    """Expose straightforward set semantics to non-Python validators."""
+
+    properties = schema.get("properties")
+    if not isinstance(properties, dict):
+        return
+    for field in ("components", "required_component_ids"):
+        value = properties.get(field)
+        if isinstance(value, dict):
+            value["uniqueItems"] = True
+
+
 def generated_schemas() -> dict[str, dict[str, Any]]:
     """Generate candidate schemas from models for maintainer review."""
 
+    from model_skyline.adapters.harbor import HarborTerminalBenchImportConfig
     from model_skyline.gateway import (
         DsseEnvelope,
         GatewaySelectionPointer,
@@ -461,12 +856,40 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
             mode="serialization",
         ),
         "gateway-trust-policy.schema.json": GatewayTrustPolicy.model_json_schema(mode="validation"),
+        "harbor-terminal-bench-import-config.schema.json": (
+            HarborTerminalBenchImportConfig.model_json_schema(mode="validation")
+        ),
+        "quality-evidence.schema.json": QualityEvidenceSet.model_json_schema(mode="validation"),
+        "quality-reconciliation.schema.json": QualityReconciliation.model_json_schema(
+            mode="validation"
+        ),
+        "quality-import-report.schema.json": QualityImportReport.model_json_schema(
+            mode="serialization"
+        ),
+        "quality-bundle-policy.schema.json": QualityBundlePolicy.model_json_schema(
+            mode="validation"
+        ),
+        "quality-bundle-snapshot.schema.json": QualityBundleSnapshot.model_json_schema(
+            mode="serialization"
+        ),
+        "quality-gated-selection-snapshot.schema.json": (
+            QualityGatedSelectionSnapshot.model_json_schema(mode="serialization")
+        ),
     }
     result: dict[str, dict[str, Any]] = {}
     for name, schema in generated.items():
         _normalize_schema(schema)
         if name == "project-config.schema.json":
             _project_config_conditionals(schema)
+        if name == "quality-evidence.schema.json":
+            _quality_evidence_conditionals(schema)
+        if name.startswith("quality-"):
+            _quality_complete_offering_key(schema)
+        if name == "harbor-terminal-bench-import-config.schema.json":
+            _quality_complete_offering_key(schema)
+            _harbor_import_config_conditionals(schema)
+        if name == "quality-bundle-policy.schema.json":
+            _quality_bundle_policy_conditionals(schema)
         if name == "request-trace-v1alpha2.schema.json":
             _configure_request_trace_schema(schema, version="v1alpha2")
         if name == "request-trace-v1alpha3.schema.json":
@@ -482,6 +905,63 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
                 "perform the signature, canonical-byte, time, sequence, semantic-artifact, "
                 "exact OfferingKey mapping, capability, and atomic-install verification order "
                 "defined by docs/adr/0003-signed-gateway-selection-protocol.md."
+            )
+        if name == "harbor-terminal-bench-import-config.schema.json":
+            generated_schema["$comment"] = (
+                "This configuration contains reviewed acquisition provenance, rights, and "
+                "exact row reconciliation only; raw Harbor leaderboard bytes are a separate "
+                "bounded input. Structural validation does not attest capture authenticity, "
+                "publication rights, or route identity, and no configured command is executed. "
+                "Consumers MUST run ModelSkyline semantic validation, which additionally rejects "
+                "private or special-use URL hosts, invalid ports, duplicate set members, unsafe "
+                "nested text, incomplete OfferingKeys, and inconsistent reconciliation data."
+            )
+        if name == "quality-import-report.schema.json":
+            generated_schema["$comment"] = (
+                "This local audit report is intentionally not publication-safe. Its "
+                "publication_safe field is always false; consumers must create a separately "
+                "reviewed derived or full publication projection under the source rights. "
+                "JSON Schema does not enforce unique row or offering identities, content "
+                "digests, or the reconciliation-derived outcome inventory; run the "
+                "ModelSkyline semantic validator before use."
+            )
+        if name == "quality-evidence.schema.json":
+            generated_schema["$comment"] = (
+                "Normalized evidence may still contain restricted labels, claims, locators, "
+                "and metadata and is not automatically publication-safe. One rights assertion "
+                "covers every row; adapters must split mixed-rights inputs into separate sets. "
+                "JSON Schema does not enforce unique row IDs, canonical ordering, content "
+                "digests, or whole-artifact byte limits; run the ModelSkyline semantic validator."
+            )
+        if name == "quality-reconciliation.schema.json":
+            generated_schema["$comment"] = (
+                "Structural validation does not prove a benchmark row belongs to a route. "
+                "A reviewer must verify the source and subject identity digests, relationship, "
+                "complete OfferingKey, and review evidence; fuzzy or alias matching is forbidden. "
+                "JSON Schema does not enforce unique row IDs, canonical ordering, or artifact "
+                "limits; run the ModelSkyline semantic validator."
+            )
+        if name == "quality-bundle-policy.schema.json":
+            generated_schema["$comment"] = (
+                "uniqueItems compares complete JSON values; it does not enforce unique "
+                "component IDs, frontier IDs, or snapshot IDs. JSON Schema also cannot enforce "
+                "the required-ID subset and measured-count relationships. Run the ModelSkyline "
+                "semantic validator before building or accepting a bundle."
+            )
+        if name == "quality-bundle-snapshot.schema.json":
+            generated_schema["$comment"] = (
+                "Consumers must verify this snapshot against its exact policy and component "
+                "frontier artifacts, enforce its validity window, and authenticate its "
+                "distribution channel before using it for routing. JSON Schema does not "
+                "enforce unique candidate/component identities, hashes, coverage counts, or "
+                "eligibility; run the ModelSkyline semantic and source-artifact verifiers."
+            )
+        if name == "quality-gated-selection-snapshot.schema.json":
+            generated_schema["$comment"] = (
+                "This artifact is self-consistent but its distribution is not authenticated by "
+                "JSON Schema. Consumers should pin the expected selection, frontier, workload, "
+                "and quality bundle identities; source-owning consumers should additionally run "
+                "the full ModelSkyline replay verifier against every bound source artifact."
             )
         result[name] = generated_schema
     result.update(generated_overlap_schemas())

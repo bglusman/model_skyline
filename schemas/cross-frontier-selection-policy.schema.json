@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:cross-frontier-selection-policy",
+  "$defs": {
+    "FrontierPriorityGroup": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "frontiers": {
+          "items": {
+            "$ref": "#/$defs/SecondaryFrontierReference"
+          },
+          "maxItems": 128,
+          "minItems": 1,
+          "title": "Frontiers",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "frontiers"
+      ],
+      "title": "FrontierPriorityGroup",
+      "type": "object"
+    },
+    "SecondaryFrontierReference": {
+      "additionalProperties": false,
+      "properties": {
+        "frontier_id": {
+          "minLength": 1,
+          "title": "Frontier Id",
+          "type": "string"
+        },
+        "frontier_snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Frontier Snapshot Id",
+          "type": "string"
+        },
+        "frontier_snapshot_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Frontier Snapshot Hash",
+          "type": "string"
+        },
+        "proximity_snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Proximity Snapshot Id",
+          "type": "string"
+        },
+        "near_epsilon": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                  "type": "string"
+                }
+              ],
+              "ge": 0,
+              "le": "2"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Near Epsilon"
+        },
+        "max_age_seconds": {
+          "maximum": 31536000,
+          "minimum": 1,
+          "title": "Max Age Seconds",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "frontier_id",
+        "frontier_snapshot_id",
+        "frontier_snapshot_hash",
+        "proximity_snapshot_id",
+        "max_age_seconds"
+      ],
+      "title": "SecondaryFrontierReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "strategy": {
+      "const": "priority-group-overlap",
+      "default": "priority-group-overlap",
+      "title": "Strategy",
+      "type": "string"
+    },
+    "priority_groups": {
+      "items": {
+        "$ref": "#/$defs/FrontierPriorityGroup"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "title": "Priority Groups",
+      "type": "array"
+    }
+  },
+  "required": [
+    "priority_groups"
+  ],
+  "title": "CrossFrontierSelectionPolicy",
+  "type": "object"
+}

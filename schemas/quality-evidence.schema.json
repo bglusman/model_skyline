@@ -1,0 +1,790 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:quality-evidence",
+  "$defs": {
+    "JsonValue": {},
+    "QualityComponentIdentity": {
+      "additionalProperties": false,
+      "description": "One versioned evaluator, scorer, protocol, dataset, or adapter component.",
+      "properties": {
+        "id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "configuration": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Configuration",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "QualityComponentIdentity",
+      "type": "object"
+    },
+    "QualityCount": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/QualityMeasurementRole"
+        },
+        "value": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Value",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "role",
+        "value"
+      ],
+      "title": "QualityCount",
+      "type": "object"
+    },
+    "QualityEvidenceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "subject": {
+          "$ref": "#/$defs/QualitySubjectIdentity"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/QualityResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "invalid_result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/QualityInvalidResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "subject"
+      ],
+      "title": "QualityEvidenceRow",
+      "type": "object",
+      "oneOf": [
+        {
+          "properties": {
+            "result": {
+              "not": {
+                "type": "null"
+              }
+            },
+            "invalid_result": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "result"
+          ]
+        },
+        {
+          "properties": {
+            "result": {
+              "type": "null"
+            },
+            "invalid_result": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "invalid_result"
+          ]
+        }
+      ]
+    },
+    "QualityInvalidResult": {
+      "additionalProperties": false,
+      "description": "A bounded quarantine record for a row that could not become a result.",
+      "properties": {
+        "code": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "detail": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Detail",
+          "type": "string"
+        },
+        "selected_value_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selected Value Sha256"
+        }
+      },
+      "required": [
+        "code",
+        "detail"
+      ],
+      "title": "QualityInvalidResult",
+      "type": "object"
+    },
+    "QualityMeasurement": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/QualityMeasurementRole"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "sample_count": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sample Count"
+        }
+      },
+      "required": [
+        "id",
+        "role",
+        "value",
+        "unit"
+      ],
+      "title": "QualityMeasurement",
+      "type": "object"
+    },
+    "QualityMeasurementRole": {
+      "description": "Controls which evidence can be projected onto a reviewed production route.",
+      "enum": [
+        "quality",
+        "cost",
+        "latency",
+        "token_usage",
+        "other"
+      ],
+      "title": "QualityMeasurementRole",
+      "type": "string"
+    },
+    "QualityModelClaim": {
+      "additionalProperties": false,
+      "description": "An upstream model claim, never an implicit :class:`OfferingKey`.",
+      "properties": {
+        "model_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 2048,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revision"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "claims": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Claims",
+          "type": "object"
+        }
+      },
+      "required": [
+        "model_id"
+      ],
+      "title": "QualityModelClaim",
+      "type": "object"
+    },
+    "QualityPublicationPermission": {
+      "enum": [
+        "unrestricted",
+        "derived_only",
+        "prohibited",
+        "unknown"
+      ],
+      "title": "QualityPublicationPermission",
+      "type": "string"
+    },
+    "QualityRawAudit": {
+      "additionalProperties": false,
+      "description": "Acquisition provenance; mappings do not bind it unless explicitly pinned.",
+      "properties": {
+        "source_locator": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Source Locator",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "upstream_revision": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upstream Revision"
+        },
+        "capture_method": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Capture Method",
+          "type": "string"
+        },
+        "parser_implementation": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "source_locator",
+        "raw_sha256",
+        "retrieved_at",
+        "capture_method",
+        "parser_implementation"
+      ],
+      "title": "QualityRawAudit",
+      "type": "object"
+    },
+    "QualityResult": {
+      "additionalProperties": false,
+      "description": "A valid normalized result; adapter-rejected rows use ``QualityInvalidResult``.",
+      "properties": {
+        "primary_metric": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Primary Metric",
+          "type": "string"
+        },
+        "measurements": {
+          "items": {
+            "$ref": "#/$defs/QualityMeasurement"
+          },
+          "maxItems": 128,
+          "minItems": 1,
+          "title": "Measurements",
+          "type": "array"
+        },
+        "counts": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/QualityCount"
+          },
+          "maxItems": 128,
+          "title": "Counts",
+          "type": "array"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "primary_metric",
+        "measurements",
+        "observed_at"
+      ],
+      "title": "QualityResult",
+      "type": "object"
+    },
+    "QualityRights": {
+      "additionalProperties": false,
+      "description": "A reviewed rights assertion independent of score and route identity.",
+      "properties": {
+        "license_expression": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "License Expression",
+          "type": "string"
+        },
+        "terms_locator": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terms Locator"
+        },
+        "publication_permission": {
+          "$ref": "#/$defs/QualityPublicationPermission"
+        },
+        "reviewed_at": {
+          "format": "date-time",
+          "title": "Reviewed At",
+          "type": "string"
+        },
+        "review_evidence": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Review Evidence",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "license_expression",
+        "publication_permission",
+        "reviewed_at",
+        "review_evidence"
+      ],
+      "title": "QualityRights",
+      "type": "object"
+    },
+    "QualityRouteDisclosure": {
+      "enum": [
+        "exact",
+        "mutable_alias",
+        "unknown"
+      ],
+      "title": "QualityRouteDisclosure",
+      "type": "string"
+    },
+    "QualitySourceIdentity": {
+      "additionalProperties": false,
+      "description": "Semantic benchmark identity shared by every row in an evidence set.",
+      "properties": {
+        "source_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Source Version",
+          "type": "string"
+        },
+        "benchmark": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "dataset": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "split": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Split",
+          "type": "string"
+        },
+        "evaluator_harness": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "scorer": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "protocol": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "projection": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "scope": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "minProperties": 1,
+          "title": "Scope",
+          "type": "object"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_version",
+        "benchmark",
+        "dataset",
+        "split",
+        "evaluator_harness",
+        "scorer",
+        "protocol",
+        "projection",
+        "scope"
+      ],
+      "title": "QualitySourceIdentity",
+      "type": "object"
+    },
+    "QualitySubjectIdentity": {
+      "additionalProperties": false,
+      "description": "Stable row/system claims used for human route reconciliation.\n\n``benchmark_agent`` identifies the submitted agent system.  The benchmark's\nevaluator harness lives in :class:`QualitySourceIdentity`; neither field is\ncopied into ``OfferingKey.agent_harness`` by reconciliation.",
+      "properties": {
+        "row_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Row Id",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/QualitySubjectKind"
+        },
+        "system_label": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "System Label",
+          "type": "string"
+        },
+        "model_claims": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/QualityModelClaim"
+          },
+          "maxItems": 128,
+          "title": "Model Claims",
+          "type": "array"
+        },
+        "benchmark_agent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/QualityComponentIdentity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "route_disclosure": {
+          "$ref": "#/$defs/QualityRouteDisclosure"
+        },
+        "reasoning_claims": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Reasoning Claims",
+          "type": "object"
+        },
+        "attempt_claims": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Attempt Claims",
+          "type": "object"
+        }
+      },
+      "required": [
+        "row_id",
+        "kind",
+        "system_label",
+        "route_disclosure"
+      ],
+      "title": "QualitySubjectIdentity",
+      "type": "object",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "single_model_system"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "model_claims": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            },
+            "required": [
+              "model_claims"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "composite_system"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "model_claims": {
+                "minItems": 1
+              }
+            },
+            "required": [
+              "model_claims"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "undisclosed_system"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "model_claims": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "QualitySubjectKind": {
+      "enum": [
+        "single_model_system",
+        "composite_system",
+        "router_system",
+        "undisclosed_system"
+      ],
+      "title": "QualitySubjectKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Route-free normalized evidence emitted by one trusted adapter projection.\n\nOne rights assertion governs every row. Adapters must split mixed-license or\nmixed-terms inputs into separate evidence sets rather than applying the most\npermissive row's rights to the complete source.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/quality-evidence/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "raw_audit": {
+      "$ref": "#/$defs/QualityRawAudit"
+    },
+    "source_identity": {
+      "$ref": "#/$defs/QualitySourceIdentity"
+    },
+    "rights": {
+      "$ref": "#/$defs/QualityRights"
+    },
+    "rows": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/QualityEvidenceRow"
+      },
+      "maxItems": 10000,
+      "title": "Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "raw_audit",
+    "source_identity",
+    "rights"
+  ],
+  "title": "QualityEvidenceSet",
+  "type": "object",
+  "$comment": "Normalized evidence may still contain restricted labels, claims, locators, and metadata and is not automatically publication-safe. One rights assertion covers every row; adapters must split mixed-rights inputs into separate sets. JSON Schema does not enforce unique row IDs, canonical ordering, content digests, or whole-artifact byte limits; run the ModelSkyline semantic validator."
+}

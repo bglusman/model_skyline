@@ -5,6 +5,12 @@ gateway is the execution data plane. The signed protocol in ADR 0003 lets the
 gateway expose one stable logical model while silently updating its exact
 default and fallback targets for new work units.
 
+Gateway-pointer `v1alpha1` accepts only the ordinary `kind: "selection"`
+artifact. It rejects `kind: "quality-gated-selection"`; that additive v0.7
+wrapper currently requires a trusted distribution channel plus the unsigned
+resolver's explicit bundle pin. Do not infer signature authentication or
+durable anti-rollback protection for it from this integration guide.
+
 ## Consumer boundary
 
 A native consumer implements this pipeline without embedding Python:

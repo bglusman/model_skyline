@@ -107,6 +107,34 @@ def test_example_frontier_and_dominance_explanation(
     assert snapshot.snapshot_id
 
 
+def test_benchmark_harness_is_independent_of_production_route_harness(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    first = example_catalog.offerings[0]
+    production_route = first.model_copy(
+        update={
+            "offering": first.offering.model_copy(
+                update={"agent_harness": "production-agent-runtime/v2"}
+            )
+        }
+    )
+    catalog = example_catalog.model_copy(
+        update={"offerings": [production_route, *example_catalog.offerings[1:]]}
+    )
+
+    snapshot = FrontierEngine().calculate(
+        example_config,
+        catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    assert production_route.offering.offering_id not in {
+        rejection.offering_id for rejection in snapshot.rejected
+    }
+
+
 @given(order=st.permutations((0, 1, 2, 3)))
 @settings(suppress_health_check=[HealthCheck.function_scoped_fixture])
 def test_frontier_is_invariant_to_catalog_order(

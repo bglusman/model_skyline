@@ -46,6 +46,9 @@ EPSILON_GRID_DECIMAL_PLACES = 34
 EPSILON_GRID_DENOMINATOR = 10**EPSILON_GRID_DECIMAL_PLACES
 MAX_EPSILON_GRID_INDEX = 2 * EPSILON_GRID_DENOMINATOR
 PROXIMITY_SCHEMA_ID = "urn:model-skyline:schema:v1alpha1:frontier-proximity"
+CROSS_FRONTIER_SELECTION_POLICY_SCHEMA_ID = (
+    "urn:model-skyline:schema:v1alpha1:cross-frontier-selection-policy"
+)
 MULTI_FRONTIER_SELECTION_SCHEMA_ID = (
     "urn:model-skyline:schema:v1alpha1:multi-frontier-selection-snapshot"
 )
@@ -810,9 +813,13 @@ def multi_frontier_policy_hash(
 
 
 def generated_overlap_schemas() -> dict[str, dict[str, Any]]:
-    """Generate the two additive, language-neutral overlap artifact contracts."""
+    """Generate the additive, language-neutral overlap contracts."""
 
     values = {
+        "cross-frontier-selection-policy.schema.json": (
+            CROSS_FRONTIER_SELECTION_POLICY_SCHEMA_ID,
+            CrossFrontierSelectionPolicy.model_json_schema(mode="validation"),
+        ),
         "frontier-proximity.schema.json": (
             PROXIMITY_SCHEMA_ID,
             FrontierProximitySnapshot.model_json_schema(mode="serialization"),

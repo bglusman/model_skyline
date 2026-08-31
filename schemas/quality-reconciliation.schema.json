@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:quality-reconciliation",
+  "$defs": {
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "billing_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Billing Mode"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider",
+        "endpoint",
+        "billing_mode",
+        "region",
+        "service_tier",
+        "quantization",
+        "reasoning_effort",
+        "agent_harness",
+        "capabilities"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    },
+    "QualityMappingRelationship": {
+      "description": "What the reviewer is asserting about a subject and production target.",
+      "enum": [
+        "exact_subject_route",
+        "reviewed_quality_projection"
+      ],
+      "title": "QualityMappingRelationship",
+      "type": "string"
+    },
+    "QualityReconciliationEntry": {
+      "additionalProperties": false,
+      "description": "One reviewed row-to-route assertion, independent of result and rights.",
+      "properties": {
+        "row_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Row Id",
+          "type": "string"
+        },
+        "adapter_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Adapter Id",
+          "type": "string"
+        },
+        "projection_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Projection Version",
+          "type": "string"
+        },
+        "expected_source_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Expected Source Identity Sha256",
+          "type": "string"
+        },
+        "expected_subject_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Expected Subject Identity Sha256",
+          "type": "string"
+        },
+        "expected_raw_audit_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Raw Audit Sha256"
+        },
+        "relationship": {
+          "$ref": "#/$defs/QualityMappingRelationship"
+        },
+        "offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "review_evidence": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Review Evidence",
+          "type": "string"
+        },
+        "reviewed_at": {
+          "format": "date-time",
+          "title": "Reviewed At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "row_id",
+        "adapter_id",
+        "projection_version",
+        "expected_source_identity_sha256",
+        "expected_subject_identity_sha256",
+        "relationship",
+        "offering",
+        "review_evidence",
+        "reviewed_at"
+      ],
+      "title": "QualityReconciliationEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Operator-reviewed mappings; duplicate targets are quarantined in the report.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/quality-reconciliation/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "entries": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/QualityReconciliationEntry"
+      },
+      "maxItems": 10000,
+      "title": "Entries",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version"
+  ],
+  "title": "QualityReconciliation",
+  "type": "object",
+  "$comment": "Structural validation does not prove a benchmark row belongs to a route. A reviewer must verify the source and subject identity digests, relationship, complete OfferingKey, and review evidence; fuzzy or alias matching is forbidden. JSON Schema does not enforce unique row IDs, canonical ordering, or artifact limits; run the ModelSkyline semantic validator."
+}

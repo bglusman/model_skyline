@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from collections import Counter
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
@@ -27,7 +27,10 @@ from model_skyline.canonical import canonical_bytes
 
 SCHEMA_VERSION = "model-skyline/v1alpha1"
 CANONICAL_DECIMAL_PATTERN = r"^[+-]?\d+(?:\.\d+)?$"
-FORBIDDEN_TEXT_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f\ud800-\udfff\ufffe\uffff]")
+FORBIDDEN_TEXT_RE = re.compile(
+    r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f\u061c\u200e\u200f"
+    r"\u202a-\u202e\u2066-\u2069\ud800-\udfff\ufffe\uffff]"
+)
 MAX_DECIMAL_INPUT_LENGTH = 1024
 MAX_DECIMAL_SIGNIFICANT_DIGITS = 1024
 # These limits align with the canonical string contract: any ordinary fixed-
@@ -60,7 +63,7 @@ def _bounded_decimal_input(value: Any) -> Any:
     return value
 
 
-def _bounded_canonical_decimal(value: Decimal) -> Decimal:
+def bounded_canonical_decimal(value: Decimal) -> Decimal:
     if not value.is_finite():
         raise ValueError("decimal values must be finite")
 
@@ -91,7 +94,7 @@ def _bounded_canonical_decimal(value: Decimal) -> Decimal:
 CanonicalDecimal = Annotated[
     Decimal,
     BeforeValidator(_bounded_decimal_input),
-    AfterValidator(_bounded_canonical_decimal),
+    AfterValidator(bounded_canonical_decimal),
     PlainSerializer(lambda value: format(value, "f"), return_type=str, when_used="json"),
     WithJsonSchema(
         {
@@ -175,10 +178,10 @@ def _canonicalize_json_numbers(value: Any) -> Any:
     """Keep arbitrary JSON bags exact and hashable across language runtimes."""
 
     if isinstance(value, Decimal):
-        return format(_bounded_canonical_decimal(value), "f")
+        return format(bounded_canonical_decimal(value), "f")
     if isinstance(value, float):
-        return format(_bounded_canonical_decimal(Decimal(str(value))), "f")
-    if isinstance(value, dict):
+        return format(bounded_canonical_decimal(Decimal(str(value))), "f")
+    if isinstance(value, Mapping):
         return {key: _canonicalize_json_numbers(child) for key, child in value.items()}
     if isinstance(value, (list, tuple)):
         return [_canonicalize_json_numbers(child) for child in value]
@@ -195,7 +198,7 @@ CanonicalJsonObject = Annotated[
 def _contains_forbidden_text(value: Any) -> bool:
     if isinstance(value, str):
         return FORBIDDEN_TEXT_RE.search(value) is not None
-    if isinstance(value, dict):
+    if isinstance(value, Mapping):
         return any(
             _contains_forbidden_text(key) or _contains_forbidden_text(child)
             for key, child in value.items()
