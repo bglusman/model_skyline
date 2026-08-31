@@ -96,7 +96,6 @@
           "$ref": "#/$defs/WorkloadReference"
         },
         "required_capabilities": {
-          "default": [],
           "items": {
             "maxLength": 64,
             "minLength": 1,
@@ -125,6 +124,7 @@
         "frontier_id",
         "frontier_snapshot_id",
         "workload",
+        "required_capabilities",
         "offering_identity_profile",
         "file"
       ],
@@ -174,7 +174,7 @@
     "issuer": {
       "format": "uri",
       "maxLength": 2083,
-      "pattern": "^https://[^@?#]+[^/@?#]$",
+      "pattern": "^https://[^@%\\\\?#]+[^/@%\\\\?#]$",
       "title": "Issuer",
       "type": "string"
     },
@@ -259,5 +259,6 @@
     "selection"
   ],
   "title": "GatewaySelectionPointer",
-  "type": "object"
+  "type": "object",
+  "$comment": "Structural validation is not routing authorization. Consumers MUST also perform the signature, canonical-byte, time, sequence, semantic-artifact, exact OfferingKey mapping, capability, and atomic-install verification order defined by docs/adr/0003-signed-gateway-selection-protocol.md."
 }

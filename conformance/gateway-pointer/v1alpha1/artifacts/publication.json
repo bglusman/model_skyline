@@ -1,0 +1,100 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "kind": "publication",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "publication_id": "ae9abb552450bdebd39dc3201fca86185d8d088f524a71f77abfcacc6b7e8bb2",
+  "project_id": "gateway-demo",
+  "previous_publication_id": null,
+  "project_hash": "8ab4728edac4bcbf41578218a7e87d5238c4518b3f4348c86ba46dfcd5b642d0",
+  "generated_at": "2026-08-29T19:00:00Z",
+  "catalogs": [
+    {
+      "workload": {
+        "id": "coding-session-v1",
+        "version": "1.0.0",
+        "unit": "successful_coding_session"
+      },
+      "catalog_hash": "f52bcf37a866649ee2f5fbca2d4f8a74c6e6b52154866c7b8e5b3dc5f84c4d94"
+    }
+  ],
+  "policy": {
+    "public": true,
+    "allowed_licenses": [
+      "CC0-1.0"
+    ],
+    "authorized_source_ids": []
+  },
+  "frontiers": [
+    {
+      "frontier_id": "coding-responsiveness",
+      "snapshot_id": "ac7ee3acfcc7ef8a956425c9407e79d22fb54883eb971dbee827780af11b2630",
+      "snapshot": {
+        "path": "frontiers/coding-responsiveness/ac7ee3acfcc7ef8a956425c9407e79d22fb54883eb971dbee827780af11b2630.json",
+        "sha256": "276993fbb86b083d828d6ec514aaf2f820b1996c3963de9e689935a52f22385a",
+        "media_type": "application/json"
+      },
+      "csv": {
+        "path": "frontiers/coding-responsiveness/ac7ee3acfcc7ef8a956425c9407e79d22fb54883eb971dbee827780af11b2630.csv",
+        "sha256": "df0d9d54d7e5217b09470f02ceae8e2df1fdabac800765e22dbfb59677d07e4d",
+        "media_type": "text/csv; charset=utf-8"
+      },
+      "table": {
+        "path": "frontiers/coding-responsiveness/ac7ee3acfcc7ef8a956425c9407e79d22fb54883eb971dbee827780af11b2630.txt",
+        "sha256": "c43aaeba1c01cee3e03bad41c93b16eb4f445f6cb06ea1b56a44c955cba88687",
+        "media_type": "text/plain; charset=utf-8"
+      },
+      "history": {
+        "path": "frontiers/coding-responsiveness/history-374d229b42b6773079b0292ac29f28397265d7a5dd9630fdc2dd617fcaed7a72.json",
+        "sha256": "374d229b42b6773079b0292ac29f28397265d7a5dd9630fdc2dd617fcaed7a72",
+        "media_type": "application/json"
+      },
+      "feed": {
+        "path": "feeds/coding-responsiveness/2790ef638707ede8c7bf07f62dffac55c6ce36c239264af0a515a767f3971be0.xml",
+        "sha256": "2790ef638707ede8c7bf07f62dffac55c6ce36c239264af0a515a767f3971be0",
+        "media_type": "application/rss+xml"
+      }
+    },
+    {
+      "frontier_id": "coding-value",
+      "snapshot_id": "eb489f126c7f901a037a3c35bdba1d2dceb6ac421e8674e51947bd95f77b3556",
+      "snapshot": {
+        "path": "frontiers/coding-value/eb489f126c7f901a037a3c35bdba1d2dceb6ac421e8674e51947bd95f77b3556.json",
+        "sha256": "83a3c0e31417705771670bc0e0ae11928d05b1fe9f52d651a612de1aa2dc71ab",
+        "media_type": "application/json"
+      },
+      "csv": {
+        "path": "frontiers/coding-value/eb489f126c7f901a037a3c35bdba1d2dceb6ac421e8674e51947bd95f77b3556.csv",
+        "sha256": "1d3136a5949127c8bd296acece60b16b5407e4ec2bf32a7d0a91b208e7cc50e0",
+        "media_type": "text/csv; charset=utf-8"
+      },
+      "table": {
+        "path": "frontiers/coding-value/eb489f126c7f901a037a3c35bdba1d2dceb6ac421e8674e51947bd95f77b3556.txt",
+        "sha256": "e3c93cfda7bec8bde653ec10da4cad766a927746ed4487503e9b2038e0c7e514",
+        "media_type": "text/plain; charset=utf-8"
+      },
+      "history": {
+        "path": "frontiers/coding-value/history-b1192ef75740fe87ceca57f7600217dbe00d37e10867a196f1e91109f3989a20.json",
+        "sha256": "b1192ef75740fe87ceca57f7600217dbe00d37e10867a196f1e91109f3989a20",
+        "media_type": "application/json"
+      },
+      "feed": {
+        "path": "feeds/coding-value/745b14e1fa8d5065c6b155d3141418e672b954782a3bb683ed15988294cd6b30.xml",
+        "sha256": "745b14e1fa8d5065c6b155d3141418e672b954782a3bb683ed15988294cd6b30",
+        "media_type": "application/rss+xml"
+      }
+    }
+  ],
+  "selections": [
+    {
+      "selection_id": "coding-agent-defaults",
+      "snapshot_id": "7c4ef29e1d0c820f31b321960878209663bcfd6eee110cbe0726c16e7ae3eb97",
+      "frontier_id": "coding-value",
+      "frontier_snapshot_id": "eb489f126c7f901a037a3c35bdba1d2dceb6ac421e8674e51947bd95f77b3556",
+      "snapshot": {
+        "path": "selections/coding-agent-defaults/7c4ef29e1d0c820f31b321960878209663bcfd6eee110cbe0726c16e7ae3eb97.json",
+        "sha256": "6aa3a4e3cf80516f5c85caee0491bfd62dbb2bc4e89a7c6423fee861bce1dfc3",
+        "media_type": "application/json"
+      }
+    }
+  ]
+}

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.0 - 2026-08-30
+
+- Add a gateway-neutral signed selection profile: a threshold Ed25519 DSSE
+  envelope authenticates an RFC 8785 pointer that binds audience, channel,
+  sequence, hard expiry, and the exact publication and selection bytes.
+- Add strict local complete-offering target bindings, per-work-unit pinned
+  routes, fail-closed HTTPS refresh, and crash-consistent SQLite anti-rollback
+  plus last-known-good state.
+- Export pointer, envelope, and trust-policy schemas; ship deterministic
+  language-neutral accept/reject vectors with intermediate hash/signature bytes
+  and an independently validated Elixir-compatible wire contract.
+- Document the gateway/control-plane boundary, threat model, retry and receipt
+  constraints, ecosystem integration points, and a concrete Wardwright native
+  consumer sequence.
+
 ## 0.4.1 - 2026-08-30
 
 - Restore retained v0.3 publication validation after the optional

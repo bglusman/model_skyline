@@ -423,10 +423,18 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
             _project_config_conditionals(schema)
         if name == "request-trace-v1alpha2.schema.json":
             _request_trace_v1alpha2_conditionals(schema)
-        result[name] = {
+        generated_schema = {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": SCHEMA_IDS[name],
             **schema,
         }
+        if name.startswith("gateway-"):
+            generated_schema["$comment"] = (
+                "Structural validation is not routing authorization. Consumers MUST also "
+                "perform the signature, canonical-byte, time, sequence, semantic-artifact, "
+                "exact OfferingKey mapping, capability, and atomic-install verification order "
+                "defined by docs/adr/0003-signed-gateway-selection-protocol.md."
+            )
+        result[name] = generated_schema
     result.update(generated_overlap_schemas())
     return result

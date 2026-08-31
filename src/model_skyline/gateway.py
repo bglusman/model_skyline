@@ -36,7 +36,7 @@ from pydantic import (
     model_validator,
 )
 
-from model_skyline.canonical import canonical_bytes, content_hash
+from model_skyline.canonical import canonical_bytes
 from model_skyline.models import (
     MAX_CAPABILITIES,
     MAX_SAFE_INTEGER,
@@ -237,6 +237,15 @@ def _normalize_issuer(value: str) -> str:
         raise ValueError("gateway issuer must use HTTPS")
     if parsed_url.username is not None or parsed_url.password is not None:
         raise ValueError("gateway issuer cannot contain user information")
+    if "@" in parsed.path:
+        raise ValueError("gateway issuer path cannot contain @")
+    if (
+        "\\" in parsed.path
+        or "%" in parsed.path
+        or "//" in parsed.path
+        or any(part in {".", ".."} for part in parsed.path.split("/"))
+    ):
+        raise ValueError("gateway issuer has a non-canonical path")
     if parsed_url.query is not None or parsed_url.fragment is not None:
         raise ValueError("gateway issuer cannot contain a query or fragment")
     if parsed.path.endswith("/"):
@@ -257,7 +266,7 @@ GatewayIssuer = Annotated[
         {
             "type": "string",
             "format": "uri",
-            "pattern": r"^https://[^@?#]+[^/@?#]$",
+            "pattern": r"^https://[^@%\\?#]+[^/@%\\?#]$",
             "maxLength": 2083,
         }
     ),
@@ -312,10 +321,28 @@ def _canonical_string_tuple(
     return tuple(value)
 
 
-def _utc_timestamp(value: datetime) -> datetime:
+def _utc_instant(value: datetime) -> datetime:
     if value.tzinfo is None:
         raise ValueError("gateway timestamps must include a timezone")
-    return value.astimezone(UTC).replace(microsecond=0)
+    return value.astimezone(UTC)
+
+
+def _utc_timestamp(value: datetime) -> datetime:
+    instant = _utc_instant(value)
+    if instant.microsecond:
+        raise ValueError("gateway timestamps must use whole seconds")
+    return instant
+
+
+def _ceil_utc_second(value: datetime) -> datetime:
+    instant = _utc_instant(value)
+    if instant.microsecond:
+        return instant.replace(microsecond=0) + timedelta(seconds=1)
+    return instant
+
+
+def _floor_utc_second(value: datetime) -> datetime:
+    return _utc_instant(value).replace(microsecond=0)
 
 
 GatewayTimestamp = Annotated[
@@ -363,7 +390,6 @@ class GatewaySelectionReference(FrozenModel):
     frontier_snapshot_id: Sha256Digest
     workload: WorkloadReference
     required_capabilities: tuple[CapabilityName, ...] = Field(
-        default=(),
         max_length=MAX_CAPABILITIES,
         json_schema_extra={"uniqueItems": True},
     )
@@ -445,7 +471,6 @@ class DsseEnvelope(FrozenModel):
         extra="allow",
         frozen=True,
         allow_inf_nan=False,
-        populate_by_name=True,
     )
 
     payload_type: Literal[
@@ -456,6 +481,13 @@ class DsseEnvelope(FrozenModel):
         min_length=1,
         max_length=MAX_GATEWAY_SIGNATURES,
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def require_dsse_wire_member_names(cls, value: Any) -> Any:
+        if isinstance(value, dict) and "payload_type" in value:
+            raise ValueError("DSSE envelope must use the payloadType wire member")
+        return value
 
     @field_validator("payload")
     @classmethod
@@ -663,18 +695,13 @@ class PinnedGatewayRoute(FrozenModel):
     )
 
 
-class GatewaySequenceStore(Protocol):
-    """Atomically persist a fully verified installation before activation."""
-
-    def accept(self, checkpoint: GatewaySequenceCheckpoint) -> None: ...
-
-
 @dataclass(frozen=True, slots=True)
 class StoredGatewayBundle:
     checkpoint: GatewaySequenceCheckpoint
     envelope_payload: bytes
     publication_payload: bytes
     selection_payload: bytes
+    target_bindings_payload: bytes
     installed_at: datetime
 
 
@@ -702,7 +729,7 @@ class GatewayInstallationStore(Protocol):
     def install(self, bundle: StoredGatewayBundle) -> None: ...
 
 
-class InMemoryGatewaySequenceStore:
+class InMemoryGatewayInstallationStore:
     """Ephemeral test store. Production consumers must use durable state."""
 
     def __init__(self) -> None:
@@ -829,6 +856,37 @@ def _strict_json_object(payload: bytes, *, maximum: int, label: str) -> dict[str
         return value
     except (UnicodeDecodeError, json.JSONDecodeError, RecursionError, ValueError) as exc:
         raise GatewayProtocolError(f"{label} is not strict UTF-8 JSON: {exc}") from exc
+
+
+def parse_gateway_trust_policy(
+    payload: bytes,
+    *,
+    maximum: int = MAX_GATEWAY_ARTIFACT_BYTES,
+) -> GatewayTrustPolicy:
+    """Strictly parse duplicate-free local trust-policy JSON."""
+
+    value = _strict_json_object(payload, maximum=maximum, label="gateway trust policy")
+    try:
+        return GatewayTrustPolicy.model_validate(value)
+    except ValidationError as exc:
+        raise GatewayProtocolError("gateway trust policy does not match v1alpha1") from exc
+
+
+def parse_gateway_sequence_checkpoint(
+    payload: bytes,
+    *,
+    maximum: int = MAX_GATEWAY_ENVELOPE_BYTES,
+) -> GatewaySequenceCheckpoint:
+    """Strictly parse a checkpoint or a CLI verification wrapper containing one."""
+
+    value = _strict_json_object(payload, maximum=maximum, label="gateway checkpoint")
+    candidate = value.get("checkpoint", value)
+    if not isinstance(candidate, dict):
+        raise GatewayProtocolError("gateway checkpoint wrapper has no checkpoint object")
+    try:
+        return GatewaySequenceCheckpoint.model_validate(candidate)
+    except ValidationError as exc:
+        raise GatewayProtocolError("gateway checkpoint does not match v1alpha1") from exc
 
 
 def _sha256(payload: bytes) -> str:
@@ -968,7 +1026,7 @@ def sign_gateway_pointer(
     if len({item.keyid for item in signatures}) != len(signatures):
         raise GatewayProtocolError("gateway signing keys must be distinct")
     return DsseEnvelope(
-        payload_type=GATEWAY_POINTER_PAYLOAD_TYPE,
+        payloadType=GATEWAY_POINTER_PAYLOAD_TYPE,
         payload=_standard_base64_encode(payload),
         signatures=tuple(signatures),
     )
@@ -1087,9 +1145,15 @@ def build_gateway_pointer(
                 f"offering {choice.offering.offering_id!r} lacks required capabilities: "
                 + ", ".join(missing)
             )
-    effective_expiry = hard_expires_at or selection.valid_until
-    if effective_expiry > selection.valid_until:
+    requested_expiry = _utc_instant(hard_expires_at or selection.valid_until)
+    if requested_expiry > selection.valid_until:
         raise GatewayProtocolError("gateway pointer cannot outlive its selection snapshot")
+    requested_activation = _utc_instant(not_before or issued_at)
+    if requested_activation < max(publication.generated_at, selection.generated_at):
+        raise GatewayProtocolError("gateway pointer cannot activate before its artifacts exist")
+    normalized_issued_at = _ceil_utc_second(issued_at)
+    activation = _ceil_utc_second(requested_activation)
+    effective_expiry = _floor_utc_second(requested_expiry)
     return GatewaySelectionPointer(
         schema_version=GATEWAY_POINTER_SCHEMA_VERSION,
         kind=GATEWAY_POINTER_KIND,
@@ -1098,8 +1162,8 @@ def build_gateway_pointer(
         channel=channel,
         project_id=publication.project_id,
         sequence=sequence,
-        issued_at=issued_at,
-        not_before=not_before or issued_at,
+        issued_at=normalized_issued_at,
+        not_before=activation,
         hard_expires_at=effective_expiry,
         publication=GatewayPublicationReference(
             publication_id=publication.publication_id,
@@ -1192,7 +1256,7 @@ def verify_gateway_envelope(
     now: datetime,
     checkpoint: GatewaySequenceCheckpoint | None = None,
 ) -> AuthenticatedGatewayPointer:
-    instant = _utc_timestamp(now)
+    instant = _utc_instant(now)
     envelope = parse_dsse_envelope(envelope_payload)
     payload = dsse_payload_bytes(envelope)
     verified_key_ids = _verify_threshold(envelope, payload, policy)
@@ -1223,6 +1287,16 @@ def verify_gateway_envelope(
         )
     if pointer.sequence < policy.minimum_sequence:
         raise GatewaySequenceError("gateway pointer sequence is below the local minimum")
+    # Authenticate monotonicity before classifying temporal state. Otherwise a
+    # rollback/equivocation with a future ``not_before`` could be mistaken for
+    # a retryable publication race and keep an older LKG route admissible.
+    payload_sha256 = _sha256(payload)
+    if checkpoint is not None:
+        _checkpoint_identity_matches(checkpoint, policy, pointer)
+        if pointer.sequence < checkpoint.sequence:
+            raise GatewaySequenceError("gateway pointer sequence would roll back")
+        if pointer.sequence == checkpoint.sequence and payload_sha256 != checkpoint.payload_sha256:
+            raise GatewaySequenceError("gateway pointer sequence would equivocate")
     skew = timedelta(seconds=policy.max_future_skew_seconds)
     if pointer.issued_at > instant + skew:
         raise GatewayProtocolError("gateway pointer was issued implausibly in the future")
@@ -1237,13 +1311,6 @@ def verify_gateway_envelope(
     ):
         raise GatewayProtocolError("gateway pointer exceeds the local maximum lifetime")
 
-    payload_sha256 = _sha256(payload)
-    if checkpoint is not None:
-        _checkpoint_identity_matches(checkpoint, policy, pointer)
-        if pointer.sequence < checkpoint.sequence:
-            raise GatewaySequenceError("gateway pointer sequence would roll back")
-        if pointer.sequence == checkpoint.sequence and payload_sha256 != checkpoint.payload_sha256:
-            raise GatewaySequenceError("gateway pointer sequence would equivocate")
     return AuthenticatedGatewayPointer(
         pointer=pointer,
         payload_sha256=payload_sha256,
@@ -1343,8 +1410,12 @@ def _bind_targets(
     return tuple(targets)
 
 
+def target_bindings_bytes(targets: Sequence[BoundGatewayTarget]) -> bytes:
+    return canonical_bytes([item.model_dump(mode="json") for item in targets])
+
+
 def target_bindings_hash(targets: Sequence[BoundGatewayTarget]) -> str:
-    return content_hash([item.model_dump(mode="json") for item in targets])
+    return _sha256(target_bindings_bytes(targets))
 
 
 def verify_gateway_bundle(
@@ -1358,7 +1429,7 @@ def verify_gateway_bundle(
 ) -> VerifiedGatewaySelection:
     """Verify signatures, raw artifacts, semantics, and exact local bindings."""
 
-    instant = _utc_timestamp(now)
+    instant = _utc_instant(now)
     authenticated = verify_gateway_envelope(
         envelope_payload,
         policy,
@@ -1386,6 +1457,8 @@ def verify_gateway_bundle(
         selection_payload,
         maximum=policy.max_artifact_bytes,
     )
+    if pointer.not_before < max(publication.generated_at, selection.generated_at):
+        raise GatewayProtocolError("gateway pointer activates before its artifacts were generated")
     _published_selection_matches(pointer, publication)
     _selection_matches_pointer(pointer, selection, now=instant)
     targets = _bind_targets(pointer, selection, policy)
@@ -1412,7 +1485,7 @@ def build_stored_gateway_bundle(
 ) -> StoredGatewayBundle:
     """Bind exact persisted bytes to a verified installation object."""
 
-    instant = _utc_timestamp(installed_at)
+    instant = _utc_instant(installed_at)
     envelope = parse_dsse_envelope(envelope_payload)
     signed_payload = dsse_payload_bytes(envelope)
     if not hmac.compare_digest(
@@ -1437,6 +1510,7 @@ def build_stored_gateway_bundle(
         envelope_payload=bytes(envelope_payload),
         publication_payload=bytes(publication_payload),
         selection_payload=bytes(selection_payload),
+        target_bindings_payload=target_bindings_bytes(verified.targets),
         installed_at=instant,
     )
 
@@ -1451,10 +1525,10 @@ def pin_gateway_route(
 ) -> PinnedGatewayRoute:
     """Create an opaque no-widening route to retain for a complete work unit."""
 
-    instant = _utc_timestamp(now)
+    instant = _utc_instant(now)
     if minimum_headroom < timedelta(0):
         raise ValueError("minimum_headroom cannot be negative")
-    required = _canonical_string_tuple(
+    request_required = _canonical_string_tuple(
         tuple(sorted(required_capabilities)),
         field="request required_capabilities",
         maximum=MAX_CAPABILITIES,
@@ -1462,7 +1536,12 @@ def pin_gateway_route(
     pointer = verified.pointer
     if instant + minimum_headroom >= pointer.hard_expires_at:
         raise GatewayExpiredError("selection lacks the required trajectory expiry headroom")
-    requested = set(required)
+    effective_required = tuple(
+        sorted(set(pointer.selection.required_capabilities) | set(request_required))
+    )
+    if len(effective_required) > MAX_CAPABILITIES:
+        raise GatewayProtocolError("effective required capabilities exceed the profile limit")
+    requested = set(effective_required)
     narrowed = tuple(
         target
         for target in verified.targets
@@ -1485,7 +1564,7 @@ def pin_gateway_route(
         workload=pointer.selection.workload,
         hard_expires_at=pointer.hard_expires_at,
         admission_source=admission_source,
-        required_capabilities=required,
+        required_capabilities=effective_required,
         targets=narrowed,
     )
 

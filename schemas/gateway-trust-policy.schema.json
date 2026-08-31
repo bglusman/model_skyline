@@ -265,7 +265,7 @@
     "issuer": {
       "format": "uri",
       "maxLength": 2083,
-      "pattern": "^https://[^@?#]+[^/@?#]$",
+      "pattern": "^https://[^@%\\\\?#]+[^/@%\\\\?#]$",
       "title": "Issuer",
       "type": "string"
     },
@@ -414,5 +414,6 @@
     "target_bindings"
   ],
   "title": "GatewayTrustPolicy",
-  "type": "object"
+  "type": "object",
+  "$comment": "Structural validation is not routing authorization. Consumers MUST also perform the signature, canonical-byte, time, sequence, semantic-artifact, exact OfferingKey mapping, capability, and atomic-install verification order defined by docs/adr/0003-signed-gateway-selection-protocol.md."
 }

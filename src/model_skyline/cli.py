@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from pathlib import Path
 from typing import Annotated
@@ -31,6 +31,14 @@ from model_skyline.adapters.mcpmark import (
 )
 from model_skyline.engine import FrontierEngine, validate_formula_cost_basis
 from model_skyline.formula import compile_formula
+from model_skyline.gateway import (
+    MAX_GATEWAY_ARTIFACT_BYTES,
+    MAX_GATEWAY_ENVELOPE_BYTES,
+    parse_gateway_sequence_checkpoint,
+    parse_gateway_trust_policy,
+    pin_gateway_route,
+    verify_gateway_bundle,
+)
 from model_skyline.io import (
     InputError,
     dump_json,
@@ -96,6 +104,13 @@ def _retrieved_at(value: str | None) -> datetime | None:
         raise ValueError(str(exc).replace("--as-of", "--retrieved-at")) from exc
 
 
+def _verification_time(value: str | None) -> datetime | None:
+    try:
+        return _as_of(value)
+    except ValueError as exc:
+        raise ValueError(str(exc).replace("--as-of", "--at")) from exc
+
+
 def _emit(value: str, output: Path | None) -> None:
     if output is None:
         typer.echo(value, nl=False)
@@ -106,6 +121,16 @@ def _emit(value: str, output: Path | None) -> None:
 def _error(exc: Exception) -> None:
     typer.echo(f"error: {exc}", err=True)
     raise typer.Exit(code=2)
+
+
+def _read_bounded(path: Path, maximum_bytes: int, *, label: str) -> bytes:
+    size = path.stat().st_size
+    if size > maximum_bytes:
+        raise ValueError(f"{label} exceeds {maximum_bytes} bytes")
+    payload = path.read_bytes()
+    if len(payload) != size:
+        raise ValueError(f"{label} changed while it was being read")
+    return payload
 
 
 @app.command()
@@ -320,6 +345,89 @@ def aggregate_trace_command(
         enriched = enrich_catalog(loaded_catalog, summary)
         _emit(dump_json(enriched), output)
     except (InputError, OSError, TraceAggregationError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("verify-gateway-bundle")
+def verify_gateway_bundle_command(
+    envelope: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    publication: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    selection: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    trust_policy: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+    at: Annotated[
+        str | None,
+        typer.Option("--at", help="trusted verification time; defaults to current UTC"),
+    ] = None,
+    checkpoint: Annotated[
+        Path | None,
+        typer.Option(
+            "--checkpoint",
+            exists=True,
+            readable=True,
+            help="optional previously trusted sequence checkpoint",
+        ),
+    ] = None,
+    required_capabilities: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--required-capability",
+            help="request capability used only to narrow the signed route; may be repeated",
+        ),
+    ] = None,
+    minimum_headroom_seconds: Annotated[
+        int,
+        typer.Option("--minimum-headroom-seconds", min=0),
+    ] = 0,
+) -> None:
+    """Statically verify signed bytes and emit a checkpoint, key IDs, and pinned route.
+
+    This command does not install durable anti-rollback state. Pass a trusted
+    checkpoint when verifying an update; production admission should use
+    ``SignedGatewayResolver`` with a durable installation store.
+    """
+
+    try:
+        policy = parse_gateway_trust_policy(
+            _read_bounded(trust_policy, MAX_GATEWAY_ARTIFACT_BYTES, label="trust policy")
+        )
+        prior = (
+            None
+            if checkpoint is None
+            else parse_gateway_sequence_checkpoint(
+                _read_bounded(checkpoint, MAX_GATEWAY_ENVELOPE_BYTES, label="checkpoint")
+            )
+        )
+        now = _verification_time(at) or datetime.now(UTC)
+        verified = verify_gateway_bundle(
+            _read_bounded(envelope, MAX_GATEWAY_ENVELOPE_BYTES, label="DSSE envelope"),
+            _read_bounded(
+                publication,
+                min(policy.max_artifact_bytes, MAX_GATEWAY_ARTIFACT_BYTES),
+                label="publication",
+            ),
+            _read_bounded(
+                selection,
+                min(policy.max_artifact_bytes, MAX_GATEWAY_ARTIFACT_BYTES),
+                label="selection",
+            ),
+            policy,
+            now=now,
+            checkpoint=prior,
+        )
+        route = pin_gateway_route(
+            verified,
+            now=now,
+            required_capabilities=required_capabilities or (),
+            minimum_headroom=timedelta(seconds=minimum_headroom_seconds),
+        )
+        result = {
+            "checkpoint": verified.checkpoint.model_dump(mode="json"),
+            "route": route.model_dump(mode="json"),
+            "verified_key_ids": list(verified.authenticated_pointer.verified_key_ids),
+        }
+        _emit(json.dumps(result, indent=2) + "\n", output)
+    except (OSError, ValueError) as exc:
         _error(exc)
 
 

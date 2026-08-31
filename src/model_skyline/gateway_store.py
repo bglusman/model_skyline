@@ -5,26 +5,34 @@ from __future__ import annotations
 import hashlib
 import os
 import sqlite3
+import stat
 import threading
 from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import cast
 
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 
 from model_skyline.gateway import (
     MAX_GATEWAY_ARTIFACT_BYTES,
     MAX_GATEWAY_ENVELOPE_BYTES,
+    MAX_GATEWAY_RUNTIME_CANDIDATES,
+    BoundGatewayTarget,
     GatewayProtocolError,
     GatewaySequenceCheckpoint,
     GatewaySequenceError,
     StoredGatewayBundle,
     dsse_payload_bytes,
     parse_dsse_envelope,
+    parse_gateway_pointer,
+    target_bindings_bytes,
 )
 
-STORE_SCHEMA_VERSION = 1
+STORE_SCHEMA_VERSION = 2
+MAX_GATEWAY_CHECKPOINT_BYTES = 16 * 1024
+MAX_GATEWAY_SQLITE_VALUE_BYTES = 32 * 1024 * 1024
+_TARGET_BINDINGS_ADAPTER = TypeAdapter(tuple[BoundGatewayTarget, ...])
 
 
 class GatewayStoreError(GatewayProtocolError):
@@ -85,13 +93,40 @@ def _validate_bundle_bytes(bundle: StoredGatewayBundle) -> None:
         raise GatewayStoreError("stored publication exceeds its byte limit")
     if len(bundle.selection_payload) > MAX_GATEWAY_ARTIFACT_BYTES:
         raise GatewayStoreError("stored selection exceeds its byte limit")
+    if not 1 <= len(bundle.target_bindings_payload) <= MAX_GATEWAY_ARTIFACT_BYTES:
+        raise GatewayStoreError("stored target bindings exceed their byte limit")
     envelope = parse_dsse_envelope(bundle.envelope_payload)
-    if _digest(dsse_payload_bytes(envelope)) != checkpoint.payload_sha256:
+    pointer_payload = dsse_payload_bytes(envelope)
+    pointer = parse_gateway_pointer(pointer_payload)
+    if _digest(pointer_payload) != checkpoint.payload_sha256:
         raise GatewayStoreError("stored envelope pointer digest is corrupt")
     if _digest(bundle.publication_payload) != checkpoint.publication_artifact_sha256:
         raise GatewayStoreError("stored publication digest is corrupt")
     if _digest(bundle.selection_payload) != checkpoint.selection_artifact_sha256:
         raise GatewayStoreError("stored selection digest is corrupt")
+    try:
+        targets = _TARGET_BINDINGS_ADAPTER.validate_json(bundle.target_bindings_payload)
+    except ValidationError as exc:
+        raise GatewayStoreError("stored target bindings are corrupt") from exc
+    if not 1 <= len(targets) <= MAX_GATEWAY_RUNTIME_CANDIDATES:
+        raise GatewayStoreError("stored target binding count is invalid")
+    if target_bindings_bytes(targets) != bundle.target_bindings_payload:
+        raise GatewayStoreError("stored target bindings are not canonical")
+    if _digest(bundle.target_bindings_payload) != checkpoint.target_bindings_sha256:
+        raise GatewayStoreError("stored target binding digest is corrupt")
+    signed_checkpoint_fields = (
+        (checkpoint.issuer, pointer.issuer),
+        (checkpoint.channel, pointer.channel),
+        (checkpoint.sequence, pointer.sequence),
+        (checkpoint.publication_artifact_sha256, pointer.publication.file.sha256),
+        (checkpoint.selection_artifact_sha256, pointer.selection.file.sha256),
+        (checkpoint.selection_snapshot_id, pointer.selection.snapshot_id),
+        (checkpoint.hard_expires_at, pointer.hard_expires_at),
+    )
+    if any(stored != signed for stored, signed in signed_checkpoint_fields):
+        raise GatewayStoreError("stored checkpoint does not match its signed pointer")
+    if checkpoint.audience not in pointer.audience:
+        raise GatewayStoreError("stored checkpoint audience is not signed by its pointer")
     if bundle.installed_at.tzinfo is None:
         raise GatewayStoreError("stored installation time must include a timezone")
 
@@ -108,12 +143,25 @@ class SqliteGatewayInstallationStore:
         if timeout_seconds <= 0:
             raise ValueError("timeout_seconds must be positive")
         requested = Path(path)
-        if requested.exists() and requested.is_symlink():
+        # ``Path.exists`` follows links and is false for a dangling final link.
+        # Inspect the directory entry itself before doing anything that SQLite
+        # could follow.
+        try:
+            requested_status = requested.lstat()
+        except FileNotFoundError:
+            requested_status = None
+        if requested_status is not None and stat.S_ISLNK(requested_status.st_mode):
             raise GatewayStoreError("gateway state database cannot be a symbolic link")
-        requested.parent.mkdir(parents=True, exist_ok=True)
+        parent_existed = requested.parent.exists()
+        requested.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        if not parent_existed:
+            os.chmod(requested.parent, 0o700)
         self.path = requested.parent.resolve() / requested.name
         self._lock = threading.RLock()
-        existed = self.path.exists()
+        self._validate_private_parent()
+        created = self._prepare_database_file()
+        before = self._file_identity(self.path)
+        self._validate_existing_sidecars()
         try:
             self._connection = sqlite3.connect(
                 self.path,
@@ -121,16 +169,125 @@ class SqliteGatewayInstallationStore:
                 isolation_level=None,
                 check_same_thread=False,
             )
+            self._connection.setlimit(
+                sqlite3.SQLITE_LIMIT_LENGTH,
+                MAX_GATEWAY_SQLITE_VALUE_BYTES,
+            )
             self._connection.row_factory = sqlite3.Row
             self._connection.execute("PRAGMA foreign_keys = ON")
             self._connection.execute("PRAGMA synchronous = FULL")
             self._connection.execute("PRAGMA journal_mode = WAL")
             self._initialize()
-            if not existed:
-                os.chmod(self.path, 0o600)
+            after = self._file_identity(self.path)
+            if before != after:
+                raise GatewayStoreError("gateway state database changed during initialization")
+            self._secure_sidecars()
+            if created:
                 self._fsync_parent()
-        except (OSError, sqlite3.Error) as exc:
+        except Exception as exc:
+            connection = getattr(self, "_connection", None)
+            if connection is not None:
+                with suppress(sqlite3.Error):
+                    connection.close()
+            if isinstance(exc, GatewayStoreError):
+                raise
+            if not isinstance(exc, (OSError, sqlite3.Error)):
+                raise
             raise GatewayStoreError(f"cannot initialize gateway state database: {exc}") from exc
+
+    @staticmethod
+    def _owner_matches_process(status: os.stat_result) -> bool:
+        return not hasattr(os, "geteuid") or status.st_uid == os.geteuid()
+
+    def _validate_private_parent(self) -> None:
+        try:
+            status = self.path.parent.stat()
+        except OSError as exc:
+            raise GatewayStoreError(f"cannot inspect gateway state directory: {exc}") from exc
+        if not stat.S_ISDIR(status.st_mode):
+            raise GatewayStoreError("gateway state parent must be a directory")
+        if not self._owner_matches_process(status):
+            raise GatewayStoreError("gateway state directory must be owned by this process user")
+        if stat.S_IMODE(status.st_mode) & 0o077:
+            raise GatewayStoreError(
+                "gateway state directory must not grant group or other permissions"
+            )
+
+    @staticmethod
+    def _file_identity(path: Path) -> tuple[int, int]:
+        try:
+            status = path.lstat()
+        except OSError as exc:
+            raise GatewayStoreError(f"cannot inspect gateway state database: {exc}") from exc
+        if stat.S_ISLNK(status.st_mode):
+            raise GatewayStoreError("gateway state database cannot be a symbolic link")
+        if not stat.S_ISREG(status.st_mode):
+            raise GatewayStoreError("gateway state database must be a regular file")
+        return status.st_dev, status.st_ino
+
+    def _prepare_database_file(self) -> bool:
+        flags = os.O_RDWR | os.O_CREAT | os.O_EXCL
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        try:
+            descriptor = os.open(self.path, flags, 0o600)
+        except FileExistsError:
+            self._validate_database_file()
+            return False
+        except OSError as exc:
+            raise GatewayStoreError(
+                f"cannot securely create gateway state database: {exc}"
+            ) from exc
+        try:
+            os.fchmod(descriptor, 0o600)
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+        return True
+
+    def _validate_database_file(self) -> None:
+        try:
+            status = self.path.lstat()
+        except OSError as exc:
+            raise GatewayStoreError(f"cannot inspect gateway state database: {exc}") from exc
+        if stat.S_ISLNK(status.st_mode):
+            raise GatewayStoreError("gateway state database cannot be a symbolic link")
+        if not stat.S_ISREG(status.st_mode):
+            raise GatewayStoreError("gateway state database must be a regular file")
+        if not self._owner_matches_process(status):
+            raise GatewayStoreError("gateway state database must be owned by this process user")
+        mode = stat.S_IMODE(status.st_mode)
+        if mode & 0o077 or mode & 0o600 != 0o600:
+            raise GatewayStoreError("gateway state database must have mode 0600")
+        if status.st_nlink != 1:
+            raise GatewayStoreError("gateway state database cannot have multiple hard links")
+
+    def _validate_existing_sidecars(self) -> None:
+        for suffix in ("-wal", "-shm"):
+            sidecar = Path(f"{self.path}{suffix}")
+            try:
+                status = sidecar.lstat()
+            except FileNotFoundError:
+                continue
+            except OSError as exc:
+                raise GatewayStoreError(f"cannot inspect gateway SQLite sidecar: {exc}") from exc
+            if (
+                not stat.S_ISREG(status.st_mode)
+                or stat.S_ISLNK(status.st_mode)
+                or not self._owner_matches_process(status)
+                or status.st_nlink != 1
+            ):
+                raise GatewayStoreError("gateway SQLite sidecar is not a safe regular file")
+
+    def _secure_sidecars(self) -> None:
+        self._validate_existing_sidecars()
+        for suffix in ("-wal", "-shm"):
+            sidecar = Path(f"{self.path}{suffix}")
+            try:
+                os.chmod(sidecar, 0o600, follow_symlinks=False)
+            except FileNotFoundError:
+                continue
+            except OSError as exc:
+                raise GatewayStoreError(f"cannot secure gateway SQLite sidecar: {exc}") from exc
 
     def _fsync_parent(self) -> None:
         descriptor = os.open(self.path.parent, os.O_RDONLY)
@@ -157,7 +314,13 @@ class SqliteGatewayInstallationStore:
                 envelope_payload BLOB NOT NULL,
                 publication_payload BLOB NOT NULL,
                 selection_payload BLOB NOT NULL,
+                target_bindings_payload BLOB NOT NULL,
                 installed_at TEXT NOT NULL,
+                CHECK (length(checkpoint_json) BETWEEN 1 AND 16384),
+                CHECK (length(envelope_payload) BETWEEN 1 AND 65536),
+                CHECK (length(publication_payload) BETWEEN 1 AND 10485760),
+                CHECK (length(selection_payload) BETWEEN 1 AND 10485760),
+                CHECK (length(target_bindings_payload) BETWEEN 1 AND 10485760),
                 PRIMARY KEY (trust_namespace, issuer, audience, channel)
             ) WITHOUT ROWID;
             COMMIT;
@@ -187,15 +350,20 @@ class SqliteGatewayInstallationStore:
     @staticmethod
     def _row_bundle(row: sqlite3.Row) -> StoredGatewayBundle:
         try:
+            if len(bytes(row["checkpoint_json"])) > MAX_GATEWAY_CHECKPOINT_BYTES:
+                raise GatewayStoreError("stored checkpoint JSON exceeds its byte limit")
             checkpoint = GatewaySequenceCheckpoint.model_validate_json(
                 bytes(row["checkpoint_json"])
             )
             installed_at = datetime.fromisoformat(str(row["installed_at"]).replace("Z", "+00:00"))
+            if installed_at.tzinfo is None:
+                raise GatewayStoreError("stored installation time must include a timezone")
             bundle = StoredGatewayBundle(
                 checkpoint=checkpoint,
                 envelope_payload=bytes(row["envelope_payload"]),
                 publication_payload=bytes(row["publication_payload"]),
                 selection_payload=bytes(row["selection_payload"]),
+                target_bindings_payload=bytes(row["target_bindings_payload"]),
                 installed_at=installed_at.astimezone(UTC),
             )
             database_identity = (
@@ -222,7 +390,7 @@ class SqliteGatewayInstallationStore:
                 """
                 SELECT trust_namespace, issuer, audience, channel, sequence,
                        checkpoint_json, envelope_payload, publication_payload,
-                       selection_payload, installed_at
+                       selection_payload, target_bindings_payload, installed_at
                 FROM gateway_installations
                 WHERE trust_namespace = ? AND issuer = ? AND audience = ? AND channel = ?
                 """,
@@ -269,6 +437,8 @@ class SqliteGatewayInstallationStore:
 
     def install(self, bundle: StoredGatewayBundle) -> None:
         _validate_bundle_bytes(bundle)
+        if bundle.installed_at.tzinfo is None:
+            raise GatewayStoreError("stored installation time must include a timezone")
         checkpoint = bundle.checkpoint
         identity = _checkpoint_identity(checkpoint)
         checkpoint_json = checkpoint.model_dump_json().encode("utf-8")
@@ -284,14 +454,15 @@ class SqliteGatewayInstallationStore:
                     INSERT INTO gateway_installations(
                         trust_namespace, issuer, audience, channel, sequence,
                         checkpoint_json, envelope_payload, publication_payload,
-                        selection_payload, installed_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        selection_payload, target_bindings_payload, installed_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(trust_namespace, issuer, audience, channel) DO UPDATE SET
                         sequence = excluded.sequence,
                         checkpoint_json = excluded.checkpoint_json,
                         envelope_payload = excluded.envelope_payload,
                         publication_payload = excluded.publication_payload,
                         selection_payload = excluded.selection_payload,
+                        target_bindings_payload = excluded.target_bindings_payload,
                         installed_at = excluded.installed_at
                     """,
                     (
@@ -301,10 +472,12 @@ class SqliteGatewayInstallationStore:
                         bundle.envelope_payload,
                         bundle.publication_payload,
                         bundle.selection_payload,
+                        bundle.target_bindings_payload,
                         installed_at,
                     ),
                 )
                 self._connection.execute("COMMIT")
+                self._secure_sidecars()
             except Exception as exc:
                 with suppress(sqlite3.Error):
                     self._connection.execute("ROLLBACK")

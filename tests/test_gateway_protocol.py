@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -18,11 +19,12 @@ from model_skyline.gateway import (
     GatewaySequenceError,
     GatewayTargetBinding,
     GatewayTrustPolicy,
-    InMemoryGatewaySequenceStore,
+    InMemoryGatewayInstallationStore,
     StoredGatewayBundle,
     build_gateway_pointer,
     build_stored_gateway_bundle,
     dsse_pae,
+    dsse_payload_bytes,
     envelope_bytes,
     gateway_key_id,
     parse_dsse_envelope,
@@ -48,6 +50,7 @@ from model_skyline.publisher import publish_project
 NOW = datetime(2026, 8, 29, 19, tzinfo=UTC)
 ISSUER = "https://control.example/model-skyline"
 SOURCE = f"{ISSUER}/gateway/coding-defaults/latest.dsse.json"
+CONFORMANCE = Path(__file__).parents[1] / "conformance" / "gateway-pointer" / "v1alpha1"
 
 
 @dataclass(frozen=True)
@@ -346,6 +349,96 @@ def test_hard_expiry_is_exclusive_and_request_capabilities_only_narrow(
         pin_gateway_route(verified, now=NOW, minimum_headroom=timedelta(minutes=30))
 
 
+def test_bundle_rejects_pointer_that_activates_before_its_artifacts_exist(
+    tmp_path: Path,
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    material = _materials(tmp_path / "site", example_config, example_catalog)
+    pointer = verify_gateway_envelope(material.envelope, material.policy, now=NOW).pointer
+    premature = pointer.model_copy(
+        update={
+            "issued_at": NOW - timedelta(minutes=45),
+            "not_before": NOW - timedelta(minutes=45),
+            "hard_expires_at": NOW + timedelta(minutes=10),
+        }
+    )
+    envelope = envelope_bytes(sign_gateway_pointer(premature, (material.key,)))
+
+    with pytest.raises(GatewayProtocolError, match="before its artifacts"):
+        verify_gateway_bundle(
+            envelope,
+            material.publication,
+            material.selection,
+            material.policy,
+            now=NOW - timedelta(minutes=30),
+        )
+
+
+def test_builder_ceil_normalizes_fractional_artifact_and_pointer_times(
+    tmp_path: Path,
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    generated_at = NOW + timedelta(microseconds=500_000)
+    site = tmp_path / "site"
+    result = publish_project(
+        example_config,
+        [example_catalog],
+        site,
+        project_id="gateway-demo",
+        selection_ids=["coding-agent-defaults"],
+        generated_at=generated_at,
+    )
+    publication = (site / "publications" / f"{result.manifest.publication_id}.json").read_bytes()
+    selection = (site / result.manifest.selections[0].snapshot.path).read_bytes()
+
+    pointer = build_gateway_pointer(
+        publication,
+        selection,
+        issuer=ISSUER,
+        audience=["wardwright-prod"],
+        channel="coding-defaults",
+        sequence=1,
+        selection_id="coding-agent-defaults",
+        issued_at=generated_at,
+        hard_expires_at=NOW + timedelta(minutes=30, microseconds=500_000),
+    )
+
+    expected_activation = NOW + timedelta(seconds=1)
+    assert pointer.issued_at == expected_activation
+    assert pointer.not_before == expected_activation
+    assert pointer.hard_expires_at == NOW + timedelta(minutes=30)
+
+
+def test_verification_installation_and_pinning_accept_fractional_runtime_times(
+    tmp_path: Path,
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    material = _materials(tmp_path / "site", example_config, example_catalog)
+    runtime_now = NOW + timedelta(microseconds=500_000)
+
+    verified = verify_gateway_bundle(
+        material.envelope,
+        material.publication,
+        material.selection,
+        material.policy,
+        now=runtime_now,
+    )
+    stored = build_stored_gateway_bundle(
+        verified,
+        envelope_payload=material.envelope,
+        publication_payload=material.publication,
+        selection_payload=material.selection,
+        installed_at=runtime_now,
+    )
+    route = pin_gateway_route(verified, now=runtime_now)
+
+    assert stored.installed_at == runtime_now
+    assert route.sequence == verified.pointer.sequence
+
+
 def test_sequence_store_survives_restart_and_rejects_rollback_and_equivocation(
     tmp_path: Path,
     example_config: ProjectConfig,
@@ -503,7 +596,7 @@ def test_in_memory_store_is_explicitly_ephemeral(
         material.policy,
         now=NOW,
     )
-    store = InMemoryGatewaySequenceStore()
+    store = InMemoryGatewayInstallationStore()
     store.accept(verified.checkpoint)
     assert (
         store.current(
@@ -516,3 +609,151 @@ def test_in_memory_store_is_explicitly_ephemeral(
     )
     assert parse_dsse_envelope(material.envelope).payload_type.endswith("+json")
     assert GATEWAY_ENVELOPE_MEDIA_TYPE.endswith("+dsse")
+
+
+def test_language_neutral_conformance_vector_recomputes_exact_expected_values() -> None:
+    valid = CONFORMANCE / "valid"
+    artifacts = CONFORMANCE / "artifacts"
+    intermediate = CONFORMANCE / "intermediate"
+    payload = (valid / "payload.json").read_bytes()
+    envelope_payload = (valid / "envelope.dsse.json").read_bytes()
+    publication = (artifacts / "publication.json").read_bytes()
+    selection = (artifacts / "selection.json").read_bytes()
+    expected = json.loads((valid / "expected.json").read_text())
+    policy = GatewayTrustPolicy.model_validate_json((valid / "trust-policy.json").read_bytes())
+    envelope = parse_dsse_envelope(envelope_payload)
+    pae = dsse_pae(GATEWAY_POINTER_PAYLOAD_TYPE, payload)
+
+    assert dsse_payload_bytes(envelope) == payload
+    assert len(payload) == expected["payload_length"]
+    assert hashlib.sha256(payload).hexdigest() == expected["payload_sha256"]
+    assert base64.b64encode(payload).decode() == expected["payload_base64"]
+    assert len(pae) == expected["pae_length"]
+    assert hashlib.sha256(pae).hexdigest() == expected["pae_sha256"]
+    assert envelope.signatures[0].keyid == expected["key_1_keyid"]
+    assert envelope.signatures[0].sig == expected["key_1_signature_base64"]
+    assert base64.b64decode(envelope.signatures[0].sig).hex() == expected["key_1_signature_hex"]
+    assert hashlib.sha256(publication).hexdigest() == expected["publication_raw_sha256"]
+    assert hashlib.sha256(selection).hexdigest() == expected["selection_raw_sha256"]
+    assert (intermediate / "pointer.json").read_bytes() == payload
+    assert (intermediate / "dsse-pae.bin").read_bytes() == pae
+
+    jwk_thumbprint_input = (intermediate / "jwk-thumbprint-input.json").read_bytes()
+    selection_hash_input = (intermediate / "selection-hash-input.json").read_bytes()
+    publication_hash_input = (intermediate / "publication-hash-input.json").read_bytes()
+    assert (
+        hashlib.sha256(jwk_thumbprint_input).hexdigest() == expected["jwk_thumbprint_input_sha256"]
+    )
+    assert (
+        hashlib.sha256(selection_hash_input).hexdigest() == expected["selection_hash_input_sha256"]
+    )
+    assert (
+        hashlib.sha256(publication_hash_input).hexdigest()
+        == expected["publication_hash_input_sha256"]
+    )
+    assert hashlib.sha256(selection_hash_input).hexdigest() == expected["selection_snapshot_id"]
+    assert hashlib.sha256(publication_hash_input).hexdigest() == expected["publication_id"]
+    thumbprint = base64.urlsafe_b64encode(hashlib.sha256(jwk_thumbprint_input).digest())
+    assert expected["key_1_keyid"].endswith(thumbprint.rstrip(b"=").decode())
+
+    verified = verify_gateway_bundle(
+        envelope_payload,
+        publication,
+        selection,
+        policy,
+        now=NOW,
+    )
+    route = pin_gateway_route(verified, now=NOW)
+    assert verified.checkpoint.model_dump(mode="json") == expected["checkpoint"]
+    assert [target.target_id for target in route.targets] == expected["ordered_target_ids"]
+    assert route.model_dump(mode="json") == json.loads((valid / "pinned-route.json").read_text())
+
+
+def test_threshold_and_rotation_conformance_vectors_share_pointer_identity() -> None:
+    valid = CONFORMANCE / "valid"
+    artifacts = CONFORMANCE / "artifacts"
+    policy = GatewayTrustPolicy.model_validate_json(
+        (valid / "trust-policy-threshold-2.json").read_bytes()
+    )
+    threshold_envelope = (valid / "threshold-2-of-2.dsse.json").read_bytes()
+    rotation_envelope = (valid / "rotation-same-payload.dsse.json").read_bytes()
+    threshold = verify_gateway_bundle(
+        threshold_envelope,
+        (artifacts / "publication.json").read_bytes(),
+        (artifacts / "selection.json").read_bytes(),
+        policy,
+        now=NOW,
+    )
+    rotation = verify_gateway_envelope(rotation_envelope, policy, now=NOW)
+
+    assert len(threshold.authenticated_pointer.verified_key_ids) == 2
+    assert rotation.payload_sha256 == threshold.authenticated_pointer.payload_sha256
+
+
+def test_invalid_conformance_vectors_fail_for_their_profile_boundaries() -> None:
+    valid = CONFORMANCE / "valid"
+    invalid = CONFORMANCE / "invalid"
+    artifacts = CONFORMANCE / "artifacts"
+    publication = (artifacts / "publication.json").read_bytes()
+    selection = (artifacts / "selection.json").read_bytes()
+    policy = GatewayTrustPolicy.model_validate_json((valid / "trust-policy.json").read_bytes())
+    threshold_policy = GatewayTrustPolicy.model_validate_json(
+        (valid / "trust-policy-threshold-2.json").read_bytes()
+    )
+    verified = verify_gateway_bundle(
+        (valid / "envelope.dsse.json").read_bytes(),
+        publication,
+        selection,
+        policy,
+        now=NOW,
+    )
+
+    with pytest.raises(GatewayProtocolError, match="threshold"):
+        verify_gateway_envelope(
+            (invalid / "payload-bit-flip.dsse.json").read_bytes(), policy, now=NOW
+        )
+    with pytest.raises(GatewayProtocolError, match="profile"):
+        verify_gateway_envelope(
+            (invalid / "wrong-payload-type.dsse.json").read_bytes(), policy, now=NOW
+        )
+    with pytest.raises(GatewayProtocolError, match="duplicate JSON member"):
+        verify_gateway_envelope(
+            (invalid / "duplicate-json-member.dsse.json").read_bytes(), policy, now=NOW
+        )
+    with pytest.raises(GatewayProtocolError, match="threshold"):
+        verify_gateway_envelope(
+            (invalid / "duplicate-key-threshold.dsse.json").read_bytes(),
+            threshold_policy,
+            now=NOW,
+        )
+    for name in ("unsorted-audience.dsse.json", "unsorted-required-capabilities.dsse.json"):
+        with pytest.raises(GatewayProtocolError, match="does not match v1alpha1"):
+            verify_gateway_envelope((invalid / name).read_bytes(), policy, now=NOW)
+    with pytest.raises(GatewayProtocolError, match="digest"):
+        verify_gateway_bundle(
+            (invalid / "raw-digest-vs-snapshot-id-swap.dsse.json").read_bytes(),
+            publication,
+            selection,
+            policy,
+            now=NOW,
+        )
+    with pytest.raises(GatewayProtocolError, match="hard expiry"):
+        verify_gateway_envelope(
+            (invalid / "expired.dsse.json").read_bytes(),
+            policy,
+            now=NOW + timedelta(minutes=1),
+        )
+    with pytest.raises(GatewaySequenceError, match="roll back"):
+        verify_gateway_envelope(
+            (invalid / "rollback.dsse.json").read_bytes(),
+            policy,
+            now=NOW,
+            checkpoint=verified.checkpoint,
+        )
+    with pytest.raises(GatewaySequenceError, match="equivocate"):
+        verify_gateway_envelope(
+            (invalid / "same-sequence-different-payload.dsse.json").read_bytes(),
+            policy,
+            now=NOW,
+            checkpoint=verified.checkpoint,
+        )

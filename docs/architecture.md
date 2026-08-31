@@ -64,9 +64,12 @@ materially from Python, ADR 0001 should be reopened.
   models halfway through.
 - A stale selection is usable only as a bounded last-known-good value after a
   refresh error. A newly fetched expired artifact is rejected.
-- Artifact hashes provide content identity, not publisher authentication.
-  Runtime fetches require HTTPS by default and validate the expected selection,
-  frontier, and workload identities.
+- Artifact hashes provide content identity, not publisher authentication. The
+  convenience resolver therefore requires a trusted HTTPS origin. Untrusted
+  distribution uses the signed gateway profile in
+  [ADR 0003](adr/0003-signed-gateway-selection-protocol.md), which additionally
+  authenticates audience/channel, checkpoints sequence, binds exact artifact
+  bytes, and maps complete offerings only to local targets.
 
 ## Domain model
 
@@ -517,7 +520,7 @@ selection identities after Pydantic loads the new optional field. Verification
 also recognizes the explicit-null frontier, selection, and view hashes emitted
 briefly by v0.4.0, but new artifacts use the stable normalized encoding.
 
-The resolver verifies content hash, semantic identity, expiry, future skew,
+The unsigned convenience resolver verifies content hash, semantic identity, expiry, future skew,
 and monotonic generation time. It returns defensive copies so callers cannot
 mutate its in-memory last-known-good value. Hashes do not stop a publisher or
 network attacker from replacing and re-hashing content; use HTTPS and a trusted
@@ -525,8 +528,15 @@ origin. The built-in loader accepts HTTPS by default, can enforce an exact host
 allowlist, and caps artifacts at 10 MiB. Plain HTTP and local files require
 separate explicit opt-ins; file URLs with remote hosts are rejected. A custom
 loader is a trusted integration boundary and must enforce equivalent transport
-and size controls. Signed manifests are a future option for untrusted
-distribution.
+and size controls.
+
+The signed gateway resolver is the untrusted-distribution and gateway-control
+profile. Its DSSE pointer, exact-byte artifact bindings, local threshold policy,
+durable SQLite anti-rollback state, exact target mapping, strict hard expiry,
+and per-work-unit `PinnedGatewayRoute` are described in ADR 0003. Cross-language
+fixtures ship in the repository and wheel. The signed resolver is additive: it
+does not make ordinary frontier/publication hashes signatures, and it does not
+place provider credentials or endpoints in remote artifacts.
 
 The static publisher provides persistent history, coherent project commit
 markers, retained feeds, and atomic single-file aliases. The repository's
@@ -534,11 +544,11 @@ scheduled GitHub Actions workflow imports only the pinned Apache-2.0 Aider
 bundle, restores durable history from `gh-pages`, validates a public
 publication in a read-only build job, and uses a separate write-authorized job
 to advance that branch without force-pushing. The repository's Pages setting
-still must be activated, and the workflow does not provide monitoring,
-publisher authentication/signatures, a general hosted service, or persistent
-resolver cache. Production “always current” operation still needs a trusted
-static origin plus alerting and an explicit retention policy. The resolver
-cache remains process-local.
+still must be activated, and that workflow does not yet publish a signed gateway
+channel or provide monitoring/general hosting. Production “always current”
+operation needs alerting and an explicit retention policy. `DynamicResolver`
+state remains process-local; `SignedGatewayResolver` uses a durable checkpoint
+and exact last-known-good bundle.
 
 ## Near-term roadmap
 
@@ -549,14 +559,14 @@ cache remains process-local.
    cache-aware coding cost; then OpenTelemetry GenAI and OpenInference inputs.
 3. Current provider/catalog joins for the implemented Aider and MCPMark
    benchmark adapters, with explicit historical versus counterfactual labels.
-4. Activate and monitor Pages for the scheduled Aider publication, then add
-   ETag-aware serving and persistent resolver state.
-5. OpenClaw and Hermes telemetry/selection adapters, then Claude and Codex
-   consumers; the researched seams are listed in `research.md` and none of
-   these native integrations is implemented yet.
+4. Activate and monitor Pages for the scheduled Aider publication, then add a
+   signed gateway channel and signing-key operational profile.
+5. Build Wardwright as the first native signed-protocol consumer, followed by
+   gateway and framework adapters described in `gateway-integrations.md`.
 6. Broader licensed research, customer-service, and terminal-task adapters.
 7. HTTP/subprocess oracle protocol with content-addressed result cache.
 8. Formula dimensional analysis and safe interval propagation.
 9. Selection hysteresis, failure-domain diversity, capability thresholds, and
    recomputation after dynamic filtering.
-10. Manifest authentication and checkpointed or sharded publication history.
+10. Autonomous trust-root rotation (likely TUF), checkpoint sharding, and
+    signed multi-frontier selection references.

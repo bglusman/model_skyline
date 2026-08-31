@@ -56,9 +56,28 @@ deliberately.
 
 Snapshot hashes detect corruption and provide content identity; they are not
 signatures. A party that can replace a manifest can also recompute its hash.
-Resolvers therefore require HTTPS by default and should pin expected selection,
-frontier, and workload identities. Use a trusted origin until signed-manifest
-support exists.
+The unsigned `DynamicResolver` therefore requires HTTPS by default and should
+pin expected selection, frontier, and workload identities on a trusted origin.
+
+For untrusted distribution, use the signed gateway profile in
+[`ADR 0003`](docs/adr/0003-signed-gateway-selection-protocol.md). Its security
+boundary includes locally provisioned Ed25519 keys, audience/channel policy,
+durable sequence state, exact artifact bytes, and immutable local target
+revisions. Production private keys never belong in ModelSkyline inputs, test
+vectors, publications, or the resolver host. The committed `*.test-seed.hex`
+files are public deterministic conformance inputs, not credentials. Place the
+SQLite state in an operator-owned private directory and retain the returned
+route for one work unit; deleting or restoring checkpoint state can reopen a
+rollback window. The reference store enforces mode `0700` on its final parent
+and mode `0600` on the database/WAL/shared-memory files; create a dedicated
+directory rather than placing the database directly in a typical `0755`
+checkout or service working directory.
+
+Trusted UTC is part of the signed resolver's security boundary. The reference
+resolver fails closed on an observed backward clock step, compares restart time
+to durable installation time, and rechecks time after network I/O. Monitor host
+time synchronization; rolling back both the clock and private state directory
+is outside the process-local defense.
 
 The repository owner must enable GitHub private vulnerability reporting as
 part of creating the public repository. If the private reporting button is not

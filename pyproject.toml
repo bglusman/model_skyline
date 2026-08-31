@@ -56,6 +56,7 @@ packages = ["src/model_skyline"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "schemas" = "model_skyline/schemas"
+"conformance" = "model_skyline/conformance"
 
 [tool.hatch.build]
 exclude = [
@@ -67,6 +68,7 @@ exclude = [
   "/.venv",
   "/build",
   "/dist",
+  "/AGENTS.md",
 ]
 
 [tool.pytest.ini_options]

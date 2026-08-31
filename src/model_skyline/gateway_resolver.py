@@ -25,11 +25,15 @@ from model_skyline.gateway import (
     GatewayNotYetValidError,
     GatewayProtocolError,
     GatewaySequenceCheckpoint,
+    GatewaySequenceError,
     GatewayTrustPolicy,
     PinnedGatewayRoute,
     StoredGatewayBundle,
     VerifiedGatewaySelection,
     build_stored_gateway_bundle,
+    dsse_payload_bytes,
+    parse_dsse_envelope,
+    parse_gateway_pointer,
     pin_gateway_route,
     verify_gateway_bundle,
     verify_gateway_envelope,
@@ -43,6 +47,10 @@ class GatewayResolverError(RuntimeError):
 
 class GatewayTransportError(GatewayResolverError):
     """A retryable fetch failure occurred before authenticated bytes arrived."""
+
+
+class _LocalTargetBindingsChanged(GatewayProtocolError):
+    """Stored signed state is sound but cannot be routed by the new local policy."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -66,6 +74,9 @@ class GatewayByteFetcher(Protocol):
 class HttpxGatewayFetcher:
     """Bounded exact-byte HTTPS client with redirects and compression disabled."""
 
+    def __init__(self, *, transport: httpx.BaseTransport | None = None) -> None:
+        self.transport = transport
+
     def fetch(
         self,
         url: str,
@@ -82,13 +93,14 @@ class HttpxGatewayFetcher:
         if etag is not None:
             headers["If-None-Match"] = etag
         try:
-            with httpx.stream(
-                "GET",
-                url,
-                headers=headers,
-                timeout=httpx.Timeout(timeout_seconds),
-                follow_redirects=False,
-            ) as response:
+            with (
+                httpx.Client(
+                    transport=self.transport,
+                    timeout=httpx.Timeout(timeout_seconds),
+                    follow_redirects=False,
+                ) as client,
+                client.stream("GET", url, headers=headers) as response,
+            ):
                 if response.status_code == 304:
                     return GatewayFetchResult(payload=None, etag=etag)
                 if response.status_code in {408, 425, 429} or response.status_code >= 500:
@@ -171,6 +183,7 @@ def _validate_pointer_source(source: str, issuer: str) -> str:
         raise ValueError("signed gateway pointer source cannot contain a query or fragment")
     if (
         "\\" in parsed.path
+        or "%" in parsed.path
         or "//" in parsed.path
         or any(part in {".", ".."} for part in parsed.path.split("/"))
     ):
@@ -256,13 +269,20 @@ class SignedGatewayResolver:
         ) = None
         self._last_error: str | None = None
         self._blocked = False
+        self._admission_source: Literal["fresh", "last-known-good"] = "last-known-good"
+        self._last_observed_at: datetime | None = None
         self._load_installed()
 
     def _now(self) -> datetime:
         value = self.clock()
         if value.tzinfo is None:
             raise GatewayResolverError("resolver clock must return a timezone-aware timestamp")
-        return value.astimezone(UTC)
+        instant = value.astimezone(UTC)
+        if self._last_observed_at is not None and instant < self._last_observed_at:
+            self._blocked = True
+            raise GatewayResolverError("resolver clock moved backward")
+        self._last_observed_at = instant
+        return instant
 
     def _identity(self) -> dict[str, str]:
         return {
@@ -277,6 +297,50 @@ class SignedGatewayResolver:
         if stored is None:
             return
         now = self._now()
+        if now < stored.installed_at:
+            self._blocked = True
+            raise GatewayResolverError("resolver clock precedes the durable installation time")
+        try:
+            verified = self._verify_stored(stored, now=now)
+        except _LocalTargetBindingsChanged:
+            # Preserve the authenticated remote sequence floor, but never
+            # retarget its LKG bytes under a different local revision. A higher
+            # signed sequence can now be fetched and installed with this policy.
+            self._stored = stored
+            self._last_error_class = "security"
+            self._last_error = "local target bindings changed; a higher signed sequence is required"
+            return
+        except GatewayProtocolError as exc:
+            raise GatewayResolverError(f"installed gateway state is untrustworthy: {exc}") from exc
+        if now >= verified.pointer.hard_expires_at or now >= verified.selection.valid_until:
+            self._stored = stored
+            self._last_error_class = "expired"
+            self._last_error = "installed selection reached its hard expiry"
+            self._blocked = True
+            return
+        self._active = verified
+        self._stored = stored
+        self._last_success_at = stored.installed_at
+
+    @staticmethod
+    def _same_stored_bytes(left: StoredGatewayBundle, right: StoredGatewayBundle) -> bool:
+        return (
+            left.checkpoint == right.checkpoint
+            and left.envelope_payload == right.envelope_payload
+            and left.publication_payload == right.publication_payload
+            and left.selection_payload == right.selection_payload
+            and left.target_bindings_payload == right.target_bindings_payload
+        )
+
+    def _verify_stored(
+        self,
+        stored: StoredGatewayBundle,
+        *,
+        now: datetime,
+        checkpoint: GatewaySequenceCheckpoint | None = None,
+    ) -> VerifiedGatewaySelection:
+        """Verify persisted bytes, then derive and exactly match their checkpoint."""
+
         try:
             verified = verify_gateway_bundle(
                 stored.envelope_payload,
@@ -284,18 +348,72 @@ class SignedGatewayResolver:
                 stored.selection_payload,
                 self.policy,
                 now=now,
-                checkpoint=stored.checkpoint,
+                checkpoint=checkpoint,
             )
         except GatewayExpiredError:
-            self._stored = stored
-            self._last_error_class = "expired"
-            self._last_error = "installed selection reached its hard expiry"
-            return
-        except GatewayProtocolError as exc:
-            raise GatewayResolverError(f"installed gateway state is untrustworthy: {exc}") from exc
-        self._active = verified
+            # Expired bytes still carry the anti-rollback floor. Authenticate
+            # and bind that floor at a time when the signed generation was
+            # active; it remains ineligible for admission at ``now``.
+            envelope = parse_dsse_envelope(stored.envelope_payload)
+            pointer = parse_gateway_pointer(dsse_payload_bytes(envelope))
+            historical_time = max(pointer.issued_at, pointer.not_before)
+            verified = verify_gateway_bundle(
+                stored.envelope_payload,
+                stored.publication_payload,
+                stored.selection_payload,
+                self.policy,
+                now=historical_time,
+                checkpoint=checkpoint,
+            )
+        if verified.checkpoint != stored.checkpoint:
+            comparable = (
+                "trust_namespace",
+                "issuer",
+                "audience",
+                "channel",
+                "sequence",
+                "payload_sha256",
+                "publication_artifact_sha256",
+                "selection_artifact_sha256",
+                "selection_snapshot_id",
+                "hard_expires_at",
+            )
+            if all(
+                getattr(verified.checkpoint, field) == getattr(stored.checkpoint, field)
+                for field in comparable
+            ):
+                raise _LocalTargetBindingsChanged
+            raise GatewaySequenceError(
+                "stored checkpoint is not exactly derived from its verified signed bundle"
+            )
+        return verified
+
+    def _synchronize_durable(self, now: datetime) -> bool:
+        """Adopt a concurrently installed generation before admission.
+
+        The durable read is the admission linearization point. A generation
+        committed after this read applies to the next work-unit admission.
+        """
+
+        stored = self.store.load(**self._identity())
+        if stored is None:
+            if self._stored is not None or self._active is not None:
+                raise GatewayProtocolError("durable gateway installation disappeared")
+            return False
+        if self._stored is not None and self._same_stored_bytes(stored, self._stored):
+            return False
+        baseline = None if self._stored is None else self._stored.checkpoint
+        verified = self._verify_stored(stored, now=now, checkpoint=baseline)
+        if now >= verified.pointer.hard_expires_at or now >= verified.selection.valid_until:
+            raise GatewayExpiredError("durable gateway installation reached its hard expiry")
         self._stored = stored
+        self._active = verified
         self._last_success_at = stored.installed_at
+        self._last_error_class = None
+        self._last_error = None
+        self._blocked = False
+        self._admission_source = "fresh"
+        return True
 
     def _checkpoint(self) -> GatewaySequenceCheckpoint | None:
         return self.store.current(**self._identity())
@@ -355,12 +473,13 @@ class SignedGatewayResolver:
             expected_media_type=GATEWAY_SELECTION_MEDIA_TYPE,
             stored_payload=stored_selection,
         )
+        commit_time = self._now()
         verified = verify_gateway_bundle(
             envelope_payload,
             publication_payload,
             selection_payload,
             self.policy,
-            now=now,
+            now=commit_time,
             checkpoint=self._checkpoint(),
         )
         bundle = build_stored_gateway_bundle(
@@ -368,7 +487,7 @@ class SignedGatewayResolver:
             envelope_payload=envelope_payload,
             publication_payload=publication_payload,
             selection_payload=selection_payload,
-            installed_at=now,
+            installed_at=commit_time,
         )
         # This commit is the linearization point.  Do not expose ``verified``
         # before the durable checkpoint and exact LKG bytes exist together.
@@ -376,10 +495,11 @@ class SignedGatewayResolver:
         self._stored = bundle
         self._active = verified
         self._etag = envelope_result.etag
-        self._last_success_at = now
+        self._last_success_at = commit_time
         self._last_error_class = None
         self._last_error = None
         self._blocked = False
+        self._admission_source = "fresh"
         return verified
 
     def _active_usable(self, now: datetime, minimum_headroom: timedelta) -> bool:
@@ -406,29 +526,56 @@ class SignedGatewayResolver:
                 or monotonic_now - self._last_attempt_monotonic
                 >= self.refresh_interval.total_seconds()
             )
-            admission_source: Literal["fresh", "last-known-good"] = "fresh"
             if refresh_due:
                 self._last_attempt_monotonic = monotonic_now
                 self._last_attempt_at = now
                 try:
                     self._refresh(now)
                 except GatewayTransportError as exc:
-                    self._last_error_class = "transport"
-                    self._last_error = str(exc)[:512]
+                    now = self._now()
+                    if self._blocked:
+                        if not (
+                            self._last_error_class == "security"
+                            and self.allow_unexpired_lkg_after_security_error
+                            and self._active_usable(now, minimum_headroom)
+                        ):
+                            raise GatewayResolverError(
+                                "signed gateway admissions remain blocked"
+                            ) from exc
+                    else:
+                        self._last_error_class = "transport"
+                        self._last_error = str(exc)[:512]
                     if not self._active_usable(now, minimum_headroom):
                         raise
-                    admission_source = "last-known-good"
+                    self._admission_source = "last-known-good"
                 except GatewayNotYetValidError as exc:
-                    self._last_error_class = "not-yet-valid"
-                    self._last_error = str(exc)[:512]
+                    now = self._now()
+                    if self._blocked:
+                        if not (
+                            self._last_error_class == "security"
+                            and self.allow_unexpired_lkg_after_security_error
+                            and self._active_usable(now, minimum_headroom)
+                        ):
+                            raise GatewayResolverError(
+                                "signed gateway admissions remain blocked"
+                            ) from exc
+                    else:
+                        self._last_error_class = "not-yet-valid"
+                        self._last_error = str(exc)[:512]
                     if not self._active_usable(now, minimum_headroom):
                         raise GatewayResolverError(str(exc)) from exc
-                    admission_source = "last-known-good"
+                    self._admission_source = "last-known-good"
                 except GatewayExpiredError as exc:
                     self._last_error_class = "expired"
                     self._last_error = str(exc)[:512]
+                    self._blocked = True
                     raise GatewayResolverError(str(exc)) from exc
                 except GatewayProtocolError as exc:
+                    now = self._now()
+                    if self._blocked and self._last_error_class != "security":
+                        raise GatewayResolverError(
+                            "signed gateway admissions remain blocked"
+                        ) from exc
                     self._last_error_class = "security"
                     self._last_error = str(exc)[:512]
                     self._blocked = True
@@ -439,9 +586,27 @@ class SignedGatewayResolver:
                         raise GatewayResolverError(
                             f"signed gateway refresh failed closed: {exc}"
                         ) from exc
-                    admission_source = "last-known-good"
-            elif self._blocked and not self.allow_unexpired_lkg_after_security_error:
+                    self._admission_source = "last-known-good"
+            elif self._blocked and (
+                self._last_error_class != "security"
+                or not self.allow_unexpired_lkg_after_security_error
+            ):
                 raise GatewayResolverError("signed gateway admissions remain blocked")
+            now = self._now()
+            try:
+                self._synchronize_durable(now)
+            except GatewayExpiredError as exc:
+                self._last_error_class = "expired"
+                self._last_error = str(exc)[:512]
+                self._blocked = True
+                raise GatewayResolverError(str(exc)) from exc
+            except GatewayProtocolError as exc:
+                self._last_error_class = "security"
+                self._last_error = str(exc)[:512]
+                self._blocked = True
+                raise GatewayResolverError(
+                    f"durable gateway synchronization failed closed: {exc}"
+                ) from exc
             if self._active is None:
                 raise GatewayResolverError("no verified gateway selection is installed")
             try:
@@ -450,7 +615,7 @@ class SignedGatewayResolver:
                     now=now,
                     required_capabilities=required_capabilities,
                     minimum_headroom=minimum_headroom,
-                    admission_source=admission_source,
+                    admission_source=self._admission_source,
                 )
             except GatewayProtocolError as exc:
                 raise GatewayResolverError(str(exc)) from exc
