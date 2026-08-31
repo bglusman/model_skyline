@@ -1,0 +1,330 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "workload": {
+    "id": "agent-turn-metered-v1",
+    "version": "1.0.0",
+    "unit": "successful_turn"
+  },
+  "offerings": [
+    {
+      "offering": {
+        "offering_id": "openrouter/z-ai/glm-5.3-flash",
+        "model_id": "glm-5.3-flash",
+        "provider": "openrouter",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "aa_intelligence_index": 57,
+        "context_window": 1310720
+      },
+      "default_source": {
+        "id": "openrouter-example-v1",
+        "version": "1",
+        "license": "MIT (derived); upstream terms preserved",
+        "methodology": "Example: metered cost per successful turn at the 30-day OpenClaw token shape (uncached 14592, cache-read 166621, output 592) vs AA Intelligence Index. Excluded for missing verified AA score: deepseek-v4-pro-0813, kimi-k3, minimax-m3."
+      },
+      "signals": {
+        "aa_intelligence_index": {
+          "value": "57",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "14592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "166621",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "0.075",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.015",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "0.25",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "openrouter/z-ai/glm-5.3",
+        "model_id": "glm-5.3",
+        "provider": "openrouter",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "aa_intelligence_index": 60,
+        "context_window": 1310720
+      },
+      "default_source": {
+        "id": "openrouter-example-v1",
+        "version": "1",
+        "license": "MIT (derived); upstream terms preserved",
+        "methodology": "Example: metered cost per successful turn at the 30-day OpenClaw token shape (uncached 14592, cache-read 166621, output 592) vs AA Intelligence Index. Excluded for missing verified AA score: deepseek-v4-pro-0813, kimi-k3, minimax-m3."
+      },
+      "signals": {
+        "aa_intelligence_index": {
+          "value": "60",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "14592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "166621",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "1.4",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.26",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "4.4",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "openrouter/qwen/qwen3.8-27b",
+        "model_id": "qwen3.8-27b",
+        "provider": "openrouter",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "aa_intelligence_index": 43,
+        "context_window": 1000000
+      },
+      "default_source": {
+        "id": "openrouter-example-v1",
+        "version": "1",
+        "license": "MIT (derived); upstream terms preserved",
+        "methodology": "Example: metered cost per successful turn at the 30-day OpenClaw token shape (uncached 14592, cache-read 166621, output 592) vs AA Intelligence Index. Excluded for missing verified AA score: deepseek-v4-pro-0813, kimi-k3, minimax-m3."
+      },
+      "signals": {
+        "aa_intelligence_index": {
+          "value": "43",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "14592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "166621",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "0.425",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.08499999999999999",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "2.5500000000000003",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "openrouter/qwen/qwen3.8-2.4t-a95b",
+        "model_id": "qwen3.8-2.4t-a95b",
+        "provider": "openrouter",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "aa_intelligence_index": 52,
+        "context_window": 1048576
+      },
+      "default_source": {
+        "id": "openrouter-example-v1",
+        "version": "1",
+        "license": "MIT (derived); upstream terms preserved",
+        "methodology": "Example: metered cost per successful turn at the 30-day OpenClaw token shape (uncached 14592, cache-read 166621, output 592) vs AA Intelligence Index. Excluded for missing verified AA score: deepseek-v4-pro-0813, kimi-k3, minimax-m3."
+      },
+      "signals": {
+        "aa_intelligence_index": {
+          "value": "52",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "14592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "166621",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "2.0",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.25",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "6.0",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "openrouter/deepseek/deepseek-v4-flash-0731",
+        "model_id": "deepseek-v4-flash-0731",
+        "provider": "openrouter",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "text",
+          "tools",
+          "structured_output"
+        ]
+      },
+      "metadata": {
+        "aa_intelligence_index": 52,
+        "context_window": 1310720
+      },
+      "default_source": {
+        "id": "openrouter-example-v1",
+        "version": "1",
+        "license": "MIT (derived); upstream terms preserved",
+        "methodology": "Example: metered cost per successful turn at the 30-day OpenClaw token shape (uncached 14592, cache-read 166621, output 592) vs AA Intelligence Index. Excluded for missing verified AA score: deepseek-v4-pro-0813, kimi-k3, minimax-m3."
+      },
+      "signals": {
+        "aa_intelligence_index": {
+          "value": "52",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_uncached_tokens_per_success": {
+          "value": "14592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_cache_read_tokens_per_success": {
+          "value": "166621",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "output_tokens_per_success": {
+          "value": "592",
+          "unit": "tokens/success",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_uncached_usd_per_million": {
+          "value": "0.065",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.016",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        },
+        "output_usd_per_million": {
+          "value": "0.18",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-08-31T23:15:00Z"
+        }
+      }
+    }
+  ]
+}
