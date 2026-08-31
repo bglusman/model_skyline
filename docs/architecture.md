@@ -97,8 +97,10 @@ materially from Python, ADR 0001 should be reopened.
 
 `MetricDefinition`
 : One of `signal`, `formula`, or `oracle`. Formula inputs are offering signals,
-  numeric workload variables, and numeric metadata. An oracle is resolved from
-  an explicit `(name, version)` registry.
+  numeric workload variables, and numeric metadata. A published benchmark
+  result is normally imported as a workload-bound signal. An oracle is a
+  host-run evaluator or judge resolved from an explicit `(name, version)`
+  registry; it is not a synonym for every quality benchmark.
 
 `FrontierDefinition`
 : Workload reference, two metric/goal pairs, eligibility, freshness and sample
@@ -125,7 +127,10 @@ materially from Python, ADR 0001 should be reopened.
 ## Metric evaluation
 
 Signal metrics copy a canonical observation after checking unit, freshness,
-sample count, and interval requirements.
+sample count, and interval requirements. Benchmark adapters should materialize
+published or locally generated results as signals after binding the exact
+benchmark release, task cohort, harness, configuration, budget, and offering or
+agent-system identity. A score is not a timeless property of a bare model.
 
 Formula metrics use a small non-Turing-complete grammar with decimal
 arithmetic. Available roots are `signals`, `workload`, and `metadata`.
@@ -148,8 +153,14 @@ populated only when every evaluated signal observation supplies that field;
 from only the known subset.
 
 A source id maps to exactly one full descriptor within a catalog, project, or
-published snapshot. Reusing an id with a different version, URL, methodology,
-hash, or retrieval time is rejected rather than conflating watermarks. Source
+published snapshot, and the engine also requires matching descriptors across
+the selected workload and catalog. Reusing an id with a different version,
+URL, methodology, hash, or retrieval time is rejected rather than conflating
+watermarks. Every `max_source_age_hours` key must resolve to a source declared
+by that workload or catalog; an unknown or misspelled id is an evaluation error,
+while a known source limit applies only to axis observations that actually use
+that source. These limits compare `Observation.observed_at` with evaluation
+time, not `SourceReference.retrieved_at`. Source
 URLs are public citations: user information, query strings, and fragments are
 forbidden because snapshots must never publish signed URLs or credentials.
 Remote benchmark retrieval is an operator-controlled action: adapters use a
@@ -174,8 +185,21 @@ implemented. Robust interval propagation through formulas is also deferred;
 today a robust frontier rejects formula axes rather than manufacturing unsafe
 bounds.
 
-Oracle metrics are an interface, not a configuration escape hatch. Production
-oracle clients should use an HTTP or JSONL-subprocess protocol and return:
+Weighted quality composites can be formulas when all inputs belong to one
+declared composite workload and missing-value and normalization policies are
+explicit. If uncertainty matters, an adapter should materialize the composite
+as a new observation with its own source and bounds instead of implying that
+the formula engine propagated component intervals. Separate workload frontiers
+plus the overlap policy in [ADR 0002](adr/0002-multi-frontier-overlap-and-proximity.md)
+are preferable when a scalar blend would hide tradeoffs.
+
+Oracle metrics are an interface, not a configuration escape hatch. In v0.6,
+they are usable only by a Python application that registers implementations in
+an `OracleRegistry` and passes it to `FrontierEngine`. The stock `evaluate`,
+`select`, and project publisher paths construct an empty registry; an oracle
+metric therefore rejects its candidates there as unregistered. No HTTP or
+JSONL subprocess transport is implemented yet. A future explicit transport may
+return an observation shaped like:
 
 ```json
 {
@@ -196,6 +220,12 @@ Results should be cached by a content hash covering workload, offering,
 inputs, oracle implementation, prompt, and judge model.
 Arbitrary oracle exception text is never copied into a public rejection
 artifact; adapters should send detailed diagnostics to a private, redacted log.
+
+[ADR 0004](adr/0004-quality-evidence-and-benchmark-bundles.md) defines the
+quality-evidence boundary, reviewed benchmark-to-offering mappings, a small
+benchmark-bundle design, and the adapter/discovery path. The bundle is a
+logical composition of existing workload catalogs and frontiers in v0.6, not a
+new implemented wire artifact.
 
 ## Work-unit cost
 
@@ -547,16 +577,22 @@ does not make ordinary frontier/publication hashes signatures, and it does not
 place provider credentials or endpoints in remote artifacts.
 
 The static publisher provides persistent history, coherent project commit
-markers, retained feeds, and atomic single-file aliases. The repository's
-scheduled GitHub Actions workflow imports only the pinned Apache-2.0 Aider
-bundle, restores durable history from `gh-pages`, validates a public
-publication in a read-only build job, and uses a separate write-authorized job
-to advance that branch without force-pushing. The repository's Pages setting
-still must be activated, and that workflow does not yet publish a signed gateway
-channel or provide monitoring/general hosting. Production “always current”
-operation needs alerting and an explicit retention policy. `DynamicResolver`
-state remains process-local; `SignedGatewayResolver` uses a durable checkpoint
-and exact last-known-good bundle.
+markers, retained feeds, and atomic single-file aliases. One scheduled workflow
+imports the pinned Apache-2.0 Aider bundle. A second daily/manual workflow joins
+three reviewed Aider GPT-5 routes to the exact models.dev URL and retains every
+five-file projection under a content-addressed evidence tree. Both restore
+durable `gh-pages` state, validate in read-only build jobs, serialize updates,
+and use small write-authorized jobs without force-pushing. Valid prices advance
+the models.dev research feed automatically; unsupported pricing shapes and
+mapping drift fail closed.
+
+Pages aliases remain static after source evidence expires. Neither workflow
+provides failure monitoring, a spend-change approval gate, or a signed routing
+selection. Production “always current” operation therefore needs alerts,
+watermark checks, an explicit retention policy, and the separately reviewed
+signed gateway channel with hard TTL. `DynamicResolver` state remains
+process-local; `SignedGatewayResolver` uses a durable checkpoint and exact
+last-known-good bundle.
 
 ## Near-term roadmap
 
@@ -567,12 +603,15 @@ and exact last-known-good bundle.
    cache-aware coding cost; then OpenTelemetry GenAI and OpenInference inputs.
 3. Current provider/catalog joins for the implemented Aider and MCPMark
    benchmark adapters, with explicit historical versus counterfactual labels.
-4. Activate and monitor Pages for the scheduled Aider publication, then add a
-   signed gateway channel and signing-key operational profile.
+4. Activate and monitor both scheduled Pages research publications, then add a
+   reviewed signed gateway channel and signing-key operational profile.
 5. Build Wardwright as the first native signed-protocol consumer, followed by
    gateway and framework adapters described in `gateway-integrations.md`.
-6. Broader licensed research, customer-service, and terminal-task adapters.
-7. HTTP/subprocess oracle protocol with content-addressed result cache.
+6. A Harbor leaderboard JSON/Terminal-Bench adapter, fixed-harness SWE-bench
+   results, then Inspect/lm-eval adapters and broader licensed research,
+   customer-service, and reasoning bundles under ADR 0004.
+7. HTTP/subprocess oracle protocol, declared option schemas, exact result
+   bindings, and a content-addressed result cache.
 8. Formula dimensional analysis and safe interval propagation.
 9. Selection hysteresis, failure-domain diversity, capability thresholds, and
    recomputation after dynamic filtering.

@@ -13,6 +13,14 @@ ModelSkyline snapshots never need provider API keys. Keep secrets in the
 execution gateway or adapter environment and do not place them in policy,
 observations, metadata, RSS, or published artifacts.
 
+The models.dev projection copies reviewed mapping `evidence` into offering
+metadata. Mapping files are public-artifact inputs, not private reviewer notes;
+do not include credentials, personal data, customer identifiers, private paths,
+or confidential context. Remote pricing retrieval is limited to the exact
+official `https://models.dev/api.json` URL. Use a bounded local file for mirrors
+or operator-supplied compatible catalogs, which receive unasserted provenance
+unless an exact hash-pinned local snapshot is explicitly asserted as official.
+
 Framework adapters accept narrower accounting projections than the raw
 runtime surfaces. Keep Codex JSONL, Claude result/transcript state, OpenClaw
 events, Hermes reports/databases, collector HMAC keys, and pseudonymization

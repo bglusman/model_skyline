@@ -361,6 +361,41 @@ def test_generated_config_schema_enforces_optional_decimal_constraints(
         _valid(schema, payload)
 
 
+def test_generated_config_schema_accepts_source_specific_freshness_limits(
+    example_config: ProjectConfig,
+) -> None:
+    schema = generated_schemas()["project-config.schema.json"]
+    payload = example_config.model_dump(mode="json")
+    payload["frontiers"]["coding-value"]["eligibility"]["max_source_age_hours"] = {
+        "models-dev-api": "48"
+    }
+
+    _valid(schema, payload)
+
+
+@pytest.mark.parametrize(
+    ("source_id", "limit"),
+    [
+        ("models-dev-api", True),
+        ("models-dev-api", "0"),
+        ("models-dev-api", "-1"),
+        ("", "1"),
+        ("x" * 513, "1"),
+    ],
+)
+def test_generated_config_schema_rejects_invalid_source_freshness_limit(
+    source_id: str,
+    limit: object,
+    example_config: ProjectConfig,
+) -> None:
+    schema = generated_schemas()["project-config.schema.json"]
+    payload = example_config.model_dump(mode="json")
+    payload["frontiers"]["coding-value"]["eligibility"]["max_source_age_hours"] = {source_id: limit}
+
+    with pytest.raises(JsonSchemaValidationError):
+        _valid(schema, payload)
+
+
 @pytest.mark.parametrize("bad_success", ["-1", "2", "0.1234567891"])
 def test_generated_trace_schema_matches_decimal_runtime_constraints(
     bad_success: str,

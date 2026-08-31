@@ -1,0 +1,656 @@
+name: Publish models.dev GPT-5 data
+
+on:
+  schedule:
+    # The projection's selected pricing observations expire after 48 hours.
+    - cron: "17 7 * * *"
+  workflow_dispatch:
+
+# GitHub Pages aliases remain retrievable after their evidence ages out; they
+# do not enforce freshness. Agent consumers must check source-watermark age and
+# use separately reviewed, signed TTL selection artifacts for routing.
+
+# Both publication workflows update one durable branch. Serializing the full
+# build/publish pair also makes each build's previous_publication_id meaningful.
+concurrency:
+  group: modelskyline-gh-pages-publication
+  cancel-in-progress: false
+
+permissions: {}
+
+env:
+  EVIDENCE_SUBPATH: models-dev-gpt5-evidence
+  PUBLICATION_SUBPATH: models-dev-gpt5
+  PROJECT_ID: aider-gpt5-models-dev
+
+jobs:
+  build:
+    if: >-
+      github.repository == 'bglusman/model_skyline' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.14"
+          enable-cache: true
+      - run: uv sync --frozen
+
+      - name: Restore retained publication and evidence state
+        shell: bash
+        env:
+          PUBLICATION_SITE: ${{ runner.temp }}/modelskyline-site
+        run: |
+          set -euo pipefail
+          mkdir -p "${PUBLICATION_SITE}"
+          gh_pages_ref="$(git ls-remote --heads origin refs/heads/gh-pages)"
+          if [[ -n "${gh_pages_ref}" ]]; then
+            git fetch --no-tags --depth=1 origin \
+              gh-pages:refs/remotes/origin/gh-pages
+            for retained_subpath in \
+              "${PUBLICATION_SUBPATH}" \
+              "${EVIDENCE_SUBPATH}"
+            do
+              if git cat-file -e \
+                "origin/gh-pages:${retained_subpath}" 2>/dev/null; then
+                object_type="$(git cat-file -t \
+                  "origin/gh-pages:${retained_subpath}")"
+                if [[ "${object_type}" != "tree" ]]; then
+                  echo "Refusing to restore non-directory retained state" >&2
+                  exit 1
+                fi
+                git archive origin/gh-pages "${retained_subpath}" | \
+                  tar --extract --no-same-owner --no-same-permissions \
+                    --directory "${PUBLICATION_SITE}"
+              fi
+            done
+          fi
+          mkdir -p \
+            "${PUBLICATION_SITE}/${PUBLICATION_SUBPATH}" \
+            "${PUBLICATION_SITE}/${EVIDENCE_SUBPATH}"
+          if find "${PUBLICATION_SITE}" -type l -print -quit | grep -q .; then
+            echo "Refusing to restore retained state containing symbolic links" >&2
+            exit 1
+          fi
+          if find "${PUBLICATION_SITE}" \
+            ! -type f ! -type d -print -quit | grep -q .; then
+            echo "Refusing to restore retained state containing special files" >&2
+            exit 1
+          fi
+
+      - name: Acquire and project exact reviewed routes
+        shell: bash
+        env:
+          EXPECTED_MAPPING_SHA256: 857fc6a13f9977d16411364067932403f94fa12aeb07757c181802f78c95c9c5
+          MAPPING: examples/mappings/aider-gpt5-models-dev.json
+          PROJECTION: ${{ runner.temp }}/aider-gpt5-models-dev
+        run: |
+          set -euo pipefail
+          actual_mapping_sha256="$(sha256sum "${MAPPING}" | awk '{print $1}')"
+          if [[ "${actual_mapping_sha256}" != "${EXPECTED_MAPPING_SHA256}" ]]; then
+            echo "The reviewed mapping changed without updating its workflow pin" >&2
+            exit 1
+          fi
+          uv run modelskyline project-aider-models-dev \
+            "${PROJECTION}" \
+            "${MAPPING}" \
+            --aider-expected-sha256 \
+            85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de \
+            --pricing-source "https://models.dev/api.json"
+          for evidence_file in \
+            observations.json \
+            frontier.yaml \
+            mapping.json \
+            selected-prices.json \
+            projection.json
+          do
+            test -f "${PROJECTION}/${evidence_file}"
+          done
+          projection_file_count="$(find "${PROJECTION}" \
+            -mindepth 1 -maxdepth 1 -type f | wc -l)"
+          [[ "${projection_file_count}" -eq 5 ]]
+          if find "${PROJECTION}" -mindepth 1 -maxdepth 1 \
+            ! -type f -print -quit | grep -q .; then
+            echo "Projection output must contain exactly five regular files" >&2
+            exit 1
+          fi
+          cmp --silent "${MAPPING}" "${PROJECTION}/mapping.json"
+          selected_prices_sha256="$(sha256sum \
+            "${PROJECTION}/selected-prices.json" | awk '{print $1}')"
+          jq -e --arg mapping_sha "${EXPECTED_MAPPING_SHA256}" '
+            .schema_version == "model-skyline/models-dev-projection/v1alpha1" and
+            .adapter == "aider-models-dev" and
+            .scenario == "cache_disabled" and
+            .pricing_max_age_hours == "48" and
+            .mapping_sha256 == $mapping_sha and
+            .mapping_count == 3 and
+            (.selected_prices_sha256 | test("^[0-9a-f]{64}$")) and
+            .sources.benchmark.id == "aider-polyglot-leaderboard" and
+            .sources.benchmark.license == "Apache-2.0" and
+            .sources.pricing_catalog.id == "models-dev-api" and
+            .sources.pricing_catalog.url == "https://models.dev/api.json" and
+            .sources.pricing_catalog.license == "MIT" and
+            .sources.selected_prices.id ==
+              "models-dev-selected-cache-disabled-prices" and
+            .sources.selected_prices.license == "MIT"
+          ' "${PROJECTION}/projection.json" >/dev/null
+          jq -e --arg selected_prices_sha "${selected_prices_sha256}" '
+            .selected_prices_sha256 == $selected_prices_sha and
+            .outputs.selected_prices == "selected-prices.json"
+          ' "${PROJECTION}/projection.json" >/dev/null
+          jq -e '
+            .workload.id == "aider-polyglot" and
+            (.offerings | length) == 3
+          ' "${PROJECTION}/observations.json" >/dev/null
+
+      - name: Build and validate the public publication
+        shell: bash
+        env:
+          EVIDENCE_ROOT: ${{ runner.temp }}/modelskyline-site/models-dev-gpt5-evidence
+          PROJECTION: ${{ runner.temp }}/aider-gpt5-models-dev
+          PUBLICATION_ROOT: ${{ runner.temp }}/modelskyline-site/models-dev-gpt5
+        run: |
+          set -euo pipefail
+          uv run modelskyline publish-project \
+            "${PROJECTION}/frontier.yaml" \
+            "${PUBLICATION_ROOT}" \
+            --project-id "${PROJECT_ID}" \
+            --catalog "${PROJECTION}/observations.json" \
+            --base-url \
+            "https://bglusman.github.io/model_skyline/${PUBLICATION_SUBPATH}" \
+            --public \
+            --allow-license Apache-2.0 \
+            --allow-license MIT
+
+          jq -e --arg project_id "${PROJECT_ID}" '
+            .project_id == $project_id and
+            .policy.public == true and
+            .policy.allowed_licenses == ["Apache-2.0", "MIT"] and
+            .policy.authorized_source_ids == [] and
+            .selections == [] and
+            ([.frontiers[].frontier_id] | sort) == [
+              "price-snapshot-cost-per-attempted-vs-solve-rate",
+              "price-snapshot-cost-per-solved-vs-solve-rate",
+              "price-snapshot-reconstructed-token-cost-vs-solve-rate"
+            ]
+          ' "${PUBLICATION_ROOT}/latest.json" >/dev/null
+          for frontier_id in \
+            price-snapshot-cost-per-attempted-vs-solve-rate \
+            price-snapshot-cost-per-solved-vs-solve-rate \
+            price-snapshot-reconstructed-token-cost-vs-solve-rate
+          do
+            snapshot="${PUBLICATION_ROOT}/frontiers/${frontier_id}/latest.json"
+            jq -e '
+              (.evaluated | length) == 3 and
+              (.rejected | length) == 0
+            ' "${snapshot}" >/dev/null
+            test -s "${PUBLICATION_ROOT}/frontiers/${frontier_id}/table.csv"
+            test -s "${PUBLICATION_ROOT}/frontiers/${frontier_id}/table.txt"
+            test -s "${PUBLICATION_ROOT}/feeds/${frontier_id}.xml"
+          done
+          if find "${PUBLICATION_ROOT}" -type l -print -quit | grep -q .; then
+            echo "Refusing to publish a tree containing symbolic links" >&2
+            exit 1
+          fi
+          if find "${PUBLICATION_ROOT}" ! -type f ! -type d -print -quit | grep -q .; then
+            echo "Refusing to publish a tree containing special files" >&2
+            exit 1
+          fi
+
+          bundle_digest() {
+            local bundle_root="$1"
+            jq -cnS \
+              --arg observations "$(sha256sum \
+                "${bundle_root}/observations.json" | awk '{print $1}')" \
+              --arg frontier "$(sha256sum \
+                "${bundle_root}/frontier.yaml" | awk '{print $1}')" \
+              --arg mapping "$(sha256sum \
+                "${bundle_root}/mapping.json" | awk '{print $1}')" \
+              --arg selected "$(sha256sum \
+                "${bundle_root}/selected-prices.json" | awk '{print $1}')" \
+              --arg projection "$(sha256sum \
+                "${bundle_root}/projection.json" | awk '{print $1}')" \
+              '{
+                "frontier.yaml": $frontier,
+                "mapping.json": $mapping,
+                "observations.json": $observations,
+                "projection.json": $projection,
+                "selected-prices.json": $selected
+              }' | sha256sum | awk '{print $1}'
+          }
+
+          pricing_catalog_sha="$(jq -er \
+            '.sources.pricing_catalog.raw_sha256 | select(type == "string")' \
+            "${PROJECTION}/projection.json")"
+          selected_prices_sha="$(jq -er \
+            '.selected_prices_sha256 | select(type == "string")' \
+            "${PROJECTION}/projection.json")"
+          mapping_sha="$(jq -er \
+            '.mapping_sha256 | select(type == "string")' \
+            "${PROJECTION}/projection.json")"
+          pricing_retrieved_at="$(jq -er \
+            '.sources.pricing_catalog.retrieved_at | select(type == "string")' \
+            "${PROJECTION}/projection.json")"
+          [[ "${pricing_catalog_sha}" =~ ^[0-9a-f]{64}$ ]]
+          [[ "${selected_prices_sha}" =~ ^[0-9a-f]{64}$ ]]
+          [[ "${mapping_sha}" =~ ^[0-9a-f]{64}$ ]]
+          bundle_sha="$(bundle_digest "${PROJECTION}")"
+          [[ "${bundle_sha}" =~ ^[0-9a-f]{64}$ ]]
+          archive_relative="snapshots/${pricing_catalog_sha}/${bundle_sha}"
+          archive_root="${EVIDENCE_ROOT}/${archive_relative}"
+          mkdir -p "${archive_root}"
+          for evidence_file in \
+            observations.json \
+            frontier.yaml \
+            mapping.json \
+            selected-prices.json \
+            projection.json
+          do
+            if [[ -e "${archive_root}/${evidence_file}" ]]; then
+              cmp --silent \
+                "${PROJECTION}/${evidence_file}" \
+                "${archive_root}/${evidence_file}"
+            else
+              cp "${PROJECTION}/${evidence_file}" \
+                "${archive_root}/${evidence_file}"
+            fi
+          done
+
+          publication_id="$(jq -er \
+            '.publication_id | select(type == "string")' \
+            "${PUBLICATION_ROOT}/latest.json")"
+          previous_pointer_id=""
+          if [[ -s "${EVIDENCE_ROOT}/latest.json" ]]; then
+            previous_pointer_id="$(jq -er \
+              '.pointer_id | select(type == "string")' \
+              "${EVIDENCE_ROOT}/latest.json")"
+            [[ "${previous_pointer_id}" =~ ^[0-9a-f]{64}$ ]]
+            restored_pointer_id="$(jq -cS 'del(.pointer_id)' \
+              "${EVIDENCE_ROOT}/latest.json" | \
+              sha256sum | awk '{print $1}')"
+            if [[ "${restored_pointer_id}" != "${previous_pointer_id}" ]]; then
+              echo "Retained evidence latest pointer failed its content hash" >&2
+              exit 1
+            fi
+          fi
+          pointer_tmp="$(mktemp "${EVIDENCE_ROOT}/.latest.XXXXXX")"
+          pointer_candidate="$(jq -nS \
+            --arg publication_id "${publication_id}" \
+            --arg previous_pointer_id "${previous_pointer_id}" \
+            --arg archive_path "${archive_relative}" \
+            --arg evidence_id "${bundle_sha}" \
+            --arg pricing_catalog_sha "${pricing_catalog_sha}" \
+            --arg pricing_retrieved_at "${pricing_retrieved_at}" \
+            --arg selected_prices_sha "${selected_prices_sha}" \
+            --arg mapping_sha "${mapping_sha}" \
+            --arg observations_sha "$(sha256sum \
+              "${PROJECTION}/observations.json" | awk '{print $1}')" \
+            --arg frontier_sha "$(sha256sum \
+              "${PROJECTION}/frontier.yaml" | awk '{print $1}')" \
+            --arg mapping_file_sha "$(sha256sum \
+              "${PROJECTION}/mapping.json" | awk '{print $1}')" \
+            --arg selected_file_sha "$(sha256sum \
+              "${PROJECTION}/selected-prices.json" | awk '{print $1}')" \
+            --arg projection_sha "$(sha256sum \
+              "${PROJECTION}/projection.json" | awk '{print $1}')" \
+            '{
+              schema_version: "model-skyline/models-dev-pages-evidence/v1alpha1",
+              previous_pointer_id: (
+                if $previous_pointer_id == ""
+                then null
+                else $previous_pointer_id
+                end
+              ),
+              evidence_id: $evidence_id,
+              publication_id: $publication_id,
+              archive_path: $archive_path,
+              pricing_catalog: {
+                raw_sha256: $pricing_catalog_sha,
+                retrieved_at: $pricing_retrieved_at
+              },
+              selected_prices_sha256: $selected_prices_sha,
+              mapping_sha256: $mapping_sha,
+              files: {
+                "frontier.yaml": $frontier_sha,
+                "mapping.json": $mapping_file_sha,
+                "observations.json": $observations_sha,
+                "projection.json": $projection_sha,
+                "selected-prices.json": $selected_file_sha
+              }
+            }')"
+          pointer_id="$(printf '%s' "${pointer_candidate}" | \
+            jq -cS . | sha256sum | awk '{print $1}')"
+          printf '%s' "${pointer_candidate}" | \
+            jq -S --arg pointer_id "${pointer_id}" \
+              '. + {pointer_id: $pointer_id}' >"${pointer_tmp}"
+          mv "${pointer_tmp}" "${EVIDENCE_ROOT}/latest.json"
+
+          while IFS= read -r -d '' evidence_file; do
+            relative="${evidence_file#"${EVIDENCE_ROOT}/"}"
+            if [[ "${relative}" != "latest.json" && \
+              ! "${relative}" =~ ^snapshots/[0-9a-f]{64}/[0-9a-f]{64}/(frontier\.yaml|mapping\.json|observations\.json|projection\.json|selected-prices\.json)$ ]]; then
+              echo "Unexpected evidence file path: ${relative}" >&2
+              exit 1
+            fi
+          done < <(find "${EVIDENCE_ROOT}" -type f -print0)
+          while IFS= read -r -d '' evidence_directory; do
+            relative="${evidence_directory#"${EVIDENCE_ROOT}"}"
+            relative="${relative#/}"
+            if [[ -n "${relative}" && "${relative}" != "snapshots" && \
+              ! "${relative}" =~ ^snapshots/[0-9a-f]{64}(/[0-9a-f]{64})?$ ]]; then
+              echo "Unexpected evidence directory path: ${relative}" >&2
+              exit 1
+            fi
+          done < <(find "${EVIDENCE_ROOT}" -type d -print0)
+          while IFS= read -r -d '' retained_bundle; do
+            retained_catalog_sha="$(basename "$(dirname "${retained_bundle}")")"
+            retained_bundle_sha="$(basename "${retained_bundle}")"
+            retained_file_count="$(find "${retained_bundle}" \
+              -mindepth 1 -maxdepth 1 -type f | wc -l)"
+            [[ "${retained_file_count}" -eq 5 ]]
+            [[ "$(bundle_digest "${retained_bundle}")" == \
+              "${retained_bundle_sha}" ]]
+            jq -e --arg catalog_sha "${retained_catalog_sha}" \
+              --arg selected_sha "$(sha256sum \
+                "${retained_bundle}/selected-prices.json" | awk '{print $1}')" \
+              --arg mapping_sha "$(sha256sum \
+                "${retained_bundle}/mapping.json" | awk '{print $1}')" '
+                .sources.pricing_catalog.raw_sha256 == $catalog_sha and
+                .selected_prices_sha256 == $selected_sha and
+                .mapping_sha256 == $mapping_sha and
+                .outputs == {
+                  "catalog": "observations.json",
+                  "config": "frontier.yaml",
+                  "mapping": "mapping.json",
+                  "selected_prices": "selected-prices.json"
+                }
+              ' "${retained_bundle}/projection.json" >/dev/null
+          done < <(find "${EVIDENCE_ROOT}/snapshots" \
+            -mindepth 2 -maxdepth 2 -type d -print0)
+
+          jq -e \
+            --arg publication_id "${publication_id}" \
+            --arg archive_path "${archive_relative}" \
+            --arg evidence_id "${bundle_sha}" \
+            --arg pointer_id "${pointer_id}" \
+            --arg previous_pointer_id "${previous_pointer_id}" '
+              .schema_version ==
+                "model-skyline/models-dev-pages-evidence/v1alpha1" and
+              .pointer_id == $pointer_id and
+              .previous_pointer_id == (
+                if $previous_pointer_id == ""
+                then null
+                else $previous_pointer_id
+                end
+              ) and
+              .publication_id == $publication_id and
+              .archive_path == $archive_path and
+              .evidence_id == $evidence_id and
+              (.files | keys | sort) == [
+                "frontier.yaml",
+                "mapping.json",
+                "observations.json",
+                "projection.json",
+                "selected-prices.json"
+              ]
+            ' "${EVIDENCE_ROOT}/latest.json" >/dev/null
+          [[ "$(jq -cS 'del(.pointer_id)' \
+            "${EVIDENCE_ROOT}/latest.json" | \
+            sha256sum | awk '{print $1}')" == "${pointer_id}" ]]
+          if find "${EVIDENCE_ROOT}" -type l -print -quit | grep -q .; then
+            echo "Refusing to publish evidence containing symbolic links" >&2
+            exit 1
+          fi
+          if find "${EVIDENCE_ROOT}" \
+            ! -type f ! -type d -print -quit | grep -q .; then
+            echo "Refusing to publish evidence containing special files" >&2
+            exit 1
+          fi
+
+      - name: Upload validated publication and evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: models-dev-gpt5-site
+          path: |
+            ${{ runner.temp }}/modelskyline-site/models-dev-gpt5
+            ${{ runner.temp }}/modelskyline-site/models-dev-gpt5-evidence
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 1
+
+  publish:
+    needs: build
+    if: >-
+      github.repository == 'bglusman/model_skyline' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download validated publication and evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: models-dev-gpt5-site
+          path: ${{ runner.temp }}/modelskyline-site
+
+      # This job receives write authority but never installs dependencies or
+      # executes repository or artifact code.
+      - name: Check out repository for authenticated Git transport
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+
+      - name: Commit publication without rewriting history
+        shell: bash
+        env:
+          INCOMING_SITE: ${{ runner.temp }}/modelskyline-site
+        run: |
+          set -euo pipefail
+          incoming_publication_root="${INCOMING_SITE}/${PUBLICATION_SUBPATH}"
+          incoming_evidence_root="${INCOMING_SITE}/${EVIDENCE_SUBPATH}"
+          test -s "${incoming_publication_root}/latest.json"
+          test -s "${incoming_evidence_root}/latest.json"
+          top_level_count="$(find "${INCOMING_SITE}" \
+            -mindepth 1 -maxdepth 1 -type d | wc -l)"
+          [[ "${top_level_count}" -eq 2 ]]
+          if find "${INCOMING_SITE}" -mindepth 1 -maxdepth 1 \
+            ! -type d -print -quit | grep -q .; then
+            echo "Artifact contains an unexpected top-level entry" >&2
+            exit 1
+          fi
+          if find "${INCOMING_SITE}" -type l -print -quit | grep -q .; then
+            echo "Refusing to publish an artifact containing symbolic links" >&2
+            exit 1
+          fi
+          if find "${INCOMING_SITE}" ! -type f ! -type d -print -quit | grep -q .; then
+            echo "Refusing to publish an artifact containing special files" >&2
+            exit 1
+          fi
+
+          incoming_project_id="$(jq -er '.project_id | select(type == "string")' \
+            "${incoming_publication_root}/latest.json")"
+          incoming_id="$(jq -er '.publication_id | select(type == "string")' \
+            "${incoming_publication_root}/latest.json")"
+          incoming_previous_id="$(jq -r '.previous_publication_id // empty' \
+            "${incoming_publication_root}/latest.json")"
+          [[ "${incoming_project_id}" == "${PROJECT_ID}" ]]
+          [[ "${incoming_id}" =~ ^[0-9a-f]{64}$ ]]
+          [[ -z "${incoming_previous_id}" || \
+            "${incoming_previous_id}" =~ ^[0-9a-f]{64}$ ]]
+          jq -e --arg project_id "${PROJECT_ID}" '
+            .project_id == $project_id and
+            .policy.public == true and
+            .policy.allowed_licenses == ["Apache-2.0", "MIT"] and
+            .policy.authorized_source_ids == [] and
+            .selections == [] and
+            ([.frontiers[].frontier_id] | sort) == [
+              "price-snapshot-cost-per-attempted-vs-solve-rate",
+              "price-snapshot-cost-per-solved-vs-solve-rate",
+              "price-snapshot-reconstructed-token-cost-vs-solve-rate"
+            ]
+          ' "${incoming_publication_root}/latest.json" >/dev/null
+
+          incoming_pointer_id="$(jq -er \
+            '.pointer_id | select(type == "string")' \
+            "${incoming_evidence_root}/latest.json")"
+          incoming_previous_pointer_id="$(jq -r \
+            '.previous_pointer_id // empty' \
+            "${incoming_evidence_root}/latest.json")"
+          evidence_id="$(jq -er '.evidence_id | select(type == "string")' \
+            "${incoming_evidence_root}/latest.json")"
+          evidence_catalog_sha="$(jq -er \
+            '.pricing_catalog.raw_sha256 | select(type == "string")' \
+            "${incoming_evidence_root}/latest.json")"
+          evidence_archive_path="$(jq -er \
+            '.archive_path | select(type == "string")' \
+            "${incoming_evidence_root}/latest.json")"
+          [[ "${incoming_pointer_id}" =~ ^[0-9a-f]{64}$ ]]
+          [[ -z "${incoming_previous_pointer_id}" || \
+            "${incoming_previous_pointer_id}" =~ ^[0-9a-f]{64}$ ]]
+          [[ "${evidence_id}" =~ ^[0-9a-f]{64}$ ]]
+          [[ "${evidence_catalog_sha}" =~ ^[0-9a-f]{64}$ ]]
+          [[ "${evidence_archive_path}" == \
+            "snapshots/${evidence_catalog_sha}/${evidence_id}" ]]
+          computed_evidence_id="$(jq -cS '.files' \
+            "${incoming_evidence_root}/latest.json" | \
+            sha256sum | awk '{print $1}')"
+          [[ "${computed_evidence_id}" == "${evidence_id}" ]]
+          computed_pointer_id="$(jq -cS 'del(.pointer_id)' \
+            "${incoming_evidence_root}/latest.json" | \
+            sha256sum | awk '{print $1}')"
+          [[ "${computed_pointer_id}" == "${incoming_pointer_id}" ]]
+          jq -e --arg publication_id "${incoming_id}" '
+            .schema_version ==
+              "model-skyline/models-dev-pages-evidence/v1alpha1" and
+            .publication_id == $publication_id and
+            (.selected_prices_sha256 | test("^[0-9a-f]{64}$")) and
+            (.mapping_sha256 | test("^[0-9a-f]{64}$")) and
+            (.files | keys | sort) == [
+              "frontier.yaml",
+              "mapping.json",
+              "observations.json",
+              "projection.json",
+              "selected-prices.json"
+            ] and
+            all(.files[]; test("^[0-9a-f]{64}$"))
+          ' "${incoming_evidence_root}/latest.json" >/dev/null
+          evidence_archive="${incoming_evidence_root}/${evidence_archive_path}"
+          for evidence_file in \
+            observations.json \
+            frontier.yaml \
+            mapping.json \
+            selected-prices.json \
+            projection.json
+          do
+            expected_sha="$(jq -er --arg file "${evidence_file}" \
+              '.files[$file]' "${incoming_evidence_root}/latest.json")"
+            actual_sha="$(sha256sum \
+              "${evidence_archive}/${evidence_file}" | awk '{print $1}')"
+            [[ "${actual_sha}" == "${expected_sha}" ]]
+          done
+          archived_selected_sha="$(sha256sum \
+            "${evidence_archive}/selected-prices.json" | awk '{print $1}')"
+          archived_mapping_sha="$(sha256sum \
+            "${evidence_archive}/mapping.json" | awk '{print $1}')"
+          pointer_selected_sha="$(jq -er '.selected_prices_sha256' \
+            "${incoming_evidence_root}/latest.json")"
+          pointer_mapping_sha="$(jq -er '.mapping_sha256' \
+            "${incoming_evidence_root}/latest.json")"
+          [[ "${pointer_selected_sha}" == "${archived_selected_sha}" ]]
+          [[ "${pointer_mapping_sha}" == "${archived_mapping_sha}" ]]
+          jq -e --arg catalog_sha "${evidence_catalog_sha}" \
+            --arg selected_sha "${archived_selected_sha}" \
+            --arg mapping_sha "${archived_mapping_sha}" '
+              .sources.pricing_catalog.id == "models-dev-api" and
+              .sources.pricing_catalog.url == "https://models.dev/api.json" and
+              .sources.pricing_catalog.license == "MIT" and
+              .sources.pricing_catalog.raw_sha256 == $catalog_sha and
+              .selected_prices_sha256 == $selected_sha and
+              .mapping_sha256 == $mapping_sha
+            ' "${evidence_archive}/projection.json" >/dev/null
+
+          gh_pages_ref="$(git ls-remote --heads origin refs/heads/gh-pages)"
+          if [[ -n "${gh_pages_ref}" ]]; then
+            git fetch --no-tags --depth=1 origin \
+              gh-pages:refs/remotes/origin/gh-pages
+            if git cat-file -e \
+              "origin/gh-pages:${PUBLICATION_SUBPATH}/latest.json" 2>/dev/null; then
+              current_id="$(git show \
+                "origin/gh-pages:${PUBLICATION_SUBPATH}/latest.json" | \
+                jq -er '.publication_id | select(type == "string")')"
+              if [[ "${incoming_id}" != "${current_id}" && \
+                "${incoming_previous_id}" != "${current_id}" ]]; then
+                echo "The durable publication advanced after this build; retry the run" >&2
+                exit 1
+              fi
+            elif git cat-file -e \
+              "origin/gh-pages:${PUBLICATION_SUBPATH}" 2>/dev/null; then
+              echo "The durable publication path exists without a valid latest pointer" >&2
+              exit 1
+            elif [[ -n "${incoming_previous_id}" ]]; then
+              echo "The durable publication history disappeared after this build" >&2
+              exit 1
+            fi
+            if git cat-file -e \
+              "origin/gh-pages:${EVIDENCE_SUBPATH}/latest.json" 2>/dev/null; then
+              current_pointer_id="$(git show \
+                "origin/gh-pages:${EVIDENCE_SUBPATH}/latest.json" | \
+                jq -er '.pointer_id | select(type == "string")')"
+              current_computed_pointer_id="$(git show \
+                "origin/gh-pages:${EVIDENCE_SUBPATH}/latest.json" | \
+                jq -cS 'del(.pointer_id)' | sha256sum | awk '{print $1}')"
+              if [[ ! "${current_pointer_id}" =~ ^[0-9a-f]{64}$ || \
+                "${current_computed_pointer_id}" != "${current_pointer_id}" ]]; then
+                echo "The durable evidence pointer failed validation" >&2
+                exit 1
+              fi
+              if [[ "${incoming_pointer_id}" != "${current_pointer_id}" && \
+                "${incoming_previous_pointer_id}" != "${current_pointer_id}" ]]; then
+                echo "The durable evidence pointer advanced after this build; retry" >&2
+                exit 1
+              fi
+            elif git cat-file -e \
+              "origin/gh-pages:${EVIDENCE_SUBPATH}" 2>/dev/null; then
+              echo "The durable evidence path has no valid latest pointer" >&2
+              exit 1
+            elif [[ -n "${incoming_previous_pointer_id}" ]]; then
+              echo "The durable evidence history disappeared after this build" >&2
+              exit 1
+            fi
+            git switch --create gh-pages --track origin/gh-pages
+            git rm -r --quiet --ignore-unmatch -- \
+              "${PUBLICATION_SUBPATH}" \
+              "${EVIDENCE_SUBPATH}"
+          else
+            if [[ -n "${incoming_previous_id}" || \
+              -n "${incoming_previous_pointer_id}" ]]; then
+              echo "The gh-pages branch disappeared after this build" >&2
+              exit 1
+            fi
+            git switch --orphan gh-pages
+          fi
+
+          mkdir -p "${PUBLICATION_SUBPATH}" "${EVIDENCE_SUBPATH}"
+          cp -a "${incoming_publication_root}/." "${PUBLICATION_SUBPATH}/"
+          cp -a "${incoming_evidence_root}/." "${EVIDENCE_SUBPATH}/"
+          git add --all -- "${PUBLICATION_SUBPATH}" "${EVIDENCE_SUBPATH}"
+          if git diff --cached --quiet; then
+            echo "Publication content is unchanged"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Do not allow local/global Git hooks to execute code or rewrite the
+          # byte-exact generated artifacts in this write-authorized job.
+          git -c core.hooksPath=/dev/null commit \
+            -m "Publish models.dev GPT-5 frontier snapshot"
+          git push origin HEAD:gh-pages

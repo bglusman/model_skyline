@@ -8,8 +8,9 @@ fallbacks.
 
 > **Status:** working alpha. Frontier evaluation, failure/cache-aware trace
 > aggregation, selection artifacts, retained RSS publication, an in-process
-> resolver, pinned benchmark imports, and strict Codex, Claude, OpenClaw, and
-> Hermes telemetry adapters are implemented. A signed, durable, fail-closed
+> resolver, pinned benchmark imports, exact models.dev price projections, and
+> strict Codex, Claude, OpenClaw, and Hermes telemetry adapters are implemented.
+> A signed, durable, fail-closed
 > gateway selection protocol is available as a `v1alpha1` contract with Python
 > reference resolver and language-neutral conformance vectors. Multi-frontier
 > overlap/proximity selection is available as a hash-bound library contract;
@@ -36,6 +37,26 @@ A frontier may compare any two declared metrics, for example:
 Metrics can be direct observations, restricted formulas, or results from a
 versioned oracle. Missing, stale, unit-incompatible, or non-finite values are
 excluded with reasons rather than silently imputed.
+
+Published benchmark results normally enter as workload-bound signals; an
+`OracleMetric` is reserved for a trusted host-run evaluator or judge and is
+library-embedding-only in v0.6. A quality bundle may combine two to four exact,
+reviewed benchmark identities—such as SWE-bench Verified, ARC-AGI-2, and an
+agent/tool benchmark—using explicit formulas or, preferably when evidence
+disagrees, multi-frontier overlap. Leaderboard names are never fuzzy-matched to
+routable offerings. See [ADR 0004](docs/adr/0004-quality-evidence-and-benchmark-bundles.md).
+
+Prices and usage are not one indivisible "cost" field. Input, output,
+cache-read, cache-write, request, tool, and other rates and quantities should
+be separate timestamped, source-attributed observations. A formula records the
+exact signal paths it evaluated, so a changed cache rate does not change a
+cache-free formula, while a missing or stale rate that the formula actually
+uses makes that offering ineligible. Frontier policy can impose both general
+metric freshness and stricter per-source freshness. Artifact identity still
+binds the complete input catalog for auditability; see the
+[models.dev accounting guide](docs/models-dev-pricing.md#dependency-and-invalidation-model)
+for the important distinction between value dependencies and provenance
+changes.
 
 ## Architecture
 
@@ -265,9 +286,47 @@ meter splits or non-model infrastructure charges, and its reported
 that metric as agent edit/generation time and preserves all caveats in the
 generated project and manifest.
 
-Remote imports are fail-closed: the pinned host is allowed by default, redirects
-are refused, and a custom remote requires an explicit repeated `--allow-host`.
-Local files need no network allowlist.
+The Aider import is fail-closed: its pinned host is allowed by default,
+redirects are refused, and a custom Aider remote requires an explicit repeated
+`--allow-host`. Local files need no network allowlist. The models.dev adapter
+below has a narrower remote policy: it accepts only the exact official API URL.
+
+For a price-snapshot reconstruction, combine reviewed exact Aider routes with
+a fresh or locally pinned models.dev snapshot:
+
+```console
+uv run modelskyline project-aider-models-dev \
+  ./aider-gpt5-price-snapshot \
+  examples/mappings/aider-gpt5-models-dev.json
+uv run modelskyline evaluate \
+  ./aider-gpt5-price-snapshot/frontier.yaml \
+  ./aider-gpt5-price-snapshot/observations.json \
+  price-snapshot-cost-per-attempted-vs-solve-rate
+```
+
+This separate, price-only project prices aggregate Aider prompt tokens as
+ordinary uncached input and completion tokens as output. It is labeled
+reconstructed token marginal cost, not a current provider bill, total
+infrastructure cost, cache-aware estimate, or current-quality claim. Pricing
+freshness can invalidate these projection frontiers without invalidating the
+independent historical Aider project. Mappings are exact, reviewed, and
+command-digest-bound; compound runs and context-tiered price cards fail closed.
+The price observations cite a selected-price semantic source, while
+`projection.json` and offering metadata separately preserve the complete
+pricing-catalog digest. An unused cache rate or unselected catalog record can
+therefore rotate the immutable catalog/snapshot identity without changing the
+frontier configuration or ordered view, or adding an RSS item; a used
+input/output rate or selected status/reasoning-compatibility change rotates the
+semantic price source and projected workload. See
+[`docs/models-dev-pricing.md`](docs/models-dev-pricing.md) for the accounting,
+dependency, freshness, cache, provenance, and automation boundaries.
+
+The daily/manual models.dev Pages workflow automatically advances these three
+research frontiers and retains each exact five-file projection bundle under a
+separate content-addressed evidence tree. Those static aliases do not enforce
+the 48-hour source limit and the workflow emits no agent selection: verify
+watermarks for research, and use the separately signed, hard-TTL gateway
+protocol before routing.
 
 MCPMark Verified demonstrates workload-dependent agent behavior across
 filesystem, GitHub, Notion, Playwright, and Postgres tasks:

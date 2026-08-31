@@ -103,6 +103,28 @@ CanonicalDecimal = Annotated[
     ),
 ]
 
+
+def _positive_source_age(value: Decimal) -> Decimal:
+    if value <= 0:
+        raise ValueError("source age limits must be positive")
+    return value
+
+
+PositiveSourceAge = Annotated[
+    CanonicalDecimal,
+    Field(gt=0),
+    AfterValidator(_positive_source_age),
+    WithJsonSchema(
+        {
+            "type": "string",
+            "pattern": r"^(?:[1-9]\d*(?:\.\d+)?|0\.\d*[1-9]\d*)$",
+            "maxLength": MAX_DECIMAL_SERIALIZED_LENGTH,
+        },
+        mode="serialization",
+    ),
+]
+SourceFreshnessId = Annotated[str, Field(min_length=1, max_length=512)]
+
 SafeCount = Annotated[int, Field(strict=True, ge=0, le=MAX_SAFE_INTEGER)]
 PositiveSafeCount = Annotated[int, Field(strict=True, ge=1, le=MAX_SAFE_INTEGER)]
 SelectionCandidateCount = Annotated[
@@ -450,6 +472,16 @@ class EligibilityPolicy(StrictModel):
     regions: tuple[str, ...] = ()
     required_capabilities: tuple[str, ...] = ()
     allow_unknown_age: bool = True
+    max_source_age_hours: dict[SourceFreshnessId, PositiveSourceAge] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def source_age_limits_are_positive(self) -> Self:
+        for source_id, limit in self.max_source_age_hours.items():
+            if not source_id or len(source_id) > 512:
+                raise ValueError("source age-limit ids must contain 1-512 characters")
+            if limit <= 0:
+                raise ValueError("source age limits must be positive")
+        return self
 
 
 class FrontierDefinition(StrictModel):

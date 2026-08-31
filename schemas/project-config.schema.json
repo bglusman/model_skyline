@@ -45,6 +45,27 @@
           "default": true,
           "title": "Allow Unknown Age",
           "type": "boolean"
+        },
+        "max_source_age_hours": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "pattern": "^(?!-)(?![+]?0*(?:\\.0*)?$)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                "type": "string",
+                "maxLength": 1024
+              }
+            ]
+          },
+          "propertyNames": {
+            "maxLength": 512,
+            "minLength": 1
+          },
+          "title": "Max Source Age Hours",
+          "type": "object"
         }
       },
       "title": "EligibilityPolicy",

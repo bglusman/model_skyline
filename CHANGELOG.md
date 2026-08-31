@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.6.0 - 2026-08-31
+
+- Add a fail-closed models.dev adapter that combines reviewed exact Aider route
+  bindings with fresh input/output price snapshots, exact Decimal accounting,
+  copied mapping evidence, operator-versus-official provenance, and three
+  cache-disabled cost/quality frontiers. Tiered/context-dependent and separate
+  reasoning meters remain unsupported rather than guessed.
+- Track formula dependencies and freshness per source, so pricing evidence can
+  expire independently of historical benchmark evidence. Selected price fields
+  have a semantic digest separate from the complete acquisition digest: an
+  unused cache/card change advances immutable catalog history without changing
+  the cache-disabled policy or semantic frontier, while a relevant rate change
+  invalidates it. Fail closed on unknown source-age keys, conflicting source
+  descriptors across workload/catalog inputs, and official/operator price
+  catalog substitution.
+- Add a real loopback-TLS signed gateway integration test covering ETag
+  rotation, durable anti-rollback state, offline last-known-good admission, and
+  transport degradation, plus current gateway integration profiles and
+  conformance guidance.
+- Define benchmark-bundle quality evidence and document the current hosted
+  oracle boundary, exact benchmark-result identity requirements, central
+  adapter candidates, normalization and missing-data policies, and the option
+  to use multi-frontier overlap instead of collapsing quality to one score.
+  Recommend Harbor JSON/Terminal-Bench as the first live generic quality
+  adapter and fixed-harness SWE-bench next; ARC-AGI-2 remains local-only until
+  automated retrieval is authorized by its terms.
+- Add a daily/manual models.dev research publication that pins the exact route
+  mapping, retains each five-file projection in a content-addressed evidence
+  tree, and independently race-checks publication and evidence pointers. Static
+  Pages aliases are explicitly not freshness enforcement or routing authority.
+
 ## 0.5.1 - 2026-08-31
 
 - Require the trusted OpenClaw projector to correlate each model-call child span

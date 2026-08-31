@@ -1,0 +1,74 @@
+{
+  "provider-alpha": {
+    "id": "provider-alpha",
+    "name": "Provider Alpha",
+    "models": {
+      "model@2026-08": {
+        "id": "model@2026-08",
+        "name": "Alpha Route",
+        "reasoning": true,
+        "reasoning_options": [
+          {
+            "type": "effort",
+            "values": ["low", "medium", "high"]
+          }
+        ],
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        },
+        "cost": {
+          "input": 1,
+          "output": 10,
+          "cache_read": 0.1
+        }
+      }
+    }
+  },
+  "provider-beta": {
+    "id": "provider-beta",
+    "name": "Provider Beta",
+    "models": {
+      "model:stable": {
+        "id": "model:stable",
+        "name": "Beta Route",
+        "reasoning": false,
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        },
+        "cost": {
+          "input": 0.5,
+          "output": 1
+        }
+      },
+      "tiered-model": {
+        "id": "tiered-model",
+        "name": "Tiered Route",
+        "reasoning": false,
+        "modalities": {
+          "input": ["text"],
+          "output": ["text"]
+        },
+        "cost": {
+          "input": 1,
+          "output": 2,
+          "tiers": [
+            {
+              "input": 2,
+              "output": 3,
+              "tier": {
+                "type": "context",
+                "size": 200000
+              }
+            }
+          ],
+          "context_over_200k": {
+            "input": 2,
+            "output": 3
+          }
+        }
+      }
+    }
+  }
+}

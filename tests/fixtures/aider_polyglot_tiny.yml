@@ -3,6 +3,7 @@
   total_tests: 225
   model: alpha-model
   edit_format: diff
+  reasoning_effort: high
   commit_hash: abc1234, 012abcd
   pass_rate_1: 53.3
   pass_rate_2: 80.0
@@ -10,8 +11,10 @@
   pass_num_2: 180
   percent_cases_well_formed: 99.6
   error_outputs: 2
+  prompt_tokens: 1000000
+  completion_tokens: 100000
   test_timeouts: 1
-  command: aider --model alpha-model
+  command: aider --model provider-alpha/model@2026-08
   date: 2025-01-01
   versions: 1.2.3
   seconds_per_case: 10.25
@@ -28,7 +31,9 @@
   pass_num_1: 90
   pass_num_2: 135
   percent_cases_well_formed: 100.0
-  command: aider --model beta-model
+  prompt_tokens: 500000
+  completion_tokens: 50000
+  command: aider --model provider-beta/model:stable
   date: 2025-01-02
   versions: 1.2.3
   seconds_per_case: 4.5
