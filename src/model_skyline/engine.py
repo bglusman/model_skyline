@@ -626,10 +626,17 @@ class FrontierEngine:
             mode="json",
             exclude={"sources": {"__all__": {"retrieved_at"}}},
         )
+        frontier_policy = frontier.model_dump(mode="json")
+        eligibility = frontier_policy["eligibility"]
+        if not eligibility["max_source_age_hours"]:
+            # The field was added in v0.6. Preserve v0.5 policy identities when
+            # the new behavior is unused; an explicit empty map is semantically
+            # identical to an omitted map.
+            eligibility.pop("max_source_age_hours")
         return {
             "schema_version": config.schema_version,
             "frontier_id": frontier_id,
-            "frontier": frontier.model_dump(mode="json"),
+            "frontier": frontier_policy,
             "workload_id": workload_id,
             # Acquisition time is volatile provenance, not an evaluation-policy input.
             # Source identity, version, digest, licensing, URLs, and methodology remain.

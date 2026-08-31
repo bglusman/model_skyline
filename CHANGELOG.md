@@ -12,9 +12,10 @@
   have a semantic digest separate from the complete acquisition digest: an
   unused cache/card change advances immutable catalog history without changing
   the cache-disabled policy or semantic frontier, while a relevant rate change
-  invalidates it. Fail closed on unknown source-age keys, conflicting source
-  descriptors across workload/catalog inputs, and official/operator price
-  catalog substitution.
+  invalidates it. A default-empty per-source age policy preserves the pre-0.6
+  effective-policy hash, while a configured source-age limit changes it. Fail
+  closed on unknown source-age keys, conflicting source descriptors across
+  workload/catalog inputs, and official/operator price catalog substitution.
 - Add a real loopback-TLS signed gateway integration test covering ETag
   rotation, durable anti-rollback state, offline last-known-good admission, and
   transport degradation, plus current gateway integration profiles and
