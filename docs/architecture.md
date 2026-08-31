@@ -53,8 +53,10 @@ materially from Python, ADR 0001 should be reopened.
   sample count, and optional uncertainty/reference bounds whose statistical
   interpretation must be declared by the workload.
 - An observation catalog is bound to exactly one workload id, version, and
-  work-unit definition; the engine rejects cross-workload reuse. Offering
-  harness identity must match the workload harness.
+  work-unit definition; the engine rejects cross-workload reuse. The workload
+  harness identifies the evaluator that produced the evidence. An offering's
+  optional `agent_harness` instead identifies a production routing target, so
+  the two are independently versioned and are never implicitly equated.
 - Missing, stale, unit-mismatched, or unbounded values are excluded with a
   reason when required. They are never silently zero-filled or imputed.
 - Formula configuration cannot execute Python. Oracle code is registered by
