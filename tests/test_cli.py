@@ -120,7 +120,7 @@ def test_cli_reports_package_version() -> None:
     result = runner.invoke(app, ["--version"])
 
     assert result.exit_code == 0
-    assert result.output.strip() == "0.5.1"
+    assert result.output.strip() == "0.6.0"
 
 
 def test_cli_verifies_language_neutral_gateway_bundle(tmp_path: Path) -> None:

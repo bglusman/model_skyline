@@ -29,6 +29,13 @@ from model_skyline.adapters.mcpmark import (
     load_mcpmark_catalogs,
     write_mcpmark_import,
 )
+from model_skyline.adapters.models_dev import (
+    MODELS_DEV_API_URL,
+    ModelsDevAdapterError,
+    load_models_dev_source,
+    project_aider_with_models_dev,
+    write_models_dev_projection,
+)
 from model_skyline.engine import FrontierEngine, validate_formula_cost_basis
 from model_skyline.formula import compile_formula
 from model_skyline.gateway import (
@@ -496,6 +503,102 @@ def import_aider_polyglot_command(
         for target in targets:
             typer.echo(target)
     except (AiderAdapterError, OSError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("project-aider-models-dev")
+def project_aider_models_dev_command(
+    output_directory: Annotated[Path, typer.Argument(file_okay=False)],
+    mapping: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    aider_source: Annotated[
+        str | None,
+        typer.Option(
+            "--aider-source",
+            help="local YAML path or HTTPS URL; defaults to the pinned official leaderboard",
+        ),
+    ] = None,
+    aider_expected_sha256: Annotated[
+        str | None,
+        typer.Option("--aider-expected-sha256", help="optional exact Aider source digest"),
+    ] = None,
+    aider_retrieved_at: Annotated[
+        str | None,
+        typer.Option(
+            "--aider-retrieved-at",
+            help="timezone-aware provenance timestamp for a local Aider source",
+        ),
+    ] = None,
+    pricing_source: Annotated[
+        str,
+        typer.Option(
+            "--pricing-source",
+            help="local compatible JSON path or the exact official models.dev HTTPS URL",
+        ),
+    ] = MODELS_DEV_API_URL,
+    pricing_expected_sha256: Annotated[
+        str | None,
+        typer.Option("--pricing-expected-sha256", help="optional exact pricing source digest"),
+    ] = None,
+    pricing_retrieved_at: Annotated[
+        str | None,
+        typer.Option(
+            "--pricing-retrieved-at",
+            help="timezone-aware provenance timestamp for a local pricing source",
+        ),
+    ] = None,
+    assert_official_pricing_source: Annotated[
+        bool,
+        typer.Option(
+            "--assert-official-pricing-source",
+            help=(
+                "assert a hash-pinned local file came from models.dev; the exact official "
+                "remote URL is recognized automatically"
+            ),
+        ),
+    ] = False,
+    include_dirty: Annotated[
+        bool,
+        typer.Option("--include-dirty", help="include dirty Aider benchmark checkouts"),
+    ] = False,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace the five generated files if present"),
+    ] = False,
+    timeout_seconds: Annotated[
+        float,
+        typer.Option("--timeout-seconds", min=0.1, max=60.0),
+    ] = 30.0,
+) -> None:
+    """Combine historical Aider quality with reviewed price-snapshot bindings."""
+
+    try:
+        aider = import_aider_polyglot(
+            aider_source or AIDER_DEFAULT_SOURCE_URL,
+            expected_sha256=aider_expected_sha256,
+            retrieved_at=_retrieved_at(aider_retrieved_at),
+            include_dirty=include_dirty,
+            timeout_seconds=min(timeout_seconds, 60.0),
+            allowed_hosts=AIDER_DEFAULT_ALLOWED_HOSTS,
+        )
+        pricing = load_models_dev_source(
+            pricing_source,
+            expected_sha256=pricing_expected_sha256,
+            retrieved_at=_retrieved_at(pricing_retrieved_at),
+            timeout_seconds=timeout_seconds,
+            assert_official_source=assert_official_pricing_source,
+        )
+        result = project_aider_with_models_dev(aider, pricing, mapping)
+        targets = write_models_dev_projection(result, output_directory, overwrite=overwrite)
+        typer.echo(
+            f"projected {len(result.catalog.offerings)} exact Aider/models.dev mappings "
+            f"using pricing sha256:{pricing.raw_sha256}"
+        )
+        for target in targets:
+            typer.echo(target)
+    except (AiderAdapterError, ModelsDevAdapterError, OSError, ValueError) as exc:
         _error(exc)
 
 

@@ -175,6 +175,7 @@ def _observation_reason(
     source: SourceReference | None,
     generated_at: datetime,
     allow_unknown_age: bool,
+    source_max_age_hours: Decimal | None = None,
 ) -> str | None:
     if requirements.require_source and source is None:
         return "observation source is required"
@@ -190,11 +191,16 @@ def _observation_reason(
                 "observation is future-dated "
                 f"({-age_hours:.2f}h ahead; {future_limit:.2f}h allowed)"
             )
-    if requirements.max_age_hours is not None and observation.observed_at is not None:
+    maximum_age = requirements.max_age_hours
+    if source_max_age_hours is not None and (
+        maximum_age is None or source_max_age_hours < maximum_age
+    ):
+        maximum_age = source_max_age_hours
+    if maximum_age is not None and observation.observed_at is not None:
         if age_hours is None:
             raise AssertionError("timestamped observation must have an age")
-        if age_hours > requirements.max_age_hours:
-            return f"observation is stale ({age_hours:.1f}h > {requirements.max_age_hours}h)"
+        if age_hours > maximum_age:
+            return f"observation is stale ({age_hours:.1f}h > {maximum_age}h)"
     if requirements.minimum_samples is not None:
         if observation.sample_count is None:
             return "observation sample_count is required"
@@ -351,6 +357,11 @@ class FrontierEngine:
             source=source,
             generated_at=generated_at,
             allow_unknown_age=frontier.eligibility.allow_unknown_age,
+            source_max_age_hours=(
+                frontier.eligibility.max_source_age_hours.get(source.id)
+                if source is not None
+                else None
+            ),
         )
         if reason:
             raise EvaluationError(reason)
@@ -419,6 +430,11 @@ class FrontierEngine:
                 source=source,
                 generated_at=generated_at,
                 allow_unknown_age=frontier.eligibility.allow_unknown_age,
+                source_max_age_hours=(
+                    frontier.eligibility.max_source_age_hours.get(source.id)
+                    if source is not None
+                    else None
+                ),
             )
             if reason:
                 raise EvaluationError(f"signal {signal_id!r}: {reason}")
@@ -566,6 +582,39 @@ class FrontierEngine:
         return tuple(by_hash[key] for key in sorted(by_hash))
 
     @staticmethod
+    def _validate_source_contract(
+        catalog: ObservationCatalog,
+        workload: WorkloadProfile,
+        frontier_id: str,
+        frontier: FrontierDefinition,
+    ) -> None:
+        """Fail closed on ambiguous descriptors or misspelled freshness source IDs."""
+
+        descriptors: dict[str, SourceReference] = {}
+        candidates: list[SourceReference | None] = list(workload.sources)
+        for offering in catalog.offerings:
+            candidates.append(offering.default_source)
+            candidates.extend(observation.source for observation in offering.signals.values())
+        for source in candidates:
+            if source is None:
+                continue
+            existing = descriptors.get(source.id)
+            if existing is not None and existing != source:
+                raise ValueError(
+                    f"source id {source.id!r} maps to different descriptors across the "
+                    "frontier workload and observation catalog"
+                )
+            descriptors[source.id] = source
+
+        unknown = sorted(set(frontier.eligibility.max_source_age_hours) - descriptors.keys())
+        if unknown:
+            rendered = ", ".join(repr(source_id) for source_id in unknown)
+            raise ValueError(
+                f"frontier {frontier_id!r} source age limit references unknown source "
+                f"id(s): {rendered}; declare each source in the workload or catalog"
+            )
+
+    @staticmethod
     def _effective_policy(
         config: ProjectConfig,
         frontier_id: str,
@@ -629,6 +678,7 @@ class FrontierEngine:
                 f"catalog={catalog.workload.id}@{catalog.workload.version} "
                 f"frontier={workload_id}@{workload.version}"
             )
+        self._validate_source_contract(catalog, workload, frontier_id, frontier)
 
         accepted: list[EvaluatedOffering] = []
         rejected: list[RejectedOffering] = []

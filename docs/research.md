@@ -1,6 +1,6 @@
 # Prior art, data sources, and workload research
 
-Research snapshot: **2026-08-30**. Model catalogs, benchmark results, API terms,
+Research snapshot: **2026-08-31**. Model catalogs, benchmark results, API terms,
 and licenses change; adapters must pin source versions and re-check terms.
 
 ## Finding and project position
@@ -267,6 +267,42 @@ solved case removes gpt-oss-120b because the denominator now embeds quality.
 That difference is a useful demonstration of why frontier formulas must be
 operator-visible.
 
+### Implemented: exact models.dev cache-disabled projection
+
+The models.dev adapter fetches the mutable
+[`api.json`](https://models.dev/api.json), records its exact raw SHA-256 and
+retrieval time, parses prices directly as `Decimal`, and resolves only reviewed
+provider/model mappings. The API body changed during the 2026-08-31 audit,
+which confirms that an apparent current repository commit or truncated HTTP
+ETag is not a valid snapshot identifier.
+
+At `2026-08-31T14:52:48Z`, the audited body had SHA-256
+`cbbe34b3f4d7477c1e7254ffb536fe6ac5633e42cf605fa54022900e674d8c87`:
+212 providers, 7,497 provider offerings, 7,061 priced offerings, 421
+context-tiered cards, and 38 models with experimental priced modes. The exact
+schema and USD-per-million convention are pinned at
+[`4a3a072`](https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/packages/core/src/schema.ts).
+The repository is MIT licensed, but the catalog is community maintained and is
+not a provider invoice or availability SLA.
+
+The first materialized workload intentionally covers only the three pinned
+Aider `openai/gpt-5` low/medium/high runs. Their upstream command digests and
+reasoning configurations are reviewed in an explicit mapping. Using the live
+GPT-5 input/output rates of USD 1.25/10 per million tokens, cache-disabled projected
+cost per attempted case was approximately USD 0.04873, 0.08099, and 0.13146;
+two-edit solve rates were 0.8133, 0.8667, and 0.88. All three therefore remain
+on the cost/quality frontier. The time/quality frontier has the same order but
+uses historical Aider agent-edit means of 62.4, 118.7, and 194 seconds.
+
+This is a reconstructed token marginal-cost counterfactual. Aider supplies
+aggregate prompt/completion totals but no cache buckets or per-request context
+bands. The adapter consequently treats all prompt tokens as uncached input,
+does not use ambiguous `thinking_tokens`, and rejects tiered cards, compound
+architect/editor rows, fuzzy matches, and implicit cross-provider fan-out.
+Missing cache/reasoning/audio rates remain unknown rather than zero. See
+[`models-dev-pricing.md`](models-dev-pricing.md) for the mapping and automation
+contract.
+
 ### Implemented experimentally: MCPMark Verified
 
 The MCPMark adapter pins the
@@ -292,6 +328,41 @@ quality/time frontier has four members for filesystem and Notion, three for
 GitHub and Postgres, and only DeepSeek V4 Pro plus GPT-5.6 SOL for Playwright.
 The quality/input-token frontier changes membership again. An overall aggregate
 is consequently not a safe substitute for an operator's workload mix.
+
+### Researched next: public quality evidence collectors
+
+The best first additional live adapter is Harbor's supported
+[`leaderboard show ... --json`](https://www.harborframework.com/docs/hosted-harbor/cli-leaderboards)
+interface. A 2026-08-31 live test with Harbor 0.22.0 and the public
+`terminal-bench/terminal-bench/4-0-0` board returned board and dataset-version
+UUIDs, embedded schemas, row UUIDs, model/agent/effort identity, accuracy and
+intervals, pass@k, reported cost, duration, and token/cache fields without
+authentication. The safe architecture pins the CLI in a collector and parses
+captured JSON; it does not execute a command named by project configuration.
+
+Cache semantics need board-specific validation. In the audited Terminal-Bench
+4.0 rows, reported total tokens equaled uncached input plus output even when a
+cached-input field was present; the 2.1 board used the disjoint uncached +
+cached + output relation. An adapter must preserve the upstream reported total
+cost and mark an unproven cache decomposition unknown rather than reconstructing
+spend from suggestive field names.
+
+For coding, the next source should be the commit-addressed
+[SWE-bench `evaluation/bash-only`](https://github.com/SWE-bench/experiments/tree/main/evaluation/bash-only)
+subset. It fixes mini-SWE-agent as the harness and exposes metadata plus
+per-instance results. Identity is model + agent version + reasoning effort +
+attempt policy; multi-model submissions are composite systems. The general
+leaderboard cannot safely be model-name joined because entries may name
+multiple or no underlying models.
+
+ARC-AGI-2 exposes useful leaderboard JSON, but the current
+[ARC Prize terms](https://arcprize.org/terms) prohibit automated/scripted and
+systematic retrieval. Scheduled ingestion requires written permission; v0.6
+should accept only an operator-provided local snapshot. BFCL's result CSV is
+also straightforward, but the separate result archive currently has no
+declared data license. None of these sources provides a native RSS evidence
+feed. Poll supported JSON/CLI or pinned repository files, preserve source terms
+and hashes, and let ModelSkyline emit RSS only after reviewed exact mapping.
 
 MCPMark solve-rate bounds have the same limited interpretation: descriptive
 single-suite binomial reference intervals, not run-to-run confidence or evidence

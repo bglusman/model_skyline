@@ -20,6 +20,7 @@ from model_skyline.models import (
     CostFormulaBasis,
     FormulaMetric,
     FrontierSnapshot,
+    Observation,
     ObservationCatalog,
     ObservationRequirements,
     OracleMetric,
@@ -308,6 +309,92 @@ class _LeakyOracle:
         raise RuntimeError("request failed: https://user:password@internal.example/?api_key=secret")
 
 
+class _PinnedQualityOracle:
+    def evaluate(self, context: OracleContext) -> Observation:
+        assert context.workload_id == "coding-session-v1"
+        assert context.options["split"] == "verified"
+        return Observation(
+            value=Decimal("0.82"),
+            unit="ratio",
+            lower=Decimal("0.77"),
+            upper=Decimal("0.86"),
+            sample_count=200,
+            observed_at=NOW - timedelta(hours=1),
+            source=SourceReference(
+                id="pinned-quality-benchmark",
+                version="result-sha256:" + "a" * 64,
+                license="MIT",
+                methodology="Pinned fixture benchmark, harness, scorer, and result digest.",
+            ),
+        )
+
+
+def test_hosted_oracle_preserves_quality_evidence_and_policy_identity(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    requirements = ObservationRequirements(
+        max_age_hours=Decimal("2"),
+        minimum_samples=100,
+        require_bounds=True,
+        require_source=True,
+    )
+    metric = OracleMetric(
+        kind="oracle",
+        oracle="pinned-quality",
+        oracle_version="1",
+        options={"split": "verified"},
+        unit="ratio",
+        requirements=requirements,
+    )
+    config = example_config.model_copy(
+        update={
+            "metrics": {
+                **example_config.metrics,
+                "coding_session_success": metric,
+            }
+        }
+    )
+    registry = OracleRegistry()
+    registry.register("pinned-quality", "1", _PinnedQualityOracle())
+
+    snapshot = FrontierEngine(registry).calculate(
+        config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    estimate = snapshot.evaluated[0].axes["coding_session_success"]
+    assert estimate.value == Decimal("0.82")
+    assert estimate.lower == Decimal("0.77")
+    assert estimate.upper == Decimal("0.86")
+    assert estimate.minimum_sample_count == 200
+    assert estimate.oldest_observed_at == NOW - timedelta(hours=1)
+    assert estimate.dependencies == ("oracle.pinned-quality@1",)
+    assert estimate.source_ids == ("pinned-quality-benchmark",)
+
+    revised_metric = metric.model_copy(
+        update={"oracle_version": "2", "options": {"split": "verified", "seed": "7"}}
+    )
+    revised_config = config.model_copy(
+        update={
+            "metrics": {
+                **config.metrics,
+                "coding_session_success": revised_metric,
+            }
+        }
+    )
+    registry.register("pinned-quality", "2", _PinnedQualityOracle())
+    revised = FrontierEngine(registry).calculate(
+        revised_config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+    assert snapshot.config_hash != revised.config_hash
+
+
 def test_published_oracle_rejection_does_not_expose_exception_details(
     example_config: ProjectConfig,
     example_catalog: ObservationCatalog,
@@ -509,6 +596,226 @@ def test_unknown_age_policy_requires_timestamp_without_max_age(
         item for item in snapshot.rejected if item.offering_id == first.offering.offering_id
     )
     assert any("timestamp is required" in reason for reason in rejection.reasons)
+
+
+@pytest.mark.parametrize(
+    ("metric_max_age", "source_max_age"),
+    [(Decimal("1"), Decimal("24")), (Decimal("24"), Decimal("1"))],
+)
+def test_observation_freshness_uses_stricter_metric_or_source_limit(
+    metric_max_age: Decimal,
+    source_max_age: Decimal,
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    source = SourceReference(id="quality-benchmark", version="2026-08-29")
+    first = example_catalog.offerings[0]
+    success = first.signals["success_rate"].model_copy(
+        update={"observed_at": NOW - timedelta(hours=2), "source": source}
+    )
+    changed = first.model_copy(update={"signals": {**first.signals, "success_rate": success}})
+    catalog = example_catalog.model_copy(
+        update={"offerings": [changed, *example_catalog.offerings[1:]]}
+    )
+
+    success_metric = example_config.metrics["coding_session_success"]
+    requirements = success_metric.requirements.model_copy(update={"max_age_hours": metric_max_age})
+    frontier = example_config.frontiers["coding-value"]
+    eligibility = frontier.eligibility.model_copy(
+        update={"max_source_age_hours": {source.id: source_max_age}}
+    )
+    config = example_config.model_copy(
+        update={
+            "metrics": {
+                **example_config.metrics,
+                "coding_session_success": success_metric.model_copy(
+                    update={"requirements": requirements}
+                ),
+            },
+            "frontiers": {
+                **example_config.frontiers,
+                "coding-value": frontier.model_copy(update={"eligibility": eligibility}),
+            },
+        }
+    )
+
+    snapshot = FrontierEngine().calculate(
+        config,
+        catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    rejection = next(
+        item for item in snapshot.rejected if item.offering_id == first.offering.offering_id
+    )
+    assert any("stale (2.0h > 1h)" in reason for reason in rejection.reasons)
+
+
+def test_formula_dependency_honors_its_source_freshness_limit(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    source = SourceReference(id="pricing-feed", version="2026-08-29")
+    first = example_catalog.offerings[0]
+    input_price = first.signals["input_uncached_usd_per_million"].model_copy(
+        update={"observed_at": NOW - timedelta(hours=2), "source": source}
+    )
+    changed = first.model_copy(
+        update={
+            "signals": {
+                **first.signals,
+                "input_uncached_usd_per_million": input_price,
+            }
+        }
+    )
+    catalog = example_catalog.model_copy(
+        update={"offerings": [changed, *example_catalog.offerings[1:]]}
+    )
+    frontier = example_config.frontiers["coding-value"]
+    eligibility = frontier.eligibility.model_copy(
+        update={"max_source_age_hours": {source.id: Decimal("1")}}
+    )
+    config = example_config.model_copy(
+        update={
+            "frontiers": {
+                **example_config.frontiers,
+                "coding-value": frontier.model_copy(update={"eligibility": eligibility}),
+            }
+        }
+    )
+
+    snapshot = FrontierEngine().calculate(
+        config,
+        catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    rejection = next(
+        item for item in snapshot.rejected if item.offering_id == first.offering.offering_id
+    )
+    assert any(
+        "signal 'input_uncached_usd_per_million': observation is stale (2.0h > 1h)" in reason
+        for reason in rejection.reasons
+    )
+
+
+def test_source_freshness_does_not_affect_unrelated_sources_or_metrics(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    latency_source = SourceReference(id="latency-feed", version="2026-08-29")
+    first = example_catalog.offerings[0]
+    ttft = first.signals["ttft_p95_ms"].model_copy(
+        update={"observed_at": NOW - timedelta(hours=2), "source": latency_source}
+    )
+    changed = first.model_copy(update={"signals": {**first.signals, "ttft_p95_ms": ttft}})
+    catalog = example_catalog.model_copy(
+        update={"offerings": [changed, *example_catalog.offerings[1:]]}
+    )
+    frontiers = {}
+    for frontier_id in ("coding-value", "coding-responsiveness"):
+        frontier = example_config.frontiers[frontier_id]
+        eligibility = frontier.eligibility.model_copy(
+            update={"max_source_age_hours": {latency_source.id: Decimal("1")}}
+        )
+        frontiers[frontier_id] = frontier.model_copy(update={"eligibility": eligibility})
+    config = example_config.model_copy(
+        update={"frontiers": {**example_config.frontiers, **frontiers}}
+    )
+
+    value_snapshot = FrontierEngine().calculate(
+        config,
+        catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+    responsive_snapshot = FrontierEngine().calculate(
+        config,
+        catalog,
+        "coding-responsiveness",
+        generated_at=NOW,
+    )
+
+    assert first.offering.offering_id in {
+        item.offering.offering_id for item in value_snapshot.evaluated
+    }
+    rejection = next(
+        item
+        for item in responsive_snapshot.rejected
+        if item.offering_id == first.offering.offering_id
+    )
+    assert any(
+        "ttft_p95: observation is stale (2.0h > 1h)" in reason for reason in rejection.reasons
+    )
+
+
+def test_unknown_source_freshness_override_fails_closed(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    quality_source = SourceReference(id="quality-benchmark", version="2026-08-29")
+    first = example_catalog.offerings[0]
+    success = first.signals["success_rate"].model_copy(
+        update={"observed_at": NOW - timedelta(hours=2), "source": quality_source}
+    )
+    changed = first.model_copy(update={"signals": {**first.signals, "success_rate": success}})
+    catalog = example_catalog.model_copy(
+        update={"offerings": [changed, *example_catalog.offerings[1:]]}
+    )
+    success_metric = example_config.metrics["coding_session_success"]
+    requirements = success_metric.requirements.model_copy(update={"max_age_hours": Decimal("24")})
+    frontier = example_config.frontiers["coding-value"]
+    eligibility = frontier.eligibility.model_copy(
+        update={"max_source_age_hours": {"unrelated-pricing-feed": Decimal("1")}}
+    )
+    config = example_config.model_copy(
+        update={
+            "metrics": {
+                **example_config.metrics,
+                "coding_session_success": success_metric.model_copy(
+                    update={"requirements": requirements}
+                ),
+            },
+            "frontiers": {
+                **example_config.frontiers,
+                "coding-value": frontier.model_copy(update={"eligibility": eligibility}),
+            },
+        }
+    )
+
+    with pytest.raises(ValueError, match="source age limit references unknown source"):
+        FrontierEngine().calculate(
+            config,
+            catalog,
+            "coding-value",
+            generated_at=NOW,
+        )
+
+
+def test_workload_and_catalog_source_descriptors_must_agree(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    catalog_source = example_catalog.offerings[0].default_source
+    assert catalog_source is not None
+    workload = example_config.workloads["coding-session-v1"].model_copy(
+        update={
+            "sources": [
+                catalog_source.model_copy(update={"version": "conflicting-workload-version"})
+            ]
+        }
+    )
+    config = example_config.model_copy(update={"workloads": {"coding-session-v1": workload}})
+
+    with pytest.raises(ValueError, match="different descriptors"):
+        FrontierEngine().calculate(
+            config,
+            example_catalog,
+            "coding-value",
+            generated_at=NOW,
+        )
 
 
 def test_engine_is_independent_of_ambient_decimal_context(

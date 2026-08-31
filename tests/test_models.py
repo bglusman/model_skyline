@@ -12,6 +12,7 @@ from model_skyline.models import (
     MAX_SELECTION_CANDIDATES,
     MAX_SNAPSHOT_TTL_SECONDS,
     AxisEstimate,
+    EligibilityPolicy,
     FormulaMetric,
     Observation,
     ObservationRequirements,
@@ -58,6 +59,35 @@ def test_canonical_decimal_accepts_normal_json_and_yaml_numbers() -> None:
     assert Observation(value=0.125, unit="ratio").value == Decimal("0.125")
     assert Observation(value=1_000_000, unit="tokens").value == Decimal("1E+6")
     assert Observation(value="1e-1000", unit="ratio").value == Decimal("1e-1000")
+
+
+def test_source_freshness_limits_round_trip_as_canonical_decimals() -> None:
+    policy = EligibilityPolicy(
+        max_source_age_hours={"models-dev-api": "48.000", "benchmark": Decimal("168")}
+    )
+    payload = policy.model_dump(mode="json")
+
+    assert payload["max_source_age_hours"] == {
+        "models-dev-api": "48",
+        "benchmark": "168",
+    }
+    assert EligibilityPolicy.model_validate(payload) == policy
+
+
+@pytest.mark.parametrize(
+    "limits",
+    [
+        {"models-dev-api": "0"},
+        {"models-dev-api": "-1"},
+        {"": "1"},
+        {"x" * 513: "1"},
+    ],
+)
+def test_source_freshness_limits_reject_invalid_ids_and_ages(
+    limits: dict[str, str],
+) -> None:
+    with pytest.raises(ValidationError):
+        EligibilityPolicy(max_source_age_hours=limits)
 
 
 def test_usd_formula_requires_an_explicit_cost_basis() -> None:
