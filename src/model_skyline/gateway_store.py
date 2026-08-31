@@ -7,6 +7,7 @@ import os
 import sqlite3
 import stat
 import threading
+import time
 from contextlib import suppress
 from datetime import UTC, datetime
 from pathlib import Path
@@ -176,7 +177,7 @@ class SqliteGatewayInstallationStore:
             self._connection.row_factory = sqlite3.Row
             self._connection.execute("PRAGMA foreign_keys = ON")
             self._connection.execute("PRAGMA synchronous = FULL")
-            self._connection.execute("PRAGMA journal_mode = WAL")
+            self._configure_wal(timeout_seconds)
             self._initialize()
             after = self._file_identity(self.path)
             if before != after:
@@ -194,6 +195,29 @@ class SqliteGatewayInstallationStore:
             if not isinstance(exc, (OSError, sqlite3.Error)):
                 raise
             raise GatewayStoreError(f"cannot initialize gateway state database: {exc}") from exc
+
+    def _configure_wal(self, timeout_seconds: float) -> None:
+        """Enable WAL with a bounded retry for concurrent first-open races."""
+
+        deadline = time.monotonic() + timeout_seconds
+        delay = 0.001
+        while True:
+            try:
+                row = self._connection.execute("PRAGMA journal_mode = WAL").fetchone()
+                mode = None if row is None else str(row[0]).lower()
+                if mode != "wal":
+                    raise GatewayStoreError(f"unsupported SQLite journal mode {mode!r}")
+                return
+            except sqlite3.OperationalError as exc:
+                error_code = getattr(exc, "sqlite_errorcode", None)
+                retryable = error_code in {sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED} or (
+                    "locked" in str(exc).lower()
+                )
+                remaining = deadline - time.monotonic()
+                if not retryable or remaining <= 0:
+                    raise
+                time.sleep(min(delay, remaining))
+                delay = min(delay * 2, 0.05)
 
     @staticmethod
     def _owner_matches_process(status: os.stat_result) -> bool:
@@ -297,13 +321,18 @@ class SqliteGatewayInstallationStore:
             os.close(descriptor)
 
     def _initialize(self) -> None:
-        self._connection.executescript(
-            """
-            BEGIN IMMEDIATE;
+        try:
+            self._connection.execute("BEGIN IMMEDIATE")
+            self._connection.execute(
+                """
             CREATE TABLE IF NOT EXISTS gateway_store_meta (
                 singleton INTEGER PRIMARY KEY CHECK (singleton = 1),
                 schema_version INTEGER NOT NULL
-            );
+            )
+            """
+            )
+            self._connection.execute(
+                """
             CREATE TABLE IF NOT EXISTS gateway_installations (
                 trust_namespace TEXT NOT NULL,
                 issuer TEXT NOT NULL,
@@ -322,20 +351,27 @@ class SqliteGatewayInstallationStore:
                 CHECK (length(selection_payload) BETWEEN 1 AND 10485760),
                 CHECK (length(target_bindings_payload) BETWEEN 1 AND 10485760),
                 PRIMARY KEY (trust_namespace, issuer, audience, channel)
-            ) WITHOUT ROWID;
-            COMMIT;
+            ) WITHOUT ROWID
             """
-        )
-        row = self._connection.execute(
-            "SELECT schema_version FROM gateway_store_meta WHERE singleton = 1"
-        ).fetchone()
-        if row is None:
+            )
             self._connection.execute(
-                "INSERT INTO gateway_store_meta(singleton, schema_version) VALUES (1, ?)",
+                """
+                INSERT INTO gateway_store_meta(singleton, schema_version) VALUES (1, ?)
+                ON CONFLICT(singleton) DO NOTHING
+                """,
                 (STORE_SCHEMA_VERSION,),
             )
-        elif row["schema_version"] != STORE_SCHEMA_VERSION:
-            raise GatewayStoreError(f"unsupported gateway store schema {row['schema_version']!r}")
+            row = self._connection.execute(
+                "SELECT schema_version FROM gateway_store_meta WHERE singleton = 1"
+            ).fetchone()
+            if row is None or row["schema_version"] != STORE_SCHEMA_VERSION:
+                version = None if row is None else row["schema_version"]
+                raise GatewayStoreError(f"unsupported gateway store schema {version!r}")
+            self._connection.execute("COMMIT")
+        except Exception:
+            with suppress(sqlite3.Error):
+                self._connection.execute("ROLLBACK")
+            raise
 
     def close(self) -> None:
         with self._lock:

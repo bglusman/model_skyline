@@ -12,6 +12,7 @@ import pytest
 from pydantic import ValidationError
 
 from model_skyline.adapters.claude import (
+    CLAUDE_ADAPTER_VERSION,
     CLAUDE_AGENT_SDK_COMMIT,
     CLAUDE_AGENT_SDK_TYPES_URL,
     CLAUDE_AGENT_SDK_VERSION,
@@ -104,6 +105,7 @@ def test_maps_final_single_model_result_without_copying_sensitive_fields() -> No
     assert trace.request_id == "result-17-attempt-2"
     assert trace.attempt_id == "attempt-2"
     assert trace.observation_unit == "attempt"
+    assert trace.adapter_version == CLAUDE_ADAPTER_VERSION
     assert trace.model_request_count is None
     assert trace.work_unit_success == Decimal(1)
     assert trace.input_uncached_tokens == Decimal(7)
@@ -124,6 +126,9 @@ def test_maps_final_single_model_result_without_copying_sensitive_fields() -> No
     assert trace.tool_calls is None
     assert trace.sandbox_seconds is None
     assert trace.other_cost_usd is None
+    assert trace.provider_reported_total_cost_usd is None
+    assert trace.billed_total_cost_usd is None
+    assert trace.provider_marginal_cost_usd is None
     assert trace.ttft_ms is None
     assert trace.output_tokens_per_second is None
 
@@ -165,6 +170,39 @@ def test_reviewed_sdk_contract_is_immutably_pinned() -> None:
     assert CLAUDE_AGENT_SDK_COMMIT == "af5ff1b9f2f279575f89b78f17572c6e35fbc2b6"
     assert CLAUDE_AGENT_SDK_COMMIT in CLAUDE_AGENT_SDK_TYPES_URL
     assert CLAUDE_CODE_CLI_VERSION == "2.1.251"
+
+
+def test_pinned_model_usage_shape_binds_optional_identity_from_attested_route() -> None:
+    message = _message()
+    assert message.model_usage is not None
+    raw_usage = message.model_usage["claude-sonnet-4-6"]
+
+    assert set(raw_usage) == {
+        "inputTokens",
+        "outputTokens",
+        "cacheReadInputTokens",
+        "cacheCreationInputTokens",
+        "webSearchRequests",
+        "costUSD",
+        "contextWindow",
+        "maxOutputTokens",
+    }
+    assert _adapt(message).offering_id == "anthropic/claude-sonnet-4-6@first-party"
+
+    runtime_metadata = _message()
+    assert runtime_metadata.model_usage is not None
+    runtime_metadata.model_usage["claude-sonnet-4-6"]["costBasis"] = "list"
+    assert _adapt(runtime_metadata).estimated_total_cost_usd == Decimal("0.123456789012")
+
+
+@pytest.mark.parametrize("cost_basis", ["unknown", "future", None, [], {}])
+def test_rejects_unpriced_or_malformed_runtime_cost_basis(cost_basis: Any) -> None:
+    message = _message()
+    assert message.model_usage is not None
+    message.model_usage["claude-sonnet-4-6"]["costBasis"] = cost_basis
+
+    with pytest.raises(ClaudeAdapterError, match="not a priced basis"):
+        _adapt(message)
 
 
 @pytest.mark.parametrize(
@@ -209,9 +247,12 @@ def test_fails_closed_for_multiple_models_and_model_identity_drift() -> None:
     with pytest.raises(ClaudeAdapterError, match="does not match the reviewed route"):
         _adapt(route=route)
 
+    provider_drift = _message()
+    assert provider_drift.model_usage is not None
+    provider_drift.model_usage["claude-sonnet-4-6"]["provider"] = "firstParty"
     route = _adapt_route(upstream_provider="bedrock")
     with pytest.raises(ClaudeAdapterError, match="provider does not match"):
-        _adapt(route=route)
+        _adapt(provider_drift, route=route)
 
 
 def test_binds_canonical_route_to_offering_and_attests_narrow_fields() -> None:
@@ -224,8 +265,18 @@ def test_binds_canonical_route_to_offering_and_attests_narrow_fields() -> None:
         provider="anthropic",
         agent_harness="claude-agent-sdk",
     )
+    canonical_drift = _message()
+    assert canonical_drift.model_usage is not None
+    canonical_drift.model_usage["claude-sonnet-4-6"]["canonicalModel"] = "claude-sonnet-4-6"
     with pytest.raises(ClaudeAdapterError, match="canonicalModel does not match"):
-        _adapt(route=_adapt_route(offering=mismatched))
+        _adapt(canonical_drift, route=_adapt_route(offering=mismatched))
+
+    matching_identity = _message()
+    assert matching_identity.model_usage is not None
+    matching_identity.model_usage["claude-sonnet-4-6"].update(
+        {"canonicalModel": "claude-sonnet-4-6", "provider": "firstParty"}
+    )
+    assert _adapt(matching_identity).offering_id == ("anthropic/claude-sonnet-4-6@first-party")
 
     narrow = OfferingKey(
         offering_id="anthropic/claude-sonnet-4-6@priority",
@@ -263,6 +314,47 @@ def test_terminal_status_is_bounded_and_crash_usage_remains_unknown() -> None:
     assert trace.input_cache_write_tokens is None
     assert trace.output_total_tokens is None
     assert trace.estimated_total_cost_usd is None
+
+    crash_without_identity = _message()
+    crash_without_identity.subtype = "error_during_execution"
+    crash_without_identity.is_error = True
+    crash_without_identity.model_usage = None
+    assert _adapt(crash_without_identity, work_unit_success=Decimal(0)).offering_id == (
+        "anthropic/claude-sonnet-4-6@first-party"
+    )
+
+    conflicting_crash = _message()
+    conflicting_crash.subtype = "error_during_execution"
+    conflicting_crash.is_error = True
+    assert conflicting_crash.model_usage is not None
+    conflicting_crash.model_usage["claude-sonnet-4-6"]["provider"] = "firstParty"
+    with pytest.raises(ClaudeAdapterError, match="provider does not match"):
+        _adapt(
+            conflicting_crash,
+            route=_adapt_route(upstream_provider="bedrock"),
+            work_unit_success=Decimal(0),
+        )
+
+    for crash_cost_basis in ("unknown", "future", None, [], {}):
+        unpriced_crash = _message()
+        unpriced_crash.subtype = "error_during_execution"
+        unpriced_crash.is_error = True
+        assert unpriced_crash.model_usage is not None
+        unpriced_crash.model_usage["claude-sonnet-4-6"]["costBasis"] = crash_cost_basis
+        trace = _adapt(unpriced_crash, work_unit_success=Decimal(0))
+        assert trace.input_uncached_tokens is None
+        assert trace.output_total_tokens is None
+        assert trace.estimated_total_cost_usd is None
+
+    multi_model_crash = _message()
+    multi_model_crash.subtype = "error_during_execution"
+    multi_model_crash.is_error = True
+    assert multi_model_crash.model_usage is not None
+    multi_model_crash.model_usage["claude-haiku-4-5"] = deepcopy(
+        multi_model_crash.model_usage["claude-sonnet-4-6"]
+    )
+    with pytest.raises(ClaudeAdapterError, match="multiple models"):
+        _adapt(multi_model_crash, work_unit_success=Decimal(0))
 
     api_error = _message()
     api_error.subtype = "success"

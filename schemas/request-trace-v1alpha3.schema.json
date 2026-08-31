@@ -1,0 +1,1349 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha3:request-trace",
+  "additionalProperties": false,
+  "description": "Canonical usage row consumed by the DuckDB work-unit aggregator.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/request-trace/v1alpha3",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "workload_id": {
+      "minLength": 1,
+      "title": "Workload Id",
+      "type": "string"
+    },
+    "workload_version": {
+      "minLength": 1,
+      "title": "Workload Version",
+      "type": "string"
+    },
+    "work_unit_id": {
+      "minLength": 1,
+      "title": "Work Unit Id",
+      "type": "string"
+    },
+    "offering_id": {
+      "minLength": 1,
+      "title": "Offering Id",
+      "type": "string"
+    },
+    "request_id": {
+      "description": "Provider request id for request observations; a local pseudonymous record id for aggregate observations.",
+      "minLength": 1,
+      "title": "Request Id",
+      "type": "string"
+    },
+    "attempt_id": {
+      "minLength": 1,
+      "title": "Attempt Id",
+      "type": "string"
+    },
+    "observation_unit": {
+      "default": "request",
+      "description": "Granularity represented by this row: provider request, logical model call, attempt, or work unit.",
+      "enum": [
+        "request",
+        "model_call",
+        "attempt",
+        "work_unit"
+      ],
+      "title": "Observation Unit",
+      "type": "string"
+    },
+    "model_request_count": {
+      "anyOf": [
+        {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Actual provider requests represented by an aggregate row; unknown when omitted. Request rows implicitly represent one. A model-call row represents one logical model invocation, not necessarily one provider request.",
+      "title": "Model Request Count"
+    },
+    "attempt_count": {
+      "anyOf": [
+        {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Actual attempts represented by a work-unit row; unknown when omitted. Request, model-call, and attempt rows derive attempts from attempt_id.",
+      "title": "Attempt Count"
+    },
+    "adapter_id": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Canonical adapter/projector identity when producer provenance is known.",
+      "title": "Adapter Id"
+    },
+    "adapter_version": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Adapter Version"
+    },
+    "upstream_system": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Upstream System"
+    },
+    "upstream_version": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Upstream Version"
+    },
+    "upstream_commit": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Upstream Commit"
+    },
+    "collector_id": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Collector Id"
+    },
+    "collector_version": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Collector Version"
+    },
+    "work_unit_success": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!-)(?=[+]?(?:0*(?:\\.\\d*)?|0*1(?:\\.0*)?)$)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,9}|(?=[\\d.]{1,19}0*$)\\d{0,9}\\.\\d{0,9}0*$))$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "title": "Work Unit Success"
+    },
+    "input_uncached_tokens": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Input Uncached Tokens"
+    },
+    "input_cache_read_tokens": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Input Cache Read Tokens"
+    },
+    "input_cache_write_tokens": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "All cache-write tokens when retention is not exposed upstream; mutually exclusive with retention-tier buckets.",
+      "title": "Input Cache Write Tokens"
+    },
+    "input_cache_write_5m_tokens": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Input Cache Write 5M Tokens"
+    },
+    "input_cache_write_1h_tokens": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Input Cache Write 1H Tokens"
+    },
+    "cache_storage_token_hours": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cache Storage Token Hours"
+    },
+    "input_total_tokens": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Provider-reported input total including cache reads and writes.",
+      "title": "Input Total Tokens"
+    },
+    "output_tokens": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Non-reasoning output tokens when the upstream split is known.",
+      "title": "Output Tokens"
+    },
+    "reasoning_tokens": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reasoning output tokens, disjoint from output_tokens.",
+      "title": "Reasoning Tokens"
+    },
+    "output_total_tokens": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Provider-reported output total including reasoning when applicable.",
+      "title": "Output Total Tokens"
+    },
+    "tool_calls": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tool Calls"
+    },
+    "web_search_calls": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Web Search Calls"
+    },
+    "sandbox_seconds": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sandbox Seconds"
+    },
+    "other_cost_usd": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 12,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Incremental non-token cost that is safe to add to reconstructed cost.",
+      "title": "Other Cost Usd"
+    },
+    "estimated_total_cost_usd": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 12,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Client/runtime all-in cost estimate; alternative to reconstructed or billed cost.",
+      "title": "Estimated Total Cost Usd"
+    },
+    "provider_reported_total_cost_usd": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 12,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Provider/runtime-reported all-in cost not reconciled to an invoice; alternative to reconstructed, estimated, or billed cost.",
+      "title": "Provider Reported Total Cost Usd"
+    },
+    "billed_total_cost_usd": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 12,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Authoritative provider-billed all-in cost; alternative to reconstructed or estimated cost.",
+      "title": "Billed Total Cost Usd"
+    },
+    "provider_marginal_cost_usd": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 12,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Provider marginal charge for the work unit, including an explicit zero for an included subscription call; not a total economic cost.",
+      "title": "Provider Marginal Cost Usd"
+    },
+    "ttft_ms": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ttft Ms"
+    },
+    "output_tokens_per_second": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "decimal_places": 9,
+          "max_digits": 38
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Tokens Per Second"
+    }
+  },
+  "required": [
+    "schema_version",
+    "timestamp",
+    "workload_id",
+    "workload_version",
+    "work_unit_id",
+    "offering_id",
+    "request_id",
+    "attempt_id",
+    "work_unit_success"
+  ],
+  "title": "RequestTrace",
+  "type": "object",
+  "$comment": "This schema enforces row-local structural invariants. Consumers MUST also run the ModelSkyline RequestTrace semantic validator: JSON Schema cannot express exact Decimal arithmetic between input/output totals and their components, and file-level aggregation adds cross-row identity, scope, outcome, offering, timestamp, and provenance checks.",
+  "allOf": [
+    {
+      "if": {
+        "anyOf": [
+          {
+            "not": {
+              "required": [
+                "observation_unit"
+              ]
+            }
+          },
+          {
+            "properties": {
+              "observation_unit": {
+                "const": "request"
+              }
+            },
+            "required": [
+              "observation_unit"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "attempt_count": {
+            "type": "null"
+          },
+          "model_request_count": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "observation_unit": {
+            "enum": [
+              "model_call",
+              "attempt"
+            ]
+          }
+        },
+        "required": [
+          "observation_unit"
+        ]
+      },
+      "then": {
+        "properties": {
+          "attempt_count": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "observation_unit": {
+            "enum": [
+              "model_call",
+              "attempt",
+              "work_unit"
+            ]
+          }
+        },
+        "required": [
+          "observation_unit"
+        ]
+      },
+      "then": {
+        "properties": {
+          "output_tokens_per_second": {
+            "type": "null"
+          },
+          "ttft_ms": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "model_request_count": {
+            "const": 0
+          }
+        },
+        "required": [
+          "model_request_count"
+        ]
+      },
+      "then": {
+        "properties": {
+          "input_uncached_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "input_cache_read_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "input_cache_write_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "input_cache_write_5m_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "input_cache_write_1h_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "input_total_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "reasoning_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "output_total_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "attempt_count": {
+            "const": 0
+          }
+        },
+        "required": [
+          "attempt_count"
+        ]
+      },
+      "then": {
+        "properties": {
+          "model_request_count": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              }
+            ]
+          },
+          "input_uncached_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "input_cache_read_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "input_cache_write_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "input_cache_write_5m_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "input_cache_write_1h_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "input_total_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "reasoning_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          },
+          "output_total_tokens": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "const": 0
+              },
+              {
+                "pattern": "^[+]?(?:0+(?:\\.0*)?|\\.0+)$",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "input_cache_write_tokens": {
+            "not": {
+              "type": "null"
+            }
+          }
+        },
+        "required": [
+          "input_cache_write_tokens"
+        ]
+      },
+      "then": {
+        "properties": {
+          "input_cache_write_1h_tokens": {
+            "type": "null"
+          },
+          "input_cache_write_5m_tokens": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "input_cache_write_5m_tokens": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "input_cache_write_5m_tokens"
+            ]
+          },
+          {
+            "properties": {
+              "input_cache_write_1h_tokens": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "input_cache_write_1h_tokens"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "input_cache_write_tokens": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "adapter_id": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "adapter_id"
+            ]
+          },
+          {
+            "properties": {
+              "adapter_version": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "adapter_version"
+            ]
+          },
+          {
+            "properties": {
+              "upstream_system": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "upstream_system"
+            ]
+          },
+          {
+            "properties": {
+              "upstream_version": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "upstream_version"
+            ]
+          },
+          {
+            "properties": {
+              "upstream_commit": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "upstream_commit"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "properties": {
+          "adapter_id": {
+            "not": {
+              "type": "null"
+            }
+          },
+          "adapter_version": {
+            "not": {
+              "type": "null"
+            }
+          },
+          "upstream_system": {
+            "not": {
+              "type": "null"
+            }
+          },
+          "upstream_version": {
+            "not": {
+              "type": "null"
+            }
+          },
+          "upstream_commit": {
+            "not": {
+              "type": "null"
+            }
+          }
+        },
+        "required": [
+          "adapter_id",
+          "adapter_version",
+          "upstream_system",
+          "upstream_version",
+          "upstream_commit"
+        ]
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "properties": {
+              "collector_id": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "collector_id"
+            ]
+          },
+          {
+            "properties": {
+              "collector_version": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "collector_version"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "allOf": [
+          {
+            "properties": {
+              "collector_id": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "collector_version": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "collector_id",
+              "collector_version"
+            ]
+          },
+          {
+            "properties": {
+              "adapter_id": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "adapter_version": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "upstream_system": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "upstream_version": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "upstream_commit": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "adapter_id",
+              "adapter_version",
+              "upstream_system",
+              "upstream_version",
+              "upstream_commit"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

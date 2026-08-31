@@ -610,16 +610,27 @@ class SignedGatewayResolver:
             # Durable reads and verification are untrusted-duration work. Pin
             # against a fresh clock value so they cannot cross hard expiry.
             now = self._now()
-            if self._active is None:
+            active = self._active
+            if active is None:
                 raise GatewayResolverError("no verified gateway selection is installed")
             try:
                 return pin_gateway_route(
-                    self._active,
+                    active,
                     now=now,
                     required_capabilities=required_capabilities,
                     minimum_headroom=minimum_headroom,
                     admission_source=self._admission_source,
                 )
+            except GatewayExpiredError as exc:
+                # ``minimum_headroom`` is request-specific. Reject that one
+                # admission without poisoning otherwise-valid global state.
+                # Only the trusted clock crossing the signed hard expiry is a
+                # resolver-wide terminal condition.
+                if now >= active.pointer.hard_expires_at:
+                    self._last_error_class = "expired"
+                    self._last_error = str(exc)[:512]
+                    self._blocked = True
+                raise GatewayResolverError(str(exc)) from exc
             except GatewayProtocolError as exc:
                 raise GatewayResolverError(str(exc)) from exc
 

@@ -107,6 +107,7 @@ def test_cli_exports_contract_schemas(tmp_path) -> None:
     assert (output / "frontier-history.schema.json").is_file()
     assert (output / "request-trace.schema.json").is_file()
     assert (output / "request-trace-v1alpha2.schema.json").is_file()
+    assert (output / "request-trace-v1alpha3.schema.json").is_file()
     assert (output / "gateway-selection-pointer.schema.json").is_file()
     assert (output / "gateway-selection-envelope.schema.json").is_file()
     assert (output / "gateway-trust-policy.schema.json").is_file()
@@ -119,7 +120,7 @@ def test_cli_reports_package_version() -> None:
     result = runner.invoke(app, ["--version"])
 
     assert result.exit_code == 0
-    assert result.output.strip() == "0.5.0"
+    assert result.output.strip() == "0.5.1"
 
 
 def test_cli_verifies_language_neutral_gateway_bundle(tmp_path: Path) -> None:

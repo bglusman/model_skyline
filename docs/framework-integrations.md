@@ -1,11 +1,14 @@
 # Framework trace integrations
 
 ModelSkyline's framework adapters turn narrowly reviewed accounting surfaces
-into `model-skyline/request-trace/v1alpha2` rows. They are deliberately
-conservative: unsupported versions, ambiguous routes, incomplete terminal
-events, and contradictory accounting fail closed. A missing measurement stays
-`null`; only an upstream measurement or an explicit billing-state assertion
-becomes zero.
+into versioned canonical request-trace rows. Codex, Claude, and Hermes emit the
+retained `model-skyline/request-trace/v1alpha2` contract. OpenClaw emits
+`model-skyline/request-trace/v1alpha3`, which adds the conservative
+`model_call` observation scope without mutating v1alpha2. The adapters are
+deliberately conservative: unsupported versions, ambiguous routes, incomplete
+terminal events, and contradictory accounting fail closed. A missing
+measurement stays `null`; only an upstream measurement or an explicit
+billing-state assertion becomes zero.
 
 These adapters are accounting projectors, not inference clients. The operator
 still owns execution, task-outcome judgment, exact offering identity, raw-data
@@ -15,13 +18,17 @@ retention, and any attestations named by an adapter.
 
 | Adapter | Accepted upstream contract | Accepted input | Local live validation on 2026-08-30 |
 | --- | --- | --- | --- |
-| Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with `gpt-5.4`, the installed default route, and two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
-| Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | Contract and adversarial fixtures only. The installed Claude CLI was `2.1.220`, which is intentionally rejected rather than treated as `2.1.251`. |
+| Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with both the installed default and an explicit `-m gpt-5.4` route, plus two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
+| Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | An actual installed SDK `0.2.148` `ResultMessage` passed the adapter contract; no inference was run. The installed Claude CLI was `2.1.220`, which is intentionally rejected rather than treated as `2.1.251`. |
 | OpenClaw | `2026.8.1` at [`2a6c333`](https://github.com/openclaw/openclaw/tree/2a6c333225e5c886bfd630e36037fb7b206408ef) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures only. The installed `2026.3.2` is intentionally unsupported. |
 | Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7), session schema `26` | A `hermes -z --usage-file` JSON report or read-only state SQLite database | Contract, synthetic report, and synthetic schema-v26 database tests only. Hermes was not installed locally. |
 
 The Codex `0.144.2` success run reported 11,250 inclusive input tokens,
 2,304 cache-read tokens, 22 inclusive output tokens, and 15 reasoning tokens.
+An independent explicit `-m gpt-5.4` smoke run reported 10,963 inclusive
+input tokens, 1,792 cache-read tokens, 31 inclusive output tokens, and 14
+reasoning tokens. Its content-bearing JSONL was deleted after the canonical
+content-free trace was validated.
 That version does not report cache writes, so cache-write and uncached-input
 meters remained unknown. The explicit `gpt-5.2-codex` and `gpt-5.3-codex`
 routes failed for the local ChatGPT account; those are retained as failure
@@ -127,10 +134,19 @@ directory, and environment are outside the adapter boundary.
 may cover the main agent, subagents, fallbacks, and internal pipeline calls.
 The caller must attest that the input is the final cumulative result and that
 the entire segment used one model route and one stable pricing basis. Multiple
-model keys are rejected. `canonicalModel`, provider, and `costBasis` (`list` or
-`managed`) must match the route mapping. A documented
-`error_during_execution` crash is retained with unknown usage and cost because
-its apparent zero counters are not trustworthy measurements.
+model keys are rejected. In the pinned Python SDK type, `canonicalModel` and
+`provider` are optional and `costBasis` is omitted, although the bundled CLI
+may pass runtime `costBasis` metadata through. For a metered result, a present
+`costBasis` must be `list` or `managed`; `unknown` fails closed. The required
+`single_route_and_pricing_basis_attested` caller mapping binds the model,
+provider, and stable pricing basis when optional metadata is absent. Present
+`canonicalModel` or `provider` values must match the mapping. This attestation
+does not turn the SDK's client estimate into an invoice: cost is still emitted
+only as `estimated_total_cost_usd`. A documented
+`error_during_execution` crash validates surviving model/provider identity but
+does not inspect an unused pricing-basis marker. It is retained with unknown
+usage and cost because its apparent zero counters are not trustworthy
+measurements.
 
 ```python
 from datetime import UTC, datetime
@@ -179,17 +195,48 @@ amounts.
 ## OpenClaw trusted projection
 
 The OpenClaw adapter does not accept transcripts or complete plugin-hook
-payloads. A trusted local collector must verify that an event came from the
-ended core model-call lifecycle, remove private fields, enrich it with workload
-and judged outcome, and sign the exact safe envelope. The HMAC protects the
+payloads. A trusted local collector must verify the ended core model-call
+lifecycle and correlate it to a trusted per-attempt `run.started` event. The
+relationship is exact: both have the same trace id, and the model-call span's
+`parentSpanId` equals the `run.started` span id. The spans themselves are not
+identical. The collector assigns a monotonic one-based attempt ordinal before
+removing private fields, enriching workload and judged outcome, and signing the
+exact safe envelope. `callId` counters restart for each attempt, and the reviewed
+stock release does not put an ordinal on terminal model-call events, so terminal
+diagnostics alone cannot satisfy projector version 3. The HMAC protects the
 projector-to-adapter boundary; it is not evidence that an arbitrary caller's
 JSON originated inside OpenClaw.
 
+Terminal model-call diagnostics are asynchronous while attempt boundaries are
+synchronous. `waitForDiagnosticEventsDrained()` waits only through the queue
+sequence captured when it is called; newer concurrent events may still be
+pending, and the global drop summary is emitted only after the queue becomes
+globally empty. Calling that helper is therefore not, by itself, proof of a
+complete segment. The collector must retain trace-parent mappings across
+retries and independently prove that it covered the complete relevant sequence
+and drop epoch, or use exclusive/quiescent lifecycle instrumentation that
+establishes expected call cardinality and observes the queue globally empty
+after the drain. Any `diagnostic.async_queue.dropped` for the covered epoch
+fails the entire segment. The collector publishes the proven-complete segment
+atomically; only then may it set `segmentEventsComplete` to `true`. Terminal
+diagnostics alone cannot establish expected cardinality because a start event
+may itself have been dropped.
+
+A terminal event contains the latest observed AssistantMessage usage, not a sum
+over hidden transport retries. `usageComplete: true` therefore requires the
+trusted collector to prove that retries/replay/fallback were disabled for that
+call, or to independently aggregate every cost-bearing provider request. If it
+cannot, it must set `usageComplete: false` and omit `usage`; the canonical token
+meters remain unknown rather than undercounted.
+
 The runtime provider/model, expected API/transport, and supplied offering must
 match exactly. Narrow offering fields absent from the event require route
-attestation. Only request-level observations are accepted. Missing usage on a
-call error remains unknown. OpenClaw's time-to-first-byte and full call duration
-are coherence-checked but are not mislabeled as TTFT or token throughput.
+attestation. The upstream event must say `observationUnit: request`, but the
+canonical row is conservatively `model_call` because a logical OpenClaw call can
+hide multiple provider transport requests; actual request count stays unknown.
+Missing or incomplete usage remains unknown. OpenClaw's time-to-first-byte and
+full call duration are coherence-checked but are not mislabeled as TTFT or token
+throughput.
 
 ```python
 from model_skyline.adapters.openclaw import (
@@ -200,15 +247,20 @@ from model_skyline.models import OfferingKey
 
 # Inject `collector_key` from an operator secret store; never publish it.
 projection = {
-    "schema_version": "model-skyline/openclaw-model-call/v1alpha2",
+    "schema_version": "model-skyline/openclaw-model-call/v1alpha3",
     "openclaw_version": "2026.8.1",
     "collector_id": "model-skyline/openclaw-trusted-projector",
-    "collector_version": "1",
+    "collector_version": "3",
     "collector_signature": "0" * 64,
     "workload_id": "synthetic-tool-use",
     "workload_version": "v1",
     "work_unit_id": "case-0003",
     "work_unit_success": "1",
+    "runAttempt": 1,
+    # Set only after independently proving segment completeness and no drops.
+    "segmentEventsComplete": True,
+    # Set only when retries are impossible or all cost-bearing attempts were aggregated.
+    "usageComplete": True,
     "event": {
         "type": "model.call.completed",
         "ts": 1_788_123_456_789,
@@ -244,11 +296,13 @@ trace = adapt_openclaw_event(
 )
 ```
 
-Raw run and call ids are domain-separated and HMAC-pseudonymized with the
-collector key before publication, preventing low-entropy ids from being
-recovered by an unkeyed dictionary. The safe envelope rejects unknown fields
-and credential-, URL-, and path-shaped metadata. The collector key and any
-pre-projection event remain private.
+Raw run and call ids plus workload identity, work-unit identity, and the
+correlated attempt ordinal are domain-separated and HMAC-pseudonymized with the
+collector key before publication. This prevents both unkeyed recovery of
+low-entropy ids and false duplicate collisions when an upstream run id is reused
+across work units. The safe envelope rejects unknown fields and credential-,
+URL-, and path-shaped metadata. The collector key and any pre-projection event
+remain private.
 
 ## Hermes report and state database
 

@@ -292,14 +292,17 @@ assumption; they are not measurements of run-to-run or serving variance.
 
 ## Agent-framework telemetry
 
-The v1alpha2 trace contract and pinned adapters cover Codex `exec --json`,
+The versioned trace contracts and pinned adapters cover Codex `exec --json`,
 Claude Agent SDK final result messages, signed OpenClaw model-call projections,
-and Hermes usage reports or ledger-complete v26 sessions. They retain failures,
-preserve unknown rather than inventing zero, and require explicit route/outcome
-attestations for fields the upstream framework does not expose. Raw prompts,
-responses, tool payloads, paths, and credentials are deliberately outside the
-adapter outputs. See [`docs/framework-integrations.md`](docs/framework-integrations.md)
-for exact supported versions, limitations, and examples.
+and Hermes usage reports or ledger-complete v26 sessions. Codex, Claude, and
+Hermes emit retained v1alpha2 rows; OpenClaw emits v1alpha3 because its logical
+`model_call` scope cannot truthfully claim one provider request. The adapters
+retain failures, preserve unknown rather than inventing zero, and require
+explicit route/outcome attestations for fields the upstream framework does not
+expose. Raw prompts, responses, tool payloads, paths, and credentials are
+deliberately outside the adapter outputs. See
+[`docs/framework-integrations.md`](docs/framework-integrations.md) for exact
+supported versions, limitations, and examples.
 
 See `docs/architecture.md` for semantics and `docs/research.md` for prior art,
 data sources, workload evidence, licenses, and integration recommendations.

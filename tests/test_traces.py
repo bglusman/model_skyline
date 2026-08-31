@@ -22,10 +22,15 @@ WORKLOAD = WorkloadReference(
     unit="successful_coding_session",
 )
 TRACE_V2 = "model-skyline/request-trace/v1alpha2"
+TRACE_V3 = "model-skyline/request-trace/v1alpha3"
 
 
 def _v2(row: dict[str, object]) -> dict[str, object]:
     return {"schema_version": TRACE_V2, **row}
+
+
+def _v3(row: dict[str, object]) -> dict[str, object]:
+    return {"schema_version": TRACE_V3, **row}
 
 
 def test_trace_aggregation_retains_failed_work_units_and_cache_meters(tmp_path) -> None:
@@ -166,6 +171,50 @@ def test_aggregate_scope_preserves_known_totals_without_inventing_missing_meters
     assert signals["attempt_count_per_work_unit"].value == Decimal(1)
     assert signals["input_cache_write_tokens_per_work_unit"].value == Decimal(50)
     assert signals["estimated_total_cost_usd_per_work_unit"].value == Decimal("1.25")
+
+
+def test_model_call_scope_groups_calls_into_distinct_attempts_without_inventing_requests(
+    tmp_path,
+) -> None:
+    path = tmp_path / "model-calls.jsonl"
+    base = {
+        "timestamp": "2026-08-29T18:00:00Z",
+        "workload_id": WORKLOAD.id,
+        "workload_version": WORKLOAD.version,
+        "work_unit_id": "unit-1",
+        "offering_id": "provider/model@tier",
+        "observation_unit": "model_call",
+        "work_unit_success": 1,
+    }
+    rows = [
+        {
+            **base,
+            "request_id": "logical-call-1",
+            "attempt_id": "attempt-1",
+            "input_uncached_tokens": 10,
+        },
+        {
+            **base,
+            "request_id": "logical-call-2",
+            "attempt_id": "attempt-1",
+            "input_uncached_tokens": 20,
+        },
+        {
+            **base,
+            "request_id": "logical-call-3",
+            "attempt_id": "attempt-2",
+            "input_uncached_tokens": 30,
+        },
+    ]
+    path.write_text("\n".join(json.dumps(_v3(row)) for row in rows) + "\n", encoding="utf-8")
+
+    summary = aggregate_traces(path, workload=WORKLOAD)
+    signals = summary.offerings["provider/model@tier"]
+
+    assert "request_count_per_work_unit" not in signals
+    assert signals["attempt_count_per_work_unit"].value == Decimal(2)
+    assert signals["input_uncached_tokens_per_work_unit"].value == Decimal(60)
+    assert summary.source.version == TRACE_V3
 
 
 def test_aggregate_scope_uses_explicit_model_request_count(tmp_path) -> None:
@@ -368,7 +417,7 @@ def test_trace_aggregation_rejects_wrong_workload(tmp_path) -> None:
             },
             "zero model_request_count",
         ),
-        ({"observation_unit": "session"}, "request.*attempt.*work_unit"),
+        ({"observation_unit": "session"}, "request.*model_call.*attempt.*work_unit"),
         (
             {"input_cache_write_tokens": 1, "input_cache_write_5m_tokens": 1},
             "mutually exclusive",
@@ -432,6 +481,60 @@ def test_jsonl_rows_are_strictly_validated(tmp_path, mutation, message) -> None:
     path.write_text(f"{json.dumps(_v2(row))}\n", encoding="utf-8")
 
     with pytest.raises(TraceAggregationError, match=message):
+        aggregate_traces(path, workload=WORKLOAD)
+
+
+def test_v1alpha2_jsonl_rejects_v1alpha3_model_call_scope(tmp_path) -> None:
+    path = tmp_path / "v2-model-call.jsonl"
+    row = _v2(
+        {
+            "timestamp": "2026-08-29T18:00:00Z",
+            "workload_id": WORKLOAD.id,
+            "workload_version": WORKLOAD.version,
+            "work_unit_id": "unit-1",
+            "offering_id": "provider/model@tier",
+            "request_id": "logical-call-1",
+            "attempt_id": "attempt-1",
+            "observation_unit": "model_call",
+            "work_unit_success": 1,
+        }
+    )
+    path.write_text(f"{json.dumps(row)}\n", encoding="utf-8")
+
+    with pytest.raises(TraceAggregationError, match="require request-trace v1alpha3"):
+        aggregate_traces(path, workload=WORKLOAD)
+
+
+@pytest.mark.parametrize(
+    "versions",
+    [
+        (TRACE_V2, TRACE_V3),
+        (TRACE_V3, "model-skyline/request-trace/v1alpha4"),
+    ],
+    ids=["mixed-supported", "unsupported"],
+)
+def test_jsonl_rejects_mixed_or_unsupported_schema_versions(tmp_path, versions) -> None:
+    path = tmp_path / "mixed-schema.jsonl"
+    base = {
+        "timestamp": "2026-08-29T18:00:00Z",
+        "workload_id": WORKLOAD.id,
+        "workload_version": WORKLOAD.version,
+        "offering_id": "provider/model@tier",
+        "attempt_id": "attempt-1",
+        "work_unit_success": 1,
+    }
+    rows = [
+        {
+            "schema_version": version,
+            **base,
+            "work_unit_id": f"unit-{index}",
+            "request_id": f"request-{index}",
+        }
+        for index, version in enumerate(versions, start=1)
+    ]
+    path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+
+    with pytest.raises(TraceAggregationError, match="not valid canonical JSON"):
         aggregate_traces(path, workload=WORKLOAD)
 
 
@@ -622,6 +725,50 @@ def _write_parquet_trace(
         connection.close()
 
 
+def _write_versioned_parquet_trace(
+    path: Path,
+    rows: list[tuple[str | None, str]],
+) -> None:
+    connection = duckdb.connect(database=":memory:")
+    try:
+        connection.execute(
+            """
+            CREATE TABLE traces (
+                schema_version VARCHAR,
+                timestamp TIMESTAMPTZ,
+                workload_id VARCHAR,
+                workload_version VARCHAR,
+                work_unit_id VARCHAR,
+                offering_id VARCHAR,
+                request_id VARCHAR,
+                attempt_id VARCHAR,
+                observation_unit VARCHAR,
+                work_unit_success DECIMAL(18,9),
+                input_uncached_tokens DECIMAL(38,9)
+            )
+            """
+        )
+        for index, (schema_version, observation_unit) in enumerate(rows, start=1):
+            connection.execute(
+                """
+                INSERT INTO traces VALUES (
+                    ?, TIMESTAMPTZ '2026-08-29T18:00:00Z', ?, ?, 'unit-1',
+                    'provider/model@tier', ?, 'attempt-1', ?, 1, 10
+                )
+                """,
+                [
+                    schema_version,
+                    WORKLOAD.id,
+                    WORKLOAD.version,
+                    f"record-{index}",
+                    observation_unit,
+                ],
+            )
+        connection.execute(f"COPY traces TO '{path}' (FORMAT PARQUET)")
+    finally:
+        connection.close()
+
+
 def test_parquet_decimal_meters_remain_exact(tmp_path) -> None:
     path = tmp_path / "exact.parquet"
     _write_parquet_trace(path, other_cost_type="DECIMAL(10,2)")
@@ -688,6 +835,46 @@ def test_empty_parquet_is_rejected_like_empty_jsonl(tmp_path) -> None:
         connection.close()
 
     with pytest.raises(TraceAggregationError, match="no canonical usage rows"):
+        aggregate_traces(path, workload=WORKLOAD)
+
+
+def test_v1alpha3_parquet_preserves_model_call_scope_and_version(tmp_path) -> None:
+    path = tmp_path / "v3-model-call.parquet"
+    _write_versioned_parquet_trace(path, [(TRACE_V3, "model_call")])
+
+    summary = aggregate_traces(path, workload=WORKLOAD)
+    signals = summary.offerings["provider/model@tier"]
+
+    assert summary.source.version == TRACE_V3
+    assert signals["attempt_count_per_work_unit"].value == Decimal(1)
+    assert "request_count_per_work_unit" not in signals
+
+
+def test_v1alpha2_parquet_rejects_v1alpha3_model_call_scope(tmp_path) -> None:
+    path = tmp_path / "v2-model-call.parquet"
+    _write_versioned_parquet_trace(path, [(TRACE_V2, "model_call")])
+
+    with pytest.raises(TraceAggregationError, match="invalid canonical usage rows"):
+        aggregate_traces(path, workload=WORKLOAD)
+
+
+@pytest.mark.parametrize(
+    "rows",
+    [
+        [(TRACE_V2, "request"), (TRACE_V3, "request")],
+        [("model-skyline/request-trace/v1alpha4", "request")],
+        [(None, "request")],
+    ],
+    ids=["mixed-supported", "unsupported", "null"],
+)
+def test_parquet_rejects_mixed_null_or_unsupported_schema_versions(tmp_path, rows) -> None:
+    path = tmp_path / "invalid-schema.parquet"
+    _write_versioned_parquet_trace(path, rows)
+
+    with pytest.raises(
+        TraceAggregationError,
+        match="mixed, null, or unsupported schema version",
+    ):
         aggregate_traces(path, workload=WORKLOAD)
 
 

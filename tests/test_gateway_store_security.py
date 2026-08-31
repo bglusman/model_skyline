@@ -4,6 +4,8 @@ import json
 import os
 import sqlite3
 import stat
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -27,7 +29,11 @@ from model_skyline.gateway_resolver import (
     GatewayTransportError,
     SignedGatewayResolver,
 )
-from model_skyline.gateway_store import GatewayStoreError, SqliteGatewayInstallationStore
+from model_skyline.gateway_store import (
+    GatewayStoreError,
+    SqliteGatewayInstallationStore,
+    sqlite_store_schema_version,
+)
 
 NOW = datetime(2026, 8, 29, 19, tzinfo=UTC)
 CONFORMANCE = Path(__file__).parents[1] / "conformance" / "gateway-pointer" / "v1alpha1"
@@ -113,6 +119,52 @@ def _update_checkpoint(database: Path, **changes: object) -> None:
             f"UPDATE gateway_installations SET {', '.join(assignments)}",  # noqa: S608
             values,
         )
+
+
+def test_first_initialization_is_safe_across_concurrent_instances(tmp_path: Path) -> None:
+    for iteration in range(8):
+        database = tmp_path / f"concurrent-state-{iteration}" / "gateway.sqlite3"
+        barrier = threading.Barrier(32)
+
+        def initialize(
+            start_barrier: threading.Barrier = barrier,
+            path: Path = database,
+        ) -> None:
+            start_barrier.wait(timeout=10)
+            with SqliteGatewayInstallationStore(path, timeout_seconds=30) as store:
+                assert store.diagnostic_counts() == {"installations": 0}
+
+        with ThreadPoolExecutor(max_workers=barrier.parties) as executor:
+            futures = [executor.submit(initialize) for _ in range(barrier.parties)]
+            for future in futures:
+                future.result(timeout=30)
+
+        with sqlite3.connect(database) as connection:
+            rows = connection.execute(
+                "SELECT singleton, schema_version FROM gateway_store_meta"
+            ).fetchall()
+            journal_mode = connection.execute("PRAGMA journal_mode").fetchone()
+        assert rows == [(1, sqlite_store_schema_version())]
+        assert journal_mode == ("wal",)
+
+
+def test_existing_schema_version_is_validated_after_idempotent_initialization(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "unsupported-schema" / "gateway.sqlite3"
+    with SqliteGatewayInstallationStore(database):
+        pass
+    with sqlite3.connect(database) as connection:
+        connection.execute("UPDATE gateway_store_meta SET schema_version = 999")
+
+    with pytest.raises(GatewayStoreError, match="unsupported gateway store schema 999"):
+        SqliteGatewayInstallationStore(database)
+
+    with sqlite3.connect(database) as connection:
+        row = connection.execute(
+            "SELECT schema_version FROM gateway_store_meta WHERE singleton = 1"
+        ).fetchone()
+    assert row == (999,)
 
 
 class OfflineFetcher:
@@ -448,6 +500,32 @@ def test_durable_sync_delay_cannot_admit_a_now_expired_generation(tmp_path: Path
 
         with pytest.raises(GatewayResolverError, match="expiry"):
             resolver.resolve(force_refresh=True)
+        with pytest.raises(GatewayResolverError, match="remain blocked"):
+            resolver.resolve(force_refresh=True)
+        status = resolver.status()
+        assert status.state == GatewayResolverState.EXPIRED
+        assert status.last_error_class == "expired"
+        assert status.last_error == "selection lacks the required trajectory expiry headroom"
+
+
+def test_request_headroom_rejection_does_not_block_shorter_work(tmp_path: Path) -> None:
+    database = tmp_path / "state-request-headroom" / "gateway.sqlite3"
+    with SqliteGatewayInstallationStore(database) as store:
+        store.install(_bundle(7))
+        resolver = SignedGatewayResolver(
+            SOURCE,
+            policy=_policy(),
+            store=store,
+            fetcher=OfflineFetcher(),
+            clock=lambda: NOW,
+        )
+
+        assert resolver.resolve(minimum_headroom=timedelta(0)).sequence == 7
+        with pytest.raises(GatewayResolverError, match="trajectory expiry headroom"):
+            resolver.resolve(minimum_headroom=timedelta(hours=2))
+
+        assert resolver.resolve(minimum_headroom=timedelta(0)).sequence == 7
+        assert resolver.status().state != GatewayResolverState.BLOCKED
 
 
 def test_resolver_fails_closed_if_its_wall_clock_moves_backward(tmp_path: Path) -> None:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from copy import deepcopy
 from datetime import UTC, datetime
@@ -20,6 +21,8 @@ from model_skyline.traces import RequestTrace
 
 NOW = datetime(2026, 8, 29, 19, tzinfo=UTC)
 TRACE_V2 = "model-skyline/request-trace/v1alpha2"
+TRACE_V3 = "model-skyline/request-trace/v1alpha3"
+SCHEMA_ROOT = Path(__file__).resolve().parents[1] / "schemas"
 
 
 def _valid(schema: dict, payload: object) -> None:
@@ -105,13 +108,18 @@ def test_committed_publication_schemas_validate_publisher_artifacts(
 def test_request_trace_schema_versions_are_distinct_and_v1alpha1_is_preserved() -> None:
     schemas = public_schemas()
     legacy = schemas["request-trace.schema.json"]
-    current = schemas["request-trace-v1alpha2.schema.json"]
+    previous = schemas["request-trace-v1alpha2.schema.json"]
+    current = schemas["request-trace-v1alpha3.schema.json"]
 
     assert legacy["$id"] == "urn:model-skyline:schema:v1alpha1:request-trace"
     assert "schema_version" not in legacy["properties"]
     assert legacy["properties"]["input_uncached_tokens"]["default"] == "0"
-    assert current["$id"] == "urn:model-skyline:schema:v1alpha2:request-trace"
-    assert current["properties"]["schema_version"]["const"] == TRACE_V2
+    assert previous["$id"] == "urn:model-skyline:schema:v1alpha2:request-trace"
+    assert previous["properties"]["schema_version"]["const"] == TRACE_V2
+    assert "model_call" not in previous["properties"]["observation_unit"]["enum"]
+    assert current["$id"] == "urn:model-skyline:schema:v1alpha3:request-trace"
+    assert current["properties"]["schema_version"]["const"] == TRACE_V3
+    assert "model_call" in current["properties"]["observation_unit"]["enum"]
     assert "schema_version" in current["required"]
     _valid(
         legacy,
@@ -119,11 +127,20 @@ def test_request_trace_schema_versions_are_distinct_and_v1alpha1_is_preserved() 
     )
 
 
-def test_committed_request_trace_v1alpha2_schema_matches_generator() -> None:
-    assert (
-        public_schemas()["request-trace-v1alpha2.schema.json"]
-        == generated_schemas()["request-trace-v1alpha2.schema.json"]
-    )
+def test_released_request_trace_v1alpha2_schema_bytes_are_immutable() -> None:
+    digest = hashlib.sha256(
+        (SCHEMA_ROOT / "request-trace-v1alpha2.schema.json").read_bytes()
+    ).hexdigest()
+
+    assert digest == "405a150c126da7bd7b788f3fe9e2839f6e3e9327573e68248d47defcb3fc5b5b"
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["request-trace-v1alpha2.schema.json", "request-trace-v1alpha3.schema.json"],
+)
+def test_committed_request_trace_schemas_match_generator(name: str) -> None:
+    assert public_schemas()[name] == generated_schemas()[name]
 
 
 @pytest.mark.parametrize(
@@ -163,12 +180,31 @@ def test_request_trace_v1alpha2_schema_accepts_structurally_coherent_rows(
 
 
 @pytest.mark.parametrize(
+    "updates",
+    [
+        {"observation_unit": "model_call"},
+        {"observation_unit": "model_call", "model_request_count": 2},
+    ],
+)
+def test_request_trace_v1alpha3_schema_accepts_model_call_rows(
+    updates: dict[str, object],
+) -> None:
+    _valid(
+        public_schemas()["request-trace-v1alpha3.schema.json"],
+        _trace_payload(schema_version=TRACE_V3, **updates),
+    )
+
+
+@pytest.mark.parametrize(
     "payload",
     [
         _trace_payload(schema_version="model-skyline/request-trace/v1alpha1"),
         {key: value for key, value in _trace_payload().items() if key != "schema_version"},
         _trace_payload(model_request_count=2),
         _trace_payload(attempt_count=1),
+        _trace_payload(observation_unit="model_call"),
+        _trace_payload(observation_unit="model_call", attempt_count=1),
+        _trace_payload(observation_unit="model_call", ttft_ms="1"),
         _trace_payload(observation_unit="attempt", attempt_count=1),
         _trace_payload(observation_unit="attempt", ttft_ms="1"),
         _trace_payload(observation_unit="work_unit", output_tokens_per_second="1"),
@@ -212,6 +248,21 @@ def test_request_trace_v1alpha2_schema_rejects_structural_incoherence(
 ) -> None:
     with pytest.raises(JsonSchemaValidationError):
         _valid(public_schemas()["request-trace-v1alpha2.schema.json"], payload)
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        _trace_payload(schema_version=TRACE_V3, observation_unit="model_call", attempt_count=1),
+        _trace_payload(schema_version=TRACE_V3, observation_unit="model_call", ttft_ms="1"),
+        _trace_payload(schema_version=TRACE_V2, observation_unit="model_call"),
+    ],
+)
+def test_request_trace_v1alpha3_schema_rejects_incoherent_or_mismatched_rows(
+    payload: dict[str, object],
+) -> None:
+    with pytest.raises(JsonSchemaValidationError):
+        _valid(public_schemas()["request-trace-v1alpha3.schema.json"], payload)
 
 
 def test_request_trace_v1alpha2_schema_defers_decimal_arithmetic_to_semantic_validator() -> None:
