@@ -42,42 +42,62 @@ default and validate an upstream declaration such as lm-evaluation-harness
 `higher_is_better`, but the resulting frontier goal remains reviewable operator
 policy.
 
-### Exact evidence identity
+### Exact, dependency-scoped evidence identity
 
-Every benchmark component binds, directly or through a content hash:
+Every adapter retains the exact captured bytes, but a mapping must not bind one
+undifferentiated hash of an entire mutable leaderboard. That would require human
+review when an unrelated row is added or when a correctly identified subject
+merely receives a new score. Normalized quality evidence therefore separates at
+least these hash domains:
 
-- source URL, exact retrieved bytes and SHA-256, retrieval time, upstream
-  release or commit, parser/normalizer version, methodology, and source terms;
-- dataset revision, split, task IDs or task-set digest, cohort weights, and
-  excluded or unscored tasks;
-- harness and agent implementation, scorer or verifier, prompts/templates,
-  judge model and prompt when applicable, tools/environment, generation
-  parameters, seeds/epochs, retry policy, concurrency, and resource budget;
-- work-unit definition, sample-count meaning, observation time, and interval
-  method and coverage or an explicit statement that bounds are unavailable;
-- exact result row or system identity and the complete `OfferingKey` to which
-  it is applied.
+| Digest | Identity-bearing fields | What a change invalidates |
+|---|---|---|
+| raw source | Exact retrieved bytes | Audit capture only |
+| source identity | Origin, board/dataset revision and split, task cohort, evaluator harness, scorer, protocol, and adapter projection version | Component workload and all mappings under that identity |
+| subject identity | Exact row locator plus the model/system, agent, route, reasoning, and attempt claims used for reconciliation | That row's reviewed offering mapping |
+| result | Score, counts, interval, observation time, and reported cost/time/token measures | Quality observation, catalog, and dependent frontiers |
+| rights | License/terms assertion and redistribution review | Publication eligibility, not the numeric result or route mapping |
 
-A semantic change to the cohort, harness, scorer, judge, parser, configuration,
-budget, or offering produces a new workload/source/result identity. Merely
-refreshing identical bytes does not revise the score. Pricing changes do not
-invalidate independent quality evidence; a mutable model alias, reviewed route
-mapping, or quality-producing configuration change does.
+The source-identity domain binds task IDs or a task-set digest, cohort weights,
+excluded or unscored tasks, prompts/templates, judge model and prompt when
+applicable, tools/environment, generation parameters, seeds/epochs, retry
+policy, concurrency, resource budget, work-unit definition, and sample-count
+meaning. The raw capture also retains retrieval time, upstream release or
+commit, parser implementation provenance, methodology, URLs, and source terms.
+
+A semantic change to the cohort, evaluator harness, scorer, judge, parser
+projection, configuration, or budget produces a new source identity. A change
+to the system/model claims used for reconciliation produces a new subject
+identity. A result-only change revises quality without forcing route review;
+adding an unrelated row changes audit/quarantine coverage without resetting an
+already mapped row. Merely re-fetching identical semantic bytes does not revise
+the score. Pricing changes do not invalidate independent quality evidence.
 
 ### Reviewed result-to-offering mapping
 
 Leaderboard names are untrusted labels, not routing instructions. A mapping
-entry must contain the exact upstream row locator, source/system label, a
-canonical selected-row SHA-256, expected source digest and parser version, the
-complete target `OfferingKey`, review evidence, and review time. An agent-system
-submission must remain identified as that agent system; it cannot be relabeled
-as a bare underlying model score.
+entry must contain the exact upstream row locator, adapter and projection
+version, expected source-identity and subject-identity digests, the complete
+target `OfferingKey`, review evidence, and review time. It may additionally pin
+one complete evidence artifact for a frozen audit, but an always-current mapping
+does not bind result-only or unrelated raw-source changes.
 
 Mappings use exact equality only. Case folding, prefix/family matching, provider
-fallback, “latest” aliases, and fuzzy names are forbidden. A row or source hash
-change invalidates the mapping pending review. If provider, endpoint, harness,
-or another material route field is unknown, the observation may remain useful
-for research but cannot silently become a routable selection candidate.
+fallback, “latest” aliases, and fuzzy names are forbidden. A source-identity or
+subject-identity change quarantines the affected mapping pending review. A new
+unmapped row is reported but cannot affect selection. If provider, endpoint,
+service tier, reasoning effort, quantization, or another material route field is
+unknown, the observation may remain useful for research but cannot silently
+become a routable selection candidate.
+
+Evaluator identity and route identity are distinct. The benchmark harness and
+submitted agent belong to the workload/evidence subject. `OfferingKey.agent_harness`
+describes only a harness that is part of the production routing target; it is
+often null. This distinction lets the same exact routable offering overlap
+across SWE-bench, reasoning, and tool-use frontiers without erasing the
+benchmark-specific evaluator provenance. A multi-model, router, or undisclosed
+submission remains a composite/research subject and cannot be relabeled as a
+bare component-model score.
 
 ### Small benchmark bundles
 
@@ -104,7 +124,10 @@ Each component keeps its own workload and score unit. The default selection
 method is separate cost/performance frontiers followed by exact multi-frontier
 overlap/proximity under [ADR 0002](0002-multi-frontier-overlap-and-proximity.md).
 This preserves disagreements and missing measurements. It is preferable to a
-single “quality” average.
+single “quality” average. A production bundle policy must additionally declare
+its required component IDs and minimum measured-component coverage; visible
+missing evidence alone must not make an insufficiently measured candidate
+eligible.
 
 An optional scalar composite requires a new versioned composite workload with:
 
@@ -122,9 +145,13 @@ An optional scalar composite requires a new versioned composite workload with:
 
 Quality evidence usually ages by semantic identity rather than a short wall
 clock. A fixed, immutable benchmark run may remain valid historical evidence
-while its route-availability or price observation expires independently. An
-operator can still set metric or source-specific maximum ages when deployment
-drift makes old evidence unsuitable.
+while its route-availability or price observation expires independently. Keep
+three clocks separate: observation time for metric/source eligibility,
+collector health for monitoring whether upstream is still being polled, and
+mapping validity for mutable route-identity attestations. Retrieval time is
+acquisition provenance and must not substitute for all three. An operator can
+still set metric or source-specific maximum ages when deployment drift makes
+old evidence unsuitable.
 
 `sample_count` must be described as tasks, scored tasks, repetitions, judge
 votes, or another exact denominator. Model failures, harness failures, and
@@ -143,8 +170,9 @@ global model score:
 ```text
 official leaderboard or local eval log
         -> allowlisted, versioned adapter
-        -> immutable source + selected-row hashes
-        -> reviewed full-OfferingKey mapping
+        -> normalized evidence + dependency-scoped hashes
+        -> reviewed full-OfferingKey reconciliation
+        -> typed mapped/quarantined/drift report
         -> workload-bound ObservationCatalog
         -> independent frontier(s)
         -> optional overlap/proximity selection
@@ -213,6 +241,9 @@ derived observation only when the operator has documented authority to do so.
   without erasing one another.
 - Exact mappings and workload versions add review work, but prevent a model
   family name from becoming a false provider-route claim.
+- Result-only changes can refresh quality without remapping a stable subject;
+  source/subject drift and newly unmapped rows fail closed or quarantine with a
+  typed audit outcome.
 - Multi-frontier overlap keeps heterogeneous evidence visible and avoids
   arbitrary scalar weights by default.
 - Generic Inspect, lm-eval, and leaderboard adapters cover many benchmarks;
