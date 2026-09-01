@@ -46,7 +46,7 @@ from model_skyline.models import (
 )
 from model_skyline.traces import RequestTrace
 
-OPENCLAW_REVIEWED_COMMIT: Final = "2a6c333225e5c886bfd630e36037fb7b206408ef"
+OPENCLAW_REVIEWED_COMMIT: Final = "ea806575e6450e4d1efdfc72c19f04be982a1b9b"
 OPENCLAW_REVIEWED_VERSION: Final = "2026.8.1"
 OPENCLAW_TRACE_SCHEMA_VERSION: Final = "model-skyline/openclaw-model-call/v1alpha3"
 OPENCLAW_ADAPTER_VERSION: Final = "1alpha3"

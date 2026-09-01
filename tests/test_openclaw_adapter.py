@@ -18,9 +18,12 @@ from model_skyline.adapters.openclaw import (
     OPENCLAW_DIAGNOSTIC_TYPES_URL,
     OPENCLAW_MODEL_LIFECYCLE_URL,
     OPENCLAW_MODEL_OBSERVATION_URL,
+    OPENCLAW_OTEL_DOCS_URL,
+    OPENCLAW_PACKAGE_URL,
     OPENCLAW_REVIEWED_COMMIT,
     OPENCLAW_REVIEWED_VERSION,
     OPENCLAW_TRACE_SCHEMA_VERSION,
+    OPENCLAW_USAGE_NORMALIZATION_URL,
     OpenClawAdapterError,
     OpenClawTraceEnvelope,
     adapt_openclaw_event,
@@ -291,6 +294,14 @@ def test_adapter_output_preserves_usage_without_inventing_provider_request_count
     assert "request_count_per_work_unit" not in signals
     assert signals["input_cache_write_tokens_per_work_unit"].value == Decimal(375)
     assert signals["output_total_tokens_per_work_unit"].value == Decimal(160)
+    assert len(summary.producer_sources) == 1
+    producer = summary.producer_sources[0]
+    assert producer.version == OPENCLAW_REVIEWED_COMMIT
+    assert producer.retrieved_at == datetime(2026, 9, 1, tzinfo=UTC)
+    assert (
+        "sha512-bSaFeaDFnQH/bU1vgKMac6eHkHHPHG0C/uwduXGI3eIS3lyiYSwmDU5ehhBUUhlPeV85tL5/"
+        "KVwmoH48nX1tWw=="
+    ) in (producer.methodology or "")
 
 
 def test_two_calls_in_one_attempt_share_attempt_identity(tmp_path: Path) -> None:
@@ -546,13 +557,18 @@ def test_unsafe_offering_identity_is_rejected_without_echo(
     assert unsafe_offering_id not in str(caught.value)
 
 
-def test_source_pin_is_full_commit_and_used_by_primary_type_url() -> None:
+def test_source_pin_matches_exact_release_commit_and_all_primary_urls() -> None:
+    assert OPENCLAW_REVIEWED_VERSION == "2026.8.1"
+    assert OPENCLAW_REVIEWED_COMMIT == "ea806575e6450e4d1efdfc72c19f04be982a1b9b"
     assert len(OPENCLAW_REVIEWED_COMMIT) == 40
+    assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_PACKAGE_URL
     assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_DIAGNOSTIC_TYPES_URL
+    assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_USAGE_NORMALIZATION_URL
     assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_ATTEMPT_SETUP_URL
     assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_ATTEMPT_STREAM_URL
     assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_MODEL_LIFECYCLE_URL
     assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_MODEL_OBSERVATION_URL
+    assert OPENCLAW_REVIEWED_COMMIT in OPENCLAW_OTEL_DOCS_URL
 
 
 def test_requires_trusted_collector_and_binds_full_runtime_route() -> None:

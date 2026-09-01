@@ -20,7 +20,7 @@ retention, and any attestations named by an adapter.
 | --- | --- | --- | --- |
 | Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with both the installed default and an explicit `-m gpt-5.4` route, plus two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
 | Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | SDK `0.2.148` with its bundled CLI `2.1.251` was installed exactly. A constrained Haiku request (no tools, skills, settings, MCP, fallback, or session persistence; one turn; $0.02 cap) reached the SDK but stopped on API billing/quota before a `ResultMessage`, so it did not prove a live `RequestTrace` or the runtime `costBasis` contract. |
-| OpenClaw | `2026.8.1` at [`2a6c333`](https://github.com/openclaw/openclaw/tree/2a6c333225e5c886bfd630e36037fb7b206408ef) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures only. The installed `2026.3.2` is intentionally unsupported. |
+| OpenClaw | `2026.8.1` at [`ea80657`](https://github.com/openclaw/openclaw/tree/ea806575e6450e4d1efdfc72c19f04be982a1b9b) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures only. The installed `2026.3.2` is intentionally unsupported. |
 | Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7), session schema `26` | A `hermes -z --usage-file` JSON report or read-only state SQLite database | Contract, synthetic report, and synthetic schema-v26 database tests only. Hermes was not installed locally. |
 
 The Codex `0.144.2` success run reported 11,250 inclusive input tokens,
@@ -199,6 +199,16 @@ visible-output/reasoning split. SDK costs are client estimates, not billed
 amounts.
 
 ## OpenClaw trusted projection
+
+The reviewed source identity is the commit resolved by the signed
+[`v2026.8.1` tag](https://github.com/openclaw/openclaw/releases/tag/v2026.8.1).
+The published [npm tarball](https://registry.npmjs.org/openclaw/-/openclaw-2026.8.1.tgz)
+also records `2026.8.1` and commit
+`ea806575e6450e4d1efdfc72c19f04be982a1b9b` in `dist/build-info.json`. Its
+registry integrity is
+`sha512-bSaFeaDFnQH/bU1vgKMac6eHkHHPHG0C/uwduXGI3eIS3lyiYSwmDU5ehhBUUhlPeV85tL5/KVwmoH48nX1tWw==`,
+as retained in OpenClaw's
+[npm verification record](https://github.com/openclaw/openclaw/releases/download/v2026.8.1/openclaw-2026.8.1-npm-verification.json).
 
 The OpenClaw adapter does not accept transcripts or complete plugin-hook
 payloads. A trusted local collector must verify the ended core model-call

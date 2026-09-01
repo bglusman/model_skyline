@@ -39,6 +39,10 @@
   repair its retired methodology URL. Version 1 reconciliations must be
   reviewed and regenerated; the monitor does not silently carry their identity
   pins forward.
+- Correct the trusted OpenClaw `2026.8.1` source pin to the commit jointly
+  identified by the verified signed tag and published npm build metadata.
+  OpenClaw traces carrying the former divergent producer identity must be
+  reviewed and regenerated; the old producer key is no longer trusted.
 
 ## 0.8.0 - 2026-08-31
 

@@ -17,6 +17,7 @@ from model_skyline.models import SourceReference
 
 ProducerKey = tuple[str, str, str, str, str, str | None, str | None]
 _REVIEWED_AT: Final = datetime(2026, 8, 30, tzinfo=UTC)
+_OPENCLAW_REVIEWED_AT: Final = datetime(2026, 9, 1, tzinfo=UTC)
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,6 +34,7 @@ def _source(
     terms_url: str,
     license_name: str,
     methodology: str,
+    retrieved_at: datetime = _REVIEWED_AT,
 ) -> SourceReference:
     return SourceReference(
         id=source_id,
@@ -41,7 +43,7 @@ def _source(
         terms_url=terms_url,
         license=license_name,
         methodology=methodology,
-        retrieved_at=_REVIEWED_AT,
+        retrieved_at=retrieved_at,
     )
 
 
@@ -57,7 +59,11 @@ _HERMES_LICENSE = (
     "4f22543509d1b91dc45bcb369447126c5eb14fb7/LICENSE"
 )
 _OPENCLAW_LICENSE = (
-    "https://github.com/openclaw/openclaw/blob/2a6c333225e5c886bfd630e36037fb7b206408ef/LICENSE"
+    "https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/LICENSE"
+)
+_OPENCLAW_NPM_TARBALL_INTEGRITY = (
+    "sha512-bSaFeaDFnQH/bU1vgKMac6eHkHHPHG0C/uwduXGI3eIS3lyiYSwmDU5ehhBUUhlPeV85tL5/"
+    "KVwmoH48nX1tWw=="
 )
 
 _TRACE_PRODUCERS: dict[ProducerKey, TrustedTraceProducer] = {}
@@ -166,26 +172,29 @@ _register(
             "1alpha3",
             "openclaw/openclaw",
             "2026.8.1",
-            "2a6c333225e5c886bfd630e36037fb7b206408ef",
+            "ea806575e6450e4d1efdfc72c19f04be982a1b9b",
             "model-skyline/openclaw-trusted-projector",
             "3",
         ),
         source=_source(
             source_id="producer:openclaw-model-call:2026.8.1",
-            version="2a6c333225e5c886bfd630e36037fb7b206408ef",
+            version="ea806575e6450e4d1efdfc72c19f04be982a1b9b",
             url=(
                 "https://github.com/openclaw/openclaw/blob/"
-                "2a6c333225e5c886bfd630e36037fb7b206408ef/"
+                "ea806575e6450e4d1efdfc72c19f04be982a1b9b/"
                 "src/infra/diagnostic-events.ts"
             ),
             terms_url=_OPENCLAW_LICENSE,
             license_name="MIT",
+            retrieved_at=_OPENCLAW_REVIEWED_AT,
             methodology=(
                 "Exact reviewed OpenClaw model-call diagnostic projection; the trusted "
                 "projector correlates each model-call child span to its per-attempt "
                 "run.started parent, independently proves asynchronous segment "
                 "completeness, rejects dropped events, and authenticates completeness "
-                "attestations in the canonical envelope."
+                "attestations in the canonical envelope. The signed v2026.8.1 tag and "
+                "published npm build-info identify this commit; the npm root tarball "
+                f"integrity is {_OPENCLAW_NPM_TARBALL_INTEGRITY}."
             ),
         ),
     )
