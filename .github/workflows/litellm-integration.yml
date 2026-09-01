@@ -2,17 +2,26 @@ name: LiteLLM integration
 
 on:
   push:
+    branches: ["main"]
     paths:
       - ".github/workflows/litellm-integration.yml"
       - "integrations/litellm/**"
+      - "pyproject.toml"
       - "src/model_skyline/**"
       - "examples/coding-session/**"
+      - "uv.lock"
   pull_request:
     paths:
       - ".github/workflows/litellm-integration.yml"
       - "integrations/litellm/**"
+      - "pyproject.toml"
       - "src/model_skyline/**"
       - "examples/coding-session/**"
+      - "uv.lock"
+
+concurrency:
+  group: litellm-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read

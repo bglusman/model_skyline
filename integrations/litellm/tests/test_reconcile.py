@@ -20,10 +20,31 @@ from model_skyline_litellm.reconcile import (
 )
 
 
+def _stored_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        **payload,
+        "litellm_params": {
+            **payload["litellm_params"],
+            "allow_client_keepalive_override": False,
+            "merge_reasoning_content_in_choices": False,
+            "use_in_pass_through": False,
+            "use_litellm_proxy": False,
+            "use_xai_oauth": False,
+        },
+        "model_info": {
+            **payload["model_info"],
+            "access_via_team_ids": [],
+            "blocked": False,
+            "db_model": True,
+            "direct_access": True,
+            "rpm": None,
+            "tpm": None,
+        },
+    }
+
+
 def _row(deployment: PlannedDeployment) -> dict[str, Any]:
-    payload = deployment.create_payload()
-    payload["model_info"] = {**payload["model_info"], "db_model": True}
-    return payload
+    return _stored_payload(deployment.create_payload())
 
 
 class FakeAPI:
@@ -45,9 +66,9 @@ class FakeAPI:
         self.create_calls.append(payload)
         if self.fail_create_at == len(self.create_calls):
             if self.commit_failed_create:
-                self.rows.append(dict(payload))
+                self.rows.append(_stored_payload(payload))
             raise AdminAPIError("content-free test failure")
-        self.rows.append(dict(payload))
+        self.rows.append(_stored_payload(payload))
         return {"ok": True}
 
     def get_runtime_config(self) -> Mapping[str, Any]:
@@ -159,6 +180,52 @@ def test_stage_rejects_conflicting_id_and_unexpected_group_member(
         stage(plan, api, now=GENERATED_AT)
 
 
+def test_stage_rejects_unexpected_execution_parameters(
+    selection: SelectionSnapshot,
+    config: IntegrationConfig,
+) -> None:
+    plan = _plan(selection, config)
+    api = FakeAPI()
+    mutated = _row(plan.deployments[0])
+    mutated["litellm_params"] = {
+        **mutated["litellm_params"],
+        "api_base": "https://unreviewed.invalid/v1",
+    }
+    api.rows.append(mutated)
+
+    with pytest.raises(ReconcileError, match="parameters"):
+        stage(plan, api, now=GENERATED_AT)
+
+
+@pytest.mark.parametrize(
+    ("location", "key", "value"),
+    [
+        ("litellm_params", "use_litellm_proxy", True),
+        ("model_info", "blocked", True),
+        ("model_info", "access_groups", ["unreviewed"]),
+        ("row", "team_id", "unreviewed"),
+    ],
+)
+def test_stage_rejects_server_control_drift(
+    selection: SelectionSnapshot,
+    config: IntegrationConfig,
+    location: str,
+    key: str,
+    value: Any,
+) -> None:
+    plan = _plan(selection, config)
+    api = FakeAPI()
+    mutated = _row(plan.deployments[0])
+    if location == "row":
+        mutated[key] = value
+    else:
+        mutated[location] = {**mutated[location], key: value}
+    api.rows.append(mutated)
+
+    with pytest.raises(ReconcileError, match="deployment"):
+        stage(plan, api, now=GENERATED_AT)
+
+
 def test_activate_preserves_complete_alias_map_and_is_idempotent(
     selection: SelectionSnapshot,
     config: IntegrationConfig,
@@ -230,6 +297,35 @@ def test_activate_recovers_timeout_after_commit_but_not_unknown_state(
     unknown.fail_alias = True
     with pytest.raises(IndeterminateActivationError, match="unavailable"):
         activate(plan, unknown, now=GENERATED_AT)
+
+
+@pytest.mark.parametrize("malformed", [False, True])
+def test_activate_success_with_unavailable_readback_is_indeterminate(
+    selection: SelectionSnapshot,
+    config: IntegrationConfig,
+    *,
+    malformed: bool,
+) -> None:
+    plan = _plan(selection, config)
+
+    class UnverifiedAPI(FakeAPI):
+        reads = 0
+
+        def get_runtime_config(self) -> Mapping[str, Any]:
+            self.reads += 1
+            if self.reads >= 3:
+                if malformed:
+                    return {"router_settings": {"model_group_alias": []}}
+                raise AdminAPIError("unavailable")
+            return super().get_runtime_config()
+
+    api = UnverifiedAPI()
+    api.rows.extend(_row(item) for item in plan.deployments)
+
+    with pytest.raises(IndeterminateActivationError, match="unavailable"):
+        activate(plan, api, now=GENERATED_AT)
+
+    assert api.aliases[plan.stable_alias] == plan.group_name
 
 
 def test_activate_rejects_rollback_and_same_time_equivocation(

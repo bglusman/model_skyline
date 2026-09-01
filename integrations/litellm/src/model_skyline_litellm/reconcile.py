@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from datetime import datetime
-from typing import Any
+from typing import Any, Final
 
 from model_skyline_litellm.api import AdminAPIError, AliasValue, LiteLLMAdminClient
 from model_skyline_litellm.models import PlannedDeployment, ProjectionPlan
@@ -14,6 +14,23 @@ class ReconcileError(RuntimeError):
 
 class IndeterminateActivationError(ReconcileError):
     """An alias write may have committed but its complete state cannot be proven."""
+
+
+_SERVER_PARAMETER_DEFAULTS: Final = {
+    "allow_client_keepalive_override": False,
+    "merge_reasoning_content_in_choices": False,
+    "use_in_pass_through": False,
+    "use_litellm_proxy": False,
+    "use_xai_oauth": False,
+}
+_SERVER_MODEL_INFO_CONTROLS: Final = {
+    "access_via_team_ids": [],
+    "blocked": False,
+    "db_model": True,
+    "direct_access": True,
+    "rpm": None,
+    "tpm": None,
+}
 
 
 def _mapping(value: Any, *, field: str) -> Mapping[str, Any]:
@@ -38,9 +55,24 @@ def _rows_for_group(
 
 
 def _verify_row(row: Mapping[str, Any], expected: PlannedDeployment) -> None:
+    if set(row) != {"model_name", "litellm_params", "model_info"}:
+        raise ReconcileError("LiteLLM deployment row has unexpected or missing fields")
     if row.get("model_name") != expected.group_name:
         raise ReconcileError("LiteLLM deployment group does not match the staged plan")
     params = _mapping(row.get("litellm_params"), field="deployment parameters")
+    expected_fields = {
+        "model",
+        "litellm_credential_name",
+        "order",
+        *_SERVER_PARAMETER_DEFAULTS,
+    }
+    if set(params) != expected_fields:
+        unexpected = sorted(set(params) - expected_fields)
+        missing = sorted(expected_fields - set(params))
+        raise ReconcileError(
+            "LiteLLM deployment parameters have unexpected or missing fields "
+            f"(unexpected={unexpected!r}, missing={missing!r})"
+        )
     if (
         params.get("model") != expected.target.model
         or params.get("litellm_credential_name") != expected.target.credential_name
@@ -48,10 +80,25 @@ def _verify_row(row: Mapping[str, Any], expected: PlannedDeployment) -> None:
         or params.get("order") != expected.rank
     ):
         raise ReconcileError("LiteLLM deployment parameters do not match the staged plan")
+    if any(params.get(key) is not value for key, value in _SERVER_PARAMETER_DEFAULTS.items()):
+        raise ReconcileError("LiteLLM deployment parameter defaults do not match the pinned policy")
     model_info = _mapping(row.get("model_info"), field="deployment metadata")
-    for key, value in expected.model_info().items():
-        if model_info.get(key) != value:
+    expected_info = expected.model_info()
+    for key, value in expected_info.items():
+        actual = model_info.get(key)
+        if type(actual) is not type(value) or actual != value:
             raise ReconcileError("LiteLLM deployment metadata does not match the staged plan")
+    for key, value in _SERVER_MODEL_INFO_CONTROLS.items():
+        actual = model_info.get(key)
+        if type(actual) is not type(value) or actual != value:
+            raise ReconcileError("LiteLLM deployment controls do not match the pinned policy")
+    ignored_enrichment = set(model_info) - set(expected_info) - set(_SERVER_MODEL_INFO_CONTROLS)
+    if any(
+        marker in key.casefold()
+        for key in ignored_enrichment
+        for marker in ("access", "allow", "block", "fallback", "route", "team")
+    ):
+        raise ReconcileError("LiteLLM deployment metadata contains an unknown routing control")
 
 
 def verify_staged(plan: ProjectionPlan, api: LiteLLMAdminClient) -> None:
@@ -229,6 +276,11 @@ def activate(plan: ProjectionPlan, api: LiteLLMAdminClient, *, now: datetime) ->
         raise IndeterminateActivationError(
             "alias update failed and post-write state differs from both known maps"
         ) from None
-    observed = _aliases(api.get_runtime_config())
+    try:
+        observed = _aliases(api.get_runtime_config())
+    except (AdminAPIError, ReconcileError):
+        raise IndeterminateActivationError(
+            "alias update succeeded but post-write state is unavailable"
+        ) from None
     if observed != intended:
         raise IndeterminateActivationError("alias update readback does not match the intended map")

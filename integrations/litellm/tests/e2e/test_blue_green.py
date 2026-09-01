@@ -116,6 +116,20 @@ def _set_backend_status(client: httpx.Client, backend: str, status: int) -> None
         raise AssertionError(f"fake-provider control returned HTTP {response.status_code}")
 
 
+def _request_counts(client: httpx.Client) -> dict[str, int]:
+    state = _request_json(client, "GET", "/state")
+    counts: dict[str, int] = {}
+    for backend in ("a", "b"):
+        item = state.get(backend)
+        if not isinstance(item, Mapping):
+            raise AssertionError("fake-provider state has an unexpected shape")
+        value = item.get("requests")
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise AssertionError("fake-provider request count has an unexpected shape")
+        counts[backend] = value
+    return counts
+
+
 def _load_plans() -> tuple[ProjectionPlan, ProjectionPlan]:
     config_value = json.loads((FIXTURES / "bindings.json").read_bytes())
     config = IntegrationConfig.model_validate(config_value)
@@ -171,7 +185,11 @@ def test_blue_green_projection_and_restart_persistence(
         assert _completion(proxy, plan_a.stable_alias) == "backend-a"
 
         _set_backend_status(fake, "a", 503)
+        before_fallback = _request_counts(fake)
         assert _completion(proxy, plan_a.stable_alias) == "backend-b"
+        after_fallback = _request_counts(fake)
+        assert after_fallback["a"] > before_fallback["a"]
+        assert after_fallback["b"] > before_fallback["b"]
         _set_backend_status(fake, "a", 200)
 
         stage(plan_b, admin, now=plan_b.generated_at)

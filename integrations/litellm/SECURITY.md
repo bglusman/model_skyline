@@ -87,7 +87,12 @@ complete offerings, and selected local-target fingerprints. Rotating a target
 attestation therefore produces a different immutable group even if the
 selection is unchanged. A stage reads the LiteLLM catalog, rejects a
 deterministic ID used by another group, creates missing rows, and verifies the
-exact group before returning.
+exact group before returning. "Exact" here means the top-level row shape, all
+authored execution parameters, pinned inactive LiteLLM parameter defaults, and
+pinned access/block/rate controls. LiteLLM `v1.98.0` also merges live provider
+capability and pricing metadata into `model_info`; the verifier treats that
+enrichment as non-authoritative rather than incorporating it into target
+identity.
 The stable alias is never touched by `stage`, so a partial group is not promoted
 by this controller.
 
@@ -118,6 +123,12 @@ Activation also rejects:
 - different snapshots with the same visible generation time; and
 - non-empty global `fallbacks` or `*_fallbacks` settings that could widen the
   managed candidate set.
+
+That last check does not cover key- or team-level routing policy. Execute the
+managed alias only through a dedicated LiteLLM key and team whose policy has no
+fallback capable of widening the selected group. The alpha controller cannot
+inspect or enforce every request-scoped policy, so sharing a key/team with
+independent routing automation invalidates the bounded-candidate claim.
 
 Those checks depend on the current mutable LiteLLM rows and alias map. They are
 not durable anti-rollback protection if that state is deleted, replaced, or

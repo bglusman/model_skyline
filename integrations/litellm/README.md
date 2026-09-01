@@ -126,8 +126,12 @@ The commands have separate failure boundaries:
    fingerprints. Rotating an attested target therefore stages a new immutable
    group even when the selection snapshot itself is unchanged.
 2. `stage` creates any missing rows in that versioned group and reads them all
-   back. It never changes the stable alias, so this command does not promote a
-   partial or conflicting group. Retrying an exact stage is idempotent.
+   back. Verification requires the exact authored execution parameters, pinned
+   inactive server defaults, and pinned access/block/rate controls. It ignores
+   LiteLLM's live provider capability and pricing enrichment because that data
+   is not stored target identity. It never changes the stable alias, so this
+   command does not promote a partial or conflicting group. Retrying an exact
+   stage is idempotent.
 3. `activate` verifies the staged group, refuses configured global fallbacks
    that could widen it, preserves the complete observed alias map, changes one
    alias, and reads the complete map back. It refuses takeover of an unmanaged
@@ -175,7 +179,11 @@ MODELSKYLINE_RUN_LITELLM_E2E=1 \
 This is runtime evidence for those bounded claims, not a production-readiness
 claim. It does not cover multiple LiteLLM workers/replicas, real provider
 credentials, streaming, tool calls, partial responses, side effects, provider
-error classes other than a pre-response 503, or concurrent router writers.
+error classes other than a pre-response 503, concurrent router writers, or
+key/team-level routing policy. Use a dedicated execution key and team whose
+policy has no fallback capable of widening the managed group; this controller
+checks global router fallback settings but cannot inspect or enforce every
+request-scoped LiteLLM policy.
 
 This package also does not provide:
 
