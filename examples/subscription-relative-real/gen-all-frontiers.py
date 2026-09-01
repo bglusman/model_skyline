@@ -373,10 +373,13 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
     else:
         coding_frontier = ""
         coding_sel = ""
-    if wl == "agent-chat":
-        coding_frontier = """
-  math-smarts:
-    workload: agent-chat
+    if wl in ("agent-chat", "coding-session"):
+        wlid = "chat" if wl == "agent-chat" else "coding"
+        math_name = f"math-smarts-{wlid}"
+        math_sel_name = f"math-smarts-{wlid}-sel"
+        coding_frontier = f"""
+  {math_name}:
+    workload: {wl}
     axes:
       - metric: metered_usd_per_turn
         goal: minimize
@@ -390,9 +393,9 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
       required_capabilities: [tools, structured_output]
       allow_unknown_age: false
     metadata_fields: [aa_intelligence_index, workload, cap_assumed]"""
-        coding_sel = """
-  math-smarts-sel:
-    frontier: math-smarts
+        coding_sel = f"""
+  {math_sel_name}:
+    frontier: {math_name}
     strategy: lexicographic
     count: 2
     order_by: gpqa_diamond
@@ -445,12 +448,15 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
                 bulk_default = None
         edata = ev.get("data", ev)
         member_ids = {oid(m) for m in edata.get("members", [])}
-        if wl == "agent-chat" and suffix == "responsiveness":
+        wlid = "chat" if wl == "agent-chat" else "coding"
+        math_name = f"math-smarts-{wlid}"
+        math_sel_name = f"math-smarts-{wlid}-sel"
+        if suffix == "responsiveness":
             try:
                 ms = run([str(REPO / ".venv/bin/modelskyline"), "evaluate",
                           f"data/real/subscription-relative/gen-{wl}-{fid}/frontier.yaml",
                           f"data/real/subscription-relative/gen-{wl}-{fid}/observations.json",
-                          "math-smarts", "--format", "json"])
+                          math_name, "--format", "json"])
                 mdata = ms.get("data", ms)
                 mmembers = {oid(m) for m in mdata.get("members", [])}
                 mrows = rows_from_evaluated(mdata.get("evaluated", []), mmembers)
@@ -458,7 +464,7 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
                 subprocess.run([str(REPO / ".venv/bin/modelskyline"), "select",
                                 f"data/real/subscription-relative/gen-{wl}-{fid}/frontier.yaml",
                                 f"data/real/subscription-relative/gen-{wl}-{fid}/observations.json",
-                                "math-smarts-sel", "--output", str(msel)],
+                                math_sel_name, "--output", str(msel)],
                                cwd=REPO, capture_output=True, text=True, timeout=90)
                 msd = json.loads(msel.read_text()); msd = msd.get("data", msd)
                 blocks.append({
@@ -478,19 +484,19 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
                 cs = run([str(REPO / ".venv/bin/modelskyline"), "evaluate",
                           f"data/real/subscription-relative/gen-{wl}-{fid}/frontier.yaml",
                           f"data/real/subscription-relative/gen-{wl}-{fid}/observations.json",
-                          "coding-smarts", "--format", "json"])
+                          math_name, "--format", "json"])
                 cdata = cs.get("data", cs)
                 cmembers = {oid(m) for m in cdata.get("members", [])}
                 crows = rows_from_evaluated(cdata.get("evaluated", []), cmembers)
-                csel = REPO / f"data/real/subscription-relative/gen-{wl}-{fid}/selection-coding-smarts.json"
+                csel = REPO / f"data/real/subscription-relative/gen-{wl}-{fid}/selection-{math_name}.json"
                 subprocess.run([str(REPO / ".venv/bin/modelskyline"), "select",
                                 f"data/real/subscription-relative/gen-{wl}-{fid}/frontier.yaml",
                                 f"data/real/subscription-relative/gen-{wl}-{fid}/observations.json",
-                                "coding-smarts-sel", "--output", str(csel)],
+                                math_sel_name, "--output", str(csel)],
                                cwd=REPO, capture_output=True, text=True, timeout=90)
                 csd = json.loads(csel.read_text()); csd = csd.get("data", csd)
                 blocks.append({
-                    "id": "coding-smarts", "workload": wl,
+                    "id": (f"math-smarts-{wlid}-{fid}" if wlid == "chat" else math_name), "workload": wl,
                     "axes": ["usd/turn × SWE-bench-Verified"],
                     "primary_label": "usd/turn",
                     "default": oid(csd.get("default", {})), "bulk_default": None,

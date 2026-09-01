@@ -1086,113 +1086,164 @@
    ]
   },
   {
-   "id": "coding-smarts",
+   "id": "math-smarts-coding-subscription",
    "workload": "coding-session",
    "axes": [
-    "usd/turn \u00d7 SWE-bench-Verified"
+    "usd/turn \u00d7 GPQA-Diamond"
    ],
    "primary_label": "usd/turn",
-   "default": "clinepass/glm-5.3",
+   "default": "chatgpt-plus/gpt-5.6-sol",
    "bulk_default": null,
    "fallbacks": [
-    "opencode-go/glm-5.3"
+    "chatgpt-plus/gpt-5.6-luna"
    ],
    "selection_note": null,
    "ranked": [
     {
-     "offering": "clinepass/deepseek-v4-flash-0731",
+     "offering": "chatgpt-plus/gpt-5.6-luna",
      "on_frontier": true,
      "cap_assumed": true,
-     "primary": 0.001588,
-     "secondary_label": "swe_bench_verified",
-     "secondary": 88.8,
+     "primary": 0.00136,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 91.1,
      "aa_index": null,
      "dominated_by": []
+    },
+    {
+     "offering": "chatgpt-plus/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.034,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 94.1,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": false,
+     "cap_assumed": true,
+     "primary": 0.001588,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 90.8,
+     "aa_index": null,
+     "dominated_by": [
+      "chatgpt-plus/gpt-5.6-luna"
+     ]
     },
     {
      "offering": "opencode-go/deepseek-v4-flash-0731",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.001588,
-     "secondary_label": "swe_bench_verified",
-     "secondary": 88.8,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "clinepass/glm-5.3",
-     "on_frontier": true,
-     "cap_assumed": true,
-     "primary": 0.01516,
-     "secondary_label": "swe_bench_verified",
-     "secondary": 95.4,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "opencode-go/glm-5.3",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.01516,
-     "secondary_label": "swe_bench_verified",
-     "secondary": 95.4,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "opencode-go/qwen3.8-max",
      "on_frontier": false,
      "cap_assumed": false,
-     "primary": 0.01854,
-     "secondary_label": "swe_bench_verified",
-     "secondary": 85.6,
+     "primary": 0.001588,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 90.8,
      "aa_index": null,
      "dominated_by": [
-      "clinepass/deepseek-v4-flash-0731",
-      "clinepass/glm-5.3",
-      "opencode-go/deepseek-v4-flash-0731",
-      "opencode-go/glm-5.3"
+      "chatgpt-plus/gpt-5.6-luna"
      ]
     }
    ],
    "members": [
     {
-     "offering": "clinepass/deepseek-v4-flash-0731",
+     "offering": "chatgpt-plus/gpt-5.6-luna",
      "on_frontier": true,
      "cap_assumed": true,
-     "primary": 0.001588,
-     "secondary_label": "swe_bench_verified",
-     "secondary": 88.8,
+     "primary": 0.00136,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 91.1,
      "aa_index": null,
      "dominated_by": []
+    },
+    {
+     "offering": "chatgpt-plus/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.034,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 94.1,
+     "aa_index": null,
+     "dominated_by": []
+    }
+   ]
+  },
+  {
+   "id": "math-smarts-coding",
+   "workload": "coding-session",
+   "axes": [
+    "usd/turn \u00d7 SWE-bench-Verified"
+   ],
+   "primary_label": "usd/turn",
+   "default": "chatgpt-plus/gpt-5.6-sol",
+   "bulk_default": null,
+   "fallbacks": [
+    "chatgpt-plus/gpt-5.6-luna"
+   ],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "chatgpt-plus/gpt-5.6-luna",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.00136,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 91.1,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "chatgpt-plus/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.034,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 94.1,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": false,
+     "cap_assumed": true,
+     "primary": 0.001588,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 90.8,
+     "aa_index": null,
+     "dominated_by": [
+      "chatgpt-plus/gpt-5.6-luna"
+     ]
     },
     {
      "offering": "opencode-go/deepseek-v4-flash-0731",
-     "on_frontier": true,
+     "on_frontier": false,
      "cap_assumed": false,
      "primary": 0.001588,
-     "secondary_label": "swe_bench_verified",
-     "secondary": 88.8,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 90.8,
      "aa_index": null,
-     "dominated_by": []
-    },
+     "dominated_by": [
+      "chatgpt-plus/gpt-5.6-luna"
+     ]
+    }
+   ],
+   "members": [
     {
-     "offering": "clinepass/glm-5.3",
+     "offering": "chatgpt-plus/gpt-5.6-luna",
      "on_frontier": true,
      "cap_assumed": true,
-     "primary": 0.01516,
-     "secondary_label": "swe_bench_verified",
-     "secondary": 95.4,
+     "primary": 0.00136,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 91.1,
      "aa_index": null,
      "dominated_by": []
     },
     {
-     "offering": "opencode-go/glm-5.3",
+     "offering": "chatgpt-plus/gpt-5.6-sol",
      "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.01516,
-     "secondary_label": "swe_bench_verified",
-     "secondary": 95.4,
+     "cap_assumed": true,
+     "primary": 0.034,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 94.1,
      "aa_index": null,
      "dominated_by": []
     }
@@ -1441,10 +1492,16 @@
    "points": 8
   },
   {
-   "id": "coding-smarts",
-   "svg": "/svg/coding-smarts.svg",
+   "id": "math-smarts-coding-subscription",
+   "svg": "/svg/math-smarts-coding-subscription.svg",
    "workload": "coding-session",
-   "points": 5
+   "points": 4
+  },
+  {
+   "id": "math-smarts-coding",
+   "svg": "/svg/math-smarts-coding.svg",
+   "workload": "coding-session",
+   "points": 4
   },
   {
    "id": "coding-subscription-responsiveness",
