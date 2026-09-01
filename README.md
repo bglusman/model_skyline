@@ -11,6 +11,12 @@ selection for agents.
 > no hosted service or package-registry release yet, and alpha schemas may
 > change.
 
+The [public research publications](https://bglusman.github.io/model_skyline/)
+provide browsable tables, machine-readable manifests, RSS feeds, and retained
+evidence. They are research outputs, not current routing instructions; the
+landing page states the applicable freshness, cost-scope, and candidate-set
+limits.
+
 ## The core path
 
 ```text

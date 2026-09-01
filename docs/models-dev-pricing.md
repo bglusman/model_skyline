@@ -233,7 +233,8 @@ models-dev-gpt5-evidence/snapshots/<pricing-catalog-sha>/<bundle-sha>/
 The evidence pointer binds every file hash, selected-price and mapping hashes,
 the corresponding publication, and its preceding pointer. The build job has
 read-only repository access; the smaller write job revalidates the artifact and
-updates only the two models.dev Pages subtrees without force-pushing.
+updates the two models.dev Pages subtrees plus the repository's static landing
+page without force-pushing.
 `model-skyline/models-dev-pages-evidence/v1alpha1` is a repository-workflow
 audit format in v0.6, not an exported language-neutral schema or signed trust
 root.

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="ModelSkyline public Pareto-frontier research publications">
+    <title>ModelSkyline research publications</title>
+    <link rel="alternate" type="application/rss+xml" title="Cost per solved versus solve rate" href="models-dev-gpt5/feeds/price-snapshot-cost-per-solved-vs-solve-rate.xml">
+    <style>
+      :root { color-scheme: light dark; font-family: ui-sans-serif, system-ui, sans-serif; }
+      body { margin: 0; background: #f4f6f8; color: #18212b; line-height: 1.55; }
+      main { width: min(52rem, calc(100% - 2rem)); margin: 0 auto; padding: 3rem 0; }
+      header, section { background: #fff; border: 1px solid #d8dee6; border-radius: .75rem; padding: 1.5rem; margin-bottom: 1rem; }
+      h1, h2 { line-height: 1.2; }
+      h1 { margin: .2rem 0 .75rem; font-size: clamp(2rem, 7vw, 3.4rem); }
+      h2 { margin-top: 0; font-size: 1.25rem; }
+      p:last-child, ul:last-child { margin-bottom: 0; }
+      .eyebrow { margin: 0; color: #526170; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+      .warning { border-left: .3rem solid #b35c00; padding-left: 1rem; }
+      a { color: #0758a8; }
+      li + li { margin-top: .45rem; }
+      code { font-family: ui-monospace, monospace; font-size: .9em; }
+      footer { color: #526170; padding: .5rem 1rem 0; }
+      @media (prefers-color-scheme: dark) {
+        body { background: #10151b; color: #e5e9ee; }
+        header, section { background: #171e26; border-color: #36414d; }
+        .eyebrow, footer { color: #aeb9c4; }
+        a { color: #7db9f3; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">ModelSkyline</p>
+        <h1>Research frontier publications</h1>
+        <p>
+          Auditable, workload-specific Pareto frontiers over model offerings.
+          These static outputs include human tables, JSON snapshots, RSS, and
+          content-addressed evidence.
+        </p>
+        <p><a href="https://github.com/bglusman/model_skyline">Source, documentation, and methodology</a></p>
+      </header>
+
+      <section>
+        <h2>GPT-5 price snapshot × Aider solve rate</h2>
+        <p>
+          This scheduled projection combines a pinned Aider Polyglot cohort
+          with a <code>models.dev</code> price acquisition made for that
+          publication. Its candidates are three reasoning configurations of
+          one GPT-5 family, not a broad cross-model comparison.
+        </p>
+        <ul>
+          <li><a href="models-dev-gpt5/frontiers/price-snapshot-cost-per-solved-vs-solve-rate/table.txt">Cost per solved case vs. solve rate</a> · <a href="models-dev-gpt5/frontiers/price-snapshot-cost-per-solved-vs-solve-rate/table.csv">CSV</a> · <a href="models-dev-gpt5/feeds/price-snapshot-cost-per-solved-vs-solve-rate.xml">RSS</a></li>
+          <li><a href="models-dev-gpt5/frontiers/price-snapshot-cost-per-attempted-vs-solve-rate/table.txt">Cost per attempted case vs. solve rate</a> · <a href="models-dev-gpt5/frontiers/price-snapshot-cost-per-attempted-vs-solve-rate/table.csv">CSV</a> · <a href="models-dev-gpt5/feeds/price-snapshot-cost-per-attempted-vs-solve-rate.xml">RSS</a></li>
+          <li><a href="models-dev-gpt5/frontiers/price-snapshot-reconstructed-token-cost-vs-solve-rate/table.txt">Reconstructed benchmark token cost vs. solve rate</a> · <a href="models-dev-gpt5/frontiers/price-snapshot-reconstructed-token-cost-vs-solve-rate/table.csv">CSV</a> · <a href="models-dev-gpt5/feeds/price-snapshot-reconstructed-token-cost-vs-solve-rate.xml">RSS</a></li>
+          <li><a href="models-dev-gpt5/latest.json">Publication manifest</a> · <a href="models-dev-gpt5-evidence/latest.json">Evidence pointer</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Historical Aider publication</h2>
+        <p>
+          A broader, pinned Aider leaderboard import provides historical cost,
+          solve-rate, and edit-time views. Provider routes are unknown. Model
+          labels, benchmark costs, and measurements are source-reported
+          historical evidence, not current purchasing quotes.
+        </p>
+        <ul>
+          <li><a href="data/frontiers/cost-per-solved-vs-solve-rate/table.txt">Cost per solved case vs. solve rate</a></li>
+          <li><a href="data/frontiers/total-cost-vs-solve-rate/table.txt">Total benchmark cost vs. solve rate</a></li>
+          <li><a href="data/frontiers/agent-edit-seconds-vs-solve-rate/table.txt">Agent edit time vs. solve rate</a></li>
+          <li><a href="data/latest.json">Publication manifest</a></li>
+        </ul>
+      </section>
+
+      <section class="warning">
+        <h2>Interpretation boundary</h2>
+        <p>
+          Static aliases do not enforce freshness. Check each manifest and
+          source watermark before use. Reconstructed token costs exclude cache
+          behavior, tool and infrastructure cost, discounts, availability, and
+          invoice reconciliation. The publications contain no live routing
+          selection and are not safe to consume as an automatic model default.
+          Their hashes detect mutation but do not authenticate the publisher.
+        </p>
+      </section>
+
+      <footer>
+        ModelSkyline is MIT licensed. Upstream data retains its own license and terms.
+      </footer>
+    </main>
+  </body>
+</html>

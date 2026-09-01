@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.9.0 - Unreleased
+## 0.9.0 - 2026-09-01
+
+Versions 0.7.0 and 0.8.0 below were unpublished development milestones.
+This source release includes their changes and the 0.9.0 simplification work
+since the previous public release, 0.6.0.
 
 - Center the supported package surface on the catalog → frontier → selection
   workflow and reduce the package-root API from 70 names to 10. An external
@@ -59,6 +63,10 @@
   diagnostic runtime, but its global asynchronous queue, snapshot drain,
   internal lifecycle marker, and hidden provider retries cannot establish
   concurrent production completeness.
+- Add a small, source-controlled Pages landing page for the live research
+  tables, manifests, evidence pointers, and RSS feeds. It labels the current
+  single-family projection and historical publication separately and repeats
+  the freshness, cost-scope, authenticity, and no-live-routing boundaries.
 
 ## 0.8.0 - 2026-08-31
 
