@@ -2,14 +2,21 @@
 
 The reviewed upstream contract is ``claude-agent-sdk==0.2.148`` at the
 dereferenced release commit below.  The adapter deliberately reads only the
-typed aggregate accounting fields on ``ResultMessage``; it never reads or
-copies result text, structured output, tool payloads, transcript paths,
-working directories, session identifiers, or environment variables.
+typed ``ResultMessage`` accounting surface and a narrowly validated subset of
+its nested ``model_usage`` metadata; it never reads or copies result text,
+structured output, tool payloads, transcript paths, working directories,
+session identifiers, or environment variables.
 
 Official references:
 
 * https://github.com/anthropics/claude-agent-sdk-python/blob/v0.2.148/src/claude_agent_sdk/types.py
 * https://code.claude.com/docs/en/agent-sdk/cost-tracking
+
+The pinned SDK's ``ModelUsage`` ``TypedDict`` does not declare ``costBasis``.
+Claude Code's cost-tracking documentation says CLI versions 2.1.246 and newer
+emit that key at runtime.  This adapter pins CLI 2.1.251 and validates
+``costBasis`` when present as a runtime extension; it does not claim that the
+SDK 0.2.148 static type guarantees the field.
 
 ``model_usage`` is cumulative for the query (or current streaming-input reset
 segment), covers main-agent, subagent, and internal query-pipeline model calls,

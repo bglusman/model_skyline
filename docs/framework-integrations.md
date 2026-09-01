@@ -16,10 +16,10 @@ retention, and any attestations named by an adapter.
 
 ## Reviewed contracts and validation status
 
-| Adapter | Accepted upstream contract | Accepted input | Local live validation on 2026-08-30 |
+| Adapter | Accepted upstream contract | Accepted input | Local validation through 2026-08-31 |
 | --- | --- | --- | --- |
 | Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with both the installed default and an explicit `-m gpt-5.4` route, plus two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
-| Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | An actual installed SDK `0.2.148` `ResultMessage` passed the adapter contract; no inference was run. The installed Claude CLI was `2.1.220`, which is intentionally rejected rather than treated as `2.1.251`. |
+| Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | SDK `0.2.148` with its bundled CLI `2.1.251` was installed exactly. A constrained Haiku request (no tools, skills, settings, MCP, fallback, or session persistence; one turn; $0.02 cap) reached the SDK but stopped on API billing/quota before a `ResultMessage`, so it did not prove a live `RequestTrace` or the runtime `costBasis` contract. |
 | OpenClaw | `2026.8.1` at [`2a6c333`](https://github.com/openclaw/openclaw/tree/2a6c333225e5c886bfd630e36037fb7b206408ef) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures only. The installed `2026.3.2` is intentionally unsupported. |
 | Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7), session schema `26` | A `hermes -z --usage-file` JSON report or read-only state SQLite database | Contract, synthetic report, and synthetic schema-v26 database tests only. Hermes was not installed locally. |
 
@@ -135,8 +135,11 @@ may cover the main agent, subagents, fallbacks, and internal pipeline calls.
 The caller must attest that the input is the final cumulative result and that
 the entire segment used one model route and one stable pricing basis. Multiple
 model keys are rejected. In the pinned Python SDK type, `canonicalModel` and
-`provider` are optional and `costBasis` is omitted, although the bundled CLI
-may pass runtime `costBasis` metadata through. For a metered result, a present
+`provider` are optional, while the nested `ModelUsage` `TypedDict` omits
+`costBasis`. Claude Code's cost-tracking documentation says CLI 2.1.246 and
+newer emit `costBasis` at runtime. The adapter pins CLI 2.1.251 and validates
+that runtime extension when present; it does not treat `costBasis` as a field
+guaranteed by the SDK 0.2.148 static type. For a metered result, a present
 `costBasis` must be `list` or `managed`; `unknown` fails closed. The required
 `single_route_and_pricing_basis_attested` caller mapping binds the model,
 provider, and stable pricing basis when optional metadata is absent. Present
