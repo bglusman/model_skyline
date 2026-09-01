@@ -8,22 +8,48 @@ comparison. It is not an observed provider bill, a total-cost estimate, or a
 claim that historical quality, latency, availability, or model behavior is
 current.
 
-## Run the reviewed GPT-5 projection
+> **Legacy cohort:** OpenAI's current model pages resolve
+> [`gpt-5`](https://developers.openai.com/api/docs/models/gpt-5),
+> [`o3`](https://developers.openai.com/api/docs/models/o3), and
+> [`o3-pro`](https://developers.openai.com/api/docs/models/o3-pro) to the dated
+> snapshots in this projection. OpenAI's
+> [deprecation schedule](https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations)
+> says those snapshots are deprecated and will be removed from the API on
+> December 11, 2026. At the September 1 review, models.dev still reported their
+> status as unspecified. The mapping therefore opts in to deprecated routes
+> explicitly, the scheduled workflow refuses new acquisitions on or after the
+> shutdown date, and the publication remains historical research—not current
+> model guidance or routing input.
 
-The included mapping covers the pinned Aider GPT-5 low, medium, and high runs.
-Each row asserts the exact `openai/gpt-5` command digest and expected reasoning
-configuration; the adapter does no name matching.
+## Run the reviewed multi-model projection
+
+The included mapping covers six pinned Aider runs: GPT-5 low, medium, and high;
+o3 with default and high reasoning; and o3-pro high. The GPT-5 commands name
+the exact `openai/gpt-5` route. The o3 commands use bare model names. Their
+source-row Aider commits pin LiteLLM 1.73.1; the reviewed package catalog binds
+those names to provider `openai` ([PyPI release metadata](https://pypi.org/pypi/litellm/1.73.1/json),
+sdist SHA-256 `33ad55ff051bf925419619ec37f32949decdc52a6109c8c0700cfb1209696590`).
+Every entry binds its command digest, expected reasoning configuration,
+provider/model assertion, deprecation opt-in, and review evidence. The adapter
+does no fuzzy name matching.
 
 ```console
 uv run modelskyline project-aider-models-dev \
-  ./aider-gpt5-price-snapshot \
-  examples/mappings/aider-gpt5-models-dev.json
+  ./aider-models-dev-price-snapshot \
+  examples/mappings/aider-models-dev.json
 
 uv run modelskyline evaluate \
-  ./aider-gpt5-price-snapshot/frontier.yaml \
-  ./aider-gpt5-price-snapshot/observations.json \
+  ./aider-models-dev-price-snapshot/frontier.yaml \
+  ./aider-models-dev-price-snapshot/observations.json \
   price-snapshot-cost-per-attempted-vs-solve-rate
 ```
+
+The reviewed September 1 acquisition evaluated all six configurations with no
+rejections. GPT-5 low, medium, and high were frontier members; both o3 rows and
+o3-pro high were dominated. Generated JSON retains all evaluated candidates
+and their dominators, while the tables show frontier members. A later valid
+price acquisition can change that membership and is recomputed rather than
+forced to preserve this result.
 
 The first command fetches the hash-pinned Aider source and the exact official
 models.dev API URL. It writes `observations.json`, `frontier.yaml`, an exact
@@ -41,8 +67,8 @@ required before a local file receives models.dev/MIT provenance:
 
 ```console
 uv run modelskyline project-aider-models-dev \
-  ./aider-gpt5-pinned \
-  examples/mappings/aider-gpt5-models-dev.json \
+  ./aider-models-dev-pinned \
+  examples/mappings/aider-models-dev.json \
   --pricing-source ./api.json \
   --pricing-expected-sha256 <64-hex-digest> \
   --pricing-retrieved-at 2026-08-31T15:00:00Z \
@@ -104,7 +130,7 @@ from named signal paths, and its published `dependencies` contain the exact
 paths used, including lazy-branch behavior. This separates numeric dependency
 from artifact provenance.
 
-The v0.6 projection uses these fields:
+The adapter projection uses these fields:
 
 | Observation | Source | Role |
 | --- | --- | --- |
@@ -193,7 +219,8 @@ Every mapping entry contains:
 - an operator assertion that the historical row and price card represent the
   same provider/model route;
 - human review evidence and a timezone-aware review timestamp; and
-- the default pricing mode plus any deprecated-route opt-in.
+- the default pricing mode and an explicit deprecated-route opt-in for this
+  legacy cohort.
 
 The assertion is necessary but not magical proof that behavior or billing is
 portable across time. Provider/model IDs are never normalized, split for
@@ -213,10 +240,10 @@ never put credentials, personal data, private paths, customer names, or
 confidential review notes in it.
 
 The `v1alpha1` mapping and projection-manifest labels are adapter-local Python
-contracts in v0.6, validated by the installed Pydantic implementation. They do
-not yet have language-neutral files in `schemas/`; non-Python automation should
-regard the copied artifacts as audit evidence, not a stable independent wire
-contract.
+contracts introduced in v0.6 and validated by the installed Pydantic
+implementation. They do not have language-neutral files in `schemas/`;
+non-Python automation should regard the copied artifacts as audit evidence,
+not a stable independent wire contract.
 
 ## Automation boundary
 
@@ -227,7 +254,7 @@ frontiers, and publishes a public research feed. Every run also retains the
 exact five generated inputs under:
 
 ```text
-models-dev-gpt5-evidence/snapshots/<pricing-catalog-sha>/<bundle-sha>/
+aider-models-dev-evidence/snapshots/<pricing-catalog-sha>/<bundle-sha>/
 ```
 
 The evidence pointer binds every file hash, selected-price and mapping hashes,
@@ -236,8 +263,11 @@ read-only repository access; the smaller write job revalidates the artifact and
 updates the two models.dev Pages subtrees plus the repository's static landing
 page without force-pushing.
 `model-skyline/models-dev-pages-evidence/v1alpha1` is a repository-workflow
-audit format in v0.6, not an exported language-neutral schema or signed trust
-root.
+audit format introduced in v0.6, not an exported language-neutral schema or
+signed trust root. The earlier `models-dev-gpt5` and
+`models-dev-gpt5-evidence` paths remain frozen historical publications; the
+expanded cohort starts a new project and evidence chain rather than silently
+changing that three-configuration project's scope.
 
 The unattended research loop is:
 
@@ -249,11 +279,20 @@ scheduled exact-URL fetch
   -> content-addressed evidence archive + static Pages/RSS publication
 ```
 
-Route removals, unapproved deprecation, schema drift, tiers, context schedules,
-distinct reasoning meters, and mapping changes fail closed. A valid ordinary
-input/output price change advances this research feed automatically; there is
-no spend threshold, human approval gate, or selection artifact in that
-workflow.
+Route removals, a models.dev `deprecated` status without opt-in, schema drift,
+tiers, context schedules, distinct reasoning meters, and mapping changes fail
+closed. A provider lifecycle notice missing from models.dev cannot trigger
+that source check; this cohort handles the known gap with reviewed mapping
+evidence, explicit opt-in, public warnings, and a fixed December 11 shutdown
+gate. A valid ordinary input/output price change before then advances this
+research feed automatically. There is no spend threshold, human approval gate,
+or selection artifact in that workflow.
+
+The workflow does not ingest first-party alias-to-snapshot or lifecycle pages.
+An alias retargeting or earlier provider shutdown before the fixed gate would
+therefore require manual mapping review; it cannot be inferred from a
+models.dev record that still reports no status. Adding that source is separate
+adapter work, not a property this publication claims today.
 
 Pages `latest.json`, tables, and RSS remain retrievable indefinitely and do not
 expire themselves. A successful run yesterday does not prove that today's run

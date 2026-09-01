@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Expand the scheduled models.dev/Aider research publication from three GPT-5
+  configurations to six configurations spanning GPT-5, o3, and o3-pro. The
+  strict projection retains three dominated candidates in JSON while the
+  frontier tables remain GPT-5 low, medium, and high at the reviewed September
+  1 price acquisition. Start a new publication/evidence chain instead of
+  changing the frozen three-configuration project's meaning. All routes are a
+  deprecated single-provider legacy cohort: the workflow records an explicit
+  opt-in, publishes no routing selection, warns that models.dev missed the
+  first-party lifecycle notice, and refuses new acquisitions on or after the
+  provider's December 11, 2026 shutdown date.
+
 ## 0.9.0 - 2026-09-01
 
 Versions 0.7.0 and 0.8.0 below were unpublished development milestones.
