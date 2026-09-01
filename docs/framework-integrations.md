@@ -16,12 +16,12 @@ retention, and any attestations named by an adapter.
 
 ## Reviewed contracts and validation status
 
-| Adapter | Accepted upstream contract | Accepted input | Local validation through 2026-08-31 |
+| Adapter | Accepted upstream contract | Accepted input | Local validation through 2026-09-01 |
 | --- | --- | --- | --- |
 | Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with both the installed default and an explicit `-m gpt-5.4` route, plus two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
 | Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | SDK `0.2.148` with its bundled CLI `2.1.251` was installed exactly. A constrained Haiku request (no tools, skills, settings, MCP, fallback, or session persistence; one turn; $0.02 cap) reached the SDK but stopped on API billing/quota before a `ResultMessage`, so it did not prove a live `RequestTrace` or the runtime `costBasis` contract. |
 | OpenClaw | `2026.8.1` at [`ea80657`](https://github.com/openclaw/openclaw/tree/ea806575e6450e4d1efdfc72c19f04be982a1b9b) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures only. The installed `2026.3.2` is intentionally unsupported. |
-| Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7), session schema `26` | A `hermes -z --usage-file` JSON report or read-only state SQLite database | Contract, synthetic report, and synthetic schema-v26 database tests only. Hermes was not installed locally. |
+| Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7), session schema `26`, adapter projection `2` | A `hermes -z --usage-file` JSON report or read-only state SQLite database | Contract, synthetic report, and synthetic schema-v26 database tests. A real keyless, opencode-free run produced one main row and one `title_generation` row on the same model/provider and canonically identical base URL; one raw URL had Hermes's equivalent terminal slash and both rows recorded no billing mode. |
 
 The Codex `0.144.2` success run reported 11,250 inclusive input tokens,
 2,304 cache-read tokens, 22 inclusive output tokens, and 15 reasoning tokens.
@@ -324,9 +324,9 @@ remain private.
 
 Hermes exposes work-unit aggregates rather than request events. The usage-file
 import requires an operator attestation that main-loop, fallback, and auxiliary
-calls all stayed on one model/provider/base-URL/billing-mode route. If a service
-tier was requested, fulfillment must be attested because the report records
-intent, not fulfillment.
+calls all stayed on one model/provider/base-URL route and used the same reported
+or absent billing mode. If a service tier was requested, fulfillment must be
+attested because the report records intent, not fulfillment.
 
 The stricter SQLite importer opens the source database read-only and creates a
 bounded private snapshot with SQLite's online-backup API. This captures one
@@ -335,9 +335,44 @@ not byte-copy a potentially stale main file. Main, WAL, shared-memory, and
 rollback-journal files must be regular, non-symlink inputs whose combined size
 is at most 256 MiB. The importer then requires schema 26, sums all main and
 auxiliary `session_model_usage` ledger rows, and reconciles the main ledger with
-the legacy session summary. Every ledger row must use the exact mapped route.
+the legacy session summary. Every ledger row must use the exact mapped route,
+with only Hermes's reviewed base-URL equivalences applied.
 Sessions containing an `absolute=True` counter residual without an attributable
 ledger row are outside the supported subset.
+
+Schema 26 stores an unreported billing mode as its empty-string column default.
+The SQLite importer canonicalizes exactly that empty value to `None`; the
+reviewed `HermesRouteMapping` and its `OfferingKey` must also use
+`billing_mode=None`. It does not relax the other route components: model,
+provider, and base URL remain nonempty. Inside the operator-reviewed mapping,
+`billing_base_url` must byte-equal `OfferingKey.endpoint`; neither value is
+rewritten. A nonempty billing mode is still identity-bearing and must match
+exactly on every row. Mixing absent and reported modes, or mapping one state to
+the other, fails closed.
+
+Hermes also compares route URLs through its reviewed
+[`normalize_route_base_url`](https://github.com/NousResearch/hermes-agent/blob/4f22543509d1b91dc45bcb369447126c5eb14fb7/hermes_cli/route_identity.py)
+function. The SQLite importer mirrors only the equivalences applicable to its
+already restricted HTTP(S), credential-free, query-free URL subset: scheme and
+host case, default ports, and one terminal path slash. Other path differences
+remain different routes. This canonical key is used only to compare raw ledger
+rows with the reviewed route. It is necessary for real auxiliary accounting,
+which can record the same endpoint with a terminal slash even when the main row
+does not.
+
+The 2026-09-01 live validation used the exact `0.20.6` lock and commit above in
+an empty isolated workspace, with no API key, repository content, or user data.
+The deliberately trivial request completed, and the SQLite importer combined
+one main row plus one title-generation row into 2 model requests, 679 uncached
+input tokens, 192 cache-read tokens, 0 cache-write tokens, 31 output tokens,
+0 reasoning tokens, and 0 tool calls. Both rows had an absent billing mode and
+unknown cost provenance. Their numeric zero estimates are therefore emitted as
+`null` cost, not interpreted as a proven free or included route. The provider's
+[current free-model privacy terms](https://opencode.ai/docs/zen) say collected
+data for some free models may be used for model improvement; this smoke run is
+not evidence that the route is suitable for confidential workloads. Raw route
+values, session identity, transcript, response, and the ephemeral database are
+not retained in ModelSkyline fixtures or publications.
 
 ```python
 from datetime import UTC, datetime

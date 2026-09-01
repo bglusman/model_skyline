@@ -137,33 +137,45 @@ for _claude_adapter_version in ("1", "2"):
         )
     )
 
-_register(
-    TrustedTraceProducer(
-        key=(
-            "model-skyline/hermes-agent-aggregate",
-            "1",
-            "nousresearch/hermes-agent",
-            "0.20.6",
-            "4f22543509d1b91dc45bcb369447126c5eb14fb7",
-            None,
-            None,
-        ),
-        source=_source(
-            source_id="producer:nousresearch-hermes-agent:0.20.6",
-            version="4f22543509d1b91dc45bcb369447126c5eb14fb7",
-            url=(
-                "https://github.com/NousResearch/hermes-agent/blob/"
-                "4f22543509d1b91dc45bcb369447126c5eb14fb7/agent/usage_pricing.py"
+for _hermes_adapter_version, _hermes_methodology in (
+    (
+        "1",
+        "Exact reviewed Hermes Agent v26 usage-ledger and aggregate-report subset; "
+        "adapter requires explicit route attestations and exact raw route strings.",
+    ),
+    (
+        "2",
+        "Exact reviewed Hermes Agent v26 usage-ledger and aggregate-report subset; "
+        "adapter requires explicit route attestations, preserves absent billing mode, and "
+        "mirrors the safe subset of Hermes route URL identity normalization.",
+    ),
+):
+    _register(
+        TrustedTraceProducer(
+            key=(
+                "model-skyline/hermes-agent-aggregate",
+                _hermes_adapter_version,
+                "nousresearch/hermes-agent",
+                "0.20.6",
+                "4f22543509d1b91dc45bcb369447126c5eb14fb7",
+                None,
+                None,
             ),
-            terms_url=_HERMES_LICENSE,
-            license_name="MIT",
-            methodology=(
-                "Exact reviewed Hermes Agent v26 usage-ledger and aggregate-report subset; "
-                "adapter requires explicit route attestations."
+            source=_source(
+                source_id=(
+                    f"producer:nousresearch-hermes-agent:0.20.6:adapter-{_hermes_adapter_version}"
+                ),
+                version="4f22543509d1b91dc45bcb369447126c5eb14fb7",
+                url=(
+                    "https://github.com/NousResearch/hermes-agent/blob/"
+                    "4f22543509d1b91dc45bcb369447126c5eb14fb7/agent/usage_pricing.py"
+                ),
+                terms_url=_HERMES_LICENSE,
+                license_name="MIT",
+                methodology=_hermes_methodology,
             ),
-        ),
+        )
     )
-)
 
 _register(
     TrustedTraceProducer(

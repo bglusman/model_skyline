@@ -12,9 +12,11 @@ import pytest
 from pydantic import ValidationError
 
 from model_skyline.adapters.hermes import (
+    HERMES_ADAPTER_VERSION,
     HERMES_AGENT_COMMIT,
     HERMES_AGENT_LICENSE,
     HERMES_AGENT_VERSION,
+    HERMES_ROUTE_IDENTITY_SOURCE_URL,
     HERMES_SESSION_SCHEMA_SOURCE_URL,
     HERMES_SESSION_SCHEMA_VERSION,
     HERMES_SESSION_STORAGE_SOURCE_URL,
@@ -24,11 +26,13 @@ from model_skyline.adapters.hermes import (
     HermesAdapterError,
     HermesRouteMapping,
     HermesSessionMapping,
+    _canonical_hermes_base_url,
     import_hermes_session,
     import_hermes_usage_report,
 )
 from model_skyline.canonical import POLICY_DECIMAL_CONTEXT
 from model_skyline.models import OfferingKey, WorkloadReference
+from model_skyline.trace_producers import trusted_trace_producer
 from model_skyline.traces import aggregate_traces
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -66,6 +70,14 @@ MAPPING = HermesSessionMapping(
 )
 
 
+def _mapping_with_billing_mode(billing_mode: str | None) -> HermesSessionMapping:
+    route_payload = ROUTE.model_dump(mode="python")
+    route_payload["offering"]["billing_mode"] = billing_mode
+    route_payload["billing_mode"] = billing_mode
+    route = HermesRouteMapping.model_validate(route_payload)
+    return MAPPING.model_copy(update={"route": route})
+
+
 def _state_db(tmp_path: Path) -> Path:
     path = tmp_path / "state.db"
     script = (FIXTURES / "hermes_state_v26_synthetic.sql").read_text(encoding="utf-8")
@@ -87,20 +99,74 @@ def _execute(path: Path, statement: str, parameters: tuple[object, ...] = ()) ->
         connection.close()
 
 
+def _remove_usage_table_constraints(path: Path) -> None:
+    connection = sqlite3.connect(path)
+    try:
+        connection.executescript(
+            """
+            ALTER TABLE session_model_usage RENAME TO constrained_session_model_usage;
+            CREATE TABLE session_model_usage AS
+                SELECT * FROM constrained_session_model_usage;
+            DROP TABLE constrained_session_model_usage;
+            """
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+
 def test_reviewed_hermes_contract_is_pinned_to_primary_sources() -> None:
     assert HERMES_AGENT_COMMIT == "4f22543509d1b91dc45bcb369447126c5eb14fb7"
     assert HERMES_AGENT_VERSION == "0.20.6"
     assert HERMES_SESSION_SCHEMA_VERSION == 26
     assert HERMES_AGENT_LICENSE == "MIT"
+    assert HERMES_ADAPTER_VERSION == "2"
     for url in (
         HERMES_USAGE_REPORT_SOURCE_URL,
         HERMES_USAGE_NORMALIZATION_SOURCE_URL,
         HERMES_SESSION_SCHEMA_SOURCE_URL,
         HERMES_SESSION_STORAGE_SOURCE_URL,
+        HERMES_ROUTE_IDENTITY_SOURCE_URL,
     ):
         assert url.startswith(
             f"https://github.com/NousResearch/hermes-agent/blob/{HERMES_AGENT_COMMIT}/"
         )
+
+    producer_key_tail = (
+        "nousresearch/hermes-agent",
+        HERMES_AGENT_VERSION,
+        HERMES_AGENT_COMMIT,
+        None,
+        None,
+    )
+    legacy_producer = trusted_trace_producer(
+        ("model-skyline/hermes-agent-aggregate", "1", *producer_key_tail)
+    )
+    current_producer = trusted_trace_producer(
+        ("model-skyline/hermes-agent-aggregate", HERMES_ADAPTER_VERSION, *producer_key_tail)
+    )
+    assert legacy_producer is not None
+    assert current_producer is not None
+    assert legacy_producer.source.id.endswith(":adapter-1")
+    assert current_producer.source.id.endswith(":adapter-2")
+
+
+@pytest.mark.parametrize(
+    ("raw_url", "canonical_url"),
+    [
+        ("HTTPS://SYNTHETIC-PROVIDER.INVALID:443/v1/", "https://synthetic-provider.invalid/v1"),
+        ("https://synthetic-provider.invalid/v1//", "https://synthetic-provider.invalid/v1/"),
+        (
+            "https://synthetic-provider.invalid:8443/v1/",
+            "https://synthetic-provider.invalid:8443/v1",
+        ),
+    ],
+)
+def test_hermes_route_url_canonicalization_is_narrow(
+    raw_url: str,
+    canonical_url: str,
+) -> None:
+    assert _canonical_hermes_base_url(raw_url) == canonical_url
 
 
 def test_usage_report_import_preserves_aggregate_semantics_without_payloads() -> None:
@@ -175,6 +241,7 @@ def test_usage_report_distinguishes_unknown_from_included_zero_marginal_cost(
 
     assert trace.estimated_total_cost_usd is None
     assert trace.provider_reported_total_cost_usd is None
+    assert trace.adapter_version == HERMES_ADAPTER_VERSION
     if expected_basis == "included":
         assert trace.provider_marginal_cost_usd == Decimal(0)
     else:
@@ -418,6 +485,142 @@ def test_sqlite_import_includes_same_route_auxiliary_usage_and_cost(tmp_path: Pa
     assert trace.provider_reported_total_cost_usd is None
 
 
+def test_sqlite_import_includes_auxiliary_usage_when_billing_mode_is_absent(
+    tmp_path: Path,
+) -> None:
+    path = _state_db(tmp_path)
+    _execute(
+        path,
+        "UPDATE session_model_usage SET billing_mode = '' WHERE session_id = ?",
+        (SESSION_ID,),
+    )
+    _execute(
+        path,
+        """
+        INSERT INTO session_model_usage (
+            session_id, model, billing_provider, billing_base_url, billing_mode,
+            task, api_call_count, input_tokens, output_tokens, cache_read_tokens,
+            cache_write_tokens, reasoning_tokens, estimated_cost_usd, actual_cost_usd,
+            cost_status, cost_source
+        ) VALUES (?, 'synthetic-model', 'synthetic-provider',
+                  'https://synthetic-provider.invalid/v1/', '',
+                  'title_generation', 1, 100, 10, 20, 5, 2, 0.002, 0,
+                  NULL, NULL)
+        """,
+        (SESSION_ID,),
+    )
+    mapping = _mapping_with_billing_mode(None)
+
+    trace = import_hermes_session(path, mapping=mapping, identity_key=IDENTITY_KEY)
+
+    assert mapping.route.billing_mode is None
+    assert mapping.route.offering.billing_mode is None
+    assert trace.model_request_count == 4
+    assert trace.input_uncached_tokens == 1300
+    assert trace.input_cache_read_tokens == 820
+    assert trace.input_cache_write_tokens == 205
+    assert trace.output_total_tokens == 360
+    assert trace.reasoning_tokens == 52
+    assert trace.estimated_total_cost_usd == Decimal("0.0125")
+    assert trace.provider_reported_total_cost_usd is None
+
+
+def test_session_with_mixed_absent_and_reported_billing_modes_is_rejected(
+    tmp_path: Path,
+) -> None:
+    path = _state_db(tmp_path)
+    _execute(
+        path,
+        "UPDATE session_model_usage SET billing_mode = '' WHERE session_id = ?",
+        (SESSION_ID,),
+    )
+    _execute(
+        path,
+        """
+        INSERT INTO session_model_usage (
+            session_id, model, billing_provider, billing_base_url, billing_mode,
+            task, api_call_count, input_tokens, output_tokens, cache_read_tokens,
+            cache_write_tokens, reasoning_tokens, estimated_cost_usd, actual_cost_usd
+        ) VALUES (?, 'synthetic-model', 'synthetic-provider',
+                  'https://synthetic-provider.invalid/v1', 'synthetic-direct',
+                  'title_generation', 1, 1, 1, 0, 0, 0, 0, 0)
+        """,
+        (SESSION_ID,),
+    )
+
+    with pytest.raises(HermesAdapterError, match="multiple billing routes"):
+        import_hermes_session(
+            path,
+            mapping=_mapping_with_billing_mode(None),
+            identity_key=IDENTITY_KEY,
+        )
+
+
+@pytest.mark.parametrize(
+    ("ledger_mode", "reviewed_mode"),
+    [
+        ("", "synthetic-direct"),
+        ("synthetic-direct", None),
+    ],
+)
+def test_session_billing_mode_must_exactly_match_the_reviewed_route(
+    tmp_path: Path,
+    ledger_mode: str,
+    reviewed_mode: str | None,
+) -> None:
+    path = _state_db(tmp_path)
+    _execute(
+        path,
+        "UPDATE session_model_usage SET billing_mode = ? WHERE session_id = ?",
+        (ledger_mode, SESSION_ID),
+    )
+
+    with pytest.raises(HermesAdapterError, match="does not match the reviewed offering"):
+        import_hermes_session(
+            path,
+            mapping=_mapping_with_billing_mode(reviewed_mode),
+            identity_key=IDENTITY_KEY,
+        )
+
+
+def test_session_rejects_non_text_billing_mode_in_lookalike_schema(tmp_path: Path) -> None:
+    path = _state_db(tmp_path)
+    _remove_usage_table_constraints(path)
+    _execute(
+        path,
+        "UPDATE session_model_usage SET billing_mode = NULL WHERE session_id = ?",
+        (SESSION_ID,),
+    )
+
+    with pytest.raises(HermesAdapterError, match="billing_mode must be text"):
+        import_hermes_session(
+            path,
+            mapping=_mapping_with_billing_mode("None"),
+            identity_key=IDENTITY_KEY,
+        )
+
+
+@pytest.mark.parametrize(
+    "unsafe_url",
+    [
+        "https://synthetic-provider.invalid/v1?",
+        "https://synthetic-provider.invalid/v1#",
+        "https://synthetic-provider.invalid/v1 ",
+        "https:\\synthetic-provider.invalid\\v1",
+    ],
+)
+def test_session_rejects_unsafe_ledger_base_url(tmp_path: Path, unsafe_url: str) -> None:
+    path = _state_db(tmp_path)
+    _execute(
+        path,
+        "UPDATE session_model_usage SET billing_base_url = ? WHERE session_id = ?",
+        (unsafe_url, SESSION_ID),
+    )
+
+    with pytest.raises(HermesAdapterError, match="not a safe route URL"):
+        import_hermes_session(path, mapping=MAPPING, identity_key=IDENTITY_KEY)
+
+
 def test_session_with_multiple_billing_routes_is_rejected(tmp_path: Path) -> None:
     path = _state_db(tmp_path)
     _execute(
@@ -563,4 +766,13 @@ def test_route_mapping_rejects_unsafe_public_offering_ids(offering_id: str) -> N
     payload = ROUTE.model_dump(mode="python")
     payload["offering"] = ROUTE.offering.model_copy(update={"offering_id": offering_id})
     with pytest.raises(ValidationError):
+        HermesRouteMapping.model_validate(payload)
+
+
+def test_route_mapping_does_not_rewrite_operator_endpoint_identity() -> None:
+    payload = ROUTE.model_dump(mode="python")
+    payload["offering"] = ROUTE.offering.model_copy(
+        update={"endpoint": f"{ROUTE.billing_base_url}/"}
+    )
+    with pytest.raises(ValidationError, match="base URL must match the offering endpoint"):
         HermesRouteMapping.model_validate(payload)

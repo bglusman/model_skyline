@@ -34,6 +34,17 @@
   to 0.9.
 - Add a payload-free real-workload regression example with explicit provenance,
   pricing semantics, synthetic quality labels, and cost-scope limitations.
+- Represent Hermes Agent schema-26's observed empty ledger `billing_mode` as an
+  absent (`None`) route/offering mode, allowing same-route main and auxiliary
+  usage to aggregate without inventing billing semantics. Nonempty modes remain
+  exact identity, mixed absent/reported modes fail closed, and model, provider,
+  and base URL remain mandatory route identity. Mirror Hermes's reviewed URL
+  normalization for scheme/host case, default ports, and one terminal slash so
+  canonically identical main and auxiliary routes aggregate without widening
+  path equivalence. This acceptance change is adapter projection version 2.
+  Already-valid version 1 traces remain registered and distinguishable; they
+  must not be treated as version 2, and need regeneration only to adopt the new
+  semantics.
 - Update the SWE-bench collector to projection version 2 after upstream moved
   the Bash Only view into exact mini-SWE-agent rows on the Verified board, and
   repair its retired methodology URL. Version 1 reconciliations must be

@@ -8,12 +8,13 @@ The reviewed Hermes surfaces are work-unit aggregates, not request events:
 
 The SQLite importer supports the ledger-complete subset of schema v26: it sums
 every main and auxiliary ledger task, while requiring one exact
-model/provider/base-URL/billing-mode route.  Upstream ``absolute=True`` session
-counter replacements do not write a matching ledger row and are therefore
-rejected rather than guessed.  The usage-report importer
-requires a separate operator attestation because that report exposes only the
-final model/provider and cannot prove that fallback or auxiliary calls stayed
-on the same route.  Neither importer reads transcript content.
+model/provider/base-URL route and one consistently present or absent billing
+mode.  Upstream ``absolute=True`` session counter replacements do not write a
+matching ledger row and are therefore rejected rather than guessed.  The
+usage-report importer requires a separate operator attestation because that
+report exposes only the final model/provider and cannot prove that fallback or
+auxiliary calls stayed on the same route.  Neither importer reads transcript
+content.
 """
 
 from __future__ import annotations
@@ -35,7 +36,7 @@ from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation, localcontext
 from pathlib import Path
 from typing import Annotated, Any, Literal, Self
-from urllib.parse import quote, urlsplit
+from urllib.parse import quote, urlsplit, urlunsplit
 
 from pydantic import Field, TypeAdapter, ValidationError, model_validator
 
@@ -52,6 +53,7 @@ HERMES_AGENT_COMMIT = "4f22543509d1b91dc45bcb369447126c5eb14fb7"
 HERMES_AGENT_VERSION = "0.20.6"
 HERMES_SESSION_SCHEMA_VERSION = 26
 HERMES_AGENT_LICENSE = "MIT"
+HERMES_ADAPTER_VERSION = "2"
 
 _HERMES_SOURCE_ROOT = f"https://github.com/NousResearch/hermes-agent/blob/{HERMES_AGENT_COMMIT}"
 HERMES_USAGE_REPORT_SOURCE_URL = f"{_HERMES_SOURCE_ROOT}/hermes_cli/oneshot.py"
@@ -60,6 +62,7 @@ HERMES_SESSION_SCHEMA_SOURCE_URL = f"{_HERMES_SOURCE_ROOT}/hermes_state_common.p
 HERMES_SESSION_STORAGE_SOURCE_URL = (
     f"{_HERMES_SOURCE_ROOT}/website/docs/developer-guide/session-storage.md"
 )
+HERMES_ROUTE_IDENTITY_SOURCE_URL = f"{_HERMES_SOURCE_ROOT}/hermes_cli/route_identity.py"
 
 DEFAULT_MAX_USAGE_REPORT_BYTES = 1_000_000
 MAX_USAGE_REPORT_BYTES = 16_000_000
@@ -180,6 +183,10 @@ def _safe_base_url(value: str) -> str:
         or not parsed.hostname
         or parsed.username is not None
         or parsed.password is not None
+        or "?" in value
+        or "#" in value
+        or "\\" in value
+        or any(ord(character) <= 0x20 for character in value)
         or parsed.query
         or parsed.fragment
         or port is not None
@@ -190,6 +197,31 @@ def _safe_base_url(value: str) -> str:
     return value
 
 
+def _canonical_hermes_base_url(value: str) -> str:
+    """Match the safe subset of reviewed Hermes route identity equivalence."""
+
+    _safe_base_url(value)
+    parsed = urlsplit(value)
+    hostname = parsed.hostname
+    if hostname is None:  # Kept local even though _safe_base_url rejects this shape.
+        raise ValueError("billing_base_url must be a safe absolute HTTP URL")
+
+    scheme = parsed.scheme.lower()
+    if "%" in hostname:
+        address, zone = hostname.split("%", 1)
+        host = f"{address.lower()}%{zone}"
+    else:
+        host = hostname.lower()
+    if parsed.netloc.startswith("[") or ":" in host:
+        host = f"[{host}]"
+    port = parsed.port
+    if port is not None and (scheme, port) not in {("http", 80), ("https", 443)}:
+        host = f"{host}:{port}"
+
+    path = parsed.path[:-1] if parsed.path.endswith("/") else parsed.path
+    return urlunsplit((scheme, host, path, "", ""))
+
+
 class HermesRouteMapping(FrozenModel):
     """Reviewed exact route represented by one canonical offering."""
 
@@ -197,7 +229,7 @@ class HermesRouteMapping(FrozenModel):
     model: str = Field(strict=True, min_length=1, max_length=512)
     billing_provider: str = Field(strict=True, min_length=1, max_length=512)
     billing_base_url: str = Field(strict=True, min_length=1, max_length=2048)
-    billing_mode: str = Field(strict=True, min_length=1, max_length=512)
+    billing_mode: str | None = Field(strict=True, min_length=1, max_length=512)
     usage_report_single_route_attested: bool
     service_tier_fulfilled_attested: bool
     route_details_attested: bool
@@ -207,7 +239,8 @@ class HermesRouteMapping(FrozenModel):
         _safe_public_identifier(self.offering.offering_id, "offering.offering_id", offering=True)
         _safe_route_identifier(self.model, "model")
         _safe_route_identifier(self.billing_provider, "billing_provider")
-        _safe_route_identifier(self.billing_mode, "billing_mode")
+        if self.billing_mode is not None:
+            _safe_route_identifier(self.billing_mode, "billing_mode")
         _safe_base_url(self.billing_base_url)
         if self.offering.agent_harness != "hermes-agent":
             raise ValueError("Hermes aggregates require a Hermes Agent offering harness")
@@ -462,7 +495,7 @@ def _trace_from_aggregate(
             observation_unit="work_unit",
             model_request_count=model_request_count,
             adapter_id="model-skyline/hermes-agent-aggregate",
-            adapter_version="1",
+            adapter_version=HERMES_ADAPTER_VERSION,
             upstream_system="nousresearch/hermes-agent",
             upstream_version=HERMES_AGENT_VERSION,
             upstream_commit=HERMES_AGENT_COMMIT,
@@ -832,7 +865,7 @@ class _LedgerRow:
     model: str
     billing_provider: str
     billing_base_url: str
-    billing_mode: str
+    billing_mode: str | None
     task: str
     api_call_count: int
     input_tokens: int
@@ -864,6 +897,17 @@ def _ledger_rows(connection: sqlite3.Connection, session_id: str) -> list[_Ledge
         raise HermesAdapterError("Hermes session usage exceeds the ledger row limit")
     rows: list[_LedgerRow] = []
     for raw in raw_rows:
+        raw_base_url = raw["billing_base_url"]
+        if not isinstance(raw_base_url, str):
+            raise HermesAdapterError("Hermes billing_base_url must be text")
+        try:
+            billing_base_url = _canonical_hermes_base_url(raw_base_url)
+        except ValueError:
+            raise HermesAdapterError("Hermes billing_base_url is not a safe route URL") from None
+        raw_billing_mode = raw["billing_mode"]
+        if not isinstance(raw_billing_mode, str):
+            raise HermesAdapterError("Hermes billing_mode must be text")
+        billing_mode = None if raw_billing_mode == "" else raw_billing_mode
         integers = [
             _required_nonnegative_int(raw[name], name)
             for name in (
@@ -881,8 +925,8 @@ def _ledger_rows(connection: sqlite3.Connection, session_id: str) -> list[_Ledge
             _LedgerRow(
                 model=str(raw["model"]),
                 billing_provider=str(raw["billing_provider"]),
-                billing_base_url=str(raw["billing_base_url"]),
-                billing_mode=str(raw["billing_mode"]),
+                billing_base_url=billing_base_url,
+                billing_mode=billing_mode,
                 task=str(raw["task"]),
                 api_call_count=integers[0],
                 input_tokens=integers[1],
@@ -915,12 +959,12 @@ def _validate_ledger_route(rows: list[_LedgerRow], route: HermesRouteMapping) ->
     if len(routes) != 1:
         raise HermesAdapterError("Hermes session spans multiple billing routes")
     only_route = next(iter(routes))
-    if any(not value for value in only_route):
+    if any(not value for value in only_route[:3]):
         raise HermesAdapterError("Hermes session usage has an incomplete billing route")
     if only_route != (
         route.model,
         route.billing_provider,
-        route.billing_base_url,
+        _canonical_hermes_base_url(route.billing_base_url),
         route.billing_mode,
     ):
         raise HermesAdapterError("Hermes ledger route does not match the reviewed offering")
