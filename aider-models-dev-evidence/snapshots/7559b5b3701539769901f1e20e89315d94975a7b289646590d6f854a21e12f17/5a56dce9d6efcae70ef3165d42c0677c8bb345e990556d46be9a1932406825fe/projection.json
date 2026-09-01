@@ -1,0 +1,57 @@
+{
+  "schema_version": "model-skyline/models-dev-projection/v1alpha1",
+  "adapter": "aider-models-dev",
+  "scenario": "cache_disabled",
+  "pricing_max_age_hours": "48",
+  "mapping_sha256": "ee0aeec23805feb52a82ea382e0c986d0a987d9288309cd4be32ec5a6f8a41f9",
+  "selected_prices_sha256": "43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+  "mapping_count": 6,
+  "sources": {
+    "benchmark": {
+      "id": "aider-polyglot-leaderboard",
+      "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+      "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+      "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+      "license": "Apache-2.0",
+      "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+      "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+      "retrieved_at": "2026-09-01T10:10:33.495069Z"
+    },
+    "pricing_catalog": {
+      "id": "models-dev-api",
+      "version": "api-sha256:7559b5b3701539769901f1e20e89315d94975a7b289646590d6f854a21e12f17",
+      "url": "https://models.dev/api.json",
+      "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+      "license": "MIT",
+      "methodology": "Community-maintained provider/model catalog; prices are documented as USD per one million tokens. See https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/README.md. Exact API bytes, rather than a repository commit, identify this snapshot. Catalog values are assertions, not provider invoices or availability guarantees. The adapter validates the subset described by the schema at https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/packages/core/src/schema.ts; that schema commit is methodology provenance and does not claim to version the live API bytes.",
+      "raw_sha256": "7559b5b3701539769901f1e20e89315d94975a7b289646590d6f854a21e12f17",
+      "retrieved_at": "2026-09-01T10:10:34.021567Z"
+    },
+    "selected_prices": {
+      "id": "models-dev-selected-cache-disabled-prices",
+      "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+      "url": "https://models.dev/api.json",
+      "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+      "license": "MIT",
+      "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+      "raw_sha256": null,
+      "retrieved_at": "2026-09-01T10:10:34.021567Z"
+    }
+  },
+  "outputs": {
+    "catalog": "observations.json",
+    "config": "frontier.yaml",
+    "mapping": "mapping.json",
+    "selected_prices": "selected-prices.json"
+  },
+  "warnings": [
+    "models.dev values are community catalog assertions, not provider invoices or availability guarantees.",
+    "The cache_disabled scenario charges every Aider prompt token as ordinary uncached input and every completion token as output; no cache read or write is assumed.",
+    "Aider quality, token counts, and latency are historical. Their temporal portability to the operator-asserted provider/model binding is an explicit assumption.",
+    "The reconstructed token marginal cost excludes non-model infrastructure, tool, tax, credit, batch, priority-tier, and other unreported charges or discounts.",
+    "Aider thinking_tokens is not used because the leaderboard field can represent a configured reasoning budget rather than measured billed usage.",
+    "Tiered or context-dependent models.dev entries are rejected rather than priced using an implicit context-length assumption.",
+    "Mappings are exact identifiers; this adapter performs no fuzzy name matching.",
+    "Mapping evidence is copied into public offering metadata; it must contain no secrets, personal data, private paths, or confidential review notes."
+  ]
+}

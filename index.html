@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="ModelSkyline public Pareto-frontier research publications">
     <title>ModelSkyline research publications</title>
-    <link rel="alternate" type="application/rss+xml" title="Cost per solved versus solve rate" href="models-dev-gpt5/feeds/price-snapshot-cost-per-solved-vs-solve-rate.xml">
+    <link rel="alternate" type="application/rss+xml" title="Cost per solved versus solve rate" href="aider-models-dev/feeds/price-snapshot-cost-per-solved-vs-solve-rate.xml">
     <style>
       :root { color-scheme: light dark; font-family: ui-sans-serif, system-ui, sans-serif; }
       body { margin: 0; background: #f4f6f8; color: #18212b; line-height: 1.55; }
@@ -43,18 +43,26 @@
       </header>
 
       <section>
-        <h2>GPT-5 price snapshot × Aider solve rate</h2>
+        <h2>Legacy OpenAI price snapshot × Aider solve rate</h2>
         <p>
-          This scheduled projection combines a pinned Aider Polyglot cohort
-          with a <code>models.dev</code> price acquisition made for that
-          publication. Its candidates are three reasoning configurations of
-          one GPT-5 family, not a broad cross-model comparison.
+          This scheduled projection combines six pinned Aider Polyglot
+          configurations spanning GPT-5, o3, and o3-pro with a
+          <code>models.dev</code> price acquisition. OpenAI maps these aliases
+          to snapshots <a href="https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations">scheduled for API shutdown on December 11, 2026</a>.
+          The models.dev status field did not capture that provider notice at
+          review time. This is a single-provider historical reconstruction,
+          not a current-market comparison or routing recommendation.
+        </p>
+        <p>
+          Snapshot JSON retains all six evaluated configurations and explicit
+          dominance evidence. Human tables contain only frontier members.
         </p>
         <ul>
-          <li><a href="models-dev-gpt5/frontiers/price-snapshot-cost-per-solved-vs-solve-rate/table.txt">Cost per solved case vs. solve rate</a> · <a href="models-dev-gpt5/frontiers/price-snapshot-cost-per-solved-vs-solve-rate/table.csv">CSV</a> · <a href="models-dev-gpt5/feeds/price-snapshot-cost-per-solved-vs-solve-rate.xml">RSS</a></li>
-          <li><a href="models-dev-gpt5/frontiers/price-snapshot-cost-per-attempted-vs-solve-rate/table.txt">Cost per attempted case vs. solve rate</a> · <a href="models-dev-gpt5/frontiers/price-snapshot-cost-per-attempted-vs-solve-rate/table.csv">CSV</a> · <a href="models-dev-gpt5/feeds/price-snapshot-cost-per-attempted-vs-solve-rate.xml">RSS</a></li>
-          <li><a href="models-dev-gpt5/frontiers/price-snapshot-reconstructed-token-cost-vs-solve-rate/table.txt">Reconstructed benchmark token cost vs. solve rate</a> · <a href="models-dev-gpt5/frontiers/price-snapshot-reconstructed-token-cost-vs-solve-rate/table.csv">CSV</a> · <a href="models-dev-gpt5/feeds/price-snapshot-reconstructed-token-cost-vs-solve-rate.xml">RSS</a></li>
-          <li><a href="models-dev-gpt5/latest.json">Publication manifest</a> · <a href="models-dev-gpt5-evidence/latest.json">Evidence pointer</a></li>
+          <li><a href="aider-models-dev/frontiers/price-snapshot-cost-per-solved-vs-solve-rate/table.txt">Cost per solved case vs. solve rate</a> · <a href="aider-models-dev/frontiers/price-snapshot-cost-per-solved-vs-solve-rate/table.csv">CSV</a> · <a href="aider-models-dev/feeds/price-snapshot-cost-per-solved-vs-solve-rate.xml">RSS</a></li>
+          <li><a href="aider-models-dev/frontiers/price-snapshot-cost-per-attempted-vs-solve-rate/table.txt">Cost per attempted case vs. solve rate</a> · <a href="aider-models-dev/frontiers/price-snapshot-cost-per-attempted-vs-solve-rate/table.csv">CSV</a> · <a href="aider-models-dev/feeds/price-snapshot-cost-per-attempted-vs-solve-rate.xml">RSS</a></li>
+          <li><a href="aider-models-dev/frontiers/price-snapshot-reconstructed-token-cost-vs-solve-rate/table.txt">Reconstructed benchmark token cost vs. solve rate</a> · <a href="aider-models-dev/frontiers/price-snapshot-reconstructed-token-cost-vs-solve-rate/table.csv">CSV</a> · <a href="aider-models-dev/feeds/price-snapshot-reconstructed-token-cost-vs-solve-rate.xml">RSS</a></li>
+          <li><a href="aider-models-dev/latest.json">Publication manifest</a> · <a href="aider-models-dev-evidence/latest.json">Evidence pointer</a></li>
+          <li>Frozen earlier three-configuration publication: <a href="models-dev-gpt5/latest.json">manifest</a> · <a href="models-dev-gpt5-evidence/latest.json">evidence</a></li>
         </ul>
       </section>
 
