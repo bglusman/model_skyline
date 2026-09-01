@@ -1131,6 +1131,94 @@
      "dominated_by": []
     }
    ]
+  },
+  {
+   "id": "local-smarts-chat-inference-vm-5060ti",
+   "workload": "agent-chat",
+   "axes": [
+    "decode tok/s \u00d7 intelligence"
+   ],
+   "primary_label": "out tok/s",
+   "default": "local-inference-vm-5060ti/qwen3.5-35b:latest",
+   "bulk_default": null,
+   "fallbacks": [],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "local-inference-vm-5060ti/qwen3.5-35b:latest",
+     "on_frontier": true,
+     "primary": 73.12,
+     "aa_index": "52",
+     "cap_assumed": false,
+     "dominated_by": []
+    },
+    {
+     "offering": "local-inference-vm-5060ti/qwen3.5:9b",
+     "on_frontier": false,
+     "primary": 58.28,
+     "aa_index": "42",
+     "cap_assumed": false,
+     "dominated_by": []
+    },
+    {
+     "offering": "local-inference-vm-5060ti/gemma3:27b",
+     "on_frontier": false,
+     "primary": 2.48,
+     "aa_index": "47",
+     "cap_assumed": false,
+     "dominated_by": []
+    }
+   ],
+   "members": [
+    {
+     "offering": "local-inference-vm-5060ti/qwen3.5-35b:latest",
+     "on_frontier": true,
+     "primary": 73.12,
+     "aa_index": "52",
+     "cap_assumed": false,
+     "dominated_by": []
+    }
+   ]
+  },
+  {
+   "id": "local-smarts-chat-mac-studio-m1max-64",
+   "workload": "agent-chat",
+   "axes": [
+    "decode tok/s \u00d7 intelligence"
+   ],
+   "primary_label": "out tok/s",
+   "default": "local-mac-studio-m1max-64/qwen3.6:35b-a3b",
+   "bulk_default": null,
+   "fallbacks": [],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "local-mac-studio-m1max-64/qwen3.6:35b-a3b",
+     "on_frontier": true,
+     "primary": 54.82,
+     "aa_index": "52",
+     "cap_assumed": false,
+     "dominated_by": []
+    },
+    {
+     "offering": "local-mac-studio-m1max-64/qwen3.5:27b-q4_K_M",
+     "on_frontier": false,
+     "primary": 12.91,
+     "aa_index": "42",
+     "cap_assumed": false,
+     "dominated_by": []
+    }
+   ],
+   "members": [
+    {
+     "offering": "local-mac-studio-m1max-64/qwen3.6:35b-a3b",
+     "on_frontier": true,
+     "primary": 54.82,
+     "aa_index": "52",
+     "cap_assumed": false,
+     "dominated_by": []
+    }
+   ]
   }
  ],
  "crossover_vs_10usd_sub": {
@@ -1286,6 +1374,20 @@
    "workload": "coding-session",
    "title": "Subscriptions \u00b7 coding speed\u2194smarts",
    "points": 6
+  },
+  {
+   "id": "local-smarts-chat-inference-vm-5060ti",
+   "svg": "/local-smarts-chat-inference-vm-5060ti.svg",
+   "workload": "agent-chat",
+   "title": "local-smarts-chat-inference-vm-5060ti",
+   "points": 3
+  },
+  {
+   "id": "local-smarts-chat-mac-studio-m1max-64",
+   "svg": "/local-smarts-chat-mac-studio-m1max-64.svg",
+   "workload": "agent-chat",
+   "title": "local-smarts-chat-mac-studio-m1max-64",
+   "points": 2
   }
  ],
  "model_map": {
@@ -1569,13 +1671,15 @@
   }
  },
  "local": {
-  "status": "harness-ready, awaiting measurements",
-  "how": "run measure-local.py against any OpenAI-compatible local endpoint (Ollama/llama.cpp/vLLM/LM Studio/slotstream); it emits schema-valid offerings with real measured tok/s + full stack metadata (runtime/quant/hardware are part of offering identity \u2014 numbers are NOT transferable between stacks)",
-  "hardware_profiles": [
-   "brian-m5-macbook-48 (incoming)",
-   "brian-mac-studio (pending)",
-   "brian-rtx-5060 (pending)",
-   "brian-m2-macbook-16 (static-fit-note: QFN-4bit needs ~32GB > 16GB)"
+  "status": "LIVE \u2014 measured 2026-09-01 on Brian's hardware via Ollama OpenAI endpoints",
+  "method": "median decode tok/s: 1 warmup + 3x 64-token rounds + 1x 500-token round, temperature 0, LAN OpenAI endpoint",
+  "profiles": {
+   "inference-vm-5060ti": "VM125: RTX 5060 Ti 16GB + 16-core CPU, Ollama. gemma3:27b spills to CPU (2.5 tok/s).",
+   "mac-studio-m1max-64": "Mac Studio: M1 Max 64GB unified, Ollama. All models fit in unified memory."
+  },
+  "notes": [
+   "aa values are model-class approximations pending verification (flagged in JSON)",
+   "gemma3:12b / gemma4:31b / granite4.1 / muse-glimmer measured but lack verified AA \u2014 plotted on speed axis only, excluded from smarts ranking"
   ]
  }
 }
