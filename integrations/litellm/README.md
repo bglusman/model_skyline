@@ -183,7 +183,8 @@ error classes other than a pre-response 503, concurrent router writers, or
 key/team-level routing policy. Use a dedicated execution key and team whose
 policy has no fallback capable of widening the managed group; this controller
 checks global router fallback settings but cannot inspect or enforce every
-request-scoped LiteLLM policy.
+request-scoped LiteLLM policy. Custom routers or plugins that consume arbitrary
+`model_info` fields are also out of scope and can invalidate this boundary.
 
 This package also does not provide:
 
