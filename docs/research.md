@@ -1,6 +1,6 @@
 # Prior art, data sources, and workload research
 
-Research snapshot: **2026-08-31**. Model catalogs, benchmark results, API terms,
+Research snapshot: **2026-09-01**. Model catalogs, benchmark results, API terms,
 and licenses change; adapters must pin source versions and re-check terms.
 
 ## Finding and project position
@@ -90,6 +90,33 @@ The adapter must not collapse OpenClaw's provider, model, profile, or gateway
 route into a bare model id. Fields absent from the event remain unknown or need
 an explicit narrow attestation. Any future plugin must pin an exact reviewed
 release and fail closed on unknown event shapes.
+
+The closest reusable third-party accounting component found was AgenticLedger.
+The audit covered the `0.12.0`
+[release commit](https://github.com/ShekharBhardwaj/AgenticLedger/tree/71817deed058c336b1f3a1e61121f70763f8cead)
+and a later
+[source snapshot](https://github.com/ShekharBhardwaj/AgenticLedger/tree/6a177ec134859b8d26a2beb8b36ba3422b8cf0a0);
+the snapshot is ahead of the release, so do not assume main-only behavior is in
+the published package. It is a credible proxy for isolated benchmark evidence,
+but the reviewed source snapshot's
+[OpenClaw connector](https://github.com/ShekharBhardwaj/AgenticLedger/blob/6a177ec134859b8d26a2beb8b36ba3422b8cf0a0/agenticledger/connect.py#L65-L116)
+rewrites only Anthropic and assigns a static route. Its
+[runtime detection](https://github.com/ShekharBhardwaj/AgenticLedger/blob/6a177ec134859b8d26a2beb8b36ba3422b8cf0a0/agenticledger/proxy/detect.py#L115-L123)
+does not recover an OpenClaw session id, so calls collapse into a daily
+synthetic session and cannot express work units, retries, fallbacks, or
+subagents. Capture is fail-open, and the raw record omits resolved route,
+cache-retention, region, tier, upstream provider request id, and any
+logical-call-to-transport-attempt relationship. Its calculated cost is
+therefore supporting evidence rather than a bill or a substitute for
+ModelSkyline's effective-dated offering formulas.
+
+If used for a benchmark, isolate one work unit and direct provider route in a
+fresh database, choose synchronous `metadata` capture, verify zero capture
+drops before and after, configure the export HMAC key, export raw authenticated
+session rows, preserve nulls, and recompute cost in ModelSkyline. Do not import
+its aggregate reports, enable its default full-content capture, expose its
+default listener to an untrusted network, or grant an agent unrestricted
+`curl` merely to read reports.
 
 ### 2. Hermes Agent: telemetry bridge, then selection mapping
 
@@ -589,6 +616,10 @@ judge drift, and unequal tool budgets are material.
 - [Inspect AI](https://github.com/UKGovernmentBEIS/inspect_ai) as the preferred
   Python evaluation orchestrator for tool-using agents where an existing
   benchmark harness is not authoritative.
+- [AgenticLedger 0.12.0](https://github.com/ShekharBhardwaj/AgenticLedger/releases/tag/v0.12.0)
+  as a local proxy evidence source with opt-in HMAC-authenticated export for
+  controlled runs only, subject to the OpenClaw limitations and handling rules
+  above.
 - DuckDB/Parquet as the reproducible local analysis substrate. Keep raw traces
   immutable and materialize derived observations with query/config hashes.
 
