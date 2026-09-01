@@ -20,7 +20,7 @@ retention, and any attestations named by an adapter.
 | --- | --- | --- | --- |
 | Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with the installed default and explicit `-m gpt-5.4` routes, including the retained CLI-to-aggregation smoke trace, plus two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
 | Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | SDK `0.2.148` with its bundled CLI `2.1.251` was installed exactly. A constrained Haiku request (no tools, skills, settings, MCP, fallback, or session persistence; one turn; $0.02 cap) reached the SDK but stopped on API billing/quota before a `ResultMessage`, so it did not prove a live `RequestTrace` or the runtime `costBasis` contract. |
-| OpenClaw | `2026.8.1` at [`ea80657`](https://github.com/openclaw/openclaw/tree/ea806575e6450e4d1efdfc72c19f04be982a1b9b) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures only; no collector ships. An external plugin using the stock `2026.8.1` runtime can support an isolated Gateway experiment, not concurrent production collection. The installed `2026.3.2` is intentionally unsupported. |
+| OpenClaw | `2026.8.1` at [`ea80657`](https://github.com/openclaw/openclaw/tree/ea806575e6450e4d1efdfc72c19f04be982a1b9b) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures; no collector ships. The exact upstream packaged-runtime E2E passed locally through a real Gateway, mock model endpoint, installed `diagnostics-otel` plugin, and OTLP receiver. That validates transport and scheduled export, not accounting completeness or shutdown export. An external plugin can support an isolated experiment, not concurrent production collection. The installed `2026.3.2` is intentionally unsupported. |
 | Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7), session schema `26`, adapter projection `2` | A `hermes -z --usage-file` JSON report or read-only state SQLite database | Contract, synthetic report, and synthetic schema-v26 database tests. A real keyless, opencode-free run produced one main row and one `title_generation` row on the same model/provider and canonically identical base URL; one raw URL had Hermes's equivalent terminal slash and both rows recorded no billing mode. |
 
 The Codex `0.144.2` success run reported 11,250 inclusive input tokens,
@@ -308,6 +308,43 @@ hide multiple provider transport requests; actual request count stays unknown.
 Missing or incomplete usage remains unknown. OpenClaw's time-to-first-byte and
 full call duration are coherence-checked but are not mislabeled as TTFT or token
 throughput.
+
+### Why stock OpenTelemetry is not the projector
+
+On 2026-09-01, the
+[focused upstream packaged-runtime test](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/test/e2e/qa-lab/runtime/diagnostics-otel-install-runtime.e2e.test.ts)
+passed against the exact `v2026.8.1` source and packaged plugin on Node 24.15.0.
+The test exercised a real Gateway, a local mock OpenAI endpoint, configuration
+and sampling changes, an OTLP protobuf receiver, and scheduled
+BatchSpanProcessor export timing. This is meaningful runtime validation of the
+documented telemetry path, but the test does not assert pending-span export at
+shutdown.
+
+It does not make exported spans a complete accounting ledger:
+
+- successful model-call spans retain OpenTelemetry `UNSET` status and have no
+  required success marker; shutdown force-ends active spans the same way, so a
+  sparse successful terminal and an incomplete force-closed start can be
+  indistinguishable;
+- OpenClaw's diagnostic queue can drop events and the BatchSpanProcessor can
+  drop or permanently lose spans; configured parent-based sampling can also
+  omit spans intentionally. Outer service shutdown does call the diagnostic
+  drain helper, but that helper fences only the queue sequence captured at
+  invocation and cannot prove a concurrent segment complete;
+- raw run and call ids are intentionally absent from exported attributes, so
+  joining depends on retained trace ancestry and fails when a parent is absent;
+- one `observation_unit=request` span describes one wrapped model-call boundary,
+  not necessarily one provider transport or billable attempt; provider retries
+  can remain inside that boundary; and
+- the exported usage has no cache-telemetry availability or cache-retention
+  tier, while a missing bucket cannot safely be converted to measured zero.
+
+Consequently ModelSkyline does not ingest ordinary OTLP spans as complete
+`RequestTrace` rows. A research collector may retain allowlisted, content-free
+span observations in quarantine, deduplicate them by `(trace_id, span_id)`, and
+attach an external experiment attestation. It must not publish cost, request
+cardinality, cache completeness, or work-unit completeness from OTLP alone.
+Keep `captureContent=false`; do not persist arbitrary span attributes.
 
 ```python
 from model_skyline.adapters.openclaw import (
