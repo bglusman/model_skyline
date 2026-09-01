@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import html
 from datetime import UTC, datetime
-from decimal import Decimal
 from xml.etree import ElementTree as ET
 
 from model_skyline.engine import FrontierEngine
@@ -16,10 +15,6 @@ from model_skyline.renderers import (
 )
 
 RSS_NAMESPACE = "urn:model-skyline:rss:1.0"
-
-
-def test_decimal_display_avoids_scientific_notation_for_integer_values() -> None:
-    assert _display(Decimal("6E+1")) == "60"
 
 
 def test_semantic_view_treats_absent_and_null_billing_mode_as_equivalent(

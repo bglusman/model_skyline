@@ -6,9 +6,9 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
 
+from model_skyline.canonical import content_hash
 from model_skyline.engine import FrontierEngine
 from model_skyline.io import load_catalog, load_config, public_schemas
-from model_skyline.renderers import render_table
 from model_skyline.selection import select_models
 
 EXAMPLE = Path(__file__).resolve().parents[1] / "examples" / "real-agent-value"
@@ -57,9 +57,6 @@ def test_real_agent_value_example_validates_evaluates_and_selects() -> None:
         "openrouter/z-ai/glm-5.3-flash"
     ]
     assert selection.default.axes["metered_token_cost_per_success"].value == Decimal("0.06635506")
-    table = render_table(frontier)
-    assert " | 3 " in table
-
     cost = full.axes["metered_token_cost_per_success"]
     quality = full.axes["regression_quality_score"]
     assert cost.dependencies == (
@@ -81,3 +78,24 @@ def test_real_agent_value_example_validates_evaluates_and_selects() -> None:
         "model-skyline-synthetic-regression-quality-v1",
         "private-agent-trace-aggregate-v1",
     }
+
+    for offering in catalog.offerings:
+        selected_prices = {
+            "offering_id": offering.offering.offering_id,
+            "input_uncached_usd_per_million": format(
+                offering.signals["input_uncached_usd_per_million"].value,
+                "f",
+            ),
+            "input_cache_read_usd_per_million": format(
+                offering.signals["input_cache_read_usd_per_million"].value,
+                "f",
+            ),
+            "output_usd_per_million": format(
+                offering.signals["output_usd_per_million"].value,
+                "f",
+            ),
+        }
+        assert offering.default_source is not None
+        assert offering.default_source.version == (
+            f"selected-prices-sha256:{content_hash(selected_prices)}"
+        )

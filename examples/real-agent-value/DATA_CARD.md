@@ -24,10 +24,18 @@ rather than copied into every offering.
 ## Provenance boundaries
 
 The private aggregate, exact public price snapshots, and synthetic regression
-scores have distinct `SourceReference` identifiers. Changing any value changes
-the relevant config or catalog digest; the cost axis records both the aggregate
-and offering-specific pricing source IDs, while the quality axis records only
-its quality source ID.
+scores have distinct `SourceReference` identifiers. Changing a semantic workload
+value or source identity changes the effective config; changing a catalog field
+changes the catalog hash. Workload `retrieved_at` is acquisition provenance and
+is intentionally excluded from `config_hash`, although it remains in snapshot
+provenance. The cost axis records the aggregate and offering-specific pricing
+sources, while the quality axis records only its synthetic-quality source.
+
+Any catalog change rotates the catalog, frontier, and axis-inventory identities,
+even when the changed field is unrelated to one axis. Per-axis dependency/source
+records let a consumer determine that the cost value and its selected-price
+semantics did not change; ModelSkyline does not yet maintain independently cached
+axis artifacts.
 
 The two public OpenRouter single-model endpoints were retrieved at
 2026-09-01T01:37:14Z. Their complete response digests are retained in offering
@@ -38,6 +46,11 @@ multiplied by 1,000,000 for the USD/Mtok inputs. This is an immutable snapshot,
 not a live-price promise. The quality values are maintainer-authored synthetic
 ordinals used only to exercise frontier and selection behavior. They are not
 benchmark evidence, model-quality claims, or a current feed.
+
+The source responses do not attest a region or service tier, so those optional
+`OfferingKey` fields are omitted. Their `tools` capability is mapped directly;
+OpenRouter's advertised `structured_outputs` and `response_format` parameters
+are normalized to ModelSkyline's `structured_output` capability.
 
 The cost axis is deliberately named `metered_token_cost_per_success`: it includes
 uncached input, cache-read input, and output token meters. The source records did

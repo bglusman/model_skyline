@@ -67,10 +67,11 @@ uv run modelskyline select \
   --output selection.json
 ```
 
-The fixed time makes a dated, payload-free real workload aggregate and exact
-public price snapshot reproducible. The two-offering candidate set and
-operator-entered quality values are regression evidence, not a current market
-recommendation; see its [data card](examples/real-agent-value/DATA_CARD.md).
+The fixed time deterministically replays a dated, payload-free real workload
+aggregate and committed public price snapshot; it does not re-fetch mutable
+upstream data. The two-offering candidate set and synthetic quality ordinals are
+regression evidence, not a current market recommendation; see its
+[data card](examples/real-agent-value/DATA_CARD.md).
 Production inputs normally use current observation timestamps and omit
 `--as-of`. The selection is an immutable control-plane artifact; an agent or
 gateway must pin one resolved selection for the complete work unit rather than

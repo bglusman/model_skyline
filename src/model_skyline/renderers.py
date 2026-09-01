@@ -5,7 +5,6 @@ import html
 import io
 from collections.abc import Iterable, Mapping
 from datetime import UTC
-from decimal import Decimal
 from email.utils import format_datetime
 from typing import Any
 
@@ -21,8 +20,6 @@ ET.register_namespace("skyline", RSS_NAMESPACE)
 def _display(value: Any) -> str:
     if value is None:
         return ""
-    if isinstance(value, Decimal):
-        value = format(value, "f")
     return str(value).replace("\r", r"\r").replace("\n", r"\n").replace("\t", r"\t")
 
 
