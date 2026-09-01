@@ -1,0 +1,435 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:quality-portfolio-derivation",
+  "$defs": {
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "billing_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Billing Mode"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider",
+        "endpoint",
+        "billing_mode",
+        "region",
+        "service_tier",
+        "quantization",
+        "reasoning_effort",
+        "agent_harness",
+        "capabilities"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    },
+    "PortfolioCandidateAudit": {
+      "additionalProperties": false,
+      "properties": {
+        "offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "component_failures": {
+          "patternProperties": {
+            "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$": {
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "maxItems": 32,
+              "minItems": 1,
+              "type": "array"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "title": "Component Failures",
+          "type": "object"
+        }
+      },
+      "required": [
+        "offering"
+      ],
+      "title": "PortfolioCandidateAudit",
+      "type": "object"
+    },
+    "PortfolioFrontierBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Component Id",
+          "type": "string"
+        },
+        "frontier_snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Frontier Snapshot Id",
+          "type": "string"
+        },
+        "config_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "catalog_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Catalog Hash",
+          "type": "string"
+        },
+        "axis_evidence_inventory_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Axis Evidence Inventory Id",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "quality_projection_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Quality Projection Sha256",
+          "type": "string"
+        },
+        "sources": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SourceReference"
+          },
+          "maxItems": 512,
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "component_id",
+        "frontier_snapshot_id",
+        "config_hash",
+        "catalog_hash",
+        "axis_evidence_inventory_id",
+        "generated_at",
+        "quality_projection_sha256"
+      ],
+      "title": "PortfolioFrontierBinding",
+      "type": "object"
+    },
+    "SourceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "terms_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terms Url"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        },
+        "methodology": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Methodology"
+        },
+        "raw_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Sha256"
+        },
+        "retrieved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrieved At"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "SourceReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/quality-portfolio-derivation/v1alpha1",
+      "default": "model-skyline/quality-portfolio-derivation/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "quality-portfolio-derivation",
+      "default": "quality-portfolio-derivation",
+      "title": "Kind",
+      "type": "string"
+    },
+    "hash_algorithm": {
+      "const": "sha256-rfc8785-v1",
+      "default": "sha256-rfc8785-v1",
+      "title": "Hash Algorithm",
+      "type": "string"
+    },
+    "algorithm_version": {
+      "const": "portfolio-coverage-v1",
+      "default": "portfolio-coverage-v1",
+      "title": "Algorithm Version",
+      "type": "string"
+    },
+    "policy_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Policy Hash",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "valid_until": {
+      "format": "date-time",
+      "title": "Valid Until",
+      "type": "string"
+    },
+    "bindings": {
+      "items": {
+        "$ref": "#/$defs/PortfolioFrontierBinding"
+      },
+      "maxItems": 4,
+      "minItems": 2,
+      "title": "Bindings",
+      "type": "array"
+    },
+    "base_catalog_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Base Catalog Hash",
+      "type": "string"
+    },
+    "quality_projection_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Quality Projection Sha256",
+      "type": "string"
+    },
+    "catalog_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Catalog Hash",
+      "type": "string"
+    },
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/PortfolioCandidateAudit"
+      },
+      "maxItems": 10000,
+      "minItems": 1,
+      "title": "Candidates",
+      "type": "array"
+    },
+    "snapshot_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "policy_hash",
+    "generated_at",
+    "valid_until",
+    "bindings",
+    "base_catalog_hash",
+    "quality_projection_sha256",
+    "catalog_hash",
+    "candidates",
+    "snapshot_id"
+  ],
+  "title": "PortfolioDerivationSnapshot",
+  "type": "object",
+  "$comment": "This compact lock does not duplicate selected AxisEstimate values. Consumers must replay it against the trusted policy, base ObservationCatalog, and exact frontier artifacts before routing; its catalog hash binds the enriched output."
+}

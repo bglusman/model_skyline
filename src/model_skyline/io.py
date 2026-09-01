@@ -31,6 +31,7 @@ from model_skyline.quality_evidence import (
     QualityReconciliation,
 )
 from model_skyline.quality_oracle import QualityOraclePolicy, QualityOracleSnapshot
+from model_skyline.quality_portfolio import PortfolioDerivationSnapshot, PortfolioPolicy
 from model_skyline.quality_selection import QualityGatedSelectionSnapshot
 from model_skyline.selection_overlap import (
     CrossFrontierSelectionPolicy,
@@ -422,6 +423,12 @@ SCHEMA_IDS = {
     ),
     "quality-oracle-snapshot.schema.json": (
         "urn:model-skyline:schema:v1alpha1:quality-oracle-snapshot"
+    ),
+    "quality-portfolio-policy.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:quality-portfolio-policy"
+    ),
+    "quality-portfolio-derivation.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:quality-portfolio-derivation"
     ),
     "quality-gated-selection-snapshot.schema.json": (
         "urn:model-skyline:schema:v1alpha1:quality-gated-selection-snapshot"
@@ -913,6 +920,12 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         "quality-oracle-snapshot.schema.json": QualityOracleSnapshot.model_json_schema(
             mode="serialization"
         ),
+        "quality-portfolio-policy.schema.json": PortfolioPolicy.model_json_schema(
+            mode="validation"
+        ),
+        "quality-portfolio-derivation.schema.json": (
+            PortfolioDerivationSnapshot.model_json_schema(mode="serialization")
+        ),
         "quality-gated-selection-snapshot.schema.json": (
             QualityGatedSelectionSnapshot.model_json_schema(mode="serialization")
         ),
@@ -932,6 +945,7 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         if name in {
             "quality-bundle-policy.schema.json",
             "quality-oracle-policy.schema.json",
+            "quality-portfolio-policy.schema.json",
         }:
             _quality_bundle_policy_conditionals(schema)
         if name == "request-trace-v1alpha2.schema.json":
@@ -1015,6 +1029,20 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
                 "Missing and out-of-reference components reject a candidate; the weighted "
                 "index does not assert statistical independence or publication rights for its "
                 "component evidence."
+            )
+        if name == "quality-portfolio-policy.schema.json":
+            generated_schema["$comment"] = (
+                "This stable policy contains operator intent only; exact frontier snapshots, "
+                "catalog/config hashes, retrievals, rights, and candidate failures belong in "
+                "the derivation lock. JSON Schema cannot enforce distinct component/frontier "
+                "IDs, unique output signals, required coverage, or correlation grouping; run "
+                "ModelSkyline semantic validation."
+            )
+        if name == "quality-portfolio-derivation.schema.json":
+            generated_schema["$comment"] = (
+                "This compact lock does not duplicate selected AxisEstimate values. Consumers "
+                "must replay it against the trusted policy, base ObservationCatalog, and exact "
+                "frontier artifacts before routing; its catalog hash binds the enriched output."
             )
         if name == "quality-gated-selection-snapshot.schema.json":
             generated_schema["$comment"] = (
