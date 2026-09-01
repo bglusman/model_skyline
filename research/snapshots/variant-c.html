@@ -224,7 +224,7 @@ function recompute(){
       <td>${esc(fmtMoney(r.primary))}</td>
       <td>${esc(fmtY(f,r))}</td>
       <td>${isPick?'<b>your pick</b>':(r.primary>b?'over budget':(r.on_frontier?'reachable · on frontier':'reachable · dominated'))}</td>
-      <td class="hint">${(!r.on_frontier && r.dominated_by && r.dominated_by.length)?esc(r.dominated_by.map(d=>d.split('/')[1]).join(', ')):''}</td>`;
+      <td class="hint">${(!r.on_frontier && r.dominated_by && r.dominated_by.length)?esc([...new Set(r.dominated_by.map(d=>d.split('/')[1]))].join(', ')):''}</td>`;
     bbody.appendChild(row);
   });
 }

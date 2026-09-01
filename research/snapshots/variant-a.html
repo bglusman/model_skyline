@@ -192,7 +192,7 @@ ORDER.forEach((fid, idx) => {
     const mark = st==='on'?'&#9733;':st==='near'?'&#8776;':'&middot;';
     const yv = fmtY(f, r);
     const domby = (!r.on_frontier && r.dominated_by && r.dominated_by.length)
-      ? r.dominated_by.map(d => esc(d.split('/')[1])).join(', ') : '';
+      ? esc([...new Set(r.dominated_by.map(d=>d.split('/')[1]))].join(', ')) : '';
     h += `<tr class="${cls}" data-o="${esc(r.offering)}">
       <td>${esc(r.offering)}${r.cap_assumed?'<span class="cap">&nbsp;&dagger;</span>':''}</td>
       <td class="num">${esc(fmtMoney(r.primary))}</td>

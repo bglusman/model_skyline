@@ -207,7 +207,7 @@ models.forEach(([name, mm]) => {
   } else {
     const e0 = entries[0];
     const db = e0.r.dominated_by || [];
-    const dbnames = db.map(d => d.split('/')[1]).slice(0,3).join(', ');
+    const dbnames = [...new Set(db.map(d => d.split('/')[1]))].slice(0,3).join(', ');
     const close = entries.filter(e => nearStatus(e.r, e.f) === 'near');
     verdict = `<span class="warn">Off-frontier</span>: dominated everywhere it appears` +
       (close.length ? `, but within 10% on ${close.map(e=>SHORT[e.f.id]).join(', ')} — a near-buy if its ecosystem matters to you` : '') +
