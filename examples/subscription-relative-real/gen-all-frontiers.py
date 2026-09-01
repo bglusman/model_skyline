@@ -33,6 +33,8 @@ CODING_SHAPES = {
 # AA quality + speed (Intelligence Index, median output t/s, TTFT s)
 AA = {
     "opus-5": {"aa": 63, "tps": None, "ttft": None},
+    "claude-fable-5.1": {"aa": 66, "tps": 66, "ttft": 285.33},
+    "qwen3.8-flash-next": {"aa": 56, "tps": 89, "ttft": 2.6},
     "gpt-5.6-luna": {"aa": 52, "tps": 132, "ttft": 163.88},
     "gpt-5.6-terra": {"aa": 57, "tps": 119, "ttft": 138.05},
     "muse-spark-1.2": {"aa": 57, "tps": None, "ttft": None},
@@ -75,6 +77,8 @@ OR_PRICES = {
     "muse-spark-1.2-contributor": (0.10, 0.002, 0.20),  # trains on prompts; region-limited
     "longcat-2.0": (0.30, 0.006, 1.20),
     "claude-fable-5": (10.00, 1.00, 50.00),
+    "claude-fable-5.1": (10.00, 0.25, 50.00),   # cache-read cut $1.00->$0.25 = the "finally economical" change
+    "qwen3.8-flash-next": (0.15, 0.012, 0.47),  # OR metered; 89% cache discount
     "gpt-5.6-sol": (2.00, 0.20, 10.00),
     "qwen3.8-max": (2.00, 0.25, 6.00),  # = OR catalog qwen3.8-2.4t-a95b
     "glm-5.3": (1.40, 0.26, 4.40), "glm-5.3-flash": (0.075, 0.015, 0.25),
@@ -89,6 +93,7 @@ GPQA = {  # GPQA Diamond %; AA-run unless noted
     "gpt-5.6-luna": (91.1, "AA-run"),
     "claude-fable-5": (92.6, "vendor-reported"),
     "deepseek-v4-flash-0731": (90.8, "AA-run"),
+    "qwen3.8-flash-next": (91.7, "vendor-reported"),
     "gpt-oss-120b": (80.1, "aggregator-reported"),
 }
 SWE = {  # SWE-bench Verified %; vals.ai = independent same-harness (Mini-SWE-agent), aggregator = openlm
@@ -101,7 +106,7 @@ SRC = {"id": "brian-multi-frontier-v2", "version": "2", "license": "MIT (derived
        "methodology": ("Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); "
                        "prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat "
                        "from real 30-day traces, coding-session from OpenCode Go published request patterns. "
-                       "ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Added 2026-09-01: GPT-5.6 Luna/Terra, Muse Spark 1.2 (+contributor tier: Meta trains on prompts, region-limited — priced accordingly), LongCat 2.0; muse-glimmer excluded (no verified AA). Math-smarts axis: GLM-5.3/Flash and muse-spark lack verifiable GPQA numbers and are excluded-with-reason there — notable because GLM-5.3 leads the general index. Excluded where no verified AA data.")}
+                       "ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Added 2026-09-01: GPT-5.6 Luna/Terra, Muse Spark 1.2, Claude Fable 5.1 (aa 66, cache-read cut to $0.25/M = 1.6x cheaper than Fable 5 at our shape), Qwen3.8-Flash-Next (OR + local-slotstream zero-dollar offering, paid in time: ~49s decode/turn at 12 tok/s) (+contributor tier: Meta trains on prompts, region-limited — priced accordingly), LongCat 2.0; muse-glimmer excluded (no verified AA). Math-smarts axis: GLM-5.3/Flash and muse-spark lack verifiable GPQA numbers and are excluded-with-reason there — notable because GLM-5.3 leads the general index. Excluded where no verified AA data.")}
 
 
 def cost_per_turn(prices, shape):
@@ -142,6 +147,10 @@ def build_offerings(workload, include_resellers, fid_hint=None):
             if m not in OR_PRICES:
                 continue  # excluded-with-reason: no verified OR price (e.g. glm-5.2)
             tiers = [("openrouter", OR_PRICES[m], "0")]
+            if m == "qwen3.8-flash-next":
+                # local via slotstream SSD-streaming (Mac, 12 tok/s, 104GB disk):
+                # tokens free, paid in TIME (49s decode/turn at our shape)
+                tiers.append(("local-slotstream", (0, 0, 0), "0"))
         elif m in PREMIUM_PRICES:
             tiers = [(PREMIUM_VENDOR[m], PREMIUM_PRICES[m], SUB_CAP_MODEL)]
         elif m in GO_PRICES:
