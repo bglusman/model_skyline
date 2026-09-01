@@ -142,7 +142,7 @@ def test_pinned_swe_bench_bash_only_snapshot_is_recomputed_and_quarantined() -> 
 
 
 def test_latest_swe_bench_feed_is_semantically_current() -> None:
-    status = inspect_swe_bench_feed()
+    status = inspect_swe_bench_feed(github_token=os.environ.get("GITHUB_TOKEN"))
 
     assert status.change in {SweBenchFeedChange.NONE, SweBenchFeedChange.RAW_ONLY}
     assert status.semantic_change is False

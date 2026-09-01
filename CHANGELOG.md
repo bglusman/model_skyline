@@ -34,6 +34,11 @@
   to 0.9.
 - Add a payload-free real-workload regression example with explicit provenance,
   pricing semantics, synthetic quality labels, and cost-scope limitations.
+- Update the SWE-bench collector to projection version 2 after upstream moved
+  the Bash Only view into exact mini-SWE-agent rows on the Verified board, and
+  repair its retired methodology URL. Version 1 reconciliations must be
+  reviewed and regenerated; the monitor does not silently carry their identity
+  pins forward.
 
 ## 0.8.0 - 2026-08-31
 

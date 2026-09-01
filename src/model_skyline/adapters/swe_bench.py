@@ -4,6 +4,8 @@ The website JSON is an unversioned presentation artifact, not a route catalog.
 This adapter therefore consumes one explicitly selected ``bash-only``
 mini-SWE-agent cohort, validates its per-instance accounting, and emits only
 route-free :class:`~model_skyline.quality_evidence.QualityEvidenceSet` rows.
+The logical cohort was historically a dedicated ``bash-only`` board and is now
+the exact mini-SWE-agent-version filter within the ``Verified`` board.
 Upstream model and organization labels are evidence claims.  They never become
 ``OfferingKey`` values without a separate, exact reviewed reconciliation.
 """
@@ -62,11 +64,14 @@ SWE_BENCH_WEBSITE_URL: Final = (
 SWE_BENCH_WEBSITE_LICENSE_URL: Final = (
     f"https://github.com/SWE-bench/swe-bench.github.io/blob/{SWE_BENCH_WEBSITE_COMMIT}/LICENSE"
 )
-SWE_BENCH_BASH_ONLY_METHODOLOGY_URL: Final = "https://www.swebench.com/bash-only.html"
+SWE_BENCH_BASH_ONLY_METHODOLOGY_URL: Final = "https://www.swebench.com/#bash-only"
 SWE_BENCH_DEFAULT_HARNESS_VERSION: Final = "2.0.0"
 SWE_BENCH_ADAPTER_ID: Final = "model-skyline/swe-bench-website-bash-only"
-SWE_BENCH_ADAPTER_VERSION: Final = "1"
+SWE_BENCH_ADAPTER_VERSION: Final = "2"
 SWE_BENCH_EXPECTED_INSTANCES: Final = 500
+SWE_BENCH_LEGACY_BOARD: Final = "bash-only"
+SWE_BENCH_CURRENT_BOARD: Final = "Verified"
+SWE_BENCH_AGENT_ID: Final = "mini-SWE-agent"
 
 DEFAULT_MAX_SOURCE_BYTES: Final = 12_000_000
 HARD_MAX_SOURCE_BYTES: Final = 32_000_000
@@ -238,6 +243,8 @@ class SweBenchCapture:
             "warnings": [
                 "The website feed is an unversioned presentation contract; this adapter is "
                 "pinned to exact source bytes and fails on unknown row fields.",
+                "The logical Bash Only cohort may be stored in the legacy bash-only board or "
+                "as exact mini-SWE-agent-version rows in the Verified board.",
                 "Only rows with exactly 500 valid per-instance records and a coherent aggregate "
                 "score become valid quality results. Incoherent cost or API-call aggregates are "
                 "dropped without discarding the recomputed quality score.",
@@ -995,7 +1002,7 @@ def normalize_swe_bench_bytes(
     leaderboards = document["leaderboards"]
     if not isinstance(leaderboards, list) or len(leaderboards) > 128:
         raise SweBenchAdapterError("SWE-bench leaderboards must be a bounded array")
-    selected: Mapping[str, Any] | None = None
+    boards: dict[str, Mapping[str, Any]] = {}
     names: set[str] = set()
     for leaderboard in leaderboards:
         if not isinstance(leaderboard, Mapping) or set(leaderboard) != {"name", "results"}:
@@ -1004,17 +1011,23 @@ def normalize_swe_bench_bytes(
         if name in names:
             raise SweBenchAdapterError("SWE-bench source repeats a leaderboard name")
         names.add(name)
-        if name == "bash-only":
-            selected = leaderboard
+        boards[name] = leaderboard
+    selected_source_board = SWE_BENCH_LEGACY_BOARD
+    selected = boards.get(SWE_BENCH_LEGACY_BOARD)
     if selected is None:
-        raise SweBenchAdapterError("SWE-bench source omits the bash-only leaderboard")
+        selected_source_board = SWE_BENCH_CURRENT_BOARD
+        selected = boards.get(SWE_BENCH_CURRENT_BOARD)
+    if selected is None:
+        raise SweBenchAdapterError("SWE-bench source omits the reviewed Bash Only cohort container")
     results = selected["results"]
     if not isinstance(results, list) or len(results) > MAX_LEADERBOARD_ROWS:
-        raise SweBenchAdapterError("SWE-bench bash-only results must be a bounded array")
+        raise SweBenchAdapterError("SWE-bench cohort results must be a bounded array")
     selected_rows: list[Mapping[str, Any]] = []
     for raw_row in results:
         if not isinstance(raw_row, Mapping):
             raise SweBenchAdapterError("SWE-bench result row must be an object")
+        if raw_row.get("agent") != SWE_BENCH_AGENT_ID:
+            continue
         row_version = raw_row.get("mini-swe-agent_version")
         if row_version is None:
             continue
@@ -1102,7 +1115,7 @@ def normalize_swe_bench_bytes(
             configuration={"unit": "percent"},
         ),
         protocol=QualityComponentIdentity(
-            id="mini-SWE-agent",
+            id=SWE_BENCH_AGENT_ID,
             version=version,
             configuration={"attempt_scope": "source-row-declared"},
         ),
@@ -1142,7 +1155,8 @@ def normalize_swe_bench_bytes(
                 configuration={"python_json_decimal": True},
             ),
             metadata={
-                "selected_leaderboard": "bash-only",
+                "selected_cohort_view": "bash-only",
+                "selected_source_leaderboard": selected_source_board,
                 "selected_harness_version": version,
             },
         ),

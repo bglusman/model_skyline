@@ -115,6 +115,18 @@ def _document(*rows: dict[str, Any]) -> bytes:
     ).encode()
 
 
+def _current_document(*rows: dict[str, Any]) -> bytes:
+    return json.dumps(
+        {
+            "leaderboards": [
+                {"name": "Multilingual", "results": [{"unrelated": "ignored"}]},
+                {"name": "Verified", "results": list(rows)},
+            ]
+        },
+        separators=(",", ":"),
+    ).encode()
+
+
 def _capture(raw: bytes) -> SweBenchCapture:
     return normalize_swe_bench_bytes(
         raw,
@@ -181,6 +193,50 @@ def test_normalizes_exact_cohort_without_retaining_task_ids() -> None:
     }
     assert "task-000" not in capture.evidence.model_dump_json()
     assert "task-000" not in json.dumps(capture.inventory())
+
+
+def test_current_verified_layout_preserves_logical_cohort_identities() -> None:
+    row = _row("alpha")
+    legacy = _capture(_document(row))
+    current = _capture(_current_document(row))
+
+    assert legacy.evidence.source_identity_sha256 == current.evidence.source_identity_sha256
+    assert legacy.evidence.rows[0].subject_identity_sha256 == (
+        current.evidence.rows[0].subject_identity_sha256
+    )
+    assert legacy.evidence.rows[0].result_sha256 == current.evidence.rows[0].result_sha256
+    assert legacy.evidence.raw_audit_sha256 != current.evidence.raw_audit_sha256
+    assert legacy.evidence.raw_audit.metadata == {
+        "selected_cohort_view": "bash-only",
+        "selected_source_leaderboard": "bash-only",
+        "selected_harness_version": "2.0.0",
+    }
+    assert current.evidence.raw_audit.metadata == {
+        "selected_cohort_view": "bash-only",
+        "selected_source_leaderboard": "Verified",
+        "selected_harness_version": "2.0.0",
+    }
+
+
+def test_legacy_board_wins_when_both_physical_layouts_are_present() -> None:
+    document = json.loads(_document(_row("legacy")))
+    document["leaderboards"][0]["results"] = [_row("current")]
+
+    capture = _capture(json.dumps(document).encode())
+
+    assert [row.row_id for row in capture.evidence.rows] == [
+        "bash-only/20260830_mini-v2.0.0_legacy"
+    ]
+    assert capture.evidence.raw_audit.metadata["selected_source_leaderboard"] == "bash-only"
+
+
+def test_verified_layout_requires_the_exact_bash_only_agent() -> None:
+    wrong_agent = _row("wrong-agent")
+    wrong_agent["agent"] = "other-agent"
+
+    capture = _capture(_current_document(wrong_agent, _row("mini")))
+
+    assert [row.row_id for row in capture.evidence.rows] == ["bash-only/20260830_mini-v2.0.0_mini"]
 
 
 def test_reviewed_evidence_projects_to_exact_quality_only_catalog(tmp_path: Path) -> None:

@@ -1,10 +1,21 @@
 # SWE-bench bash-only quality evidence
 
-ModelSkyline's SWE-bench collector consumes one exact cohort from the official
-SWE-bench website data file: the `bash-only` leaderboard rows produced by
-mini-SWE-agent `2.0.0`. It does not ingest the broader Verified leaderboard,
-compare different mini-SWE-agent generations, or turn a display name into a
-routable model offering.
+ModelSkyline's SWE-bench collector consumes one exact logical cohort from the
+official SWE-bench website data file: mini-SWE-agent `2.0.0` rows in the Bash
+Only view. That view was historically stored in a dedicated `bash-only`
+leaderboard. As of upstream commit
+[`193160a`](https://github.com/SWE-bench/swe-bench.github.io/commit/193160a463a435d05cf44a1fa9dc5eac832113c3),
+the same rows live in the `Verified` board and are exposed through its Bash Only
+filter. The collector accepts either physical layout, selects only the exact
+harness version, and records which source board supplied it. It does not ingest
+the broader Verified leaderboard, compare different mini-SWE-agent generations,
+or turn a display name into a routable model offering.
+
+This compatibility change is projection version `2`. It also replaces the
+retired methodology URL with the current Bash Only view. Projection version and
+methodology are part of source identity, so a reconciliation created from
+version `1` evidence must be reviewed and regenerated; the board move is not
+authority to carry an old identity pin forward automatically.
 
 The default source is pinned to an exact commit and SHA-256. The collector
 downloads only from the allowlisted HTTPS host, rejects redirects and compressed
@@ -75,10 +86,11 @@ Five identities change independently:
 - result identity changes when outcomes or measurements change;
 - rights identity changes when the reviewed license assertion changes.
 
-An unrelated leaderboard edit therefore changes the raw audit without
-invalidating reviewed mappings for an unchanged `bash-only` cohort. A result
-refresh does not require remapping an unchanged subject. Task-set, harness,
-projection, or subject drift fails the applicable identity pin.
+Within projection version `2`, an unrelated leaderboard edit or the reviewed
+board-location migration changes the raw audit without invalidating reviewed
+mappings for an unchanged logical cohort. A result refresh does not require
+remapping an unchanged subject. Task-set, harness, projection, or subject drift
+fails the applicable identity pin.
 
 ## Exact reviewed reconciliation
 
@@ -88,7 +100,7 @@ to review the row and author a generic reconciliation entry with:
 
 - the exact row ID;
 - adapter ID `model-skyline/swe-bench-website-bash-only` and projection version
-  `1`;
+  `2`;
 - the inventory's exact source- and subject-identity SHA-256 values;
 - `relationship: "reviewed_quality_projection"`;
 - every field of one complete `OfferingKey`, including explicit nulls;
