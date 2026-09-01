@@ -221,11 +221,9 @@
     "usd/turn \u00d7 intelligence"
    ],
    "primary_label": "USD/turn",
-   "default": "opencode-go/glm-5.3",
+   "default": "openrouter/glm-5.3",
    "bulk_default": "openrouter/gpt-oss-20b",
-   "fallbacks": [
-    "openrouter/glm-5.3-flash"
-   ],
+   "fallbacks": [],
    "selection_note": null,
    "ranked": [
     {
@@ -259,7 +257,7 @@
      "dominated_by": []
     },
     {
-     "offering": "opencode-go/glm-5.3",
+     "offering": "openrouter/glm-5.3",
      "on_frontier": true,
      "cap_assumed": false,
      "primary": 0.066355,
@@ -295,28 +293,14 @@
      ]
     },
     {
-     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "offering": "openrouter/deepseek-v4-flash-0731",
      "on_frontier": false,
      "cap_assumed": false,
-     "primary": 0.009535,
+     "primary": 0.003721,
      "secondary_label": "aa_intelligence_index",
      "secondary": 52.0,
      "aa_index": "52",
      "dominated_by": [
-      "openrouter/glm-5.3-flash"
-     ]
-    },
-    {
-     "offering": "opencode-go/qwen3.8-max",
-     "on_frontier": false,
-     "cap_assumed": false,
-     "primary": 0.074391,
-     "secondary_label": "aa_intelligence_index",
-     "secondary": 52.0,
-     "aa_index": "52",
-     "dominated_by": [
-      "opencode-go/deepseek-v4-flash-0731",
-      "opencode-go/glm-5.3",
       "openrouter/glm-5.3-flash"
      ]
     },
@@ -329,8 +313,22 @@
      "secondary": 52.0,
      "aa_index": "52",
      "dominated_by": [
-      "opencode-go/deepseek-v4-flash-0731",
-      "opencode-go/glm-5.3",
+      "openrouter/deepseek-v4-flash-0731",
+      "openrouter/glm-5.3",
+      "openrouter/glm-5.3-flash"
+     ]
+    },
+    {
+     "offering": "openrouter/qwen3.8-max",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.074391,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": [
+      "openrouter/deepseek-v4-flash-0731",
+      "openrouter/glm-5.3",
       "openrouter/glm-5.3-flash"
      ]
     }
@@ -367,7 +365,7 @@
      "dominated_by": []
     },
     {
-     "offering": "opencode-go/glm-5.3",
+     "offering": "openrouter/glm-5.3",
      "on_frontier": true,
      "cap_assumed": false,
      "primary": 0.066355,
@@ -385,15 +383,13 @@
     "tok/s \u00d7 intelligence"
    ],
    "primary_label": "out tok/s",
-   "default": "opencode-go/glm-5.3",
+   "default": "openrouter/glm-5.3",
    "bulk_default": null,
-   "fallbacks": [
-    "openrouter/gpt-oss-120b"
-   ],
+   "fallbacks": [],
    "selection_note": null,
    "ranked": [
     {
-     "offering": "opencode-go/glm-5.3",
+     "offering": "openrouter/glm-5.3",
      "on_frontier": true,
      "cap_assumed": false,
      "primary": 77.0,
@@ -403,7 +399,7 @@
      "dominated_by": []
     },
     {
-     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "offering": "openrouter/deepseek-v4-flash-0731",
      "on_frontier": true,
      "cap_assumed": false,
      "primary": 119.0,
@@ -431,7 +427,7 @@
      "secondary": 57.0,
      "aa_index": "57",
      "dominated_by": [
-      "opencode-go/glm-5.3"
+      "openrouter/glm-5.3"
      ]
     },
     {
@@ -443,7 +439,7 @@
      "secondary": 14.0,
      "aa_index": "14",
      "dominated_by": [
-      "opencode-go/deepseek-v4-flash-0731",
+      "openrouter/deepseek-v4-flash-0731",
       "openrouter/gpt-oss-120b",
       "openrouter/gpt-oss-20b"
      ]
@@ -457,7 +453,7 @@
      "secondary": 15.0,
      "aa_index": "15",
      "dominated_by": [
-      "opencode-go/deepseek-v4-flash-0731",
+      "openrouter/deepseek-v4-flash-0731",
       "openrouter/gpt-oss-120b"
      ]
     },
@@ -476,7 +472,7 @@
    ],
    "members": [
     {
-     "offering": "opencode-go/glm-5.3",
+     "offering": "openrouter/glm-5.3",
      "on_frontier": true,
      "cap_assumed": false,
      "primary": 77.0,
@@ -486,7 +482,7 @@
      "dominated_by": []
     },
     {
-     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "offering": "openrouter/deepseek-v4-flash-0731",
      "on_frontier": true,
      "cap_assumed": false,
      "primary": 119.0,
@@ -831,5 +827,52 @@
     }
    ]
   }
- ]
+ ],
+ "crossover_vs_10usd_sub": {
+  "openrouter/gpt-oss-20b": {
+   "usd_per_turn": 0.000515,
+   "turns_per_10usd": 19417,
+   "aa_index": "15"
+  },
+  "openrouter/gpt-oss-120b": {
+   "usd_per_turn": 0.000641,
+   "turns_per_10usd": 15600,
+   "aa_index": "24"
+  },
+  "openrouter/glm-5.3-flash": {
+   "usd_per_turn": 0.003742,
+   "turns_per_10usd": 2672,
+   "aa_index": "57"
+  },
+  "openrouter/glm-5.3": {
+   "usd_per_turn": 0.066355,
+   "turns_per_10usd": 150,
+   "aa_index": "60"
+  },
+  "openrouter/qwen3-30b-a3b-2507": {
+   "usd_per_turn": 0.000815,
+   "turns_per_10usd": 12269,
+   "aa_index": "9"
+  },
+  "openrouter/qwen3-coder-30b": {
+   "usd_per_turn": 0.001187,
+   "turns_per_10usd": 8424,
+   "aa_index": "14"
+  },
+  "openrouter/deepseek-v4-flash-0731": {
+   "usd_per_turn": 0.003721,
+   "turns_per_10usd": 2687,
+   "aa_index": "52"
+  },
+  "openrouter/qwen3.8-2.4t-a95b": {
+   "usd_per_turn": 0.074391,
+   "turns_per_10usd": 134,
+   "aa_index": "52"
+  },
+  "openrouter/qwen3.8-max": {
+   "usd_per_turn": 0.074391,
+   "turns_per_10usd": 134,
+   "aa_index": "52"
+  }
+ }
 }
