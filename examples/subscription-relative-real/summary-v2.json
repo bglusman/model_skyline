@@ -1,7 +1,7 @@
 {
  "generated_at": "2026-09-01T00:30:00Z",
  "schema": "brian-multi-frontier-v2",
- "note": "Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat from real 30-day traces, coding-session from OpenCode Go published request patterns. ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Added 2026-09-01: GPT-5.6 Luna/Terra, Muse Spark 1.2 (+contributor tier: Meta trains on prompts, region-limited \u2014 priced accordingly), LongCat 2.0; muse-glimmer excluded (no verified AA). Excluded where no verified AA data. | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported)",
+ "note": "Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat from real 30-day traces, coding-session from OpenCode Go published request patterns. ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Added 2026-09-01: GPT-5.6 Luna/Terra, Muse Spark 1.2 (+contributor tier: Meta trains on prompts, region-limited \u2014 priced accordingly), LongCat 2.0; muse-glimmer excluded (no verified AA). Math-smarts axis: GLM-5.3/Flash and muse-spark lack verifiable GPQA numbers and are excluded-with-reason there \u2014 notable because GLM-5.3 leads the general index. Excluded where no verified AA data. | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | GPQA Diamond vendor-reported | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | GPQA Diamond aggregator-reported | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | SWE-bench Verified via openlm.ai aggregator (vendor-reported)",
  "frontiers": [
   {
    "id": "chat-subscription-economics",
@@ -149,6 +149,88 @@
      "secondary_label": "aa_intelligence_index",
      "secondary": 63.0,
      "aa_index": "63",
+     "dominated_by": []
+    }
+   ]
+  },
+  {
+   "id": "math-smarts-chat-subscription",
+   "workload": "agent-chat",
+   "axes": [
+    "usd/turn \u00d7 GPQA-Diamond"
+   ],
+   "primary_label": "usd/turn",
+   "default": "chatgpt-plus/gpt-5.6-sol",
+   "bulk_default": null,
+   "fallbacks": [
+    "chatgpt-plus/gpt-5.6-luna"
+   ],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "chatgpt-plus/gpt-5.6-luna",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.006961,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 91.1,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "chatgpt-plus/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.174031,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 94.1,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": false,
+     "cap_assumed": true,
+     "primary": 0.009535,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 90.8,
+     "aa_index": null,
+     "dominated_by": [
+      "chatgpt-plus/gpt-5.6-luna"
+     ]
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.009535,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 90.8,
+     "aa_index": null,
+     "dominated_by": [
+      "chatgpt-plus/gpt-5.6-luna"
+     ]
+    }
+   ],
+   "members": [
+    {
+     "offering": "chatgpt-plus/gpt-5.6-luna",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.006961,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 91.1,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "chatgpt-plus/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.174031,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 94.1,
+     "aa_index": null,
      "dominated_by": []
     }
    ]
@@ -535,6 +617,121 @@
      "secondary_label": "aa_intelligence_index",
      "secondary": 62.0,
      "aa_index": "62",
+     "dominated_by": []
+    }
+   ]
+  },
+  {
+   "id": "math-smarts-chat-metered",
+   "workload": "agent-chat",
+   "axes": [
+    "usd/turn \u00d7 GPQA-Diamond"
+   ],
+   "primary_label": "usd/turn",
+   "default": "openrouter/gpt-5.6-sol",
+   "bulk_default": null,
+   "fallbacks": [
+    "openrouter/deepseek-v4-flash-0731"
+   ],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "openrouter/gpt-oss-120b",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.000641,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 80.1,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.003721,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 90.8,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.068428,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 94.1,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-5.6-luna",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.006961,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 91.1,
+     "aa_index": null,
+     "dominated_by": [
+      "openrouter/deepseek-v4-flash-0731"
+     ]
+    },
+    {
+     "offering": "openrouter/gpt-5.6-terra",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.069612,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 92.5,
+     "aa_index": null,
+     "dominated_by": [
+      "openrouter/gpt-5.6-sol"
+     ]
+    },
+    {
+     "offering": "openrouter/claude-fable-5",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.342141,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 92.6,
+     "aa_index": null,
+     "dominated_by": [
+      "openrouter/gpt-5.6-sol",
+      "openrouter/gpt-5.6-terra"
+     ]
+    }
+   ],
+   "members": [
+    {
+     "offering": "openrouter/gpt-oss-120b",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.000641,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 80.1,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.003721,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 90.8,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.068428,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 94.1,
+     "aa_index": null,
      "dominated_by": []
     }
    ]
