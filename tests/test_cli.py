@@ -12,8 +12,29 @@ from model_skyline.cli import _safe_error_message, app
 
 ROOT = Path(__file__).parents[1]
 EXAMPLE = ROOT / "examples" / "coding-session"
-GATEWAY_CONFORMANCE = ROOT / "conformance" / "gateway-pointer" / "v1alpha1"
 runner = CliRunner()
+
+
+def test_cli_help_groups_commands_without_renaming_them() -> None:
+    result = runner.invoke(app, ["--help"])
+
+    assert result.exit_code == 0, result.output
+    for panel in (
+        "Core and publication",
+        "Telemetry",
+        "Data sources",
+        "Source monitoring",
+        "Quality evidence",
+        "Contracts",
+    ):
+        assert panel in result.output
+    for command in (
+        "evaluate",
+        "aggregate-traces",
+        "build-quality-portfolio",
+        "export-schemas",
+    ):
+        assert command in result.output
 
 
 def test_cli_validates_example_contracts() -> None:
@@ -111,14 +132,11 @@ def test_cli_exports_contract_schemas(tmp_path) -> None:
     assert (output / "request-trace.schema.json").is_file()
     assert (output / "request-trace-v1alpha2.schema.json").is_file()
     assert (output / "request-trace-v1alpha3.schema.json").is_file()
-    assert (output / "gateway-selection-pointer.schema.json").is_file()
-    assert (output / "gateway-selection-envelope.schema.json").is_file()
-    assert (output / "gateway-trust-policy.schema.json").is_file()
-    assert (output / "cross-frontier-selection-policy.schema.json").is_file()
-    assert (output / "frontier-proximity.schema.json").is_file()
-    assert (output / "quality-gated-selection-snapshot.schema.json").is_file()
-    assert (output / "quality-oracle-policy.schema.json").is_file()
-    assert (output / "quality-oracle-snapshot.schema.json").is_file()
+    assert (output / "quality-evidence.schema.json").is_file()
+    assert (output / "quality-reconciliation.schema.json").is_file()
+    assert (output / "quality-import-report.schema.json").is_file()
+    assert (output / "quality-portfolio-policy.schema.json").is_file()
+    assert (output / "quality-portfolio-derivation.schema.json").is_file()
     assert (output / "project-config.schema.json").read_bytes() == (
         ROOT / "schemas" / "project-config.schema.json"
     ).read_bytes()
@@ -128,7 +146,7 @@ def test_cli_reports_package_version() -> None:
     result = runner.invoke(app, ["--version"])
 
     assert result.exit_code == 0
-    assert result.output.strip() == "0.8.0"
+    assert result.output.strip() == "0.9.0"
 
 
 def test_cli_arc_feed_monitor_fails_after_rendering_changed_head(
@@ -181,49 +199,3 @@ def test_cli_error_messages_escape_terminal_controls_and_are_bounded() -> None:
     assert "\\u000a" in message
     assert message.endswith("…[truncated]")
     assert len(message) <= 4_110
-
-
-def test_cli_verifies_language_neutral_gateway_bundle(tmp_path: Path) -> None:
-    result = runner.invoke(
-        app,
-        [
-            "verify-gateway-bundle",
-            str(GATEWAY_CONFORMANCE / "valid" / "envelope.dsse.json"),
-            str(GATEWAY_CONFORMANCE / "artifacts" / "publication.json"),
-            str(GATEWAY_CONFORMANCE / "artifacts" / "selection.json"),
-            str(GATEWAY_CONFORMANCE / "valid" / "trust-policy.json"),
-            "--at",
-            "2026-08-29T19:00:00Z",
-        ],
-    )
-
-    assert result.exit_code == 0, result.output
-    payload = json.loads(result.output)
-    route = payload["route"]
-    assert route["sequence"] == 7
-    assert route["selection_id"] == "coding-agent-defaults"
-    assert [target["target_id"] for target in route["targets"]] == [
-        "target-0",
-        "target-1",
-        "target-2",
-    ]
-    assert payload["checkpoint"]["sequence"] == 7
-    assert len(payload["verified_key_ids"]) == 1
-
-    checkpoint_path = tmp_path / "verification.json"
-    checkpoint_path.write_text(result.output, encoding="utf-8")
-    checkpoint = runner.invoke(
-        app,
-        [
-            "verify-gateway-bundle",
-            str(GATEWAY_CONFORMANCE / "valid" / "envelope.dsse.json"),
-            str(GATEWAY_CONFORMANCE / "artifacts" / "publication.json"),
-            str(GATEWAY_CONFORMANCE / "artifacts" / "selection.json"),
-            str(GATEWAY_CONFORMANCE / "valid" / "trust-policy.json"),
-            "--checkpoint",
-            str(checkpoint_path),
-            "--at",
-            "2026-08-29T19:00:00Z",
-        ],
-    )
-    assert checkpoint.exit_code == 0, checkpoint.output

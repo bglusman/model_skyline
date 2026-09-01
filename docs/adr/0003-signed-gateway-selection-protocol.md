@@ -1,6 +1,15 @@
 # ADR 0003: signed gateway selection protocol
 
-Status: accepted for `v1alpha1`
+Status: superseded in v0.9; design retained as historical research
+
+Version 0.9 removed the DSSE pointer, trust-policy schemas, SQLite store,
+gateway resolver, and conformance corpus. They had no demonstrated native
+consumer and expanded the product beyond its proven catalog → frontier →
+ordinary-selection path. Current integrations consume `SelectionSnapshot` from
+a trusted local file or trusted HTTPS origin and must describe their transport
+and process-local rollback limitations. This ADR is not a shipped protocol or
+security claim; it remains a design reference if untrusted distribution becomes
+a concrete consumer requirement.
 
 ## Context
 

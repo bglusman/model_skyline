@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:model-skyline:schema:v1alpha1:quality-bundle-policy",
+  "$id": "urn:model-skyline:schema:v1alpha1:quality-portfolio-policy",
   "$defs": {
     "AxisDescriptor": {
       "additionalProperties": false,
@@ -61,13 +61,13 @@
       "title": "Goal",
       "type": "string"
     },
-    "QualityBundleComponent": {
+    "PortfolioComponent": {
       "additionalProperties": false,
-      "description": "One exact frontier declared as a distinct quality component by policy.",
       "properties": {
         "component_id": {
           "maxLength": 128,
           "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
           "title": "Component Id",
           "type": "string"
         },
@@ -77,47 +77,17 @@
           "title": "Frontier Id",
           "type": "string"
         },
-        "frontier_snapshot_id": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Frontier Snapshot Id",
-          "type": "string"
-        },
-        "frontier_snapshot_hash": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Frontier Snapshot Hash",
-          "type": "string"
-        },
-        "config_hash": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Config Hash",
-          "type": "string"
-        },
-        "catalog_hash": {
-          "pattern": "^[0-9a-f]{64}$",
-          "title": "Catalog Hash",
-          "type": "string"
-        },
         "workload": {
           "$ref": "#/$defs/WorkloadReference"
         },
-        "axes": {
-          "maxItems": 2,
-          "minItems": 2,
-          "prefixItems": [
-            {
-              "$ref": "#/$defs/AxisDescriptor"
-            },
-            {
-              "$ref": "#/$defs/AxisDescriptor"
-            }
-          ],
-          "title": "Axes",
-          "type": "array"
+        "quality_axis": {
+          "$ref": "#/$defs/AxisDescriptor"
         },
-        "quality_metric": {
-          "maxLength": 256,
+        "output_signal": {
+          "maxLength": 128,
           "minLength": 1,
-          "title": "Quality Metric",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "title": "Output Signal",
           "type": "string"
         },
         "max_age_seconds": {
@@ -126,33 +96,24 @@
           "title": "Max Age Seconds",
           "type": "integer"
         },
-        "evidence_valid_until": {
-          "anyOf": [
-            {
-              "format": "date-time",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Evidence Valid Until"
+        "correlation_group": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Correlation Group",
+          "type": "string"
         }
       },
       "required": [
         "component_id",
         "frontier_id",
-        "frontier_snapshot_id",
-        "frontier_snapshot_hash",
-        "config_hash",
-        "catalog_hash",
         "workload",
-        "axes",
-        "quality_metric",
-        "max_age_seconds"
+        "quality_axis",
+        "output_signal",
+        "max_age_seconds",
+        "correlation_group"
       ],
-      "title": "QualityBundleComponent",
+      "title": "PortfolioComponent",
       "type": "object"
     },
     "WorkloadReference": {
@@ -184,25 +145,24 @@
     }
   },
   "additionalProperties": false,
-  "description": "Hard coverage policy over two to four separate quality frontiers.",
   "properties": {
     "schema_version": {
-      "const": "model-skyline/quality-bundle-policy/v1alpha1",
-      "default": "model-skyline/quality-bundle-policy/v1alpha1",
+      "const": "model-skyline/quality-portfolio-policy/v1alpha1",
+      "default": "model-skyline/quality-portfolio-policy/v1alpha1",
       "title": "Schema Version",
       "type": "string"
     },
     "kind": {
-      "const": "quality-bundle-policy",
-      "default": "quality-bundle-policy",
+      "const": "quality-portfolio-policy",
+      "default": "quality-portfolio-policy",
       "title": "Kind",
       "type": "string"
     },
-    "bundle_id": {
+    "portfolio_id": {
       "maxLength": 128,
       "minLength": 1,
       "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
-      "title": "Bundle Id",
+      "title": "Portfolio Id",
       "type": "string"
     },
     "version": {
@@ -211,15 +171,12 @@
       "title": "Version",
       "type": "string"
     },
-    "strategy": {
-      "const": "separate-frontiers",
-      "default": "separate-frontiers",
-      "title": "Strategy",
-      "type": "string"
+    "output_workload": {
+      "$ref": "#/$defs/WorkloadReference"
     },
     "components": {
       "items": {
-        "$ref": "#/$defs/QualityBundleComponent"
+        "$ref": "#/$defs/PortfolioComponent"
       },
       "maxItems": 4,
       "minItems": 2,
@@ -231,6 +188,7 @@
       "items": {
         "maxLength": 128,
         "minLength": 1,
+        "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
         "type": "string"
       },
       "maxItems": 4,
@@ -244,16 +202,30 @@
       "minimum": 1,
       "title": "Minimum Measured Components",
       "type": "integer"
+    },
+    "correlation_rationale": {
+      "maxLength": 2048,
+      "minLength": 1,
+      "title": "Correlation Rationale",
+      "type": "string"
+    },
+    "statistical_independence_assumed": {
+      "const": false,
+      "default": false,
+      "title": "Statistical Independence Assumed",
+      "type": "boolean"
     }
   },
   "required": [
-    "bundle_id",
+    "portfolio_id",
     "version",
+    "output_workload",
     "components",
     "required_component_ids",
-    "minimum_measured_components"
+    "minimum_measured_components",
+    "correlation_rationale"
   ],
-  "title": "QualityBundlePolicy",
+  "title": "PortfolioPolicy",
   "type": "object",
-  "$comment": "uniqueItems compares complete JSON values; it does not enforce unique component IDs, frontier IDs, or snapshot IDs. JSON Schema also cannot enforce the required-ID subset and measured-count relationships. Run the ModelSkyline semantic validator before building or accepting a bundle."
+  "$comment": "This stable policy contains operator intent only; exact frontier snapshots, catalog/config hashes, retrievals, rights, and candidate failures belong in the derivation lock. JSON Schema cannot enforce distinct component/frontier IDs, unique output signals, required coverage, or correlation grouping; run ModelSkyline semantic validation."
 }

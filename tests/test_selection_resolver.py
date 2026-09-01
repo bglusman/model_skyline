@@ -177,7 +177,7 @@ def test_builtin_loader_sanitizes_remote_http_errors(monkeypatch) -> None:
 
 
 def test_resolver_sanitizes_rejected_artifact_values() -> None:
-    secret = "sk-do-not-log-this-rejected-value"
+    secret = "fixture-sensitive-rejected-value"
     resolver = DynamicResolver(
         "memory://selection",
         expected_selection_id="selection",

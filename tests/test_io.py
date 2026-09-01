@@ -187,7 +187,7 @@ def test_quality_json_preflight_ignores_punctuation_and_escapes_inside_strings(
 ) -> None:
     monkeypatch.setattr(io_module, "MAX_QUALITY_JSON_STRUCTURAL_TOKENS", 0)
 
-    io_module._preflight_quality_json_structure(
+    io_module._preflight_json_structure(
         rb'"quoted \" punctuation {[,:]} and escaped backslash \\ stays opaque"'
     )
 

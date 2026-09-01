@@ -2,13 +2,29 @@ from __future__ import annotations
 
 import html
 from datetime import UTC, datetime
+from decimal import Decimal
 from xml.etree import ElementTree as ET
 
 from model_skyline.engine import FrontierEngine
 from model_skyline.models import ObservationCatalog, ProjectConfig
-from model_skyline.renderers import frontier_view, render_csv, render_rss, render_rss_history
+from model_skyline.renderers import (
+    _display,
+    frontier_view,
+    render_csv,
+    render_rss,
+    render_rss_history,
+)
 
 RSS_NAMESPACE = "urn:model-skyline:rss:1.0"
+
+
+def test_display_uses_plain_decimal_not_scientific_notation() -> None:
+    assert _display(Decimal("5E+1")) == "50"
+
+
+def test_display_does_not_expand_extreme_decimal_exponents() -> None:
+    assert _display(Decimal("1E+1000000000")) == "1E+1000000000"
+    assert _display(Decimal("1E-1000000000")) == "1E-1000000000"
 
 
 def test_semantic_view_treats_absent_and_null_billing_mode_as_equivalent(

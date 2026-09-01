@@ -28,11 +28,8 @@ QUALITY_SCHEMA_NAMES = (
     "quality-evidence.schema.json",
     "quality-reconciliation.schema.json",
     "quality-import-report.schema.json",
-    "quality-bundle-policy.schema.json",
-    "quality-bundle-snapshot.schema.json",
-    "quality-oracle-policy.schema.json",
-    "quality-oracle-snapshot.schema.json",
-    "quality-gated-selection-snapshot.schema.json",
+    "quality-portfolio-policy.schema.json",
+    "quality-portfolio-derivation.schema.json",
 )
 
 
@@ -214,9 +211,7 @@ def test_quality_reconciliation_schema_requires_complete_offering_key() -> None:
     (
         "quality-reconciliation.schema.json",
         "quality-import-report.schema.json",
-        "quality-bundle-snapshot.schema.json",
-        "quality-oracle-snapshot.schema.json",
-        "quality-gated-selection-snapshot.schema.json",
+        "quality-portfolio-derivation.schema.json",
     ),
 )
 def test_every_quality_route_artifact_requires_all_offering_fields(name: str) -> None:
@@ -275,8 +270,8 @@ def test_quality_evidence_schema_requires_exactly_one_result_state() -> None:
         )
 
 
-def test_quality_bundle_policy_schema_marks_set_fields_unique() -> None:
-    schema = generated_schemas()["quality-bundle-policy.schema.json"]
+def test_quality_portfolio_policy_schema_marks_set_fields_unique() -> None:
+    schema = generated_schemas()["quality-portfolio-policy.schema.json"]
 
     assert schema["properties"]["components"]["uniqueItems"] is True
     assert schema["properties"]["required_component_ids"]["uniqueItems"] is True

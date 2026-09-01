@@ -23,8 +23,8 @@ jobs:
           python-version: ${{ matrix.python }}
           enable-cache: true
       - run: uv sync --frozen --extra dev
-      - run: uv run ruff format --check src tests scripts
-      - run: uv run ruff check src tests scripts
+      - run: uv run ruff format --check src tests
+      - run: uv run ruff check src tests
       - run: uv run mypy src
       - run: uv run pytest
       - name: Verify generated schemas
@@ -32,12 +32,6 @@ jobs:
           generated="$(mktemp -d)/schemas"
           uv run modelskyline regenerate-schemas "$generated"
           diff -ru --exclude=request-trace.schema.json schemas "$generated"
-      - name: Verify gateway conformance vectors
-        run: |
-          generated="$(mktemp -d)/v1alpha1"
-          MODEL_SKYLINE_GATEWAY_CONFORMANCE_OUTPUT="$generated" \
-            uv run --extra gateway python scripts/generate_gateway_conformance.py
-          diff -ru --exclude=README.md conformance/gateway-pointer/v1alpha1 "$generated"
 
   package:
     runs-on: ubuntu-latest
@@ -55,12 +49,6 @@ jobs:
       - run: /tmp/modelskyline-wheel/bin/modelskyline --version
       - run: /tmp/modelskyline-wheel/bin/modelskyline export-schemas /tmp/modelskyline-schemas
       - run: diff -ru schemas /tmp/modelskyline-schemas
-      - name: Verify base-wheel gateway resources import without crypto
-        run: >-
-          /tmp/modelskyline-wheel/bin/python -c
-          'from importlib.resources import files; import model_skyline.gateway;
-          assert files("model_skyline").joinpath("conformance", "gateway-pointer",
-          "v1alpha1", "valid", "payload.json").read_bytes().startswith(b"{")'
       - run: >-
           /tmp/modelskyline-wheel/bin/modelskyline evaluate
           examples/coding-session/frontier.yaml
