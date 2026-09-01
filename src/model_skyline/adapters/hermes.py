@@ -6,15 +6,19 @@ The reviewed Hermes surfaces are work-unit aggregates, not request events:
 * schema-v26 SQLite ``sessions`` plus the authoritative
   ``session_model_usage`` ledger.
 
-The SQLite importer supports the ledger-complete subset of schema v26: it sums
-every main and auxiliary ledger task, while requiring one exact
+The SQLite importer supports a strict recorded-ledger subset of schema v26: it
+sums every recorded main and auxiliary ledger task, while requiring one exact
 model/provider/base-URL route and one consistently present or absent billing
 mode.  Upstream ``absolute=True`` session counter replacements do not write a
 matching ledger row and are therefore rejected rather than guessed.  The
+upstream auxiliary writer is best-effort, so recorded rows cannot prove that no
+auxiliary accounting write was missed.  The
 usage-report importer requires a separate operator attestation because that
 report exposes only the final model/provider and cannot prove that fallback or
-auxiliary calls stayed on the same route.  Neither importer reads transcript
-content.
+auxiliary calls stayed on the same route.  Neither importer queries or emits
+transcript content.  SQLite's online backup still copies every database page,
+including content tables, into a private temporary directory before querying
+the aggregate tables.
 """
 
 from __future__ import annotations
@@ -29,13 +33,14 @@ import sqlite3
 import stat
 import tempfile
 import time
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation, localcontext
 from pathlib import Path
-from typing import Annotated, Any, Literal, Self
+from types import MappingProxyType
+from typing import Annotated, Any, Final, Literal, Self
 from urllib.parse import quote, urlsplit, urlunsplit
 
 from pydantic import Field, TypeAdapter, ValidationError, model_validator
@@ -49,8 +54,14 @@ from model_skyline.models import (
 )
 from model_skyline.traces import RequestTrace
 
-HERMES_AGENT_COMMIT = "4f22543509d1b91dc45bcb369447126c5eb14fb7"
 HERMES_AGENT_VERSION = "0.20.6"
+HERMES_AGENT_COMMITS: Final[Mapping[str, str]] = MappingProxyType(
+    {
+        "0.20.6": "4f22543509d1b91dc45bcb369447126c5eb14fb7",
+        "0.21.0": "29112bef099274229cadff79cdff7bf7b99c4b77",
+    }
+)
+HERMES_AGENT_COMMIT = HERMES_AGENT_COMMITS[HERMES_AGENT_VERSION]
 HERMES_SESSION_SCHEMA_VERSION = 26
 HERMES_AGENT_LICENSE = "MIT"
 HERMES_ADAPTER_VERSION = "2"
@@ -66,6 +77,7 @@ HERMES_ROUTE_IDENTITY_SOURCE_URL = f"{_HERMES_SOURCE_ROOT}/hermes_cli/route_iden
 
 DEFAULT_MAX_USAGE_REPORT_BYTES = 1_000_000
 MAX_USAGE_REPORT_BYTES = 16_000_000
+MAX_HERMES_SESSION_MAPPING_BYTES = 64 * 1024
 MAX_HERMES_STATE_DATABASE_BYTES = 256 * 1024 * 1024
 MAX_HERMES_LEDGER_ROWS = 100_000
 MAX_HERMES_SQLITE_VM_STEPS = 10_000_000
@@ -278,7 +290,7 @@ class HermesSessionMapping(FrozenModel):
     """Operator-reviewed meaning for exactly one opaque Hermes session."""
 
     session_id: str = Field(strict=True, min_length=1, max_length=MAX_SESSION_ID_LENGTH)
-    hermes_version: Literal["0.20.6"]
+    hermes_version: Literal["0.20.6", "0.21.0"]
     workload: WorkloadReference
     route: HermesRouteMapping
     work_unit_success: CanonicalDecimal = Field(
@@ -293,6 +305,16 @@ class HermesSessionMapping(FrozenModel):
         _safe_public_identifier(self.workload.id, "workload.id")
         _safe_public_identifier(self.workload.version, "workload.version")
         return self
+
+
+def _validated_session_mapping(mapping: HermesSessionMapping) -> HermesSessionMapping:
+    """Revalidate instances because Pydantic ``model_copy(update=...)`` bypasses validators."""
+
+    try:
+        payload = mapping.model_dump(mode="python", round_trip=True, warnings="none")
+        return HermesSessionMapping.model_validate(payload)
+    except (AttributeError, TypeError, ValueError, RecursionError):
+        raise HermesAdapterError("invalid Hermes session mapping") from None
 
 
 def _validate_identity_key(identity_key: bytes) -> None:
@@ -476,6 +498,11 @@ def _trace_from_aggregate(
     tool_calls: int | None,
     cost: _CostMeters,
 ) -> RequestTrace:
+    if not isinstance(mapping.hermes_version, str):
+        raise HermesAdapterError("unsupported reviewed Hermes Agent version")
+    upstream_commit = HERMES_AGENT_COMMITS.get(mapping.hermes_version)
+    if upstream_commit is None:
+        raise HermesAdapterError("unsupported reviewed Hermes Agent version")
     work_unit_id, attempt_id, request_id = _opaque_ids(mapping.session_id, identity_key)
     visible_output, reasoning_output, total_output = _split_output_tokens(
         output_tokens,
@@ -497,8 +524,8 @@ def _trace_from_aggregate(
             adapter_id="model-skyline/hermes-agent-aggregate",
             adapter_version=HERMES_ADAPTER_VERSION,
             upstream_system="nousresearch/hermes-agent",
-            upstream_version=HERMES_AGENT_VERSION,
-            upstream_commit=HERMES_AGENT_COMMIT,
+            upstream_version=mapping.hermes_version,
+            upstream_commit=upstream_commit,
             work_unit_success=mapping.work_unit_success,
             input_uncached_tokens=(Decimal(input_tokens) if input_tokens is not None else None),
             input_cache_read_tokens=(
@@ -534,11 +561,23 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
-def _load_usage_report(path: Path, max_bytes: int) -> dict[str, Any]:
-    if isinstance(max_bytes, bool) or not isinstance(max_bytes, int):
-        raise HermesAdapterError("max_bytes must be an integer")
-    if not 1 <= max_bytes <= MAX_USAGE_REPORT_BYTES:
-        raise HermesAdapterError(f"max_bytes must be between 1 and {MAX_USAGE_REPORT_BYTES}")
+def _load_json_object(
+    path: Path,
+    *,
+    max_bytes: int,
+    label: Literal["Hermes session mapping", "Hermes usage report"],
+) -> dict[str, Any]:
+    try:
+        path_metadata = os.lstat(path)
+    except OSError:
+        raise HermesAdapterError(f"cannot read the {label}") from None
+    if stat.S_ISLNK(path_metadata.st_mode):
+        raise HermesAdapterError(f"cannot read the {label}")
+    if not stat.S_ISREG(path_metadata.st_mode):
+        raise HermesAdapterError(f"{label} must be a regular file")
+    if path_metadata.st_size > max_bytes:
+        raise HermesAdapterError(f"{label} exceeds {max_bytes} bytes")
+
     flags = os.O_RDONLY
     if hasattr(os, "O_CLOEXEC"):
         flags |= os.O_CLOEXEC
@@ -549,23 +588,43 @@ def _load_usage_report(path: Path, max_bytes: int) -> dict[str, Any]:
     try:
         descriptor = os.open(path, flags)
     except OSError:
-        raise HermesAdapterError("cannot read the Hermes usage report") from None
+        raise HermesAdapterError(f"cannot read the {label}") from None
     try:
         metadata = os.fstat(descriptor)
-        if not stat.S_ISREG(metadata.st_mode):
-            raise HermesAdapterError("Hermes usage report must be a regular file")
+        if not stat.S_ISREG(metadata.st_mode) or (metadata.st_dev, metadata.st_ino) != (
+            path_metadata.st_dev,
+            path_metadata.st_ino,
+        ):
+            raise HermesAdapterError(f"{label} changed while being read")
         if metadata.st_size > max_bytes:
-            raise HermesAdapterError(f"Hermes usage report exceeds {max_bytes} bytes")
+            raise HermesAdapterError(f"{label} exceeds {max_bytes} bytes")
         with os.fdopen(descriptor, "rb", closefd=True) as stream:
             descriptor = -1
             raw = stream.read(max_bytes + 1)
+            final_metadata = os.fstat(stream.fileno())
     except OSError:
-        raise HermesAdapterError("cannot read the Hermes usage report") from None
+        raise HermesAdapterError(f"cannot read the {label}") from None
     finally:
         if descriptor >= 0:
             os.close(descriptor)
     if len(raw) > max_bytes:
-        raise HermesAdapterError(f"Hermes usage report exceeds {max_bytes} bytes")
+        raise HermesAdapterError(f"{label} exceeds {max_bytes} bytes")
+    if (
+        final_metadata.st_dev,
+        final_metadata.st_ino,
+        final_metadata.st_mode,
+        final_metadata.st_size,
+        final_metadata.st_mtime_ns,
+        final_metadata.st_ctime_ns,
+    ) != (
+        metadata.st_dev,
+        metadata.st_ino,
+        metadata.st_mode,
+        metadata.st_size,
+        metadata.st_mtime_ns,
+        metadata.st_ctime_ns,
+    ):
+        raise HermesAdapterError(f"{label} changed while being read")
     try:
         payload = json.loads(
             raw.decode("utf-8"),
@@ -574,10 +633,32 @@ def _load_usage_report(path: Path, max_bytes: int) -> dict[str, Any]:
             object_pairs_hook=_unique_object,
         )
     except (UnicodeDecodeError, ValueError, RecursionError, MemoryError):
-        raise HermesAdapterError("invalid Hermes usage report JSON") from None
+        raise HermesAdapterError(f"invalid {label} JSON") from None
     if not isinstance(payload, dict):
-        raise HermesAdapterError("Hermes usage report must be a JSON object")
+        raise HermesAdapterError(f"{label} must be a JSON object")
     return payload
+
+
+def _load_usage_report(path: Path, max_bytes: int) -> dict[str, Any]:
+    if isinstance(max_bytes, bool) or not isinstance(max_bytes, int):
+        raise HermesAdapterError("max_bytes must be an integer")
+    if not 1 <= max_bytes <= MAX_USAGE_REPORT_BYTES:
+        raise HermesAdapterError(f"max_bytes must be between 1 and {MAX_USAGE_REPORT_BYTES}")
+    return _load_json_object(path, max_bytes=max_bytes, label="Hermes usage report")
+
+
+def load_hermes_session_mapping(path: str | Path) -> HermesSessionMapping:
+    """Load one private, operator-reviewed session mapping without value-bearing errors."""
+
+    payload = _load_json_object(
+        Path(path),
+        max_bytes=MAX_HERMES_SESSION_MAPPING_BYTES,
+        label="Hermes session mapping",
+    )
+    try:
+        return HermesSessionMapping.model_validate(payload)
+    except (TypeError, ValueError, RecursionError):
+        raise HermesAdapterError("invalid Hermes session mapping") from None
 
 
 def import_hermes_usage_report(
@@ -590,6 +671,11 @@ def import_hermes_usage_report(
 ) -> RequestTrace:
     """Import one official ``hermes -z --usage-file`` work-unit aggregate."""
 
+    mapping = _validated_session_mapping(mapping)
+    if mapping.hermes_version != HERMES_AGENT_VERSION:
+        raise HermesAdapterError(
+            f"Hermes usage-report import supports exactly Agent {HERMES_AGENT_VERSION}"
+        )
     payload = _load_usage_report(Path(path), max_bytes)
     session_id = payload.get("session_id")
     if not isinstance(session_id, str) or not session_id:
@@ -695,6 +781,8 @@ def _snapshot_state_database(path: Path) -> Iterator[Path]:
 
         temporary = tempfile.TemporaryDirectory(prefix="model-skyline-hermes-")
         target = Path(temporary.name) / "state.db"
+        target_descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        os.close(target_descriptor)
 
         encoded_path = quote(path.as_posix(), safe="/:")
         source = sqlite3.connect(
@@ -897,6 +985,12 @@ def _ledger_rows(connection: sqlite3.Connection, session_id: str) -> list[_Ledge
         raise HermesAdapterError("Hermes session usage exceeds the ledger row limit")
     rows: list[_LedgerRow] = []
     for raw in raw_rows:
+        raw_model = raw["model"]
+        if not isinstance(raw_model, str):
+            raise HermesAdapterError("Hermes model must be text")
+        raw_billing_provider = raw["billing_provider"]
+        if not isinstance(raw_billing_provider, str):
+            raise HermesAdapterError("Hermes billing_provider must be text")
         raw_base_url = raw["billing_base_url"]
         if not isinstance(raw_base_url, str):
             raise HermesAdapterError("Hermes billing_base_url must be text")
@@ -908,6 +1002,9 @@ def _ledger_rows(connection: sqlite3.Connection, session_id: str) -> list[_Ledge
         if not isinstance(raw_billing_mode, str):
             raise HermesAdapterError("Hermes billing_mode must be text")
         billing_mode = None if raw_billing_mode == "" else raw_billing_mode
+        raw_task = raw["task"]
+        if not isinstance(raw_task, str):
+            raise HermesAdapterError("Hermes task must be text")
         integers = [
             _required_nonnegative_int(raw[name], name)
             for name in (
@@ -923,11 +1020,11 @@ def _ledger_rows(connection: sqlite3.Connection, session_id: str) -> list[_Ledge
         actual = _optional_nonnegative_decimal(raw["actual_cost_text"], "actual_cost_usd")
         rows.append(
             _LedgerRow(
-                model=str(raw["model"]),
-                billing_provider=str(raw["billing_provider"]),
+                model=raw_model,
+                billing_provider=raw_billing_provider,
                 billing_base_url=billing_base_url,
                 billing_mode=billing_mode,
-                task=str(raw["task"]),
+                task=raw_task,
                 api_call_count=integers[0],
                 input_tokens=integers[1],
                 output_tokens=integers[2],
@@ -1062,7 +1159,7 @@ def import_hermes_session(
     mapping: HermesSessionMapping,
     identity_key: bytes,
 ) -> RequestTrace:
-    """Import a completed, ledger-complete v26 session from an exact snapshot.
+    """Import a completed, recorded-ledger v26 session from an exact snapshot.
 
     Sessions containing counters introduced only through upstream
     ``absolute=True`` updates are outside this strict subset because schema v26
@@ -1070,6 +1167,7 @@ def import_hermes_session(
     WAL state is captured through a bounded, read-only SQLite online backup.
     """
 
+    mapping = _validated_session_mapping(mapping)
     if (
         mapping.route.offering.service_tier is not None
         and mapping.route.service_tier_fulfilled_attested is not True
