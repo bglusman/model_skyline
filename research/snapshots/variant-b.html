@@ -152,7 +152,7 @@ function drawStair(f, container){
   const stepPath = [];
   let prev = null;
   front.forEach(r => {
-    const x = XR(r.primary), y = Y(yOf(r));
+    const x = X(r.primary), y = Y(yOf(r));
     if (prev) { stepPath.push(`${prev.x},${y}`); } // vertical drop to next step's quality
     stepPath.push(`${x},${y}`);
     prev = {x, y};
@@ -162,7 +162,7 @@ function drawStair(f, container){
   let labels = [];
   pts.forEach(r => {
     const st = nearStatus(r, f);
-    const cx = XR(r.primary), cy = Y(yOf(r));
+    const cx = X(r.primary), cy = Y(yOf(r));
     if (st === 'on') {
       svg.appendChild(el('circle', {cx, cy, r:4, class:'fddot'}));
       labels.push({x:cx+7, y:cy+3, t1:esc(r.offering.split('/')[1]), t2:esc(fmtMoney(r.primary)+(r.cap_assumed?' †':''))});
@@ -176,7 +176,7 @@ function drawStair(f, container){
         .filter(q => q && q.primary != null && yOf(q) >= yOf(r))
         .sort((a,b)=>a.primary-b.primary)[0];
       if (d) {
-        const dx = XR(d.primary), dy = Y(yOf(d));
+        const dx = X(d.primary), dy = Y(yOf(d));
         svg.appendChild(el('line', {x1:cx+3, y1:cy-3, x2:dx-4, y2:dy+3, class:'arrow', 'stroke-width':1, 'stroke-dasharray':'3 2'}));
       }
       labels.push({x:cx+6, y:cy+3, t1:esc(r.offering.split('/')[1]), t2:esc(fmtMoney(r.primary)), gray:true});
@@ -202,7 +202,7 @@ function drawStair(f, container){
   });
   // hover overlay
   pts.forEach(r => {
-    const cx = XR(r.primary), cy = Y(yOf(r));
+    const cx = X(r.primary), cy = Y(yOf(r));
     const h = el('circle', {cx, cy, r:9, fill:'transparent'});
     h.addEventListener('mouseenter', () => {
       tipBox.innerHTML = esc(r.offering) + ' — ' + esc(fmtMoney(r.primary)) + ' · '
