@@ -657,7 +657,7 @@ def load_hermes_session_mapping(path: str | Path) -> HermesSessionMapping:
     )
     try:
         return HermesSessionMapping.model_validate(payload)
-    except (TypeError, ValueError, RecursionError):
+    except (ValidationError, TypeError, ValueError, RecursionError):
         raise HermesAdapterError("invalid Hermes session mapping") from None
 
 
