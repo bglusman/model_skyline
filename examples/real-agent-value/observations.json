@@ -1,0 +1,130 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "workload": {
+    "id": "deidentified-agent-turn-v1",
+    "version": "1.0.0",
+    "unit": "successful_turn"
+  },
+  "offerings": [
+    {
+      "offering": {
+        "offering_id": "openrouter/z-ai/glm-5.3-flash",
+        "model_id": "glm-5.3-flash",
+        "provider": "openrouter",
+        "endpoint": "openai-compatible",
+        "billing_mode": "metered-api",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "openclaw-style-agent@1",
+        "capabilities": [
+          "structured_output",
+          "text",
+          "tools"
+        ]
+      },
+      "metadata": {
+        "evidence_status": "public-pricing-operator-quality",
+        "pricing_acquisition_raw_sha256": "3613627314ba0ad47780018ff9e3e062607c5847cdb0511f818a1acd798e3777"
+      },
+      "default_source": {
+        "id": "openrouter-model-z-ai-glm-5.3-flash-2026-09-01",
+        "version": "selected-prices-sha256:822b168ad0ea2bc17d41840d3c5b078c8ab80d20012ed27850e00d7ef0a2b692",
+        "url": "https://openrouter.ai/api/v1/model/z-ai/glm-5.3-flash",
+        "terms_url": "https://openrouter.ai/terms",
+        "license": "Subject to OpenRouter terms; no standalone dataset license is asserted.",
+        "methodology": "Semantic identity covers only offering_id and the selected prompt, completion, and cache-read prices from the public single-model response. Per-token values were multiplied by 1,000,000 to obtain exact USD/Mtok inputs. The complete acquisition digest is retained separately in offering metadata so an unrelated response-field change does not masquerade as a price change.",
+        "retrieved_at": "2026-09-01T01:37:14Z"
+      },
+      "signals": {
+        "operator_quality_index": {
+          "value": "57",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T23:15:00Z",
+          "source": {
+            "id": "operator-quality-index-v4.1.1",
+            "version": "4.1.1",
+            "license": "Operator-supplied example data; upstream redistribution rights were not independently verified.",
+            "methodology": "The contributor entered a benchmark index and model association for the prior study. The upstream result, methodology, and model mapping were not independently reconciled. Fixture-only; not a current benchmark feed.",
+            "retrieved_at": "2026-08-31T23:15:00Z"
+          }
+        },
+        "input_uncached_usd_per_million": {
+          "value": "0.075",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-09-01T01:37:14Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.015",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-09-01T01:37:14Z"
+        },
+        "output_usd_per_million": {
+          "value": "0.25",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-09-01T01:37:14Z"
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "openrouter/z-ai/glm-5.3",
+        "model_id": "glm-5.3",
+        "provider": "openrouter",
+        "endpoint": "openai-compatible",
+        "billing_mode": "metered-api",
+        "region": "us",
+        "service_tier": "standard",
+        "agent_harness": "openclaw-style-agent@1",
+        "capabilities": [
+          "structured_output",
+          "text",
+          "tools"
+        ]
+      },
+      "metadata": {
+        "evidence_status": "public-pricing-operator-quality",
+        "pricing_acquisition_raw_sha256": "563ecedccf6f52096270542e0553a738309bf1bc8df3194320161cba5e755d8a"
+      },
+      "default_source": {
+        "id": "openrouter-model-z-ai-glm-5.3-2026-09-01",
+        "version": "selected-prices-sha256:f3cfcc559cd44e609abd1743b32d0bfeeb127e769343872be67415c09442eedd",
+        "url": "https://openrouter.ai/api/v1/model/z-ai/glm-5.3",
+        "terms_url": "https://openrouter.ai/terms",
+        "license": "Subject to OpenRouter terms; no standalone dataset license is asserted.",
+        "methodology": "Semantic identity covers only offering_id and the selected prompt, completion, and cache-read prices from the public single-model response. Per-token values were multiplied by 1,000,000 to obtain exact USD/Mtok inputs. The complete acquisition digest is retained separately in offering metadata so an unrelated response-field change does not masquerade as a price change.",
+        "retrieved_at": "2026-09-01T01:37:14Z"
+      },
+      "signals": {
+        "operator_quality_index": {
+          "value": "60",
+          "unit": "index",
+          "sample_count": 1,
+          "observed_at": "2026-08-31T23:15:00Z",
+          "source": {
+            "id": "operator-quality-index-v4.1.1",
+            "version": "4.1.1",
+            "license": "Operator-supplied example data; upstream redistribution rights were not independently verified.",
+            "methodology": "The contributor entered a benchmark index and model association for the prior study. The upstream result, methodology, and model mapping were not independently reconciled. Fixture-only; not a current benchmark feed.",
+            "retrieved_at": "2026-08-31T23:15:00Z"
+          }
+        },
+        "input_uncached_usd_per_million": {
+          "value": "1.4",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-09-01T01:37:14Z"
+        },
+        "input_cache_read_usd_per_million": {
+          "value": "0.26",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-09-01T01:37:14Z"
+        },
+        "output_usd_per_million": {
+          "value": "4.4",
+          "unit": "USD/Mtok",
+          "observed_at": "2026-09-01T01:37:14Z"
+        }
+      }
+    }
+  ]
+}

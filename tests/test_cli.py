@@ -16,6 +16,25 @@ GATEWAY_CONFORMANCE = ROOT / "conformance" / "gateway-pointer" / "v1alpha1"
 runner = CliRunner()
 
 
+def test_cli_help_groups_commands_without_renaming_them() -> None:
+    result = runner.invoke(app, ["--help"])
+
+    assert result.exit_code == 0, result.output
+    for panel in (
+        "Core workflow",
+        "Frontier composition",
+        "Telemetry",
+        "Gateway",
+        "Data sources",
+        "Source monitoring",
+        "Quality evidence",
+        "Contracts",
+    ):
+        assert panel in result.output
+    for command in ("evaluate", "aggregate-traces", "verify-gateway-bundle", "export-schemas"):
+        assert command in result.output
+
+
 def test_cli_validates_example_contracts() -> None:
     result = runner.invoke(
         app,

@@ -1,7 +1,8 @@
 # Architecture and semantics
 
-This document describes the `v1alpha1` contracts and the decisions that must
-remain stable while the implementation evolves.
+This document describes the core contracts and the decisions that must remain
+stable while the implementation evolves. Extension contracts may have their own
+alpha versions and do not automatically become part of the core product.
 
 ## Product boundary
 
@@ -19,6 +20,32 @@ LiteLLM, TensorZero, vLLM Semantic Router, OpenRouter, or provider SDKs can
 execute the selected route. This project should integrate with those systems,
 not duplicate their gateway and retry machinery.
 
+### Support tiers
+
+The supported kernel is deliberately small:
+
+```text
+ProjectConfig + ObservationCatalog
+              -> FrontierSnapshot
+              -> SelectionSnapshot
+              -> JSON, table, CSV, or RSS
+```
+
+Formula evaluation, exact offering identity, two-axis Pareto calculation, and
+ordered default/fallback selection belong to that kernel. This is the path the
+package root and primary README teach.
+
+Publication, the convenience resolver, trace aggregation, and source adapters
+are first-party integrations around the kernel. They may have narrower source
+or deployment support and are imported from explicit modules.
+
+Composite-quality experiments, cross-frontier proximity, and the signed gateway
+profile are incubating extensions. Their presence in the repository is not a
+requirement for evaluating or consuming an ordinary selection. Promotion to the
+supported kernel requires a repeatable real producer-to-consumer path; an
+unused contract may instead be frozen, moved out of the default surface, or
+removed while its tagged history remains available.
+
 ## Language decision
 
 The control/data plane is Python because the work that differentiates this
@@ -35,12 +62,14 @@ policy execution between Python and Node becomes a proven requirement. A Go
 service becomes worthwhile if a standalone operator daemon becomes the
 primary distribution model.
 
-The repository now uses that ecosystem for pinned, real Aider and MCPMark
-benchmark adapters in addition to Pydantic, DuckDB, Lark, and protocol
-boundaries. Bundled fixtures remain synthetic; upstream data is fetched and
-verified rather than silently vendored. The next language checkpoint is a real
-effective-price adapter and an empirical trace adapter. If those do not benefit
-materially from Python, ADR 0001 should be reopened.
+The repository now uses that ecosystem for benchmark and price-source adapters,
+Decimal policy models, and DuckDB trace aggregation. Real aggregate agent data
+has also exercised the ordinary config/catalog/frontier/selection path. That is
+evidence for retaining Python in the control plane, not for requiring Python in
+agents or gateways. Native consumers should implement the JSON boundary in
+their own runtime. Reopen ADR 0001 only if a measured deployment constraint,
+such as offline embedding or cross-runtime policy execution, outweighs the
+data-tooling advantage.
 
 ## Non-negotiable invariants
 
@@ -689,25 +718,20 @@ last-known-good bundle.
 
 ## Near-term roadmap
 
-1. Effective-dated `PriceCard` schema seeded from models.dev/LiteLLM and joined
-   to request event time and official
-   provider pricing/cache policies.
-2. A TraceLab release adapter plus operator-trace profiles for observed
-   cache-aware coding cost; then OpenTelemetry GenAI and OpenInference inputs.
-3. Current provider/catalog joins for the implemented Aider and MCPMark
-   benchmark adapters, with explicit historical versus counterfactual labels.
-4. Activate and monitor both scheduled Pages research publications, then add a
-   reviewed signed gateway channel and signing-key operational profile.
-5. Build Wardwright as the first native signed-protocol consumer, followed by
-   gateway and framework adapters described in `gateway-integrations.md`.
-6. Operationalize the implemented Harbor Terminal-Bench, pinned fixed-harness
-   SWE-bench, and immutable-revision ARC-AGI-2 evidence adapters; add a
-   tau2-bench collector and broader licensed research, customer-service, and
-   reasoning bundles under ADR 0004.
-7. HTTP/subprocess oracle protocol, declared option schemas, exact result
-   bindings, and a content-addressed result cache.
-8. Formula dimensional analysis and safe interval propagation.
-9. Selection hysteresis, failure-domain diversity, capability thresholds, and
-   recomputation after dynamic filtering.
-10. Autonomous trust-root rotation (likely TUF), checkpoint sharding, and
-    signed multi-frontier selection references.
+1. Keep one de-identified real agent-workload example executable in CI from
+   validation through selection, with independent trace, price, and quality
+   provenance.
+2. Express a stable two-to-four-benchmark quality portfolio without binding
+   volatile capture hashes into operator intent; emit an ordinary observation
+   catalog that the core engine can consume.
+3. Validate the ordinary `SelectionSnapshot` in one native gateway consumer,
+   starting with trusted local-file delivery, exact offering mappings, expiry,
+   and work-unit pinning.
+4. Automate one fresh price/quality publication and measure whether it remains
+   useful operationally before expanding source or protocol breadth.
+
+Effective-dated price cards, more benchmark collectors, remote oracle
+transports, dimensional analysis, signed distribution, selection hysteresis,
+and additional gateway profiles remain possible follow-ons. They should be
+pulled by a demonstrated workload or consumer rather than treated as parallel
+core milestones.

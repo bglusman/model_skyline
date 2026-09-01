@@ -1,0 +1,123 @@
+schema_version: model-skyline/v1alpha1
+
+workloads:
+  deidentified-agent-turn-v1:
+    unit: successful_turn
+    version: "1.0.0"
+    harness: openclaw-style-agent@1
+    cohort: private-aggregate-30day-v1
+    description: >-
+      De-identified, privately authorized 30-day aggregate from an agentic
+      tool-use workload. Raw traces are not included.
+    variables:
+      input_uncached_tokens_per_success: "14592"
+      input_cache_read_tokens_per_success: "166621"
+      output_tokens_per_success: "592"
+      observed_turn_count: "1336"
+      reported_success_rate: "0.93"
+    assumptions:
+      cache_mode: observed
+      includes_failed_attempts: true
+      pricing_mode: exact_public_catalog_snapshot_counterfactual
+      reported_success_rate_is_rounded: true
+      unmodeled_cost_components:
+        - cache_write
+        - cache_storage
+        - request_fees
+        - tool_and_search_fees
+        - agent_compute
+        - credit_purchase_or_subscription_fees
+      candidate_scope:
+        kind: curated_regression_subset
+        included_offering_ids:
+          - openrouter/z-ai/glm-5.3
+          - openrouter/z-ai/glm-5.3-flash
+        omitted_offering_ids:
+          - openrouter/qwen/qwen3.8-27b
+          - openrouter/qwen/qwen3.8-2.4t-a95b
+          - openrouter/deepseek/deepseek-v4-flash-0731
+        omitted_reason: >-
+          The golden example retains only the two offerings needed to reproduce
+          the prior study's default and fallback. It is not a market-wide frontier.
+        unreconciled_candidate_labels:
+          - deepseek-v4-pro-0813
+          - kimi-k3
+          - minimax-m3
+        unreconciled_reason: >-
+          The prior study named these candidates but did not establish exact
+          offering identities and verified quality mappings. Labels are retained
+          as labels rather than guessed OfferingKeys.
+    sources:
+      - id: private-agent-trace-aggregate-v1
+        version: "30-day-aggregate-v1"
+        license: >-
+          Publication authorized by the data owner for these aggregate statistics;
+          raw traces remain private and are not distributed.
+        methodology: >-
+          Contributor-supplied aggregate of 1,336 agent turns with a reported 93%
+          success rate: 14,592 uncached input, 166,621 cache-read input, and 592
+          output tokens per successful turn. No raw prompts, responses, identifiers,
+          or trace rows are included.
+        retrieved_at: 2026-08-31T23:15:00Z
+
+metrics:
+  metered_token_cost_per_success:
+    kind: formula
+    unit: USD/success
+    cost_basis: reconstructed_components
+    description: >-
+      Reconstructed cost of the three token meters exposed by the selected
+      public catalog records. This is not total agent or infrastructure cost.
+    expression: >-
+      (
+        workload.input_uncached_tokens_per_success
+          * signals.input_uncached_usd_per_million
+        + workload.input_cache_read_tokens_per_success
+          * signals.input_cache_read_usd_per_million
+        + workload.output_tokens_per_success
+          * signals.output_usd_per_million
+      ) / 1000000
+    requirements:
+      max_age_hours: "8760"
+      require_source: true
+
+  operator_quality_index:
+    kind: signal
+    signal: operator_quality_index
+    unit: index
+    description: >-
+      Historical operator-entered benchmark index retained from the prior study.
+    requirements:
+      max_age_hours: "8760"
+      minimum_samples: 1
+      require_source: true
+
+frontiers:
+  agent-value:
+    workload: deidentified-agent-turn-v1
+    axes:
+      - metric: metered_token_cost_per_success
+        goal: minimize
+        epsilon_relative: "0.02"
+      - metric: operator_quality_index
+        goal: maximize
+        epsilon_absolute: "0.5"
+    order_by: metered_token_cost_per_success
+    uncertainty: point
+    eligibility:
+      required_capabilities:
+        - structured_output
+        - tools
+      allow_unknown_age: false
+    metadata_fields:
+      - evidence_status
+
+selections:
+  agent-defaults:
+    frontier: agent-value
+    strategy: lexicographic
+    count: 2
+    order_by: operator_quality_index
+    max_per_provider: 2
+    snapshot_ttl_seconds: 3600
+    on_insufficient: error

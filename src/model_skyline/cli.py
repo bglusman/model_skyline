@@ -140,6 +140,15 @@ app = typer.Typer(
     help="Build workload-specific model-offering Pareto frontiers.",
 )
 
+CORE_PANEL = "Core workflow"
+FRONTIER_COMPOSITION_PANEL = "Frontier composition"
+TELEMETRY_PANEL = "Telemetry"
+GATEWAY_PANEL = "Gateway"
+DATA_SOURCES_PANEL = "Data sources"
+SOURCE_MONITORING_PANEL = "Source monitoring"
+QUALITY_EVIDENCE_PANEL = "Quality evidence"
+CONTRACTS_PANEL = "Contracts"
+
 
 class OutputFormat(StrEnum):
     TABLE = "table"
@@ -305,7 +314,7 @@ def _load_secondary_inputs(
     }
 
 
-@app.command()
+@app.command(rich_help_panel=CORE_PANEL)
 def validate(
     config: Annotated[Path, typer.Argument(exists=True, readable=True)],
     catalog: Annotated[Path, typer.Argument(exists=True, readable=True)],
@@ -335,7 +344,7 @@ def validate(
         _error(exc)
 
 
-@app.command()
+@app.command(rich_help_panel=CORE_PANEL)
 def evaluate(
     config: Annotated[Path, typer.Argument(exists=True, readable=True)],
     catalog: Annotated[Path, typer.Argument(exists=True, readable=True)],
@@ -380,7 +389,7 @@ def evaluate(
         _error(exc)
 
 
-@app.command()
+@app.command(rich_help_panel=CORE_PANEL)
 def select(
     config: Annotated[Path, typer.Argument(exists=True, readable=True)],
     catalog: Annotated[Path, typer.Argument(exists=True, readable=True)],
@@ -409,7 +418,7 @@ def select(
         _error(exc)
 
 
-@app.command("build-frontier-proximity")
+@app.command("build-frontier-proximity", rich_help_panel=FRONTIER_COMPOSITION_PANEL)
 def build_frontier_proximity_command(
     frontier: Annotated[
         Path,
@@ -429,7 +438,7 @@ def build_frontier_proximity_command(
         _error(exc)
 
 
-@app.command("select-quality-gated")
+@app.command("select-quality-gated", rich_help_panel=FRONTIER_COMPOSITION_PANEL)
 def select_quality_gated_command(
     config: Annotated[Path, typer.Argument(exists=True, readable=True)],
     primary: Annotated[
@@ -499,7 +508,10 @@ def select_quality_gated_command(
         _error(exc)
 
 
-@app.command("verify-quality-gated-selection")
+@app.command(
+    "verify-quality-gated-selection",
+    rich_help_panel=FRONTIER_COMPOSITION_PANEL,
+)
 def verify_quality_gated_selection_command(
     config: Annotated[Path, typer.Argument(exists=True, readable=True)],
     quality_policy: Annotated[
@@ -608,7 +620,7 @@ def verify_quality_gated_selection_command(
         _error(exc)
 
 
-@app.command("publish-project")
+@app.command("publish-project", rich_help_panel=CORE_PANEL)
 def publish_project_command(
     config: Annotated[Path, typer.Argument(exists=True, readable=True)],
     output_directory: Annotated[Path, typer.Argument(file_okay=False)],
@@ -697,7 +709,7 @@ def publish_project_command(
         _error(exc)
 
 
-@app.command("aggregate-traces")
+@app.command("aggregate-traces", rich_help_panel=TELEMETRY_PANEL)
 def aggregate_trace_command(
     catalog: Annotated[Path, typer.Argument(exists=True, readable=True)],
     traces: Annotated[Path, typer.Argument(exists=True, readable=True)],
@@ -719,7 +731,7 @@ def aggregate_trace_command(
         _error(exc)
 
 
-@app.command("verify-gateway-bundle")
+@app.command("verify-gateway-bundle", rich_help_panel=GATEWAY_PANEL)
 def verify_gateway_bundle_command(
     envelope: Annotated[Path, typer.Argument(exists=True, readable=True)],
     publication: Annotated[Path, typer.Argument(exists=True, readable=True)],
@@ -802,7 +814,7 @@ def verify_gateway_bundle_command(
         _error(exc)
 
 
-@app.command("import-aider-polyglot")
+@app.command("import-aider-polyglot", rich_help_panel=DATA_SOURCES_PANEL)
 def import_aider_polyglot_command(
     output_directory: Annotated[Path, typer.Argument(file_okay=False)],
     source: Annotated[
@@ -870,7 +882,7 @@ def import_aider_polyglot_command(
         _error(exc)
 
 
-@app.command("project-aider-models-dev")
+@app.command("project-aider-models-dev", rich_help_panel=DATA_SOURCES_PANEL)
 def project_aider_models_dev_command(
     output_directory: Annotated[Path, typer.Argument(file_okay=False)],
     mapping: Annotated[
@@ -966,7 +978,7 @@ def project_aider_models_dev_command(
         _error(exc)
 
 
-@app.command("import-mcpmark-verified")
+@app.command("import-mcpmark-verified", rich_help_panel=DATA_SOURCES_PANEL)
 def import_mcpmark_verified_command(
     output_directory: Annotated[Path, typer.Argument(file_okay=False)],
     source: Annotated[
@@ -1062,7 +1074,7 @@ def import_mcpmark_verified_command(
         _error(exc)
 
 
-@app.command("capture-swe-bench-bash-only")
+@app.command("capture-swe-bench-bash-only", rich_help_panel=DATA_SOURCES_PANEL)
 def capture_swe_bench_bash_only_command(
     output_directory: Annotated[Path, typer.Argument(file_okay=False)],
     source: Annotated[
@@ -1146,7 +1158,7 @@ def capture_swe_bench_bash_only_command(
         _error(exc)
 
 
-@app.command("capture-arc-agi-2-public-eval")
+@app.command("capture-arc-agi-2-public-eval", rich_help_panel=DATA_SOURCES_PANEL)
 def capture_arc_agi_2_public_eval_command(
     output_directory: Annotated[Path, typer.Argument(file_okay=False)],
     retrieved_at: Annotated[
@@ -1193,7 +1205,7 @@ def capture_arc_agi_2_public_eval_command(
         _error(exc)
 
 
-@app.command("check-swe-bench-feed")
+@app.command("check-swe-bench-feed", rich_help_panel=SOURCE_MONITORING_PANEL)
 def check_swe_bench_feed_command(
     output: Annotated[
         Path | None,
@@ -1220,7 +1232,7 @@ def check_swe_bench_feed_command(
         raise typer.Exit(code=3)
 
 
-@app.command("check-arc-agi-2-feed")
+@app.command("check-arc-agi-2-feed", rich_help_panel=SOURCE_MONITORING_PANEL)
 def check_arc_agi_2_feed_command(
     output: Annotated[
         Path | None,
@@ -1245,7 +1257,7 @@ def check_arc_agi_2_feed_command(
         raise typer.Exit(code=3)
 
 
-@app.command("inspect-harbor-terminal-bench")
+@app.command("inspect-harbor-terminal-bench", rich_help_panel=DATA_SOURCES_PANEL)
 def inspect_harbor_terminal_bench_command(
     snapshot: Annotated[
         Path,
@@ -1296,7 +1308,7 @@ def inspect_harbor_terminal_bench_command(
         _error(exc)
 
 
-@app.command("reconcile-quality-evidence")
+@app.command("reconcile-quality-evidence", rich_help_panel=QUALITY_EVIDENCE_PANEL)
 def reconcile_quality_evidence_command(
     evidence: Annotated[
         Path,
@@ -1335,7 +1347,7 @@ def reconcile_quality_evidence_command(
         _error(exc)
 
 
-@app.command("project-quality-catalog")
+@app.command("project-quality-catalog", rich_help_panel=QUALITY_EVIDENCE_PANEL)
 def project_quality_catalog_command(
     evidence: Annotated[
         Path,
@@ -1382,7 +1394,7 @@ def project_quality_catalog_command(
         _error(exc)
 
 
-@app.command("build-quality-bundle")
+@app.command("build-quality-bundle", rich_help_panel=QUALITY_EVIDENCE_PANEL)
 def build_quality_bundle_command(
     policy: Annotated[
         Path,
@@ -1452,7 +1464,7 @@ def build_quality_bundle_command(
         _error(exc)
 
 
-@app.command("build-quality-oracle")
+@app.command("build-quality-oracle", rich_help_panel=QUALITY_EVIDENCE_PANEL)
 def build_quality_oracle_command(
     policy: Annotated[
         Path,
@@ -1485,7 +1497,7 @@ def build_quality_oracle_command(
         _error(exc)
 
 
-@app.command("verify-quality-oracle")
+@app.command("verify-quality-oracle", rich_help_panel=QUALITY_EVIDENCE_PANEL)
 def verify_quality_oracle_command(
     policy: Annotated[
         Path,
@@ -1518,7 +1530,7 @@ def verify_quality_oracle_command(
         _error(exc)
 
 
-@app.command("enrich-catalog-with-quality-oracle")
+@app.command("enrich-catalog-with-quality-oracle", rich_help_panel=QUALITY_EVIDENCE_PANEL)
 def enrich_catalog_with_quality_oracle_command(
     catalog: Annotated[
         Path,
@@ -1564,7 +1576,7 @@ def enrich_catalog_with_quality_oracle_command(
         _error(exc)
 
 
-@app.command("import-harbor-terminal-bench")
+@app.command("import-harbor-terminal-bench", rich_help_panel=DATA_SOURCES_PANEL)
 def import_harbor_terminal_bench_command(
     output_directory: Annotated[Path, typer.Argument(file_okay=False)],
     snapshot: Annotated[
@@ -1630,7 +1642,7 @@ def import_harbor_terminal_bench_command(
         _error(exc)
 
 
-@app.command("export-schemas")
+@app.command("export-schemas", rich_help_panel=CONTRACTS_PANEL)
 def export_schemas(
     output_directory: Annotated[Path, typer.Argument(file_okay=False)],
 ) -> None:
