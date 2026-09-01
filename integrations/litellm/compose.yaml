@@ -1,0 +1,92 @@
+name: model-skyline-litellm-e2e
+
+services:
+  postgres:
+    image: postgres:16.15-alpine3.24@sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685
+    environment:
+      POSTGRES_DB: litellm
+      POSTGRES_PASSWORD: modelskyline-e2e-postgres-only
+      POSTGRES_USER: litellm
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U litellm -d litellm"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    networks:
+      - e2e
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  fake-provider:
+    image: python:3.12.14-alpine3.24@sha256:d81968c559557b881aa557ff6d1200acec8e72a2c85fcb4ad1806e8d13e09f0b
+    command: ["python", "/app/fake_openai.py"]
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=1).read()
+      interval: 2s
+      timeout: 2s
+      retries: 20
+    init: true
+    networks:
+      - e2e
+    ports:
+      - "127.0.0.1:18080:8080"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+    volumes:
+      - type: bind
+        source: ./tests/e2e/fake_openai.py
+        target: /app/fake_openai.py
+        read_only: true
+
+  litellm:
+    image: ghcr.io/berriai/litellm-database:v1.98.0@sha256:5ead13edd4efd89f32dab349c1f19447d395affca53f3aeae00f5e6e01b8c08d
+    command: ["--host", "0.0.0.0", "--port", "4000", "--num_workers", "1"]
+    depends_on:
+      fake-provider:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://litellm:modelskyline-e2e-postgres-only@postgres:5432/litellm
+      LITELLM_MASTER_KEY: modelskyline-e2e-master-only
+      LITELLM_SALT_KEY: modelskyline-e2e-salt-only
+      STORE_MODEL_IN_DB: "True"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen('http://127.0.0.1:4000/health/liveliness', timeout=2).read()
+      interval: 3s
+      timeout: 3s
+      retries: 60
+      start_period: 20s
+    init: true
+    networks:
+      - e2e
+    ports:
+      - "127.0.0.1:14000:4000"
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  e2e:
+
+volumes:
+  postgres-data:

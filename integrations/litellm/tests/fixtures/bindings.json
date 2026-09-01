@@ -1,0 +1,66 @@
+{
+  "schema_version": "model-skyline-litellm/v1alpha1",
+  "stable_alias": "skyline/coding",
+  "expected_selection_id": "coding-agent-defaults",
+  "expected_frontier_id": "coding-value",
+  "expected_workload": {
+    "id": "coding-session-v1",
+    "version": "1.0.0",
+    "unit": "successful_coding_session"
+  },
+  "max_candidates": 2,
+  "targets": {
+    "fake-a": {
+      "model": "openai/fake-a",
+      "credential_name": "modelskyline/fake-a",
+      "revision": "0e09a456162f50a969e8f45acdd28f12df02f3192e2e10625917585b0c0bf138"
+    },
+    "fake-b": {
+      "model": "openai/fake-b",
+      "credential_name": "modelskyline/fake-b",
+      "revision": "bbf5253326ce39ee865e3e5040bdfa3df17cc4a54abfcdd2a1cc8af653989de9"
+    }
+  },
+  "bindings": [
+    {
+      "offering": {
+        "offering_id": "qualityworks/large-reasoner@us-priority",
+        "model_id": "large-reasoner-2026-08-15",
+        "provider": "qualityworks",
+        "endpoint": "responses",
+        "billing_mode": null,
+        "region": "us",
+        "service_tier": "priority",
+        "quantization": null,
+        "reasoning_effort": "medium",
+        "agent_harness": "synthetic-coding-harness@1",
+        "capabilities": [
+          "structured_output",
+          "text",
+          "tools"
+        ]
+      },
+      "target_id": "fake-a"
+    },
+    {
+      "offering": {
+        "offering_id": "balancedai/mid-agent@us-standard",
+        "model_id": "mid-agent-2026-07",
+        "provider": "balancedai",
+        "endpoint": "messages",
+        "billing_mode": null,
+        "region": "us",
+        "service_tier": "standard",
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "synthetic-coding-harness@1",
+        "capabilities": [
+          "structured_output",
+          "text",
+          "tools"
+        ]
+      },
+      "target_id": "fake-b"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+name: LiteLLM integration
+
+on:
+  push:
+    paths:
+      - ".github/workflows/litellm-integration.yml"
+      - "integrations/litellm/**"
+      - "src/model_skyline/**"
+      - "examples/coding-session/**"
+  pull_request:
+    paths:
+      - ".github/workflows/litellm-integration.yml"
+      - "integrations/litellm/**"
+      - "src/model_skyline/**"
+      - "examples/coding-session/**"
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.14"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --project integrations/litellm --frozen --extra dev
+      - run: >-
+          uv run --project integrations/litellm
+          ruff format --check
+          integrations/litellm/src
+          integrations/litellm/tests
+          integrations/litellm/scripts
+      - run: >-
+          uv run --project integrations/litellm
+          ruff check
+          integrations/litellm/src
+          integrations/litellm/tests
+          integrations/litellm/scripts
+      - run: >-
+          uv run --project integrations/litellm
+          mypy integrations/litellm/src
+      - run: >-
+          uv run --project integrations/litellm
+          python integrations/litellm/scripts/regenerate-fixtures.py
+      - run: >-
+          uv run --project integrations/litellm
+          pytest integrations/litellm/tests
+
+  package:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.14"
+      - run: uv build integrations/litellm
+
+  pinned-container:
+    needs: contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --project integrations/litellm --frozen --extra dev
+      - name: Exercise the pinned LiteLLM/PostgreSQL stack
+        env:
+          MODELSKYLINE_RUN_LITELLM_E2E: "1"
+        run: >-
+          uv run --project integrations/litellm
+          pytest -q integrations/litellm/tests/e2e/test_blue_green.py
+      - name: Record bounded container status after a failure
+        if: failure()
+        run: docker compose --file integrations/litellm/compose.yaml ps --all
+      - name: Remove the isolated test stack
+        if: always()
+        run: >-
+          docker compose --file integrations/litellm/compose.yaml
+          down --volumes --remove-orphans

@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling==1.32.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "model-skyline-litellm"
+version = "0.1.0a1"
+description = "Experimental blue/green ModelSkyline projection controller for LiteLLM."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "ModelSkyline contributors" }]
+dependencies = [
+  "httpx>=0.27,<1",
+  "model-skyline>=0.9,<1",
+  "pydantic>=2.10,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.13,<2",
+  "pytest>=9.0.3,<10",
+  "ruff>=0.8,<1",
+]
+
+[project.scripts]
+modelskyline-litellm = "model_skyline_litellm.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/model_skyline_litellm"]
+
+[tool.uv.sources]
+model-skyline = { path = "../..", editable = true }
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
