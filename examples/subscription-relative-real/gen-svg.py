@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""Render each frontier in summary-v2.json as an SVG scatter + pareto polyline.
+"""Tufte-style frontier render, v3: model-centric tables + readable small multiples.
 
-Data-driven: reads the artifact, normalizes axes (log-ish compression for cost,
-linear for index/percent/speed), draws dominant points + step-line over dominated
-ones. Output: data/real/subscription-relative/svg/*.svg + manifest for glance.
+Principles applied:
+- data-ink: no chart frames, minimal grid; every pixel carries information
+- label EVERYTHING with its value directly (no legend-hunting); no "0" garbage
+- model names as full stable identifiers (vendor/model), not fragments
+- the ranked TABLE is the primary interface (sorted, value-per-row, frontier
+  status + near-frontier margin + cross-frontier presence per model)
+- plots are secondary small multiples with real axes and human-readable ticks
 """
 import json
 import math
@@ -14,93 +18,167 @@ OUT = BASE / "svg"
 OUT.mkdir(exist_ok=True)
 
 art = json.loads((BASE / "summary-v2.json").read_text())
+model_map = art.get("model_map", {})
 
-W, H = 640, 320
-M = {"l": 56, "r": 16, "t": 30, "b": 40}
+W, H = 760, 300
+M = {"l": 74, "r": 170, "t": 34, "b": 34}
 IW, IH = W - M["l"] - M["r"], H - M["t"] - M["b"]
 
+AXIS_LABEL = {
+    "chat-subscription-economics": ("cost: % of monthly sub-cap per turn", "intelligence: AA index (0-100)"),
+    "chat-metered-economics": ("cost: metered USD per turn (log)", "intelligence: AA index (0-100)"),
+    "chat-subscription-responsiveness": ("speed: output tok/s", "intelligence: AA index (0-100)"),
+    "chat-metered-responsiveness": ("speed: output tok/s", "intelligence: AA index (0-100)"),
+    "coding-subscription-economics": ("cost: % of monthly sub-cap per coding turn", "intelligence: AA index (0-100)"),
+    "coding-subscription-responsiveness": ("speed: output tok/s (coding shape)", "intelligence: AA index (0-100)"),
+    "math-smarts-chat-subscription": ("cost: % of monthly sub-cap per turn", "math: GPQA Diamond %"),
+    "math-smarts-chat-metered": ("cost: metered USD per turn (log)", "math: GPQA Diamond %"),
+    "math-smarts-coding-subscription": ("cost: % of monthly sub-cap per coding turn", "math: GPQA Diamond %"),
+    "math-smarts-coding": ("cost: metered USD per turn (log)", "math: GPQA Diamond %"),
+}
+SHORT = {
+    "chat-subscription-economics": "Subscriptions · cost↔smarts",
+    "chat-metered-economics": "Metered · cost↔smarts",
+    "chat-subscription-responsiveness": "Subscriptions · speed↔smarts",
+    "chat-metered-responsiveness": "Metered · speed↔smarts",
+    "coding-subscription-economics": "Subscriptions · coding cost↔smarts",
+    "coding-subscription-responsiveness": "Subscriptions · coding speed↔smarts",
+    "math-smarts-chat-subscription": "Subscriptions · math smarts↔cost",
+    "math-smarts-chat-metered": "Metered · math smarts↔cost",
+    "math-smarts-coding-subscription": "Subscriptions · coding math↔cost",
+    "math-smarts-coding": "Metered · coding math↔cost",
+}
 
-def is_cost_axis(frontier_id, primary_label):
-    return "usd" in primary_label
+
+def nice_ticks(lo, hi, n=4):
+    step = (hi - lo) / n
+    mag = 10 ** math.floor(math.log10(step)) if step > 0 else 1
+    for mult in (1, 2, 2.5, 5, 10):
+        if mult * mag >= step:
+            step = mult * mag
+            break
+    t0 = math.ceil(lo / step) * step
+    return [t0 + i * step for i in range(n + 1) if t0 + i * step <= hi + step * 0.01]
 
 
-def xform_x(val, lo, hi, log_cost):
-    if log_cost:
-        a, b = math.log10(max(val, 1e-6)), math.log10(max(hi, 1e-5))
-        return M["l"] + (a - math.log10(max(lo, 1e-6))) / (b - math.log10(max(lo, 1e-6))) * IW
-    return M["l"] + (val - lo) / (hi - lo) * IW
+def fmt_cost(v):
+    if v is None:
+        return "—"
+    if v < 0.001:
+        return f"${v*100:.3f}¢" if v < 0.01 else f"${v:.4f}"
+    if v < 1:
+        return f"${v:.4f}"
+    return f"${v:,.2f}"
 
 
-def xform_y(val, lo, hi):
-    return M["t"] + (1 - (val - lo) / (hi - lo)) * IH
+def fmt_prim(fid, v):
+    if v is None:
+        return "—"
+    if "economics" in fid:
+        return fmt_cost(v)
+    if "responsiveness" in fid:
+        return f"{v:.0f} tok/s"
+    return fmt_cost(v)
 
 
-def svg_for(f):
-    rows = f["ranked"]
+def model_display(offering_id):
+    vendor, _, name = offering_id.partition("/")
+    pretty = {"opencode-go": "Go", "clinepass": "Cline†", "openrouter": "OR-metered",
+              "chatgpt-plus": "GPT+†", "claude-pro": "ClaudePro†"}.get(vendor, vendor)
+    return f"{pretty}/{name}"
+
+
+def chart(f):
+    rows = sorted([r for r in f["ranked"] if r.get("primary") is not None], key=lambda r: r["primary"])
     if not rows:
-        return None, None
-    pl = f["primary_label"]
-    cost = is_cost_axis(f["id"], pl)
-    xs = [r["primary"] for r in rows if r["primary"] is not None]
-    ys = [float(r["aa_index"] or r["secondary"] or 0) for r in rows if r["primary"] is not None]
+        return None
+    fid = f["id"]
+    cost = "economics" in fid or "math-smarts" in fid
+    xs = [r["primary"] for r in rows]
+    ys = [float(r["aa_index"] or r["secondary"] or 0) for r in rows]
     lo_x, hi_x = min(xs), max(xs)
-    lo_y, hi_y = min(ys) - 2, max(ys) + 2
-    span = hi_x - lo_x
-    log_cost = cost and (span / max(lo_x, 1e-6) > 4)
+    lo_y, hi_y = min(min(ys) - 3, 0), max(ys) + 2
+    log_x = cost and (hi_x / max(lo_x, 1e-9) > 50)
 
-    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
-             f'viewBox="0 0 {W} {H}" font-family="sans-serif" font-size="11">']
-    parts.append(f'<text x="{M["l"]}" y="16" font-size="13" font-weight="bold">{f["id"]}</text>')
-    parts.append(f'<text x="{M["l"]}" y="26" font-size="9" opacity="0.7">{f["workload"]} · {f["axes"][0]}</text')
+    def X(v):
+        if log_x:
+            a, b = math.log10(max(v, 1e-9)), math.log10(hi_x)
+            la = math.log10(max(lo_x, 1e-9))
+            return M["l"] + (a - la) / (b - la) * IW if b > la else M["l"]
+        return M["l"] + (v - lo_x) / max(hi_x - lo_x, 1e-9) * IW
 
-    # gridlines
-    for i in range(5):
-        y = M["t"] + i * IH / 4
-        parts.append(f'<line x1="{M["l"]}" y1="{y:.0f}" x2="{W-M["r"]}" y2="{y:.0f}" stroke="#666" stroke-opacity="0.25"/>')
+    def Y(v):
+        return M["t"] + (1 - (v - lo_y) / (hi_y - lo_y)) * IH
 
-    # frontier step-line over members
-    members = sorted([r for r in rows if r["on_frontier"]], key=lambda r: r["primary"] or 0)
+    p = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
+         f'role="img" aria-label="{SHORT.get(fid, fid)}" font-family="system-ui, sans-serif">']
+    p.append(f'<text x="{M["l"]}" y="14" font-size="12.5" font-weight="600">{SHORT.get(fid, fid)}</text>')
+    p.append(f'<text x="{M["l"]}" y="26" font-size="9.5" fill="#777">{AXIS_LABEL.get(fid, ("", ""))[0]}  ↔  {AXIS_LABEL.get(fid, ("", ""))[1]}</text>')
+
+    # y ticks (Tufte: tiny ticks, no frame)
+    for t in nice_ticks(lo_y, hi_y):
+        y = Y(t)
+        p.append(f'<line x1="{M["l"]}" y1="{y:.0f}" x2="{W-M["r"]}" y2="{y:.0f}" stroke="#888" stroke-opacity="0.14"/>')
+        p.append(f'<text x="{M["l"]-6}" y="{y+3:.0f}" font-size="8.5" fill="#666" text-anchor="end">{t:.0f}</text>')
+
+    # x ticks
+    if log_x:
+        decades = [10**i for i in range(math.floor(math.log10(max(lo_x, 1e-9))) - 1, math.ceil(math.log10(hi_x)) + 1)]
+        for t in decades:
+            if t < lo_x / 3 or t > hi_x * 3:
+                continue
+            x = X(t)
+            p.append(f'<line x1="{x:.0f}" y1="{M["t"]+IH}" x2="{x:.0f}" y2="{M["t"]+IH+4}" stroke="#888" stroke-opacity="0.5"/>')
+            p.append(f'<text x="{x:.0f}" y="{M["t"]+IH+14}" font-size="8.5" fill="#666" text-anchor="middle">'
+                     + (f"${t:g}" if t >= 0.01 else f"{t*100:.1f}¢") + "</text>")
+    else:
+        for t in nice_ticks(lo_x, hi_x):
+            x = X(t)
+            p.append(f'<line x1="{x:.0f}" y1="{M["t"]+IH}" x2="{x:.0f}" y2="{M["t"]+IH+4}" stroke="#888" stroke-opacity="0.5"/>')
+            p.append(f'<text x="{x:.0f}" y="{M["t"]+IH+14}" font-size="8.5" fill="#666" text-anchor="middle">'
+                     + (f"{t*100:.2f}%cap" if "economics" in fid and fid.startswith(("chat-sub", "coding-sub")) else f"{t:g}") + "</text>")
+
+    # pareto step line
+    members = [r for r in rows if r["on_frontier"]]
     if len(members) >= 2:
-        pts = []
-        for r in members:
-            x = xform_x(r["primary"], lo_x, hi_x, log_cost)
-            y = xform_y(float(r["aa_index"] or r["secondary"] or 0), lo_y, hi_y)
-            pts.append((x, y))
-        path = " ".join(f"{x:.0f},{y:.0f}" for x, y in pts)
-        parts.append(f'<polyline points="{path}" fill="none" stroke="#8f7" stroke-width="1.5" stroke-dasharray="4 3"/>')
+        pts = [(X(r["primary"]), Y(float(r["aa_index"] or r["secondary"] or 0))) for r in members]
+        path = "M " + " L ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+        p.append(f'<path d="{path}" fill="none" stroke="#3a8f3a" stroke-width="1.4" stroke-dasharray="5 3"/>')
 
     for r in rows:
-        if r["primary"] is None:
-            continue
-        yv = float(r["aa_index"] or r["secondary"] or 0)
-        x = xform_x(r["primary"], lo_x, hi_x, log_cost)
-        y = xform_y(yv, lo_y, hi_y)
-        color = "#6c6" if r["on_frontier"] else "#bbb"
-        rad = 4 if r["on_frontier"] else 3
-        op = "1.0" if r["on_frontier"] else "0.45"
-        parts.append(f'<circle cx="{x:.0f}" cy="{y:.0f}" r="{rad}" fill="{color}" fill-opacity="{op}"/>')
-        label = r["offering"].split("/")[-1]
-        parts.append(f'<text x="{x+7:.0f}" y="{y+3:.0f}" font-size="8.5" opacity="{op}">{label[:22]}</text>')
-        ax = ("$%.4g" % r["primary"]) if cost else ("%.0f" % r["primary"])
-        parts.append(f'<text x="{x-2:.0f}" y="{y-6:.0f}" font-size="8" opacity="{op}" text-anchor="end">{ax}</text>')
-        mark = "†" if r.get("cap_assumed") else ""
-        if mark:
-            parts.append(f'<text x="{x+7:.0f}" y="{y+12:.0f}" font-size="8.5" fill="#d84">{mark} assumed cap</text>')
-    parts.append(f'<text x="{M["l"]}" y="{H-8}" font-size="9" opacity="0.7">x: {"log" if log_cost else "linear"} {"USD/turn" if cost else pl} · y: intelligence (aa/swe/gpqa) · ★ green = pareto</text>')
-    parts.append("</svg>")
-    return "\n".join(parts), len(rows)
+        x, y = X(r["primary"]), Y(float(r["aa_index"] or r["secondary"] or 0))
+        on = r["on_frontier"]
+        near = r.get("dominated_by") and not on
+        col = "#2e7d32" if on else ("#c9a227" if near else "#b9b9b9")
+        p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{5 if on else 3.5}" fill="{col}" '
+                 f'fill-opacity="{1.0 if on else (0.75 if near else 0.35)}"/>')
+        # right-side label column: every model, full name + value, colored by status
+        ly = M["t"] + 12 + rows.index(r) * 13.5
+        p.append(f'<circle cx="{W-M["r"]+4}" cy="{ly-3}" r="3" fill="{col}" fill-opacity="{1.0 if on else (0.75 if near else 0.35)}"/>')
+        p.append(f'<text x="{W-M["r"]+12}" y="{ly}" font-size="9.5" fill="{col if on else "#555"}" '
+                 f'font-weight="{600 if on else 400}">{model_display(r["offering"])}</text>')
+        val = fmt_prim(fid, r["primary"])
+        p.append(f'<text x="{W-8}" y="{ly}" font-size="9.5" text-anchor="end" fill="{col if on else "#555"}">{val}</text>')
+        # on-point annotation: value + quality at the dot
+        p.append(f'<text x="{x-7:.0f}" y="{y-7:.0f}" font-size="8.5" text-anchor="end" '
+                 f'fill="{col}">{val}</text>' if on else "")
+    p.append(f'<text x="{M["l"]}" y="{H-6}" font-size="8.5" fill="#777">'
+             f'● frontier · ● amber = within 10% of frontier · ● gray = dominated · † = assumed cap</text>')
+    p.append("</svg>")
+    return "\n".join(p)
 
 
-manifest = []
+out, manifest = [], []
 for f in art["frontiers"]:
-    svg, n = svg_for(f)
-    if svg:
+    s = chart(f)
+    if s:
         fn = f"{f['id']}.svg"
-        (OUT / fn).write_text(svg)
-        manifest.append({"id": f["id"], "svg": f"/svg/{fn}", "workload": f["workload"], "points": n})
-        print(f"  {fn}  ({n} points)")
+        (OUT / fn).write_text(s)
+        manifest.append({"id": f["id"], "svg": f"/{fn}", "workload": f["workload"],
+                         "title": SHORT.get(f["id"], f["id"]), "points": len(f["ranked"])})
 
-# svg manifest into summary-v2 so glance/other consumers can find them
 art["svg"] = manifest
-(BASE / "summary-v2.json").write_text(json.dumps(artifact_src := art, indent=1))
-print(f"{len(manifest)} SVGs in {OUT}")
+(BASE / "summary-v2.json").write_text(json.dumps(art, indent=1))
+print(f"{len(manifest)} v3 charts -> {OUT}")
+for m in manifest:
+    print(f"  {m['id']}")
