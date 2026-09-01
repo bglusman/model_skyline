@@ -83,6 +83,14 @@ OR_PRICES = {
     "gpt-oss-120b": (0.037, 0.0, 0.17), "gpt-oss-20b": (0.030, 0.0, 0.13),
     "qwen3-30b-a3b-2507": (0.048, 0.0, 0.193), "qwen3-coder-30b": (0.070, 0.0, 0.28),
 }
+GPQA = {  # GPQA Diamond %; AA-run unless noted
+    "gpt-5.6-sol": (94.1, "AA-run"),
+    "gpt-5.6-terra": (92.5, "AA-run"),
+    "gpt-5.6-luna": (91.1, "AA-run"),
+    "claude-fable-5": (92.6, "vendor-reported"),
+    "deepseek-v4-flash-0731": (90.8, "AA-run"),
+    "gpt-oss-120b": (80.1, "aggregator-reported"),
+}
 SWE = {  # SWE-bench Verified %; vals.ai = independent same-harness (Mini-SWE-agent), aggregator = openlm
     "glm-5.3": (95.4, "vals.ai-independent"),
     "glm-5.3-flash": (92.0, "vals.ai-independent"),
@@ -93,7 +101,7 @@ SRC = {"id": "brian-multi-frontier-v2", "version": "2", "license": "MIT (derived
        "methodology": ("Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); "
                        "prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat "
                        "from real 30-day traces, coding-session from OpenCode Go published request patterns. "
-                       "ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Added 2026-09-01: GPT-5.6 Luna/Terra, Muse Spark 1.2 (+contributor tier: Meta trains on prompts, region-limited — priced accordingly), LongCat 2.0; muse-glimmer excluded (no verified AA). Excluded where no verified AA data.")}
+                       "ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Added 2026-09-01: GPT-5.6 Luna/Terra, Muse Spark 1.2 (+contributor tier: Meta trains on prompts, region-limited — priced accordingly), LongCat 2.0; muse-glimmer excluded (no verified AA). Math-smarts axis: GLM-5.3/Flash and muse-spark lack verifiable GPQA numbers and are excluded-with-reason there — notable because GLM-5.3 leads the general index. Excluded where no verified AA data.")}
 
 
 def cost_per_turn(prices, shape):
@@ -162,6 +170,10 @@ def build_offerings(workload, include_resellers, fid_hint=None):
             # excludes these offerings with reason (never silently imputed)
             if aa.get("tps") is not None:
                 obs[-1]["signals"]["aa_output_tokens_per_second"] = {"value": str(aa["tps"]), "unit": "tokens/second", "observed_at": NOW}
+            if m in GPQA:
+                obs[-1]["signals"]["gpqa_diamond"] = {"value": str(GPQA[m][0]), "unit": "percent", "observed_at": NOW}
+                prov = "GPQA Diamond AA-run (independent)" if GPQA[m][1] == "AA-run" else f"GPQA Diamond {GPQA[m][1]}"
+                obs[-1]["default_source"]["methodology"] += " | " + prov
             if m in SWE:
                 obs[-1]["signals"]["swe_bench_verified"] = {"value": str(SWE[m][0]), "unit": "percent", "observed_at": NOW}
                 prov = ("SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness)"
@@ -215,6 +227,13 @@ metrics:
     signal: swe_bench_verified
     unit: percent
     description: "SWE-bench Verified resolution rate (vals.ai independent runs where available)"
+    requirements:
+      max_age_hours: 8760
+  gpqa_diamond:
+    kind: signal
+    signal: gpqa_diamond
+    unit: percent
+    description: "GPQA Diamond score (AA-run independent where available)"
     requirements:
       max_age_hours: 8760
 
@@ -354,6 +373,33 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
     else:
         coding_frontier = ""
         coding_sel = ""
+    if wl == "agent-chat":
+        coding_frontier = """
+  math-smarts:
+    workload: agent-chat
+    axes:
+      - metric: metered_usd_per_turn
+        goal: minimize
+        epsilon_relative: 0.02
+      - metric: gpqa_diamond
+        goal: maximize
+        epsilon_absolute: 0.5
+    order_by: metered_usd_per_turn
+    uncertainty: point
+    eligibility:
+      required_capabilities: [tools, structured_output]
+      allow_unknown_age: false
+    metadata_fields: [aa_intelligence_index, workload, cap_assumed]"""
+        coding_sel = """
+  math-smarts-sel:
+    frontier: math-smarts
+    strategy: lexicographic
+    count: 2
+    order_by: gpqa_diamond
+    max_per_provider: 2
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+"""
     (d / "frontier.yaml").write_text(FRONTIER.format(
         wl=wl, fid=fid, pmode=pmode, cohort=cohort, coding_frontier=coding_frontier, coding_sel=coding_sel,
         cost_desc=("Metered-equivalent USD per successful turn. For subscription offerings "
@@ -399,6 +445,34 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
                 bulk_default = None
         edata = ev.get("data", ev)
         member_ids = {oid(m) for m in edata.get("members", [])}
+        if wl == "agent-chat" and suffix == "responsiveness":
+            try:
+                ms = run([str(REPO / ".venv/bin/modelskyline"), "evaluate",
+                          f"data/real/subscription-relative/gen-{wl}-{fid}/frontier.yaml",
+                          f"data/real/subscription-relative/gen-{wl}-{fid}/observations.json",
+                          "math-smarts", "--format", "json"])
+                mdata = ms.get("data", ms)
+                mmembers = {oid(m) for m in mdata.get("members", [])}
+                mrows = rows_from_evaluated(mdata.get("evaluated", []), mmembers)
+                msel = REPO / f"data/real/subscription-relative/gen-{wl}-{fid}/selection-math-smarts.json"
+                subprocess.run([str(REPO / ".venv/bin/modelskyline"), "select",
+                                f"data/real/subscription-relative/gen-{wl}-{fid}/frontier.yaml",
+                                f"data/real/subscription-relative/gen-{wl}-{fid}/observations.json",
+                                "math-smarts-sel", "--output", str(msel)],
+                               cwd=REPO, capture_output=True, text=True, timeout=90)
+                msd = json.loads(msel.read_text()); msd = msd.get("data", msd)
+                blocks.append({
+                    "id": f"math-smarts-{fid}", "workload": wl,
+                    "axes": ["usd/turn × GPQA-Diamond"],
+                    "primary_label": "usd/turn",
+                    "default": oid(msd.get("default", {})), "bulk_default": None,
+                    "fallbacks": [oid(f) for f in msd.get("fallbacks", [])],
+                    "selection_note": None,
+                    "ranked": mrows,
+                    "members": [r for r in mrows if r["on_frontier"]],
+                })
+            except Exception as e:
+                print("math-smarts failed:", str(e)[:150])
         if wl == "coding-session" and suffix == "responsiveness":
             try:
                 cs = run([str(REPO / ".venv/bin/modelskyline"), "evaluate",
