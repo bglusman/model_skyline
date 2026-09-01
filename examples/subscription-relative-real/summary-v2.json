@@ -1,0 +1,835 @@
+{
+ "generated_at": "2026-09-01T00:30:00Z",
+ "schema": "brian-multi-frontier-v2",
+ "note": "Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat from real 30-day traces, coding-session from OpenCode Go published request patterns. ClinePass cap assumed $35 (advertised 2-5x on $9.99). Excluded where no verified AA data. | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported)",
+ "frontiers": [
+  {
+   "id": "chat-sub-economics",
+   "workload": "agent-chat",
+   "axes": [
+    "usd/turn \u00d7 intelligence"
+   ],
+   "primary_label": "USD/turn",
+   "default": "clinepass/glm-5.3",
+   "bulk_default": "clinepass/deepseek-v4-flash-0731",
+   "fallbacks": [
+    "opencode-go/glm-5.3"
+   ],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.009535,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.009535,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.066355,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.066355,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/qwen3.8-max",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.074391,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": [
+      "clinepass/deepseek-v4-flash-0731",
+      "clinepass/glm-5.3",
+      "opencode-go/deepseek-v4-flash-0731",
+      "opencode-go/glm-5.3"
+     ]
+    }
+   ],
+   "members": [
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.009535,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.009535,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.066355,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.066355,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    }
+   ]
+  },
+  {
+   "id": "chat-sub-responsiveness",
+   "workload": "agent-chat",
+   "axes": [
+    "tok/s \u00d7 intelligence"
+   ],
+   "primary_label": "out tok/s",
+   "default": "clinepass/glm-5.3",
+   "bulk_default": null,
+   "fallbacks": [
+    "opencode-go/glm-5.3"
+   ],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "clinepass/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 77.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 77.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 119.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 119.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    }
+   ],
+   "members": [
+    {
+     "offering": "clinepass/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 77.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 77.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 119.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 119.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    }
+   ]
+  },
+  {
+   "id": "chat-metered-economics",
+   "workload": "agent-chat",
+   "axes": [
+    "usd/turn \u00d7 intelligence"
+   ],
+   "primary_label": "USD/turn",
+   "default": "opencode-go/glm-5.3",
+   "bulk_default": "openrouter/gpt-oss-20b",
+   "fallbacks": [
+    "openrouter/glm-5.3-flash"
+   ],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "openrouter/gpt-oss-20b",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.000515,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 15.0,
+     "aa_index": "15",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-oss-120b",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.000641,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 24.0,
+     "aa_index": "24",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/glm-5.3-flash",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.003742,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 57.0,
+     "aa_index": "57",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.066355,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/qwen3-30b-a3b-2507",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.000815,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 9.0,
+     "aa_index": "9",
+     "dominated_by": [
+      "openrouter/gpt-oss-120b",
+      "openrouter/gpt-oss-20b"
+     ]
+    },
+    {
+     "offering": "openrouter/qwen3-coder-30b",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.001187,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 14.0,
+     "aa_index": "14",
+     "dominated_by": [
+      "openrouter/gpt-oss-120b",
+      "openrouter/gpt-oss-20b"
+     ]
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.009535,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": [
+      "openrouter/glm-5.3-flash"
+     ]
+    },
+    {
+     "offering": "opencode-go/qwen3.8-max",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.074391,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": [
+      "opencode-go/deepseek-v4-flash-0731",
+      "opencode-go/glm-5.3",
+      "openrouter/glm-5.3-flash"
+     ]
+    },
+    {
+     "offering": "openrouter/qwen3.8-2.4t-a95b",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.074391,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": [
+      "opencode-go/deepseek-v4-flash-0731",
+      "opencode-go/glm-5.3",
+      "openrouter/glm-5.3-flash"
+     ]
+    }
+   ],
+   "members": [
+    {
+     "offering": "openrouter/gpt-oss-20b",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.000515,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 15.0,
+     "aa_index": "15",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-oss-120b",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.000641,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 24.0,
+     "aa_index": "24",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/glm-5.3-flash",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.003742,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 57.0,
+     "aa_index": "57",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.066355,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    }
+   ]
+  },
+  {
+   "id": "chat-metered-responsiveness",
+   "workload": "agent-chat",
+   "axes": [
+    "tok/s \u00d7 intelligence"
+   ],
+   "primary_label": "out tok/s",
+   "default": "opencode-go/glm-5.3",
+   "bulk_default": null,
+   "fallbacks": [
+    "openrouter/gpt-oss-120b"
+   ],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 77.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 119.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-oss-120b",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 168.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 24.0,
+     "aa_index": "24",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/glm-5.3-flash",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 45.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 57.0,
+     "aa_index": "57",
+     "dominated_by": [
+      "opencode-go/glm-5.3"
+     ]
+    },
+    {
+     "offering": "openrouter/qwen3-coder-30b",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 93.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 14.0,
+     "aa_index": "14",
+     "dominated_by": [
+      "opencode-go/deepseek-v4-flash-0731",
+      "openrouter/gpt-oss-120b",
+      "openrouter/gpt-oss-20b"
+     ]
+    },
+    {
+     "offering": "openrouter/gpt-oss-20b",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 114.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 15.0,
+     "aa_index": "15",
+     "dominated_by": [
+      "opencode-go/deepseek-v4-flash-0731",
+      "openrouter/gpt-oss-120b"
+     ]
+    },
+    {
+     "offering": "openrouter/qwen3-30b-a3b-2507",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 143.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 9.0,
+     "aa_index": "9",
+     "dominated_by": [
+      "openrouter/gpt-oss-120b"
+     ]
+    }
+   ],
+   "members": [
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 77.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 119.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-oss-120b",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 168.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 24.0,
+     "aa_index": "24",
+     "dominated_by": []
+    }
+   ]
+  },
+  {
+   "id": "coding-sub-economics",
+   "workload": "coding-session",
+   "axes": [
+    "usd/turn \u00d7 intelligence"
+   ],
+   "primary_label": "USD/turn",
+   "default": "clinepass/glm-5.3",
+   "bulk_default": "clinepass/deepseek-v4-flash-0731",
+   "fallbacks": [
+    "opencode-go/glm-5.3"
+   ],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.001588,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.001588,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.01516,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.01516,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/qwen3.8-max",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.01854,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": [
+      "clinepass/deepseek-v4-flash-0731",
+      "clinepass/glm-5.3",
+      "opencode-go/deepseek-v4-flash-0731",
+      "opencode-go/glm-5.3"
+     ]
+    }
+   ],
+   "members": [
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.001588,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.001588,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.01516,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.01516,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    }
+   ]
+  },
+  {
+   "id": "coding-smarts",
+   "workload": "coding-session",
+   "axes": [
+    "usd/turn \u00d7 SWE-bench-Verified"
+   ],
+   "primary_label": "usd/turn",
+   "default": "clinepass/glm-5.3",
+   "bulk_default": null,
+   "fallbacks": [
+    "opencode-go/glm-5.3"
+   ],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.001588,
+     "secondary_label": "swe_bench_verified",
+     "secondary": 88.8,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.001588,
+     "secondary_label": "swe_bench_verified",
+     "secondary": 88.8,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.01516,
+     "secondary_label": "swe_bench_verified",
+     "secondary": 95.4,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.01516,
+     "secondary_label": "swe_bench_verified",
+     "secondary": 95.4,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/qwen3.8-max",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.01854,
+     "secondary_label": "swe_bench_verified",
+     "secondary": 85.6,
+     "aa_index": null,
+     "dominated_by": [
+      "clinepass/deepseek-v4-flash-0731",
+      "clinepass/glm-5.3",
+      "opencode-go/deepseek-v4-flash-0731",
+      "opencode-go/glm-5.3"
+     ]
+    }
+   ],
+   "members": [
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.001588,
+     "secondary_label": "swe_bench_verified",
+     "secondary": 88.8,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.001588,
+     "secondary_label": "swe_bench_verified",
+     "secondary": 88.8,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.01516,
+     "secondary_label": "swe_bench_verified",
+     "secondary": 95.4,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.01516,
+     "secondary_label": "swe_bench_verified",
+     "secondary": 95.4,
+     "aa_index": null,
+     "dominated_by": []
+    }
+   ]
+  },
+  {
+   "id": "coding-sub-responsiveness",
+   "workload": "coding-session",
+   "axes": [
+    "tok/s \u00d7 intelligence"
+   ],
+   "primary_label": "out tok/s",
+   "default": "clinepass/glm-5.3",
+   "bulk_default": null,
+   "fallbacks": [
+    "opencode-go/glm-5.3"
+   ],
+   "selection_note": null,
+   "ranked": [
+    {
+     "offering": "clinepass/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 77.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 77.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 119.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 119.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    }
+   ],
+   "members": [
+    {
+     "offering": "clinepass/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 77.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/glm-5.3",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 77.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "clinepass/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 119.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    },
+    {
+     "offering": "opencode-go/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 119.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 52.0,
+     "aa_index": "52",
+     "dominated_by": []
+    }
+   ]
+  }
+ ]
+}
