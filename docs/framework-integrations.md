@@ -137,10 +137,13 @@ the entire segment used one model route and one stable pricing basis. Multiple
 model keys are rejected. In the pinned Python SDK type, `canonicalModel` and
 `provider` are optional, while the nested `ModelUsage` `TypedDict` omits
 `costBasis`. Claude Code's cost-tracking documentation says CLI 2.1.246 and
-newer emit `costBasis` at runtime. The adapter pins CLI 2.1.251 and validates
-that runtime extension when present; it does not treat `costBasis` as a field
-guaranteed by the SDK 0.2.148 static type. For a metered result, a present
-`costBasis` must be `list` or `managed`; `unknown` fails closed. The required
+newer emit `costBasis` at runtime. The adapter accepts only reviewed CLI 2.1.251
+via a caller-supplied version assertion and validates that runtime extension when
+present; it neither inspects the installed CLI nor treats `costBasis` as a
+field guaranteed by the SDK 0.2.148 static type. Callers must independently
+verify the installed bundled CLI before supplying its version. For a metered
+result, a present `costBasis` must be `list` or `managed`; `unknown` fails
+closed. The required
 `single_route_and_pricing_basis_attested` caller mapping binds the model,
 provider, and stable pricing basis when optional metadata is absent. Present
 `canonicalModel` or `provider` values must match the mapping. This attestation

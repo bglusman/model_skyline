@@ -14,9 +14,11 @@ Official references:
 
 The pinned SDK's ``ModelUsage`` ``TypedDict`` does not declare ``costBasis``.
 Claude Code's cost-tracking documentation says CLI versions 2.1.246 and newer
-emit that key at runtime.  This adapter pins CLI 2.1.251 and validates
-``costBasis`` when present as a runtime extension; it does not claim that the
-SDK 0.2.148 static type guarantees the field.
+emit that key at runtime.  This adapter accepts only a caller assertion of the
+reviewed CLI 2.1.251 and validates ``costBasis`` when present as a runtime extension; it
+does not inspect the installed CLI or claim that the SDK 0.2.148 static type
+guarantees the field.  The caller must independently verify the installed CLI
+before supplying its version.
 
 ``model_usage`` is cumulative for the query (or current streaming-input reset
 segment), covers main-agent, subagent, and internal query-pipeline model calls,
@@ -317,12 +319,14 @@ def adapt_claude_result(
     mapped to the retention-neutral cache-write meter; the typed SDK result
     does not break per-model writes into 5-minute and 1-hour buckets.
 
-    The caller must supply identifiers, judged outcome, timestamp, installed
-    SDK version, final-result attestation, and an explicitly attested route and
-    pricing mapping.  Optional upstream route fields are cross-checked when
-    present; the caller mapping binds the route when they are absent.  None are
-    derived from Claude's session id, result content, tool payloads, or other
-    potentially sensitive message fields.
+    The caller must supply identifiers, judged outcome, timestamp,
+    independently verified installed SDK and CLI versions, final-result
+    attestation, and an explicitly attested route and pricing mapping.  This
+    function compares version strings; it does not inspect either installation.
+    Optional upstream route fields are cross-checked when present; the caller
+    mapping binds the route when they are absent.  None are derived from
+    Claude's session id, result content, tool payloads, or other potentially
+    sensitive message fields.
     """
 
     if sdk_version != CLAUDE_AGENT_SDK_VERSION:
