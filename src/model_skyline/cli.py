@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import unicodedata
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from enum import StrEnum
 from pathlib import Path
 from typing import Annotated
@@ -31,6 +32,7 @@ from model_skyline.adapters.arc_agi import (
     capture_arc_agi_public_eval,
     write_arc_agi_public_eval_capture,
 )
+from model_skyline.adapters.codex import CodexAdapterError, adapt_codex_exec_jsonl
 from model_skyline.adapters.harbor import (
     HarborAdapterError,
     import_harbor_terminal_bench,
@@ -92,6 +94,7 @@ from model_skyline.io import (
     load_quality_reconciliation,
     public_schemas,
 )
+from model_skyline.models import OfferingKey
 from model_skyline.private_output import PrivateOutputError, write_private_text
 from model_skyline.publisher import PublicationError, publish_project
 from model_skyline.quality_catalog import (
@@ -171,6 +174,23 @@ def _verification_time(value: str | None) -> datetime | None:
         return _as_of(value)
     except ValueError as exc:
         raise ValueError(str(exc).replace("--as-of", "--at")) from exc
+
+
+def _trace_timestamp(value: str) -> datetime:
+    try:
+        result = _as_of(value)
+    except ValueError as exc:
+        raise ValueError(str(exc).replace("--as-of", "--timestamp")) from exc
+    if result is None:  # pragma: no cover - Typer requires the option
+        raise ValueError("--timestamp is required")
+    return result
+
+
+def _decimal_outcome(value: str) -> Decimal:
+    try:
+        return Decimal(value)
+    except InvalidOperation as exc:
+        raise ValueError("--work-unit-success must be an exact decimal") from exc
 
 
 def _emit(value: str, output: Path | None) -> None:
@@ -449,6 +469,100 @@ def aggregate_trace_command(
         enriched = enrich_catalog(loaded_catalog, summary)
         _emit(dump_json(enriched), output)
     except (InputError, OSError, TraceAggregationError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("import-codex-exec", rich_help_panel=TELEMETRY_PANEL)
+def import_codex_exec_command(
+    source: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            readable=True,
+            dir_okay=False,
+            help="private JSONL emitted by exactly one `codex exec --json` turn",
+        ),
+    ],
+    codex_version: Annotated[str, typer.Option("--codex-version")],
+    provider: Annotated[str, typer.Option("--provider")],
+    model: Annotated[str, typer.Option("--model")],
+    offering_id: Annotated[str, typer.Option("--offering-id")],
+    timestamp: Annotated[
+        str,
+        typer.Option("--timestamp", help="timezone-aware observation timestamp"),
+    ],
+    workload_id: Annotated[str, typer.Option("--workload-id")],
+    workload_version: Annotated[str, typer.Option("--workload-version")],
+    work_unit_id: Annotated[str, typer.Option("--work-unit-id")],
+    result_id: Annotated[
+        str,
+        typer.Option("--result-id", help="local pseudonymous result identifier"),
+    ],
+    attempt_id: Annotated[
+        str,
+        typer.Option("--attempt-id", help="local pseudonymous attempt identifier"),
+    ],
+    work_unit_success: Annotated[
+        str,
+        typer.Option("--work-unit-success", help="exact decimal outcome from zero through one"),
+    ],
+    model_route_attested: Annotated[
+        bool,
+        typer.Option(
+            "--model-route-attested",
+            help="attest that provider/model was the turn's only route",
+        ),
+    ] = False,
+    endpoint: Annotated[str | None, typer.Option("--endpoint")] = None,
+    billing_mode: Annotated[str | None, typer.Option("--billing-mode")] = None,
+    region: Annotated[str | None, typer.Option("--region")] = None,
+    service_tier: Annotated[str | None, typer.Option("--service-tier")] = None,
+    quantization: Annotated[str | None, typer.Option("--quantization")] = None,
+    reasoning_effort: Annotated[str | None, typer.Option("--reasoning-effort")] = None,
+    route_details_attested: Annotated[
+        bool,
+        typer.Option(
+            "--route-details-attested",
+            help="attest optional route fields that Codex JSONL cannot observe",
+        ),
+    ] = False,
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False, help="write mode-0600 canonical JSONL"),
+    ] = None,
+) -> None:
+    """Project a private Codex JSONL turn into one content-free trace row."""
+
+    try:
+        trace = adapt_codex_exec_jsonl(
+            source,
+            codex_version=codex_version,
+            model_route_attested=model_route_attested,
+            selected_provider=provider,
+            selected_model=model,
+            route_details_attested=route_details_attested,
+            timestamp=_trace_timestamp(timestamp),
+            workload_id=workload_id,
+            workload_version=workload_version,
+            work_unit_id=work_unit_id,
+            offering=OfferingKey(
+                offering_id=offering_id,
+                model_id=model,
+                provider=provider,
+                endpoint=endpoint,
+                billing_mode=billing_mode,
+                region=region,
+                service_tier=service_tier,
+                quantization=quantization,
+                reasoning_effort=reasoning_effort,
+                agent_harness="codex",
+            ),
+            result_id=result_id,
+            attempt_id=attempt_id,
+            work_unit_success=_decimal_outcome(work_unit_success),
+        )
+        _emit_private(trace.model_dump_json() + "\n", output, overwrite=False)
+    except (CodexAdapterError, PrivateOutputError, OSError, ValueError) as exc:
         _error(exc)
 
 

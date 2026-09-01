@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import stat
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -12,7 +14,66 @@ from model_skyline.cli import _safe_error_message, app
 
 ROOT = Path(__file__).parents[1]
 EXAMPLE = ROOT / "examples" / "coding-session"
+CODEX_LIVE_EXAMPLE = ROOT / "examples" / "framework-traces" / "codex-cli-smoke"
 runner = CliRunner()
+CODEX_PRIVATE_SENTINEL = "PRIVATE_CODEX_CLI_PAYLOAD_MUST_NOT_PERSIST"
+
+
+def _write_codex_stream(path: Path) -> None:
+    events = [
+        {"type": "thread.started", "thread_id": "raw-codex-thread-id"},
+        {"type": "turn.started"},
+        {
+            "type": "item.completed",
+            "item": {
+                "id": "raw-item-id",
+                "type": "agent_message",
+                "text": CODEX_PRIVATE_SENTINEL,
+            },
+        },
+        {
+            "type": "turn.completed",
+            "usage": {
+                "input_tokens": 1000,
+                "cached_input_tokens": 700,
+                "output_tokens": 120,
+                "reasoning_output_tokens": 20,
+            },
+        },
+    ]
+    path.write_text(
+        "".join(json.dumps(event, separators=(",", ":")) + "\n" for event in events),
+        encoding="utf-8",
+    )
+
+
+def _codex_import_arguments(source: Path) -> list[str]:
+    return [
+        "import-codex-exec",
+        str(source),
+        "--codex-version",
+        "0.144.2",
+        "--provider",
+        "openai",
+        "--model",
+        "gpt-5.4",
+        "--offering-id",
+        "openai/gpt-5.4@codex",
+        "--timestamp",
+        "2026-09-01T10:00:00Z",
+        "--workload-id",
+        "coding-agent",
+        "--workload-version",
+        "v1",
+        "--work-unit-id",
+        "case-0001",
+        "--result-id",
+        "result-0001",
+        "--attempt-id",
+        "attempt-0001",
+        "--work-unit-success",
+        "1",
+    ]
 
 
 def test_cli_help_groups_commands_without_renaming_them() -> None:
@@ -31,10 +92,140 @@ def test_cli_help_groups_commands_without_renaming_them() -> None:
     for command in (
         "evaluate",
         "aggregate-traces",
+        "import-codex-exec",
         "build-quality-portfolio",
         "export-schemas",
     ):
         assert command in result.output
+
+
+def test_cli_imports_codex_jsonl_to_private_content_free_trace(tmp_path: Path) -> None:
+    source = tmp_path / "codex-private.jsonl"
+    output = tmp_path / "canonical" / "trace.jsonl"
+    _write_codex_stream(source)
+
+    result = runner.invoke(
+        app,
+        [
+            *_codex_import_arguments(source),
+            "--model-route-attested",
+            "--output",
+            str(output),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert result.output == ""
+    assert stat.S_IMODE(output.stat().st_mode) == 0o600
+    serialized = output.read_text(encoding="utf-8")
+    payload = json.loads(serialized)
+    assert serialized.count("\n") == 1
+    assert payload["schema_version"] == "model-skyline/request-trace/v1alpha2"
+    assert payload["adapter_id"] == "model-skyline/codex-exec-jsonl"
+    assert payload["upstream_version"] == "0.144.2"
+    assert payload["input_total_tokens"] == "1000"
+    assert payload["input_cache_read_tokens"] == "700"
+    assert payload["input_uncached_tokens"] is None
+    assert payload["input_cache_write_tokens"] is None
+    assert payload["output_tokens"] == "100"
+    assert payload["reasoning_tokens"] == "20"
+    assert payload["output_total_tokens"] == "120"
+    assert CODEX_PRIVATE_SENTINEL not in serialized
+    assert "raw-codex-thread-id" not in serialized
+    assert "raw-item-id" not in serialized
+    assert str(source) not in serialized
+
+
+def test_cli_codex_import_requires_explicit_route_attestation(tmp_path: Path) -> None:
+    source = tmp_path / "codex-private.jsonl"
+    _write_codex_stream(source)
+
+    result = runner.invoke(app, _codex_import_arguments(source))
+
+    assert result.exit_code == 2
+    assert "model_route_attested must explicitly be true" in result.output
+    assert CODEX_PRIVATE_SENTINEL not in result.output
+
+
+def test_cli_codex_import_requires_attestation_for_optional_route_identity(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "codex-private.jsonl"
+    _write_codex_stream(source)
+
+    result = runner.invoke(
+        app,
+        [
+            *_codex_import_arguments(source),
+            "--model-route-attested",
+            "--billing-mode",
+            "chatgpt_subscription",
+        ],
+    )
+
+    assert result.exit_code == 2
+    assert "route_details_attested is required" in result.output
+    assert CODEX_PRIVATE_SENTINEL not in result.output
+
+
+def test_cli_codex_import_refuses_source_alias_through_symlinked_parent(
+    tmp_path: Path,
+) -> None:
+    real_parent = tmp_path / "real"
+    real_parent.mkdir()
+    source = real_parent / "codex-private.jsonl"
+    _write_codex_stream(source)
+    alias_parent = tmp_path / "alias"
+    try:
+        alias_parent.symlink_to(real_parent, target_is_directory=True)
+    except OSError:
+        pytest.skip("directory symlinks are unavailable")
+
+    result = runner.invoke(
+        app,
+        [
+            *_codex_import_arguments(alias_parent / source.name),
+            "--model-route-attested",
+            "--output",
+            str(source),
+        ],
+    )
+
+    assert result.exit_code == 2
+    assert "refusing to overwrite existing private output" in result.output
+    assert CODEX_PRIVATE_SENTINEL in source.read_text(encoding="utf-8")
+
+
+def test_cli_aggregates_committed_real_codex_trace() -> None:
+    assert hashlib.sha256((CODEX_LIVE_EXAMPLE / "trace.jsonl").read_bytes()).hexdigest() == (
+        "2b3f774357f49c10e30f4315553f3bac5081da833ced75e44ab3e2f5648e9720"
+    )
+    result = runner.invoke(
+        app,
+        [
+            "aggregate-traces",
+            str(CODEX_LIVE_EXAMPLE / "catalog.json"),
+            str(CODEX_LIVE_EXAMPLE / "trace.jsonl"),
+            "--source-id",
+            "live-codex-cli-smoke",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(result.output)
+    signals = payload["offerings"][0]["signals"]
+    assert signals["work_unit_count"]["value"] == "1"
+    assert signals["successful_work_units"]["value"] == "1"
+    assert signals["attempt_count_per_work_unit"]["value"] == "1"
+    assert signals["input_total_tokens_per_work_unit"]["value"] == "10962"
+    assert signals["input_cache_read_tokens_per_work_unit"]["value"] == "1792"
+    assert signals["output_tokens_per_work_unit"]["value"] == "7"
+    assert signals["reasoning_tokens_per_work_unit"]["value"] == "15"
+    assert signals["output_total_tokens_per_work_unit"]["value"] == "22"
+    assert "input_uncached_tokens_per_work_unit" not in signals
+    assert "input_cache_write_tokens_per_work_unit" not in signals
+    assert "model_requests_per_work_unit" not in signals
+    assert not any("cost" in name for name in signals)
 
 
 def test_cli_validates_example_contracts() -> None:
