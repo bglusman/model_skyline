@@ -7,7 +7,6 @@ from xml.etree import ElementTree as ET
 from model_skyline.engine import FrontierEngine
 from model_skyline.models import ObservationCatalog, ProjectConfig
 from model_skyline.renderers import (
-    _display,
     frontier_view,
     render_csv,
     render_rss,
