@@ -718,7 +718,7 @@ last-known-good bundle.
 
 ## Near-term roadmap
 
-1. Keep one de-identified real agent-workload example executable in CI from
+1. Keep one payload-free, pseudonymized real agent-workload example executable in CI from
    validation through selection, with independent trace, price, and quality
    provenance.
 2. Express a stable two-to-four-benchmark quality portfolio without binding

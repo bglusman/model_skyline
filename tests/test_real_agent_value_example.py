@@ -48,8 +48,8 @@ def test_real_agent_value_example_validates_evaluates_and_selects() -> None:
 
     assert flash.axes["metered_token_cost_per_success"].value == Decimal("0.003741715")
     assert full.axes["metered_token_cost_per_success"].value == Decimal("0.06635506")
-    assert flash.axes["operator_quality_index"].value == Decimal("57")
-    assert full.axes["operator_quality_index"].value == Decimal("60")
+    assert flash.axes["regression_quality_score"].value == Decimal("2")
+    assert full.axes["regression_quality_score"].value == Decimal("3")
     assert {item.offering.offering_id for item in frontier.members} == set(evaluated)
 
     assert selection.default.offering.offering_id == "openrouter/z-ai/glm-5.3"
@@ -58,11 +58,10 @@ def test_real_agent_value_example_validates_evaluates_and_selects() -> None:
     ]
     assert selection.default.axes["metered_token_cost_per_success"].value == Decimal("0.06635506")
     table = render_table(frontier)
-    assert " | 60 " in table
-    assert "6E+1" not in table
+    assert " | 3 " in table
 
     cost = full.axes["metered_token_cost_per_success"]
-    quality = full.axes["operator_quality_index"]
+    quality = full.axes["regression_quality_score"]
     assert cost.dependencies == (
         "signals.input_cache_read_usd_per_million",
         "signals.input_uncached_usd_per_million",
@@ -75,10 +74,10 @@ def test_real_agent_value_example_validates_evaluates_and_selects() -> None:
         "openrouter-model-z-ai-glm-5.3-2026-09-01",
         "private-agent-trace-aggregate-v1",
     )
-    assert quality.source_ids == ("operator-quality-index-v4.1.1",)
+    assert quality.source_ids == ("model-skyline-synthetic-regression-quality-v1",)
     assert {source.id for source in frontier.sources} == {
         "openrouter-model-z-ai-glm-5.3-2026-09-01",
         "openrouter-model-z-ai-glm-5.3-flash-2026-09-01",
-        "operator-quality-index-v4.1.1",
+        "model-skyline-synthetic-regression-quality-v1",
         "private-agent-trace-aggregate-v1",
     }

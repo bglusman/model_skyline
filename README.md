@@ -67,7 +67,7 @@ uv run modelskyline select \
   --output selection.json
 ```
 
-The fixed time makes a dated, de-identified real workload aggregate and exact
+The fixed time makes a dated, payload-free real workload aggregate and exact
 public price snapshot reproducible. The two-offering candidate set and
 operator-entered quality values are regression evidence, not a current market
 recommendation; see its [data card](examples/real-agent-value/DATA_CARD.md).
@@ -106,7 +106,8 @@ explicit modules such as `model_skyline.quality_evidence`,
 ## Current boundaries
 
 - `real-agent-value` uses an authorized aggregate but a deliberately narrow,
-  historical candidate/quality fixture; `coding-session` remains synthetic.
+  historical candidate fixture and synthetic quality axis; `coding-session`
+  remains fully synthetic.
 - Upstream adapters accept only their documented source versions and evidence
   shapes; validation status varies by adapter.
 - Benchmark display names are never fuzzy-matched to routable offerings.

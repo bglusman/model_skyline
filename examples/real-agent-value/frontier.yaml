@@ -1,14 +1,14 @@
 schema_version: model-skyline/v1alpha1
 
 workloads:
-  deidentified-agent-turn-v1:
+  payload-free-agent-turn-v1:
     unit: successful_turn
     version: "1.0.0"
     harness: openclaw-style-agent@1
     cohort: private-aggregate-30day-v1
     description: >-
-      De-identified, privately authorized 30-day aggregate from an agentic
-      tool-use workload. Raw traces are not included.
+      Payload-free, owner-authorized 30-day aggregate from an agentic tool-use
+      workload. It is pseudonymized rather than anonymous; raw traces are not included.
     variables:
       input_uncached_tokens_per_success: "14592"
       input_cache_read_tokens_per_success: "166621"
@@ -81,12 +81,13 @@ metrics:
       max_age_hours: "8760"
       require_source: true
 
-  operator_quality_index:
+  regression_quality_score:
     kind: signal
-    signal: operator_quality_index
-    unit: index
+    signal: regression_quality_score
+    unit: ordinal_index
     description: >-
-      Historical operator-entered benchmark index retained from the prior study.
+      Maintainer-authored synthetic ordinal used only to exercise frontier and
+      selection behavior. It is not a model-quality measurement.
     requirements:
       max_age_hours: "8760"
       minimum_samples: 1
@@ -94,12 +95,12 @@ metrics:
 
 frontiers:
   agent-value:
-    workload: deidentified-agent-turn-v1
+    workload: payload-free-agent-turn-v1
     axes:
       - metric: metered_token_cost_per_success
         goal: minimize
         epsilon_relative: "0.02"
-      - metric: operator_quality_index
+      - metric: regression_quality_score
         goal: maximize
         epsilon_absolute: "0.5"
     order_by: metered_token_cost_per_success
@@ -117,7 +118,7 @@ selections:
     frontier: agent-value
     strategy: lexicographic
     count: 2
-    order_by: operator_quality_index
+    order_by: regression_quality_score
     max_per_provider: 2
     snapshot_ttl_seconds: 3600
     on_insufficient: error
