@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-31T22:56:55.240433Z",
+  "generated_at": "2026-09-01T01:30:00Z",
   "frontier": "brian-subscription-value",
   "selection": "brian-agent-defaults",
   "default": "clinepass/glm-5.3",
@@ -8,58 +8,60 @@
   ],
   "ranked": [
     {
-      "offering": "clinepass/deepseek-v4-flash-offpeak",
+      "offering": "clinepass/deepseek-v4-flash-0731",
       "on_frontier": true,
-      "cap_pct_per_turn": 0.0136,
-      "aa_index": "50",
+      "cap_assumed": true,
+      "primary": 0.009535,
+      "secondary_label": "aa_intelligence_index",
+      "secondary": 52.0,
+      "aa_index": "52",
+      "dominated_by": []
+    },
+    {
+      "offering": "opencode-go/deepseek-v4-flash-0731",
+      "on_frontier": true,
+      "cap_assumed": false,
+      "primary": 0.009535,
+      "secondary_label": "aa_intelligence_index",
+      "secondary": 52.0,
+      "aa_index": "52",
       "dominated_by": []
     },
     {
       "offering": "clinepass/glm-5.3",
       "on_frontier": true,
-      "cap_pct_per_turn": 0.1896,
+      "cap_assumed": true,
+      "primary": 0.066355,
+      "secondary_label": "aa_intelligence_index",
+      "secondary": 60.0,
       "aa_index": "60",
       "dominated_by": []
     },
     {
-      "offering": "opencode-go/deepseek-v4-flash-offpeak",
-      "on_frontier": false,
-      "cap_pct_per_turn": 0.0159,
-      "aa_index": "50",
-      "dominated_by": [
-        "clinepass/deepseek-v4-flash-offpeak"
-      ]
-    },
-    {
-      "offering": "clinepass/deepseek-v4-flash-peak",
-      "on_frontier": false,
-      "cap_pct_per_turn": 0.0272,
-      "aa_index": "50",
-      "dominated_by": [
-        "clinepass/deepseek-v4-flash-offpeak",
-        "opencode-go/deepseek-v4-flash-offpeak"
-      ]
-    },
-    {
-      "offering": "opencode-go/deepseek-v4-flash-peak",
-      "on_frontier": false,
-      "cap_pct_per_turn": 0.0318,
-      "aa_index": "50",
-      "dominated_by": [
-        "clinepass/deepseek-v4-flash-offpeak",
-        "clinepass/deepseek-v4-flash-peak",
-        "opencode-go/deepseek-v4-flash-offpeak"
-      ]
-    },
-    {
       "offering": "opencode-go/glm-5.3",
-      "on_frontier": false,
-      "cap_pct_per_turn": 0.4424,
+      "on_frontier": true,
+      "cap_assumed": false,
+      "primary": 0.066355,
+      "secondary_label": "aa_intelligence_index",
+      "secondary": 60.0,
       "aa_index": "60",
+      "dominated_by": []
+    },
+    {
+      "offering": "opencode-go/qwen3.8-max",
+      "on_frontier": false,
+      "cap_assumed": false,
+      "primary": 0.074391,
+      "secondary_label": "aa_intelligence_index",
+      "secondary": 52.0,
+      "aa_index": "52",
       "dominated_by": [
-        "clinepass/glm-5.3"
+        "clinepass/deepseek-v4-flash-0731",
+        "clinepass/glm-5.3",
+        "opencode-go/deepseek-v4-flash-0731",
+        "opencode-go/glm-5.3"
       ]
     }
   ],
-  "note": "Cost = % of monthly sub cap burned per successful turn (real 30-day token shape); quality = AA Intelligence Index. Only non-dominated offerings are frontier members; dominated rows shown for sanity. ClinePass cap assumed $35."
+  "note": "Cost = % of monthly sub cap per successful turn (real 30-day token shape); quality = AA Intelligence Index. ClinePass cap assumed $35."
 }
