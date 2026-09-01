@@ -142,8 +142,10 @@ function drawStair(f, container){
   for (let m=1; m<=topMult; m*=2) {
     if (m > 1 && m*2 <= topMult) continue; // keep ticks sparse: only powers of two <= topMult
     const x = X(front[0].primary*m);
+    const anchor = x > W-R-30 ? 'end' : 'middle';
+    const tx = anchor === 'end' ? x : x;
     svg.appendChild(el('line', {x1:x, y1:H-B, x2:x, y2:H-B+5, class:'tick'}));
-    svg.appendChild(el('text', {x, y:H-B+16, 'text-anchor':'middle', class:'ticktxt'}, m+'×'));
+    svg.appendChild(el('text', {x: anchor==='end' ? x : x, y:H-B+16, 'text-anchor':anchor, class:'ticktxt'}, m+'×'));
   }
   svg.appendChild(el('text', {x:L+iw/2, y:H-8, 'text-anchor':'middle', class:'axtitle'},
     f.ax + ' (× the cheapest frontier offering, log₂ scale)'));
