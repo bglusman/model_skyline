@@ -27,6 +27,7 @@ from model_skyline.models import (
     ProjectConfig,
     SourceReference,
     WorkloadReference,
+    build_axis_evidence_inventory,
 )
 from model_skyline.oracles import OracleContext, OracleRegistry
 
@@ -341,6 +342,31 @@ def test_missing_companion_axis_preserves_independently_valid_quality_evidence(
     )
     assert set(evidence.axes) == {"coding_session_success"}
     assert evidence.axes["coding_session_success"].value == Decimal("0.62")
+
+
+def test_axis_evidence_builder_rejects_duplicate_identity_without_comparing_models(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    snapshot = FrontierEngine().calculate(
+        example_config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+    inventory = snapshot.axis_evidence
+    assert inventory is not None
+    duplicate = inventory.candidates[0]
+
+    with pytest.raises(ValueError, match="distinct complete OfferingKeys"):
+        build_axis_evidence_inventory(
+            config_hash=inventory.config_hash,
+            catalog_hash=inventory.catalog_hash,
+            generated_at=inventory.generated_at,
+            workload=inventory.workload,
+            axes=inventory.axes,
+            candidates=(duplicate, duplicate),
+        )
 
 
 def test_catalog_is_bound_to_exact_workload(

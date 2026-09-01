@@ -693,9 +693,9 @@ def build_axis_evidence_inventory(
     """Build a canonical inventory from independently attempted frontier axes."""
 
     canonical_candidates = tuple(
-        candidate
-        for _, candidate in sorted(
-            (canonical_bytes(candidate.offering), candidate) for candidate in candidates
+        sorted(
+            candidates,
+            key=lambda candidate: canonical_bytes(candidate.offering),
         )
     )
     content = _AxisEvidenceInventoryContent(
