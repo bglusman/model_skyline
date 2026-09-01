@@ -15,6 +15,7 @@ from typer.testing import CliRunner
 
 from model_skyline.adapters.aider import import_aider_polyglot
 from model_skyline.adapters.models_dev import (
+    AiderModelsDevMapping,
     ModelsDevAdapterError,
     load_models_dev_source,
     project_aider_with_models_dev,
@@ -27,10 +28,36 @@ from model_skyline.renderers import frontier_view
 from model_skyline.version import VERSION
 
 FIXTURES = Path(__file__).parent / "fixtures"
+ROOT = Path(__file__).resolve().parents[1]
 AIDER_FIXTURE = FIXTURES / "aider_polyglot_tiny.yml"
 PRICING_FIXTURE = FIXTURES / "models_dev_tiny.json"
+REVIEWED_MAPPING = ROOT / "examples" / "mappings" / "aider-models-dev.json"
+PUBLICATION_WORKFLOW = ROOT / ".github" / "workflows" / "publish-models-dev-pages.yml"
 RETRIEVED_AT = datetime(2026, 8, 31, 15, 0, tzinfo=UTC)
 runner = CliRunner()
+
+
+def test_reviewed_publication_mapping_is_an_explicit_legacy_cohort() -> None:
+    raw = REVIEWED_MAPPING.read_bytes()
+    mapping = AiderModelsDevMapping.model_validate_json(raw)
+
+    assert len(mapping.mappings) == 6
+    assert all(entry.provider_id == "openai" for entry in mapping.mappings)
+    assert sorted(entry.model_id for entry in mapping.mappings) == [
+        "gpt-5",
+        "gpt-5",
+        "gpt-5",
+        "o3",
+        "o3",
+        "o3-pro",
+    ]
+    assert all(entry.allow_deprecated for entry in mapping.mappings)
+    assert all("2026-12-11" in entry.evidence for entry in mapping.mappings)
+
+    mapping_sha256 = hashlib.sha256(raw).hexdigest()
+    assert f"EXPECTED_MAPPING_SHA256: {mapping_sha256}" in PUBLICATION_WORKFLOW.read_text(
+        encoding="utf-8"
+    )
 
 
 def _command_sha(command: str) -> str:

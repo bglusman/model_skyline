@@ -1,4 +1,4 @@
-name: Publish models.dev GPT-5 data
+name: Publish legacy Aider models.dev data
 
 on:
   schedule:
@@ -19,9 +19,10 @@ concurrency:
 permissions: {}
 
 env:
-  EVIDENCE_SUBPATH: models-dev-gpt5-evidence
-  PUBLICATION_SUBPATH: models-dev-gpt5
-  PROJECT_ID: aider-gpt5-models-dev
+  EVIDENCE_SUBPATH: aider-models-dev-evidence
+  PUBLICATION_SUBPATH: aider-models-dev
+  PROJECT_ID: aider-models-dev
+  PROVIDER_SHUTDOWN_DATE: "2026-12-11"
 
 jobs:
   build:
@@ -90,16 +91,25 @@ jobs:
       - name: Acquire and project exact reviewed routes
         shell: bash
         env:
-          EXPECTED_MAPPING_SHA256: 857fc6a13f9977d16411364067932403f94fa12aeb07757c181802f78c95c9c5
-          MAPPING: examples/mappings/aider-gpt5-models-dev.json
-          PROJECTION: ${{ runner.temp }}/aider-gpt5-models-dev
+          EXPECTED_MAPPING_SHA256: ee0aeec23805feb52a82ea382e0c986d0a987d9288309cd4be32ec5a6f8a41f9
+          MAPPING: examples/mappings/aider-models-dev.json
+          PROJECTION: ${{ runner.temp }}/aider-models-dev
         run: |
           set -euo pipefail
+          current_date_utc="$(date -u +%F)"
+          if [[ ! "${current_date_utc}" < "${PROVIDER_SHUTDOWN_DATE}" ]]; then
+            echo "Refusing to acquire the deprecated cohort on or after its provider shutdown date" >&2
+            exit 1
+          fi
           actual_mapping_sha256="$(sha256sum "${MAPPING}" | awk '{print $1}')"
           if [[ "${actual_mapping_sha256}" != "${EXPECTED_MAPPING_SHA256}" ]]; then
             echo "The reviewed mapping changed without updating its workflow pin" >&2
             exit 1
           fi
+          jq -e '
+            (.mappings | length) == 6 and
+            all(.mappings[]; .allow_deprecated == true)
+          ' "${MAPPING}" >/dev/null
           uv run modelskyline project-aider-models-dev \
             "${PROJECTION}" \
             "${MAPPING}" \
@@ -132,7 +142,7 @@ jobs:
             .scenario == "cache_disabled" and
             .pricing_max_age_hours == "48" and
             .mapping_sha256 == $mapping_sha and
-            .mapping_count == 3 and
+            .mapping_count == 6 and
             (.selected_prices_sha256 | test("^[0-9a-f]{64}$")) and
             .sources.benchmark.id == "aider-polyglot-leaderboard" and
             .sources.benchmark.license == "Apache-2.0" and
@@ -149,15 +159,19 @@ jobs:
           ' "${PROJECTION}/projection.json" >/dev/null
           jq -e '
             .workload.id == "aider-polyglot" and
-            (.offerings | length) == 3
+            (.offerings | length) == 6 and
+            ([.offerings[].offering.model_id] | sort) == [
+              "gpt-5", "gpt-5", "gpt-5", "o3", "o3", "o3-pro"
+            ] and
+            all(.offerings[]; .offering.provider == "openai")
           ' "${PROJECTION}/observations.json" >/dev/null
 
       - name: Build and validate the public publication
         shell: bash
         env:
-          EVIDENCE_ROOT: ${{ runner.temp }}/modelskyline-site/models-dev-gpt5-evidence
-          PROJECTION: ${{ runner.temp }}/aider-gpt5-models-dev
-          PUBLICATION_ROOT: ${{ runner.temp }}/modelskyline-site/models-dev-gpt5
+          EVIDENCE_ROOT: ${{ runner.temp }}/modelskyline-site/aider-models-dev-evidence
+          PROJECTION: ${{ runner.temp }}/aider-models-dev
+          PUBLICATION_ROOT: ${{ runner.temp }}/modelskyline-site/aider-models-dev
         run: |
           set -euo pipefail
           uv run modelskyline publish-project \
@@ -190,7 +204,7 @@ jobs:
           do
             snapshot="${PUBLICATION_ROOT}/frontiers/${frontier_id}/latest.json"
             jq -e '
-              (.evaluated | length) == 3 and
+              (.evaluated | length) == 6 and
               (.rejected | length) == 0
             ' "${snapshot}" >/dev/null
             test -s "${PUBLICATION_ROOT}/frontiers/${frontier_id}/table.csv"
@@ -419,11 +433,11 @@ jobs:
       - name: Upload validated publication and evidence
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: models-dev-gpt5-site
+          name: aider-models-dev-site
           path: |
             ${{ runner.temp }}/modelskyline-site/index.html
-            ${{ runner.temp }}/modelskyline-site/models-dev-gpt5
-            ${{ runner.temp }}/modelskyline-site/models-dev-gpt5-evidence
+            ${{ runner.temp }}/modelskyline-site/aider-models-dev
+            ${{ runner.temp }}/modelskyline-site/aider-models-dev-evidence
           if-no-files-found: error
           include-hidden-files: false
           retention-days: 1
@@ -441,7 +455,7 @@ jobs:
       - name: Download validated publication and evidence
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: models-dev-gpt5-site
+          name: aider-models-dev-site
           path: ${{ runner.temp }}/modelskyline-site
 
       # This job receives write authority but never installs dependencies or
@@ -669,5 +683,5 @@ jobs:
           # Do not allow local/global Git hooks to execute code or rewrite the
           # byte-exact generated artifacts in this write-authorized job.
           git -c core.hooksPath=/dev/null commit \
-            -m "Publish models.dev GPT-5 frontier snapshot"
+            -m "Publish legacy Aider models.dev frontier snapshot"
           git push origin HEAD:gh-pages
