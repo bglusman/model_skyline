@@ -14,6 +14,7 @@ from pydantic import ValidationError
 from model_skyline.adapters.hermes import (
     HERMES_ADAPTER_VERSION,
     HERMES_AGENT_COMMIT,
+    HERMES_AGENT_COMMITS,
     HERMES_AGENT_LICENSE,
     HERMES_AGENT_VERSION,
     HERMES_ROUTE_IDENTITY_SOURCE_URL,
@@ -22,6 +23,7 @@ from model_skyline.adapters.hermes import (
     HERMES_SESSION_STORAGE_SOURCE_URL,
     HERMES_USAGE_NORMALIZATION_SOURCE_URL,
     HERMES_USAGE_REPORT_SOURCE_URL,
+    MAX_HERMES_SESSION_MAPPING_BYTES,
     MAX_HERMES_STATE_DATABASE_BYTES,
     HermesAdapterError,
     HermesRouteMapping,
@@ -29,6 +31,7 @@ from model_skyline.adapters.hermes import (
     _canonical_hermes_base_url,
     import_hermes_session,
     import_hermes_usage_report,
+    load_hermes_session_mapping,
 )
 from model_skyline.canonical import POLICY_DECIMAL_CONTEXT
 from model_skyline.models import OfferingKey, WorkloadReference
@@ -121,6 +124,10 @@ def test_reviewed_hermes_contract_is_pinned_to_primary_sources() -> None:
     assert HERMES_SESSION_SCHEMA_VERSION == 26
     assert HERMES_AGENT_LICENSE == "MIT"
     assert HERMES_ADAPTER_VERSION == "2"
+    assert dict(HERMES_AGENT_COMMITS) == {
+        "0.20.6": "4f22543509d1b91dc45bcb369447126c5eb14fb7",
+        "0.21.0": "29112bef099274229cadff79cdff7bf7b99c4b77",
+    }
     for url in (
         HERMES_USAGE_REPORT_SOURCE_URL,
         HERMES_USAGE_NORMALIZATION_SOURCE_URL,
@@ -149,6 +156,41 @@ def test_reviewed_hermes_contract_is_pinned_to_primary_sources() -> None:
     assert current_producer is not None
     assert legacy_producer.source.id.endswith(":adapter-1")
     assert current_producer.source.id.endswith(":adapter-2")
+
+    version_021_commit = HERMES_AGENT_COMMITS["0.21.0"]
+    version_021_producer = trusted_trace_producer(
+        (
+            "model-skyline/hermes-agent-aggregate",
+            HERMES_ADAPTER_VERSION,
+            "nousresearch/hermes-agent",
+            "0.21.0",
+            version_021_commit,
+            None,
+            None,
+        )
+    )
+    assert version_021_producer is not None
+    assert version_021_producer.source.version == version_021_commit
+    assert version_021_commit in str(version_021_producer.source.url)
+    assert version_021_commit in str(version_021_producer.source.terms_url)
+    assert "SQLite" in (version_021_producer.source.methodology or "")
+    assert "usage-report import is intentionally unsupported" in (
+        version_021_producer.source.methodology or ""
+    )
+    assert (
+        trusted_trace_producer(
+            (
+                "model-skyline/hermes-agent-aggregate",
+                "1",
+                "nousresearch/hermes-agent",
+                "0.21.0",
+                version_021_commit,
+                None,
+                None,
+            )
+        )
+        is None
+    )
 
 
 @pytest.mark.parametrize(
@@ -205,6 +247,18 @@ def test_usage_report_import_preserves_aggregate_semantics_without_payloads() ->
         "PRIVATE_ENVIRONMENT_SENTINEL",
     ):
         assert sentinel not in public_json
+
+
+def test_usage_report_import_does_not_implicitly_expand_to_hermes_021() -> None:
+    mapping = MAPPING.model_copy(update={"hermes_version": "0.21.0"})
+
+    with pytest.raises(HermesAdapterError, match="supports exactly Agent 0.20.6"):
+        import_hermes_usage_report(
+            FIXTURES / "hermes_usage_synthetic.json",
+            mapping=mapping,
+            observed_at=datetime(2026, 9, 1, tzinfo=UTC),
+            identity_key=IDENTITY_KEY,
+        )
 
 
 @pytest.mark.parametrize(
@@ -273,7 +327,7 @@ def test_usage_report_rejects_contradictory_cost_state_and_route_attestations(
         )
 
     unattested_tier = ROUTE.model_copy(update={"service_tier_fulfilled_attested": False})
-    with pytest.raises(HermesAdapterError, match="records only intent"):
+    with pytest.raises(HermesAdapterError, match="invalid Hermes session mapping"):
         import_hermes_usage_report(
             FIXTURES / "hermes_usage_synthetic.json",
             mapping=MAPPING.model_copy(update={"route": unattested_tier}),
@@ -312,6 +366,63 @@ def test_sqlite_session_import_is_read_only_and_never_reads_private_columns(tmp_
         "PRIVATE_WORKSPACE_PATH_SENTINEL",
     ):
         assert sentinel not in public_json
+
+
+def test_sqlite_session_import_uses_exact_reviewed_release_from_mapping(tmp_path: Path) -> None:
+    path = _state_db(tmp_path)
+    mapping = MAPPING.model_copy(update={"hermes_version": "0.21.0"})
+
+    trace = import_hermes_session(path, mapping=mapping, identity_key=IDENTITY_KEY)
+
+    assert trace.upstream_version == "0.21.0"
+    assert trace.upstream_commit == HERMES_AGENT_COMMITS["0.21.0"]
+    assert (
+        trusted_trace_producer(
+            (
+                trace.adapter_id,
+                trace.adapter_version,
+                trace.upstream_system,
+                trace.upstream_version,
+                trace.upstream_commit,
+                trace.collector_id,
+                trace.collector_version,
+            )
+        )
+        is not None
+    )
+
+
+def test_constructed_mapping_cannot_bypass_exact_release_registry(tmp_path: Path) -> None:
+    path = _state_db(tmp_path)
+    mapping = MAPPING.model_copy(update={"hermes_version": "private-unsupported-version"})
+
+    with pytest.raises(HermesAdapterError, match="invalid Hermes session mapping"):
+        import_hermes_session(path, mapping=mapping, identity_key=IDENTITY_KEY)
+
+    non_string = MAPPING.model_copy(update={"hermes_version": ["0.21.0"]})
+    with pytest.raises(HermesAdapterError, match="invalid Hermes session mapping"):
+        import_hermes_session(path, mapping=non_string, identity_key=IDENTITY_KEY)
+
+
+def test_public_importers_revalidate_copied_mapping_without_echoing_values(tmp_path: Path) -> None:
+    path = _state_db(tmp_path)
+    secret = "sk-" + "proj-private-copied-offering"
+    offering = ROUTE.offering.model_copy(update={"offering_id": secret})
+    route = ROUTE.model_copy(update={"offering": offering})
+    mapping = MAPPING.model_copy(update={"route": route})
+
+    with pytest.raises(HermesAdapterError, match="invalid Hermes session mapping") as error:
+        import_hermes_session(path, mapping=mapping, identity_key=IDENTITY_KEY)
+    assert secret not in str(error.value)
+
+    with pytest.raises(HermesAdapterError, match="invalid Hermes session mapping") as error:
+        import_hermes_usage_report(
+            FIXTURES / "hermes_usage_synthetic.json",
+            mapping=mapping,
+            observed_at=datetime(2026, 8, 30, tzinfo=UTC),
+            identity_key=IDENTITY_KEY,
+        )
+    assert secret not in str(error.value)
 
 
 def test_sqlite_snapshot_includes_committed_wal_without_modifying_database_pages(
@@ -601,6 +712,36 @@ def test_session_rejects_non_text_billing_mode_in_lookalike_schema(tmp_path: Pat
 
 
 @pytest.mark.parametrize(
+    ("statement", "message"),
+    [
+        (
+            "UPDATE session_model_usage SET model = NULL WHERE session_id = ?",
+            "model must be text",
+        ),
+        (
+            "UPDATE session_model_usage SET billing_provider = NULL WHERE session_id = ?",
+            "billing_provider must be text",
+        ),
+        (
+            "UPDATE session_model_usage SET task = NULL WHERE session_id = ?",
+            "task must be text",
+        ),
+    ],
+)
+def test_session_rejects_non_text_ledger_identity_in_lookalike_schema(
+    tmp_path: Path,
+    statement: str,
+    message: str,
+) -> None:
+    path = _state_db(tmp_path)
+    _remove_usage_table_constraints(path)
+    _execute(path, statement, (SESSION_ID,))
+
+    with pytest.raises(HermesAdapterError, match=message):
+        import_hermes_session(path, mapping=MAPPING, identity_key=IDENTITY_KEY)
+
+
+@pytest.mark.parametrize(
     "unsafe_url",
     [
         "https://synthetic-provider.invalid/v1?",
@@ -727,6 +868,42 @@ def test_usage_report_rejects_duplicate_keys_mismatch_and_naive_time(tmp_path: P
         )
 
 
+def test_private_mapping_loader_is_bounded_strict_and_value_neutral(tmp_path: Path) -> None:
+    valid = tmp_path / "mapping.json"
+    valid.write_text(MAPPING.model_dump_json(), encoding="utf-8")
+    assert load_hermes_session_mapping(valid) == MAPPING
+
+    secret = "sk-" + "proj-private-mapping-value"
+    duplicate = tmp_path / "duplicate.json"
+    duplicate.write_text(
+        '{"session_id":"' + secret + '","session_id":"again"}',
+        encoding="utf-8",
+    )
+    with pytest.raises(HermesAdapterError, match="invalid Hermes session mapping JSON") as error:
+        load_hermes_session_mapping(duplicate)
+    assert secret not in str(error.value)
+
+    invalid = tmp_path / "invalid.json"
+    payload = MAPPING.model_dump(mode="json")
+    payload["session_id"] = secret
+    payload["hermes_version"] = "0.21.1"
+    invalid.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(HermesAdapterError, match="invalid Hermes session mapping") as error:
+        load_hermes_session_mapping(invalid)
+    assert secret not in str(error.value)
+
+    oversized = tmp_path / "oversized.json"
+    with oversized.open("wb") as stream:
+        stream.truncate(MAX_HERMES_SESSION_MAPPING_BYTES + 1)
+    with pytest.raises(HermesAdapterError, match="exceeds"):
+        load_hermes_session_mapping(oversized)
+
+    alias = tmp_path / "alias.json"
+    alias.symlink_to(valid)
+    with pytest.raises(HermesAdapterError, match="cannot read"):
+        load_hermes_session_mapping(alias)
+
+
 def test_short_identity_key_is_rejected_without_importing(tmp_path: Path) -> None:
     path = _state_db(tmp_path)
     with pytest.raises(HermesAdapterError, match="at least 16 bytes"):
@@ -737,6 +914,7 @@ def test_short_identity_key_is_rejected_without_importing(tmp_path: Path) -> Non
     "mutation",
     [
         {"hermes_version": "0.20.5"},
+        {"hermes_version": "0.21.1"},
         {
             "workload": WorkloadReference(
                 id="../private-workload",

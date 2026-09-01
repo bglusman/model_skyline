@@ -18,6 +18,7 @@ from model_skyline.models import SourceReference
 ProducerKey = tuple[str, str, str, str, str, str | None, str | None]
 _REVIEWED_AT: Final = datetime(2026, 8, 30, tzinfo=UTC)
 _OPENCLAW_REVIEWED_AT: Final = datetime(2026, 9, 1, tzinfo=UTC)
+_HERMES_021_REVIEWED_AT: Final = datetime(2026, 9, 1, tzinfo=UTC)
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,10 +54,6 @@ _CODEX_LICENSE = (
 _CLAUDE_LICENSE = (
     "https://github.com/anthropics/claude-agent-sdk-python/blob/"
     "af5ff1b9f2f279575f89b78f17572c6e35fbc2b6/LICENSE"
-)
-_HERMES_LICENSE = (
-    "https://github.com/NousResearch/hermes-agent/blob/"
-    "4f22543509d1b91dc45bcb369447126c5eb14fb7/LICENSE"
 )
 _OPENCLAW_LICENSE = (
     "https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/LICENSE"
@@ -137,45 +134,73 @@ for _claude_adapter_version in ("1", "2"):
         )
     )
 
-for _hermes_adapter_version, _hermes_methodology in (
-    (
-        "1",
+_HERMES_ADAPTER_METHODOLOGIES = {
+    "1": (
         "Exact reviewed Hermes Agent v26 usage-ledger and aggregate-report subset; "
-        "adapter requires explicit route attestations and exact raw route strings.",
+        "adapter requires explicit route attestations and exact raw route strings."
     ),
-    (
-        "2",
+    "2": (
         "Exact reviewed Hermes Agent v26 usage-ledger and aggregate-report subset; "
         "adapter requires explicit route attestations, preserves absent billing mode, and "
-        "mirrors the safe subset of Hermes route URL identity normalization.",
+        "mirrors the safe subset of Hermes route URL identity normalization."
+    ),
+}
+_HERMES_021_METHODOLOGY = (
+    "Exact reviewed Hermes Agent schema-v26 SQLite usage-ledger subset; adapter requires "
+    "an operator-asserted exact Agent version and route, preserves absent billing mode, and "
+    "mirrors the safe subset of Hermes route URL identity normalization. Agent 0.21.0 "
+    "usage-report import is intentionally unsupported."
+)
+for _hermes_version, _hermes_commit, _hermes_adapter_versions, _hermes_reviewed_at in (
+    (
+        "0.20.6",
+        "4f22543509d1b91dc45bcb369447126c5eb14fb7",
+        ("1", "2"),
+        _REVIEWED_AT,
+    ),
+    (
+        "0.21.0",
+        "29112bef099274229cadff79cdff7bf7b99c4b77",
+        ("2",),
+        _HERMES_021_REVIEWED_AT,
     ),
 ):
-    _register(
-        TrustedTraceProducer(
-            key=(
-                "model-skyline/hermes-agent-aggregate",
-                _hermes_adapter_version,
-                "nousresearch/hermes-agent",
-                "0.20.6",
-                "4f22543509d1b91dc45bcb369447126c5eb14fb7",
-                None,
-                None,
-            ),
-            source=_source(
-                source_id=(
-                    f"producer:nousresearch-hermes-agent:0.20.6:adapter-{_hermes_adapter_version}"
+    for _hermes_adapter_version in _hermes_adapter_versions:
+        _register(
+            TrustedTraceProducer(
+                key=(
+                    "model-skyline/hermes-agent-aggregate",
+                    _hermes_adapter_version,
+                    "nousresearch/hermes-agent",
+                    _hermes_version,
+                    _hermes_commit,
+                    None,
+                    None,
                 ),
-                version="4f22543509d1b91dc45bcb369447126c5eb14fb7",
-                url=(
-                    "https://github.com/NousResearch/hermes-agent/blob/"
-                    "4f22543509d1b91dc45bcb369447126c5eb14fb7/agent/usage_pricing.py"
+                source=_source(
+                    source_id=(
+                        "producer:nousresearch-hermes-agent:"
+                        f"{_hermes_version}:adapter-{_hermes_adapter_version}"
+                    ),
+                    version=_hermes_commit,
+                    url=(
+                        "https://github.com/NousResearch/hermes-agent/blob/"
+                        f"{_hermes_commit}/agent/usage_pricing.py"
+                    ),
+                    terms_url=(
+                        "https://github.com/NousResearch/hermes-agent/blob/"
+                        f"{_hermes_commit}/LICENSE"
+                    ),
+                    license_name="MIT",
+                    methodology=(
+                        _HERMES_021_METHODOLOGY
+                        if _hermes_version == "0.21.0"
+                        else _HERMES_ADAPTER_METHODOLOGIES[_hermes_adapter_version]
+                    ),
+                    retrieved_at=_hermes_reviewed_at,
                 ),
-                terms_url=_HERMES_LICENSE,
-                license_name="MIT",
-                methodology=_hermes_methodology,
-            ),
+            )
         )
-    )
 
 _register(
     TrustedTraceProducer(

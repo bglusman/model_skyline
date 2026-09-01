@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import re
 import unicodedata
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
@@ -38,6 +40,11 @@ from model_skyline.adapters.harbor import (
     import_harbor_terminal_bench,
     inspect_harbor_terminal_bench_snapshot,
     write_harbor_terminal_bench_import,
+)
+from model_skyline.adapters.hermes import (
+    HermesAdapterError,
+    import_hermes_session,
+    load_hermes_session_mapping,
 )
 from model_skyline.adapters.mcpmark import (
     MCPMARK_DEFAULT_ALLOWED_HOSTS,
@@ -131,6 +138,8 @@ class OutputFormat(StrEnum):
 
 
 _MAX_CLI_ERROR_CHARACTERS = 4_096
+_HERMES_IDENTITY_KEY_ENV = "MODEL_SKYLINE_HERMES_IDENTITY_KEY_HEX"
+_HERMES_IDENTITY_KEY_HEX_RE = re.compile(r"[0-9A-Fa-f]{64}")
 
 
 def _version_callback(value: bool) -> None:
@@ -191,6 +200,15 @@ def _decimal_outcome(value: str) -> Decimal:
         return Decimal(value)
     except InvalidOperation as exc:
         raise ValueError("--work-unit-success must be an exact decimal") from exc
+
+
+def _hermes_identity_key_from_environment() -> bytes:
+    value = os.environ.get(_HERMES_IDENTITY_KEY_ENV)
+    if value is None or _HERMES_IDENTITY_KEY_HEX_RE.fullmatch(value) is None:
+        raise ValueError(
+            f"{_HERMES_IDENTITY_KEY_ENV} must contain exactly 64 hexadecimal characters"
+        )
+    return bytes.fromhex(value)
 
 
 def _emit(value: str, output: Path | None) -> None:
@@ -563,6 +581,49 @@ def import_codex_exec_command(
         )
         _emit_private(trace.model_dump_json() + "\n", output, overwrite=False)
     except (CodexAdapterError, PrivateOutputError, OSError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("import-hermes-session", rich_help_panel=TELEMETRY_PANEL)
+def import_hermes_session_command(
+    state_database: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            readable=True,
+            dir_okay=False,
+            help="private schema-26 Hermes state database",
+        ),
+    ],
+    mapping_file: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            readable=True,
+            dir_okay=False,
+            help="private operator-reviewed session and exact-route mapping JSON",
+        ),
+    ],
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False, help="write mode-0600 canonical JSONL"),
+    ] = None,
+) -> None:
+    """Project one completed Hermes session into one content-free trace row.
+
+    Set MODEL_SKYLINE_HERMES_IDENTITY_KEY_HEX to a private 32-byte hexadecimal
+    pseudonymization key. Key rotation changes the opaque trace identifiers.
+    """
+
+    try:
+        mapping = load_hermes_session_mapping(mapping_file)
+        trace = import_hermes_session(
+            state_database,
+            mapping=mapping,
+            identity_key=_hermes_identity_key_from_environment(),
+        )
+        _emit_private(trace.model_dump_json() + "\n", output, overwrite=False)
+    except (HermesAdapterError, PrivateOutputError, OSError, ValueError) as exc:
         _error(exc)
 
 

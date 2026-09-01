@@ -21,7 +21,7 @@ retention, and any attestations named by an adapter.
 | Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with the installed default and explicit `-m gpt-5.4` routes, including the retained CLI-to-aggregation smoke trace, plus two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
 | Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | SDK `0.2.148` with its bundled CLI `2.1.251` was installed exactly. A constrained Haiku request (no tools, skills, settings, MCP, fallback, or session persistence; one turn; $0.02 cap) reached the SDK but stopped on API billing/quota before a `ResultMessage`, so it did not prove a live `RequestTrace` or the runtime `costBasis` contract. |
 | OpenClaw | `2026.8.1` at [`ea80657`](https://github.com/openclaw/openclaw/tree/ea806575e6450e4d1efdfc72c19f04be982a1b9b) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures; no collector ships. The exact upstream packaged-runtime E2E passed locally through a real Gateway, mock model endpoint, installed `diagnostics-otel` plugin, and OTLP receiver. That validates transport and scheduled export, not accounting completeness or shutdown export. An external plugin can support an isolated experiment, not concurrent production collection. The installed `2026.3.2` is intentionally unsupported. |
-| Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7), session schema `26`, adapter projection `2` | A `hermes -z --usage-file` JSON report or read-only state SQLite database | Contract, synthetic report, and synthetic schema-v26 database tests. A real keyless, opencode-free run produced one main row and one `title_generation` row on the same model/provider and canonically identical base URL; one raw URL had Hermes's equivalent terminal slash and both rows recorded no billing mode. |
+| Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7) for report or SQLite import; `0.21.0` at [`29112be`](https://github.com/NousResearch/hermes-agent/tree/29112bef099274229cadff79cdff7bf7b99c4b77) for SQLite import only; session schema `26`, adapter projection `2` | A `0.20.6` `hermes -z --usage-file` JSON report or a read-only schema-26 state SQLite database with an exact supported-version assertion | Contract, synthetic report, and synthetic schema-v26 database tests. Real isolated runs completed on both exact releases. The `0.21.0` loopback run exercised the new CLI and `aggregate-traces` end to end with cache-read, cache-write, reasoning, and request-count meters. |
 
 The Codex `0.144.2` success run reported 11,250 inclusive input tokens,
 2,304 cache-read tokens, 22 inclusive output tokens, and 15 reasoning tokens.
@@ -415,7 +415,8 @@ remain private.
 ## Hermes report and state database
 
 Hermes exposes work-unit aggregates rather than request events. The usage-file
-import requires an operator attestation that main-loop, fallback, and auxiliary
+import remains pinned to exact Agent `0.20.6` and requires an operator
+attestation that main-loop, fallback, and auxiliary
 calls all stayed on one model/provider/base-URL route and used the same reported
 or absent billing mode. If a service tier was requested, fulfillment must be
 attested because the report records intent, not fulfillment.
@@ -431,6 +432,30 @@ the legacy session summary. Every ledger row must use the exact mapped route,
 with only Hermes's reviewed base-URL equivalences applied.
 Sessions containing an `absolute=True` counter residual without an attributable
 ledger row are outside the supported subset.
+Hermes records auxiliary usage on a best-effort path, so this import is the
+total of every **recorded** ledger row; it cannot prove that no auxiliary
+accounting write was missed.
+
+SQLite online backup copies the **entire** database, including pages belonging
+to transcript/content tables, into a randomly named OS-temporary directory; the
+importer only queries aggregate tables and never emits that content. The
+temporary directory and snapshot are created privately (directory mode 0700,
+database mode 0600) and removed on normal exit. A process kill or host crash can
+leave private residue. Point the process temporary directory at protected,
+appropriately encrypted storage when the source classification requires it, and
+include stale `model-skyline-hermes-*` directories in operational cleanup. The
+source database directory must not be writable by untrusted users; path and
+inode checks do not authenticate a hostile mutable filesystem.
+
+SQLite import accepts only the exact reviewed Agent versions `0.20.6` and
+`0.21.0`. Both upstream releases declare schema 26; their
+`agent/usage_pricing.py` and `hermes_cli/route_identity.py` blobs are identical,
+and the `0.21.0` state-schema changes do not alter the required `sessions` or
+`session_model_usage` columns. The database does **not** store the Hermes
+application release. Consequently, `HermesSessionMapping.hermes_version` is an
+operator assertion constrained to reviewed values, not a fact the importer can
+derive from schema 26. A nearby unsupported version is rejected, but a wrongly
+asserted supported version is not detectable from the database.
 
 Schema 26 stores an unreported billing mode as its empty-string column default.
 The SQLite importer canonicalizes exactly that empty value to `None`; the
@@ -465,6 +490,67 @@ data for some free models may be used for model improvement; this smoke run is
 not evidence that the route is suitable for confidential workloads. Raw route
 values, session identity, transcript, response, and the ephemeral database are
 not retained in ModelSkyline fixtures or publications.
+
+A separate 2026-09-01 validation used exact Agent `0.21.0` at commit
+`29112bef099274229cadff79cdff7bf7b99c4b77` from a detached checkout in a fresh
+Python 3.13 environment. Blank home directories, an empty inherited
+environment, closed non-loopback proxies, and a local fake OpenAI-compatible
+server prevented real provider or credential use. Hermes completed one streamed
+request and wrote one ended schema-26 session plus one matching ledger row. The
+new CLI preserved the exact release provenance and emitted 1 model request,
+6 uncached input tokens, 5 cache-read tokens, 2 cache-write tokens, 3 inclusive
+output tokens split into 2 visible and 1 reasoning token, and 0 tool calls.
+Hermes marked cost provenance unknown, so every cost field remained `null`.
+The trace was mode 0600, the source database hash was unchanged, and
+`aggregate-traces` reproduced the counters and one work unit. Content checks
+found no raw session id, identity key, prompt, response, or private input path.
+The exact fake server, database, mapping, and outputs were deleted after this
+validation rather than retained as product fixtures.
+
+Hermes created the otherwise synthetic source database and usage report as mode
+0644 files in this environment. ModelSkyline does not repair source-file
+permissions: operators must place raw Hermes state under a private directory and
+apply their own retention controls. The mode-0600 guarantee begins at the
+explicit ModelSkyline `--output` boundary.
+
+The SQLite path is available directly from the CLI:
+
+```console
+MODEL_SKYLINE_HERMES_IDENTITY_KEY_HEX=<64-hex-characters-from-a-secret-store> \
+  uv run modelskyline import-hermes-session \
+  private/hermes-state.db private/hermes-session-mapping.json \
+  --output private/hermes-trace.jsonl
+
+uv run modelskyline aggregate-traces \
+  private/catalog.json private/hermes-trace.jsonl \
+  --output private/enriched-catalog.json
+```
+
+The mapping file is private operator input containing the raw session id,
+workload judgment, exact route, and required attestations represented by
+`HermesSessionMapping`; the CLI never discovers or guesses those values. Its
+reader is limited to 64 KiB, rejects duplicate members and nonstandard numbers,
+does not follow the final symlink, and reports validation failures without
+echoing mapping values. With `--output`, the trace is written atomically as a
+new mode-0600 file and an existing target is never replaced. Omitting
+`--output` writes the content-free row to standard output, so automation that
+needs private-file guarantees should supply it.
+The loader does not repair the mapping file's mode, and the output publisher
+does not tighten permissions on pre-existing parent directories. Keep the
+database and mapping under operator-only parents, make the mapping itself
+private, and publish it atomically rather than editing it during import.
+Every parent component of that output path must also be a real directory, not a
+symbolic link. On macOS, for example, lexical `/tmp/...` fails closed because
+`/tmp` points to `/private/tmp`; use the canonical path or another private real
+directory rather than weakening the check.
+
+The environment key HMAC-pseudonymizes the session id; it does not authenticate
+the database or prove that the operator supplied the intended key. A missing or
+malformed key fails, while any 32-byte key is structurally valid. Keep one
+stable secret-store key per intended correlation domain: rotating it changes
+the work-unit, attempt, and request pseudonyms, and reimporting the same session
+under both keys can create duplicate aggregates. The key must never be placed
+in argv, the mapping, an output tree, or a publication.
 
 ```python
 from datetime import UTC, datetime

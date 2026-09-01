@@ -93,6 +93,7 @@ def test_cli_help_groups_commands_without_renaming_them() -> None:
         "evaluate",
         "aggregate-traces",
         "import-codex-exec",
+        "import-hermes-session",
         "build-quality-portfolio",
         "export-schemas",
     ):
