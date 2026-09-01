@@ -1,0 +1,207 @@
+schema_version: model-skyline/v1alpha1
+workloads:
+  aider-polyglot:
+    unit: polyglot_case
+    version: sha256:baa026c95992c1cec4650d1396b4046d10bc957966846f0bdfcee142e9748858
+    harness: aider-polyglot-mixed-historical-leaderboard@1
+    cohort: Aider Polyglot mixed historical leaderboard rows with 225 completed cases and clean benchmark
+      checkouts
+    benchmark: Aider Polyglot benchmark
+    budget: {}
+    description: Mixed historical Aider coding-agent benchmark runs. Each offering is one exact recorded
+      model/edit-format/run configuration, not a controlled same-date provider experiment or merely a
+      model family. Current list-price signals are a models.dev cache-disabled projection over historical
+      Aider prompt/completion token counts and exact operator mappings.
+    variables:
+      case_count: '225'
+    assumptions:
+      cost_basis: historical_upstream_reported_total_cost
+      cost_includes_failed_attempts: true
+      cache_accounting: only_as_included_by_upstream_total_cost
+      non_model_infrastructure_cost: not_reported
+      dirty_runs_included: false
+      pass_rate_basis: pass_num_2/test_cases
+      reported_pass_rate_is_metadata_only: true
+      comparison_design: mixed_historical_observational_leaderboard
+      aider_version_edit_format_and_provider_conditions_may_vary: true
+      timing_scope: agent_edit_generation_loop_excluding_unit_test_execution
+      solve_rate_interval: descriptive_wilson_95_binomial_reference_under_iid_task_sampling; not_run_to_run_or_serving_variance
+      frontier_uncertainty: point_estimates
+      cost_rounding_bounds: plus_or_minus_half_the_least_displayed_total_cost_decimal_unit
+      date_precision: day; observed_at normalized to 00:00:00Z
+      projected_cost_basis: models_dev_public_list_price_snapshot
+      pricing_scenario: cache_disabled
+      prompt_tokens_billing_bucket: ordinary_uncached_input
+      completion_tokens_billing_bucket: output_including_any_source-accounted_reasoning
+      cache_read_tokens: 0
+      cache_write_tokens: 0
+      non_model_costs_included: false
+      performance_and_token_portability: operator_asserted_same_provider_model_route_across_time
+      tiered_pricing: rejected_without_explicit_policy
+      cost_axis_epsilon_relative: '0.000000001'
+      pricing_max_age_hours: '48'
+      pricing_source_semantics_sha256: e7ac2034396fcae0e15d8e233119185f8b895065288f9abd72c6dc713956d84b
+    sources:
+    - id: aider-polyglot-leaderboard
+      version: cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a
+      url: https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml
+      terms_url: https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt
+      license: Apache-2.0
+      methodology: Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized
+        by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md
+      raw_sha256: 85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de
+      retrieved_at: '2026-09-01T09:19:09.249267Z'
+    - id: models-dev-selected-cache-disabled-prices
+      version: selected-prices-sha256:aaa124f0a2f1fdbcaa287e1734c317165b5d3cb8abe7bf1a3f9369833e9cd170
+      url: https://models.dev/api.json
+      terms_url: https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE
+      license: MIT
+      methodology: Canonical reviewed models.dev provider/model/default-mode records selected for the
+        cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million
+        rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records
+        and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved
+        separately in projection.json and offering metadata; the exact canonical selected records are
+        copied to selected-prices.json.
+      raw_sha256: null
+      retrieved_at: '2026-09-01T09:19:09.538977Z'
+metrics:
+  solve_rate_2:
+    unit: ratio
+    description: Cases solved after Aider's second attempt, computed from exact pass counts; observations
+      include descriptive Wilson 95% binomial reference bounds under an IID task-sampling assumption,
+      not run-to-run uncertainty.
+    requirements:
+      max_age_hours: null
+      max_future_skew_minutes: '5'
+      minimum_samples: 225
+      require_bounds: false
+      require_source: true
+    kind: signal
+    signal: solve_rate_2
+  price_snapshot_reconstructed_token_cost_usd:
+    unit: USD/benchmark_run
+    description: 'Cache-disabled reconstructed token marginal cost: Aider prompt/output token totals multiplied
+      by the exact mapped models.dev input/output rates.'
+    requirements:
+      max_age_hours: null
+      max_future_skew_minutes: '5'
+      minimum_samples: null
+      require_bounds: false
+      require_source: true
+    kind: formula
+    expression: (signals.aider_prompt_tokens_total * signals.models_dev_input_usd_per_million_tokens +
+      signals.aider_completion_tokens_total * signals.models_dev_output_usd_per_million_tokens) / 1000000
+    cost_basis: reconstructed_components
+  price_snapshot_usd_per_attempted_workunit:
+    unit: USD/attempted_workunit
+    description: Projected price-snapshot cache-disabled token marginal cost divided by all attempted
+      Aider cases.
+    requirements:
+      max_age_hours: null
+      max_future_skew_minutes: '5'
+      minimum_samples: null
+      require_bounds: false
+      require_source: true
+    kind: formula
+    expression: ((signals.aider_prompt_tokens_total * signals.models_dev_input_usd_per_million_tokens
+      + signals.aider_completion_tokens_total * signals.models_dev_output_usd_per_million_tokens) / 1000000)
+      / signals.aider_attempted_workunits
+    cost_basis: reconstructed_components
+  price_snapshot_usd_per_solved_workunit:
+    unit: USD/solved_workunit
+    description: Projected price-snapshot cache-disabled token marginal cost divided by solved Aider cases;
+      failed cases remain in the numerator.
+    requirements:
+      max_age_hours: null
+      max_future_skew_minutes: '5'
+      minimum_samples: null
+      require_bounds: false
+      require_source: true
+    kind: formula
+    expression: ((signals.aider_prompt_tokens_total * signals.models_dev_input_usd_per_million_tokens
+      + signals.aider_completion_tokens_total * signals.models_dev_output_usd_per_million_tokens) / 1000000)
+      / signals.aider_solved_workunits
+    cost_basis: reconstructed_components
+frontiers:
+  price-snapshot-cost-per-attempted-vs-solve-rate:
+    workload: aider-polyglot
+    axes:
+    - metric: price_snapshot_usd_per_attempted_workunit
+      goal: minimize
+      epsilon_absolute: '0'
+      epsilon_relative: '0.000000001'
+    - metric: solve_rate_2
+      goal: maximize
+      epsilon_absolute: '0'
+      epsilon_relative: '0'
+    order_by: price_snapshot_usd_per_attempted_workunit
+    uncertainty: point
+    eligibility:
+      providers: []
+      regions: []
+      required_capabilities: []
+      allow_unknown_age: false
+      max_source_age_hours:
+        models-dev-selected-cache-disabled-prices: '48'
+    metadata_fields:
+    - models_dev_route
+    - models_dev_model_name
+    - reasoning_effort
+    - edit_format
+    - benchmark_date
+    - aider_version
+  price-snapshot-reconstructed-token-cost-vs-solve-rate:
+    workload: aider-polyglot
+    axes:
+    - metric: price_snapshot_reconstructed_token_cost_usd
+      goal: minimize
+      epsilon_absolute: '0'
+      epsilon_relative: '0.000000001'
+    - metric: solve_rate_2
+      goal: maximize
+      epsilon_absolute: '0'
+      epsilon_relative: '0'
+    order_by: price_snapshot_reconstructed_token_cost_usd
+    uncertainty: point
+    eligibility:
+      providers: []
+      regions: []
+      required_capabilities: []
+      allow_unknown_age: false
+      max_source_age_hours:
+        models-dev-selected-cache-disabled-prices: '48'
+    metadata_fields:
+    - models_dev_route
+    - models_dev_model_name
+    - reasoning_effort
+    - edit_format
+    - benchmark_date
+    - aider_version
+  price-snapshot-cost-per-solved-vs-solve-rate:
+    workload: aider-polyglot
+    axes:
+    - metric: price_snapshot_usd_per_solved_workunit
+      goal: minimize
+      epsilon_absolute: '0'
+      epsilon_relative: '0.000000001'
+    - metric: solve_rate_2
+      goal: maximize
+      epsilon_absolute: '0'
+      epsilon_relative: '0'
+    order_by: price_snapshot_usd_per_solved_workunit
+    uncertainty: point
+    eligibility:
+      providers: []
+      regions: []
+      required_capabilities: []
+      allow_unknown_age: false
+      max_source_age_hours:
+        models-dev-selected-cache-disabled-prices: '48'
+    metadata_fields:
+    - models_dev_route
+    - models_dev_model_name
+    - reasoning_effort
+    - edit_format
+    - benchmark_date
+    - aider_version
+selections: {}
