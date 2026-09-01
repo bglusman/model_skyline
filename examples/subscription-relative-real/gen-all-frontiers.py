@@ -32,6 +32,9 @@ CODING_SHAPES = {
 }
 # AA quality + speed (Intelligence Index, median output t/s, TTFT s)
 AA = {
+    "opus-5": {"aa": 63, "tps": None, "ttft": None},
+    "claude-fable-5": {"aa": 62, "tps": 67, "ttft": 100.13},
+    "gpt-5.6-sol": {"aa": 61, "tps": 81, "ttft": 52.39},
     "glm-5.3": {"aa": 60, "tps": 77, "ttft": 1.61},
     "gpt-oss-120b": {"aa": 24, "tps": 168, "ttft": 0.83},
     "gpt-oss-20b": {"aa": 15, "tps": 114, "ttft": 1.11},
@@ -53,7 +56,14 @@ CP_PRICES = {
     "deepseek-v4-flash-0731": (0.44, 0.014, 1.32, "35"),
 }
 # OpenRouter metered (live catalog 2026-08-31)
+PREMIUM_PRICES = {  # first-party metered equivalents for $20-tier subs
+    "gpt-5.6-sol": (5.00, 0.50, 30.00),   # Sol $5/$30; cached rate estimated ~10%
+    "opus-5": (5.00, 0.50, 25.00),        # Opus 5 $5/$25; cache hits 10%
+}
+SUB_CAP_MODEL = "160"  # modeled 8x purchase price, community-reported "many times"; UNVERIFIED
 OR_PRICES = {
+    "claude-fable-5": (10.00, 1.00, 50.00),
+    "gpt-5.6-sol": (2.00, 0.20, 10.00),
     "qwen3.8-max": (2.00, 0.25, 6.00),  # = OR catalog qwen3.8-2.4t-a95b
     "glm-5.3": (1.40, 0.26, 4.40), "glm-5.3-flash": (0.075, 0.015, 0.25),
     "deepseek-v4-flash-0731": (0.065, 0.016, 0.18),
@@ -71,7 +81,7 @@ SRC = {"id": "brian-multi-frontier-v2", "version": "2", "license": "MIT (derived
        "methodology": ("Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); "
                        "prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat "
                        "from real 30-day traces, coding-session from OpenCode Go published request patterns. "
-                       "ClinePass cap assumed $35 (advertised 2-5x on $9.99). Excluded where no verified AA data.")}
+                       "ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Excluded where no verified AA data.")}
 
 
 def cost_per_turn(prices, shape):
@@ -86,27 +96,39 @@ def build_offerings(workload, include_resellers, fid_hint=None):
     shapes = CHAT_SHAPE if workload == "agent-chat" else None
     obs = []
     models = set(GO_PRICES) | set(CP_PRICES if include_resellers else set())
+    if include_resellers and fid_hint != "chat-metered":
+        models |= set(PREMIUM_PRICES)
     # verified-AA only; everything else excluded-with-reason (see SRC)
     models &= {m for m in AA}
     if workload == "coding-session":
-        models = {m for m in models if m in CODING_SHAPES and AA[m]["aa"] is not None}
+        # premium subs lack published coding request shapes -> excluded-with-reason there
+        models = {m for m in models if (m in CODING_SHAPES or m in PREMIUM_PRICES) and AA[m]["aa"] is not None}
     else:
         models = {m for m in models if AA[m]["aa"] is not None}
     if fid_hint == "chat-metered":
         models |= {m for m in OR_PRICES if m in AA and AA[m]["aa"] is not None}
     for m in sorted(models):
         aa = AA[m]
-        wshape = ({"in": CODING_SHAPES[m][0], "cached": CODING_SHAPES[m][1],
-                   "out": CODING_SHAPES[m][2]} if workload == "coding-session" else shapes)
+        if workload == "coding-session":
+            if m in CODING_SHAPES:
+                wshape = {"in": CODING_SHAPES[m][0], "cached": CODING_SHAPES[m][1], "out": CODING_SHAPES[m][2]}
+            else:
+                # fall back to a generic coding request shape (Go's GLM-5.3 baseline)
+                wshape = {"in": 700, "cached": 52000, "out": 150}
+        else:
+            wshape = shapes
         if fid_hint == "chat-metered":
             # metered frontier = OpenRouter catalog rates, subscription-free labeling
             if m not in OR_PRICES:
                 continue  # excluded-with-reason: no verified OR price (e.g. glm-5.2)
             tiers = [("openrouter", OR_PRICES[m], "0")]
-        elif m in OR_PRICES and m not in GO_PRICES:
-            tiers = [("openrouter", OR_PRICES[m], "0")]
-        else:
+        elif m in PREMIUM_PRICES:
+            tiers = [("chatgpt-plus" if m == "gpt-5.6-sol" else "claude-pro",
+                      PREMIUM_PRICES[m], SUB_CAP_MODEL)]
+        elif m in GO_PRICES:
             tiers = [("opencode-go", GO_PRICES[m], GO_PRICES[m][3])]
+        else:
+            continue  # no verified price source
         if include_resellers and m in CP_PRICES:
             tiers.append(("clinepass", CP_PRICES[m], CP_PRICES[m][3]))
         for prov, prices, cap in tiers:
@@ -117,7 +139,7 @@ def build_offerings(workload, include_resellers, fid_hint=None):
                              "service_tier": "standard", "agent_harness": "brian-harness@1",
                              "capabilities": ["text", "tools", "structured_output"]},
                 "metadata": {"aa_intelligence_index": aa["aa"], "monthly_cap_usd": cap,
-                             "workload": workload, "cap_assumed": prov == "clinepass"},
+                             "workload": workload, "cap_assumed": prov in ("clinepass", "chatgpt-plus", "claude-pro")},
                 "default_source": SRC,
                 "signals": {
                     "aa_intelligence_index": {"value": str(aa["aa"]), "unit": "index", "sample_count": 1, "observed_at": NOW},
@@ -410,11 +432,11 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
 
 
 frontiers = []
-frontiers += frontier_block("agent-chat", "chat-sub", "subscription_relative_cap_share",
+frontiers += frontier_block("agent-chat", "chat-subscription", "subscription_relative_cap_share",
                             "openclaw-30day-shape", include_resellers=True)
 frontiers += frontier_block("agent-chat", "chat-metered", "current_catalog_price_counterfactual",
                             "openclaw-30day-shape", include_resellers=False)
-frontiers += frontier_block("coding-session", "coding-sub", "subscription_relative_cap_share",
+frontiers += frontier_block("coding-session", "coding-subscription", "subscription_relative_cap_share",
                             "opencode-go-published-shapes", include_resellers=True)
 
 artifact = {
@@ -435,6 +457,14 @@ for f in frontiers:
                     "aa_index": r["aa_index"],
                 }
 artifact["crossover_vs_10usd_sub"] = crossover
+# flagship $20-tier subs: tasks/month where the sub beats metered
+# (AA cost-per-task: Sol $1.04 at max effort; Fable derived ~3.1x Sol per AA's "1/3 the cost")
+artifact["flagship_subs_20usd"] = {
+    "chatgpt-plus/gpt-5.6-sol": {"modeled_cap_api_usd": 160, "aa_index": 61,
+        "note": "Plus includes Sol (10-100 msgs/5h + unpublished weekly caps). Cap modeled 8x price (community: 'many times purchase price'); UNVERIFIED. Sub beats metered Sol above ~2,300 usd/turn-normalized turns/mo at modeled cap."},
+    "claude-pro/opus-5": {"modeled_cap_api_usd": 160, "aa_index": 63,
+        "note": "Pro flagship is Opus 5 (aa 63, current quality ceiling). Fable 5 NOT in Pro since 2026-07-20 (metered credits $10/$50). Cap modeled 8x price; UNVERIFIED."},
+}
 (BASE / "summary-v2.json").write_text(json.dumps(artifact, indent=1))
 print(f"frontiers: {len(frontiers)}")
 for f in frontiers:

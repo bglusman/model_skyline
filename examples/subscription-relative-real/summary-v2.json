@@ -1,19 +1,19 @@
 {
  "generated_at": "2026-09-01T00:30:00Z",
  "schema": "brian-multi-frontier-v2",
- "note": "Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat from real 30-day traces, coding-session from OpenCode Go published request patterns. ClinePass cap assumed $35 (advertised 2-5x on $9.99). Excluded where no verified AA data. | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported)",
+ "note": "Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat from real 30-day traces, coding-session from OpenCode Go published request patterns. ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Excluded where no verified AA data. | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via openlm.ai aggregator (vendor-reported)",
  "frontiers": [
   {
-   "id": "chat-sub-economics",
+   "id": "chat-subscription-economics",
    "workload": "agent-chat",
    "axes": [
     "usd/turn \u00d7 intelligence"
    ],
    "primary_label": "USD/turn",
-   "default": "clinepass/glm-5.3",
+   "default": "claude-pro/opus-5",
    "bulk_default": "clinepass/deepseek-v4-flash-0731",
    "fallbacks": [
-    "opencode-go/glm-5.3"
+    "clinepass/glm-5.3"
    ],
    "selection_note": null,
    "ranked": [
@@ -58,6 +58,16 @@
      "dominated_by": []
     },
     {
+     "offering": "claude-pro/opus-5",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.17107,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 63.0,
+     "aa_index": "63",
+     "dominated_by": []
+    },
+    {
      "offering": "opencode-go/qwen3.8-max",
      "on_frontier": false,
      "cap_assumed": false,
@@ -70,6 +80,18 @@
       "clinepass/glm-5.3",
       "opencode-go/deepseek-v4-flash-0731",
       "opencode-go/glm-5.3"
+     ]
+    },
+    {
+     "offering": "chatgpt-plus/gpt-5.6-sol",
+     "on_frontier": false,
+     "cap_assumed": true,
+     "primary": 0.174031,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 61.0,
+     "aa_index": "61",
+     "dominated_by": [
+      "claude-pro/opus-5"
      ]
     }
    ],
@@ -113,41 +135,41 @@
      "secondary": 60.0,
      "aa_index": "60",
      "dominated_by": []
+    },
+    {
+     "offering": "claude-pro/opus-5",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.17107,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 63.0,
+     "aa_index": "63",
+     "dominated_by": []
     }
    ]
   },
   {
-   "id": "chat-sub-responsiveness",
+   "id": "chat-subscription-responsiveness",
    "workload": "agent-chat",
    "axes": [
     "tok/s \u00d7 intelligence"
    ],
    "primary_label": "out tok/s",
-   "default": "clinepass/glm-5.3",
+   "default": "chatgpt-plus/gpt-5.6-sol",
    "bulk_default": null,
    "fallbacks": [
-    "opencode-go/glm-5.3"
+    "clinepass/deepseek-v4-flash-0731"
    ],
    "selection_note": null,
    "ranked": [
     {
-     "offering": "clinepass/glm-5.3",
+     "offering": "chatgpt-plus/gpt-5.6-sol",
      "on_frontier": true,
      "cap_assumed": true,
-     "primary": 77.0,
+     "primary": 81.0,
      "secondary_label": "aa_intelligence_index",
-     "secondary": 60.0,
-     "aa_index": "60",
-     "dominated_by": []
-    },
-    {
-     "offering": "opencode-go/glm-5.3",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 77.0,
-     "secondary_label": "aa_intelligence_index",
-     "secondary": 60.0,
-     "aa_index": "60",
+     "secondary": 61.0,
+     "aa_index": "61",
      "dominated_by": []
     },
     {
@@ -169,27 +191,41 @@
      "secondary": 52.0,
      "aa_index": "52",
      "dominated_by": []
-    }
-   ],
-   "members": [
+    },
     {
      "offering": "clinepass/glm-5.3",
-     "on_frontier": true,
+     "on_frontier": false,
      "cap_assumed": true,
      "primary": 77.0,
      "secondary_label": "aa_intelligence_index",
      "secondary": 60.0,
      "aa_index": "60",
-     "dominated_by": []
+     "dominated_by": [
+      "chatgpt-plus/gpt-5.6-sol"
+     ]
     },
     {
      "offering": "opencode-go/glm-5.3",
-     "on_frontier": true,
+     "on_frontier": false,
      "cap_assumed": false,
      "primary": 77.0,
      "secondary_label": "aa_intelligence_index",
      "secondary": 60.0,
      "aa_index": "60",
+     "dominated_by": [
+      "chatgpt-plus/gpt-5.6-sol"
+     ]
+    }
+   ],
+   "members": [
+    {
+     "offering": "chatgpt-plus/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 81.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 61.0,
+     "aa_index": "61",
      "dominated_by": []
     },
     {
@@ -221,7 +257,7 @@
     "usd/turn \u00d7 intelligence"
    ],
    "primary_label": "USD/turn",
-   "default": "openrouter/glm-5.3",
+   "default": "openrouter/claude-fable-5",
    "bulk_default": "openrouter/gpt-oss-20b",
    "fallbacks": [],
    "selection_note": null,
@@ -264,6 +300,26 @@
      "secondary_label": "aa_intelligence_index",
      "secondary": 60.0,
      "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.068428,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 61.0,
+     "aa_index": "61",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/claude-fable-5",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.342141,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 62.0,
+     "aa_index": "62",
      "dominated_by": []
     },
     {
@@ -315,7 +371,8 @@
      "dominated_by": [
       "openrouter/deepseek-v4-flash-0731",
       "openrouter/glm-5.3",
-      "openrouter/glm-5.3-flash"
+      "openrouter/glm-5.3-flash",
+      "openrouter/gpt-5.6-sol"
      ]
     },
     {
@@ -329,7 +386,8 @@
      "dominated_by": [
       "openrouter/deepseek-v4-flash-0731",
       "openrouter/glm-5.3",
-      "openrouter/glm-5.3-flash"
+      "openrouter/glm-5.3-flash",
+      "openrouter/gpt-5.6-sol"
      ]
     }
    ],
@@ -373,6 +431,26 @@
      "secondary": 60.0,
      "aa_index": "60",
      "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.068428,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 61.0,
+     "aa_index": "61",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/claude-fable-5",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.342141,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 62.0,
+     "aa_index": "62",
+     "dominated_by": []
     }
    ]
   },
@@ -383,19 +461,29 @@
     "tok/s \u00d7 intelligence"
    ],
    "primary_label": "out tok/s",
-   "default": "openrouter/glm-5.3",
+   "default": "openrouter/claude-fable-5",
    "bulk_default": null,
    "fallbacks": [],
    "selection_note": null,
    "ranked": [
     {
-     "offering": "openrouter/glm-5.3",
+     "offering": "openrouter/claude-fable-5",
      "on_frontier": true,
      "cap_assumed": false,
-     "primary": 77.0,
+     "primary": 67.0,
      "secondary_label": "aa_intelligence_index",
-     "secondary": 60.0,
-     "aa_index": "60",
+     "secondary": 62.0,
+     "aa_index": "62",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 81.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 61.0,
+     "aa_index": "61",
      "dominated_by": []
     },
     {
@@ -427,7 +515,21 @@
      "secondary": 57.0,
      "aa_index": "57",
      "dominated_by": [
-      "openrouter/glm-5.3"
+      "openrouter/claude-fable-5",
+      "openrouter/glm-5.3",
+      "openrouter/gpt-5.6-sol"
+     ]
+    },
+    {
+     "offering": "openrouter/glm-5.3",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 77.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": [
+      "openrouter/gpt-5.6-sol"
      ]
     },
     {
@@ -472,13 +574,23 @@
    ],
    "members": [
     {
-     "offering": "openrouter/glm-5.3",
+     "offering": "openrouter/claude-fable-5",
      "on_frontier": true,
      "cap_assumed": false,
-     "primary": 77.0,
+     "primary": 67.0,
      "secondary_label": "aa_intelligence_index",
-     "secondary": 60.0,
-     "aa_index": "60",
+     "secondary": 62.0,
+     "aa_index": "62",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 81.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 61.0,
+     "aa_index": "61",
      "dominated_by": []
     },
     {
@@ -504,16 +616,16 @@
    ]
   },
   {
-   "id": "coding-sub-economics",
+   "id": "coding-subscription-economics",
    "workload": "coding-session",
    "axes": [
     "usd/turn \u00d7 intelligence"
    ],
    "primary_label": "USD/turn",
-   "default": "clinepass/glm-5.3",
+   "default": "claude-pro/opus-5",
    "bulk_default": "clinepass/deepseek-v4-flash-0731",
    "fallbacks": [
-    "opencode-go/glm-5.3"
+    "clinepass/glm-5.3"
    ],
    "selection_note": null,
    "ranked": [
@@ -558,6 +670,16 @@
      "dominated_by": []
     },
     {
+     "offering": "claude-pro/opus-5",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.03325,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 63.0,
+     "aa_index": "63",
+     "dominated_by": []
+    },
+    {
      "offering": "opencode-go/qwen3.8-max",
      "on_frontier": false,
      "cap_assumed": false,
@@ -570,6 +692,18 @@
       "clinepass/glm-5.3",
       "opencode-go/deepseek-v4-flash-0731",
       "opencode-go/glm-5.3"
+     ]
+    },
+    {
+     "offering": "chatgpt-plus/gpt-5.6-sol",
+     "on_frontier": false,
+     "cap_assumed": true,
+     "primary": 0.034,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 61.0,
+     "aa_index": "61",
+     "dominated_by": [
+      "claude-pro/opus-5"
      ]
     }
    ],
@@ -612,6 +746,16 @@
      "secondary_label": "aa_intelligence_index",
      "secondary": 60.0,
      "aa_index": "60",
+     "dominated_by": []
+    },
+    {
+     "offering": "claude-pro/opus-5",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 0.03325,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 63.0,
+     "aa_index": "63",
      "dominated_by": []
     }
    ]
@@ -730,37 +874,27 @@
    ]
   },
   {
-   "id": "coding-sub-responsiveness",
+   "id": "coding-subscription-responsiveness",
    "workload": "coding-session",
    "axes": [
     "tok/s \u00d7 intelligence"
    ],
    "primary_label": "out tok/s",
-   "default": "clinepass/glm-5.3",
+   "default": "chatgpt-plus/gpt-5.6-sol",
    "bulk_default": null,
    "fallbacks": [
-    "opencode-go/glm-5.3"
+    "clinepass/deepseek-v4-flash-0731"
    ],
    "selection_note": null,
    "ranked": [
     {
-     "offering": "clinepass/glm-5.3",
+     "offering": "chatgpt-plus/gpt-5.6-sol",
      "on_frontier": true,
      "cap_assumed": true,
-     "primary": 77.0,
+     "primary": 81.0,
      "secondary_label": "aa_intelligence_index",
-     "secondary": 60.0,
-     "aa_index": "60",
-     "dominated_by": []
-    },
-    {
-     "offering": "opencode-go/glm-5.3",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 77.0,
-     "secondary_label": "aa_intelligence_index",
-     "secondary": 60.0,
-     "aa_index": "60",
+     "secondary": 61.0,
+     "aa_index": "61",
      "dominated_by": []
     },
     {
@@ -782,27 +916,41 @@
      "secondary": 52.0,
      "aa_index": "52",
      "dominated_by": []
-    }
-   ],
-   "members": [
+    },
     {
      "offering": "clinepass/glm-5.3",
-     "on_frontier": true,
+     "on_frontier": false,
      "cap_assumed": true,
      "primary": 77.0,
      "secondary_label": "aa_intelligence_index",
      "secondary": 60.0,
      "aa_index": "60",
-     "dominated_by": []
+     "dominated_by": [
+      "chatgpt-plus/gpt-5.6-sol"
+     ]
     },
     {
      "offering": "opencode-go/glm-5.3",
-     "on_frontier": true,
+     "on_frontier": false,
      "cap_assumed": false,
      "primary": 77.0,
      "secondary_label": "aa_intelligence_index",
      "secondary": 60.0,
      "aa_index": "60",
+     "dominated_by": [
+      "chatgpt-plus/gpt-5.6-sol"
+     ]
+    }
+   ],
+   "members": [
+    {
+     "offering": "chatgpt-plus/gpt-5.6-sol",
+     "on_frontier": true,
+     "cap_assumed": true,
+     "primary": 81.0,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 61.0,
+     "aa_index": "61",
      "dominated_by": []
     },
     {
@@ -849,6 +997,16 @@
    "turns_per_10usd": 150,
    "aa_index": "60"
   },
+  "openrouter/gpt-5.6-sol": {
+   "usd_per_turn": 0.068428,
+   "turns_per_10usd": 146,
+   "aa_index": "61"
+  },
+  "openrouter/claude-fable-5": {
+   "usd_per_turn": 0.342141,
+   "turns_per_10usd": 29,
+   "aa_index": "62"
+  },
   "openrouter/qwen3-30b-a3b-2507": {
    "usd_per_turn": 0.000815,
    "turns_per_10usd": 12269,
@@ -873,6 +1031,18 @@
    "usd_per_turn": 0.074391,
    "turns_per_10usd": 134,
    "aa_index": "52"
+  }
+ },
+ "flagship_subs_20usd": {
+  "chatgpt-plus/gpt-5.6-sol": {
+   "modeled_cap_api_usd": 160,
+   "aa_index": 61,
+   "note": "Plus includes Sol (10-100 msgs/5h + unpublished weekly caps). Cap modeled 8x price (community: 'many times purchase price'); UNVERIFIED. Sub beats metered Sol above ~2,300 usd/turn-normalized turns/mo at modeled cap."
+  },
+  "claude-pro/opus-5": {
+   "modeled_cap_api_usd": 160,
+   "aa_index": 63,
+   "note": "Pro flagship is Opus 5 (aa 63, current quality ceiling). Fable 5 NOT in Pro since 2026-07-20 (metered credits $10/$50). Cap modeled 8x price; UNVERIFIED."
   }
  }
 }
