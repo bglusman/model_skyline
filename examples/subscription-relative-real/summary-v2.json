@@ -1,7 +1,7 @@
 {
  "generated_at": "2026-09-01T00:30:00Z",
  "schema": "brian-multi-frontier-v2",
- "note": "Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat from real 30-day traces, coding-session from OpenCode Go published request patterns. ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Added 2026-09-01: GPT-5.6 Luna/Terra, Muse Spark 1.2, Claude Fable 5.1 (aa 66, cache-read cut to $0.25/M = 1.6x cheaper than Fable 5 at our shape), Qwen3.8-Flash-Next (OR + local-slotstream zero-dollar offering, paid in time: ~49s decode/turn at 12 tok/s) (+contributor tier: Meta trains on prompts, region-limited \u2014 priced accordingly), LongCat 2.0; muse-glimmer excluded (no verified AA). Math-smarts axis: GLM-5.3/Flash and muse-spark lack verifiable GPQA numbers and are excluded-with-reason there \u2014 notable because GLM-5.3 leads the general index. Excluded where no verified AA data. | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | GPQA Diamond vendor-reported | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | GPQA Diamond aggregator-reported | GPQA Diamond vendor-reported | GPQA Diamond vendor-reported | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | SWE-bench Verified via openlm.ai aggregator (vendor-reported)",
+ "note": "Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat from real 30-day traces, coding-session from OpenCode Go published request patterns. ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Added 2026-09-01: GPT-5.6 Luna/Terra, Muse Spark 1.2, Claude Fable 5.1 (aa 66, cache-read cut to $0.25/M = 1.6x cheaper than Fable 5 at our shape), Qwen3.8-Flash-Next (OR + local-slotstream zero-dollar offering, paid in time: ~49s decode/turn at 12 tok/s) (+contributor tier: Meta trains on prompts, region-limited \u2014 priced accordingly), LongCat 2.0; muse-glimmer excluded (no verified AA). Math-smarts axis: GLM-5.3/Flash and muse-spark lack verifiable GPQA numbers and are excluded-with-reason there \u2014 notable because GLM-5.3 leads the general index. Excluded where no verified AA data. | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | GPQA Diamond vendor-reported | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | GPQA Diamond aggregator-reported | GPQA Diamond vendor-reported | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | SWE-bench Verified via openlm.ai aggregator (vendor-reported)",
  "frontiers": [
   {
    "id": "chat-subscription-economics",
@@ -345,20 +345,28 @@
    ],
    "primary_label": "USD/turn",
    "default": "openrouter/claude-fable-5.1",
-   "bulk_default": "local-slotstream/qwen3.8-flash-next",
-   "fallbacks": [
-    "local-slotstream/qwen3.8-flash-next"
-   ],
+   "bulk_default": "openrouter/gpt-oss-20b",
+   "fallbacks": [],
    "selection_note": null,
    "ranked": [
     {
-     "offering": "local-slotstream/qwen3.8-flash-next",
+     "offering": "openrouter/gpt-oss-20b",
      "on_frontier": true,
      "cap_assumed": false,
-     "primary": 0.0,
+     "primary": 0.000515,
      "secondary_label": "aa_intelligence_index",
-     "secondary": 56.0,
-     "aa_index": "56",
+     "secondary": 15.0,
+     "aa_index": "15",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-oss-120b",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.000641,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 24.0,
+     "aa_index": "24",
      "dominated_by": []
     },
     {
@@ -402,30 +410,6 @@
      "dominated_by": []
     },
     {
-     "offering": "openrouter/gpt-oss-20b",
-     "on_frontier": false,
-     "cap_assumed": false,
-     "primary": 0.000515,
-     "secondary_label": "aa_intelligence_index",
-     "secondary": 15.0,
-     "aa_index": "15",
-     "dominated_by": [
-      "qwen3.8-flash-next"
-     ]
-    },
-    {
-     "offering": "openrouter/gpt-oss-120b",
-     "on_frontier": false,
-     "cap_assumed": false,
-     "primary": 0.000641,
-     "secondary_label": "aa_intelligence_index",
-     "secondary": 24.0,
-     "aa_index": "24",
-     "dominated_by": [
-      "qwen3.8-flash-next"
-     ]
-    },
-    {
      "offering": "openrouter/qwen3-30b-a3b-2507",
      "on_frontier": false,
      "cap_assumed": false,
@@ -435,8 +419,7 @@
      "aa_index": "9",
      "dominated_by": [
       "gpt-oss-120b",
-      "gpt-oss-20b",
-      "qwen3.8-flash-next"
+      "gpt-oss-20b"
      ]
     },
     {
@@ -449,8 +432,7 @@
      "aa_index": "14",
      "dominated_by": [
       "gpt-oss-120b",
-      "gpt-oss-20b",
-      "qwen3.8-flash-next"
+      "gpt-oss-20b"
      ]
     },
     {
@@ -463,8 +445,7 @@
      "aa_index": "52",
      "dominated_by": [
       "glm-5.3-flash",
-      "muse-spark-1.2-contributor",
-      "qwen3.8-flash-next"
+      "muse-spark-1.2-contributor"
      ]
     },
     {
@@ -489,8 +470,7 @@
      "aa_index": "56",
      "dominated_by": [
       "glm-5.3-flash",
-      "muse-spark-1.2-contributor",
-      "qwen3.8-flash-next"
+      "muse-spark-1.2-contributor"
      ]
     },
     {
@@ -607,13 +587,23 @@
    ],
    "members": [
     {
-     "offering": "local-slotstream/qwen3.8-flash-next",
+     "offering": "openrouter/gpt-oss-20b",
      "on_frontier": true,
      "cap_assumed": false,
-     "primary": 0.0,
+     "primary": 0.000515,
      "secondary_label": "aa_intelligence_index",
-     "secondary": 56.0,
-     "aa_index": "56",
+     "secondary": 15.0,
+     "aa_index": "15",
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/gpt-oss-120b",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.000641,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 24.0,
+     "aa_index": "24",
      "dominated_by": []
     },
     {
@@ -668,15 +658,35 @@
    "default": "openrouter/gpt-5.6-sol",
    "bulk_default": null,
    "fallbacks": [
-    "local-slotstream/qwen3.8-flash-next"
+    "openrouter/qwen3.8-flash-next"
    ],
    "selection_note": null,
    "ranked": [
     {
-     "offering": "local-slotstream/qwen3.8-flash-next",
+     "offering": "openrouter/gpt-oss-120b",
      "on_frontier": true,
      "cap_assumed": false,
-     "primary": 0.0,
+     "primary": 0.000641,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 80.1,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.003721,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 90.8,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/qwen3.8-flash-next",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.004466,
      "secondary_label": "gpqa_diamond",
      "secondary": 91.7,
      "aa_index": null,
@@ -691,42 +701,6 @@
      "secondary": 94.1,
      "aa_index": null,
      "dominated_by": []
-    },
-    {
-     "offering": "openrouter/gpt-oss-120b",
-     "on_frontier": false,
-     "cap_assumed": false,
-     "primary": 0.000641,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 80.1,
-     "aa_index": null,
-     "dominated_by": [
-      "qwen3.8-flash-next"
-     ]
-    },
-    {
-     "offering": "openrouter/deepseek-v4-flash-0731",
-     "on_frontier": false,
-     "cap_assumed": false,
-     "primary": 0.003721,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 90.8,
-     "aa_index": null,
-     "dominated_by": [
-      "qwen3.8-flash-next"
-     ]
-    },
-    {
-     "offering": "openrouter/qwen3.8-flash-next",
-     "on_frontier": false,
-     "cap_assumed": false,
-     "primary": 0.004466,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 91.7,
-     "aa_index": null,
-     "dominated_by": [
-      "qwen3.8-flash-next"
-     ]
     },
     {
      "offering": "openrouter/gpt-5.6-luna",
@@ -769,10 +743,30 @@
    ],
    "members": [
     {
-     "offering": "local-slotstream/qwen3.8-flash-next",
+     "offering": "openrouter/gpt-oss-120b",
      "on_frontier": true,
      "cap_assumed": false,
-     "primary": 0.0,
+     "primary": 0.000641,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 80.1,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/deepseek-v4-flash-0731",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.003721,
+     "secondary_label": "gpqa_diamond",
+     "secondary": 90.8,
+     "aa_index": null,
+     "dominated_by": []
+    },
+    {
+     "offering": "openrouter/qwen3.8-flash-next",
+     "on_frontier": true,
+     "cap_assumed": false,
+     "primary": 0.004466,
      "secondary_label": "gpqa_diamond",
      "secondary": 91.7,
      "aa_index": null,
@@ -888,18 +882,6 @@
      "aa_index": "60",
      "dominated_by": [
       "gpt-5.6-sol"
-     ]
-    },
-    {
-     "offering": "local-slotstream/qwen3.8-flash-next",
-     "on_frontier": false,
-     "cap_assumed": false,
-     "primary": 89.0,
-     "secondary_label": "aa_intelligence_index",
-     "secondary": 56.0,
-     "aa_index": "56",
-     "dominated_by": [
-      "gpt-5.6-terra"
      ]
     },
     {
@@ -1370,6 +1352,16 @@
   }
  ],
  "crossover_vs_10usd_sub": {
+  "openrouter/gpt-oss-20b": {
+   "usd_per_turn": 0.000515,
+   "turns_per_10usd": 19417,
+   "aa_index": "15"
+  },
+  "openrouter/gpt-oss-120b": {
+   "usd_per_turn": 0.000641,
+   "turns_per_10usd": 15600,
+   "aa_index": "24"
+  },
   "openrouter/muse-spark-1.2-contributor": {
    "usd_per_turn": 0.001911,
    "turns_per_10usd": 5232,
@@ -1389,16 +1381,6 @@
    "usd_per_turn": 0.217175,
    "turns_per_10usd": 46,
    "aa_index": "66"
-  },
-  "openrouter/gpt-oss-20b": {
-   "usd_per_turn": 0.000515,
-   "turns_per_10usd": 19417,
-   "aa_index": "15"
-  },
-  "openrouter/gpt-oss-120b": {
-   "usd_per_turn": 0.000641,
-   "turns_per_10usd": 15600,
-   "aa_index": "24"
   },
   "openrouter/qwen3-30b-a3b-2507": {
    "usd_per_turn": 0.000815,
@@ -1500,21 +1482,21 @@
    "svg": "/chat-metered-economics.svg",
    "workload": "agent-chat",
    "title": "Metered \u00b7 cost\u2194smarts",
-   "points": 19
+   "points": 18
   },
   {
    "id": "math-smarts-chat-metered",
    "svg": "/math-smarts-chat-metered.svg",
    "workload": "agent-chat",
    "title": "Metered \u00b7 math smarts\u2194cost",
-   "points": 8
+   "points": 7
   },
   {
    "id": "chat-metered-responsiveness",
    "svg": "/chat-metered-responsiveness.svg",
    "workload": "agent-chat",
    "title": "Metered \u00b7 speed\u2194smarts",
-   "points": 14
+   "points": 13
   },
   {
    "id": "coding-subscription-economics",
@@ -1625,7 +1607,9 @@
     "coding-subscription-responsiveness",
     "coding-subscription-responsiveness"
    ],
-   "on": [],
+   "on": [
+    "math-smarts-chat-metered"
+   ],
    "near": [
     "chat-subscription-responsiveness (+10% off)",
     "chat-subscription-responsiveness (+10% off)",
@@ -1677,25 +1661,34 @@
    "best": "61",
    "price": 0.174031
   },
-  "qwen3.8-flash-next": {
+  "gpt-oss-20b": {
    "frontiers": [
     "chat-metered-economics",
+    "chat-metered-responsiveness"
+   ],
+   "on": [
+    "chat-metered-economics"
+   ],
+   "near": [
+    "chat-metered-responsiveness (+4% off)"
+   ],
+   "best": "15",
+   "price": 0.000515
+  },
+  "gpt-oss-120b": {
+   "frontiers": [
     "chat-metered-economics",
     "math-smarts-chat-metered",
-    "math-smarts-chat-metered",
-    "chat-metered-responsiveness",
     "chat-metered-responsiveness"
    ],
    "on": [
     "chat-metered-economics",
-    "math-smarts-chat-metered"
+    "math-smarts-chat-metered",
+    "chat-metered-responsiveness"
    ],
-   "near": [
-    "chat-metered-responsiveness (+10% off)",
-    "chat-metered-responsiveness (+10% off)"
-   ],
-   "best": "56",
-   "price": 0.0
+   "near": [],
+   "best": "24",
+   "price": 0.000641
   },
   "muse-spark-1.2-contributor": {
    "frontiers": [
@@ -1720,31 +1713,6 @@
    "near": [],
    "best": "66",
    "price": 0.217175
-  },
-  "gpt-oss-20b": {
-   "frontiers": [
-    "chat-metered-economics",
-    "chat-metered-responsiveness"
-   ],
-   "on": [],
-   "near": [
-    "chat-metered-responsiveness (+4% off)"
-   ],
-   "best": "15",
-   "price": 0.000515
-  },
-  "gpt-oss-120b": {
-   "frontiers": [
-    "chat-metered-economics",
-    "math-smarts-chat-metered",
-    "chat-metered-responsiveness"
-   ],
-   "on": [
-    "chat-metered-responsiveness"
-   ],
-   "near": [],
-   "best": "24",
-   "price": 0.000641
   },
   "qwen3-30b-a3b-2507": {
    "frontiers": [
@@ -1777,6 +1745,21 @@
    "near": [],
    "best": "57",
    "price": 0.003742
+  },
+  "qwen3.8-flash-next": {
+   "frontiers": [
+    "chat-metered-economics",
+    "math-smarts-chat-metered",
+    "chat-metered-responsiveness"
+   ],
+   "on": [
+    "math-smarts-chat-metered"
+   ],
+   "near": [
+    "chat-metered-responsiveness (+10% off)"
+   ],
+   "best": "56",
+   "price": 0.004466
   },
   "longcat-2.0": {
    "frontiers": [

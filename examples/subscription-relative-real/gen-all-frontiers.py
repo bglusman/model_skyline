@@ -147,10 +147,10 @@ def build_offerings(workload, include_resellers, fid_hint=None):
             if m not in OR_PRICES:
                 continue  # excluded-with-reason: no verified OR price (e.g. glm-5.2)
             tiers = [("openrouter", OR_PRICES[m], "0")]
-            if m == "qwen3.8-flash-next":
-                # local via slotstream SSD-streaming (Mac, 12 tok/s, 104GB disk):
-                # tokens free, paid in TIME (49s decode/turn at our shape)
-                tiers.append(("local-slotstream", (0, 0, 0), "0"))
+            # NOTE: local options (e.g. slotstream SSD-streaming) deliberately
+            # excluded: their dominant cost is TIME (slow decode + prefill), which
+            # neither axis captures — a $0 point on the cost axis would corrupt
+            # the frontier. Local belongs here only once a time-cost metric exists.
         elif m in PREMIUM_PRICES:
             tiers = [(PREMIUM_VENDOR[m], PREMIUM_PRICES[m], SUB_CAP_MODEL)]
         elif m in GO_PRICES:
