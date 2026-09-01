@@ -152,88 +152,6 @@
    ]
   },
   {
-   "id": "math-smarts-chat-subscription",
-   "workload": "agent-chat",
-   "axes": [
-    "usd/turn \u00d7 GPQA-Diamond"
-   ],
-   "primary_label": "usd/turn",
-   "default": "chatgpt-plus/gpt-5.6-sol",
-   "bulk_default": null,
-   "fallbacks": [
-    "chatgpt-plus/gpt-5.6-luna"
-   ],
-   "selection_note": null,
-   "ranked": [
-    {
-     "offering": "chatgpt-plus/gpt-5.6-luna",
-     "on_frontier": true,
-     "cap_assumed": true,
-     "primary": 0.006961,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 91.1,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "chatgpt-plus/gpt-5.6-sol",
-     "on_frontier": true,
-     "cap_assumed": true,
-     "primary": 0.174031,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 94.1,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "clinepass/deepseek-v4-flash-0731",
-     "on_frontier": false,
-     "cap_assumed": true,
-     "primary": 0.009535,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 90.8,
-     "aa_index": null,
-     "dominated_by": [
-      "gpt-5.6-luna"
-     ]
-    },
-    {
-     "offering": "opencode-go/deepseek-v4-flash-0731",
-     "on_frontier": false,
-     "cap_assumed": false,
-     "primary": 0.009535,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 90.8,
-     "aa_index": null,
-     "dominated_by": [
-      "gpt-5.6-luna"
-     ]
-    }
-   ],
-   "members": [
-    {
-     "offering": "chatgpt-plus/gpt-5.6-luna",
-     "on_frontier": true,
-     "cap_assumed": true,
-     "primary": 0.006961,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 91.1,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "chatgpt-plus/gpt-5.6-sol",
-     "on_frontier": true,
-     "cap_assumed": true,
-     "primary": 0.174031,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 94.1,
-     "aa_index": null,
-     "dominated_by": []
-    }
-   ]
-  },
-  {
    "id": "chat-subscription-responsiveness",
    "workload": "agent-chat",
    "axes": [
@@ -644,142 +562,6 @@
      "secondary_label": "aa_intelligence_index",
      "secondary": 66.0,
      "aa_index": "66",
-     "dominated_by": []
-    }
-   ]
-  },
-  {
-   "id": "math-smarts-chat-metered",
-   "workload": "agent-chat",
-   "axes": [
-    "usd/turn \u00d7 GPQA-Diamond"
-   ],
-   "primary_label": "usd/turn",
-   "default": "openrouter/gpt-5.6-sol",
-   "bulk_default": null,
-   "fallbacks": [
-    "openrouter/qwen3.8-flash-next"
-   ],
-   "selection_note": null,
-   "ranked": [
-    {
-     "offering": "openrouter/gpt-oss-120b",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.000641,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 80.1,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "openrouter/deepseek-v4-flash-0731",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.003721,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 90.8,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "openrouter/qwen3.8-flash-next",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.004466,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 91.7,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "openrouter/gpt-5.6-sol",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.068428,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 94.1,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "openrouter/gpt-5.6-luna",
-     "on_frontier": false,
-     "cap_assumed": false,
-     "primary": 0.006961,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 91.1,
-     "aa_index": null,
-     "dominated_by": [
-      "deepseek-v4-flash-0731",
-      "qwen3.8-flash-next"
-     ]
-    },
-    {
-     "offering": "openrouter/gpt-5.6-terra",
-     "on_frontier": false,
-     "cap_assumed": false,
-     "primary": 0.069612,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 92.5,
-     "aa_index": null,
-     "dominated_by": [
-      "gpt-5.6-sol"
-     ]
-    },
-    {
-     "offering": "openrouter/claude-fable-5",
-     "on_frontier": false,
-     "cap_assumed": false,
-     "primary": 0.342141,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 92.6,
-     "aa_index": null,
-     "dominated_by": [
-      "gpt-5.6-sol",
-      "gpt-5.6-terra"
-     ]
-    }
-   ],
-   "members": [
-    {
-     "offering": "openrouter/gpt-oss-120b",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.000641,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 80.1,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "openrouter/deepseek-v4-flash-0731",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.003721,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 90.8,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "openrouter/qwen3.8-flash-next",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.004466,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 91.7,
-     "aa_index": null,
-     "dominated_by": []
-    },
-    {
-     "offering": "openrouter/gpt-5.6-sol",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.068428,
-     "secondary_label": "gpqa_diamond",
-     "secondary": 94.1,
-     "aa_index": null,
      "dominated_by": []
     }
    ]
@@ -1464,13 +1246,6 @@
    "points": 8
   },
   {
-   "id": "math-smarts-chat-subscription",
-   "svg": "/math-smarts-chat-subscription.svg",
-   "workload": "agent-chat",
-   "title": "Subscriptions \u00b7 math smarts\u2194cost",
-   "points": 4
-  },
-  {
    "id": "chat-subscription-responsiveness",
    "svg": "/chat-subscription-responsiveness.svg",
    "workload": "agent-chat",
@@ -1483,13 +1258,6 @@
    "workload": "agent-chat",
    "title": "Metered \u00b7 cost\u2194smarts",
    "points": 18
-  },
-  {
-   "id": "math-smarts-chat-metered",
-   "svg": "/math-smarts-chat-metered.svg",
-   "workload": "agent-chat",
-   "title": "Metered \u00b7 math smarts\u2194cost",
-   "points": 7
   },
   {
    "id": "chat-metered-responsiveness",
@@ -1524,10 +1292,8 @@
   "gpt-5.6-luna": {
    "frontiers": [
     "chat-subscription-economics",
-    "math-smarts-chat-subscription",
     "chat-subscription-responsiveness",
     "chat-metered-economics",
-    "math-smarts-chat-metered",
     "chat-metered-responsiveness",
     "coding-subscription-economics",
     "math-smarts-coding-subscription",
@@ -1535,7 +1301,6 @@
    ],
    "on": [
     "chat-subscription-economics",
-    "math-smarts-chat-subscription",
     "chat-subscription-responsiveness",
     "chat-metered-responsiveness",
     "coding-subscription-economics",
@@ -1593,12 +1358,9 @@
    "frontiers": [
     "chat-subscription-economics",
     "chat-subscription-economics",
-    "math-smarts-chat-subscription",
-    "math-smarts-chat-subscription",
     "chat-subscription-responsiveness",
     "chat-subscription-responsiveness",
     "chat-metered-economics",
-    "math-smarts-chat-metered",
     "chat-metered-responsiveness",
     "coding-subscription-economics",
     "coding-subscription-economics",
@@ -1607,9 +1369,7 @@
     "coding-subscription-responsiveness",
     "coding-subscription-responsiveness"
    ],
-   "on": [
-    "math-smarts-chat-metered"
-   ],
+   "on": [],
    "near": [
     "chat-subscription-responsiveness (+10% off)",
     "chat-subscription-responsiveness (+10% off)",
@@ -1636,20 +1396,16 @@
   "gpt-5.6-sol": {
    "frontiers": [
     "chat-subscription-economics",
-    "math-smarts-chat-subscription",
     "chat-subscription-responsiveness",
     "chat-metered-economics",
-    "math-smarts-chat-metered",
     "chat-metered-responsiveness",
     "coding-subscription-economics",
     "math-smarts-coding-subscription",
     "coding-subscription-responsiveness"
    ],
    "on": [
-    "math-smarts-chat-subscription",
     "chat-subscription-responsiveness",
     "chat-metered-economics",
-    "math-smarts-chat-metered",
     "chat-metered-responsiveness",
     "math-smarts-coding-subscription",
     "coding-subscription-responsiveness"
@@ -1678,12 +1434,10 @@
   "gpt-oss-120b": {
    "frontiers": [
     "chat-metered-economics",
-    "math-smarts-chat-metered",
     "chat-metered-responsiveness"
    ],
    "on": [
     "chat-metered-economics",
-    "math-smarts-chat-metered",
     "chat-metered-responsiveness"
    ],
    "near": [],
@@ -1749,12 +1503,9 @@
   "qwen3.8-flash-next": {
    "frontiers": [
     "chat-metered-economics",
-    "math-smarts-chat-metered",
     "chat-metered-responsiveness"
    ],
-   "on": [
-    "math-smarts-chat-metered"
-   ],
+   "on": [],
    "near": [
     "chat-metered-responsiveness (+10% off)"
    ],
@@ -1782,15 +1533,13 @@
   "gpt-5.6-terra": {
    "frontiers": [
     "chat-metered-economics",
-    "math-smarts-chat-metered",
     "chat-metered-responsiveness"
    ],
    "on": [
     "chat-metered-responsiveness"
    ],
    "near": [
-    "chat-metered-economics (+2% off)",
-    "math-smarts-chat-metered (+2% off)"
+    "chat-metered-economics (+2% off)"
    ],
    "best": "57",
    "price": 0.069612
@@ -1809,7 +1558,6 @@
   "claude-fable-5": {
    "frontiers": [
     "chat-metered-economics",
-    "math-smarts-chat-metered",
     "chat-metered-responsiveness"
    ],
    "on": [
@@ -1819,5 +1567,15 @@
    "best": "62",
    "price": 0.342141
   }
+ },
+ "local": {
+  "status": "harness-ready, awaiting measurements",
+  "how": "run measure-local.py against any OpenAI-compatible local endpoint (Ollama/llama.cpp/vLLM/LM Studio/slotstream); it emits schema-valid offerings with real measured tok/s + full stack metadata (runtime/quant/hardware are part of offering identity \u2014 numbers are NOT transferable between stacks)",
+  "hardware_profiles": [
+   "brian-m5-macbook-48 (incoming)",
+   "brian-mac-studio (pending)",
+   "brian-rtx-5060 (pending)",
+   "brian-m2-macbook-16 (static-fit-note: QFN-4bit needs ~32GB > 16GB)"
+  ]
  }
 }
