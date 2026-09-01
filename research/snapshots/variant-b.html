@@ -128,24 +128,25 @@ function drawStair(f, container){
   const ylo = Math.min(...pts.map(yOf)), yhi = Math.max(...pts.map(yOf));
   const ypad = Math.max(1, (yhi-ylo)*0.08);
   const y0 = Math.max(0, ylo-ypad), y1 = yhi+ypad;
-  const X = v => L + (v/front[0].primary - 1)*iw;    // v>=front-min cost maps 1.0..maxX
-  const XR = v => L + (v/front[0].primary - 1)*iw;   // same; minX=frontier min => 1.0
+  // x axis: cost as ×-multiple of the cheapest frontier offering, LOG2 scale so the
+  // 660x dominated tail still fits; domain 1x .. 1024x hard-capped.
+  const log2x = v => Math.log2(Math.max(1, v/front[0].primary));
+  const topMult = Math.max(4, Math.min(1024, 2**Math.ceil(log2x(maxX))));
+  const X = v => L + log2x(v)/Math.log2(topMult) * iw;
   const Y = v => T + (1 - (v-y0)/(y1-y0))*ih;
   const svg = el('svg', {width:W, height:H, viewBox:`0 0 ${W} ${H}`, class:'fig'});
   // axes
   svg.appendChild(el('line', {x1:L, y1:T, x2:L, y2:H-B, class:'axline'}));
   svg.appendChild(el('line', {x1:L, y1:H-B, x2:W-R, y2:H-B, class:'axline'}));
-  // x ticks: 1x, 2x, 4x, 8x, 16x frontier-min cost
-  [1,2,4,8,16].forEach(mult => {
-    const v = front[0].primary*mult;
-    if (v > maxX*front[0].primary) return;
-    const x = XR(v);
-    if (x > W-R) return;
+  // x ticks at 1,2,4,8,...,topMult
+  for (let m=1; m<=topMult; m*=2) {
+    if (m > 1 && m*2 <= topMult) continue; // keep ticks sparse: only powers of two <= topMult
+    const x = X(front[0].primary*m);
     svg.appendChild(el('line', {x1:x, y1:H-B, x2:x, y2:H-B+5, class:'tick'}));
-    svg.appendChild(el('text', {x, y:H-B+16, 'text-anchor':'middle', class:'ticktxt'}, mult+'×'));
-  });
+    svg.appendChild(el('text', {x, y:H-B+16, 'text-anchor':'middle', class:'ticktxt'}, m+'×'));
+  }
   svg.appendChild(el('text', {x:L+iw/2, y:H-8, 'text-anchor':'middle', class:'axtitle'},
-    f.ax + ' (× the cheapest frontier offering)'));
+    f.ax + ' (× the cheapest frontier offering, log₂ scale)'));
   svg.appendChild(el('text', {x:0, y:T+8, class:'axtitle'}, f.ylabel || f.ay));
   // staircase polyline: from (minCost, topY) descending steps to (maxFrontCost, botY)
   const stepPath = [];
@@ -158,7 +159,7 @@ function drawStair(f, container){
   });
   svg.appendChild(el('polyline', {points:stepPath.join(' '), fill:'none', class:'step', 'stroke-width':1.6}));
   // dots + labels
-  const labels = [];
+  let labels = [];
   pts.forEach(r => {
     const st = nearStatus(r, f);
     const cx = XR(r.primary), cy = Y(yOf(r));
@@ -181,7 +182,17 @@ function drawStair(f, container){
       labels.push({x:cx+6, y:cy+3, t1:esc(r.offering.split('/')[1]), t2:esc(fmtMoney(r.primary)), gray:true});
     }
   });
-  // resolve simple label collisions: sort by y, push overlapping labels down
+  // resolve label collisions: dedupe identical (x,y,text) pairs (resellers share a point),
+  // then stack remaining overlaps downward.
+  const seen = {};
+  const dedup = [];
+  labels.forEach(l => {
+    const k = l.x.toFixed(1)+','+l.y.toFixed(1)+','+l.t1;
+    if (seen[k]) { seen[k].t1 = seen[k].t1 + ' (+' + (seen[k].n=(seen[k].n||1)+1) + ')'; return; }
+    seen[k] = Object.assign(l, {n:1});
+    dedup.push(l);
+  });
+  labels = dedup;
   labels.sort((a,b)=>a.y-b.y);
   for (let i=1;i<labels.length;i++){
     if (labels[i].y - labels[i-1].y < 11) labels[i].y = labels[i-1].y + 11;
