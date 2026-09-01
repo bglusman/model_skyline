@@ -330,7 +330,7 @@ def rows_from_evaluated(evaluated, member_ids):
                     "secondary_label": second,
                     "secondary": (round(float(Decimal(axes[second]["value"])), 1) if second else None),
                     "aa_index": (axes["aa_intelligence_index"]["value"] if "aa_intelligence_index" in axes else None),
-                    "dominated_by": x.get("dominated_by") or []})
+                    "dominated_by": sorted({d.split("/", 1)[-1] for d in (x.get("dominated_by") or [])})})
     return out
 
 
@@ -375,8 +375,8 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
         coding_sel = ""
     if wl in ("agent-chat", "coding-session"):
         wlid = "chat" if wl == "agent-chat" else "coding"
-        math_name = f"math-smarts-{wlid}"
-        math_sel_name = f"math-smarts-{wlid}-sel"
+        math_name = f"math-smarts-{fid}"
+        math_sel_name = f"math-smarts-{fid}-sel"
         coding_frontier = f"""
   {math_name}:
     workload: {wl}
@@ -449,9 +449,9 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
         edata = ev.get("data", ev)
         member_ids = {oid(m) for m in edata.get("members", [])}
         wlid = "chat" if wl == "agent-chat" else "coding"
-        math_name = f"math-smarts-{wlid}"
-        math_sel_name = f"math-smarts-{wlid}-sel"
-        if suffix == "responsiveness":
+        math_name = f"math-smarts-{fid}"
+        math_sel_name = f"math-smarts-{fid}-sel"
+        if wl == "agent-chat" and suffix == "responsiveness":
             try:
                 ms = run([str(REPO / ".venv/bin/modelskyline"), "evaluate",
                           f"data/real/subscription-relative/gen-{wl}-{fid}/frontier.yaml",
@@ -496,8 +496,8 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
                                cwd=REPO, capture_output=True, text=True, timeout=90)
                 csd = json.loads(csel.read_text()); csd = csd.get("data", csd)
                 blocks.append({
-                    "id": (f"math-smarts-{wlid}-{fid}" if wlid == "chat" else math_name), "workload": wl,
-                    "axes": ["usd/turn × SWE-bench-Verified"],
+                    "id": f"math-smarts-{fid}", "workload": wl,
+                    "axes": ["usd/turn × GPQA-Diamond"],
                     "primary_label": "usd/turn",
                     "default": oid(csd.get("default", {})), "bulk_default": None,
                     "fallbacks": [oid(f) for f in csd.get("fallbacks", [])],
