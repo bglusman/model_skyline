@@ -22,6 +22,11 @@ def test_display_uses_plain_decimal_not_scientific_notation() -> None:
     assert _display(Decimal("5E+1")) == "50"
 
 
+def test_display_does_not_expand_extreme_decimal_exponents() -> None:
+    assert _display(Decimal("1E+1000000000")) == "1E+1000000000"
+    assert _display(Decimal("1E-1000000000")) == "1E-1000000000"
+
+
 def test_semantic_view_treats_absent_and_null_billing_mode_as_equivalent(
     example_config: ProjectConfig,
     example_catalog: ObservationCatalog,

@@ -15,14 +15,35 @@ from xml.etree import ElementTree as ET  # nosec B405  # nosemgrep
 from model_skyline.models import FrontierSnapshot
 
 RSS_NAMESPACE = "urn:model-skyline:rss:1.0"
+MAX_FIXED_DECIMAL_DISPLAY_LENGTH = 1024
 ET.register_namespace("skyline", RSS_NAMESPACE)
+
+
+def _decimal_display(value: Decimal) -> str:
+    """Prefer plain decimals without expanding an attacker-controlled exponent."""
+
+    if value.is_zero():
+        return "0"
+    sign, digits, exponent = value.as_tuple()
+    if not isinstance(exponent, int):
+        return str(value)
+    coefficient_length = len(digits)
+    if exponent >= 0:
+        fixed_length = sign + coefficient_length + exponent
+    elif coefficient_length + exponent > 0:
+        fixed_length = sign + coefficient_length + 1
+    else:
+        fixed_length = sign + 2 - exponent
+    if fixed_length <= MAX_FIXED_DECIMAL_DISPLAY_LENGTH:
+        return format(value, "f")
+    return str(value)
 
 
 def _display(value: Any) -> str:
     if value is None:
         return ""
     if isinstance(value, Decimal):
-        value = format(value, "f")
+        value = _decimal_display(value)
     return str(value).replace("\r", r"\r").replace("\n", r"\n").replace("\t", r"\t")
 
 
