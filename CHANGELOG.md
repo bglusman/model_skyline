@@ -54,6 +54,11 @@
   identified by the verified signed tag and published npm build metadata.
   OpenClaw traces carrying the former divergent producer identity must be
   reviewed and regenerated; the old producer key is no longer trusted.
+- Clarify that the OpenClaw adapter has no shipped collector. The exact reviewed
+  release can support a one-work-unit isolated Gateway experiment through its
+  diagnostic runtime, but its global asynchronous queue, snapshot drain,
+  internal lifecycle marker, and hidden provider retries cannot establish
+  concurrent production completeness.
 
 ## 0.8.0 - 2026-08-31
 

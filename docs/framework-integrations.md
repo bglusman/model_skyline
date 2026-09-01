@@ -20,7 +20,7 @@ retention, and any attestations named by an adapter.
 | --- | --- | --- | --- |
 | Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with both the installed default and an explicit `-m gpt-5.4` route, plus two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
 | Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | SDK `0.2.148` with its bundled CLI `2.1.251` was installed exactly. A constrained Haiku request (no tools, skills, settings, MCP, fallback, or session persistence; one turn; $0.02 cap) reached the SDK but stopped on API billing/quota before a `ResultMessage`, so it did not prove a live `RequestTrace` or the runtime `costBasis` contract. |
-| OpenClaw | `2026.8.1` at [`ea80657`](https://github.com/openclaw/openclaw/tree/ea806575e6450e4d1efdfc72c19f04be982a1b9b) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures only. The installed `2026.3.2` is intentionally unsupported. |
+| OpenClaw | `2026.8.1` at [`ea80657`](https://github.com/openclaw/openclaw/tree/ea806575e6450e4d1efdfc72c19f04be982a1b9b) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures only; no collector ships. An external plugin using the stock `2026.8.1` runtime can support an isolated Gateway experiment, not concurrent production collection. The installed `2026.3.2` is intentionally unsupported. |
 | Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7), session schema `26`, adapter projection `2` | A `hermes -z --usage-file` JSON report or read-only state SQLite database | Contract, synthetic report, and synthetic schema-v26 database tests. A real keyless, opencode-free run produced one main row and one `title_generation` row on the same model/provider and canonically identical base URL; one raw URL had Hermes's equivalent terminal slash and both rows recorded no billing mode. |
 
 The Codex `0.144.2` success run reported 11,250 inclusive input tokens,
@@ -223,6 +223,23 @@ diagnostics alone cannot satisfy projector version 3. The HMAC protects the
 projector-to-adapter boundary; it is not evidence that an arbitrary caller's
 JSON originated inside OpenClaw.
 
+ModelSkyline does not ship that collector. Ordinary OpenClaw
+`model_call_started`/`model_call_ended` hooks are insufficient: the
+[ended hook has no usage](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/src/plugins/hook-types.ts#L368-L396)
+and
+[hook dispatch is fire-and-forget](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/src/agents/embedded-agent-runner/run/attempt.model-diagnostic-lifecycle.ts#L250-L280).
+An exact-`2026.8.1` external plugin can import the shipped
+[`diagnostic-runtime`](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/src/plugin-sdk/diagnostic-runtime.ts)
+subpath and observe the metadata-only run/model events, but the
+[object-identity lifecycle marker](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/src/infra/diagnostic-model-request-provenance.ts#L11-L43)
+is not exposed in the public metadata type.
+That is enough only for a keyless loopback proof in one isolated, quiescent
+Gateway process with exactly one expected work unit.
+[`agent exec` bypasses normal plugin startup](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/src/cli/program/preaction.test.ts#L508-L518),
+and
+[`agent --local` starts only the hard-coded `diagnostics-otel` plugin](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/src/plugins/one-shot-diagnostics.ts#L77-L115),
+so neither is an equivalent validation host.
+
 Terminal model-call diagnostics are asynchronous while attempt boundaries are
 synchronous. `waitForDiagnosticEventsDrained()` waits only through the queue
 sequence captured when it is called; newer concurrent events may still be
@@ -237,6 +254,11 @@ fails the entire segment. The collector publishes the proven-complete segment
 atomically; only then may it set `segmentEventsComplete` to `true`. Terminal
 diagnostics alone cannot establish expected cardinality because a start event
 may itself have been dropped.
+
+Before a general collector, OpenClaw needs a manifest-gated metadata diagnostics
+capability, public typed or host-verified provenance, an atomic per-run
+watermark/drop/cardinality fence, and, for retry-inclusive cost, provider
+transport-attempt events with a safe route descriptor.
 
 A terminal event contains the latest observed AssistantMessage usage, not a sum
 over hidden transport retries. `usageComplete: true` therefore requires the
