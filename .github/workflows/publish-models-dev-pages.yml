@@ -74,6 +74,9 @@ jobs:
           mkdir -p \
             "${PUBLICATION_SITE}/${PUBLICATION_SUBPATH}" \
             "${PUBLICATION_SITE}/${EVIDENCE_SUBPATH}"
+          test -f pages/index.html
+          test ! -L pages/index.html
+          cp pages/index.html "${PUBLICATION_SITE}/index.html"
           if find "${PUBLICATION_SITE}" -type l -print -quit | grep -q .; then
             echo "Refusing to restore retained state containing symbolic links" >&2
             exit 1
@@ -418,6 +421,7 @@ jobs:
         with:
           name: models-dev-gpt5-site
           path: |
+            ${{ runner.temp }}/modelskyline-site/index.html
             ${{ runner.temp }}/modelskyline-site/models-dev-gpt5
             ${{ runner.temp }}/modelskyline-site/models-dev-gpt5-evidence
           if-no-files-found: error
@@ -456,13 +460,21 @@ jobs:
           set -euo pipefail
           incoming_publication_root="${INCOMING_SITE}/${PUBLICATION_SUBPATH}"
           incoming_evidence_root="${INCOMING_SITE}/${EVIDENCE_SUBPATH}"
+          incoming_index="${INCOMING_SITE}/index.html"
           test -s "${incoming_publication_root}/latest.json"
           test -s "${incoming_evidence_root}/latest.json"
+          test -s "${incoming_index}"
+          test -f pages/index.html
+          test ! -L pages/index.html
+          cmp --silent pages/index.html "${incoming_index}"
           top_level_count="$(find "${INCOMING_SITE}" \
             -mindepth 1 -maxdepth 1 -type d | wc -l)"
           [[ "${top_level_count}" -eq 2 ]]
+          top_level_file_count="$(find "${INCOMING_SITE}" \
+            -mindepth 1 -maxdepth 1 -type f | wc -l)"
+          [[ "${top_level_file_count}" -eq 1 ]]
           if find "${INCOMING_SITE}" -mindepth 1 -maxdepth 1 \
-            ! -type d -print -quit | grep -q .; then
+            ! -type d ! -path "${incoming_index}" -print -quit | grep -q .; then
             echo "Artifact contains an unexpected top-level entry" >&2
             exit 1
           fi
@@ -627,6 +639,7 @@ jobs:
             fi
             git switch --create gh-pages --track origin/gh-pages
             git rm -r --quiet --ignore-unmatch -- \
+              index.html \
               "${PUBLICATION_SUBPATH}" \
               "${EVIDENCE_SUBPATH}"
           else
@@ -639,9 +652,13 @@ jobs:
           fi
 
           mkdir -p "${PUBLICATION_SUBPATH}" "${EVIDENCE_SUBPATH}"
+          cp "${incoming_index}" index.html
           cp -a "${incoming_publication_root}/." "${PUBLICATION_SUBPATH}/"
           cp -a "${incoming_evidence_root}/." "${EVIDENCE_SUBPATH}/"
-          git add --all -- "${PUBLICATION_SUBPATH}" "${EVIDENCE_SUBPATH}"
+          git add --all -- \
+            index.html \
+            "${PUBLICATION_SUBPATH}" \
+            "${EVIDENCE_SUBPATH}"
           if git diff --cached --quiet; then
             echo "Publication content is unchanged"
             exit 0
