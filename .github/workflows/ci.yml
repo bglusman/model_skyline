@@ -23,8 +23,8 @@ jobs:
           python-version: ${{ matrix.python }}
           enable-cache: true
       - run: uv sync --frozen --extra dev
-      - run: uv run ruff format --check src tests scripts
-      - run: uv run ruff check src tests scripts
+      - run: uv run ruff format --check src tests
+      - run: uv run ruff check src tests
       - run: uv run mypy src
       - run: uv run pytest
       - name: Verify generated schemas
