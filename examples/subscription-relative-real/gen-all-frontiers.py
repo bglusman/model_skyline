@@ -69,6 +69,44 @@ PREMIUM_PRICES = {  # first-party metered equivalents for $20-tier subs
     "opus-5": (5.00, 0.50, 25.00),        # Opus 5 $5/$25; cache hits 10%
 }
 PREMIUM_VENDOR = {"gpt-5.6-sol": "chatgpt-plus", "gpt-5.6-luna": "chatgpt-plus", "opus-5": "claude-pro"}
+# LOCAL offerings: purchase model "local", cost = $0 tokens, axes = speed + hardware profile.
+# Hardware identity: offering_id must encode hardware (offering-identity rule) because the
+# SAME model has a different offering per machine class. Only MEASURED entries; estimates excluded.
+LOCAL_HARDWARE = {
+    # Local offerings are populated by MEASUREMENT (measure-local.py harness),
+    # not estimated: tok/s depends on (hardware x runtime x config x load) and
+    # is not transferable between stacks. Empty 'models' = awaiting measurement.
+    # Fit exclusions are static facts and can be declared upfront.
+    "ref-mac-48gb": {
+        "desc": "Reference: 48GB Apple Silicon Mac (slotstream author's measured host)",
+        "models": {},  # see slotstream MEASUREMENTS.md for their published numbers
+    },
+    "brian-m5-macbook-48": {
+        "desc": "48GB M5 MacBook (incoming)",
+        "models": {},
+    },
+    "brian-mac-studio": {
+        "desc": "Mac Studio (config pending)",
+        "models": {},
+    },
+    "brian-m2-macbook-16": {
+        "desc": "16GB M2 MacBook",
+        "models": {},
+    },
+    "brian-rtx-5060": {
+        "desc": "RTX 5060 8GB box",
+        "models": {},
+    },
+}
+LOCAL_FIT_NOTES = {
+    "brian-m2-macbook-16": "Static fact: Qwen3.8-Flash-Next 4-bit needs ~32GB peak (slotstream) — exceeds 16GB RAM. Small models pending measurement.",
+    "brian-rtx-5060": "Static fact: 104GB 4-bit weights exceed 8GB VRAM; slotstream streaming is Apple-specific. Small CUDA models pending measurement.",
+}
+LOCAL_FIT_NOTES = {
+    "brian-m2-macbook-16": "Qwen3.8-Flash-Next excluded: slotstream peak 32GB exceeds 16GB RAM. Smaller models pending measurement.",
+    "brian-rtx-5060": "Qwen3.8-Flash-Next excluded: 104GB weights exceed 8GB VRAM (SSD-streaming runtime is Apple-specific). Smaller CUDA models pending measurement.",
+    "brian-mac-studio": "Model list pending first hardware measurement.",
+}
 SUB_CAP_MODEL = "160"  # modeled 8x purchase price, community-reported "many times"; UNVERIFIED
 OR_PRICES = {
     "gpt-5.6-luna": (0.20, 0.02, 1.20),
@@ -130,6 +168,32 @@ def build_offerings(workload, include_resellers, fid_hint=None):
         models = {m for m in models if (m in CODING_SHAPES or m in PREMIUM_PRICES) and AA[m]["aa"] is not None}
     else:
         models = {m for m in models if AA[m]["aa"] is not None}
+    if fid_hint and "local" in fid_hint:
+        hw = fid_hint.replace("-local", "").replace("chat-", "").replace("coding-", "")
+        prof = LOCAL_HARDWARE.get(hw, {})
+        out = []
+        for mid_, meta in prof.get("models", {}).items():
+            if mid_ not in AA or AA[mid_]["aa"] is None:
+                continue
+            out.append({
+                "offering": {"offering_id": f"local-{hw}/{mid_}", "model_id": mid_,
+                             "provider": f"local-{hw}", "endpoint": "local", "region": "home",
+                             "service_tier": "standard", "quantization": meta["quant"],
+                             "agent_harness": f"brian-harness@1 [{meta['runtime']}]",
+                             "capabilities": ["text", "tools"]},
+                "metadata": {"aa_intelligence_index": AA[mid_]["aa"],
+                             "workload": workload, "cap_assumed": False},
+                "default_source": {"id": f"brian-local-{hw}-v1", "version": "1",
+                                   "license": "MIT (derived); upstream terms preserved",
+                                   "methodology": (f"Local decode {meta['toks']} tok/s "
+                                                   f"({meta['prov']}) on {hw}. Zero marginal dollar "
+                                                   "cost; prefill cost NOT yet an axis. " + meta["src"])},
+                "signals": {
+                    "aa_intelligence_index": {"value": str(AA[mid_]["aa"]), "unit": "index", "sample_count": 1, "observed_at": NOW},
+                    "local_decode_tokens_per_second": {"value": str(meta["toks"]), "unit": "tokens/second", "observed_at": NOW},
+                },
+            })
+        return out
     if fid_hint == "chat-metered":
         models |= {m for m in OR_PRICES if m in AA and AA[m]["aa"] is not None}
     for m in sorted(models):
@@ -236,6 +300,13 @@ metrics:
     signal: swe_bench_verified
     unit: percent
     description: "SWE-bench Verified resolution rate (vals.ai independent runs where available)"
+    requirements:
+      max_age_hours: 8760
+  local_decode_tokens_per_second:
+    kind: signal
+    signal: local_decode_tokens_per_second
+    unit: tokens/second
+    description: "Measured decode speed on the offering's named hardware"
     requirements:
       max_age_hours: 8760
   gpqa_diamond:
@@ -382,7 +453,40 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
     else:
         coding_frontier = ""
         coding_sel = ""
-    if wl in ("agent-chat", "coding-session"):
+    if wl in ("agent-chat", "coding-session") and fid.endswith("-local"):
+        wlid = "chat" if wl == "agent-chat" else "coding"
+        # One local frontier per hardware profile. Offering identity includes the
+        # hardware profile (same model = different offering per machine).
+        # tok/s provenance: "measured" only where real hardware ran; otherwise
+        # slotstream's published scaling curve (est). Models that cannot fit are
+        # excluded-with-reason via LOCAL_FIT notes.
+        hw = fid.replace("-local", "")
+        prof = LOCAL_HARDWARE.get(hw, {})
+        coding_frontier = f"""
+  local-smarts-{wlid}-{hw}:
+    workload: {wl}
+    axes:
+      - metric: local_decode_tokens_per_second
+        goal: maximize
+      - metric: aa_intelligence_index
+        goal: maximize
+        epsilon_absolute: 0.5
+    order_by: local_decode_tokens_per_second
+    uncertainty: point
+    eligibility:
+      allow_unknown_age: false
+    metadata_fields: [aa_intelligence_index, workload]
+"""
+        coding_sel = f"""
+  local-smarts-{wlid}-{hw}-sel:
+    frontier: local-smarts-{wlid}-{hw}
+    strategy: lexicographic
+    count: 2
+    order_by: aa_intelligence_index
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+"""
+    elif wl in ("agent-chat", "coding-session"):
         wlid = "chat" if wl == "agent-chat" else "coding"
         math_name = f"math-smarts-{fid}"
         math_sel_name = f"math-smarts-{fid}-sel"
@@ -460,7 +564,7 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
         wlid = "chat" if wl == "agent-chat" else "coding"
         math_name = f"math-smarts-{fid}"
         math_sel_name = f"math-smarts-{fid}-sel"
-        if wl == "agent-chat" and suffix == "responsiveness":
+        if fid.endswith("-local") and suffix == "responsiveness":
             try:
                 ms = run([str(REPO / ".venv/bin/modelskyline"), "evaluate",
                           f"data/real/subscription-relative/gen-{wl}-{fid}/frontier.yaml",
@@ -477,9 +581,9 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
                                cwd=REPO, capture_output=True, text=True, timeout=90)
                 msd = json.loads(msel.read_text()); msd = msd.get("data", msd)
                 blocks.append({
-                    "id": f"math-smarts-{fid}", "workload": wl,
-                    "axes": ["usd/turn × GPQA-Diamond"],
-                    "primary_label": "usd/turn",
+                    "id": f"local-smarts-{wlid}", "workload": wl,
+                    "axes": ["decode tok/s × intelligence"],
+                    "primary_label": "out tok/s",
                     "default": oid(msd.get("default", {})), "bulk_default": None,
                     "fallbacks": [oid(f) for f in msd.get("fallbacks", [])],
                     "selection_note": None,
@@ -487,8 +591,8 @@ def frontier_block(wl, fid, pmode, cohort, include_resellers):
                     "members": [r for r in mrows if r["on_frontier"]],
                 })
             except Exception as e:
-                print("math-smarts failed:", str(e)[:150])
-        if wl == "coding-session" and suffix == "responsiveness":
+                print("local-smarts failed:", str(e)[:150])
+        if wl == "coding-session" and suffix == "responsiveness" and not fid.endswith("-local"):
             try:
                 cs = run([str(REPO / ".venv/bin/modelskyline"), "evaluate",
                           f"data/real/subscription-relative/gen-{wl}-{fid}/frontier.yaml",
@@ -538,6 +642,12 @@ frontiers += frontier_block("agent-chat", "chat-metered", "current_catalog_price
                             "openclaw-30day-shape", include_resellers=False)
 frontiers += frontier_block("coding-session", "coding-subscription", "subscription_relative_cap_share",
                             "opencode-go-published-shapes", include_resellers=True)
+# Local frontiers: enabled once measure-local.py captures real runs into
+# local_measurements/*.json (see harness). Kept here so the pipeline is ready.
+LOCAL_ENABLED = False
+if LOCAL_ENABLED:
+    frontiers += frontier_block("agent-chat", "chat-local", "local_selfhosted",
+                                "measured-hardware-offerings", include_resellers=False)
 
 artifact = {
     "generated_at": NOW,
