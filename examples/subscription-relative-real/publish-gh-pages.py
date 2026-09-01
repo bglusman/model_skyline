@@ -36,6 +36,11 @@ art = json.loads((SRC / "summary-v2.json").read_text())
 
 # ---------- model table ----------
 FR_ORDER = [f["id"] for f in art["frontiers"]]
+import re as _re
+def _fr_short(fid):
+    m = _re.match(r"local-smarts-(\w+)-(\w[\w-]*)", fid)
+    if m: return f"local·{m.group(2)} speed↔smarts"
+    return None
 FR_SHORT = {
     "chat-subscription-economics": "sub·cost", "chat-metered-economics": "metered·cost",
     "chat-subscription-responsiveness": "sub·speed", "chat-metered-responsiveness": "metered·speed",
@@ -44,6 +49,7 @@ FR_SHORT = {
     "math-smarts-chat-metered": "metered·math", "math-smarts-coding-subscription": "sub·code-math",
     "math-smarts-coding": "metered·code-math",
 }
+FR_SHORT.update({f["id"]: _fr_short(f["id"]) or f["id"] for f in art["frontiers"] if f["id"] not in FR_SHORT})
 rows_html = []
 model_names = sorted(art.get("model_map", {}).items(),
                      key=lambda kv: -(len(kv[1].get("on", [])) * 2 + len(kv[1].get("near", []))))
