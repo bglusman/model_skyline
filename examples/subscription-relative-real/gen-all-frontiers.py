@@ -54,6 +54,7 @@ CP_PRICES = {
 }
 # OpenRouter metered (live catalog 2026-08-31)
 OR_PRICES = {
+    "qwen3.8-max": (2.00, 0.25, 6.00),  # = OR catalog qwen3.8-2.4t-a95b
     "glm-5.3": (1.40, 0.26, 4.40), "glm-5.3-flash": (0.075, 0.015, 0.25),
     "deepseek-v4-flash-0731": (0.065, 0.016, 0.18),
     "qwen3.8-2.4t-a95b": (2.00, 0.25, 6.00), "qwen3.8-27b": (0.425, 0.085, 2.55),
@@ -97,7 +98,12 @@ def build_offerings(workload, include_resellers, fid_hint=None):
         aa = AA[m]
         wshape = ({"in": CODING_SHAPES[m][0], "cached": CODING_SHAPES[m][1],
                    "out": CODING_SHAPES[m][2]} if workload == "coding-session" else shapes)
-        if m in OR_PRICES and m not in GO_PRICES:
+        if fid_hint == "chat-metered":
+            # metered frontier = OpenRouter catalog rates, subscription-free labeling
+            if m not in OR_PRICES:
+                continue  # excluded-with-reason: no verified OR price (e.g. glm-5.2)
+            tiers = [("openrouter", OR_PRICES[m], "0")]
+        elif m in OR_PRICES and m not in GO_PRICES:
             tiers = [("openrouter", OR_PRICES[m], "0")]
         else:
             tiers = [("opencode-go", GO_PRICES[m], GO_PRICES[m][3])]
@@ -417,6 +423,18 @@ artifact = {
     "note": SRC["methodology"],
     "frontiers": frontiers,
 }
+# crossover: turns/month where metered spend equals a $10 subscription
+crossover = {}
+for f in frontiers:
+    if f["id"] == "chat-metered-economics":
+        for r in f["ranked"]:
+            if r["primary"] and r["primary"] > 0:
+                crossover[r["offering"]] = {
+                    "usd_per_turn": r["primary"],
+                    "turns_per_10usd": int(10 / r["primary"]),
+                    "aa_index": r["aa_index"],
+                }
+artifact["crossover_vs_10usd_sub"] = crossover
 (BASE / "summary-v2.json").write_text(json.dumps(artifact, indent=1))
 print(f"frontiers: {len(frontiers)}")
 for f in frontiers:
