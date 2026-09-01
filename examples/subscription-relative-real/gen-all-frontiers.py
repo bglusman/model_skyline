@@ -33,6 +33,11 @@ CODING_SHAPES = {
 # AA quality + speed (Intelligence Index, median output t/s, TTFT s)
 AA = {
     "opus-5": {"aa": 63, "tps": None, "ttft": None},
+    "gpt-5.6-luna": {"aa": 52, "tps": 132, "ttft": 163.88},
+    "gpt-5.6-terra": {"aa": 57, "tps": 119, "ttft": 138.05},
+    "muse-spark-1.2": {"aa": 57, "tps": None, "ttft": None},
+    "muse-spark-1.2-contributor": {"aa": 57, "tps": None, "ttft": None},
+    "longcat-2.0": {"aa": 34, "tps": None, "ttft": None},
     "claude-fable-5": {"aa": 62, "tps": 67, "ttft": 100.13},
     "gpt-5.6-sol": {"aa": 61, "tps": 81, "ttft": 52.39},
     "glm-5.3": {"aa": 60, "tps": 77, "ttft": 1.61},
@@ -58,10 +63,17 @@ CP_PRICES = {
 # OpenRouter metered (live catalog 2026-08-31)
 PREMIUM_PRICES = {  # first-party metered equivalents for $20-tier subs
     "gpt-5.6-sol": (5.00, 0.50, 30.00),   # Sol $5/$30; cached rate estimated ~10%
+    "gpt-5.6-luna": (0.20, 0.02, 1.20),   # Luna in Plus (250-2000 msgs/5h)
     "opus-5": (5.00, 0.50, 25.00),        # Opus 5 $5/$25; cache hits 10%
 }
+PREMIUM_VENDOR = {"gpt-5.6-sol": "chatgpt-plus", "gpt-5.6-luna": "chatgpt-plus", "opus-5": "claude-pro"}
 SUB_CAP_MODEL = "160"  # modeled 8x purchase price, community-reported "many times"; UNVERIFIED
 OR_PRICES = {
+    "gpt-5.6-luna": (0.20, 0.02, 1.20),
+    "gpt-5.6-terra": (2.00, 0.20, 12.00),
+    "muse-spark-1.2": (1.25, 0.15, 4.25),
+    "muse-spark-1.2-contributor": (0.10, 0.002, 0.20),  # trains on prompts; region-limited
+    "longcat-2.0": (0.30, 0.006, 1.20),
     "claude-fable-5": (10.00, 1.00, 50.00),
     "gpt-5.6-sol": (2.00, 0.20, 10.00),
     "qwen3.8-max": (2.00, 0.25, 6.00),  # = OR catalog qwen3.8-2.4t-a95b
@@ -81,7 +93,7 @@ SRC = {"id": "brian-multi-frontier-v2", "version": "2", "license": "MIT (derived
        "methodology": ("Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); "
                        "prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat "
                        "from real 30-day traces, coding-session from OpenCode Go published request patterns. "
-                       "ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Excluded where no verified AA data.")}
+                       "ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Added 2026-09-01: GPT-5.6 Luna/Terra, Muse Spark 1.2 (+contributor tier: Meta trains on prompts, region-limited — priced accordingly), LongCat 2.0; muse-glimmer excluded (no verified AA). Excluded where no verified AA data.")}
 
 
 def cost_per_turn(prices, shape):
@@ -123,8 +135,7 @@ def build_offerings(workload, include_resellers, fid_hint=None):
                 continue  # excluded-with-reason: no verified OR price (e.g. glm-5.2)
             tiers = [("openrouter", OR_PRICES[m], "0")]
         elif m in PREMIUM_PRICES:
-            tiers = [("chatgpt-plus" if m == "gpt-5.6-sol" else "claude-pro",
-                      PREMIUM_PRICES[m], SUB_CAP_MODEL)]
+            tiers = [(PREMIUM_VENDOR[m], PREMIUM_PRICES[m], SUB_CAP_MODEL)]
         elif m in GO_PRICES:
             tiers = [("opencode-go", GO_PRICES[m], GO_PRICES[m][3])]
         else:
