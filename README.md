@@ -17,6 +17,16 @@ evidence. They are research outputs, not current routing instructions; the
 landing page states the applicable freshness, cost-scope, and candidate-set
 limits.
 
+A [live frontier snapshot page](https://bglusman.github.io/model_skyline/research/snapshots/)
+publishes regularly-refreshed Pareto frontiers as a worked *example*: one real
+household's agent + coding workloads across subscription and metered purchase
+paths, with charts, a cross-frontier model map, and full provenance (assumed
+values are flagged, exclusions carry reasons). These are example data for our
+arbitrary frontiers, not recommendations — real use cases lend themselves to
+better-defined, custom frontiers, and the framework exists to support exactly
+that: declare your own workload shape, offerings, and axes; `evaluate` and
+`select` do the rest.
+
 ## The core path
 
 ```text
