@@ -140,6 +140,21 @@ four components. The v1alpha1 policy and snapshot contracts bind exact component
 frontier, catalog, configuration, workload, axis, and full-offering identities.
 They expose measured, missing, and quarantined coverage independently and hard
 exclude candidates that miss a required component or the minimum measured count.
+Every v0.8 component frontier must contain a self-hashed axis-evidence inventory
+covering its exact complete offering universe. The engine attempts both axes
+independently and retains any successful estimate even when the route is
+rejected from the two-axis frontier because its companion metric is missing,
+stale, or invalid. Bundle construction reads only the selected axis from that
+inventory; it never parses rejection reasons. Thus price availability and
+freshness do not erase valid benchmark quality, while the exact frontier and
+bundle identities still change for replay.
+
+The inventory expands the full frontier artifact: it includes complete
+`OfferingKey` values and partial estimates for rejected candidates. Private
+quality projections therefore stamp a durable `public_release_blocked` marker,
+and public publisher authorization cannot override it. Bundle/oracle CLI file
+outputs are private and no-overwrite by default. A distinct reviewed projection
+is required before redistribution.
 Component, frontier, and snapshot IDs must be unique, but those syntactic checks
 cannot prove that two differently packaged frontiers contain statistically
 independent evidence. The operator must declare genuinely distinct intended
@@ -155,12 +170,13 @@ The recommended target general-agent bundle has three required components:
 | [Terminal-Bench through Harbor](https://www.harborframework.com/docs/hosted-harbor/cli-leaderboards) | Multi-step computer/tool work | Exact board and dataset UUIDs, complete embedded schemas, rank and release-date column contract, row UUID, full agent/model source metadata, reasoning claim, and result digest. Current public rows support reviewed quality projection, not production-route cost attribution. |
 | [tau2-bench](https://github.com/sierra-research/tau2-bench/tree/main/web/leaderboard/public/submissions) | Conversational agent policy/tool use | Exact repository commit, manifest class, submission directory, benchmark version, domain, task/split digest, user simulator, retrieval configuration, modality, reasoning effort, and verification flags. Keep airline, retail, telecom, and banking distinct unless a versioned macro workload defines full coverage. |
 
-A reasoning-augmented bundle may add operator-supplied
-[ARC-AGI-2](https://github.com/arcprize/arc-agi-benchmarking) results as a fourth
-required component. Bind the exact task-data and harness commits, split, task-set
-digest, canonical provider/model configuration, attempts, retry/budget policy, and
-per-task results. ARC Prize's website is not a supported scheduled collection
-interface; accept a local official-harness result or manually supplied snapshot.
+A reasoning-augmented bundle may add the implemented fixed-revision
+[ARC-AGI-2 public-evaluation dataset](https://huggingface.co/datasets/arcprize/arc_agi_v2_public_eval)
+as a fourth required component. The current summaries establish an immutable
+result publication, 120-task ID cohort, and recomputed scores, but not task
+bytes, the historical harness, attempt policy, or a deployable model route.
+Those fields remain unattested unless a separate reviewed run sidecar supplies
+them. The collector never accesses the ARC Prize website or attempt files.
 [BFCL](https://github.com/ShishirPatil/gorilla/tree/main/berkeley-function-call-leaderboard)
 is a useful tool-focused substitute for Harbor or tau2-bench, but normally should
 not be added to both and silently triple-weight tool calling.
@@ -183,17 +199,31 @@ its required component IDs and minimum measured-component coverage; visible
 missing evidence alone must not make an insufficiently measured candidate
 eligible.
 
-An optional scalar composite requires a new versioned composite workload with:
+The optional v1alpha1 `QualityOraclePolicy` implements a deliberately narrow
+scalar composite for a new versioned composite workload. It requires:
 
-- an explicit normalization formula and reference population for every input;
-- non-negative Decimal weights and their rationale;
-- macro versus micro aggregation and task/cohort weighting;
-- a fail-closed missing policy, normally requiring every component rather than
-  treating missing as zero;
-- subgroup floors or eligibility rules where an average could conceal a severe
-  regression;
-- a declared uncertainty method. Formula axes cannot currently propagate
-  component intervals and therefore cannot be used for robust dominance.
+- a typed fixed min-max normalization whose digest covers every normative field;
+- positive Decimal weights that sum exactly to one, plus their rationale;
+- a distinct composite workload, every bundle component's stable workload,
+  selected-axis, and source-semantic bindings;
+- snapshot-local exact bundle policy/snapshot, frontier/catalog, raw capture,
+  retrieval, rights, and complete source-descriptor bindings;
+- a selected-quality projection that excludes companion-axis values,
+  availability, freshness, and volatile pins while invalidating on quality,
+  candidate status, source semantics, or `OfferingKey` changes;
+- fail-closed coverage: every component is required, and missing, quarantined,
+  or out-of-reference signals reject the candidate rather than being imputed or
+  clamped;
+- explicit correlation groups and rationale while always declaring that
+  statistical independence is not assumed.
+
+Component bounds and sample counts remain visible, but v1alpha1 does not publish
+composite bounds or a composite sample count because heterogeneous intervals
+and cohorts lack a generic joint interpretation. It does not implement subgroup
+floors, nonlinear utility, candidate-relative normalization, or available-case
+weighting. An operator who needs those semantics should keep the frontiers
+separate or introduce a new reviewed contract. See the
+[composite quality oracle guide](../quality-oracle.md).
 
 ### Freshness and uncertainty
 
@@ -261,11 +291,14 @@ feed a non-executing parser; public configuration must never supply a command.
 Token/cache relationships must be validated per board version rather than
 assuming field names imply disjoint buckets.
 
-The next coding adapter should use the fixed-harness
-[SWE-bench `evaluation/bash-only` results](https://github.com/SWE-bench/experiments/tree/main/evaluation/bash-only),
-where mini-SWE-agent version, reasoning effort, metadata, and per-instance
-results can be bound to a repository commit. Multi-model submissions remain
-composite systems and cannot become bare-model routes.
+The coding adapter uses the fixed-harness
+[SWE-bench `bash-only` website data](https://www.swebench.com/bash-only.html),
+pinned to exact official repository bytes, and selects one exact mini-SWE-agent
+version. It binds reasoning effort, row metadata, the 500-task-set digest, and
+per-instance outcomes while keeping model labels route-free. Multi-model
+submissions remain composite systems and cannot become bare-model routes. The
+official experiments repository can be a future enrichment source only after
+its separate rights and identity contract is reviewed.
 
 Other high-leverage generic inputs are:
 
@@ -284,14 +317,13 @@ Other high-leverage generic inputs are:
   file, and submission PR. `verified` is useful provenance, not proof of route
   identity or cross-benchmark comparability.
 
-ARC-AGI-2 has a clean public leaderboard JSON document, but the current
-[ARC Prize terms](https://arcprize.org/terms) prohibit automated/scripted and
-systematic retrieval. ModelSkyline therefore must not schedule-fetch it without
-written permission; an operator-supplied local snapshot can still be imported
-under its applicable terms. None of these benchmark sources currently provides
-an RSS contract suitable for evidence ingestion. Collectors poll their
-supported JSON/CLI or commit-addressed files; ModelSkyline emits RSS only after
-an exact mapped semantic observation changes.
+The ARC Prize website is not an ingestion source. The implemented ARC-AGI-2
+adapter uses the separately published public Hugging Face dataset API at one
+immutable revision and requires an adapter review to move that pin. None of
+these benchmark sources currently provides an RSS contract suitable for
+evidence ingestion. Collectors use their supported JSON/CLI or
+commit-addressed interfaces; ModelSkyline emits RSS only after an exact mapped
+semantic observation changes.
 
 Framework and repository licenses do not automatically cover every bundled
 dataset, task, leaderboard result, model output, or judge output. Every source
@@ -316,6 +348,15 @@ derived observation only when the operator has documented authority to do so.
   benchmarks; they are not implemented in v0.7, and task-specific adapters
   remain necessary when result identity or telemetry is richer than those
   formats preserve.
+- v0.8 adds a pinned SWE-bench website collector for the exact `bash-only`
+  mini-SWE-agent v2 cohort. It recomputes scores from 500 per-instance outcomes,
+  quarantines incoherent or aggregate-only rows, and requires reviewed
+  quality-only reconciliation before any complete offering receives a score.
+- v0.8 also adds a pinned ARC-AGI-2 Hugging Face public-evaluation collector. It
+  fetches only 32 reviewed summary paths, recomputes the 120-task score, and
+  quarantines incomplete cohorts. Task contents, evaluator revision, attempt
+  policy, folder-to-route identity, and publication permission remain
+  explicitly unattested; only exact reviewed quality projection can map a row.
 - v0.7 ships normalized evidence/reconciliation/report contracts, a strict
   Harbor importer, and content-addressed two-to-four-component bundle policy and
   snapshot contracts. Library and CLI paths build proximity sidecars, hard-gate

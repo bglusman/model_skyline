@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import stat
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -22,6 +24,7 @@ from model_skyline.models import (
     FrontierSnapshot,
     ObservationCatalog,
     ProjectConfig,
+    build_axis_evidence_inventory,
 )
 from model_skyline.quality_bundle import (
     QualityBundleComponent,
@@ -51,6 +54,7 @@ runner = CliRunner()
 
 
 def _without_offering(snapshot: FrontierSnapshot, offering_id: str) -> FrontierSnapshot:
+    assert snapshot.axis_evidence is not None
     remaining = tuple(
         item for item in snapshot.evaluated if item.offering.offering_id != offering_id
     )
@@ -74,11 +78,24 @@ def _without_offering(snapshot: FrontierSnapshot, offering_id: str) -> FrontierS
         )
         for item in remaining
     )
+    axis_evidence = build_axis_evidence_inventory(
+        config_hash=snapshot.config_hash,
+        catalog_hash=snapshot.catalog_hash,
+        generated_at=snapshot.generated_at,
+        workload=snapshot.workload,
+        axes=snapshot.axes,
+        candidates=tuple(
+            candidate
+            for candidate in snapshot.axis_evidence.candidates
+            if candidate.offering.offering_id != offering_id
+        ),
+    )
     provisional = snapshot.model_copy(
         update={
             "snapshot_id": "0" * 64,
             "evaluated": evaluated,
             "members": tuple(item for item in evaluated if not item.dominated_by),
+            "axis_evidence": axis_evidence,
         }
     )
     hashed = provisional.model_copy(update={"snapshot_id": frontier_hash(provisional)})
@@ -474,6 +491,11 @@ def test_cli_builds_bundle_sidecars_and_quality_gated_selection(
         bundle_arguments.extend(("--component-frontier", f"{component_id}={path}"))
     bundle_result = runner.invoke(app, bundle_arguments)
     assert bundle_result.exit_code == 0, bundle_result.output
+    if os.name == "posix":
+        assert stat.S_IMODE(bundle_path.stat().st_mode) == 0o600
+    refused_bundle_overwrite = runner.invoke(app, bundle_arguments)
+    assert refused_bundle_overwrite.exit_code == 2
+    assert "overwrite" in refused_bundle_overwrite.output
     bundle_payload = json.loads(bundle_path.read_text(encoding="utf-8"))
     excluded = next(
         item
@@ -527,3 +549,88 @@ def test_cli_builds_bundle_sidecars_and_quality_gated_selection(
     verify_result = runner.invoke(app, verify_arguments)
     assert verify_result.exit_code == 0, verify_result.output
     assert f"valid quality-gated selection {payload['snapshot_id']}" in verify_result.output
+
+
+def test_cli_bundle_keeps_quality_for_routes_rejected_only_by_companion_axes(
+    tmp_path: Path,
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    target = example_catalog.offerings[0]
+    partial = target.model_copy(
+        update={
+            "signals": {
+                key: value
+                for key, value in target.signals.items()
+                if key not in {"input_uncached_usd_per_million", "ttft_p95_ms"}
+            }
+        }
+    )
+    catalog = example_catalog.model_copy(
+        update={"offerings": [partial, *example_catalog.offerings[1:]]}
+    )
+    frontiers = {
+        component_id: FrontierEngine().calculate(
+            example_config,
+            catalog,
+            frontier_id,
+            generated_at=COMPONENT_TIME,
+        )
+        for component_id, frontier_id in (
+            ("cost-companion", "coding-value"),
+            ("latency-companion", "coding-responsiveness"),
+        )
+    }
+    assert all(
+        target.offering.offering_id
+        not in {item.offering.offering_id for item in frontier.evaluated}
+        for frontier in frontiers.values()
+    )
+    policy = QualityBundlePolicy(
+        bundle_id="cli-companion-independent-quality",
+        version="1",
+        components=tuple(
+            QualityBundleComponent(
+                component_id=component_id,
+                frontier_id=frontier.frontier_id,
+                frontier_snapshot_id=frontier.snapshot_id,
+                frontier_snapshot_hash=frontier.snapshot_id,
+                config_hash=frontier.config_hash,
+                catalog_hash=frontier.catalog_hash,
+                workload=frontier.workload,
+                axes=frontier.axes,
+                quality_metric="coding_session_success",
+                max_age_seconds=3600,
+            )
+            for component_id, frontier in frontiers.items()
+        ),
+        required_component_ids=("cost-companion", "latency-companion"),
+        minimum_measured_components=2,
+    )
+    policy_path = tmp_path / "partial-policy.json"
+    bundle_path = tmp_path / "partial-bundle.json"
+    policy_path.write_text(dump_json(policy), encoding="utf-8")
+    arguments = [
+        "build-quality-bundle",
+        str(policy_path),
+        "--as-of",
+        BUNDLE_TIME.isoformat(),
+        "--output",
+        str(bundle_path),
+    ]
+    for component_id, frontier in frontiers.items():
+        path = tmp_path / f"partial-{component_id}.json"
+        path.write_text(dump_json(frontier), encoding="utf-8")
+        arguments.extend(("--component-frontier", f"{component_id}={path}"))
+
+    result = runner.invoke(app, arguments)
+
+    assert result.exit_code == 0, result.output
+    payload = json.loads(bundle_path.read_text(encoding="utf-8"))
+    candidate = next(
+        item
+        for item in payload["candidates"]
+        if item["offering"]["offering_id"] == target.offering.offering_id
+    )
+    assert candidate["eligible"] is True
+    assert candidate["measured_component_count"] == 2

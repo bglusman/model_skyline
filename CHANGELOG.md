@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.8.0 - 2026-08-31
+
+- Add pinned, fail-closed collectors for the official SWE-bench bash-only
+  mini-SWE-agent 2.0.0 cohort and the ARC-AGI-2 public-evaluation result
+  dataset. Both recompute scores from bounded detail records, quarantine
+  incomplete or incoherent rows, retain no task/attempt content, and produce
+  route-free evidence that cannot be fuzzy-matched to a production offering.
+- Add low-cadence SWE-bench semantic-diff and ARC-AGI-2 dataset-head monitors,
+  CLI status commands, live-source checks, and least-privilege scheduled
+  workflows. ARC head drift always requires manual review and never repins or
+  inherits semantics automatically.
+- Add an optional two-to-four-component scalar quality oracle with typed
+  self-hashed fixed normalization, exact Decimal weights, correlation
+  disclosure, hard complete-component coverage, deterministic replay, and
+  separate semantic, raw, retrieval, rights, capture, and selected-quality
+  identities. Companion price changes do not manufacture a quality change.
+- Add a self-hashed per-axis evidence inventory to v0.8 frontiers. It binds the
+  exact config, catalog, workload, descriptors, time, and complete offering
+  universe and retains each independently valid axis for up to 10,000
+  candidates. Quality remains usable when a route is rejected only because
+  price, latency, or another companion axis is missing or stale; bundle and CLI
+  regressions cover this dependency-scoped invalidation behavior.
+- Harden reviewed benchmark projection and public release. Quality catalogs,
+  bundles, scalar oracles, and enriched catalogs use owner-only, no-overwrite
+  file output; provenance URLs derive from captured evidence rather than CLI
+  claims; exact reconciliation reports are replayed; and a hashed
+  `public_release_blocked` frontier marker prevents a license/source override or
+  later clean-catalog refresh from publishing private mapped evidence.
+- Live validation captured 13 SWE-bench rows (11 admitted, 2 quarantined) and
+  32 ARC-AGI-2 rows (22 admitted, 10 quarantined). Exact cross-feed route
+  overlap is currently empty; one explicitly reviewed Gemini 3 Flash/high
+  quality-applicability projection validates the combined cache-aware
+  cost/quality pipeline but is intentionally private, does not assert the
+  historical benchmark route, and is not a meaningful multi-model ranking.
+
 ## 0.7.0 - 2026-08-31
 
 - Add language-neutral normalized quality-evidence, reviewed reconciliation,

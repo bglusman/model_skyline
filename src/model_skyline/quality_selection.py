@@ -203,6 +203,7 @@ def _build_gated_frontier(
         members=members,
         evaluated=evaluated,
         rejected=rejected,
+        public_release_blocked=source_frontier.public_release_blocked,
         sources=source_frontier.sources,
         source_watermarks=source_frontier.source_watermarks,
     )

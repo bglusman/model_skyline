@@ -30,6 +30,7 @@ from model_skyline.quality_evidence import (
     QualityImportReport,
     QualityReconciliation,
 )
+from model_skyline.quality_oracle import QualityOraclePolicy, QualityOracleSnapshot
 from model_skyline.quality_selection import QualityGatedSelectionSnapshot
 from model_skyline.selection_overlap import (
     CrossFrontierSelectionPolicy,
@@ -50,6 +51,7 @@ ModelT = TypeVar("ModelT", bound=BaseModel)
 # extension-bag depth after parsing; this separate limit protects json.loads.
 MAX_QUALITY_JSON_NESTING_DEPTH = 64
 MAX_QUALITY_JSON_STRUCTURAL_TOKENS = 2_000_000
+MAX_QUALITY_JSON_NUMBER_CHARACTERS = MAX_DECIMAL_INPUT_LENGTH
 
 
 class _DecimalSafeLoader(yaml.SafeLoader):
@@ -152,12 +154,16 @@ def _preflight_quality_json_structure(raw: bytes) -> None:
     structural_tokens = 0
     in_string = False
     escaped = False
+    in_number = False
+    number_characters = 0
 
     quote = 0x22
     backslash = 0x5C
     openers = b"{["
     closers = b"}]"
     structural = b"{}[],:"
+    number_start = b"-0123456789"
+    number_body = b"+-.0123456789Ee"
 
     for byte in raw:
         if in_string:
@@ -171,6 +177,21 @@ def _preflight_quality_json_structure(raw: bytes) -> None:
 
         if byte == quote:
             in_string = True
+            continue
+        if in_number:
+            if byte in number_body:
+                number_characters += 1
+                if number_characters > MAX_QUALITY_JSON_NUMBER_CHARACTERS:
+                    raise InputError(
+                        "cannot parse quality artifact JSON: numeric token exceeds the "
+                        f"{MAX_QUALITY_JSON_NUMBER_CHARACTERS}-character limit"
+                    )
+                continue
+            in_number = False
+            number_characters = 0
+        if byte in number_start:
+            in_number = True
+            number_characters = 1
             continue
         if byte in openers:
             depth += 1
@@ -299,6 +320,14 @@ def load_quality_bundle_snapshot(path: str | Path) -> QualityBundleSnapshot:
     return _validate_sensitive(QualityBundleSnapshot, _load_quality_json(path), path)
 
 
+def load_quality_oracle_policy(path: str | Path) -> QualityOraclePolicy:
+    return _validate_sensitive(QualityOraclePolicy, _load_quality_json(path), path)
+
+
+def load_quality_oracle_snapshot(path: str | Path) -> QualityOracleSnapshot:
+    return _validate_sensitive(QualityOracleSnapshot, _load_quality_json(path), path)
+
+
 def load_quality_gated_selection_snapshot(
     path: str | Path,
 ) -> QualityGatedSelectionSnapshot:
@@ -387,6 +416,12 @@ SCHEMA_IDS = {
     ),
     "quality-bundle-snapshot.schema.json": (
         "urn:model-skyline:schema:v1alpha1:quality-bundle-snapshot"
+    ),
+    "quality-oracle-policy.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:quality-oracle-policy"
+    ),
+    "quality-oracle-snapshot.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:quality-oracle-snapshot"
     ),
     "quality-gated-selection-snapshot.schema.json": (
         "urn:model-skyline:schema:v1alpha1:quality-gated-selection-snapshot"
@@ -872,6 +907,12 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         "quality-bundle-snapshot.schema.json": QualityBundleSnapshot.model_json_schema(
             mode="serialization"
         ),
+        "quality-oracle-policy.schema.json": QualityOraclePolicy.model_json_schema(
+            mode="validation"
+        ),
+        "quality-oracle-snapshot.schema.json": QualityOracleSnapshot.model_json_schema(
+            mode="serialization"
+        ),
         "quality-gated-selection-snapshot.schema.json": (
             QualityGatedSelectionSnapshot.model_json_schema(mode="serialization")
         ),
@@ -888,7 +929,10 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         if name == "harbor-terminal-bench-import-config.schema.json":
             _quality_complete_offering_key(schema)
             _harbor_import_config_conditionals(schema)
-        if name == "quality-bundle-policy.schema.json":
+        if name in {
+            "quality-bundle-policy.schema.json",
+            "quality-oracle-policy.schema.json",
+        }:
             _quality_bundle_policy_conditionals(schema)
         if name == "request-trace-v1alpha2.schema.json":
             _configure_request_trace_schema(schema, version="v1alpha2")
@@ -955,6 +999,22 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
                 "distribution channel before using it for routing. JSON Schema does not "
                 "enforce unique candidate/component identities, hashes, coverage counts, or "
                 "eligibility; run the ModelSkyline semantic and source-artifact verifiers."
+            )
+        if name == "quality-oracle-policy.schema.json":
+            generated_schema["$comment"] = (
+                "This is an explicit opt-in scalar composite; separate benchmark frontiers "
+                "remain the recommended default. JSON Schema cannot enforce exact Decimal "
+                "weight sums, source/reference digest bindings, distinct composite workload, "
+                "correlation-group reuse, or exact bundle-component identity. Run the "
+                "ModelSkyline semantic validator before use."
+            )
+        if name == "quality-oracle-snapshot.schema.json":
+            generated_schema["$comment"] = (
+                "Consumers must replay this snapshot against its exact quality bundle before "
+                "using the score for routing and authenticate its distribution channel. "
+                "Missing and out-of-reference components reject a candidate; the weighted "
+                "index does not assert statistical independence or publication rights for its "
+                "component evidence."
             )
         if name == "quality-gated-selection-snapshot.schema.json":
             generated_schema["$comment"] = (

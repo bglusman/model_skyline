@@ -1,0 +1,64 @@
+name: Check ARC-AGI-2 quality feed
+
+on:
+  schedule:
+    - cron: "17 10 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: modelskyline-arc-agi-feed-monitor
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  inspect:
+    if: >-
+      github.repository == 'bglusman/model_skyline' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.14"
+          enable-cache: true
+      - run: uv sync --frozen
+
+      - name: Inspect public dataset metadata without reading result files
+        env:
+          STATUS_FILE: ${{ runner.temp }}/arc-agi-feed-status.json
+        run: >-
+          uv run modelskyline check-arc-agi-2-feed
+          --report-only --output "${STATUS_FILE}"
+
+      - name: Record bounded status and require the reviewed revision
+        env:
+          STATUS_FILE: ${{ runner.temp }}/arc-agi-feed-status.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -e '
+            .schema_version == "model-skyline/arc-agi-2-feed-status/v1alpha1" and
+            .feed == "arcprize/arc_agi_v2_public_eval" and
+            (.observed_revision | test("^[0-9a-f]{40}$")) and
+            (.pinned_revision | test("^[0-9a-f]{40}$")) and
+            .different_head_policy == "no_automatic_semantic_reuse"
+          ' "${STATUS_FILE}" >/dev/null
+          {
+            echo "### ARC-AGI-2 feed status"
+            echo
+            echo "Source: [ARC-AGI-2 public evaluation](https://huggingface.co/datasets/arcprize/arc_agi_v2_public_eval)."
+            echo
+            jq -r '"Revision status: **\(.state)**; action: **\(.action)**."' \
+              "${STATUS_FILE}"
+            echo
+            echo "This metadata-only monitor does not fetch or publish model labels,"
+            echo "result summaries, attempts, task IDs, prompts, or answers."
+          } >> "${GITHUB_STEP_SUMMARY}"
+          jq -e '.review_required == false' "${STATUS_FILE}" >/dev/null

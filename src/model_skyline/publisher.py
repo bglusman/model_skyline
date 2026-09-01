@@ -773,10 +773,19 @@ def _licensed_sources(
     authorized_source_ids: tuple[str, ...],
 ) -> tuple[SourceReference, ...]:
     sources: dict[str, SourceReference] = {}
+    categorically_private = False
     for snapshot in snapshots:
+        if snapshot.public_release_blocked or any(
+            item.metadata.get("publication_safe") is False for item in snapshot.evaluated
+        ):
+            categorically_private = True
         for source in snapshot.sources:
             sources[content_hash(source)] = source
     if public:
+        if categorically_private:
+            raise PublicationError(
+                "public publication is disabled by publication_safe=false metadata"
+            )
         if not sources:
             raise PublicationError("public publication requires cited source provenance")
         allowed = set(allowed_licenses)
@@ -793,6 +802,29 @@ def _licensed_sources(
                 "public redistribution is not authorized for sources: " + ", ".join(denied)
             )
     return tuple(sources[digest] for digest in sorted(sources))
+
+
+def _reject_categorically_private_catalogs(
+    catalogs: Iterable[ObservationCatalog],
+    *,
+    public: bool,
+) -> None:
+    """Keep an explicit non-public projection out of every public frontier.
+
+    Frontier policy controls which metadata is retained in a snapshot, so this
+    check must happen on the source catalogs before evaluation can filter the
+    marker out.  The snapshot check in ``_licensed_sources`` independently
+    protects retained history and callers that deliberately preserve it.
+    """
+
+    if not public:
+        return
+    if any(
+        offering.metadata.get("publication_safe") is False
+        for catalog in catalogs
+        for offering in catalog.offerings
+    ):
+        raise PublicationError("public publication is disabled by publication_safe=false metadata")
 
 
 def _resolve_frontiers(
@@ -927,6 +959,7 @@ def publish_project(
     catalogs = _catalog_map(catalog_values)
     for catalog in catalogs.values():
         _matching_workload(config, catalog)
+    _reject_categorically_private_catalogs(catalogs.values(), public=public)
     selected_frontiers = _resolve_frontiers(config, catalogs, frontier_ids)
     selected_selections = _resolve_selections(config, selected_frontiers, selection_ids)
 

@@ -20,6 +20,17 @@ from model_skyline.adapters.aider import (
     import_aider_polyglot,
     write_aider_import,
 )
+from model_skyline.adapters.arc_agi import (
+    DEFAULT_TIMEOUT_SECONDS as ARC_AGI_DEFAULT_TIMEOUT_SECONDS,
+)
+from model_skyline.adapters.arc_agi import (
+    MAX_TIMEOUT_SECONDS as ARC_AGI_MAX_TIMEOUT_SECONDS,
+)
+from model_skyline.adapters.arc_agi import (
+    ArcAgiAdapterError,
+    capture_arc_agi_public_eval,
+    write_arc_agi_public_eval_capture,
+)
 from model_skyline.adapters.harbor import (
     HarborAdapterError,
     import_harbor_terminal_bench,
@@ -43,8 +54,30 @@ from model_skyline.adapters.models_dev import (
     project_aider_with_models_dev,
     write_models_dev_projection,
 )
+from model_skyline.adapters.swe_bench import (
+    DEFAULT_MAX_SOURCE_BYTES as SWE_BENCH_DEFAULT_MAX_SOURCE_BYTES,
+)
+from model_skyline.adapters.swe_bench import (
+    HARD_MAX_SOURCE_BYTES as SWE_BENCH_HARD_MAX_SOURCE_BYTES,
+)
+from model_skyline.adapters.swe_bench import (
+    SWE_BENCH_DEFAULT_HARNESS_VERSION,
+    SWE_BENCH_WEBSITE_URL,
+    SweBenchAdapterError,
+    capture_swe_bench,
+    write_swe_bench_capture,
+)
+from model_skyline.arc_feed_monitor import (
+    ArcAgiFeedMonitorError,
+    inspect_arc_agi_feed,
+)
 from model_skyline.canonical import canonical_bytes
 from model_skyline.engine import FrontierEngine, validate_formula_cost_basis
+from model_skyline.feed_monitor import (
+    FeedMonitorError,
+    github_token_from_environment,
+    inspect_swe_bench_feed,
+)
 from model_skyline.formula import compile_formula
 from model_skyline.gateway import (
     MAX_GATEWAY_ARTIFACT_BYTES,
@@ -67,13 +100,26 @@ from model_skyline.io import (
     load_quality_bundle_snapshot,
     load_quality_evidence,
     load_quality_gated_selection_snapshot,
+    load_quality_import_report,
+    load_quality_oracle_policy,
+    load_quality_oracle_snapshot,
     load_quality_reconciliation,
     public_schemas,
 )
 from model_skyline.private_output import PrivateOutputError, write_private_text
 from model_skyline.publisher import PublicationError, publish_project
 from model_skyline.quality_bundle import build_quality_bundle_snapshot
+from model_skyline.quality_catalog import (
+    project_quality_import_report,
+    quality_source_reference,
+    quality_workload_reference,
+)
 from model_skyline.quality_evidence import QualityPublicationScope, reconcile_quality_evidence
+from model_skyline.quality_oracle import (
+    build_quality_oracle_snapshot,
+    enrich_catalog_with_quality_oracle,
+    verify_quality_oracle_snapshot,
+)
 from model_skyline.quality_selection import (
     build_quality_gated_selection_snapshot,
     verify_quality_gated_selection_snapshot,
@@ -1016,6 +1062,189 @@ def import_mcpmark_verified_command(
         _error(exc)
 
 
+@app.command("capture-swe-bench-bash-only")
+def capture_swe_bench_bash_only_command(
+    output_directory: Annotated[Path, typer.Argument(file_okay=False)],
+    source: Annotated[
+        str | None,
+        typer.Option(
+            "--source",
+            help=("local JSON path or HTTPS URL; defaults to the pinned official website feed"),
+        ),
+    ] = None,
+    expected_sha256: Annotated[
+        str | None,
+        typer.Option(
+            "--expected-sha256",
+            help="optional exact source-byte digest; the pinned default is verified",
+        ),
+    ] = None,
+    source_revision: Annotated[
+        str | None,
+        typer.Option(
+            "--source-revision",
+            help="required upstream revision for non-default sources",
+        ),
+    ] = None,
+    retrieved_at: Annotated[
+        str | None,
+        typer.Option(
+            "--retrieved-at",
+            help="timezone-aware provenance timestamp; required for a local source",
+        ),
+    ] = None,
+    harness_version: Annotated[
+        str,
+        typer.Option(
+            "--mini-swe-agent-version",
+            help="exact bash-only mini-SWE-agent cohort to normalize",
+        ),
+    ] = SWE_BENCH_DEFAULT_HARNESS_VERSION,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace the complete private capture bundle"),
+    ] = False,
+    max_bytes: Annotated[
+        int,
+        typer.Option(
+            "--max-bytes",
+            min=1,
+            max=SWE_BENCH_HARD_MAX_SOURCE_BYTES,
+            help="maximum accepted source bytes",
+        ),
+    ] = SWE_BENCH_DEFAULT_MAX_SOURCE_BYTES,
+    timeout_seconds: Annotated[
+        float,
+        typer.Option("--timeout-seconds", min=0.1, max=60.0),
+    ] = 30.0,
+) -> None:
+    """Capture one strict, route-free SWE-bench bash-only quality cohort."""
+
+    try:
+        capture = capture_swe_bench(
+            source or SWE_BENCH_WEBSITE_URL,
+            expected_sha256=expected_sha256,
+            source_revision=source_revision,
+            retrieved_at=_retrieved_at(retrieved_at),
+            harness_version=harness_version,
+            max_bytes=max_bytes,
+            timeout_seconds=timeout_seconds,
+        )
+        targets = write_swe_bench_capture(
+            capture,
+            output_directory,
+            overwrite=overwrite,
+        )
+        typer.echo(
+            f"captured {capture.rows_seen} SWE-bench bash-only rows "
+            f"({capture.valid_rows} valid, {capture.invalid_rows} quarantined)"
+        )
+        typer.echo(f"source identity sha256:{capture.evidence.source_identity_sha256}")
+        for target in targets:
+            typer.echo(target)
+    except (SweBenchAdapterError, OSError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("capture-arc-agi-2-public-eval")
+def capture_arc_agi_2_public_eval_command(
+    output_directory: Annotated[Path, typer.Argument(file_okay=False)],
+    retrieved_at: Annotated[
+        str | None,
+        typer.Option(
+            "--retrieved-at",
+            help="timezone-aware provenance timestamp; defaults to now",
+        ),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace the complete private capture bundle"),
+    ] = False,
+    timeout_seconds: Annotated[
+        float,
+        typer.Option(
+            "--timeout-seconds",
+            min=0.1,
+            max=ARC_AGI_MAX_TIMEOUT_SECONDS,
+            help="total deadline for revision metadata plus all 32 summaries",
+        ),
+    ] = ARC_AGI_DEFAULT_TIMEOUT_SECONDS,
+) -> None:
+    """Capture pinned ARC-AGI-2 summaries without fetching attempt content."""
+
+    try:
+        capture = capture_arc_agi_public_eval(
+            retrieved_at=_retrieved_at(retrieved_at),
+            timeout_seconds=timeout_seconds,
+        )
+        targets = write_arc_agi_public_eval_capture(
+            capture,
+            output_directory,
+            overwrite=overwrite,
+        )
+        typer.echo(
+            f"captured {capture.rows_seen} ARC-AGI-2 public-eval rows "
+            f"({capture.valid_rows} valid, {capture.invalid_rows} quarantined)"
+        )
+        typer.echo(f"source identity sha256:{capture.evidence.source_identity_sha256}")
+        for target in targets:
+            typer.echo(target)
+    except (ArcAgiAdapterError, OSError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("check-swe-bench-feed")
+def check_swe_bench_feed_command(
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False),
+    ] = None,
+    fail_on_semantic_change: Annotated[
+        bool,
+        typer.Option(
+            "--fail-on-semantic-change/--report-only",
+            help="exit 3 after rendering a source, subject, row-set, or result change",
+        ),
+    ] = True,
+) -> None:
+    """Compare the latest official SWE-bench file with the reviewed pin."""
+
+    try:
+        status = inspect_swe_bench_feed(
+            github_token=github_token_from_environment(),
+        )
+        _emit(json.dumps(status.document(), indent=2, ensure_ascii=False) + "\n", output)
+    except (FeedMonitorError, OSError, TypeError, ValueError) as exc:
+        _error(exc)
+    if status.semantic_change and fail_on_semantic_change:
+        raise typer.Exit(code=3)
+
+
+@app.command("check-arc-agi-2-feed")
+def check_arc_agi_2_feed_command(
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False),
+    ] = None,
+    fail_on_change: Annotated[
+        bool,
+        typer.Option(
+            "--fail-on-change/--report-only",
+            help="exit 3 after rendering a dataset head that differs from the reviewed pin",
+        ),
+    ] = True,
+) -> None:
+    """Check whether ARC-AGI-2 still points at the reviewed dataset revision."""
+
+    try:
+        status = inspect_arc_agi_feed()
+        _emit(json.dumps(status.document(), indent=2, ensure_ascii=False) + "\n", output)
+    except (ArcAgiFeedMonitorError, OSError, TypeError, ValueError) as exc:
+        _error(exc)
+    if status.review_required and fail_on_change:
+        raise typer.Exit(code=3)
+
+
 @app.command("inspect-harbor-terminal-bench")
 def inspect_harbor_terminal_bench_command(
     snapshot: Annotated[
@@ -1106,6 +1335,53 @@ def reconcile_quality_evidence_command(
         _error(exc)
 
 
+@app.command("project-quality-catalog")
+def project_quality_catalog_command(
+    evidence: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    reconciliation: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    report: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    workload_id: Annotated[str, typer.Option("--workload-id")],
+    workload_unit: Annotated[str, typer.Option("--workload-unit")],
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace an existing private quality catalog"),
+    ] = False,
+) -> None:
+    """Project reviewed benchmark rows into a private quality-only catalog."""
+
+    try:
+        normalized = load_quality_evidence(evidence)
+        source = quality_source_reference(normalized)
+        workload = quality_workload_reference(
+            normalized,
+            workload_id=workload_id,
+            unit=workload_unit,
+        )
+        catalog = project_quality_import_report(
+            normalized,
+            load_quality_reconciliation(reconciliation),
+            load_quality_import_report(report),
+            workload=workload,
+            source=source,
+        )
+        _emit_private(dump_json(catalog), output, overwrite=overwrite)
+    except (InputError, PrivateOutputError, OSError, TypeError, ValueError) as exc:
+        _error(exc)
+
+
 @app.command("build-quality-bundle")
 def build_quality_bundle_command(
     policy: Annotated[
@@ -1136,6 +1412,10 @@ def build_quality_bundle_command(
         Path | None,
         typer.Option("--output", "-o", dir_okay=False),
     ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace an existing private quality bundle"),
+    ] = False,
     as_of: Annotated[str | None, typer.Option("--as-of")] = None,
 ) -> None:
     """Build a hard quality-coverage gate from exact component frontiers."""
@@ -1152,19 +1432,135 @@ def build_quality_bundle_command(
             *frontiers.values(),
             *(load_frontier_snapshot(path) for path in candidate_frontiers or ()),
         )
-        candidate_by_identity = {
-            canonical_bytes(item.offering): item.offering
-            for frontier in candidate_sources
-            for item in frontier.evaluated
-        }
+        candidate_by_identity = {}
+        for frontier in candidate_sources:
+            if frontier.axis_evidence is None:
+                raise ValueError(
+                    f"candidate frontier {frontier.frontier_id!r} lacks a complete axis "
+                    "evidence inventory; re-evaluate it with ModelSkyline v0.8 or later"
+                )
+            for item in frontier.axis_evidence.candidates:
+                candidate_by_identity[canonical_bytes(item.offering)] = item.offering
         snapshot = build_quality_bundle_snapshot(
             load_quality_bundle_policy(policy),
             frontiers,
             candidate_by_identity.values(),
             generated_at=_as_of(as_of) or datetime.now(UTC),
         )
-        _emit(dump_json(snapshot), output)
+        _emit_private(dump_json(snapshot), output, overwrite=overwrite)
+    except (InputError, PrivateOutputError, OSError, TypeError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("build-quality-oracle")
+def build_quality_oracle_command(
+    policy: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    quality_bundle: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace an existing private quality oracle"),
+    ] = False,
+    as_of: Annotated[str | None, typer.Option("--as-of")] = None,
+) -> None:
+    """Build an opt-in fixed-reference quality index from an exact bundle."""
+
+    try:
+        snapshot = build_quality_oracle_snapshot(
+            load_quality_oracle_policy(policy),
+            load_quality_bundle_snapshot(quality_bundle),
+            generated_at=_as_of(as_of) or datetime.now(UTC),
+        )
+        _emit_private(dump_json(snapshot), output, overwrite=overwrite)
+    except (InputError, PrivateOutputError, OSError, TypeError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("verify-quality-oracle")
+def verify_quality_oracle_command(
+    policy: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    quality_bundle: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    snapshot: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    at: Annotated[
+        str | None,
+        typer.Option("--at", help="timezone-aware verification time; defaults to now"),
+    ] = None,
+) -> None:
+    """Replay an oracle derivation against its exact bundle snapshot."""
+
+    try:
+        verify_quality_oracle_snapshot(
+            load_quality_oracle_policy(policy),
+            load_quality_bundle_snapshot(quality_bundle),
+            load_quality_oracle_snapshot(snapshot),
+            now=_verification_time(at) or datetime.now(UTC),
+        )
+        typer.echo("quality oracle derivation verified")
     except (InputError, OSError, TypeError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("enrich-catalog-with-quality-oracle")
+def enrich_catalog_with_quality_oracle_command(
+    catalog: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    policy: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    quality_bundle: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    snapshot: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace an existing private enriched catalog"),
+    ] = False,
+    at: Annotated[
+        str | None,
+        typer.Option("--at", help="timezone-aware verification time; defaults to now"),
+    ] = None,
+) -> None:
+    """Replay trusted oracle inputs, then enrich the exact matching cost catalog."""
+
+    try:
+        enriched = enrich_catalog_with_quality_oracle(
+            load_catalog(catalog),
+            load_quality_oracle_policy(policy),
+            load_quality_bundle_snapshot(quality_bundle),
+            load_quality_oracle_snapshot(snapshot),
+            now=_verification_time(at) or datetime.now(UTC),
+        )
+        _emit_private(dump_json(enriched), output, overwrite=overwrite)
+    except (InputError, PrivateOutputError, OSError, TypeError, ValueError) as exc:
         _error(exc)
 
 

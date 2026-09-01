@@ -1,0 +1,67 @@
+name: Check SWE-bench quality feed
+
+on:
+  schedule:
+    - cron: "41 9 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: modelskyline-swe-bench-feed-monitor
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  inspect:
+    if: >-
+      github.repository == 'bglusman/model_skyline' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          python-version: "3.14"
+          enable-cache: true
+      - run: uv sync --frozen
+
+      - name: Normalize the latest supported cohort without retaining raw data
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          STATUS_FILE: ${{ runner.temp }}/swe-bench-feed-status.json
+        run: >-
+          uv run modelskyline check-swe-bench-feed
+          --report-only --output "${STATUS_FILE}"
+
+      - name: Record bounded status and require semantic stability
+        env:
+          STATUS_FILE: ${{ runner.temp }}/swe-bench-feed-status.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -e '
+            .schema_version == "model-skyline/swe-bench-feed-status/v1alpha1" and
+            .feed == "swe-bench/bash-only/mini-swe-agent-2.0.0" and
+            (.latest_file_revision | test("^[0-9a-f]{40}$")) and
+            (.raw_sha256 | test("^[0-9a-f]{64}$")) and
+            (.source_identity_sha256 | test("^[0-9a-f]{64}$")) and
+            (.rows.seen == (.rows.valid + .rows.invalid))
+          ' "${STATUS_FILE}" >/dev/null
+          {
+            echo "### SWE-bench feed status"
+            echo
+            echo "Source: [SWE-bench bash-only](https://www.swebench.com/bash-only.html),"
+            echo "official website repository data licensed CC-BY-NC-4.0."
+            echo
+            jq -r '"Semantic status: **\(.change)**; action: **\(.action)**."' \
+              "${STATUS_FILE}"
+            echo
+            echo "Detailed hashes, row counts, and quarantine reasons remain in the"
+            echo "ephemeral local status file and are not published by this workflow."
+          } >> "${GITHUB_STEP_SUMMARY}"
+          jq -e '.semantic_change == false' "${STATUS_FILE}" >/dev/null

@@ -139,6 +139,113 @@
       "title": "AxisEstimate",
       "type": "object"
     },
+    "AxisEvidenceCandidate": {
+      "additionalProperties": false,
+      "description": "Per-axis evidence for one complete offering, including partial failures.",
+      "properties": {
+        "offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "axes": {
+          "additionalProperties": {
+            "$ref": "#/$defs/AxisEstimate"
+          },
+          "title": "Axes",
+          "type": "object"
+        }
+      },
+      "required": [
+        "offering"
+      ],
+      "title": "AxisEvidenceCandidate",
+      "type": "object"
+    },
+    "AxisEvidenceInventory": {
+      "additionalProperties": false,
+      "description": "Self-hashed axis-specific inventory replayed from one config and catalog.",
+      "properties": {
+        "schema_version": {
+          "const": "model-skyline/axis-evidence-inventory/v1alpha1",
+          "default": "model-skyline/axis-evidence-inventory/v1alpha1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "const": "axis-evidence-inventory",
+          "default": "axis-evidence-inventory",
+          "title": "Kind",
+          "type": "string"
+        },
+        "hash_algorithm": {
+          "const": "sha256-rfc8785-v1",
+          "default": "sha256-rfc8785-v1",
+          "title": "Hash Algorithm",
+          "type": "string"
+        },
+        "config_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "catalog_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Catalog Hash",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "workload": {
+          "$ref": "#/$defs/WorkloadReference"
+        },
+        "axes": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/AxisDescriptor"
+            },
+            {
+              "$ref": "#/$defs/AxisDescriptor"
+            }
+          ],
+          "title": "Axes",
+          "type": "array"
+        },
+        "candidate_universe_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Candidate Universe Hash",
+          "type": "string"
+        },
+        "candidates": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/AxisEvidenceCandidate"
+          },
+          "maxItems": 10000,
+          "title": "Candidates",
+          "type": "array"
+        },
+        "inventory_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Inventory Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "config_hash",
+        "catalog_hash",
+        "generated_at",
+        "workload",
+        "axes",
+        "candidate_universe_hash",
+        "inventory_id"
+      ],
+      "title": "AxisEvidenceInventory",
+      "type": "object"
+    },
     "CandidateRankEvidence": {
       "additionalProperties": false,
       "properties": {
@@ -450,6 +557,22 @@
           },
           "title": "Rejected",
           "type": "array"
+        },
+        "axis_evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AxisEvidenceInventory"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "public_release_blocked": {
+          "default": false,
+          "title": "Public Release Blocked",
+          "type": "boolean"
         },
         "sources": {
           "default": [],

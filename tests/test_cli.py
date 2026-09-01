@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
+from model_skyline.arc_feed_monitor import ArcAgiFeedState, ArcAgiFeedStatus
 from model_skyline.cli import _safe_error_message, app
 
 ROOT = Path(__file__).parents[1]
@@ -114,6 +117,8 @@ def test_cli_exports_contract_schemas(tmp_path) -> None:
     assert (output / "cross-frontier-selection-policy.schema.json").is_file()
     assert (output / "frontier-proximity.schema.json").is_file()
     assert (output / "quality-gated-selection-snapshot.schema.json").is_file()
+    assert (output / "quality-oracle-policy.schema.json").is_file()
+    assert (output / "quality-oracle-snapshot.schema.json").is_file()
     assert (output / "project-config.schema.json").read_bytes() == (
         ROOT / "schemas" / "project-config.schema.json"
     ).read_bytes()
@@ -123,7 +128,46 @@ def test_cli_reports_package_version() -> None:
     result = runner.invoke(app, ["--version"])
 
     assert result.exit_code == 0
-    assert result.output.strip() == "0.7.0"
+    assert result.output.strip() == "0.8.0"
+
+
+def test_cli_arc_feed_monitor_fails_after_rendering_changed_head(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    status = ArcAgiFeedStatus(
+        observed_revision="1" * 40,
+        pinned_revision="0" * 40,
+        observed_last_modified=datetime(2026, 8, 31, 22, tzinfo=UTC),
+        retrieved_at=datetime(2026, 8, 31, 23, tzinfo=UTC),
+        state=ArcAgiFeedState.REVIEW_REQUIRED,
+    )
+    monkeypatch.setattr("model_skyline.cli.inspect_arc_agi_feed", lambda: status)
+
+    failed = runner.invoke(app, ["check-arc-agi-2-feed"])
+    reported = runner.invoke(app, ["check-arc-agi-2-feed", "--report-only"])
+
+    assert failed.exit_code == 3
+    assert json.loads(failed.output)["action"] == "manual_adapter_review"
+    assert reported.exit_code == 0
+    assert json.loads(reported.output)["different_head_policy"] == ("no_automatic_semantic_reuse")
+
+
+def test_cli_arc_feed_monitor_accepts_reviewed_pin(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    status = ArcAgiFeedStatus(
+        observed_revision="0" * 40,
+        pinned_revision="0" * 40,
+        observed_last_modified=datetime(2026, 8, 31, 22, tzinfo=UTC),
+        retrieved_at=datetime(2026, 8, 31, 23, tzinfo=UTC),
+        state=ArcAgiFeedState.PINNED,
+    )
+    monkeypatch.setattr("model_skyline.cli.inspect_arc_agi_feed", lambda: status)
+
+    result = runner.invoke(app, ["check-arc-agi-2-feed"])
+
+    assert result.exit_code == 0
+    assert json.loads(result.output)["review_required"] is False
 
 
 def test_cli_error_messages_escape_terminal_controls_and_are_bounded() -> None:

@@ -113,7 +113,11 @@ materially from Python, ADR 0001 should be reopened.
 : All evaluated offerings are retained, including dominated candidates. This
   matters because a runtime eligibility change requires recomputing the
   frontier: merely filtering existing frontier members can omit an offering
-  that was dominated only by the now-ineligible model.
+  that was dominated only by the now-ineligible model. v0.8 snapshots also
+  carry a self-hashed axis-evidence inventory bound to the exact config,
+  catalog, workload, descriptors, timestamp, and complete offering universe.
+  It records each axis that passed independently even when the other axis
+  failed, so missing or stale price cannot erase still-valid quality.
 
 `SelectionDefinition`
 : An explicit ordering axis, desired count, provider diversity constraint,
@@ -138,9 +142,23 @@ materially from Python, ADR 0001 should be reopened.
   snapshots that the operator declares as distinct benchmark evidence. It
   retains each benchmark's own units and estimates, matches every `OfferingKey`
   field exactly, and prevents candidates with insufficient required evidence
-  from becoming eligible. Unique IDs and hashes prevent literal artifact reuse;
-  they do not prove statistical independence or detect repackaged duplicate
-  evidence.
+  from becoming eligible. Bundle construction requires the v0.8 axis inventory
+  and never infers measurements from rejection strings or Pareto membership.
+  Unique IDs and hashes prevent literal artifact reuse; they do not prove
+  statistical independence or detect repackaged duplicate evidence.
+
+`QualityOraclePolicy` and `QualityOracleSnapshot`
+: An optional scalar index layered on an exact bundle snapshot. Its stable
+  policy requires every two-to-four component signal, typed self-hashed min-max
+  references, positive Decimal weights summing to one, source semantics, and
+  correlation disclosure. Volatile bundle/frontier/catalog/source-capture pins
+  live in the replayable snapshot. A domain-versioned selected-quality
+  projection excludes the companion axis, so companion value, availability,
+  and freshness changes do not alter quality identity while the selected
+  quality estimate remains valid. Missing, quarantined, or out-of-reference
+  quality values reject a candidate. Heterogeneous component bounds and sample
+  counts are retained but not aggregated. See the
+  [composite quality oracle guide](quality-oracle.md).
 
 ## Metric evaluation
 
@@ -536,6 +554,13 @@ Public mode adds an HTTPS-base-URL requirement and checks the sources of both
 the candidate and the entire retained frontier history. Every source must have
 a license named by `--allow-license` or an exact id named by
 `--authorize-source`, representing separately documented authority. It also
+categorically rejects a source catalog or retained evaluated item marked
+`publication_safe: false`; neither a license allowlist nor a source-id override
+can weaken that boundary. Quality-evidence projectors retain the evidence's
+descriptive upstream license and explicit permission metadata for audit, but a
+license expression alone is not redistribution permission. The durable
+categorical marker remains authoritative, and public release requires a separate
+reviewed publication projection. It also
 rejects aliases or immutable files not reachable from the committed chain or
 the exact candidate, so an interrupted candidate can be retried but arbitrary
 orphan content cannot silently become part of a public tree. These checks make
@@ -543,6 +568,24 @@ redistribution intent explicit; they do not determine that a license applies,
 provide legal advice, or inspect content for secrets, prompts, personal data,
 or private endpoints. Privacy review and source-rights verification remain
 operator responsibilities.
+
+The full frontier JSON is an audit/derivation artifact, not a minimal public
+view. Its axis inventory includes complete `OfferingKey` values and successful
+partial estimates for candidates rejected on the other axis. This is an
+intentional v0.8 contract expansion needed for dependency-scoped invalidation.
+The inventory is capped at 10,000 candidates, so evaluation fails rather than
+emitting an unbounded artifact. Each retained estimate includes its source
+descriptors as well as its value and bounds.
+Do not distribute a frontier derived from private mappings merely because its
+table view looks harmless. The engine stamps `public_release_blocked: true`
+when any source-catalog offering has `publication_safe: false`; that hashed flag
+survives metadata projection and retained history, and public publishing cannot
+override it with a license or source allowlist.
+Keep such full snapshots in private content-addressed storage. When a public
+view is required, build a separate reviewed catalog/frontier projection that
+contains only fields and candidates authorized for release; removing the
+inventory from an existing snapshot would invalidate its hash and is not a
+publication mechanism.
 
 The filesystem trust boundary is also explicit: the output root and every
 parent directory must be exclusively writable by the publisher identity.
@@ -657,9 +700,9 @@ last-known-good bundle.
    reviewed signed gateway channel and signing-key operational profile.
 5. Build Wardwright as the first native signed-protocol consumer, followed by
    gateway and framework adapters described in `gateway-integrations.md`.
-6. Operationalize the implemented Harbor Terminal-Bench evidence adapter; add
-   fixed-harness SWE-bench and tau2-bench collectors, then a local/manual
-   ARC-AGI-2 importer and broader licensed research, customer-service, and
+6. Operationalize the implemented Harbor Terminal-Bench, pinned fixed-harness
+   SWE-bench, and immutable-revision ARC-AGI-2 evidence adapters; add a
+   tau2-bench collector and broader licensed research, customer-service, and
    reasoning bundles under ADR 0004.
 7. HTTP/subprocess oracle protocol, declared option schemas, exact result
    bindings, and a content-addressed result cache.

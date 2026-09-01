@@ -15,6 +15,7 @@ from model_skyline.formula import (
 from model_skyline.models import (
     AxisDescriptor,
     AxisEstimate,
+    AxisEvidenceCandidate,
     CostFormulaBasis,
     EvaluatedOffering,
     FormulaMetric,
@@ -35,6 +36,7 @@ from model_skyline.models import (
     UncertaintyMode,
     WorkloadProfile,
     WorkloadReference,
+    build_axis_evidence_inventory,
 )
 from model_skyline.oracles import OracleError, OracleRegistry
 from model_skyline.version import VERSION
@@ -138,6 +140,16 @@ def frontier_hash(snapshot: FrontierSnapshot) -> str:
             offering = item["offering"]
             if offering.get("billing_mode") is None:
                 offering.pop("billing_mode", None)
+    axis_evidence = payload.get("axis_evidence")
+    if axis_evidence is None:
+        payload.pop("axis_evidence", None)
+    else:
+        for candidate in axis_evidence["candidates"]:
+            offering = candidate["offering"]
+            if offering.get("billing_mode") is None:
+                offering.pop("billing_mode", None)
+    if payload.get("public_release_blocked") is False:
+        payload.pop("public_release_blocked", None)
     return _canonical_hash(payload)
 
 
@@ -150,6 +162,17 @@ def _explicit_null_billing_mode_frontier_hash(snapshot: FrontierSnapshot) -> str
     absent/null equivalence.
     """
 
+    payload = snapshot.model_dump(mode="json", exclude={"snapshot_id"})
+    if payload.get("axis_evidence") is None:
+        payload.pop("axis_evidence", None)
+    if payload.get("public_release_blocked") is False:
+        payload.pop("public_release_blocked", None)
+    return _canonical_hash(payload)
+
+
+def _current_explicit_null_billing_mode_frontier_hash(snapshot: FrontierSnapshot) -> str:
+    """Hash current fields while retaining explicit-null billing modes."""
+
     return _canonical_hash(snapshot.model_dump(mode="json", exclude={"snapshot_id"}))
 
 
@@ -159,6 +182,7 @@ def frontier_hash_matches(snapshot: FrontierSnapshot) -> bool:
     return snapshot.snapshot_id in {
         frontier_hash(snapshot),
         _explicit_null_billing_mode_frontier_hash(snapshot),
+        _current_explicit_null_billing_mode_frontier_hash(snapshot),
     }
 
 
@@ -557,7 +581,7 @@ class FrontierEngine:
     @staticmethod
     def _sources(
         catalog: ObservationCatalog,
-        evaluated: Iterable[EvaluatedOffering],
+        axis_evidence: Iterable[AxisEvidenceCandidate],
         workload: WorkloadProfile,
     ) -> tuple[SourceReference, ...]:
         by_hash: dict[str, SourceReference] = {}
@@ -569,8 +593,8 @@ class FrontierEngine:
             for source in candidates:
                 if source is not None:
                     by_hash[content_hash(source)] = source
-        for evaluated_offering in evaluated:
-            for estimate in evaluated_offering.axes.values():
+        for candidate in axis_evidence:
+            for estimate in candidate.axes.values():
                 for source in estimate.sources:
                     by_hash[content_hash(source)] = source
         return tuple(by_hash[key] for key in sorted(by_hash))
@@ -683,13 +707,14 @@ class FrontierEngine:
 
         accepted: list[EvaluatedOffering] = []
         rejected: list[RejectedOffering] = []
+        axis_evidence_candidates: list[AxisEvidenceCandidate] = []
         for offering in catalog.offerings:
             reasons = self._eligibility_reasons(offering, frontier)
             estimates: dict[str, AxisEstimate] = {}
             if not reasons:
                 for axis in frontier.axes:
                     try:
-                        estimates[axis.metric] = self._metric(
+                        estimate = self._metric(
                             axis.metric,
                             offering,
                             config.metrics[axis.metric],
@@ -698,14 +723,19 @@ class FrontierEngine:
                             frontier,
                             now,
                         )
-                        if frontier.uncertainty is UncertaintyMode.ROBUST:
-                            estimate = estimates[axis.metric]
-                            if estimate.lower is None or estimate.upper is None:
-                                raise EvaluationError(
-                                    "robust uncertainty requires confidence bounds"
-                                )
+                        if frontier.uncertainty is UncertaintyMode.ROBUST and (
+                            estimate.lower is None or estimate.upper is None
+                        ):
+                            raise EvaluationError("robust uncertainty requires confidence bounds")
+                        estimates[axis.metric] = estimate
                     except EvaluationError as exc:
                         reasons.append(f"{axis.metric}: {exc}")
+            axis_evidence_candidates.append(
+                AxisEvidenceCandidate(
+                    offering=offering.offering,
+                    axes=estimates,
+                )
+            )
             if reasons:
                 rejected.append(
                     RejectedOffering(
@@ -753,18 +783,28 @@ class FrontierEngine:
         )
         if len(axes) != 2:
             raise AssertionError("validated frontier must have two axes")
+        config_digest = _canonical_hash(
+            self._effective_policy(
+                config,
+                frontier_id,
+                frontier,
+                workload_id,
+                workload,
+            )
+        )
+        catalog_digest = catalog_hash(catalog)
+        axis_evidence = build_axis_evidence_inventory(
+            config_hash=config_digest,
+            catalog_hash=catalog_digest,
+            generated_at=now,
+            workload=expected_workload,
+            axes=axes,
+            candidates=axis_evidence_candidates,
+        )
         snapshot = FrontierSnapshot(
             snapshot_id="pending",
-            config_hash=_canonical_hash(
-                self._effective_policy(
-                    config,
-                    frontier_id,
-                    frontier,
-                    workload_id,
-                    workload,
-                )
-            ),
-            catalog_hash=catalog_hash(catalog),
+            config_hash=config_digest,
+            catalog_hash=catalog_digest,
             engine_version=VERSION,
             generated_at=now,
             frontier_id=frontier_id,
@@ -775,7 +815,11 @@ class FrontierEngine:
             members=members,
             evaluated=evaluated,
             rejected=tuple(sorted(rejected, key=lambda item: item.offering_id)),
-            sources=self._sources(catalog, evaluated, workload),
+            axis_evidence=axis_evidence,
+            public_release_blocked=any(
+                offering.metadata.get("publication_safe") is False for offering in catalog.offerings
+            ),
+            sources=self._sources(catalog, axis_evidence_candidates, workload),
             source_watermarks=self._watermarks(catalog),
         )
         snapshot_id = frontier_hash(snapshot)

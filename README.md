@@ -14,7 +14,9 @@ fallbacks.
 > gateway selection protocol is available as a `v1alpha1` contract with Python
 > reference resolver and language-neutral conformance vectors. Exact normalized
 > quality evidence/reconciliation, two-to-four benchmark coverage bundles, and a
-> live-tested Harbor Terminal-Bench adapter are also implemented. Multi-frontier
+> live-tested Harbor Terminal-Bench adapter, pinned SWE-bench bash-only
+> collector, pinned ARC-AGI-2 public-evaluation collector, and semantic
+> SWE-bench feed monitor are also implemented. Multi-frontier
 > overlap/proximity now has hash-bound library, JSON Schema, and CLI paths; a
 > bundle-bound artifact gates and recomputes every participating frontier before
 > `DynamicResolver` exposes its default and fallbacks. `publish-project`, the
@@ -53,15 +55,26 @@ become production-route measurements. A quality bundle gates candidates on two
 to four operator-declared benchmark frontiers without forcing them into one
 average. Distinct component IDs and snapshot hashes do not prove statistical
 independence; operators must not duplicate one benchmark under several IDs.
-The recommended target general-agent policy uses fixed-harness SWE-bench,
-Terminal-Bench/Harbor, and tau2-bench; operator-supplied ARC-AGI-2 evidence can
-be a fourth reasoning component. Harbor is implemented and live-tested;
-SWE-bench and tau2-bench remain operator-supplied inputs until their dedicated
-collectors ship. Leaderboard names are never fuzzy-matched to routable
-offerings. See
+The recommended target general-agent policy uses two to four distinct signals,
+typically fixed-harness SWE-bench, Terminal-Bench/Harbor, and tau2-bench, with
+ARC-AGI-2 as an optional abstract-reasoning component. Harbor, the pinned
+SWE-bench bash-only mini-SWE-agent v2 cohort, and a pinned ARC-AGI-2
+public-evaluation cohort are implemented and live-tested; tau2-bench remains an
+operator-supplied input until its dedicated collector ships.
+Leaderboard names are never fuzzy-matched to routable offerings. See
 [ADR 0004](docs/adr/0004-quality-evidence-and-benchmark-bundles.md). The first
 live implementation is the fail-closed
-[Harbor Terminal-Bench adapter](docs/harbor-terminal-bench.md).
+[Harbor Terminal-Bench adapter](docs/harbor-terminal-bench.md), followed by the
+[SWE-bench bash-only collector](docs/swe-bench.md) and the conservative
+[ARC-AGI-2 collector](docs/arc-agi.md).
+
+For operators who need a single quality axis, the opt-in
+[`QualityOraclePolicy`](docs/quality-oracle.md) combines exactly two to four
+fully measured components using self-hashed fixed normalization references and
+Decimal weights. Separate frontiers remain the default: the scalar is a new
+versioned composite workload, rejects missing/out-of-range evidence, discloses
+correlation groups without claiming independence, and must be replayed against
+its trusted policy, exact bundle, and current time before use.
 
 Prices and usage are not one indivisible "cost" field. Input, output,
 cache-read, cache-write, request, tool, and other rates and quantities should
@@ -70,7 +83,11 @@ exact signal paths it evaluated, so a changed cache rate does not change a
 cache-free formula, while a missing or stale rate that the formula actually
 uses makes that offering ineligible. Frontier policy can impose both general
 metric freshness and stricter per-source freshness. Artifact identity still
-binds the complete input catalog for auditability; see the
+binds the complete catalog and frontier, but the v0.8 per-axis evidence
+inventory prevents a missing, stale, or changed companion price from erasing a
+still-valid benchmark measurement. Quality bundles require that inventory and
+use exact complete offerings from it, including routes rejected only on the
+companion axis. The complete input catalog remains bound for auditability; see the
 [models.dev accounting guide](docs/models-dev-pricing.md#dependency-and-invalidation-model)
 for the important distinction between value dependencies and provenance
 changes.
@@ -340,10 +357,20 @@ modelskyline verify-quality-gated-selection frontier.yaml \
 
 The policy files deliberately bind exact snapshot and sidecar hashes, so they
 are authored after those inputs exist. Add a third tau2 component for the
-recommended general-agent profile and an operator-supplied ARC-AGI-2 fourth
-only when its distinct workload is material. The CLI bundle builder currently
+recommended general-agent profile and the pinned or operator-produced
+ARC-AGI-2 component only when its distinct workload is material. The CLI bundle
+builder currently
 emits measured or missing coverage; independently sourced quarantine records
 and their provenance use the library API.
+
+Quality bundle, scalar-oracle, and oracle-enriched catalog files are private by
+default: file outputs are mode `0600` on POSIX and refuse replacement without
+`--overwrite`. Full frontier snapshots also contain the exact per-axis evidence
+inventory, including complete routes and successful partial values for rejected
+candidates. A source catalog marked `publication_safe: false` produces a
+durable `public_release_blocked` frontier; `publish-project --public` will not
+override it with license or source flags. Public release requires a separate
+reviewed publication projection.
 
 Source-owning consumers should pin the expected selection and bundle policy,
 then run `verify-quality-gated-selection` or call
@@ -369,10 +396,26 @@ uv run modelskyline reconcile-quality-evidence \
   --output import-report.json
 ```
 
-The first live collector integration consumes a local, separately captured
-Harbor Terminal-Bench response and produces route-free evidence, a typed
-mapping report, and quality-only observations for explicitly reviewed routes.
-See the [Harbor workflow and its cost/cache caveats](docs/harbor-terminal-bench.md).
+The live collector integrations include a local, separately captured Harbor
+Terminal-Bench response, an immutable official SWE-bench website snapshot, and
+32 result summaries at one immutable ARC-AGI-2 Hugging Face revision. They
+produce route-free evidence and require exact reviewed offering mappings;
+neither public collector attributes historical benchmark cost fields to
+production routes. See the
+[Harbor workflow and its cost/cache caveats](docs/harbor-terminal-bench.md) and
+the [SWE-bench](docs/swe-bench.md) and [ARC-AGI-2](docs/arc-agi.md) capture
+guides.
+
+```console
+uv run modelskyline capture-swe-bench-bash-only ./swe-bench-capture
+uv run modelskyline capture-arc-agi-2-public-eval ./arc-agi-2-capture
+uv run modelskyline check-swe-bench-feed
+uv run modelskyline check-arc-agi-2-feed
+```
+
+Both public feeds have scheduled drift monitors. SWE-bench classifies raw,
+result, subject, row-set, and semantic-source changes; ARC-AGI-2 treats every
+dataset-head change as a manual adapter-review event and never repins itself.
 
 The Aider adapter downloads an immutable Apache-2.0 Polyglot leaderboard file,
 verifies its SHA-256, rejects incomplete, unpriced, zero-cost, incoherent, and

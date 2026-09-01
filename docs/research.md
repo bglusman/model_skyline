@@ -371,18 +371,43 @@ selection strategy.
 | Signal | Authoritative machine-readable interface | v1alpha1 role |
 | --- | --- | --- |
 | Harbor/Terminal-Bench | Implemented capture of [supported CLI/API JSON](https://www.harborframework.com/docs/hosted-harbor/cli-leaderboards); richer [commit-addressed repository JSON](https://github.com/harbor-framework/terminal-bench/tree/main/leaderboard) is future identity enrichment | Required general-agent component |
-| SWE-bench Verified bash-only | Submission directories under official [`evaluation/bash-only`](https://github.com/SWE-bench/experiments/tree/main/evaluation/bash-only), with `metadata.yaml` and, for admissible new rows, `per_instance_details.json` | Required coding component |
+| SWE-bench Verified bash-only | Implemented exact-revision capture of the official website repository's `data/leaderboards.json`, selecting only one mini-SWE-agent generation and recomputing rows with 500 per-instance details; experiments-repository artifacts remain future enrichment | Required coding component |
 | tau2-bench | Official submission [`manifest.json`](https://github.com/sierra-research/tau2-bench/blob/main/web/leaderboard/public/submissions/manifest.json), [`schema.json`](https://github.com/sierra-research/tau2-bench/blob/main/web/leaderboard/public/submissions/schema.json), and one `submission.json` per manifest entry | Required stateful tool/policy component |
-| ARC-AGI-2 | Operator-produced official-harness [`results.json`](https://github.com/arcprize/arc-agi-benchmarking/blob/main/results/random-baseline-sample/results.json) plus a required identity sidecar | Optional fourth, manual/local reasoning component |
+| ARC-AGI-2 | Implemented fixed-revision capture of the official [`arc_agi_v2_public_eval` Hugging Face dataset](https://huggingface.co/datasets/arcprize/arc_agi_v2_public_eval), restricted to 32 reviewed `results.json` summaries; no attempt files or ARC Prize website scraping | Optional abstract-reasoning component |
 | BFCL | Versioned aggregate CSVs such as [`data_overall.csv`](https://github.com/HuanzhiMao/BFCL-Result/blob/main/2025-12-16/score/data_overall.csv) | Alternate tool component for function-calling-heavy profiles |
 
 BFCL should normally replace, not be added on top of, the tool-oriented part of
 the bundle. Its function selection, multi-turn, web-search, and memory categories
 overlap materially with tau2 and some Harbor tasks; including both without a
 separately declared composite workload would count tool competence repeatedly.
-ARC-AGI-2 adds a more distinct abstract-reasoning signal, but its collection
-constraints make it an opt-in local component rather than a default scheduled
-source.
+ARC-AGI-2 adds a more distinct abstract-reasoning signal. Its implemented
+collector is opt-in and immutable-revision-only: it does not access the ARC
+Prize website, and changing its Hugging Face revision requires a new adapter
+review rather than an automatic “latest” update.
+
+The v0.8 SWE-bench collector pins official website repository commit
+`ac7583972e21606e9dad4447a9c447685c03b57a` and raw SHA-256
+`fa4b61d3167dfe99e1a834e007a38372c5bac07b7627f8e2c3904fb48cd4a006`.
+At that snapshot the exact mini-SWE-agent `2.0.0` cohort contains 13 rows: 11
+recompute coherently from all 500 task outcomes, one aggregate score disagrees
+with its details, and one omits details. The latter two are quarantined. The
+website repository is CC-BY-NC-4.0, so the collector defaults publication
+permission to unknown and retains no raw file or task identifiers. See the
+[operational guide](swe-bench.md).
+
+The v0.8 [ARC-AGI-2 collector](arc-agi.md) pins Hugging Face revision
+`026789c1c12a4c34580a32e84dcaf5630d7e8f31` and fetches only the exact revision
+metadata plus 32 result summaries. A reviewed live run admitted 22 exact
+120-task rows and quarantined 10 incomplete rows. Folder names remain opaque,
+unreviewed claims; task contents, run harness, and attempt policy are not
+attested by the summaries. The dataset card declares MIT and the reference task
+repository Apache-2.0, but publication permission remains unknown pending an
+operator rights review.
+
+A scheduled metadata-only monitor compares the current Hugging Face dataset
+head with the reviewed ARC-AGI-2 revision. Any difference fails closed as a
+manual adapter-review event; it does not fetch result paths or automatically
+inherit the pinned source semantics.
 
 #### Identity and admission rules
 
@@ -427,16 +452,19 @@ Source-specific admission requirements are stricter:
   commit, exact submission/run paths, dataset ref, agent version/kwargs, retry
   policy, source jobs, and trial set. The official repository is
   [Apache-2.0](https://github.com/harbor-framework/terminal-bench/blob/main/LICENSE).
-- **SWE-bench:** require the exact 500-instance id set or digest, the
+- **SWE-bench:** the implemented website collector requires the exact
+  500-instance id set or digest, the
   `mini-swe-agent` version/config generation, attempts, agent, reasoning effort,
   and complete `tags.model` list. The official
   [bash-only definition](https://www.swebench.com/verified.html) warns that v1
   parsed-string actions and v2 tool-calling actions are not directly comparable;
   never pool those harness generations. Prefer rows with per-instance outcomes
-  and quarantine older aggregate-only rows. The experiments repository has no
-  repository license at this snapshot, so retain only a private audit copy when
-  permitted, publish hashes and normalized facts with upstream links, and mark
-  redistribution rights `NOASSERTION`.
+  and quarantines aggregate-only rows. The official website repository is
+  CC-BY-NC-4.0 and publication remains disabled pending operator review. The
+  separate experiments repository has no repository license at this snapshot,
+  so retain only a private audit copy when permitted, publish hashes and
+  normalized facts with upstream links, and mark its redistribution rights
+  `NOASSERTION`.
 - **tau2-bench:** preserve domain (`airline`, `retail`, `telecom`, or
   `banking_knowledge`), base task set, tau2 version, user simulator, text/voice
   modality, standard/custom classification, retrieval configuration, reasoning
@@ -449,16 +477,18 @@ Source-specific admission requirements are stricter:
   `contact_info` fields from normalized/public artifacts and do not automatically
   fetch externally hosted trajectories. Optional reported cost is historical and
   not methodologically uniform enough to substitute for ModelSkyline costing.
-- **ARC-AGI-2:** `results.json` contains aggregate and per-task score, attempts,
-  cost, token, and duration fields but does not establish the evaluated subject.
-  Require a sidecar containing the ARC dataset revision and task/split digest,
-  harness revision, provider and actual model id, model kwargs and reasoning
-  configuration, attempts/retries/budget, and pricing date. The public dataset is
-  [Apache-2.0](https://github.com/arcprize/ARC-AGI-2/blob/main/LICENSE) and the
-  harness is [MIT-licensed](https://github.com/arcprize/arc-agi-benchmarking/blob/main/LICENSE.md),
-  but [ARC Prize terms](https://arcprize.org/terms) prohibit automated/non-human
-  and systematic retrieval from its site. Collect local/operator artifacts only
-  unless ARC grants written permission. The official
+- **ARC-AGI-2:** the implemented fixed-revision Hugging Face collector reads
+  only `results.json` summaries containing aggregate and per-task score plus
+  optional attempts, cost, token, and duration fields. It does not read attempt
+  transcripts or the ARC Prize site. The summaries do not establish the
+  evaluated route, task bytes, historical harness, or attempt policy; an exact
+  reviewed route projection therefore needs separate run/model evidence.
+  [Task data is Apache-2.0](https://github.com/arcprize/ARC-AGI-2/blob/main/LICENSE),
+  while the result dataset card and
+  [reference harness declare MIT](https://github.com/arcprize/arc-agi-benchmarking/blob/main/LICENSE.md).
+  Publication permission nonetheless remains `UNKNOWN` until an operator
+  reviews dataset-card applicability, attribution, provider-output rights, and
+  the intended projection. The official
   [community leaderboard](https://github.com/arcprize/ARC-AGI-Community-Leaderboard)
   describes ARC-AGI-1/2 results as self-reported and unverified and has no
   repository license; use it for discovery, not selection-grade ingestion.

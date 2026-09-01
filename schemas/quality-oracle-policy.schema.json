@@ -1,0 +1,428 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:quality-oracle-policy",
+  "$defs": {
+    "AxisDescriptor": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "goal": {
+          "$ref": "#/$defs/Goal"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "epsilon_absolute": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "default": "0",
+          "title": "Epsilon Absolute"
+        },
+        "epsilon_relative": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "default": "0",
+          "title": "Epsilon Relative"
+        }
+      },
+      "required": [
+        "metric",
+        "goal",
+        "unit"
+      ],
+      "title": "AxisDescriptor",
+      "type": "object"
+    },
+    "FixedMinMaxNormalization": {
+      "additionalProperties": false,
+      "description": "A typed, self-hashed, operator-authored normalization reference.",
+      "properties": {
+        "schema_version": {
+          "const": "model-skyline/fixed-min-max-normalization-reference/v1alpha1",
+          "default": "model-skyline/fixed-min-max-normalization-reference/v1alpha1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "const": "fixed-min-max-normalization-reference",
+          "default": "fixed-min-max-normalization-reference",
+          "title": "Kind",
+          "type": "string"
+        },
+        "hash_algorithm": {
+          "const": "sha256-rfc8785-v1",
+          "default": "sha256-rfc8785-v1",
+          "title": "Hash Algorithm",
+          "type": "string"
+        },
+        "reference_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Reference Id",
+          "type": "string"
+        },
+        "reference_version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Reference Version",
+          "type": "string"
+        },
+        "input_unit": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Input Unit",
+          "type": "string"
+        },
+        "reference_min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "title": "Reference Min"
+        },
+        "reference_max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "title": "Reference Max"
+        },
+        "out_of_reference": {
+          "const": "reject",
+          "default": "reject",
+          "title": "Out Of Reference",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "reference_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Reference Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reference_id",
+        "reference_version",
+        "input_unit",
+        "reference_min",
+        "reference_max",
+        "rationale",
+        "reference_sha256"
+      ],
+      "title": "FixedMinMaxNormalization",
+      "type": "object"
+    },
+    "Goal": {
+      "enum": [
+        "minimize",
+        "maximize"
+      ],
+      "title": "Goal",
+      "type": "string"
+    },
+    "QualityOracleComponent": {
+      "additionalProperties": false,
+      "description": "Stable semantics and governance for one selected benchmark metric.",
+      "properties": {
+        "component_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "workload": {
+          "$ref": "#/$defs/WorkloadReference"
+        },
+        "quality_axis": {
+          "$ref": "#/$defs/AxisDescriptor"
+        },
+        "source_semantics": {
+          "items": {
+            "$ref": "#/$defs/QualityOracleSourceSemantic"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "title": "Source Semantics",
+          "type": "array"
+        },
+        "source_semantic_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Semantic Identity Sha256",
+          "type": "string"
+        },
+        "normalization": {
+          "$ref": "#/$defs/FixedMinMaxNormalization"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            {
+              "pattern": "^(?!-)(?![+]?0*(?:\\.0*)?$)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "title": "Weight"
+        },
+        "correlation_group": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Correlation Group",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_id",
+        "workload",
+        "quality_axis",
+        "source_semantics",
+        "source_semantic_identity_sha256",
+        "normalization",
+        "weight",
+        "correlation_group",
+        "rationale"
+      ],
+      "title": "QualityOracleComponent",
+      "type": "object"
+    },
+    "QualityOracleSourceSemantic": {
+      "additionalProperties": false,
+      "description": "Stable benchmark-source identity, excluding capture and rights state.",
+      "properties": {
+        "id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "methodology": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Methodology",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "methodology"
+      ],
+      "title": "QualityOracleSourceSemantic",
+      "type": "object"
+    },
+    "WorkloadReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "unit"
+      ],
+      "title": "WorkloadReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Stable opt-in policy for one versioned composite quality workload.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/quality-oracle-policy/v1alpha1",
+      "default": "model-skyline/quality-oracle-policy/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "quality-oracle-policy",
+      "default": "quality-oracle-policy",
+      "title": "Kind",
+      "type": "string"
+    },
+    "oracle_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+      "title": "Oracle Id",
+      "type": "string"
+    },
+    "version": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    },
+    "composite_workload": {
+      "$ref": "#/$defs/WorkloadReference"
+    },
+    "quality_metric": {
+      "maxLength": 256,
+      "minLength": 1,
+      "title": "Quality Metric",
+      "type": "string"
+    },
+    "quality_unit": {
+      "const": "normalized_quality_score",
+      "default": "normalized_quality_score",
+      "title": "Quality Unit",
+      "type": "string"
+    },
+    "quality_bundle_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+      "title": "Quality Bundle Id",
+      "type": "string"
+    },
+    "quality_bundle_version": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Quality Bundle Version",
+      "type": "string"
+    },
+    "strategy": {
+      "const": "weighted-fixed-min-max",
+      "default": "weighted-fixed-min-max",
+      "title": "Strategy",
+      "type": "string"
+    },
+    "missing_signal_policy": {
+      "const": "reject-candidate",
+      "default": "reject-candidate",
+      "title": "Missing Signal Policy",
+      "type": "string"
+    },
+    "algorithm_version": {
+      "const": "weighted-fixed-min-max-decimal-v1",
+      "default": "weighted-fixed-min-max-decimal-v1",
+      "title": "Algorithm Version",
+      "type": "string"
+    },
+    "components": {
+      "items": {
+        "$ref": "#/$defs/QualityOracleComponent"
+      },
+      "maxItems": 4,
+      "minItems": 2,
+      "title": "Components",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "aggregation_rationale": {
+      "maxLength": 2048,
+      "minLength": 1,
+      "title": "Aggregation Rationale",
+      "type": "string"
+    },
+    "correlation_rationale": {
+      "maxLength": 2048,
+      "minLength": 1,
+      "title": "Correlation Rationale",
+      "type": "string"
+    },
+    "statistical_independence_assumed": {
+      "const": false,
+      "default": false,
+      "title": "Statistical Independence Assumed",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "oracle_id",
+    "version",
+    "composite_workload",
+    "quality_metric",
+    "quality_bundle_id",
+    "quality_bundle_version",
+    "components",
+    "aggregation_rationale",
+    "correlation_rationale"
+  ],
+  "title": "QualityOraclePolicy",
+  "type": "object",
+  "$comment": "This is an explicit opt-in scalar composite; separate benchmark frontiers remain the recommended default. JSON Schema cannot enforce exact Decimal weight sums, source/reference digest bindings, distinct composite workload, correlation-group reuse, or exact bundle-component identity. Run the ModelSkyline semantic validator before use."
+}
