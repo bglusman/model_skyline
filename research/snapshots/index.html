@@ -1,9 +1,427 @@
-<!doctype html><html><head><meta charset='utf-8'><title>Frontier snapshots</title>
-<link rel='stylesheet' href='../style.css'></head><body>
-<h1>Live frontier snapshots</h1>
-<p>Generated 2026-09-01T00:30:00Z · data: <a href='summary-v2.json'>summary-v2.json</a></p>
-<ul><li><a href='/svg/chat-subscription-economics.svg'><b>chat-subscription-economics</b></a> (agent-chat, 8 offerings)<br><small>★ chatgpt-plus/gpt-5.6-luna, clinepass/glm-5.3, opencode-go/glm-5.3, claude-pro/opus-5</small></li><li><a href='/svg/math-smarts-chat-subscription.svg'><b>math-smarts-chat-subscription</b></a> (agent-chat, 4 offerings)<br><small>★ chatgpt-plus/gpt-5.6-luna, chatgpt-plus/gpt-5.6-sol</small></li><li><a href='/svg/chat-subscription-responsiveness.svg'><b>chat-subscription-responsiveness</b></a> (agent-chat, 6 offerings)<br><small>★ chatgpt-plus/gpt-5.6-sol, chatgpt-plus/gpt-5.6-luna</small></li><li><a href='/svg/chat-metered-economics.svg'><b>chat-metered-economics</b></a> (agent-chat, 16 offerings)<br><small>★ openrouter/gpt-oss-20b, openrouter/gpt-oss-120b, openrouter/muse-spark-1.2-contributor, openrouter/glm-5.3…</small></li><li><a href='/svg/math-smarts-chat-metered.svg'><b>math-smarts-chat-metered</b></a> (agent-chat, 6 offerings)<br><small>★ openrouter/gpt-oss-120b, openrouter/deepseek-v4-flash-0731, openrouter/gpt-5.6-sol</small></li><li><a href='/svg/chat-metered-responsiveness.svg'><b>chat-metered-responsiveness</b></a> (agent-chat, 11 offerings)<br><small>★ openrouter/claude-fable-5, openrouter/gpt-5.6-sol, openrouter/gpt-5.6-terra, openrouter/gpt-5.6-luna…</small></li><li><a href='/svg/coding-subscription-economics.svg'><b>coding-subscription-economics</b></a> (coding-session, 8 offerings)<br><small>★ chatgpt-plus/gpt-5.6-luna, clinepass/glm-5.3, opencode-go/glm-5.3, claude-pro/opus-5</small></li><li><a href='/svg/math-smarts-coding-subscription.svg'><b>math-smarts-coding-subscription</b></a> (coding-session, 4 offerings)<br><small>★ chatgpt-plus/gpt-5.6-luna, chatgpt-plus/gpt-5.6-sol</small></li><li><a href='/svg/math-smarts-coding.svg'><b>math-smarts-coding</b></a> (coding-session, 4 offerings)<br><small>★ chatgpt-plus/gpt-5.6-luna, chatgpt-plus/gpt-5.6-sol</small></li><li><a href='/svg/coding-subscription-responsiveness.svg'><b>coding-subscription-responsiveness</b></a> (coding-session, 6 offerings)<br><small>★ chatgpt-plus/gpt-5.6-sol, chatgpt-plus/gpt-5.6-luna</small></li></ul>
-<p><small>ClinePass caps assumed $35; $20-tier sub caps modeled 8x price — all flagged † in charts.
-Sources: AA Intelligence Index v4.1.1 (current scale), vals.ai SWE-bench Verified (independent same-harness),
-AA-run GPQA Diamond, OpenRouter catalog prices, published subscription price tables.</small></p>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ModelSkyline frontier snapshots</title>
+<style>
+  :root { color-scheme: light dark; font-family: ui-sans-serif, system-ui, sans-serif; }
+  body { margin: 0 auto; max-width: 56rem; padding: 1rem; line-height: 1.5; }
+  section { margin: 1.2rem 0; }
+  h2 { margin: .2rem 0; }
+  .eyebrow { color: #526170; font-size: .85rem; }
+  svg { max-width: 100%; height: auto; }
+  small { opacity: .75; }
+</style></head><body>
+<h1>Frontier snapshots</h1>
+<p>Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat from real 30-day traces, coding-session from OpenCode Go published request patterns. ClinePass cap assu… · generated 2026-09-01T00:30:00Z ·
+<a href="summary-v2.json">raw data (JSON)</a></p>
+
+<section>
+<h2>chat-subscription-economics</h2>
+<p class="eyebrow">agent-chat · usd/turn × intelligence</p>
+<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" font-family="sans-serif" font-size="11">
+<text x="56" y="16" font-size="13" font-weight="bold">chat-subscription-economics</text>
+<text x="56" y="26" font-size="9" opacity="0.7">agent-chat · usd/turn × intelligence</text
+<line x1="56" y1="30" x2="624" y2="30" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="92" x2="624" y2="92" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="155" x2="624" y2="155" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="218" x2="624" y2="218" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="280" x2="624" y2="280" stroke="#666" stroke-opacity="0.25"/>
+<polyline points="56,247 258,113 258,113 614,63" fill="none" stroke="#8f7" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="56" cy="247" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="63" y="250" font-size="8.5" opacity="1.0">gpt-5.6-luna</text>
+<text x="54" y="241" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<text x="63" y="259" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="258" cy="113" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="265" y="116" font-size="8.5" opacity="1.0">glm-5.3</text>
+<text x="256" y="107" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<text x="265" y="125" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="258" cy="113" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="265" y="116" font-size="8.5" opacity="1.0">glm-5.3</text>
+<text x="256" y="107" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<circle cx="614" cy="63" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="621" y="66" font-size="8.5" opacity="1.0">opus-5</text>
+<text x="612" y="57" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<text x="621" y="75" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="65" cy="247" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="72" y="250" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="63" y="241" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<text x="72" y="259" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="65" cy="247" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="72" y="250" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="63" y="241" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="285" cy="247" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="292" y="250" font-size="8.5" opacity="0.45">qwen3.8-max</text>
+<text x="283" y="241" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="624" cy="97" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="631" y="100" font-size="8.5" opacity="0.45">gpt-5.6-sol</text>
+<text x="622" y="91" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<text x="631" y="109" font-size="8.5" fill="#d84">† assumed cap</text>
+<text x="56" y="312" font-size="9" opacity="0.7">x: linear USD/turn · y: intelligence (aa/swe/gpqa) · ★ green = pareto</text>
+</svg>
+<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-luna, ★ clinepass/glm-5.3, ★ opencode-go/glm-5.3, ★ claude-pro/opus-5</small></p>
+</section>
+<section>
+<h2>math-smarts-chat-subscription</h2>
+<p class="eyebrow">agent-chat · usd/turn × GPQA-Diamond</p>
+<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" font-family="sans-serif" font-size="11">
+<text x="56" y="16" font-size="13" font-weight="bold">math-smarts-chat-subscription</text>
+<text x="56" y="26" font-size="9" opacity="0.7">agent-chat · usd/turn × GPQA-Diamond</text
+<line x1="56" y1="30" x2="624" y2="30" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="92" x2="624" y2="92" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="155" x2="624" y2="155" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="218" x2="624" y2="218" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="280" x2="624" y2="280" stroke="#666" stroke-opacity="0.25"/>
+<polyline points="56,201 624,98" fill="none" stroke="#8f7" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="56" cy="201" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="63" y="204" font-size="8.5" opacity="1.0">gpt-5.6-luna</text>
+<text x="54" y="195" font-size="8" opacity="1.0" text-anchor="end">$0.006961</text>
+<text x="63" y="213" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="624" cy="98" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="631" y="101" font-size="8.5" opacity="1.0">gpt-5.6-sol</text>
+<text x="622" y="92" font-size="8" opacity="1.0" text-anchor="end">$0.174</text>
+<text x="631" y="110" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="112" cy="212" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="119" y="215" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="110" y="206" font-size="8" opacity="0.45" text-anchor="end">$0.009535</text>
+<text x="119" y="224" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="112" cy="212" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="119" y="215" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="110" y="206" font-size="8" opacity="0.45" text-anchor="end">$0.009535</text>
+<text x="56" y="312" font-size="9" opacity="0.7">x: log USD/turn · y: intelligence (aa/swe/gpqa) · ★ green = pareto</text>
+</svg>
+<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-luna, ★ chatgpt-plus/gpt-5.6-sol</small></p>
+</section>
+<section>
+<h2>chat-subscription-responsiveness</h2>
+<p class="eyebrow">agent-chat · tok/s × intelligence</p>
+<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" font-family="sans-serif" font-size="11">
+<text x="56" y="16" font-size="13" font-weight="bold">chat-subscription-responsiveness</text>
+<text x="56" y="26" font-size="9" opacity="0.7">agent-chat · tok/s × intelligence</text
+<line x1="56" y1="30" x2="624" y2="30" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="92" x2="624" y2="92" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="155" x2="624" y2="155" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="218" x2="624" y2="218" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="280" x2="624" y2="280" stroke="#666" stroke-opacity="0.25"/>
+<polyline points="97,68 624,242" fill="none" stroke="#8f7" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="97" cy="68" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="104" y="71" font-size="8.5" opacity="1.0">gpt-5.6-sol</text>
+<text x="95" y="62" font-size="8" opacity="1.0" text-anchor="end">81</text>
+<text x="104" y="80" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="624" cy="242" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="631" y="245" font-size="8.5" opacity="1.0">gpt-5.6-luna</text>
+<text x="622" y="236" font-size="8" opacity="1.0" text-anchor="end">132</text>
+<text x="631" y="254" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="56" cy="88" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="63" y="91" font-size="8.5" opacity="0.45">glm-5.3</text>
+<text x="54" y="82" font-size="8" opacity="0.45" text-anchor="end">77</text>
+<text x="63" y="100" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="56" cy="88" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="63" y="91" font-size="8.5" opacity="0.45">glm-5.3</text>
+<text x="54" y="82" font-size="8" opacity="0.45" text-anchor="end">77</text>
+<circle cx="490" cy="242" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="497" y="245" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="488" y="236" font-size="8" opacity="0.45" text-anchor="end">119</text>
+<text x="497" y="254" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="490" cy="242" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="497" y="245" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="488" y="236" font-size="8" opacity="0.45" text-anchor="end">119</text>
+<text x="56" y="312" font-size="9" opacity="0.7">x: linear out tok/s · y: intelligence (aa/swe/gpqa) · ★ green = pareto</text>
+</svg>
+<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-sol, ★ chatgpt-plus/gpt-5.6-luna</small></p>
+</section>
+<section>
+<h2>chat-metered-economics</h2>
+<p class="eyebrow">agent-chat · usd/turn × intelligence</p>
+<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" font-family="sans-serif" font-size="11">
+<text x="56" y="16" font-size="13" font-weight="bold">chat-metered-economics</text>
+<text x="56" y="26" font-size="9" opacity="0.7">agent-chat · usd/turn × intelligence</text
+<line x1="56" y1="30" x2="624" y2="30" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="92" x2="624" y2="92" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="155" x2="624" y2="155" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="218" x2="624" y2="218" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="280" x2="624" y2="280" stroke="#666" stroke-opacity="0.25"/>
+<polyline points="56,245 56,205 58,61 165,48 169,43 624,39" fill="none" stroke="#8f7" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="56" cy="245" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="63" y="248" font-size="8.5" opacity="1.0">gpt-oss-20b</text>
+<text x="54" y="239" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<circle cx="56" cy="205" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="63" y="208" font-size="8.5" opacity="1.0">gpt-oss-120b</text>
+<text x="54" y="199" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<circle cx="58" cy="61" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="65" y="64" font-size="8.5" opacity="1.0">muse-spark-1.2-contrib</text>
+<text x="56" y="55" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<circle cx="165" cy="48" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="172" y="51" font-size="8.5" opacity="1.0">glm-5.3</text>
+<text x="163" y="42" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<circle cx="169" cy="43" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="176" y="46" font-size="8.5" opacity="1.0">gpt-5.6-sol</text>
+<text x="167" y="37" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<circle cx="624" cy="39" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="631" y="42" font-size="8.5" opacity="1.0">claude-fable-5</text>
+<text x="622" y="33" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<circle cx="56" cy="271" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="63" y="274" font-size="8.5" opacity="0.45">qwen3-30b-a3b-2507</text>
+<text x="54" y="265" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="57" cy="249" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="64" y="252" font-size="8.5" opacity="0.45">qwen3-coder-30b</text>
+<text x="55" y="243" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="61" cy="83" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="68" y="86" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="59" y="77" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="61" cy="61" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="68" y="64" font-size="8.5" opacity="0.45">glm-5.3-flash</text>
+<text x="59" y="55" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="65" cy="162" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="72" y="165" font-size="8.5" opacity="0.45">longcat-2.0</text>
+<text x="63" y="156" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="67" cy="83" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="74" y="86" font-size="8.5" opacity="0.45">gpt-5.6-luna</text>
+<text x="65" y="77" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="131" cy="61" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="138" y="64" font-size="8.5" opacity="0.45">muse-spark-1.2</text>
+<text x="129" y="55" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="171" cy="61" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="178" y="64" font-size="8.5" opacity="0.45">gpt-5.6-terra</text>
+<text x="169" y="55" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="179" cy="83" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="186" y="86" font-size="8.5" opacity="0.45">qwen3.8-2.4t-a95b</text>
+<text x="177" y="77" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="179" cy="83" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="186" y="86" font-size="8.5" opacity="0.45">qwen3.8-max</text>
+<text x="177" y="77" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<text x="56" y="312" font-size="9" opacity="0.7">x: linear USD/turn · y: intelligence (aa/swe/gpqa) · ★ green = pareto</text>
+</svg>
+<p><small>Frontier members: ★ openrouter/gpt-oss-20b, ★ openrouter/gpt-oss-120b, ★ openrouter/muse-spark-1.2-contributor, ★ openrouter/glm-5.3, ★ openrouter/gpt-5.6-sol, ★ openrouter/claude-fable-5</small></p>
+</section>
+<section>
+<h2>math-smarts-chat-metered</h2>
+<p class="eyebrow">agent-chat · usd/turn × GPQA-Diamond</p>
+<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" font-family="sans-serif" font-size="11">
+<text x="56" y="16" font-size="13" font-weight="bold">math-smarts-chat-metered</text>
+<text x="56" y="26" font-size="9" opacity="0.7">agent-chat · usd/turn × GPQA-Diamond</text
+<line x1="56" y1="30" x2="624" y2="30" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="92" x2="624" y2="92" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="155" x2="624" y2="155" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="218" x2="624" y2="218" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="280" x2="624" y2="280" stroke="#666" stroke-opacity="0.25"/>
+<polyline points="56,252 215,104 478,58" fill="none" stroke="#8f7" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="56" cy="252" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="63" y="255" font-size="8.5" opacity="1.0">gpt-oss-120b</text>
+<text x="54" y="246" font-size="8" opacity="1.0" text-anchor="end">$0.000641</text>
+<circle cx="215" cy="104" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="222" y="107" font-size="8.5" opacity="1.0">deepseek-v4-flash-0731</text>
+<text x="213" y="98" font-size="8" opacity="1.0" text-anchor="end">$0.003721</text>
+<circle cx="478" cy="58" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="485" y="61" font-size="8.5" opacity="1.0">gpt-5.6-sol</text>
+<text x="476" y="52" font-size="8" opacity="1.0" text-anchor="end">$0.06843</text>
+<circle cx="272" cy="99" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="279" y="102" font-size="8.5" opacity="0.45">gpt-5.6-luna</text>
+<text x="270" y="93" font-size="8" opacity="0.45" text-anchor="end">$0.006961</text>
+<circle cx="480" cy="80" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="487" y="83" font-size="8.5" opacity="0.45">gpt-5.6-terra</text>
+<text x="478" y="74" font-size="8" opacity="0.45" text-anchor="end">$0.06961</text>
+<circle cx="624" cy="79" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="631" y="82" font-size="8.5" opacity="0.45">claude-fable-5</text>
+<text x="622" y="73" font-size="8" opacity="0.45" text-anchor="end">$0.3421</text>
+<text x="56" y="312" font-size="9" opacity="0.7">x: log USD/turn · y: intelligence (aa/swe/gpqa) · ★ green = pareto</text>
+</svg>
+<p><small>Frontier members: ★ openrouter/gpt-oss-120b, ★ openrouter/deepseek-v4-flash-0731, ★ openrouter/gpt-5.6-sol</small></p>
+</section>
+<section>
+<h2>chat-metered-responsiveness</h2>
+<p class="eyebrow">agent-chat · tok/s × intelligence</p>
+<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" font-family="sans-serif" font-size="11">
+<text x="56" y="16" font-size="13" font-weight="bold">chat-metered-responsiveness</text>
+<text x="56" y="26" font-size="9" opacity="0.7">agent-chat · tok/s × intelligence</text
+<line x1="56" y1="30" x2="624" y2="30" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="92" x2="624" y2="92" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="155" x2="624" y2="155" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="218" x2="624" y2="218" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="280" x2="624" y2="280" stroke="#666" stroke-opacity="0.25"/>
+<polyline points="158,39 222,43 398,61 458,83 624,205" fill="none" stroke="#8f7" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="158" cy="39" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="165" y="42" font-size="8.5" opacity="1.0">claude-fable-5</text>
+<text x="156" y="33" font-size="8" opacity="1.0" text-anchor="end">67</text>
+<circle cx="222" cy="43" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="229" y="46" font-size="8.5" opacity="1.0">gpt-5.6-sol</text>
+<text x="220" y="37" font-size="8" opacity="1.0" text-anchor="end">81</text>
+<circle cx="398" cy="61" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="405" y="64" font-size="8.5" opacity="1.0">gpt-5.6-terra</text>
+<text x="396" y="55" font-size="8" opacity="1.0" text-anchor="end">119</text>
+<circle cx="458" cy="83" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="465" y="86" font-size="8.5" opacity="1.0">gpt-5.6-luna</text>
+<text x="456" y="77" font-size="8" opacity="1.0" text-anchor="end">132</text>
+<circle cx="624" cy="205" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="631" y="208" font-size="8.5" opacity="1.0">gpt-oss-120b</text>
+<text x="622" y="199" font-size="8" opacity="1.0" text-anchor="end">168</text>
+<circle cx="56" cy="61" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="63" y="64" font-size="8.5" opacity="0.45">glm-5.3-flash</text>
+<text x="54" y="55" font-size="8" opacity="0.45" text-anchor="end">45</text>
+<circle cx="204" cy="48" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="211" y="51" font-size="8.5" opacity="0.45">glm-5.3</text>
+<text x="202" y="42" font-size="8" opacity="0.45" text-anchor="end">77</text>
+<circle cx="278" cy="249" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="285" y="252" font-size="8.5" opacity="0.45">qwen3-coder-30b</text>
+<text x="276" y="243" font-size="8" opacity="0.45" text-anchor="end">93</text>
+<circle cx="375" cy="245" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="382" y="248" font-size="8.5" opacity="0.45">gpt-oss-20b</text>
+<text x="373" y="239" font-size="8" opacity="0.45" text-anchor="end">114</text>
+<circle cx="398" cy="83" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="405" y="86" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="396" y="77" font-size="8" opacity="0.45" text-anchor="end">119</text>
+<circle cx="509" cy="271" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="516" y="274" font-size="8.5" opacity="0.45">qwen3-30b-a3b-2507</text>
+<text x="507" y="265" font-size="8" opacity="0.45" text-anchor="end">143</text>
+<text x="56" y="312" font-size="9" opacity="0.7">x: linear out tok/s · y: intelligence (aa/swe/gpqa) · ★ green = pareto</text>
+</svg>
+<p><small>Frontier members: ★ openrouter/claude-fable-5, ★ openrouter/gpt-5.6-sol, ★ openrouter/gpt-5.6-terra, ★ openrouter/gpt-5.6-luna, ★ openrouter/gpt-oss-120b</small></p>
+</section>
+<section>
+<h2>coding-subscription-economics</h2>
+<p class="eyebrow">coding-session · usd/turn × intelligence</p>
+<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" font-family="sans-serif" font-size="11">
+<text x="56" y="16" font-size="13" font-weight="bold">coding-subscription-economics</text>
+<text x="56" y="26" font-size="9" opacity="0.7">coding-session · usd/turn × intelligence</text
+<line x1="56" y1="30" x2="624" y2="30" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="92" x2="624" y2="92" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="155" x2="624" y2="155" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="218" x2="624" y2="218" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="280" x2="624" y2="280" stroke="#666" stroke-opacity="0.25"/>
+<polyline points="56,247 296,113 296,113 611,63" fill="none" stroke="#8f7" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="56" cy="247" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="63" y="250" font-size="8.5" opacity="1.0">gpt-5.6-luna</text>
+<text x="54" y="241" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<text x="63" y="259" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="296" cy="113" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="303" y="116" font-size="8.5" opacity="1.0">glm-5.3</text>
+<text x="294" y="107" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<text x="303" y="125" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="296" cy="113" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="303" y="116" font-size="8.5" opacity="1.0">glm-5.3</text>
+<text x="294" y="107" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<circle cx="611" cy="63" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="618" y="66" font-size="8.5" opacity="1.0">opus-5</text>
+<text x="609" y="57" font-size="8" opacity="1.0" text-anchor="end">0</text>
+<text x="618" y="75" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="60" cy="247" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="67" y="250" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="58" y="241" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<text x="67" y="259" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="60" cy="247" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="67" y="250" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="58" y="241" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="355" cy="247" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="362" y="250" font-size="8.5" opacity="0.45">qwen3.8-max</text>
+<text x="353" y="241" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<circle cx="624" cy="97" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="631" y="100" font-size="8.5" opacity="0.45">gpt-5.6-sol</text>
+<text x="622" y="91" font-size="8" opacity="0.45" text-anchor="end">0</text>
+<text x="631" y="109" font-size="8.5" fill="#d84">† assumed cap</text>
+<text x="56" y="312" font-size="9" opacity="0.7">x: linear USD/turn · y: intelligence (aa/swe/gpqa) · ★ green = pareto</text>
+</svg>
+<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-luna, ★ clinepass/glm-5.3, ★ opencode-go/glm-5.3, ★ claude-pro/opus-5</small></p>
+</section>
+<section>
+<h2>math-smarts-coding-subscription</h2>
+<p class="eyebrow">coding-session · usd/turn × GPQA-Diamond</p>
+<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" font-family="sans-serif" font-size="11">
+<text x="56" y="16" font-size="13" font-weight="bold">math-smarts-coding-subscription</text>
+<text x="56" y="26" font-size="9" opacity="0.7">coding-session · usd/turn × GPQA-Diamond</text
+<line x1="56" y1="30" x2="624" y2="30" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="92" x2="624" y2="92" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="155" x2="624" y2="155" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="218" x2="624" y2="218" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="280" x2="624" y2="280" stroke="#666" stroke-opacity="0.25"/>
+<polyline points="56,201 624,98" fill="none" stroke="#8f7" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="56" cy="201" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="63" y="204" font-size="8.5" opacity="1.0">gpt-5.6-luna</text>
+<text x="54" y="195" font-size="8" opacity="1.0" text-anchor="end">$0.00136</text>
+<text x="63" y="213" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="624" cy="98" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="631" y="101" font-size="8.5" opacity="1.0">gpt-5.6-sol</text>
+<text x="622" y="92" font-size="8" opacity="1.0" text-anchor="end">$0.034</text>
+<text x="631" y="110" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="83" cy="212" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="90" y="215" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="81" y="206" font-size="8" opacity="0.45" text-anchor="end">$0.001588</text>
+<text x="90" y="224" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="83" cy="212" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="90" y="215" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="81" y="206" font-size="8" opacity="0.45" text-anchor="end">$0.001588</text>
+<text x="56" y="312" font-size="9" opacity="0.7">x: log USD/turn · y: intelligence (aa/swe/gpqa) · ★ green = pareto</text>
+</svg>
+<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-luna, ★ chatgpt-plus/gpt-5.6-sol</small></p>
+</section>
+<section>
+<h2>math-smarts-coding</h2>
+<p class="eyebrow">coding-session · usd/turn × SWE-bench-Verified</p>
+<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" font-family="sans-serif" font-size="11">
+<text x="56" y="16" font-size="13" font-weight="bold">math-smarts-coding</text>
+<text x="56" y="26" font-size="9" opacity="0.7">coding-session · usd/turn × SWE-bench-Verified</text
+<line x1="56" y1="30" x2="624" y2="30" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="92" x2="624" y2="92" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="155" x2="624" y2="155" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="218" x2="624" y2="218" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="280" x2="624" y2="280" stroke="#666" stroke-opacity="0.25"/>
+<polyline points="56,201 624,98" fill="none" stroke="#8f7" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="56" cy="201" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="63" y="204" font-size="8.5" opacity="1.0">gpt-5.6-luna</text>
+<text x="54" y="195" font-size="8" opacity="1.0" text-anchor="end">$0.00136</text>
+<text x="63" y="213" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="624" cy="98" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="631" y="101" font-size="8.5" opacity="1.0">gpt-5.6-sol</text>
+<text x="622" y="92" font-size="8" opacity="1.0" text-anchor="end">$0.034</text>
+<text x="631" y="110" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="83" cy="212" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="90" y="215" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="81" y="206" font-size="8" opacity="0.45" text-anchor="end">$0.001588</text>
+<text x="90" y="224" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="83" cy="212" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="90" y="215" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="81" y="206" font-size="8" opacity="0.45" text-anchor="end">$0.001588</text>
+<text x="56" y="312" font-size="9" opacity="0.7">x: log USD/turn · y: intelligence (aa/swe/gpqa) · ★ green = pareto</text>
+</svg>
+<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-luna, ★ chatgpt-plus/gpt-5.6-sol</small></p>
+</section>
+<section>
+<h2>coding-subscription-responsiveness</h2>
+<p class="eyebrow">coding-session · tok/s × intelligence</p>
+<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320" font-family="sans-serif" font-size="11">
+<text x="56" y="16" font-size="13" font-weight="bold">coding-subscription-responsiveness</text>
+<text x="56" y="26" font-size="9" opacity="0.7">coding-session · tok/s × intelligence</text
+<line x1="56" y1="30" x2="624" y2="30" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="92" x2="624" y2="92" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="155" x2="624" y2="155" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="218" x2="624" y2="218" stroke="#666" stroke-opacity="0.25"/>
+<line x1="56" y1="280" x2="624" y2="280" stroke="#666" stroke-opacity="0.25"/>
+<polyline points="97,68 624,242" fill="none" stroke="#8f7" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="97" cy="68" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="104" y="71" font-size="8.5" opacity="1.0">gpt-5.6-sol</text>
+<text x="95" y="62" font-size="8" opacity="1.0" text-anchor="end">81</text>
+<text x="104" y="80" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="624" cy="242" r="4" fill="#6c6" fill-opacity="1.0"/>
+<text x="631" y="245" font-size="8.5" opacity="1.0">gpt-5.6-luna</text>
+<text x="622" y="236" font-size="8" opacity="1.0" text-anchor="end">132</text>
+<text x="631" y="254" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="56" cy="88" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="63" y="91" font-size="8.5" opacity="0.45">glm-5.3</text>
+<text x="54" y="82" font-size="8" opacity="0.45" text-anchor="end">77</text>
+<text x="63" y="100" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="56" cy="88" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="63" y="91" font-size="8.5" opacity="0.45">glm-5.3</text>
+<text x="54" y="82" font-size="8" opacity="0.45" text-anchor="end">77</text>
+<circle cx="490" cy="242" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="497" y="245" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="488" y="236" font-size="8" opacity="0.45" text-anchor="end">119</text>
+<text x="497" y="254" font-size="8.5" fill="#d84">† assumed cap</text>
+<circle cx="490" cy="242" r="3" fill="#bbb" fill-opacity="0.45"/>
+<text x="497" y="245" font-size="8.5" opacity="0.45">deepseek-v4-flash-0731</text>
+<text x="488" y="236" font-size="8" opacity="0.45" text-anchor="end">119</text>
+<text x="56" y="312" font-size="9" opacity="0.7">x: linear out tok/s · y: intelligence (aa/swe/gpqa) · ★ green = pareto</text>
+</svg>
+<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-sol, ★ chatgpt-plus/gpt-5.6-luna</small></p>
+</section>
+<p><small>ClinePass cap assumed $35; $20-tier sub caps modeled 8× price — †-flagged in charts.
+Sources: AA Intelligence Index v4.1.1 (current scale), vals.ai SWE-bench Verified (independent
+same-harness), AA-run GPQA Diamond, OpenRouter catalog, published subscription tables.</small></p>
 </body></html>
