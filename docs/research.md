@@ -57,29 +57,39 @@ or record its upstream API version, map a route to the complete offering
 identity, preserve the framework/harness version, and pin one selection for a
 whole work unit rather than re-resolving midway through an agent trajectory.
 
-### 1. OpenClaw: first bidirectional reference integration
+### 1. OpenClaw: promising consumer seam, bounded trace projection
 
-OpenClaw has the best combination of a dynamic selection seam and useful
-telemetry. Its official plugin documentation and types expose a
-`before_model_resolve` hook that can override provider/model choice before a
-run, while its model configuration already owns ordered fallback execution.
-The same typed hook surface includes model-call/output events, and its
-OpenTelemetry documentation covers model usage and timing. That supports one
-small plugin that resolves a ModelSkyline selection at work-unit start, maps
-the selected offering to OpenClaw's provider/model identity, leaves retries to
-OpenClaw, and emits cache-, token-, latency-, outcome-, and fallback-aware
-canonical traces afterward.
+OpenClaw remains a plausible selection consumer. Its `before_model_resolve`
+hook can override provider/model choice before model resolution for an agent
+turn. A consumer must still pin one complete ModelSkyline selection for the
+work unit and independently verify or neutralize OpenClaw's fallback/retry
+configuration so it cannot widen the ordered local policy. Selection
+consumption and trace collection should be reviewed separately.
 
-The reviewed official sources are pinned to OpenClaw commit `ad00ba8`:
+Telemetry is currently an adapter contract, not a shipped collector. Ordinary
+model-call hooks omit usage or run asynchronously. The exact reviewed release's
+diagnostic runtime exposes enough metadata for a one-work-unit experiment in an
+isolated, quiescent Gateway process, but it relies on an internal lifecycle
+marker and cannot prove concurrent segment completeness or retry-inclusive
+provider usage. The required upstream provenance, completion-fence, and
+transport-attempt seams are recorded in
+[the framework integration audit](framework-integrations.md#openclaw-trusted-projection).
+Do not claim that a stock plugin emits complete cache-, token-, fallback-, or
+cost-aware canonical traces.
 
-- [plugin hook lifecycle](https://github.com/openclaw/openclaw/blob/ad00ba847d891a95792de8d5ec5de696756c910d/docs/plugins/hooks.md);
-- [typed hook contracts](https://github.com/openclaw/openclaw/blob/ad00ba847d891a95792de8d5ec5de696756c910d/src/plugins/hook-types.ts);
-- [model selection and fallbacks](https://github.com/openclaw/openclaw/blob/ad00ba847d891a95792de8d5ec5de696756c910d/docs/concepts/models.md);
-- [gateway OpenTelemetry](https://github.com/openclaw/openclaw/blob/ad00ba847d891a95792de8d5ec5de696756c910d/docs/gateway/opentelemetry.md).
+The reviewed official sources are pinned to OpenClaw `2026.8.1` at commit
+`ea806575e6450e4d1efdfc72c19f04be982a1b9b`:
+
+- [plugin hook lifecycle](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/docs/plugins/hooks.md);
+- [typed hook contracts](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/src/plugins/hook-types.ts);
+- [model selection and fallbacks](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/docs/concepts/models.md);
+- [diagnostic runtime export](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/src/plugin-sdk/diagnostic-runtime.ts); and
+- [gateway OpenTelemetry](https://github.com/openclaw/openclaw/blob/ea806575e6450e4d1efdfc72c19f04be982a1b9b/docs/gateway/opentelemetry.md).
 
 The adapter must not collapse OpenClaw's provider, model, profile, or gateway
-route into a bare model id. Hook contracts can change, so the first plugin
-should pin a tested OpenClaw range and fail closed on unknown event shapes.
+route into a bare model id. Fields absent from the event remain unknown or need
+an explicit narrow attestation. Any future plugin must pin an exact reviewed
+release and fail closed on unknown event shapes.
 
 ### 2. Hermes Agent: telemetry bridge, then selection mapping
 
