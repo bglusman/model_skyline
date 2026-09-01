@@ -18,7 +18,7 @@ retention, and any attestations named by an adapter.
 
 | Adapter | Accepted upstream contract | Accepted input | Local validation through 2026-09-01 |
 | --- | --- | --- | --- |
-| Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with both the installed default and an explicit `-m gpt-5.4` route, plus two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
+| Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with the installed default and explicit `-m gpt-5.4` routes, including the retained CLI-to-aggregation smoke trace, plus two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
 | Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | SDK `0.2.148` with its bundled CLI `2.1.251` was installed exactly. A constrained Haiku request (no tools, skills, settings, MCP, fallback, or session persistence; one turn; $0.02 cap) reached the SDK but stopped on API billing/quota before a `ResultMessage`, so it did not prove a live `RequestTrace` or the runtime `costBasis` contract. |
 | OpenClaw | `2026.8.1` at [`ea80657`](https://github.com/openclaw/openclaw/tree/ea806575e6450e4d1efdfc72c19f04be982a1b9b) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures only; no collector ships. An external plugin using the stock `2026.8.1` runtime can support an isolated Gateway experiment, not concurrent production collection. The installed `2026.3.2` is intentionally unsupported. |
 | Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7), session schema `26`, adapter projection `2` | A `hermes -z --usage-file` JSON report or read-only state SQLite database | Contract, synthetic report, and synthetic schema-v26 database tests. A real keyless, opencode-free run produced one main row and one `title_generation` row on the same model/provider and canonically identical base URL; one raw URL had Hermes's equivalent terminal slash and both rows recorded no billing mode. |
@@ -29,6 +29,12 @@ An independent explicit `-m gpt-5.4` smoke run reported 10,963 inclusive
 input tokens, 1,792 cache-read tokens, 31 inclusive output tokens, and 14
 reasoning tokens. Its content-bearing JSONL was deleted after the canonical
 content-free trace was validated.
+The later retained
+[`import-codex-exec` smoke trace](../examples/framework-traces/codex-cli-smoke/DATA_CARD.md)
+reported 10,962 inclusive input tokens, 1,792 cache-read tokens, 22 inclusive
+output tokens, and 15 reasoning tokens, then passed `aggregate-traces`. Its raw
+JSONL was likewise deleted after an exact benign-result and
+no-other-completed-item check.
 That version does not report cache writes, so cache-write and uncached-input
 meters remained unknown. The explicit `gpt-5.2-codex` and `gpt-5.3-codex`
 routes failed for the local ChatGPT account; those are retained as failure
@@ -119,9 +125,36 @@ trace = adapt_codex_exec_jsonl(
 )
 ```
 
+The same projector is available as one shell command; it does not launch
+Codex or infer any of the operator-owned metadata:
+
+```console
+modelskyline import-codex-exec private/codex-events.jsonl \
+  --codex-version 0.144.2 \
+  --provider openai \
+  --model gpt-5.4 \
+  --offering-id openai/gpt-5.4@codex-synthetic \
+  --timestamp 2026-08-30T20:00:00Z \
+  --workload-id synthetic-coding \
+  --workload-version v1 \
+  --work-unit-id case-0001 \
+  --result-id result-0001 \
+  --attempt-id attempt-0001 \
+  --work-unit-success 1 \
+  --model-route-attested \
+  --output private/codex-trace.jsonl
+```
+
+Optional endpoint, billing-mode, region, service-tier, quantization, or
+reasoning-effort identity requires `--route-details-attested`. File output is
+created mode 0600 and is always no-clobber; choose a new path or deliberately
+remove an obsolete output before retrying. Omitting `--output` writes the
+content-free row to stdout.
+
 Keep the source JSONL private: `codex exec --json` item events can contain
 prompts, responses, commands, paths, and tool data even though the returned
-trace does not.
+trace does not. Delete the raw stream after applying the operator's retention
+policy and validating the canonical output.
 
 ## Claude Agent SDK result
 

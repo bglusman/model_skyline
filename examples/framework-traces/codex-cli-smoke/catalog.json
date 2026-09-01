@@ -1,0 +1,20 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "workload": {
+    "id": "codex-cli-smoke",
+    "version": "v1",
+    "unit": "agent_turn"
+  },
+  "offerings": [
+    {
+      "offering": {
+        "offering_id": "openai/gpt-5.4@codex-chatgpt-subscription-smoke",
+        "model_id": "gpt-5.4",
+        "provider": "openai",
+        "billing_mode": "chatgpt_subscription",
+        "agent_harness": "codex"
+      },
+      "signals": {}
+    }
+  ]
+}

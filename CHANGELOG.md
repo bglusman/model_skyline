@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Add one deliberately narrow `import-codex-exec` CLI bridge from a private,
+  single-turn `codex exec --json` stream to one canonical content-free JSONL
+  trace. Route identity, timestamp, workload identity, local pseudonyms, and
+  judged outcome remain explicit operator inputs; route attestations fail
+  closed. File output is mode 0600 and always no-clobber, and the command
+  never launches Codex or retains raw item payloads. Retain one real,
+  content-free `gpt-5.4` smoke trace and data card after validating the complete
+  CLI-to-aggregation path and deleting its raw JSONL.
 - Expand the scheduled models.dev/Aider research publication from three GPT-5
   configurations to six configurations spanning GPT-5, o3, and o3-pro. The
   strict projection retains three dominated candidates in JSON while the
