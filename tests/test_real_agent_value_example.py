@@ -56,9 +56,7 @@ def test_real_agent_value_example_validates_evaluates_and_selects() -> None:
     assert [item.offering.offering_id for item in selection.fallbacks] == [
         "openrouter/z-ai/glm-5.3-flash"
     ]
-    assert selection.default.axes["metered_token_cost_per_success"].value == Decimal(
-        "0.06635506"
-    )
+    assert selection.default.axes["metered_token_cost_per_success"].value == Decimal("0.06635506")
     table = render_table(frontier)
     assert " | 60 " in table
     assert "6E+1" not in table
