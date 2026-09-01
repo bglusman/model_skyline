@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import unicodedata
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
 from typing import Annotated
@@ -71,7 +71,6 @@ from model_skyline.arc_feed_monitor import (
     ArcAgiFeedMonitorError,
     inspect_arc_agi_feed,
 )
-from model_skyline.canonical import canonical_bytes
 from model_skyline.engine import FrontierEngine, validate_formula_cost_basis
 from model_skyline.feed_monitor import (
     FeedMonitorError,
@@ -79,58 +78,31 @@ from model_skyline.feed_monitor import (
     inspect_swe_bench_feed,
 )
 from model_skyline.formula import compile_formula
-from model_skyline.gateway import (
-    MAX_GATEWAY_ARTIFACT_BYTES,
-    MAX_GATEWAY_ENVELOPE_BYTES,
-    parse_gateway_sequence_checkpoint,
-    parse_gateway_trust_policy,
-    pin_gateway_route,
-    verify_gateway_bundle,
-)
 from model_skyline.io import (
     InputError,
     dump_json,
     generated_schemas,
     load_catalog,
     load_config,
-    load_cross_frontier_selection_policy,
-    load_frontier_proximity_snapshot,
     load_frontier_snapshot,
-    load_quality_bundle_policy,
-    load_quality_bundle_snapshot,
+    load_portfolio_derivation,
+    load_portfolio_policy,
     load_quality_evidence,
-    load_quality_gated_selection_snapshot,
     load_quality_import_report,
-    load_quality_oracle_policy,
-    load_quality_oracle_snapshot,
     load_quality_reconciliation,
     public_schemas,
 )
 from model_skyline.private_output import PrivateOutputError, write_private_text
 from model_skyline.publisher import PublicationError, publish_project
-from model_skyline.quality_bundle import build_quality_bundle_snapshot
 from model_skyline.quality_catalog import (
     project_quality_import_report,
     quality_source_reference,
     quality_workload_reference,
 )
 from model_skyline.quality_evidence import QualityPublicationScope, reconcile_quality_evidence
-from model_skyline.quality_oracle import (
-    build_quality_oracle_snapshot,
-    enrich_catalog_with_quality_oracle,
-    verify_quality_oracle_snapshot,
-)
-from model_skyline.quality_selection import (
-    build_quality_gated_selection_snapshot,
-    verify_quality_gated_selection_snapshot,
-)
+from model_skyline.quality_portfolio import build_portfolio, verify_portfolio
 from model_skyline.renderers import render_csv, render_rss, render_table
 from model_skyline.selection import select_models
-from model_skyline.selection_overlap import (
-    CrossFrontierSelectionPolicy,
-    SecondaryFrontierInput,
-    build_frontier_proximity_snapshot,
-)
 from model_skyline.traces import TraceAggregationError, aggregate_traces, enrich_catalog
 from model_skyline.version import VERSION
 
@@ -140,10 +112,8 @@ app = typer.Typer(
     help="Build workload-specific model-offering Pareto frontiers.",
 )
 
-CORE_PANEL = "Core workflow"
-FRONTIER_COMPOSITION_PANEL = "Frontier composition"
+CORE_PANEL = "Core and publication"
 TELEMETRY_PANEL = "Telemetry"
-GATEWAY_PANEL = "Gateway"
 DATA_SOURCES_PANEL = "Data sources"
 SOURCE_MONITORING_PANEL = "Source monitoring"
 QUALITY_EVIDENCE_PANEL = "Quality evidence"
@@ -253,16 +223,6 @@ def _error(exc: Exception) -> None:
     raise typer.Exit(code=2)
 
 
-def _read_bounded(path: Path, maximum_bytes: int, *, label: str) -> bytes:
-    size = path.stat().st_size
-    if size > maximum_bytes:
-        raise ValueError(f"{label} exceeds {maximum_bytes} bytes")
-    payload = path.read_bytes()
-    if len(payload) != size:
-        raise ValueError(f"{label} changed while it was being read")
-    return payload
-
-
 def _path_assignments(values: list[str] | None, *, option: str) -> dict[str, Path]:
     result: dict[str, Path] = {}
     for value in values or ():
@@ -275,43 +235,6 @@ def _path_assignments(values: list[str] | None, *, option: str) -> dict[str, Pat
     if not result:
         raise ValueError(f"at least one {option} is required")
     return result
-
-
-def _load_secondary_inputs(
-    policy: CrossFrontierSelectionPolicy,
-    secondary_frontiers: list[Path] | None,
-    proximity_sidecars: list[Path] | None,
-) -> dict[str, SecondaryFrontierInput]:
-    if not secondary_frontiers:
-        raise ValueError("at least one --secondary-frontier is required")
-    if not proximity_sidecars:
-        raise ValueError("at least one --proximity is required")
-    frontiers = [load_frontier_snapshot(path) for path in secondary_frontiers]
-    proximities = [load_frontier_proximity_snapshot(path) for path in proximity_sidecars]
-    frontier_by_snapshot_id = {item.snapshot_id: item for item in frontiers}
-    if len(frontier_by_snapshot_id) != len(frontiers):
-        raise ValueError("--secondary-frontier repeats a snapshot")
-    proximity_by_frontier_snapshot_id = {
-        item.source_frontier_snapshot_id: item for item in proximities
-    }
-    if len(proximity_by_frontier_snapshot_id) != len(proximities):
-        raise ValueError("--proximity repeats a source frontier snapshot")
-    expected_snapshot_ids = {
-        reference.frontier_snapshot_id
-        for group in policy.priority_groups
-        for reference in group.frontiers
-    }
-    if set(frontier_by_snapshot_id) != expected_snapshot_ids:
-        raise ValueError("--secondary-frontier inputs must exactly match the overlap policy")
-    if set(proximity_by_frontier_snapshot_id) != expected_snapshot_ids:
-        raise ValueError("--proximity inputs must exactly match the overlap policy")
-    return {
-        snapshot_id: SecondaryFrontierInput(
-            frontier=frontier_by_snapshot_id[snapshot_id],
-            proximity=proximity_by_frontier_snapshot_id[snapshot_id],
-        )
-        for snapshot_id in expected_snapshot_ids
-    }
 
 
 @app.command(rich_help_panel=CORE_PANEL)
@@ -415,208 +338,6 @@ def select(
         snapshot = select_models(loaded_config, frontier_snapshot, selection)
         _emit(dump_json(snapshot), output)
     except (InputError, OSError, ValueError) as exc:
-        _error(exc)
-
-
-@app.command("build-frontier-proximity", rich_help_panel=FRONTIER_COMPOSITION_PANEL)
-def build_frontier_proximity_command(
-    frontier: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    output: Annotated[
-        Path | None,
-        typer.Option("--output", "-o", dir_okay=False),
-    ] = None,
-) -> None:
-    """Build the deterministic proximity sidecar bound by overlap policies."""
-
-    try:
-        snapshot = build_frontier_proximity_snapshot(load_frontier_snapshot(frontier))
-        _emit(dump_json(snapshot), output)
-    except (InputError, OSError, ValueError) as exc:
-        _error(exc)
-
-
-@app.command("select-quality-gated", rich_help_panel=FRONTIER_COMPOSITION_PANEL)
-def select_quality_gated_command(
-    config: Annotated[Path, typer.Argument(exists=True, readable=True)],
-    primary: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    quality_policy: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    quality_bundle: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    overlap_policy: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    selection: Annotated[str, typer.Argument(help="selection id in the configuration")],
-    secondary_frontiers: Annotated[
-        list[Path] | None,
-        typer.Option(
-            "--secondary-frontier",
-            exists=True,
-            readable=True,
-            dir_okay=False,
-            help="secondary frontier bound by the overlap policy; repeat",
-        ),
-    ] = None,
-    proximity_sidecars: Annotated[
-        list[Path] | None,
-        typer.Option(
-            "--proximity",
-            exists=True,
-            readable=True,
-            dir_okay=False,
-            help="proximity sidecar bound by the overlap policy; repeat",
-        ),
-    ] = None,
-    output: Annotated[
-        Path | None,
-        typer.Option("--output", "-o", dir_okay=False),
-    ] = None,
-    as_of: Annotated[str | None, typer.Option("--as-of")] = None,
-) -> None:
-    """Gate a primary frontier by quality, then rank it by frontier overlap."""
-
-    try:
-        policy = load_cross_frontier_selection_policy(overlap_policy)
-        secondary_inputs = _load_secondary_inputs(
-            policy,
-            secondary_frontiers,
-            proximity_sidecars,
-        )
-        snapshot = build_quality_gated_selection_snapshot(
-            load_config(config),
-            load_quality_bundle_policy(quality_policy),
-            load_quality_bundle_snapshot(quality_bundle),
-            load_frontier_snapshot(primary),
-            selection,
-            policy,
-            secondary_inputs,
-            generated_at=_as_of(as_of) or datetime.now(UTC),
-        )
-        _emit(dump_json(snapshot), output)
-    except (InputError, OSError, TypeError, ValueError) as exc:
-        _error(exc)
-
-
-@app.command(
-    "verify-quality-gated-selection",
-    rich_help_panel=FRONTIER_COMPOSITION_PANEL,
-)
-def verify_quality_gated_selection_command(
-    config: Annotated[Path, typer.Argument(exists=True, readable=True)],
-    quality_policy: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    quality_bundle: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    primary: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    snapshot: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    overlap_policy: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    selection: Annotated[str, typer.Argument(help="selection id in the configuration")],
-    component_frontiers: Annotated[
-        list[str] | None,
-        typer.Option(
-            "--component-frontier",
-            help="quality component assignment as COMPONENT_ID=FRONTIER_PATH; repeat",
-        ),
-    ] = None,
-    candidate_frontiers: Annotated[
-        list[Path] | None,
-        typer.Option(
-            "--candidate-frontier",
-            exists=True,
-            readable=True,
-            dir_okay=False,
-            help="additional source for the exact candidate universe; repeat",
-        ),
-    ] = None,
-    secondary_frontiers: Annotated[
-        list[Path] | None,
-        typer.Option(
-            "--secondary-frontier",
-            exists=True,
-            readable=True,
-            dir_okay=False,
-            help="secondary frontier bound by the overlap policy; repeat",
-        ),
-    ] = None,
-    proximity_sidecars: Annotated[
-        list[Path] | None,
-        typer.Option(
-            "--proximity",
-            exists=True,
-            readable=True,
-            dir_okay=False,
-            help="proximity sidecar bound by the overlap policy; repeat",
-        ),
-    ] = None,
-    as_of: Annotated[str | None, typer.Option("--as-of")] = None,
-) -> None:
-    """Replay every bound source before trusting a quality-gated selection."""
-
-    try:
-        assignments = _path_assignments(
-            component_frontiers,
-            option="--component-frontier",
-        )
-        components = {
-            component_id: load_frontier_snapshot(path) for component_id, path in assignments.items()
-        }
-        loaded_primary = load_frontier_snapshot(primary)
-        candidate_sources = (
-            *components.values(),
-            loaded_primary,
-            *(load_frontier_snapshot(path) for path in candidate_frontiers or ()),
-        )
-        candidate_by_identity = {
-            canonical_bytes(item.offering): item.offering
-            for frontier in candidate_sources
-            for item in frontier.evaluated
-        }
-        policy = load_cross_frontier_selection_policy(overlap_policy)
-        secondary_inputs = _load_secondary_inputs(
-            policy,
-            secondary_frontiers,
-            proximity_sidecars,
-        )
-        verified = load_quality_gated_selection_snapshot(snapshot)
-        verify_quality_gated_selection_snapshot(
-            load_config(config),
-            load_quality_bundle_policy(quality_policy),
-            components,
-            candidate_by_identity.values(),
-            load_quality_bundle_snapshot(quality_bundle),
-            loaded_primary,
-            verified,
-            selection,
-            policy,
-            secondary_inputs,
-            now=_as_of(as_of) or datetime.now(UTC),
-        )
-        typer.echo(f"valid quality-gated selection {verified.snapshot_id}")
-    except (InputError, OSError, TypeError, ValueError) as exc:
         _error(exc)
 
 
@@ -728,89 +449,6 @@ def aggregate_trace_command(
         enriched = enrich_catalog(loaded_catalog, summary)
         _emit(dump_json(enriched), output)
     except (InputError, OSError, TraceAggregationError, ValueError) as exc:
-        _error(exc)
-
-
-@app.command("verify-gateway-bundle", rich_help_panel=GATEWAY_PANEL)
-def verify_gateway_bundle_command(
-    envelope: Annotated[Path, typer.Argument(exists=True, readable=True)],
-    publication: Annotated[Path, typer.Argument(exists=True, readable=True)],
-    selection: Annotated[Path, typer.Argument(exists=True, readable=True)],
-    trust_policy: Annotated[Path, typer.Argument(exists=True, readable=True)],
-    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
-    at: Annotated[
-        str | None,
-        typer.Option("--at", help="trusted verification time; defaults to current UTC"),
-    ] = None,
-    checkpoint: Annotated[
-        Path | None,
-        typer.Option(
-            "--checkpoint",
-            exists=True,
-            readable=True,
-            help="optional previously trusted sequence checkpoint",
-        ),
-    ] = None,
-    required_capabilities: Annotated[
-        list[str] | None,
-        typer.Option(
-            "--required-capability",
-            help="request capability used only to narrow the signed route; may be repeated",
-        ),
-    ] = None,
-    minimum_headroom_seconds: Annotated[
-        int,
-        typer.Option("--minimum-headroom-seconds", min=0),
-    ] = 0,
-) -> None:
-    """Statically verify signed bytes and emit a checkpoint, key IDs, and pinned route.
-
-    This command does not install durable anti-rollback state. Pass a trusted
-    checkpoint when verifying an update; production admission should use
-    ``SignedGatewayResolver`` with a durable installation store.
-    """
-
-    try:
-        policy = parse_gateway_trust_policy(
-            _read_bounded(trust_policy, MAX_GATEWAY_ARTIFACT_BYTES, label="trust policy")
-        )
-        prior = (
-            None
-            if checkpoint is None
-            else parse_gateway_sequence_checkpoint(
-                _read_bounded(checkpoint, MAX_GATEWAY_ENVELOPE_BYTES, label="checkpoint")
-            )
-        )
-        now = _verification_time(at) or datetime.now(UTC)
-        verified = verify_gateway_bundle(
-            _read_bounded(envelope, MAX_GATEWAY_ENVELOPE_BYTES, label="DSSE envelope"),
-            _read_bounded(
-                publication,
-                min(policy.max_artifact_bytes, MAX_GATEWAY_ARTIFACT_BYTES),
-                label="publication",
-            ),
-            _read_bounded(
-                selection,
-                min(policy.max_artifact_bytes, MAX_GATEWAY_ARTIFACT_BYTES),
-                label="selection",
-            ),
-            policy,
-            now=now,
-            checkpoint=prior,
-        )
-        route = pin_gateway_route(
-            verified,
-            now=now,
-            required_capabilities=required_capabilities or (),
-            minimum_headroom=timedelta(seconds=minimum_headroom_seconds),
-        )
-        result = {
-            "checkpoint": verified.checkpoint.model_dump(mode="json"),
-            "route": route.model_dump(mode="json"),
-            "verified_key_ids": list(verified.authenticated_pointer.verified_key_ids),
-        }
-        _emit(json.dumps(result, indent=2) + "\n", output)
-    except (OSError, ValueError) as exc:
         _error(exc)
 
 
@@ -1394,9 +1032,84 @@ def project_quality_catalog_command(
         _error(exc)
 
 
-@app.command("build-quality-bundle", rich_help_panel=QUALITY_EVIDENCE_PANEL)
-def build_quality_bundle_command(
+@app.command("build-quality-portfolio", rich_help_panel=QUALITY_EVIDENCE_PANEL)
+def build_quality_portfolio_command(
     policy: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    base_catalog: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    catalog_output: Annotated[
+        Path,
+        typer.Option("--catalog-output", dir_okay=False),
+    ],
+    derivation_output: Annotated[
+        Path,
+        typer.Option("--derivation-output", dir_okay=False),
+    ],
+    component_frontiers: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--component-frontier",
+            help="quality component assignment as COMPONENT_ID=FRONTIER_PATH; repeat",
+        ),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace existing private outputs"),
+    ] = False,
+    as_of: Annotated[str | None, typer.Option("--as-of")] = None,
+) -> None:
+    """Enrich one catalog with a replayable two-to-four-benchmark portfolio."""
+
+    try:
+        if catalog_output.resolve(strict=False) == derivation_output.resolve(strict=False):
+            raise ValueError("catalog and derivation outputs must be different files")
+        assignments = _path_assignments(
+            component_frontiers,
+            option="--component-frontier",
+        )
+        frontiers = {
+            component_id: load_frontier_snapshot(path) for component_id, path in assignments.items()
+        }
+        result = build_portfolio(
+            load_portfolio_policy(policy),
+            frontiers,
+            load_catalog(base_catalog),
+            generated_at=_as_of(as_of) or datetime.now(UTC),
+        )
+        # Each file is independently canonical and replayable. Write the compact
+        # derivation first so a later catalog-output failure never loses its lock.
+        write_private_text(
+            derivation_output,
+            dump_json(result.snapshot),
+            overwrite=overwrite,
+        )
+        write_private_text(
+            catalog_output,
+            dump_json(result.catalog),
+            overwrite=overwrite,
+        )
+        typer.echo(derivation_output)
+        typer.echo(catalog_output)
+    except (InputError, PrivateOutputError, OSError, TypeError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("verify-quality-portfolio", rich_help_panel=QUALITY_EVIDENCE_PANEL)
+def verify_quality_portfolio_command(
+    policy: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    base_catalog: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    derivation: Annotated[
         Path,
         typer.Argument(exists=True, readable=True, dir_okay=False),
     ],
@@ -1407,30 +1120,12 @@ def build_quality_bundle_command(
             help="quality component assignment as COMPONENT_ID=FRONTIER_PATH; repeat",
         ),
     ] = None,
-    candidate_frontiers: Annotated[
-        list[Path] | None,
-        typer.Option(
-            "--candidate-frontier",
-            exists=True,
-            readable=True,
-            dir_okay=False,
-            help=(
-                "additional candidate-universe frontier; repeat to retain explicit missing "
-                "coverage for routes absent from every quality component"
-            ),
-        ),
+    at: Annotated[
+        str | None,
+        typer.Option("--at", help="timezone-aware verification time; defaults to now"),
     ] = None,
-    output: Annotated[
-        Path | None,
-        typer.Option("--output", "-o", dir_okay=False),
-    ] = None,
-    overwrite: Annotated[
-        bool,
-        typer.Option("--overwrite", help="replace an existing private quality bundle"),
-    ] = False,
-    as_of: Annotated[str | None, typer.Option("--as-of")] = None,
 ) -> None:
-    """Build a hard quality-coverage gate from exact component frontiers."""
+    """Replay a portfolio derivation against its exact policy and inputs."""
 
     try:
         assignments = _path_assignments(
@@ -1440,139 +1135,16 @@ def build_quality_bundle_command(
         frontiers = {
             component_id: load_frontier_snapshot(path) for component_id, path in assignments.items()
         }
-        candidate_sources = (
-            *frontiers.values(),
-            *(load_frontier_snapshot(path) for path in candidate_frontiers or ()),
-        )
-        candidate_by_identity = {}
-        for frontier in candidate_sources:
-            if frontier.axis_evidence is None:
-                raise ValueError(
-                    f"candidate frontier {frontier.frontier_id!r} lacks a complete axis "
-                    "evidence inventory; re-evaluate it with ModelSkyline v0.8 or later"
-                )
-            for item in frontier.axis_evidence.candidates:
-                candidate_by_identity[canonical_bytes(item.offering)] = item.offering
-        snapshot = build_quality_bundle_snapshot(
-            load_quality_bundle_policy(policy),
+        snapshot = load_portfolio_derivation(derivation)
+        verify_portfolio(
+            load_portfolio_policy(policy),
             frontiers,
-            candidate_by_identity.values(),
-            generated_at=_as_of(as_of) or datetime.now(UTC),
-        )
-        _emit_private(dump_json(snapshot), output, overwrite=overwrite)
-    except (InputError, PrivateOutputError, OSError, TypeError, ValueError) as exc:
-        _error(exc)
-
-
-@app.command("build-quality-oracle", rich_help_panel=QUALITY_EVIDENCE_PANEL)
-def build_quality_oracle_command(
-    policy: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    quality_bundle: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    output: Annotated[
-        Path | None,
-        typer.Option("--output", "-o", dir_okay=False),
-    ] = None,
-    overwrite: Annotated[
-        bool,
-        typer.Option("--overwrite", help="replace an existing private quality oracle"),
-    ] = False,
-    as_of: Annotated[str | None, typer.Option("--as-of")] = None,
-) -> None:
-    """Build an opt-in fixed-reference quality index from an exact bundle."""
-
-    try:
-        snapshot = build_quality_oracle_snapshot(
-            load_quality_oracle_policy(policy),
-            load_quality_bundle_snapshot(quality_bundle),
-            generated_at=_as_of(as_of) or datetime.now(UTC),
-        )
-        _emit_private(dump_json(snapshot), output, overwrite=overwrite)
-    except (InputError, PrivateOutputError, OSError, TypeError, ValueError) as exc:
-        _error(exc)
-
-
-@app.command("verify-quality-oracle", rich_help_panel=QUALITY_EVIDENCE_PANEL)
-def verify_quality_oracle_command(
-    policy: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    quality_bundle: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    snapshot: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    at: Annotated[
-        str | None,
-        typer.Option("--at", help="timezone-aware verification time; defaults to now"),
-    ] = None,
-) -> None:
-    """Replay an oracle derivation against its exact bundle snapshot."""
-
-    try:
-        verify_quality_oracle_snapshot(
-            load_quality_oracle_policy(policy),
-            load_quality_bundle_snapshot(quality_bundle),
-            load_quality_oracle_snapshot(snapshot),
+            load_catalog(base_catalog),
+            snapshot,
             now=_verification_time(at) or datetime.now(UTC),
         )
-        typer.echo("quality oracle derivation verified")
+        typer.echo(f"valid quality portfolio {snapshot.snapshot_id}")
     except (InputError, OSError, TypeError, ValueError) as exc:
-        _error(exc)
-
-
-@app.command("enrich-catalog-with-quality-oracle", rich_help_panel=QUALITY_EVIDENCE_PANEL)
-def enrich_catalog_with_quality_oracle_command(
-    catalog: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    policy: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    quality_bundle: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    snapshot: Annotated[
-        Path,
-        typer.Argument(exists=True, readable=True, dir_okay=False),
-    ],
-    output: Annotated[
-        Path | None,
-        typer.Option("--output", "-o", dir_okay=False),
-    ] = None,
-    overwrite: Annotated[
-        bool,
-        typer.Option("--overwrite", help="replace an existing private enriched catalog"),
-    ] = False,
-    at: Annotated[
-        str | None,
-        typer.Option("--at", help="timezone-aware verification time; defaults to now"),
-    ] = None,
-) -> None:
-    """Replay trusted oracle inputs, then enrich the exact matching cost catalog."""
-
-    try:
-        enriched = enrich_catalog_with_quality_oracle(
-            load_catalog(catalog),
-            load_quality_oracle_policy(policy),
-            load_quality_bundle_snapshot(quality_bundle),
-            load_quality_oracle_snapshot(snapshot),
-            now=_verification_time(at) or datetime.now(UTC),
-        )
-        _emit_private(dump_json(enriched), output, overwrite=overwrite)
-    except (InputError, PrivateOutputError, OSError, TypeError, ValueError) as exc:
         _error(exc)
 
 

@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
+from typer.testing import CliRunner
 
 from model_skyline.canonical import content_hash
+from model_skyline.cli import app
 from model_skyline.engine import FrontierEngine, frontier_hash
 from model_skyline.models import (
     AxisDescriptor,
@@ -33,6 +36,7 @@ from model_skyline.quality_portfolio import (
 )
 
 NOW = datetime(2026, 8, 31, 20, tzinfo=UTC)
+runner = CliRunner()
 
 
 def _offering(offering_id: str, *, provider: str = "provider") -> OfferingKey:
@@ -252,12 +256,12 @@ def test_policy_is_stable_intent_and_rejects_volatile_frontier_fields() -> None:
         "coding",
         "reasoning",
     )
-    assert policy.model_dump().keys().isdisjoint(
-        {"frontier_snapshot_id", "config_hash", "catalog_hash", "generated_at"}
+    assert (
+        policy.model_dump()
+        .keys()
+        .isdisjoint({"frontier_snapshot_id", "config_hash", "catalog_hash", "generated_at"})
     )
-    same_policy = policy.model_copy(
-        update={"components": tuple(reversed(policy.components))}
-    )
+    same_policy = policy.model_copy(update={"components": tuple(reversed(policy.components))})
     same_policy = PortfolioPolicy.model_validate(same_policy.model_dump(mode="json"))
     assert portfolio_policy_hash(same_policy) == portfolio_policy_hash(policy)
 
@@ -300,8 +304,7 @@ def test_coverage_portfolio_emits_separate_signals_and_visible_missingness() -> 
     )
 
     candidates = {
-        candidate.offering.offering_id: candidate
-        for candidate in result.snapshot.candidates
+        candidate.offering.offering_id: candidate for candidate in result.snapshot.candidates
     }
     assert candidates["a"].component_failures == {}
     assert candidates["b"].component_failures == {"reasoning": ("missing",)}
@@ -492,8 +495,7 @@ def test_core_formula_combines_portfolio_signals_with_exact_decimal_math() -> No
         generated_at=NOW,
     )
     quality_by_offering = {
-        item.offering.offering_id: item.axes["quality_index"]
-        for item in frontier.evaluated
+        item.offering.offering_id: item.axes["quality_index"] for item in frontier.evaluated
     }
     assert quality_by_offering["a"].value == Decimal("0.8")
     assert quality_by_offering["b"].value == Decimal("0.55")
@@ -669,10 +671,7 @@ def test_companion_axis_or_config_change_rebinds_snapshot_not_quality_projection
 
     assert first.snapshot.policy_hash == second.snapshot.policy_hash
     assert first.snapshot.snapshot_id != second.snapshot.snapshot_id
-    assert (
-        first.snapshot.quality_projection_sha256
-        == second.snapshot.quality_projection_sha256
-    )
+    assert first.snapshot.quality_projection_sha256 == second.snapshot.quality_projection_sha256
     assert content_hash(first.catalog) == content_hash(second.catalog)
 
 
@@ -770,3 +769,80 @@ def test_component_output_signals_are_formula_safe_and_unique() -> None:
             minimum_measured_components=2,
             correlation_rationale="No independence claim.",
         )
+
+
+def test_cli_builds_and_replays_portfolio_catalog(tmp_path: Path) -> None:
+    offerings = (_offering("a"), _offering("b"))
+    coding = _frontier(
+        "coding-quality",
+        "swe_score",
+        Goal.MAXIMIZE,
+        _source("swe-bench", "a"),
+        offerings,
+        {"a": Decimal(80), "b": Decimal(70)},
+        digest_character="a",
+    )
+    reasoning = _frontier(
+        "reasoning-quality",
+        "arc_score",
+        Goal.MAXIMIZE,
+        _source("arc-agi-2", "b"),
+        offerings,
+        {"a": Decimal(60), "b": Decimal(75)},
+        digest_character="b",
+    )
+    policy = _coverage_policy(coding.workload, reasoning.workload)
+    base = _base(policy, offerings)
+
+    inputs = {
+        "policy": (tmp_path / "policy.json", policy),
+        "base": (tmp_path / "base.json", base),
+        "coding": (tmp_path / "coding.json", coding),
+        "reasoning": (tmp_path / "reasoning.json", reasoning),
+    }
+    for path, model in inputs.values():
+        path.write_text(model.model_dump_json(indent=2) + "\n", encoding="utf-8")
+    catalog_output = tmp_path / "portfolio-catalog.json"
+    derivation_output = tmp_path / "portfolio-derivation.json"
+
+    built = runner.invoke(
+        app,
+        [
+            "build-quality-portfolio",
+            str(inputs["policy"][0]),
+            str(inputs["base"][0]),
+            "--catalog-output",
+            str(catalog_output),
+            "--derivation-output",
+            str(derivation_output),
+            "--component-frontier",
+            f"coding={inputs['coding'][0]}",
+            "--component-frontier",
+            f"reasoning={inputs['reasoning'][0]}",
+            "--as-of",
+            NOW.isoformat(),
+        ],
+    )
+
+    assert built.exit_code == 0, built.output
+    payload = ObservationCatalog.model_validate_json(catalog_output.read_text())
+    assert "swe_bench_score" in payload.offerings[0].signals
+
+    verified = runner.invoke(
+        app,
+        [
+            "verify-quality-portfolio",
+            str(inputs["policy"][0]),
+            str(inputs["base"][0]),
+            str(derivation_output),
+            "--component-frontier",
+            f"coding={inputs['coding'][0]}",
+            "--component-frontier",
+            f"reasoning={inputs['reasoning'][0]}",
+            "--at",
+            (NOW + timedelta(minutes=1)).isoformat(),
+        ],
+    )
+
+    assert verified.exit_code == 0, verified.output
+    assert "valid quality portfolio" in verified.output

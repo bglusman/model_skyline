@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.9.0 - Unreleased
+
+- Center the supported package surface on the catalog → frontier → selection
+  workflow and reduce the package-root API from 70 names to 10. An external
+  v0.6 consumer exercised this CLI/JSON boundary with real workload data;
+  `evaluate`, `select`, and the ordinary catalog/frontier/selection artifact
+  shapes remain the compatibility priority.
+- Move advanced imports to their defining modules. This is an intentional
+  breaking change with no compatibility aliases; the
+  [complete migration map](docs/migration-0.9.md) covers every removed root
+  export.
+- Replace the parallel quality-bundle, scalar-oracle, quality-gated-selection,
+  and overlap/proximity runtime with one `PortfolioPolicy`/`build_portfolio`
+  enrichment step. It gates two-to-four benchmark coverage, preserves exact
+  complete offering identity, freshness, provenance, rights, correlation, and
+  per-candidate failure evidence, then emits an ordinary observation catalog.
+  Normalization and weights remain explicit core `FormulaMetric` policy; final
+  routing remains an ordinary `SelectionSnapshot`.
+- Remove the unused signed gateway pointer/resolver/store implementation,
+  gateway schemas and optional crypto dependency, and portable conformance
+  corpus. Version 0.9 supports ordinary selections over a trusted local file or
+  trusted HTTPS origin with process-local resolver state; it does not claim
+  publisher authentication or durable anti-rollback. ADRs 0002 and 0003 retain
+  the removed designs as superseded historical research.
+- Remove the corresponding bundle/oracle/gated/overlap/gateway commands and
+  schemas. Consumers of those experimental 0.8 surfaces must follow the
+  [0.9 migration guide](docs/migration-0.9.md); there are no compatibility
+  aliases.
+- Render finite Decimal values in fixed-point human output, so values such as
+  `5E+1` display as `50`. Core JSON identities are unchanged, but regenerated
+  table, CSV, RSS, and publication artifact bytes may change once when moving
+  to 0.9.
+- Add a payload-free real-workload regression example with explicit provenance,
+  pricing semantics, synthetic quality labels, and cost-scope limitations.
+
 ## 0.8.0 - 2026-08-31
 
 - Add pinned, fail-closed collectors for the official SWE-bench bash-only

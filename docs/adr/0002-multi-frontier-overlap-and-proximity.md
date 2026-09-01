@@ -1,9 +1,18 @@
 # ADR 0002: Multi-frontier overlap and proximity selection
 
-- Status: accepted for alpha implementation
+- Status: superseded in v0.9; design retained as historical research
 - Date: 2026-08-30
 - Decision owners: ModelSkyline maintainers and Hermes integration track
 - Design discussion: [issue #1](https://github.com/bglusman/model_skyline/issues/1#issuecomment-5471065874)
+
+Version 0.9 removed the `selection_overlap.py` runtime, its special selection
+artifact, CLI commands, and schemas. No demonstrated consumer required this
+parallel selection system; the external v0.6 consumer used the ordinary
+single-frontier `SelectionSnapshot`. Quality composition now uses
+`PortfolioPolicy` to enrich an ordinary catalog, followed by the core
+`FormulaMetric`, frontier, and selection path. This ADR preserves the reasoning
+and can inform a future consumer-driven design, but it is not a shipped v0.9
+contract.
 
 ## Context
 

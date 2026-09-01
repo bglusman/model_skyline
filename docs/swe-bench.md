@@ -155,10 +155,10 @@ For a typical general-agent policy, keep two to four benchmark components
 separate—commonly SWE-bench for repository coding, Harbor/Terminal-Bench for
 terminal work, tau2-bench for stateful tool/policy work, and optionally the
 pinned ARC-AGI-2 public-evaluation evidence or a better-attested local run for
-abstract reasoning. The quality bundle
-requires explicit measured/missing/quarantined coverage and exact complete
-offering equality. Separate-frontier overlap is the default; an optional scalar
-composite needs an explicit versioned normalization and weighting policy.
+abstract reasoning. `PortfolioPolicy` requires explicit coverage and exact
+complete offering equality, then emits each component as a separate catalog
+signal. An optional scalar composite is an ordinary `FormulaMetric` with an
+explicit versioned normalization and weighting policy.
 
 ## Rights and limitations
 

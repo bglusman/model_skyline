@@ -17,12 +17,12 @@ def test_root_api_is_the_small_core_calculation_surface() -> None:
         "select_models",
     ]
     assert not hasattr(model_skyline, "DynamicResolver")
-    assert not hasattr(model_skyline, "QualityOraclePolicy")
+    assert not hasattr(model_skyline, "PortfolioPolicy")
 
 
 def test_advanced_apis_remain_available_from_explicit_modules() -> None:
-    from model_skyline.quality_oracle import QualityOraclePolicy
+    from model_skyline.quality_portfolio import PortfolioPolicy
     from model_skyline.resolver import DynamicResolver
 
-    assert QualityOraclePolicy.__module__ == "model_skyline.quality_oracle"
+    assert PortfolioPolicy.__module__ == "model_skyline.quality_portfolio"
     assert DynamicResolver.__module__ == "model_skyline.resolver"

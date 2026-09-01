@@ -4,11 +4,12 @@ ModelSkyline calculates workload-specific, two-objective Pareto frontiers over
 model offerings and turns a frontier into an ordered default-and-fallback
 selection for agents.
 
-> **Status:** working alpha. The core catalog → frontier → selection path is
-> implemented and tested. The repository also contains advanced benchmark,
-> telemetry, quality-composition, publication, and signed-gateway components,
-> but several are version-pinned or contract-only integrations. There is no
-> hosted service or package-registry release yet, and alpha schemas may change.
+> **Status:** working alpha. The catalog → frontier → selection path is
+> implemented and tested, and an external v0.6 consumer used its CLI and JSON
+> artifacts with real workload data. Benchmark ingestion, telemetry,
+> publication, and RSS are first-party integrations around that path. There is
+> no hosted service or package-registry release yet, and alpha schemas may
+> change.
 
 ## The core path
 
@@ -77,9 +78,9 @@ Production inputs normally use current observation timestamps and omit
 gateway must pin one resolved selection for the complete work unit rather than
 re-resolving on every turn.
 
-Run `uv run modelskyline --help` to see the unchanged commands grouped as core
-workflow, frontier composition, telemetry, gateway, data sources, source
-monitoring, quality evidence, and contracts.
+Run `uv run modelskyline --help` to see commands for the core workflow,
+telemetry, data sources, source monitoring, quality evidence, publication, and
+contracts.
 
 ## Small root API
 
@@ -101,8 +102,8 @@ from model_skyline import (
 
 `model_skyline.__version__` is also public. Advanced APIs remain available from
 explicit modules such as `model_skyline.quality_evidence`,
-`model_skyline.traces`, `model_skyline.publisher`, and
-`model_skyline.gateway`; pruning eager root imports does not remove them.
+`model_skyline.quality_portfolio`, `model_skyline.traces`,
+`model_skyline.publisher`, and `model_skyline.resolver`.
 
 ## Current boundaries
 
@@ -115,17 +116,21 @@ explicit modules such as `model_skyline.quality_evidence`,
 - A content hash detects mutation but does not authenticate who chose a policy.
 - Public publication requires explicit source authorization and a separate
   privacy and rights review.
-- The signed gateway profile authenticates ordinary selections, but native
-  framework consumers and broader quality-gated gateway support remain work in
-  progress.
+- The convenience resolver is for a trusted local file or trusted HTTPS
+  origin. Version 0.9 does not ship signed remote distribution or durable
+  anti-rollback state.
+- Quality portfolios gate coverage and enrich an ordinary observation catalog;
+  they do not prove statistical independence or create a universal quality
+  score. Any scalar composite remains explicit operator policy in a core
+  `FormulaMetric`.
 
 ## Where to go next
 
 - [Architecture and data semantics](docs/architecture.md)
 - [Agent-framework telemetry adapters](docs/framework-integrations.md)
 - [Pricing and cache-aware formulas](docs/models-dev-pricing.md)
-- [Benchmark evidence and composite quality](docs/quality-oracle.md)
-- [Gateway protocol and integration options](docs/gateway-integrations.md)
+- [Benchmark evidence and quality portfolios](docs/quality-portfolios.md)
+- [Runtime and gateway integration options](docs/gateway-integrations.md)
 - [Research, sources, and prior art](docs/research.md)
 - [Security policy](SECURITY.md)
 

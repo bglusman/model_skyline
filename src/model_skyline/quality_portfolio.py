@@ -120,6 +120,7 @@ class PortfolioPolicy(FrozenModel):
 
         return self
 
+
 class PortfolioCandidateAudit(FrozenModel):
     offering: OfferingKey
     component_failures: dict[PortablePublicationId, FailureReasons] = Field(default_factory=dict)

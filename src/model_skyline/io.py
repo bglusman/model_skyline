@@ -23,20 +23,13 @@ from model_skyline.models import (
     PublicationManifest,
     SelectionSnapshot,
 )
-from model_skyline.quality_bundle import QualityBundlePolicy, QualityBundleSnapshot
 from model_skyline.quality_evidence import (
     MAX_QUALITY_ARTIFACT_BYTES,
     QualityEvidenceSet,
     QualityImportReport,
     QualityReconciliation,
 )
-from model_skyline.quality_oracle import QualityOraclePolicy, QualityOracleSnapshot
 from model_skyline.quality_portfolio import PortfolioDerivationSnapshot, PortfolioPolicy
-from model_skyline.quality_selection import QualityGatedSelectionSnapshot
-from model_skyline.selection_overlap import (
-    CrossFrontierSelectionPolicy,
-    FrontierProximitySnapshot,
-)
 
 
 class InputError(ValueError):
@@ -136,13 +129,13 @@ def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
         if key in result:
             digest = hashlib.sha256(key.encode("utf-8")).hexdigest()
             raise InputError(
-                f"quality artifact contains duplicate JSON key length={len(key)} sha256={digest}"
+                f"JSON artifact contains duplicate JSON key length={len(key)} sha256={digest}"
             )
         result[key] = value
     return result
 
 
-def _preflight_quality_json_structure(raw: bytes) -> None:
+def _preflight_json_structure(raw: bytes) -> None:
     """Bound container allocation before decoding JSON into Python objects.
 
     ASCII JSON punctuation cannot occur inside a multibyte UTF-8 code point, so
@@ -217,7 +210,7 @@ def _preflight_quality_json_structure(raw: bytes) -> None:
 
 def _load_quality_json(path: str | Path) -> Any:
     raw = _read_bounded_regular_file(path, MAX_QUALITY_ARTIFACT_BYTES)
-    _preflight_quality_json_structure(raw)
+    _preflight_json_structure(raw)
     try:
         text = raw.decode("utf-8")
         return json.loads(
@@ -313,48 +306,12 @@ def load_quality_import_report(path: str | Path) -> QualityImportReport:
     return _validate_sensitive(QualityImportReport, _load_quality_json(path), path)
 
 
-def load_quality_bundle_policy(path: str | Path) -> QualityBundlePolicy:
-    return _validate_sensitive(QualityBundlePolicy, _load_quality_json(path), path)
+def load_portfolio_policy(path: str | Path) -> PortfolioPolicy:
+    return _validate_sensitive(PortfolioPolicy, _load_quality_json(path), path)
 
 
-def load_quality_bundle_snapshot(path: str | Path) -> QualityBundleSnapshot:
-    return _validate_sensitive(QualityBundleSnapshot, _load_quality_json(path), path)
-
-
-def load_quality_oracle_policy(path: str | Path) -> QualityOraclePolicy:
-    return _validate_sensitive(QualityOraclePolicy, _load_quality_json(path), path)
-
-
-def load_quality_oracle_snapshot(path: str | Path) -> QualityOracleSnapshot:
-    return _validate_sensitive(QualityOracleSnapshot, _load_quality_json(path), path)
-
-
-def load_quality_gated_selection_snapshot(
-    path: str | Path,
-) -> QualityGatedSelectionSnapshot:
-    return _validate_sensitive(
-        QualityGatedSelectionSnapshot,
-        _load_quality_json(path),
-        path,
-    )
-
-
-def load_cross_frontier_selection_policy(
-    path: str | Path,
-) -> CrossFrontierSelectionPolicy:
-    return _validate_sensitive(
-        CrossFrontierSelectionPolicy,
-        _load_quality_json(path),
-        path,
-    )
-
-
-def load_frontier_proximity_snapshot(path: str | Path) -> FrontierProximitySnapshot:
-    return _validate_sensitive(
-        FrontierProximitySnapshot,
-        _load_quality_json(path),
-        path,
-    )
+def load_portfolio_derivation(path: str | Path) -> PortfolioDerivationSnapshot:
+    return _validate_sensitive(PortfolioDerivationSnapshot, _load_quality_json(path), path)
 
 
 def dump_json(model: BaseModel) -> str:
@@ -385,23 +342,9 @@ SCHEMA_IDS = {
     "selection-snapshot.schema.json": ("urn:model-skyline:schema:v1alpha1:selection-snapshot"),
     "publication-manifest.schema.json": ("urn:model-skyline:schema:v1alpha1:publication-manifest"),
     "frontier-history.schema.json": "urn:model-skyline:schema:v1alpha1:frontier-history",
-    "frontier-proximity.schema.json": "urn:model-skyline:schema:v1alpha1:frontier-proximity",
-    "cross-frontier-selection-policy.schema.json": (
-        "urn:model-skyline:schema:v1alpha1:cross-frontier-selection-policy"
-    ),
-    "multi-frontier-selection-snapshot.schema.json": (
-        "urn:model-skyline:schema:v1alpha1:multi-frontier-selection-snapshot"
-    ),
     "request-trace.schema.json": "urn:model-skyline:schema:v1alpha1:request-trace",
     "request-trace-v1alpha2.schema.json": "urn:model-skyline:schema:v1alpha2:request-trace",
     "request-trace-v1alpha3.schema.json": "urn:model-skyline:schema:v1alpha3:request-trace",
-    "gateway-selection-pointer.schema.json": (
-        "urn:model-skyline:schema:gateway-selection-pointer:v1alpha1"
-    ),
-    "gateway-selection-envelope.schema.json": (
-        "urn:model-skyline:schema:gateway-selection-envelope:v1alpha1"
-    ),
-    "gateway-trust-policy.schema.json": ("urn:model-skyline:schema:gateway-trust-policy:v1alpha1"),
     "harbor-terminal-bench-import-config.schema.json": (
         "urn:model-skyline:schema:v1alpha1:harbor-terminal-bench-import-config"
     ),
@@ -412,26 +355,11 @@ SCHEMA_IDS = {
     "quality-import-report.schema.json": (
         "urn:model-skyline:schema:v1alpha1:quality-import-report"
     ),
-    "quality-bundle-policy.schema.json": (
-        "urn:model-skyline:schema:v1alpha1:quality-bundle-policy"
-    ),
-    "quality-bundle-snapshot.schema.json": (
-        "urn:model-skyline:schema:v1alpha1:quality-bundle-snapshot"
-    ),
-    "quality-oracle-policy.schema.json": (
-        "urn:model-skyline:schema:v1alpha1:quality-oracle-policy"
-    ),
-    "quality-oracle-snapshot.schema.json": (
-        "urn:model-skyline:schema:v1alpha1:quality-oracle-snapshot"
-    ),
     "quality-portfolio-policy.schema.json": (
         "urn:model-skyline:schema:v1alpha1:quality-portfolio-policy"
     ),
     "quality-portfolio-derivation.schema.json": (
         "urn:model-skyline:schema:v1alpha1:quality-portfolio-derivation"
-    ),
-    "quality-gated-selection-snapshot.schema.json": (
-        "urn:model-skyline:schema:v1alpha1:quality-gated-selection-snapshot"
     ),
 }
 
@@ -854,7 +782,7 @@ def _harbor_import_config_conditionals(schema: dict[str, Any]) -> None:
                     variant.setdefault("pattern", safe_text)
 
 
-def _quality_bundle_policy_conditionals(schema: dict[str, Any]) -> None:
+def _portfolio_policy_conditionals(schema: dict[str, Any]) -> None:
     """Expose straightforward set semantics to non-Python validators."""
 
     properties = schema.get("properties")
@@ -870,12 +798,6 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
     """Generate candidate schemas from models for maintainer review."""
 
     from model_skyline.adapters.harbor import HarborTerminalBenchImportConfig
-    from model_skyline.gateway import (
-        DsseEnvelope,
-        GatewaySelectionPointer,
-        GatewayTrustPolicy,
-    )
-    from model_skyline.selection_overlap import generated_overlap_schemas
     from model_skyline.traces import RequestTrace
 
     request_trace_schema = RequestTrace.model_json_schema(mode="validation")
@@ -890,14 +812,6 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         "frontier-history.schema.json": FrontierHistory.model_json_schema(mode="serialization"),
         "request-trace-v1alpha2.schema.json": deepcopy(request_trace_schema),
         "request-trace-v1alpha3.schema.json": deepcopy(request_trace_schema),
-        "gateway-selection-pointer.schema.json": GatewaySelectionPointer.model_json_schema(
-            mode="serialization"
-        ),
-        "gateway-selection-envelope.schema.json": DsseEnvelope.model_json_schema(
-            by_alias=True,
-            mode="serialization",
-        ),
-        "gateway-trust-policy.schema.json": GatewayTrustPolicy.model_json_schema(mode="validation"),
         "harbor-terminal-bench-import-config.schema.json": (
             HarborTerminalBenchImportConfig.model_json_schema(mode="validation")
         ),
@@ -908,26 +822,11 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         "quality-import-report.schema.json": QualityImportReport.model_json_schema(
             mode="serialization"
         ),
-        "quality-bundle-policy.schema.json": QualityBundlePolicy.model_json_schema(
-            mode="validation"
-        ),
-        "quality-bundle-snapshot.schema.json": QualityBundleSnapshot.model_json_schema(
-            mode="serialization"
-        ),
-        "quality-oracle-policy.schema.json": QualityOraclePolicy.model_json_schema(
-            mode="validation"
-        ),
-        "quality-oracle-snapshot.schema.json": QualityOracleSnapshot.model_json_schema(
-            mode="serialization"
-        ),
         "quality-portfolio-policy.schema.json": PortfolioPolicy.model_json_schema(
             mode="validation"
         ),
         "quality-portfolio-derivation.schema.json": (
             PortfolioDerivationSnapshot.model_json_schema(mode="serialization")
-        ),
-        "quality-gated-selection-snapshot.schema.json": (
-            QualityGatedSelectionSnapshot.model_json_schema(mode="serialization")
         ),
     }
     result: dict[str, dict[str, Any]] = {}
@@ -942,12 +841,8 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         if name == "harbor-terminal-bench-import-config.schema.json":
             _quality_complete_offering_key(schema)
             _harbor_import_config_conditionals(schema)
-        if name in {
-            "quality-bundle-policy.schema.json",
-            "quality-oracle-policy.schema.json",
-            "quality-portfolio-policy.schema.json",
-        }:
-            _quality_bundle_policy_conditionals(schema)
+        if name == "quality-portfolio-policy.schema.json":
+            _portfolio_policy_conditionals(schema)
         if name == "request-trace-v1alpha2.schema.json":
             _configure_request_trace_schema(schema, version="v1alpha2")
         if name == "request-trace-v1alpha3.schema.json":
@@ -957,13 +852,6 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
             "$id": SCHEMA_IDS[name],
             **schema,
         }
-        if name.startswith("gateway-"):
-            generated_schema["$comment"] = (
-                "Structural validation is not routing authorization. Consumers MUST also "
-                "perform the signature, canonical-byte, time, sequence, semantic-artifact, "
-                "exact OfferingKey mapping, capability, and atomic-install verification order "
-                "defined by docs/adr/0003-signed-gateway-selection-protocol.md."
-            )
         if name == "harbor-terminal-bench-import-config.schema.json":
             generated_schema["$comment"] = (
                 "This configuration contains reviewed acquisition provenance, rights, and "
@@ -999,37 +887,6 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
                 "JSON Schema does not enforce unique row IDs, canonical ordering, or artifact "
                 "limits; run the ModelSkyline semantic validator."
             )
-        if name == "quality-bundle-policy.schema.json":
-            generated_schema["$comment"] = (
-                "uniqueItems compares complete JSON values; it does not enforce unique "
-                "component IDs, frontier IDs, or snapshot IDs. JSON Schema also cannot enforce "
-                "the required-ID subset and measured-count relationships. Run the ModelSkyline "
-                "semantic validator before building or accepting a bundle."
-            )
-        if name == "quality-bundle-snapshot.schema.json":
-            generated_schema["$comment"] = (
-                "Consumers must verify this snapshot against its exact policy and component "
-                "frontier artifacts, enforce its validity window, and authenticate its "
-                "distribution channel before using it for routing. JSON Schema does not "
-                "enforce unique candidate/component identities, hashes, coverage counts, or "
-                "eligibility; run the ModelSkyline semantic and source-artifact verifiers."
-            )
-        if name == "quality-oracle-policy.schema.json":
-            generated_schema["$comment"] = (
-                "This is an explicit opt-in scalar composite; separate benchmark frontiers "
-                "remain the recommended default. JSON Schema cannot enforce exact Decimal "
-                "weight sums, source/reference digest bindings, distinct composite workload, "
-                "correlation-group reuse, or exact bundle-component identity. Run the "
-                "ModelSkyline semantic validator before use."
-            )
-        if name == "quality-oracle-snapshot.schema.json":
-            generated_schema["$comment"] = (
-                "Consumers must replay this snapshot against its exact quality bundle before "
-                "using the score for routing and authenticate its distribution channel. "
-                "Missing and out-of-reference components reject a candidate; the weighted "
-                "index does not assert statistical independence or publication rights for its "
-                "component evidence."
-            )
         if name == "quality-portfolio-policy.schema.json":
             generated_schema["$comment"] = (
                 "This stable policy contains operator intent only; exact frontier snapshots, "
@@ -1044,13 +901,5 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
                 "must replay it against the trusted policy, base ObservationCatalog, and exact "
                 "frontier artifacts before routing; its catalog hash binds the enriched output."
             )
-        if name == "quality-gated-selection-snapshot.schema.json":
-            generated_schema["$comment"] = (
-                "This artifact is self-consistent but its distribution is not authenticated by "
-                "JSON Schema. Consumers should pin the expected selection, frontier, workload, "
-                "and quality bundle identities; source-owning consumers should additionally run "
-                "the full ModelSkyline replay verifier against every bound source artifact."
-            )
         result[name] = generated_schema
-    result.update(generated_overlap_schemas())
     return result

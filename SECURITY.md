@@ -68,32 +68,23 @@ The unsigned `DynamicResolver` therefore requires HTTPS by default and should
 pin expected selection, frontier, and workload identities on a trusted origin.
 Network source URLs cannot contain query strings or fragments, so do not put
 credentials in a resolver URL. Local-file sources require explicit opt-in and
-POSIX no-follow, nonblocking regular-file reads. Quality-gated artifacts also
-require an `expected_quality_bundle_id`; callers may additionally pin
-`expected_quality_bundle_version` and `expected_quality_bundle_policy_hash`.
-Wrapper and embedded-bundle rollback/equivocation checks retain only an
-in-process floor. Restarting the resolver loses that floor; it is not a durable
-anti-rollback substitute for the signed gateway profile.
+POSIX no-follow, nonblocking regular-file reads. Generation rollback and
+same-generation equivocation checks retain only an in-process floor. Restarting
+the resolver loses that floor, and `stale_if_error` can deliberately extend use
+past a snapshot's nominal TTL after a refresh failure.
 
-For untrusted distribution, use the signed gateway profile in
-[`ADR 0003`](docs/adr/0003-signed-gateway-selection-protocol.md). Its security
-boundary includes locally provisioned Ed25519 keys, audience/channel policy,
-durable sequence state, exact artifact bytes, and immutable local target
-revisions. Production private keys never belong in ModelSkyline inputs, test
-vectors, publications, or the resolver host. The committed `*.test-seed.hex`
-files are public deterministic conformance inputs, not credentials. Place the
-SQLite state in an operator-owned private directory and retain the returned
-route for one work unit; deleting or restoring checkpoint state can reopen a
-rollback window. The reference store enforces mode `0700` on its final parent
-and mode `0600` on the database/WAL/shared-memory files; create a dedicated
-directory rather than placing the database directly in a typical `0755`
-checkout or service working directory.
+Version 0.9 does not ship an authenticated untrusted-distribution protocol or
+durable anti-rollback store. If those properties are required, place the
+ordinary `SelectionSnapshot` behind an operator-chosen authenticated channel,
+persist an independently protected monotonic checkpoint, bind each complete
+`OfferingKey` to an immutable local target, and review that consumer as part of
+the deployment security boundary. Superseded
+[`ADR 0003`](docs/adr/0003-signed-gateway-selection-protocol.md) is historical
+design input, not a supported 0.9 security profile.
 
-Trusted UTC is part of the signed resolver's security boundary. The reference
-resolver fails closed on an observed backward clock step, compares restart time
-to durable installation time, and rechecks time after network I/O. Monitor host
-time synchronization; rolling back both the clock and private state directory
-is outside the process-local defense.
+Trusted UTC is part of selection validation. Monitor host time synchronization;
+process-local checks cannot defend against an attacker who can roll back both
+the clock and the resolver's private state.
 
 The repository owner must enable GitHub private vulnerability reporting as
 part of creating the public repository. If the private reporting button is not

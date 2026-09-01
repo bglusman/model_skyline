@@ -329,7 +329,7 @@ GitHub and Postgres, and only DeepSeek V4 Pro plus GPT-5.6 SOL for Playwright.
 The quality/input-token frontier changes membership again. An overall aggregate
 is consequently not a safe substitute for an operator's workload mix.
 
-### Implemented Harbor capture and recommended quality-source bundle
+### Implemented Harbor capture and recommended quality portfolio
 
 The implemented Harbor adapter parses captured output from Harbor's supported
 [`leaderboard show ... --json`](https://www.harborframework.com/docs/hosted-harbor/cli-leaderboards)
@@ -356,17 +356,16 @@ cached + output relation. An adapter must preserve the upstream reported total
 cost and mark an unproven cache decomposition unknown rather than reconstructing
 spend from suggestive field names.
 
-The recommended target general-agent bundle has three required quality
+The recommended target general-agent portfolio has three required quality
 components: **Harbor/Terminal-Bench** for general terminal-agent work,
 **SWE-bench Verified bash-only** for repository issue resolution, and
-**tau2-bench** for stateful policy-and-tool work. In the v1alpha1 contracts,
-these remain separate workload-specific cost/performance frontiers. Bundle
-selection uses hard required-component coverage followed by exact
-multi-frontier overlap/proximity; a missing required component makes a candidate
-ineligible. The bundle does not average benchmark scores or renormalize around
-missing evidence. A weighted scalar is a distinct, versioned composite workload
-and formula or materialized observation with its own frontier—not a bundle
-selection strategy.
+**tau2-bench** for stateful policy-and-tool work. Each remains a separate
+workload-specific frontier. `PortfolioPolicy` applies hard required/minimum
+component coverage and `build_portfolio` emits each admitted score as a named
+signal in one ordinary catalog; a missing required component makes a candidate
+ineligible. The portfolio does not average scores or renormalize around missing
+evidence. A weighted scalar is a distinct, versioned composite workload and
+ordinary formula or materialized observation.
 
 | Signal | Authoritative machine-readable interface | v1alpha1 role |
 | --- | --- | --- |
@@ -377,7 +376,7 @@ selection strategy.
 | BFCL | Versioned aggregate CSVs such as [`data_overall.csv`](https://github.com/HuanzhiMao/BFCL-Result/blob/main/2025-12-16/score/data_overall.csv) | Alternate tool component for function-calling-heavy profiles |
 
 BFCL should normally replace, not be added on top of, the tool-oriented part of
-the bundle. Its function selection, multi-turn, web-search, and memory categories
+the portfolio. Its function selection, multi-turn, web-search, and memory categories
 overlap materially with tau2 and some Harbor tasks; including both without a
 separately declared composite workload would count tool competence repeatedly.
 ARC-AGI-2 adds a more distinct abstract-reasoning signal. Its implemented

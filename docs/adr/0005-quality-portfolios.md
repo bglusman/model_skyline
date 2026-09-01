@@ -58,7 +58,7 @@ satisfy coverage. An ineligible candidate remains in the catalog with its base
 cost/performance evidence but receives no portfolio quality signal, so the
 ordinary frontier engine rejects it when that signal is required.
 
-Each component declares a unique identifier matching
+Each component declares a unique output signal matching
 `[A-Za-z_][A-Za-z0-9_]*`, such as `swe_bench_score`. This makes the enriched
 catalog a direct `FrontierEngine` input and lets an ordinary formula reference
 `signals.swe_bench_score`. Cost-versus-quality and latency-versus-quality

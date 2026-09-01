@@ -17,14 +17,10 @@ from pydantic import ValidationError
 
 from model_skyline.io import (
     InputError,
-    _preflight_quality_json_structure,
+    _preflight_json_structure,
     _unique_json_object,
 )
 from model_skyline.models import SelectionSnapshot
-from model_skyline.quality_selection import (
-    QualityGatedSelectionSnapshot,
-    quality_gated_selection_hash,
-)
 from model_skyline.selection import selection_hash, selection_hash_matches
 
 
@@ -34,7 +30,6 @@ class ResolverError(RuntimeError):
 
 Loader = Callable[[str, str | None, float], tuple[Mapping[str, Any] | None, str | None]]
 DEFAULT_MAX_ARTIFACT_BYTES = 10 * 1024 * 1024
-ResolvableSelection = SelectionSnapshot | QualityGatedSelectionSnapshot
 
 
 class _ResolverMonotonicityError(ResolverError):
@@ -152,7 +147,7 @@ def _reject_json_constant(_value: str) -> None:
 def _decode_selection_json(raw: bytes | bytearray) -> Mapping[str, Any]:
     payload = bytes(raw)
     try:
-        _preflight_quality_json_structure(payload)
+        _preflight_json_structure(payload)
         value = json.loads(
             payload,
             parse_float=Decimal,
@@ -170,29 +165,6 @@ def _decode_selection_json(raw: bytes | bytearray) -> Mapping[str, Any]:
     return value
 
 
-def _validate_optional_bundle_pins(
-    bundle_id: str | None,
-    version: str | None,
-    policy_hash: str | None,
-) -> None:
-    if bundle_id is not None and (
-        not isinstance(bundle_id, str) or not bundle_id or len(bundle_id) > 128
-    ):
-        raise ValueError("expected_quality_bundle_id must be a non-empty bounded string")
-    if version is not None and (not isinstance(version, str) or not version or len(version) > 128):
-        raise ValueError("expected_quality_bundle_version must be a non-empty bounded string")
-    if policy_hash is not None and (
-        not isinstance(policy_hash, str)
-        or len(policy_hash) != 64
-        or any(character not in "0123456789abcdef" for character in policy_hash)
-    ):
-        raise ValueError("expected_quality_bundle_policy_hash must be a lowercase SHA-256 digest")
-    if bundle_id is None and (version is not None or policy_hash is not None):
-        raise ValueError(
-            "quality bundle version and policy-hash pins require expected_quality_bundle_id"
-        )
-
-
 class DynamicResolver:
     """Refresh and pin immutable model choices for agent work units.
 
@@ -201,12 +173,6 @@ class DynamicResolver:
     live policy refresh from changing models halfway through a trajectory.
     The built-in loader enforces transport, host, local-file, and artifact-size
     policy. A custom loader is trusted to enforce equivalent limits.
-
-    A quality-gated artifact is accepted only when its stable bundle ID is
-    explicitly pinned. Its bundle version and policy hash may be pinned as
-    well. This resolver does not possess the source frontiers, so publishers or
-    source-owning consumers should run ``verify_quality_gated_selection_snapshot``
-    before distribution; transport authentication remains a separate concern.
     """
 
     def __init__(
@@ -217,9 +183,6 @@ class DynamicResolver:
         expected_frontier_id: str | None = None,
         expected_workload_id: str | None = None,
         expected_workload_version: str | None = None,
-        expected_quality_bundle_id: str | None = None,
-        expected_quality_bundle_version: str | None = None,
-        expected_quality_bundle_policy_hash: str | None = None,
         refresh_interval: timedelta = timedelta(minutes=1),
         stale_if_error: timedelta = timedelta(hours=1),
         max_clock_skew: timedelta = timedelta(minutes=5),
@@ -247,11 +210,6 @@ class DynamicResolver:
             raise ValueError("max_artifact_bytes must be a positive integer")
         if not expected_selection_id:
             raise ValueError("expected_selection_id must be non-empty")
-        _validate_optional_bundle_pins(
-            expected_quality_bundle_id,
-            expected_quality_bundle_version,
-            expected_quality_bundle_policy_hash,
-        )
         if expected_workload_version is not None and expected_workload_id is None:
             raise ValueError("expected_workload_version requires expected_workload_id")
         self.source = str(source)
@@ -267,9 +225,6 @@ class DynamicResolver:
         self.expected_frontier_id = expected_frontier_id
         self.expected_workload_id = expected_workload_id
         self.expected_workload_version = expected_workload_version
-        self.expected_quality_bundle_id = expected_quality_bundle_id
-        self.expected_quality_bundle_version = expected_quality_bundle_version
-        self.expected_quality_bundle_policy_hash = expected_quality_bundle_policy_hash
         self.refresh_interval = refresh_interval
         self.stale_if_error = stale_if_error
         self.max_clock_skew = max_clock_skew
@@ -298,7 +253,7 @@ class DynamicResolver:
             self._loader = loader
         self._clock = clock or (lambda: datetime.now(UTC))
         self._lock = threading.Lock()
-        self._cached: ResolvableSelection | None = None
+        self._cached: SelectionSnapshot | None = None
         self._etag: str | None = None
         self._last_attempt: float | None = None
 
@@ -379,32 +334,16 @@ class DynamicResolver:
         return payload, next_etag
 
     @staticmethod
-    def _fresh(snapshot: ResolvableSelection, now: datetime) -> bool:
-        if isinstance(snapshot, QualityGatedSelectionSnapshot):
-            return now < snapshot.valid_until
+    def _fresh(snapshot: SelectionSnapshot, now: datetime) -> bool:
         return now <= snapshot.valid_until
 
-    def _stale_usable(self, snapshot: ResolvableSelection, now: datetime) -> bool:
-        if isinstance(snapshot, QualityGatedSelectionSnapshot):
-            # The wrapper deadline is the minimum of benchmark evidence,
-            # source-primary, and nested-selection validity. A transport
-            # fallback must never extend any of those policy boundaries.
-            return self._fresh(snapshot, now)
+    def _stale_usable(self, snapshot: SelectionSnapshot, now: datetime) -> bool:
         return now <= snapshot.valid_until + self.stale_if_error
 
-    def _validated(self, payload: Mapping[str, Any]) -> ResolvableSelection:
+    def _validated(self, payload: Mapping[str, Any]) -> SelectionSnapshot:
         kind = payload.get("kind")
         try:
-            if kind == "quality-gated-selection":
-                if self.expected_quality_bundle_id is None:
-                    raise ResolverError(
-                        "quality-gated selection requires expected_quality_bundle_id"
-                    )
-                gated = QualityGatedSelectionSnapshot.model_validate(payload)
-                snapshot: ResolvableSelection = gated
-                expected = quality_gated_selection_hash(gated)
-                hash_matches = gated.snapshot_id == expected
-            elif kind is None or kind == "selection":
+            if kind is None or kind == "selection":
                 snapshot = SelectionSnapshot.model_validate(payload)
                 expected = selection_hash(snapshot)
                 hash_matches = selection_hash_matches(snapshot)
@@ -421,21 +360,6 @@ class DynamicResolver:
                 f"selection snapshot hash mismatch: expected {expected}, "
                 f"received {snapshot.snapshot_id}"
             )
-        if self.expected_quality_bundle_id is not None:
-            if not isinstance(snapshot, QualityGatedSelectionSnapshot):
-                raise ResolverError("selection artifact is not quality-gated")
-            if snapshot.quality_bundle_id != self.expected_quality_bundle_id:
-                raise ResolverError("quality bundle identity mismatch against configured pin")
-            if (
-                self.expected_quality_bundle_version is not None
-                and snapshot.quality_bundle_version != self.expected_quality_bundle_version
-            ):
-                raise ResolverError("quality bundle version does not match the configured pin")
-            if (
-                self.expected_quality_bundle_policy_hash is not None
-                and snapshot.quality_bundle_policy_hash != self.expected_quality_bundle_policy_hash
-            ):
-                raise ResolverError("quality bundle policy hash does not match the configured pin")
         if snapshot.selection_id != self.expected_selection_id:
             raise ResolverError("selection identity mismatch against configured pin")
         if (
@@ -457,8 +381,8 @@ class DynamicResolver:
 
     @staticmethod
     def _check_monotonic_update(
-        cached: ResolvableSelection,
-        candidate: ResolvableSelection,
+        cached: SelectionSnapshot,
+        candidate: SelectionSnapshot,
     ) -> None:
         if candidate.generated_at < cached.generated_at:
             raise _ResolverMonotonicityError(
@@ -471,28 +395,12 @@ class DynamicResolver:
             raise _ResolverMonotonicityError(
                 "published selection would equivocate at the cached generation"
             )
-        if not (
-            isinstance(cached, QualityGatedSelectionSnapshot)
-            and isinstance(candidate, QualityGatedSelectionSnapshot)
-        ):
-            return
-        if candidate.quality_bundle_generated_at < cached.quality_bundle_generated_at:
-            raise _ResolverMonotonicityError(
-                "published quality bundle would roll back the cached bundle"
-            )
-        if (
-            candidate.quality_bundle_generated_at == cached.quality_bundle_generated_at
-            and candidate.quality_bundle_snapshot_id != cached.quality_bundle_snapshot_id
-        ):
-            raise _ResolverMonotonicityError(
-                "published quality bundle would equivocate at the cached generation"
-            )
 
     @staticmethod
-    def _defensive_copy(snapshot: ResolvableSelection) -> ResolvableSelection:
+    def _defensive_copy(snapshot: SelectionSnapshot) -> SelectionSnapshot:
         return snapshot.model_copy(deep=True)
 
-    def resolve(self, *, force_refresh: bool = False) -> ResolvableSelection:
+    def resolve(self, *, force_refresh: bool = False) -> SelectionSnapshot:
         with self._lock:
             now = self._clock()
             if now.tzinfo is None:

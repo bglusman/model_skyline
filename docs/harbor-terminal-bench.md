@@ -144,12 +144,13 @@ quality dimension is not a Pareto frontier. A cost/quality frontier becomes
 meaningful only after the projected quality observation is joined to independent,
 current cost evidence for the same complete `OfferingKey`.
 
-v0.7 does not ship a generic cross-workload catalog join or invent the second
+ModelSkyline does not invent the second
 axis. An operator must materialize that paired frontier from independently
 sourced cost/performance observations, preserving byte-for-byte `OfferingKey`
-identity, before using Harbor as a component. The synthetic quality-gated
-example demonstrates the composition mechanics without claiming that such a
-production join has occurred.
+identity, before using Harbor as a portfolio component. `build_portfolio` can
+then add the reconciled Harbor quality signal to an ordinary base catalog; it
+does not claim that a production route join occurred or transfer the
+benchmark's reported cost.
 
 Only a future source row that establishes an `exact_subject_route` may transfer
 route-specific cost/time/token measurements. A model documentation link alone is

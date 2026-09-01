@@ -205,7 +205,7 @@ because one price card cannot reconstruct their combined spend.
 Public provider request bodies, headers, endpoints, and environment-variable
 names from models.dev are never executed or copied into a gateway route. A
 published pricing offering still requires a separately trusted local target
-binding before the signed gateway resolver can use it.
+binding before an agent or gateway can execute it from an ordinary selection.
 
 Mapping evidence is copied into public offering metadata and the exact mapping
 is copied into the generated project. Treat the mapping as publishable input:
@@ -259,9 +259,11 @@ expire themselves. A successful run yesterday does not prove that today's run
 completed. Research consumers must verify immutable hashes and compare the
 selected source watermark with current time. Agent routing must instead apply
 operator thresholds and capability rules, generate a separately reviewed and
-signed gateway selection with a short hard TTL, and fail closed or use its
-bounded last-known-good policy when refresh monitoring reports an outage. Never
-route directly from this static Pages feed.
+short-lived ordinary selection, deliver it over a trusted channel, and fail
+closed or use an explicitly bounded last-known-good policy when refresh
+monitoring reports an outage. Version 0.9 does not authenticate that channel or
+provide durable anti-rollback state. Never route directly from this static
+Pages feed.
 
 A generalized price book will need independent context schedules and cache,
 reasoning, audio, request, and tool meters joined to equally explicit
