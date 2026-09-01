@@ -2,639 +2,91 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ModelSkyline frontier snapshots</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <style>
-  :root { color-scheme: light dark; font-family: ui-sans-serif, system-ui, sans-serif; }
-  body { margin: 0 auto; max-width: 56rem; padding: 1rem; line-height: 1.5; }
-  section { margin: 1.2rem 0; }
-  h2 { margin: .2rem 0; }
-  .eyebrow { color: #526170; font-size: .85rem; }
-  svg { max-width: 100%; height: auto; }
-  small { opacity: .75; }
+  :root { color-scheme: light dark; }
+  body { margin: 0 auto; max-width: 60rem; padding: 1rem; line-height: 1.45;
+         font-family: ui-sans-serif, system-ui, sans-serif; }
+  section { margin: 1.4rem 0; }
+  .chart { width: 100%; height: 380px; }
+  table#mtable { border-collapse: collapse; font-size: .85rem; min-width: 640px; }
+  #mtable th, #mtable td { padding: .25rem .45rem; text-align: center; }
+  #mtable th:first-child, #mtable td.mname { text-align: left; }
+  #mtable thead th { border-bottom: 2px solid #999; }
+  .mrow:hover, .mrow.hl { background: #e8f2e8; }
+  .chip { width: 2.2rem; }
+  .hint { color: #666; font-size: .8rem; }
+  .chartdiv { height: 380px; }
 </style></head><body>
 <h1>Frontier snapshots</h1>
-<p>Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat from real 30-day traces, coding-session from OpenCode Go published request patterns. ClinePass cap assu… · generated 2026-09-01T00:30:00Z ·
-<a href="summary-v2.json">raw data (JSON)</a></p>
+<p>Generated 2026-09-01T00:30:00Z · <a href="summary-v2.json">raw data</a></p>
 
-<section>
-<h2>chat-subscription-economics</h2>
-<p class="eyebrow">agent-chat · usd/turn × intelligence</p>
-<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Subscriptions · cost↔smarts" font-family="system-ui, sans-serif">
-<text x="74" y="14" font-size="12.5" font-weight="600">Subscriptions · cost↔smarts</text>
-<text x="74" y="26" font-size="9.5" fill="#777">cost: % of monthly sub-cap per turn  ↔  intelligence: AA index (0-100)</text>
-<line x1="74" y1="266" x2="590" y2="266" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="269" font-size="8.5" fill="#666" text-anchor="end">0</text>
-<line x1="74" y1="195" x2="590" y2="195" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="198" font-size="8.5" fill="#666" text-anchor="end">20</text>
-<line x1="74" y1="123" x2="590" y2="123" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="126" font-size="8.5" fill="#666" text-anchor="end">40</text>
-<line x1="74" y1="52" x2="590" y2="52" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="55" font-size="8.5" fill="#666" text-anchor="end">60</text>
-<line x1="207" y1="266" x2="207" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="207" y="280" font-size="8.5" fill="#666" text-anchor="middle">5.00%cap</text>
-<line x1="361" y1="266" x2="361" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="361" y="280" font-size="8.5" fill="#666" text-anchor="middle">10.00%cap</text>
-<line x1="516" y1="266" x2="516" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="516" y="280" font-size="8.5" fill="#666" text-anchor="middle">15.00%cap</text>
-<path d="M 74.0,80.4 L 257.4,51.8 L 257.4,51.8 L 580.9,41.1" fill="none" stroke="#3a8f3a" stroke-width="1.4" stroke-dasharray="5 3"/>
-<circle cx="74.0" cy="80.4" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="43.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="46.0" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-luna</text>
-<text x="752" y="46.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0070</text>
-<text x="67" y="73" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0070</text>
-<circle cx="81.9" cy="80.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="56.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="59.5" font-size="9.5" fill="#555" font-weight="400">Cline†/deepseek-v4-flash-0731</text>
-<text x="752" y="59.5" font-size="9.5" text-anchor="end" fill="#555">$0.0095</text>
-
-<circle cx="81.9" cy="80.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="70.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="73.0" font-size="9.5" fill="#555" font-weight="400">Go/deepseek-v4-flash-0731</text>
-<text x="752" y="73.0" font-size="9.5" text-anchor="end" fill="#555">$0.0095</text>
-
-<circle cx="257.4" cy="51.8" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="83.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="86.5" font-size="9.5" fill="#2e7d32" font-weight="600">Cline†/glm-5.3</text>
-<text x="752" y="86.5" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0664</text>
-<text x="250" y="45" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0664</text>
-<circle cx="257.4" cy="51.8" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="97.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="100.0" font-size="9.5" fill="#2e7d32" font-weight="600">Go/glm-5.3</text>
-<text x="752" y="100.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0664</text>
-<text x="250" y="45" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0664</text>
-<circle cx="282.3" cy="80.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="110.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="113.5" font-size="9.5" fill="#555" font-weight="400">Go/qwen3.8-max</text>
-<text x="752" y="113.5" font-size="9.5" text-anchor="end" fill="#555">$0.0744</text>
-
-<circle cx="580.9" cy="41.1" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="124.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="127.0" font-size="9.5" fill="#2e7d32" font-weight="600">ClaudePro†/opus-5</text>
-<text x="752" y="127.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.1711</text>
-<text x="574" y="34" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.1711</text>
-<circle cx="590.0" cy="48.3" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="137.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="140.5" font-size="9.5" fill="#555" font-weight="400">GPT+†/gpt-5.6-sol</text>
-<text x="752" y="140.5" font-size="9.5" text-anchor="end" fill="#555">$0.1740</text>
-
-<text x="74" y="294" font-size="8.5" fill="#777">● frontier · ● amber = within 10% of frontier · ● gray = dominated · † = assumed cap</text>
-</svg>
-<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-luna, ★ clinepass/glm-5.3, ★ opencode-go/glm-5.3, ★ claude-pro/opus-5</small></p>
+<section id="model-table">
+<h2>Models across all frontiers</h2>
+<p class="hint">★ = on frontier · ≈ = within 10% of frontier · hover a row to
+highlight that model in every chart; hover a chart point to highlight its row.</p>
+<div style="overflow-x:auto"><table id="mtable">
+<thead><tr><th>model</th><th>AA</th><th>best $/turn</th><th>sub·cost</th><th>sub·math</th><th>sub·speed</th><th>metered·cost</th><th>metered·math</th><th>metered·speed</th><th>sub·code-cost</th><th>sub·code-math</th><th>metered·code-math</th><th>sub·code-speed</th></tr></thead>
+<tbody><tr class="mrow" data-model="gpt-5.6-sol"><td class="mname">gpt-5.6-sol</td><td class="mval">61</td><td class="mval">$0.1740</td><td class="chip" style="color:#c9a227" title="sub·cost">≈</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·math">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·speed">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·cost">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·math">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·speed">★</td><td class="chip" style="color:#c9a227" title="sub·code-cost">≈</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·code-math">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·code-math">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·code-speed">★</td></tr><tr class="mrow" data-model="gpt-5.6-luna"><td class="mname">gpt-5.6-luna</td><td class="mval">52</td><td class="mval">$0.0070</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·cost">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·math">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·speed">★</td><td class="chip"  title="metered·cost">·</td><td class="chip"  title="metered·math">·</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·speed">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·code-cost">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·code-math">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·code-math">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·code-speed">★</td></tr><tr class="mrow" data-model="glm-5.3"><td class="mname">glm-5.3</td><td class="mval">60</td><td class="mval">$0.0664</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·cost">★</td><td class="chip"  title="sub·math">·</td><td class="chip" style="color:#c9a227" title="sub·speed">≈</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·cost">★</td><td class="chip"  title="metered·math">·</td><td class="chip" style="color:#c9a227" title="metered·speed">≈</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·code-cost">★</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip" style="color:#c9a227" title="sub·code-speed">≈</td></tr><tr class="mrow" data-model="deepseek-v4-flash-0731"><td class="mname">deepseek-v4-flash-0731</td><td class="mval">52</td><td class="mval">$0.0095</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip" style="color:#c9a227" title="sub·speed">≈</td><td class="chip"  title="metered·cost">·</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·math">★</td><td class="chip" style="color:#c9a227" title="metered·speed">≈</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip" style="color:#c9a227" title="sub·code-speed">≈</td></tr><tr class="mrow" data-model="gpt-oss-120b"><td class="mname">gpt-oss-120b</td><td class="mval">24</td><td class="mval">$0.0006</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·cost">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·math">★</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·speed">★</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="opus-5"><td class="mname">opus-5</td><td class="mval">63</td><td class="mval">$0.1711</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·cost">★</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip"  title="metered·cost">·</td><td class="chip"  title="metered·math">·</td><td class="chip"  title="metered·speed">·</td><td class="chip" style="color:#2e7d32;font-weight:600" title="sub·code-cost">★</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="claude-fable-5"><td class="mname">claude-fable-5</td><td class="mval">62</td><td class="mval">$0.3421</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·cost">★</td><td class="chip"  title="metered·math">·</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·speed">★</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="gpt-5.6-terra"><td class="mname">gpt-5.6-terra</td><td class="mval">57</td><td class="mval">$0.0696</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip" style="color:#c9a227" title="metered·cost">≈</td><td class="chip" style="color:#c9a227" title="metered·math">≈</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·speed">★</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="gpt-oss-20b"><td class="mname">gpt-oss-20b</td><td class="mval">15</td><td class="mval">$0.0005</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·cost">★</td><td class="chip"  title="metered·math">·</td><td class="chip" style="color:#c9a227" title="metered·speed">≈</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="muse-spark-1.2-contributor"><td class="mname">muse-spark-1.2-contributor</td><td class="mval">57</td><td class="mval">$0.0019</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip" style="color:#2e7d32;font-weight:600" title="metered·cost">★</td><td class="chip"  title="metered·math">·</td><td class="chip"  title="metered·speed">·</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="qwen3.8-max"><td class="mname">qwen3.8-max</td><td class="mval">52</td><td class="mval">$0.0744</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip" style="color:#c9a227" title="metered·cost">≈</td><td class="chip"  title="metered·math">·</td><td class="chip"  title="metered·speed">·</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="qwen3-30b-a3b-2507"><td class="mname">qwen3-30b-a3b-2507</td><td class="mval">9</td><td class="mval">$0.0008</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip"  title="metered·cost">·</td><td class="chip"  title="metered·math">·</td><td class="chip" style="color:#c9a227" title="metered·speed">≈</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="qwen3.8-2.4t-a95b"><td class="mname">qwen3.8-2.4t-a95b</td><td class="mval">52</td><td class="mval">$0.0744</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip" style="color:#c9a227" title="metered·cost">≈</td><td class="chip"  title="metered·math">·</td><td class="chip"  title="metered·speed">·</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="qwen3-coder-30b"><td class="mname">qwen3-coder-30b</td><td class="mval">14</td><td class="mval">$0.0012</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip"  title="metered·cost">·</td><td class="chip"  title="metered·math">·</td><td class="chip"  title="metered·speed">·</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="glm-5.3-flash"><td class="mname">glm-5.3-flash</td><td class="mval">57</td><td class="mval">$0.0037</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip"  title="metered·cost">·</td><td class="chip"  title="metered·math">·</td><td class="chip"  title="metered·speed">·</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="longcat-2.0"><td class="mname">longcat-2.0</td><td class="mval">34</td><td class="mval">$0.0061</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip"  title="metered·cost">·</td><td class="chip"  title="metered·math">·</td><td class="chip"  title="metered·speed">·</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr><tr class="mrow" data-model="muse-spark-1.2"><td class="mname">muse-spark-1.2</td><td class="mval">57</td><td class="mval">$0.0457</td><td class="chip"  title="sub·cost">·</td><td class="chip"  title="sub·math">·</td><td class="chip"  title="sub·speed">·</td><td class="chip"  title="metered·cost">·</td><td class="chip"  title="metered·math">·</td><td class="chip"  title="metered·speed">·</td><td class="chip"  title="sub·code-cost">·</td><td class="chip"  title="sub·code-math">·</td><td class="chip"  title="metered·code-math">·</td><td class="chip"  title="sub·code-speed">·</td></tr></tbody></table></div>
 </section>
-<section>
-<h2>math-smarts-chat-subscription</h2>
-<p class="eyebrow">agent-chat · usd/turn × GPQA-Diamond</p>
-<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Subscriptions · math smarts↔cost" font-family="system-ui, sans-serif">
-<text x="74" y="14" font-size="12.5" font-weight="600">Subscriptions · math smarts↔cost</text>
-<text x="74" y="26" font-size="9.5" fill="#777">cost: % of monthly sub-cap per turn  ↔  math: GPQA Diamond %</text>
-<line x1="74" y1="266" x2="590" y2="266" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="269" font-size="8.5" fill="#666" text-anchor="end">0</text>
-<line x1="74" y1="206" x2="590" y2="206" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="209" font-size="8.5" fill="#666" text-anchor="end">25</text>
-<line x1="74" y1="145" x2="590" y2="145" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="148" font-size="8.5" fill="#666" text-anchor="end">50</text>
-<line x1="74" y1="85" x2="590" y2="85" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="88" font-size="8.5" fill="#666" text-anchor="end">75</text>
-<line x1="207" y1="266" x2="207" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="207" y="280" font-size="8.5" fill="#666" text-anchor="middle">0.05</text>
-<line x1="361" y1="266" x2="361" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="361" y="280" font-size="8.5" fill="#666" text-anchor="middle">0.1</text>
-<line x1="516" y1="266" x2="516" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="516" y="280" font-size="8.5" fill="#666" text-anchor="middle">0.15</text>
-<path d="M 74.0,46.1 L 590.0,38.8" fill="none" stroke="#3a8f3a" stroke-width="1.4" stroke-dasharray="5 3"/>
-<circle cx="74.0" cy="46.1" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="43.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="46.0" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-luna</text>
-<text x="752" y="46.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0070</text>
-<text x="67" y="39" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0070</text>
-<circle cx="81.9" cy="46.8" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="56.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="59.5" font-size="9.5" fill="#555" font-weight="400">Cline†/deepseek-v4-flash-0731</text>
-<text x="752" y="59.5" font-size="9.5" text-anchor="end" fill="#555">$0.0095</text>
-
-<circle cx="81.9" cy="46.8" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="70.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="73.0" font-size="9.5" fill="#555" font-weight="400">Go/deepseek-v4-flash-0731</text>
-<text x="752" y="73.0" font-size="9.5" text-anchor="end" fill="#555">$0.0095</text>
-
-<circle cx="590.0" cy="38.8" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="83.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="86.5" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-sol</text>
-<text x="752" y="86.5" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.1740</text>
-<text x="583" y="32" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.1740</text>
-<text x="74" y="294" font-size="8.5" fill="#777">● frontier · ● amber = within 10% of frontier · ● gray = dominated · † = assumed cap</text>
-</svg>
-<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-luna, ★ chatgpt-plus/gpt-5.6-sol</small></p>
+<section id="charts"><h2>Charts</h2>
+<p class="hint">Interactive: hover for exact values, zoom/pan by drag. † = assumed cap.</p>
 </section>
-<section>
-<h2>chat-subscription-responsiveness</h2>
-<p class="eyebrow">agent-chat · tok/s × intelligence</p>
-<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Subscriptions · speed↔smarts" font-family="system-ui, sans-serif">
-<text x="74" y="14" font-size="12.5" font-weight="600">Subscriptions · speed↔smarts</text>
-<text x="74" y="26" font-size="9.5" fill="#777">speed: output tok/s  ↔  intelligence: AA index (0-100)</text>
-<line x1="74" y1="266" x2="590" y2="266" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="269" font-size="8.5" fill="#666" text-anchor="end">0</text>
-<line x1="74" y1="192" x2="590" y2="192" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="195" font-size="8.5" fill="#666" text-anchor="end">20</text>
-<line x1="74" y1="119" x2="590" y2="119" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="122" font-size="8.5" fill="#666" text-anchor="end">40</text>
-<line x1="74" y1="45" x2="590" y2="45" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="48" font-size="8.5" fill="#666" text-anchor="end">60</text>
-<line x1="102" y1="266" x2="102" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="102" y="280" font-size="8.5" fill="#666" text-anchor="middle">80</text>
-<line x1="290" y1="266" x2="290" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="290" y="280" font-size="8.5" fill="#666" text-anchor="middle">100</text>
-<line x1="477" y1="266" x2="477" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="477" y="280" font-size="8.5" fill="#666" text-anchor="middle">120</text>
-<path d="M 111.5,41.4 L 590.0,74.5" fill="none" stroke="#3a8f3a" stroke-width="1.4" stroke-dasharray="5 3"/>
-<circle cx="74.0" cy="45.0" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="43.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="46.0" font-size="9.5" fill="#555" font-weight="400">Cline†/glm-5.3</text>
-<text x="752" y="46.0" font-size="9.5" text-anchor="end" fill="#555">77 tok/s</text>
-
-<circle cx="74.0" cy="45.0" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="56.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="59.5" font-size="9.5" fill="#555" font-weight="400">Go/glm-5.3</text>
-<text x="752" y="59.5" font-size="9.5" text-anchor="end" fill="#555">77 tok/s</text>
-
-<circle cx="111.5" cy="41.4" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="70.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="73.0" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-sol</text>
-<text x="752" y="73.0" font-size="9.5" text-anchor="end" fill="#2e7d32">81 tok/s</text>
-<text x="105" y="34" font-size="8.5" text-anchor="end" fill="#2e7d32">81 tok/s</text>
-<circle cx="468.0" cy="74.5" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="83.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="86.5" font-size="9.5" fill="#555" font-weight="400">Cline†/deepseek-v4-flash-0731</text>
-<text x="752" y="86.5" font-size="9.5" text-anchor="end" fill="#555">119 tok/s</text>
-
-<circle cx="468.0" cy="74.5" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="97.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="100.0" font-size="9.5" fill="#555" font-weight="400">Go/deepseek-v4-flash-0731</text>
-<text x="752" y="100.0" font-size="9.5" text-anchor="end" fill="#555">119 tok/s</text>
-
-<circle cx="590.0" cy="74.5" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="110.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="113.5" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-luna</text>
-<text x="752" y="113.5" font-size="9.5" text-anchor="end" fill="#2e7d32">132 tok/s</text>
-<text x="583" y="68" font-size="8.5" text-anchor="end" fill="#2e7d32">132 tok/s</text>
-<text x="74" y="294" font-size="8.5" fill="#777">● frontier · ● amber = within 10% of frontier · ● gray = dominated · † = assumed cap</text>
-</svg>
-<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-sol, ★ chatgpt-plus/gpt-5.6-luna</small></p>
-</section>
-<section>
-<h2>chat-metered-economics</h2>
-<p class="eyebrow">agent-chat · usd/turn × intelligence</p>
-<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Metered · cost↔smarts" font-family="system-ui, sans-serif">
-<text x="74" y="14" font-size="12.5" font-weight="600">Metered · cost↔smarts</text>
-<text x="74" y="26" font-size="9.5" fill="#777">cost: metered USD per turn (log)  ↔  intelligence: AA index (0-100)</text>
-<line x1="74" y1="266" x2="590" y2="266" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="269" font-size="8.5" fill="#666" text-anchor="end">0</text>
-<line x1="74" y1="194" x2="590" y2="194" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="196" font-size="8.5" fill="#666" text-anchor="end">20</text>
-<line x1="74" y1="121" x2="590" y2="121" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="124" font-size="8.5" fill="#666" text-anchor="end">40</text>
-<line x1="74" y1="48" x2="590" y2="48" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="52" font-size="8.5" fill="#666" text-anchor="end">60</text>
-<line x1="127" y1="266" x2="127" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="127" y="280" font-size="8.5" fill="#666" text-anchor="middle">0.1¢</text>
-<line x1="310" y1="266" x2="310" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="310" y="280" font-size="8.5" fill="#666" text-anchor="middle">$0.01</text>
-<line x1="492" y1="266" x2="492" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="492" y="280" font-size="8.5" fill="#666" text-anchor="middle">$0.1</text>
-<line x1="675" y1="266" x2="675" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="675" y="280" font-size="8.5" fill="#666" text-anchor="middle">$1</text>
-<path d="M 74.0,211.6 L 91.4,179.0 L 178.1,59.4 L 459.8,48.5 L 462.2,44.9 L 590.0,41.2" fill="none" stroke="#3a8f3a" stroke-width="1.4" stroke-dasharray="5 3"/>
-<circle cx="74.0" cy="211.6" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="43.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="46.0" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/gpt-oss-20b</text>
-<text x="752" y="46.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.052¢</text>
-<text x="67" y="205" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.052¢</text>
-<circle cx="91.4" cy="179.0" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="56.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="59.5" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/gpt-oss-120b</text>
-<text x="752" y="59.5" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.064¢</text>
-<text x="84" y="172" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.064¢</text>
-<circle cx="110.4" cy="233.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="70.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="73.0" font-size="9.5" fill="#555" font-weight="400">OR-metered/qwen3-30b-a3b-2507</text>
-<text x="752" y="73.0" font-size="9.5" text-anchor="end" fill="#555">$0.082¢</text>
-
-<circle cx="140.3" cy="215.2" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="83.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="86.5" font-size="9.5" fill="#555" font-weight="400">OR-metered/qwen3-coder-30b</text>
-<text x="752" y="86.5" font-size="9.5" text-anchor="end" fill="#555">$0.0012</text>
-
-<circle cx="178.1" cy="59.4" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="97.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="100.0" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/muse-spark-1.2-contributor</text>
-<text x="752" y="100.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0019</text>
-<text x="171" y="52" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0019</text>
-<circle cx="231.0" cy="77.5" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="110.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="113.5" font-size="9.5" fill="#555" font-weight="400">OR-metered/deepseek-v4-flash-0731</text>
-<text x="752" y="113.5" font-size="9.5" text-anchor="end" fill="#555">$0.0037</text>
-
-<circle cx="231.5" cy="59.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="124.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="127.0" font-size="9.5" fill="#555" font-weight="400">OR-metered/glm-5.3-flash</text>
-<text x="752" y="127.0" font-size="9.5" text-anchor="end" fill="#555">$0.0037</text>
-
-<circle cx="270.1" cy="142.8" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="137.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="140.5" font-size="9.5" fill="#555" font-weight="400">OR-metered/longcat-2.0</text>
-<text x="752" y="140.5" font-size="9.5" text-anchor="end" fill="#555">$0.0061</text>
-
-<circle cx="280.7" cy="77.5" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="151.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="154.0" font-size="9.5" fill="#555" font-weight="400">OR-metered/gpt-5.6-luna</text>
-<text x="752" y="154.0" font-size="9.5" text-anchor="end" fill="#555">$0.0070</text>
-
-<circle cx="430.2" cy="59.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="164.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="167.5" font-size="9.5" fill="#555" font-weight="400">OR-metered/muse-spark-1.2</text>
-<text x="752" y="167.5" font-size="9.5" text-anchor="end" fill="#555">$0.0457</text>
-
-<circle cx="459.8" cy="48.5" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="178.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="181.0" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/glm-5.3</text>
-<text x="752" y="181.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0664</text>
-<text x="453" y="42" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0664</text>
-<circle cx="462.2" cy="44.9" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="191.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="194.5" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/gpt-5.6-sol</text>
-<text x="752" y="194.5" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0684</text>
-<text x="455" y="38" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0684</text>
-<circle cx="463.6" cy="59.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="205.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="208.0" font-size="9.5" fill="#555" font-weight="400">OR-metered/gpt-5.6-terra</text>
-<text x="752" y="208.0" font-size="9.5" text-anchor="end" fill="#555">$0.0696</text>
-
-<circle cx="468.8" cy="77.5" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="218.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="221.5" font-size="9.5" fill="#555" font-weight="400">OR-metered/qwen3.8-2.4t-a95b</text>
-<text x="752" y="221.5" font-size="9.5" text-anchor="end" fill="#555">$0.0744</text>
-
-<circle cx="468.8" cy="77.5" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="232.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="235.0" font-size="9.5" fill="#555" font-weight="400">OR-metered/qwen3.8-max</text>
-<text x="752" y="235.0" font-size="9.5" text-anchor="end" fill="#555">$0.0744</text>
-
-<circle cx="590.0" cy="41.2" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="245.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="248.5" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/claude-fable-5</text>
-<text x="752" y="248.5" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.3421</text>
-<text x="583" y="34" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.3421</text>
-<text x="74" y="294" font-size="8.5" fill="#777">● frontier · ● amber = within 10% of frontier · ● gray = dominated · † = assumed cap</text>
-</svg>
-<p><small>Frontier members: ★ openrouter/gpt-oss-20b, ★ openrouter/gpt-oss-120b, ★ openrouter/muse-spark-1.2-contributor, ★ openrouter/glm-5.3, ★ openrouter/gpt-5.6-sol, ★ openrouter/claude-fable-5</small></p>
-</section>
-<section>
-<h2>math-smarts-chat-metered</h2>
-<p class="eyebrow">agent-chat · usd/turn × GPQA-Diamond</p>
-<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Metered · math smarts↔cost" font-family="system-ui, sans-serif">
-<text x="74" y="14" font-size="12.5" font-weight="600">Metered · math smarts↔cost</text>
-<text x="74" y="26" font-size="9.5" fill="#777">cost: metered USD per turn (log)  ↔  math: GPQA Diamond %</text>
-<line x1="74" y1="266" x2="590" y2="266" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="269" font-size="8.5" fill="#666" text-anchor="end">0</text>
-<line x1="74" y1="206" x2="590" y2="206" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="209" font-size="8.5" fill="#666" text-anchor="end">25</text>
-<line x1="74" y1="145" x2="590" y2="145" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="148" font-size="8.5" fill="#666" text-anchor="end">50</text>
-<line x1="74" y1="85" x2="590" y2="85" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="88" font-size="8.5" fill="#666" text-anchor="end">75</text>
-<line x1="111" y1="266" x2="111" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="111" y="280" font-size="8.5" fill="#666" text-anchor="middle">0.1¢</text>
-<line x1="300" y1="266" x2="300" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="300" y="280" font-size="8.5" fill="#666" text-anchor="middle">$0.01</text>
-<line x1="489" y1="266" x2="489" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="489" y="280" font-size="8.5" fill="#666" text-anchor="middle">$0.1</text>
-<line x1="678" y1="266" x2="678" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="678" y="280" font-size="8.5" fill="#666" text-anchor="middle">$1</text>
-<path d="M 74.0,72.6 L 218.5,46.8 L 457.8,38.8" fill="none" stroke="#3a8f3a" stroke-width="1.4" stroke-dasharray="5 3"/>
-<circle cx="74.0" cy="72.6" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="43.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="46.0" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/gpt-oss-120b</text>
-<text x="752" y="46.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.064¢</text>
-<text x="67" y="66" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.064¢</text>
-<circle cx="218.5" cy="46.8" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="56.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="59.5" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/deepseek-v4-flash-0731</text>
-<text x="752" y="59.5" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0037</text>
-<text x="212" y="40" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0037</text>
-<circle cx="270.0" cy="46.1" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="70.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="73.0" font-size="9.5" fill="#555" font-weight="400">OR-metered/gpt-5.6-luna</text>
-<text x="752" y="73.0" font-size="9.5" text-anchor="end" fill="#555">$0.0070</text>
-
-<circle cx="457.8" cy="38.8" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="83.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="86.5" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/gpt-5.6-sol</text>
-<text x="752" y="86.5" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0684</text>
-<text x="451" y="32" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0684</text>
-<circle cx="459.2" cy="42.7" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="97.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="100.0" font-size="9.5" fill="#555" font-weight="400">OR-metered/gpt-5.6-terra</text>
-<text x="752" y="100.0" font-size="9.5" text-anchor="end" fill="#555">$0.0696</text>
-
-<circle cx="590.0" cy="42.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="110.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="113.5" font-size="9.5" fill="#555" font-weight="400">OR-metered/claude-fable-5</text>
-<text x="752" y="113.5" font-size="9.5" text-anchor="end" fill="#555">$0.3421</text>
-
-<text x="74" y="294" font-size="8.5" fill="#777">● frontier · ● amber = within 10% of frontier · ● gray = dominated · † = assumed cap</text>
-</svg>
-<p><small>Frontier members: ★ openrouter/gpt-oss-120b, ★ openrouter/deepseek-v4-flash-0731, ★ openrouter/gpt-5.6-sol</small></p>
-</section>
-<section>
-<h2>chat-metered-responsiveness</h2>
-<p class="eyebrow">agent-chat · tok/s × intelligence</p>
-<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Metered · speed↔smarts" font-family="system-ui, sans-serif">
-<text x="74" y="14" font-size="12.5" font-weight="600">Metered · speed↔smarts</text>
-<text x="74" y="26" font-size="9.5" fill="#777">speed: output tok/s  ↔  intelligence: AA index (0-100)</text>
-<line x1="74" y1="266" x2="590" y2="266" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="269" font-size="8.5" fill="#666" text-anchor="end">0</text>
-<line x1="74" y1="194" x2="590" y2="194" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="196" font-size="8.5" fill="#666" text-anchor="end">20</text>
-<line x1="74" y1="121" x2="590" y2="121" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="124" font-size="8.5" fill="#666" text-anchor="end">40</text>
-<line x1="74" y1="48" x2="590" y2="48" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="52" font-size="8.5" fill="#666" text-anchor="end">60</text>
-<line x1="95" y1="266" x2="95" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="95" y="280" font-size="8.5" fill="#666" text-anchor="middle">50</text>
-<line x1="305" y1="266" x2="305" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="305" y="280" font-size="8.5" fill="#666" text-anchor="middle">100</text>
-<line x1="514" y1="266" x2="514" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="514" y="280" font-size="8.5" fill="#666" text-anchor="middle">150</text>
-<path d="M 166.3,41.2 L 225.0,44.9 L 384.4,59.4 L 439.0,77.5 L 590.0,179.0" fill="none" stroke="#3a8f3a" stroke-width="1.4" stroke-dasharray="5 3"/>
-<circle cx="74.0" cy="59.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="43.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="46.0" font-size="9.5" fill="#555" font-weight="400">OR-metered/glm-5.3-flash</text>
-<text x="752" y="46.0" font-size="9.5" text-anchor="end" fill="#555">45 tok/s</text>
-
-<circle cx="166.3" cy="41.2" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="56.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="59.5" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/claude-fable-5</text>
-<text x="752" y="59.5" font-size="9.5" text-anchor="end" fill="#2e7d32">67 tok/s</text>
-<text x="159" y="34" font-size="8.5" text-anchor="end" fill="#2e7d32">67 tok/s</text>
-<circle cx="208.2" cy="48.5" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="70.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="73.0" font-size="9.5" fill="#555" font-weight="400">OR-metered/glm-5.3</text>
-<text x="752" y="73.0" font-size="9.5" text-anchor="end" fill="#555">77 tok/s</text>
-
-<circle cx="225.0" cy="44.9" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="83.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="86.5" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/gpt-5.6-sol</text>
-<text x="752" y="86.5" font-size="9.5" text-anchor="end" fill="#2e7d32">81 tok/s</text>
-<text x="218" y="38" font-size="8.5" text-anchor="end" fill="#2e7d32">81 tok/s</text>
-<circle cx="275.4" cy="215.2" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="97.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="100.0" font-size="9.5" fill="#555" font-weight="400">OR-metered/qwen3-coder-30b</text>
-<text x="752" y="100.0" font-size="9.5" text-anchor="end" fill="#555">93 tok/s</text>
-
-<circle cx="363.5" cy="211.6" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="110.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="113.5" font-size="9.5" fill="#555" font-weight="400">OR-metered/gpt-oss-20b</text>
-<text x="752" y="113.5" font-size="9.5" text-anchor="end" fill="#555">114 tok/s</text>
-
-<circle cx="384.4" cy="59.4" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="124.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="127.0" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/gpt-5.6-terra</text>
-<text x="752" y="127.0" font-size="9.5" text-anchor="end" fill="#2e7d32">119 tok/s</text>
-<text x="377" y="52" font-size="8.5" text-anchor="end" fill="#2e7d32">119 tok/s</text>
-<circle cx="384.4" cy="77.5" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="137.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="140.5" font-size="9.5" fill="#555" font-weight="400">OR-metered/deepseek-v4-flash-0731</text>
-<text x="752" y="140.5" font-size="9.5" text-anchor="end" fill="#555">119 tok/s</text>
-
-<circle cx="439.0" cy="77.5" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="151.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="154.0" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/gpt-5.6-luna</text>
-<text x="752" y="154.0" font-size="9.5" text-anchor="end" fill="#2e7d32">132 tok/s</text>
-<text x="432" y="70" font-size="8.5" text-anchor="end" fill="#2e7d32">132 tok/s</text>
-<circle cx="485.1" cy="233.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="164.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="167.5" font-size="9.5" fill="#555" font-weight="400">OR-metered/qwen3-30b-a3b-2507</text>
-<text x="752" y="167.5" font-size="9.5" text-anchor="end" fill="#555">143 tok/s</text>
-
-<circle cx="590.0" cy="179.0" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="178.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="181.0" font-size="9.5" fill="#2e7d32" font-weight="600">OR-metered/gpt-oss-120b</text>
-<text x="752" y="181.0" font-size="9.5" text-anchor="end" fill="#2e7d32">168 tok/s</text>
-<text x="583" y="172" font-size="8.5" text-anchor="end" fill="#2e7d32">168 tok/s</text>
-<text x="74" y="294" font-size="8.5" fill="#777">● frontier · ● amber = within 10% of frontier · ● gray = dominated · † = assumed cap</text>
-</svg>
-<p><small>Frontier members: ★ openrouter/claude-fable-5, ★ openrouter/gpt-5.6-sol, ★ openrouter/gpt-5.6-terra, ★ openrouter/gpt-5.6-luna, ★ openrouter/gpt-oss-120b</small></p>
-</section>
-<section>
-<h2>coding-subscription-economics</h2>
-<p class="eyebrow">coding-session · usd/turn × intelligence</p>
-<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Subscriptions · coding cost↔smarts" font-family="system-ui, sans-serif">
-<text x="74" y="14" font-size="12.5" font-weight="600">Subscriptions · coding cost↔smarts</text>
-<text x="74" y="26" font-size="9.5" fill="#777">cost: % of monthly sub-cap per coding turn  ↔  intelligence: AA index (0-100)</text>
-<line x1="74" y1="266" x2="590" y2="266" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="269" font-size="8.5" fill="#666" text-anchor="end">0</text>
-<line x1="74" y1="195" x2="590" y2="195" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="198" font-size="8.5" fill="#666" text-anchor="end">20</text>
-<line x1="74" y1="123" x2="590" y2="123" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="126" font-size="8.5" fill="#666" text-anchor="end">40</text>
-<line x1="74" y1="52" x2="590" y2="52" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="55" font-size="8.5" fill="#666" text-anchor="end">60</text>
-<line x1="211" y1="266" x2="211" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="211" y="280" font-size="8.5" fill="#666" text-anchor="middle">1.00%cap</text>
-<line x1="369" y1="266" x2="369" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="369" y="280" font-size="8.5" fill="#666" text-anchor="middle">2.00%cap</text>
-<line x1="527" y1="266" x2="527" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="527" y="280" font-size="8.5" fill="#666" text-anchor="middle">3.00%cap</text>
-<path d="M 74.0,80.4 L 292.2,51.8 L 292.2,51.8 L 578.1,41.1" fill="none" stroke="#3a8f3a" stroke-width="1.4" stroke-dasharray="5 3"/>
-<circle cx="74.0" cy="80.4" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="43.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="46.0" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-luna</text>
-<text x="752" y="46.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0014</text>
-<text x="67" y="73" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0014</text>
-<circle cx="77.6" cy="80.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="56.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="59.5" font-size="9.5" fill="#555" font-weight="400">Cline†/deepseek-v4-flash-0731</text>
-<text x="752" y="59.5" font-size="9.5" text-anchor="end" fill="#555">$0.0016</text>
-
-<circle cx="77.6" cy="80.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="70.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="73.0" font-size="9.5" fill="#555" font-weight="400">Go/deepseek-v4-flash-0731</text>
-<text x="752" y="73.0" font-size="9.5" text-anchor="end" fill="#555">$0.0016</text>
-
-<circle cx="292.2" cy="51.8" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="83.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="86.5" font-size="9.5" fill="#2e7d32" font-weight="600">Cline†/glm-5.3</text>
-<text x="752" y="86.5" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0152</text>
-<text x="285" y="45" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0152</text>
-<circle cx="292.2" cy="51.8" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="97.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="100.0" font-size="9.5" fill="#2e7d32" font-weight="600">Go/glm-5.3</text>
-<text x="752" y="100.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0152</text>
-<text x="285" y="45" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0152</text>
-<circle cx="345.6" cy="80.4" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="110.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="113.5" font-size="9.5" fill="#555" font-weight="400">Go/qwen3.8-max</text>
-<text x="752" y="113.5" font-size="9.5" text-anchor="end" fill="#555">$0.0185</text>
-
-<circle cx="578.1" cy="41.1" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="124.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="127.0" font-size="9.5" fill="#2e7d32" font-weight="600">ClaudePro†/opus-5</text>
-<text x="752" y="127.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0333</text>
-<text x="571" y="34" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0333</text>
-<circle cx="590.0" cy="48.3" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="137.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="140.5" font-size="9.5" fill="#555" font-weight="400">GPT+†/gpt-5.6-sol</text>
-<text x="752" y="140.5" font-size="9.5" text-anchor="end" fill="#555">$0.0340</text>
-
-<text x="74" y="294" font-size="8.5" fill="#777">● frontier · ● amber = within 10% of frontier · ● gray = dominated · † = assumed cap</text>
-</svg>
-<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-luna, ★ clinepass/glm-5.3, ★ opencode-go/glm-5.3, ★ claude-pro/opus-5</small></p>
-</section>
-<section>
-<h2>math-smarts-coding-subscription</h2>
-<p class="eyebrow">coding-session · usd/turn × GPQA-Diamond</p>
-<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Subscriptions · coding math↔cost" font-family="system-ui, sans-serif">
-<text x="74" y="14" font-size="12.5" font-weight="600">Subscriptions · coding math↔cost</text>
-<text x="74" y="26" font-size="9.5" fill="#777">cost: % of monthly sub-cap per coding turn  ↔  math: GPQA Diamond %</text>
-<line x1="74" y1="266" x2="590" y2="266" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="269" font-size="8.5" fill="#666" text-anchor="end">0</text>
-<line x1="74" y1="206" x2="590" y2="206" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="209" font-size="8.5" fill="#666" text-anchor="end">25</text>
-<line x1="74" y1="145" x2="590" y2="145" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="148" font-size="8.5" fill="#666" text-anchor="end">50</text>
-<line x1="74" y1="85" x2="590" y2="85" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="88" font-size="8.5" fill="#666" text-anchor="end">75</text>
-<line x1="211" y1="266" x2="211" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="211" y="280" font-size="8.5" fill="#666" text-anchor="middle">0.01</text>
-<line x1="369" y1="266" x2="369" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="369" y="280" font-size="8.5" fill="#666" text-anchor="middle">0.02</text>
-<line x1="527" y1="266" x2="527" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="527" y="280" font-size="8.5" fill="#666" text-anchor="middle">0.03</text>
-<path d="M 74.0,46.1 L 590.0,38.8" fill="none" stroke="#3a8f3a" stroke-width="1.4" stroke-dasharray="5 3"/>
-<circle cx="74.0" cy="46.1" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="43.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="46.0" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-luna</text>
-<text x="752" y="46.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0014</text>
-<text x="67" y="39" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0014</text>
-<circle cx="77.6" cy="46.8" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="56.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="59.5" font-size="9.5" fill="#555" font-weight="400">Cline†/deepseek-v4-flash-0731</text>
-<text x="752" y="59.5" font-size="9.5" text-anchor="end" fill="#555">$0.0016</text>
-
-<circle cx="77.6" cy="46.8" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="70.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="73.0" font-size="9.5" fill="#555" font-weight="400">Go/deepseek-v4-flash-0731</text>
-<text x="752" y="73.0" font-size="9.5" text-anchor="end" fill="#555">$0.0016</text>
-
-<circle cx="590.0" cy="38.8" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="83.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="86.5" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-sol</text>
-<text x="752" y="86.5" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0340</text>
-<text x="583" y="32" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0340</text>
-<text x="74" y="294" font-size="8.5" fill="#777">● frontier · ● amber = within 10% of frontier · ● gray = dominated · † = assumed cap</text>
-</svg>
-<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-luna, ★ chatgpt-plus/gpt-5.6-sol</small></p>
-</section>
-<section>
-<h2>math-smarts-coding</h2>
-<p class="eyebrow">coding-session · usd/turn × SWE-bench-Verified</p>
-<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Metered · coding math↔cost" font-family="system-ui, sans-serif">
-<text x="74" y="14" font-size="12.5" font-weight="600">Metered · coding math↔cost</text>
-<text x="74" y="26" font-size="9.5" fill="#777">cost: metered USD per turn (log)  ↔  math: GPQA Diamond %</text>
-<line x1="74" y1="266" x2="590" y2="266" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="269" font-size="8.5" fill="#666" text-anchor="end">0</text>
-<line x1="74" y1="206" x2="590" y2="206" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="209" font-size="8.5" fill="#666" text-anchor="end">25</text>
-<line x1="74" y1="145" x2="590" y2="145" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="148" font-size="8.5" fill="#666" text-anchor="end">50</text>
-<line x1="74" y1="85" x2="590" y2="85" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="88" font-size="8.5" fill="#666" text-anchor="end">75</text>
-<line x1="211" y1="266" x2="211" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="211" y="280" font-size="8.5" fill="#666" text-anchor="middle">0.01</text>
-<line x1="369" y1="266" x2="369" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="369" y="280" font-size="8.5" fill="#666" text-anchor="middle">0.02</text>
-<line x1="527" y1="266" x2="527" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="527" y="280" font-size="8.5" fill="#666" text-anchor="middle">0.03</text>
-<path d="M 74.0,46.1 L 590.0,38.8" fill="none" stroke="#3a8f3a" stroke-width="1.4" stroke-dasharray="5 3"/>
-<circle cx="74.0" cy="46.1" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="43.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="46.0" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-luna</text>
-<text x="752" y="46.0" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0014</text>
-<text x="67" y="39" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0014</text>
-<circle cx="77.6" cy="46.8" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="56.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="59.5" font-size="9.5" fill="#555" font-weight="400">Cline†/deepseek-v4-flash-0731</text>
-<text x="752" y="59.5" font-size="9.5" text-anchor="end" fill="#555">$0.0016</text>
-
-<circle cx="77.6" cy="46.8" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="70.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="73.0" font-size="9.5" fill="#555" font-weight="400">Go/deepseek-v4-flash-0731</text>
-<text x="752" y="73.0" font-size="9.5" text-anchor="end" fill="#555">$0.0016</text>
-
-<circle cx="590.0" cy="38.8" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="83.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="86.5" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-sol</text>
-<text x="752" y="86.5" font-size="9.5" text-anchor="end" fill="#2e7d32">$0.0340</text>
-<text x="583" y="32" font-size="8.5" text-anchor="end" fill="#2e7d32">$0.0340</text>
-<text x="74" y="294" font-size="8.5" fill="#777">● frontier · ● amber = within 10% of frontier · ● gray = dominated · † = assumed cap</text>
-</svg>
-<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-luna, ★ chatgpt-plus/gpt-5.6-sol</small></p>
-</section>
-<section>
-<h2>coding-subscription-responsiveness</h2>
-<p class="eyebrow">coding-session · tok/s × intelligence</p>
-<svg style="max-width:100%;height:auto" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="760" height="300" viewBox="0 0 760 300" role="img" aria-label="Subscriptions · coding speed↔smarts" font-family="system-ui, sans-serif">
-<text x="74" y="14" font-size="12.5" font-weight="600">Subscriptions · coding speed↔smarts</text>
-<text x="74" y="26" font-size="9.5" fill="#777">speed: output tok/s (coding shape)  ↔  intelligence: AA index (0-100)</text>
-<line x1="74" y1="266" x2="590" y2="266" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="269" font-size="8.5" fill="#666" text-anchor="end">0</text>
-<line x1="74" y1="192" x2="590" y2="192" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="195" font-size="8.5" fill="#666" text-anchor="end">20</text>
-<line x1="74" y1="119" x2="590" y2="119" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="122" font-size="8.5" fill="#666" text-anchor="end">40</text>
-<line x1="74" y1="45" x2="590" y2="45" stroke="#888" stroke-opacity="0.14"/>
-<text x="68" y="48" font-size="8.5" fill="#666" text-anchor="end">60</text>
-<line x1="102" y1="266" x2="102" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="102" y="280" font-size="8.5" fill="#666" text-anchor="middle">80</text>
-<line x1="290" y1="266" x2="290" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="290" y="280" font-size="8.5" fill="#666" text-anchor="middle">100</text>
-<line x1="477" y1="266" x2="477" y2="270" stroke="#888" stroke-opacity="0.5"/>
-<text x="477" y="280" font-size="8.5" fill="#666" text-anchor="middle">120</text>
-<path d="M 111.5,41.4 L 590.0,74.5" fill="none" stroke="#3a8f3a" stroke-width="1.4" stroke-dasharray="5 3"/>
-<circle cx="74.0" cy="45.0" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="43.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="46.0" font-size="9.5" fill="#555" font-weight="400">Cline†/glm-5.3</text>
-<text x="752" y="46.0" font-size="9.5" text-anchor="end" fill="#555">77 tok/s</text>
-
-<circle cx="74.0" cy="45.0" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="56.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="59.5" font-size="9.5" fill="#555" font-weight="400">Go/glm-5.3</text>
-<text x="752" y="59.5" font-size="9.5" text-anchor="end" fill="#555">77 tok/s</text>
-
-<circle cx="111.5" cy="41.4" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="70.0" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="73.0" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-sol</text>
-<text x="752" y="73.0" font-size="9.5" text-anchor="end" fill="#2e7d32">81 tok/s</text>
-<text x="105" y="34" font-size="8.5" text-anchor="end" fill="#2e7d32">81 tok/s</text>
-<circle cx="468.0" cy="74.5" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="83.5" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="86.5" font-size="9.5" fill="#555" font-weight="400">Cline†/deepseek-v4-flash-0731</text>
-<text x="752" y="86.5" font-size="9.5" text-anchor="end" fill="#555">119 tok/s</text>
-
-<circle cx="468.0" cy="74.5" r="3.5" fill="#c9a227" fill-opacity="0.75"/>
-<circle cx="594" cy="97.0" r="3" fill="#c9a227" fill-opacity="0.75"/>
-<text x="602" y="100.0" font-size="9.5" fill="#555" font-weight="400">Go/deepseek-v4-flash-0731</text>
-<text x="752" y="100.0" font-size="9.5" text-anchor="end" fill="#555">119 tok/s</text>
-
-<circle cx="590.0" cy="74.5" r="5" fill="#2e7d32" fill-opacity="1.0"/>
-<circle cx="594" cy="110.5" r="3" fill="#2e7d32" fill-opacity="1.0"/>
-<text x="602" y="113.5" font-size="9.5" fill="#2e7d32" font-weight="600">GPT+†/gpt-5.6-luna</text>
-<text x="752" y="113.5" font-size="9.5" text-anchor="end" fill="#2e7d32">132 tok/s</text>
-<text x="583" y="68" font-size="8.5" text-anchor="end" fill="#2e7d32">132 tok/s</text>
-<text x="74" y="294" font-size="8.5" fill="#777">● frontier · ● amber = within 10% of frontier · ● gray = dominated · † = assumed cap</text>
-</svg>
-<p><small>Frontier members: ★ chatgpt-plus/gpt-5.6-sol, ★ chatgpt-plus/gpt-5.6-luna</small></p>
-</section>
-<p><small>ClinePass cap assumed $35; $20-tier sub caps modeled 8× price — †-flagged in charts.
+<p><small>ClinePass cap assumed $35; $20-tier sub caps modeled 8× price — †-flagged.
 Sources: AA Intelligence Index v4.1.1 (current scale), vals.ai SWE-bench Verified (independent
 same-harness), AA-run GPQA Diamond, OpenRouter catalog, published subscription tables.</small></p>
+<script>
+const CHARTS = [{"id":"chat-subscription-economics","title":"Subscriptions \u00b7 cost\u2194smarts","xlabel":"usd/turn","ylabel":"intelligence","logx":true,"points":[{"model":"chatgpt-plus/gpt-5.6-luna","x":0.006961,"y":52.0,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-luna<br>chat-subscription-economics"},{"model":"clinepass/glm-5.3","x":0.066355,"y":60.0,"on":true,"cap_assumed":true,"vendor":"clinepass","label":"clinepass/glm-5.3<br>chat-subscription-economics"},{"model":"opencode-go/glm-5.3","x":0.066355,"y":60.0,"on":true,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/glm-5.3<br>chat-subscription-economics"},{"model":"claude-pro/opus-5","x":0.17107,"y":63.0,"on":true,"cap_assumed":true,"vendor":"claude-pro","label":"claude-pro/opus-5<br>chat-subscription-economics"},{"model":"clinepass/deepseek-v4-flash-0731","x":0.009535,"y":52.0,"on":false,"cap_assumed":true,"vendor":"clinepass","label":"clinepass/deepseek-v4-flash-0731<br>chat-subscription-economics"},{"model":"opencode-go/deepseek-v4-flash-0731","x":0.009535,"y":52.0,"on":false,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/deepseek-v4-flash-0731<br>chat-subscription-economics"},{"model":"opencode-go/qwen3.8-max","x":0.074391,"y":52.0,"on":false,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/qwen3.8-max<br>chat-subscription-economics"},{"model":"chatgpt-plus/gpt-5.6-sol","x":0.174031,"y":61.0,"on":false,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-sol<br>chat-subscription-economics"}]},{"id":"math-smarts-chat-subscription","title":"Subscriptions \u00b7 math smarts\u2194cost","xlabel":"usd/turn","ylabel":"GPQA-Diamond","logx":true,"points":[{"model":"chatgpt-plus/gpt-5.6-luna","x":0.006961,"y":91.1,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-luna<br>math-smarts-chat-subscription"},{"model":"chatgpt-plus/gpt-5.6-sol","x":0.174031,"y":94.1,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-sol<br>math-smarts-chat-subscription"},{"model":"clinepass/deepseek-v4-flash-0731","x":0.009535,"y":90.8,"on":false,"cap_assumed":true,"vendor":"clinepass","label":"clinepass/deepseek-v4-flash-0731<br>math-smarts-chat-subscription"},{"model":"opencode-go/deepseek-v4-flash-0731","x":0.009535,"y":90.8,"on":false,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/deepseek-v4-flash-0731<br>math-smarts-chat-subscription"}]},{"id":"chat-subscription-responsiveness","title":"Subscriptions \u00b7 speed\u2194smarts","xlabel":"tok/s","ylabel":"intelligence","logx":false,"points":[{"model":"chatgpt-plus/gpt-5.6-sol","x":81.0,"y":61.0,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-sol<br>chat-subscription-responsiveness"},{"model":"chatgpt-plus/gpt-5.6-luna","x":132.0,"y":52.0,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-luna<br>chat-subscription-responsiveness"},{"model":"clinepass/glm-5.3","x":77.0,"y":60.0,"on":false,"cap_assumed":true,"vendor":"clinepass","label":"clinepass/glm-5.3<br>chat-subscription-responsiveness"},{"model":"opencode-go/glm-5.3","x":77.0,"y":60.0,"on":false,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/glm-5.3<br>chat-subscription-responsiveness"},{"model":"clinepass/deepseek-v4-flash-0731","x":119.0,"y":52.0,"on":false,"cap_assumed":true,"vendor":"clinepass","label":"clinepass/deepseek-v4-flash-0731<br>chat-subscription-responsiveness"},{"model":"opencode-go/deepseek-v4-flash-0731","x":119.0,"y":52.0,"on":false,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/deepseek-v4-flash-0731<br>chat-subscription-responsiveness"}]},{"id":"chat-metered-economics","title":"Metered \u00b7 cost\u2194smarts","xlabel":"usd/turn","ylabel":"intelligence","logx":true,"points":[{"model":"openrouter/gpt-oss-20b","x":0.000515,"y":15.0,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-oss-20b<br>chat-metered-economics"},{"model":"openrouter/gpt-oss-120b","x":0.000641,"y":24.0,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-oss-120b<br>chat-metered-economics"},{"model":"openrouter/muse-spark-1.2-contributor","x":0.001911,"y":57.0,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/muse-spark-1.2-contributor<br>chat-metered-economics"},{"model":"openrouter/glm-5.3","x":0.066355,"y":60.0,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/glm-5.3<br>chat-metered-economics"},{"model":"openrouter/gpt-5.6-sol","x":0.068428,"y":61.0,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-5.6-sol<br>chat-metered-economics"},{"model":"openrouter/claude-fable-5","x":0.342141,"y":62.0,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/claude-fable-5<br>chat-metered-economics"},{"model":"openrouter/qwen3-30b-a3b-2507","x":0.000815,"y":9.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/qwen3-30b-a3b-2507<br>chat-metered-economics"},{"model":"openrouter/qwen3-coder-30b","x":0.001187,"y":14.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/qwen3-coder-30b<br>chat-metered-economics"},{"model":"openrouter/deepseek-v4-flash-0731","x":0.003721,"y":52.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/deepseek-v4-flash-0731<br>chat-metered-economics"},{"model":"openrouter/glm-5.3-flash","x":0.003742,"y":57.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/glm-5.3-flash<br>chat-metered-economics"},{"model":"openrouter/longcat-2.0","x":0.006088,"y":34.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/longcat-2.0<br>chat-metered-economics"},{"model":"openrouter/gpt-5.6-luna","x":0.006961,"y":52.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-5.6-luna<br>chat-metered-economics"},{"model":"openrouter/muse-spark-1.2","x":0.045749,"y":57.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/muse-spark-1.2<br>chat-metered-economics"},{"model":"openrouter/gpt-5.6-terra","x":0.069612,"y":57.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-5.6-terra<br>chat-metered-economics"},{"model":"openrouter/qwen3.8-2.4t-a95b","x":0.074391,"y":52.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/qwen3.8-2.4t-a95b<br>chat-metered-economics"},{"model":"openrouter/qwen3.8-max","x":0.074391,"y":52.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/qwen3.8-max<br>chat-metered-economics"}]},{"id":"math-smarts-chat-metered","title":"Metered \u00b7 math smarts\u2194cost","xlabel":"usd/turn","ylabel":"GPQA-Diamond","logx":true,"points":[{"model":"openrouter/gpt-oss-120b","x":0.000641,"y":80.1,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-oss-120b<br>math-smarts-chat-metered"},{"model":"openrouter/deepseek-v4-flash-0731","x":0.003721,"y":90.8,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/deepseek-v4-flash-0731<br>math-smarts-chat-metered"},{"model":"openrouter/gpt-5.6-sol","x":0.068428,"y":94.1,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-5.6-sol<br>math-smarts-chat-metered"},{"model":"openrouter/gpt-5.6-luna","x":0.006961,"y":91.1,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-5.6-luna<br>math-smarts-chat-metered"},{"model":"openrouter/gpt-5.6-terra","x":0.069612,"y":92.5,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-5.6-terra<br>math-smarts-chat-metered"},{"model":"openrouter/claude-fable-5","x":0.342141,"y":92.6,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/claude-fable-5<br>math-smarts-chat-metered"}]},{"id":"chat-metered-responsiveness","title":"Metered \u00b7 speed\u2194smarts","xlabel":"tok/s","ylabel":"intelligence","logx":false,"points":[{"model":"openrouter/claude-fable-5","x":67.0,"y":62.0,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/claude-fable-5<br>chat-metered-responsiveness"},{"model":"openrouter/gpt-5.6-sol","x":81.0,"y":61.0,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-5.6-sol<br>chat-metered-responsiveness"},{"model":"openrouter/gpt-5.6-terra","x":119.0,"y":57.0,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-5.6-terra<br>chat-metered-responsiveness"},{"model":"openrouter/gpt-5.6-luna","x":132.0,"y":52.0,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-5.6-luna<br>chat-metered-responsiveness"},{"model":"openrouter/gpt-oss-120b","x":168.0,"y":24.0,"on":true,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-oss-120b<br>chat-metered-responsiveness"},{"model":"openrouter/glm-5.3-flash","x":45.0,"y":57.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/glm-5.3-flash<br>chat-metered-responsiveness"},{"model":"openrouter/glm-5.3","x":77.0,"y":60.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/glm-5.3<br>chat-metered-responsiveness"},{"model":"openrouter/qwen3-coder-30b","x":93.0,"y":14.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/qwen3-coder-30b<br>chat-metered-responsiveness"},{"model":"openrouter/gpt-oss-20b","x":114.0,"y":15.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/gpt-oss-20b<br>chat-metered-responsiveness"},{"model":"openrouter/deepseek-v4-flash-0731","x":119.0,"y":52.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/deepseek-v4-flash-0731<br>chat-metered-responsiveness"},{"model":"openrouter/qwen3-30b-a3b-2507","x":143.0,"y":9.0,"on":false,"cap_assumed":false,"vendor":"openrouter","label":"openrouter/qwen3-30b-a3b-2507<br>chat-metered-responsiveness"}]},{"id":"coding-subscription-economics","title":"Subscriptions \u00b7 coding cost\u2194smarts","xlabel":"usd/turn","ylabel":"intelligence","logx":true,"points":[{"model":"chatgpt-plus/gpt-5.6-luna","x":0.00136,"y":52.0,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-luna<br>coding-subscription-economics"},{"model":"clinepass/glm-5.3","x":0.01516,"y":60.0,"on":true,"cap_assumed":true,"vendor":"clinepass","label":"clinepass/glm-5.3<br>coding-subscription-economics"},{"model":"opencode-go/glm-5.3","x":0.01516,"y":60.0,"on":true,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/glm-5.3<br>coding-subscription-economics"},{"model":"claude-pro/opus-5","x":0.03325,"y":63.0,"on":true,"cap_assumed":true,"vendor":"claude-pro","label":"claude-pro/opus-5<br>coding-subscription-economics"},{"model":"clinepass/deepseek-v4-flash-0731","x":0.001588,"y":52.0,"on":false,"cap_assumed":true,"vendor":"clinepass","label":"clinepass/deepseek-v4-flash-0731<br>coding-subscription-economics"},{"model":"opencode-go/deepseek-v4-flash-0731","x":0.001588,"y":52.0,"on":false,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/deepseek-v4-flash-0731<br>coding-subscription-economics"},{"model":"opencode-go/qwen3.8-max","x":0.01854,"y":52.0,"on":false,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/qwen3.8-max<br>coding-subscription-economics"},{"model":"chatgpt-plus/gpt-5.6-sol","x":0.034,"y":61.0,"on":false,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-sol<br>coding-subscription-economics"}]},{"id":"math-smarts-coding-subscription","title":"Subscriptions \u00b7 coding math\u2194cost","xlabel":"usd/turn","ylabel":"GPQA-Diamond","logx":true,"points":[{"model":"chatgpt-plus/gpt-5.6-luna","x":0.00136,"y":91.1,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-luna<br>math-smarts-coding-subscription"},{"model":"chatgpt-plus/gpt-5.6-sol","x":0.034,"y":94.1,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-sol<br>math-smarts-coding-subscription"},{"model":"clinepass/deepseek-v4-flash-0731","x":0.001588,"y":90.8,"on":false,"cap_assumed":true,"vendor":"clinepass","label":"clinepass/deepseek-v4-flash-0731<br>math-smarts-coding-subscription"},{"model":"opencode-go/deepseek-v4-flash-0731","x":0.001588,"y":90.8,"on":false,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/deepseek-v4-flash-0731<br>math-smarts-coding-subscription"}]},{"id":"math-smarts-coding","title":"Metered \u00b7 coding math\u2194cost","xlabel":"usd/turn","ylabel":"SWE-bench-Verified","logx":true,"points":[{"model":"chatgpt-plus/gpt-5.6-luna","x":0.00136,"y":91.1,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-luna<br>math-smarts-coding"},{"model":"chatgpt-plus/gpt-5.6-sol","x":0.034,"y":94.1,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-sol<br>math-smarts-coding"},{"model":"clinepass/deepseek-v4-flash-0731","x":0.001588,"y":90.8,"on":false,"cap_assumed":true,"vendor":"clinepass","label":"clinepass/deepseek-v4-flash-0731<br>math-smarts-coding"},{"model":"opencode-go/deepseek-v4-flash-0731","x":0.001588,"y":90.8,"on":false,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/deepseek-v4-flash-0731<br>math-smarts-coding"}]},{"id":"coding-subscription-responsiveness","title":"Subscriptions \u00b7 coding speed\u2194smarts","xlabel":"tok/s","ylabel":"intelligence","logx":false,"points":[{"model":"chatgpt-plus/gpt-5.6-sol","x":81.0,"y":61.0,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-sol<br>coding-subscription-responsiveness"},{"model":"chatgpt-plus/gpt-5.6-luna","x":132.0,"y":52.0,"on":true,"cap_assumed":true,"vendor":"chatgpt-plus","label":"chatgpt-plus/gpt-5.6-luna<br>coding-subscription-responsiveness"},{"model":"clinepass/glm-5.3","x":77.0,"y":60.0,"on":false,"cap_assumed":true,"vendor":"clinepass","label":"clinepass/glm-5.3<br>coding-subscription-responsiveness"},{"model":"opencode-go/glm-5.3","x":77.0,"y":60.0,"on":false,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/glm-5.3<br>coding-subscription-responsiveness"},{"model":"clinepass/deepseek-v4-flash-0731","x":119.0,"y":52.0,"on":false,"cap_assumed":true,"vendor":"clinepass","label":"clinepass/deepseek-v4-flash-0731<br>coding-subscription-responsiveness"},{"model":"opencode-go/deepseek-v4-flash-0731","x":119.0,"y":52.0,"on":false,"cap_assumed":false,"vendor":"opencode-go","label":"opencode-go/deepseek-v4-flash-0731<br>coding-subscription-responsiveness"}]}];
+const layoutBase = {
+  margin: {l: 64, r: 24, t: 36, b: 52}, hovermode: 'closest',
+  font: {size: 11}, showlegend: false, autosize: true,
+};
+function xType(c) { return c.logx ? 'log' : 'linear'; }
+function renderAll() {
+  const wrap = document.getElementById('charts');
+  CHARTS.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'chartdiv'; div.id = 'chart-' + i;
+    wrap.appendChild(div);
+    const frontier = c.points.filter(p => p.on);
+    frontier.sort((a, b) => a.x - b.x);
+    const dom = c.points.filter(p => !p.on);
+    const traces = [];
+    traces.push({x: frontier.map(p=>p.x), y: frontier.map(p=>p.y), mode: 'lines+markers',
+      line: {shape: 'linear', dash: 'dash', color: '#2e7d32'},
+      marker: {size: 9, color: '#2e7d32'},
+      text: frontier.map(p=>p.label), name: 'frontier', customdata: frontier.map(p=>p.model),
+    });
+    if (dom.length) traces.push({x: dom.map(p=>p.x), y: dom.map(p=>p.y), mode: 'markers',
+      marker: {size: 7, color: '#b9b9b9'}, text: dom.map(p=>p.label), name: 'dominated',
+      customdata: dom.map(p=>p.model),});
+    const near = dom.filter(p => p.cap_assumed);
+    const layout = JSON.parse(JSON.stringify(layoutBase));
+    layout.title = c.title; layout.xaxis = {title: c.xlabel, type: xType(c)};
+    layout.yaxis = {title: c.ylabel};
+    Plotly.newPlot(div.id, traces, layout, {responsive: true}).then(gd => {
+      gd.on('plotly_hover', ev => {
+        const m = (ev.points[0].customdata || '').split('/').pop();
+        document.querySelectorAll('.mrow').forEach(r =>
+          r.classList.toggle('hl', r.dataset.model === m));
+      });
+      gd.on('plotly_unhover', () => document.querySelectorAll('.mrow.hl').forEach(r => r.classList.remove('hl')));
+    });
+  });
+}
+// table row hover -> highlight matching points in all charts
+document.querySelectorAll('.mrow').forEach(r => {
+  r.addEventListener('mouseenter', () => {
+    const m = r.dataset.model;
+    CHARTS.forEach((c, i) => {
+      const idx = c.points.map(p => p.model.endsWith('/' + m) ? 1 : 0);
+      Plotly.restyle('chart-' + i, {'marker.opacity': [idx.map(v => v ? 1 : 0.15),
+        'marker.size': [idx.map(v => v ? 12 : 7)]});
+    });
+  });
+  r.addEventListener('mouseleave', () => CHARTS.forEach((c, i) =>
+    Plotly.restyle('chart-' + i, {'marker.opacity': 1, 'marker.size': 7})));
+});
+renderAll();
+</script>
 </body></html>
