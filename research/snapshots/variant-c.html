@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variant C &middot; budget explorable &mdash; ModelSkyline frontier snapshots</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0 auto; max-width: 74rem; padding: 1rem; line-height: 1.45;
+         font-family: ui-sans-serif, system-ui, sans-serif; font-size: 15px; }
+  nav { font-size: .85rem; margin-bottom: .8rem; }
+  h1 { font-size: 1.3rem; margin: .2rem 0 .1rem; }
+  .thesis { color: #666; font-style: italic; margin: .1rem 0 .6rem; }
+  h2 { font-size: 1.1rem; margin: 1.5rem 0 .2rem; }
+  .hint { color: #777; font-size: .78rem; margin: 0 0 .5rem; }
+  section { margin: 1.1rem 0; }
+  .panel { border: 1px solid #ddd; border-radius: 8px; padding: .8rem 1rem; margin: .8rem 0; }
+  .panel .q { font-size: 1.02rem; margin: 0 0 .6rem; }
+  .row2 { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; }
+  .row2 label { font-size: .82rem; color: #555; }
+  .panel .verdict { margin: .5rem 0 0; font-size: .92rem; }
+  .verdict b.best { color: #2e7d32; }
+  .verdict .warn { color: #c62828; }
+  .verdict .note { color: #777; font-size: .8rem; }
+  input[type=range] { width: 240px; vertical-align: middle; }
+  input[type=number] { width: 90px; }
+  select, input[type=checkbox] { vertical-align: middle; }
+  table.btable { border-collapse: collapse; font-size: .84rem; min-width: 520px; }
+  .btable th, .btable td { padding: .2rem .55rem; text-align: right; }
+  .btable th:first-child, .btable td:first-child { text-align: left; }
+  .btable thead th { border-bottom: 2px solid #999; }
+  .btable tbody tr { border-bottom: 1px solid #eee; }
+  .btable tr.best-row { background: #eef5ee; }
+  .btable tr.dominated-row { color: #999; }
+  .cap { color: #c62828; }
+  .narrative { font-size: .9rem; color: #333; }
+</style></head><body>
+<nav><a href="index.html">overview</a> · <a href="variant-current.html">v4·current</a> · <a href="variant-a.html">A·ledger</a> · <a href="variant-b.html">B·staircase</a> · <a href="variant-c.html">C·explorable</a> · <a href="variant-d.html">D·dossiers</a></nav>
+<h1>Variant C &mdash; the budget explorable</h1>
+<p class="thesis">Design thesis: don't show the reader a frontier &mdash; let them <em>push on it</em>.
+Pick a workload, a budget, and a taste for smarts, and the page computes your personal pareto pick from
+the same ranked[] rows, live, showing what you'd have to give up to buy the next intelligence step.</p>
+<p class="hint">All selection runs client-side over the printed frontier data. † = UNVERIFIED modeled
+cap; sub offerings are priced per-turn from published tables (capped purchases modeled at 8×). No
+backend, no inference &mdash; the frontier is the interface.</p>
+<div id="generated" style="color:#888;font-size:.78rem"></div>
+
+<section class="panel" id="p1">
+<p class="q">1 · <b>What's your budget per turn?</b></p>
+<div class="row2">
+  <label>cost ceiling <input type="range" id="budget" min="0" max="100" value="50" step="0.5"> </label>
+  <span id="budget-readout" class="num" style="min-width:9ch"></span>
+  <label><input type="checkbox" id="log"> log slider</label>
+  <label style="margin-left:auto">exact: <input type="number" id="budget-num" step="0.0001" min="0" style="width:110px"></label>
+</div>
+<p class="note hint" style="margin:.4rem 0 0">Costs below $0.01 are sub-cent; the exact box takes full
+precision. Note: OpenRouter costs are listed <em>per turn under the agent-chat shape</em> (blended
+30-day traces), not per token — that is the honest unit here.</p>
+</section>
+
+<section class="panel" id="p2">
+<p class="q">2 · <b>Which workload?</b></p>
+<select id="wl"></select>
+<span class="hint" id="wl-desc"></span>
+</section>
+
+<section class="panel" id="p3">
+<p class="q">3 · <b>What's your taste for smarts?</b></p>
+<div class="row2">
+  <label><input type="radio" name="taste" value="cheap" checked> cheapest that clears my quality floor</label>
+  <label><input type="radio" name="taste" value="best"> best smarts I can afford</label>
+  <label><input type="radio" name="taste" value="value"> best smarts per dollar</</label>
+  <label><input type="radio" name="taste" value="value2"> maximize AA ÷ log(cost)</label>
+</div>
+<p class="hint" style="margin:.3rem 0 0">"Value" picks by intelligence-per-dollar; the log variant is
+for when a 200× cost spread makes raw ratios meaningless.</p>
+</section>
+
+<section class="panel" id="p4">
+<p class="q">4 · <b>Your pick:</b></p>
+<div id="verdict" class="verdict">&nbsp;</div>
+<div class="wrap" style="overflow-x:auto"><table class="btable" id="btable">
+<thead><tr><th>offering</th><th>x</th><th>y</th><th>status at your budget</th><th>dominated by</th></tr></thead>
+<tbody id="bbody"></tbody></table></div>
+<p class="note hint">"status" is recomputed at your budget ceiling: reachable = cost ≤ budget and not
+dominated at the current ceiling; dominated-by is the same list the frontier reports.</p>
+</section>
+
+<section class="panel" id="p5">
+<p class="q">5 · <b>What the next intelligence step would cost you</b></p>
+<div id="nextstep" class="narrative">&nbsp;</div>
+</section>
+<p>Sources: AA Intelligence Index v4.1.1 (current scale only — older articles use
+renormalized scales and are never mixed in) · GPQA Diamond AA-run · SWE-bench Verified via
+vals.ai independent same-harness (Mini-SWE-agent); openlm.ai rows are aggregator/vendor-reported ·
+prices: OpenCode Go + ClinePass published tables and the live OpenRouter catalog ·
+workload shapes: agent-chat from real 30-day traces, coding-session from OpenCode Go published
+request patterns. † caps are UNVERIFIED models: ClinePass assumed $35; $20-tier subscriptions
+modeled at 8× purchase price ($160) per community reporting. Y-axis labels follow each frontier's
+per-row <code>secondary_label</code> (note: math-smarts-coding's axes string says SWE-bench-Verified
+but its rows carry GPQA-Diamond values — the label shown is the authoritative one). Models without
+verified scores are excluded-with-reason (muse-glimmer; GLM-5.3/Flash and muse-spark lack
+verifiable GPQA — notable because GLM-5.3 leads the general index). ≈-near is computed client-side
+as: within 10% of the nearest strictly-better-or-tie row on the frontier's primary axis (cost or
+speed); it reproduces the generator's (+X% off) chips in 13 of 14 cases — the one divergence is
+qwen3-30b-a3b-2507 on chat-metered-responsiveness, where the generator reports +8% off and this
+rule finds no dominator within 10% of its speed.</p>
+
+<script>const DATA = {"generated_at":"2026-09-01T00:30:00Z","schema":"brian-multi-frontier-v2","note":"Axes from AA Intelligence Index / median output t-s / TTFT (artificialanalysis.ai, 2026-08-31); prices from OpenCode Go + ClinePass published tables and live OpenRouter catalog; shapes: agent-chat from real 30-day traces, coding-session from OpenCode Go published request patterns. ClinePass cap assumed $35; $20-tier sub caps modeled at 8x purchase price ($160) per community reporting, all UNVERIFIED and flagged. Added 2026-09-01: GPT-5.6 Luna/Terra, Muse Spark 1.2 (+contributor tier: Meta trains on prompts, region-limited \u2014 priced accordingly), LongCat 2.0; muse-glimmer excluded (no verified AA). Math-smarts axis: GLM-5.3/Flash and muse-spark lack verifiable GPQA numbers and are excluded-with-reason there \u2014 notable because GLM-5.3 leads the general index. Excluded where no verified AA data. | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | GPQA Diamond vendor-reported | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | GPQA Diamond aggregator-reported | SWE-bench Verified via openlm.ai aggregator (vendor-reported) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | SWE-bench Verified via vals.ai (independent, Mini-SWE-agent harness) | GPQA Diamond AA-run (independent) | GPQA Diamond AA-run (independent) | SWE-bench Verified via openlm.ai aggregator (vendor-reported)","frontiers":[{"id":"chat-subscription-economics","workload":"agent-chat","axes":["usd/turn \u00d7 intelligence"],"primary_label":"USD/turn","default":"claude-pro/opus-5","bulk_default":"chatgpt-plus/gpt-5.6-luna","fallbacks":["clinepass/glm-5.3"],"selection_note":null,"ranked":[{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":0.006961,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":[]},{"offering":"clinepass/glm-5.3","on_frontier":true,"cap_assumed":true,"primary":0.066355,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":[]},{"offering":"opencode-go/glm-5.3","on_frontier":true,"cap_assumed":false,"primary":0.066355,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":[]},{"offering":"claude-pro/opus-5","on_frontier":true,"cap_assumed":true,"primary":0.17107,"secondary_label":"aa_intelligence_index","secondary":63.0,"aa_index":"63","dominated_by":[]},{"offering":"clinepass/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":true,"primary":0.009535,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["chatgpt-plus/gpt-5.6-luna"]},{"offering":"opencode-go/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":false,"primary":0.009535,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["chatgpt-plus/gpt-5.6-luna"]},{"offering":"opencode-go/qwen3.8-max","on_frontier":false,"cap_assumed":false,"primary":0.074391,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["chatgpt-plus/gpt-5.6-luna","clinepass/deepseek-v4-flash-0731","clinepass/glm-5.3","opencode-go/deepseek-v4-flash-0731","opencode-go/glm-5.3"]},{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":false,"cap_assumed":true,"primary":0.174031,"secondary_label":"aa_intelligence_index","secondary":61.0,"aa_index":"61","dominated_by":["claude-pro/opus-5"]}],"members":[{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":0.006961,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":[]},{"offering":"clinepass/glm-5.3","on_frontier":true,"cap_assumed":true,"primary":0.066355,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":[]},{"offering":"opencode-go/glm-5.3","on_frontier":true,"cap_assumed":false,"primary":0.066355,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":[]},{"offering":"claude-pro/opus-5","on_frontier":true,"cap_assumed":true,"primary":0.17107,"secondary_label":"aa_intelligence_index","secondary":63.0,"aa_index":"63","dominated_by":[]}]},{"id":"math-smarts-chat-subscription","workload":"agent-chat","axes":["usd/turn \u00d7 GPQA-Diamond"],"primary_label":"usd/turn","default":"chatgpt-plus/gpt-5.6-sol","bulk_default":null,"fallbacks":["chatgpt-plus/gpt-5.6-luna"],"selection_note":null,"ranked":[{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":0.006961,"secondary_label":"gpqa_diamond","secondary":91.1,"aa_index":null,"dominated_by":[]},{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":true,"cap_assumed":true,"primary":0.174031,"secondary_label":"gpqa_diamond","secondary":94.1,"aa_index":null,"dominated_by":[]},{"offering":"clinepass/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":true,"primary":0.009535,"secondary_label":"gpqa_diamond","secondary":90.8,"aa_index":null,"dominated_by":["chatgpt-plus/gpt-5.6-luna"]},{"offering":"opencode-go/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":false,"primary":0.009535,"secondary_label":"gpqa_diamond","secondary":90.8,"aa_index":null,"dominated_by":["chatgpt-plus/gpt-5.6-luna"]}],"members":[{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":0.006961,"secondary_label":"gpqa_diamond","secondary":91.1,"aa_index":null,"dominated_by":[]},{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":true,"cap_assumed":true,"primary":0.174031,"secondary_label":"gpqa_diamond","secondary":94.1,"aa_index":null,"dominated_by":[]}]},{"id":"chat-subscription-responsiveness","workload":"agent-chat","axes":["tok/s \u00d7 intelligence"],"primary_label":"out tok/s","default":"chatgpt-plus/gpt-5.6-sol","bulk_default":null,"fallbacks":[],"selection_note":null,"ranked":[{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":true,"cap_assumed":true,"primary":81.0,"secondary_label":"aa_intelligence_index","secondary":61.0,"aa_index":"61","dominated_by":[]},{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":132.0,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":[]},{"offering":"clinepass/glm-5.3","on_frontier":false,"cap_assumed":true,"primary":77.0,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":["chatgpt-plus/gpt-5.6-sol"]},{"offering":"opencode-go/glm-5.3","on_frontier":false,"cap_assumed":false,"primary":77.0,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":["chatgpt-plus/gpt-5.6-sol"]},{"offering":"clinepass/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":true,"primary":119.0,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["chatgpt-plus/gpt-5.6-luna"]},{"offering":"opencode-go/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":false,"primary":119.0,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["chatgpt-plus/gpt-5.6-luna"]}],"members":[{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":true,"cap_assumed":true,"primary":81.0,"secondary_label":"aa_intelligence_index","secondary":61.0,"aa_index":"61","dominated_by":[]},{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":132.0,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":[]}]},{"id":"chat-metered-economics","workload":"agent-chat","axes":["usd/turn \u00d7 intelligence"],"primary_label":"USD/turn","default":"openrouter/claude-fable-5","bulk_default":"openrouter/gpt-oss-20b","fallbacks":[],"selection_note":null,"ranked":[{"offering":"openrouter/gpt-oss-20b","on_frontier":true,"cap_assumed":false,"primary":0.000515,"secondary_label":"aa_intelligence_index","secondary":15.0,"aa_index":"15","dominated_by":[]},{"offering":"openrouter/gpt-oss-120b","on_frontier":true,"cap_assumed":false,"primary":0.000641,"secondary_label":"aa_intelligence_index","secondary":24.0,"aa_index":"24","dominated_by":[]},{"offering":"openrouter/muse-spark-1.2-contributor","on_frontier":true,"cap_assumed":false,"primary":0.001911,"secondary_label":"aa_intelligence_index","secondary":57.0,"aa_index":"57","dominated_by":[]},{"offering":"openrouter/glm-5.3","on_frontier":true,"cap_assumed":false,"primary":0.066355,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":[]},{"offering":"openrouter/gpt-5.6-sol","on_frontier":true,"cap_assumed":false,"primary":0.068428,"secondary_label":"aa_intelligence_index","secondary":61.0,"aa_index":"61","dominated_by":[]},{"offering":"openrouter/claude-fable-5","on_frontier":true,"cap_assumed":false,"primary":0.342141,"secondary_label":"aa_intelligence_index","secondary":62.0,"aa_index":"62","dominated_by":[]},{"offering":"openrouter/qwen3-30b-a3b-2507","on_frontier":false,"cap_assumed":false,"primary":0.000815,"secondary_label":"aa_intelligence_index","secondary":9.0,"aa_index":"9","dominated_by":["openrouter/gpt-oss-120b","openrouter/gpt-oss-20b"]},{"offering":"openrouter/qwen3-coder-30b","on_frontier":false,"cap_assumed":false,"primary":0.001187,"secondary_label":"aa_intelligence_index","secondary":14.0,"aa_index":"14","dominated_by":["openrouter/gpt-oss-120b","openrouter/gpt-oss-20b"]},{"offering":"openrouter/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":false,"primary":0.003721,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["openrouter/glm-5.3-flash","openrouter/muse-spark-1.2-contributor"]},{"offering":"openrouter/glm-5.3-flash","on_frontier":false,"cap_assumed":false,"primary":0.003742,"secondary_label":"aa_intelligence_index","secondary":57.0,"aa_index":"57","dominated_by":["openrouter/muse-spark-1.2-contributor"]},{"offering":"openrouter/longcat-2.0","on_frontier":false,"cap_assumed":false,"primary":0.006088,"secondary_label":"aa_intelligence_index","secondary":34.0,"aa_index":"34","dominated_by":["openrouter/deepseek-v4-flash-0731","openrouter/glm-5.3-flash","openrouter/muse-spark-1.2-contributor"]},{"offering":"openrouter/gpt-5.6-luna","on_frontier":false,"cap_assumed":false,"primary":0.006961,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["openrouter/deepseek-v4-flash-0731","openrouter/glm-5.3-flash","openrouter/muse-spark-1.2-contributor"]},{"offering":"openrouter/muse-spark-1.2","on_frontier":false,"cap_assumed":false,"primary":0.045749,"secondary_label":"aa_intelligence_index","secondary":57.0,"aa_index":"57","dominated_by":["openrouter/glm-5.3-flash","openrouter/muse-spark-1.2-contributor"]},{"offering":"openrouter/gpt-5.6-terra","on_frontier":false,"cap_assumed":false,"primary":0.069612,"secondary_label":"aa_intelligence_index","secondary":57.0,"aa_index":"57","dominated_by":["openrouter/glm-5.3","openrouter/glm-5.3-flash","openrouter/gpt-5.6-sol","openrouter/muse-spark-1.2","openrouter/muse-spark-1.2-contributor"]},{"offering":"openrouter/qwen3.8-2.4t-a95b","on_frontier":false,"cap_assumed":false,"primary":0.074391,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["openrouter/deepseek-v4-flash-0731","openrouter/glm-5.3","openrouter/glm-5.3-flash","openrouter/gpt-5.6-luna","openrouter/gpt-5.6-sol","openrouter/gpt-5.6-terra","openrouter/muse-spark-1.2","openrouter/muse-spark-1.2-contributor"]},{"offering":"openrouter/qwen3.8-max","on_frontier":false,"cap_assumed":false,"primary":0.074391,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["openrouter/deepseek-v4-flash-0731","openrouter/glm-5.3","openrouter/glm-5.3-flash","openrouter/gpt-5.6-luna","openrouter/gpt-5.6-sol","openrouter/gpt-5.6-terra","openrouter/muse-spark-1.2","openrouter/muse-spark-1.2-contributor"]}],"members":[{"offering":"openrouter/gpt-oss-20b","on_frontier":true,"cap_assumed":false,"primary":0.000515,"secondary_label":"aa_intelligence_index","secondary":15.0,"aa_index":"15","dominated_by":[]},{"offering":"openrouter/gpt-oss-120b","on_frontier":true,"cap_assumed":false,"primary":0.000641,"secondary_label":"aa_intelligence_index","secondary":24.0,"aa_index":"24","dominated_by":[]},{"offering":"openrouter/muse-spark-1.2-contributor","on_frontier":true,"cap_assumed":false,"primary":0.001911,"secondary_label":"aa_intelligence_index","secondary":57.0,"aa_index":"57","dominated_by":[]},{"offering":"openrouter/glm-5.3","on_frontier":true,"cap_assumed":false,"primary":0.066355,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":[]},{"offering":"openrouter/gpt-5.6-sol","on_frontier":true,"cap_assumed":false,"primary":0.068428,"secondary_label":"aa_intelligence_index","secondary":61.0,"aa_index":"61","dominated_by":[]},{"offering":"openrouter/claude-fable-5","on_frontier":true,"cap_assumed":false,"primary":0.342141,"secondary_label":"aa_intelligence_index","secondary":62.0,"aa_index":"62","dominated_by":[]}]},{"id":"math-smarts-chat-metered","workload":"agent-chat","axes":["usd/turn \u00d7 GPQA-Diamond"],"primary_label":"usd/turn","default":"openrouter/gpt-5.6-sol","bulk_default":null,"fallbacks":["openrouter/deepseek-v4-flash-0731"],"selection_note":null,"ranked":[{"offering":"openrouter/gpt-oss-120b","on_frontier":true,"cap_assumed":false,"primary":0.000641,"secondary_label":"gpqa_diamond","secondary":80.1,"aa_index":null,"dominated_by":[]},{"offering":"openrouter/deepseek-v4-flash-0731","on_frontier":true,"cap_assumed":false,"primary":0.003721,"secondary_label":"gpqa_diamond","secondary":90.8,"aa_index":null,"dominated_by":[]},{"offering":"openrouter/gpt-5.6-sol","on_frontier":true,"cap_assumed":false,"primary":0.068428,"secondary_label":"gpqa_diamond","secondary":94.1,"aa_index":null,"dominated_by":[]},{"offering":"openrouter/gpt-5.6-luna","on_frontier":false,"cap_assumed":false,"primary":0.006961,"secondary_label":"gpqa_diamond","secondary":91.1,"aa_index":null,"dominated_by":["openrouter/deepseek-v4-flash-0731"]},{"offering":"openrouter/gpt-5.6-terra","on_frontier":false,"cap_assumed":false,"primary":0.069612,"secondary_label":"gpqa_diamond","secondary":92.5,"aa_index":null,"dominated_by":["openrouter/gpt-5.6-sol"]},{"offering":"openrouter/claude-fable-5","on_frontier":false,"cap_assumed":false,"primary":0.342141,"secondary_label":"gpqa_diamond","secondary":92.6,"aa_index":null,"dominated_by":["openrouter/gpt-5.6-sol","openrouter/gpt-5.6-terra"]}],"members":[{"offering":"openrouter/gpt-oss-120b","on_frontier":true,"cap_assumed":false,"primary":0.000641,"secondary_label":"gpqa_diamond","secondary":80.1,"aa_index":null,"dominated_by":[]},{"offering":"openrouter/deepseek-v4-flash-0731","on_frontier":true,"cap_assumed":false,"primary":0.003721,"secondary_label":"gpqa_diamond","secondary":90.8,"aa_index":null,"dominated_by":[]},{"offering":"openrouter/gpt-5.6-sol","on_frontier":true,"cap_assumed":false,"primary":0.068428,"secondary_label":"gpqa_diamond","secondary":94.1,"aa_index":null,"dominated_by":[]}]},{"id":"chat-metered-responsiveness","workload":"agent-chat","axes":["tok/s \u00d7 intelligence"],"primary_label":"out tok/s","default":"openrouter/claude-fable-5","bulk_default":null,"fallbacks":[],"selection_note":null,"ranked":[{"offering":"openrouter/claude-fable-5","on_frontier":true,"cap_assumed":false,"primary":67.0,"secondary_label":"aa_intelligence_index","secondary":62.0,"aa_index":"62","dominated_by":[]},{"offering":"openrouter/gpt-5.6-sol","on_frontier":true,"cap_assumed":false,"primary":81.0,"secondary_label":"aa_intelligence_index","secondary":61.0,"aa_index":"61","dominated_by":[]},{"offering":"openrouter/gpt-5.6-terra","on_frontier":true,"cap_assumed":false,"primary":119.0,"secondary_label":"aa_intelligence_index","secondary":57.0,"aa_index":"57","dominated_by":[]},{"offering":"openrouter/gpt-5.6-luna","on_frontier":true,"cap_assumed":false,"primary":132.0,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":[]},{"offering":"openrouter/gpt-oss-120b","on_frontier":true,"cap_assumed":false,"primary":168.0,"secondary_label":"aa_intelligence_index","secondary":24.0,"aa_index":"24","dominated_by":[]},{"offering":"openrouter/glm-5.3-flash","on_frontier":false,"cap_assumed":false,"primary":45.0,"secondary_label":"aa_intelligence_index","secondary":57.0,"aa_index":"57","dominated_by":["openrouter/claude-fable-5","openrouter/glm-5.3","openrouter/gpt-5.6-sol","openrouter/gpt-5.6-terra"]},{"offering":"openrouter/glm-5.3","on_frontier":false,"cap_assumed":false,"primary":77.0,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":["openrouter/gpt-5.6-sol"]},{"offering":"openrouter/qwen3-coder-30b","on_frontier":false,"cap_assumed":false,"primary":93.0,"secondary_label":"aa_intelligence_index","secondary":14.0,"aa_index":"14","dominated_by":["openrouter/deepseek-v4-flash-0731","openrouter/gpt-5.6-luna","openrouter/gpt-5.6-terra","openrouter/gpt-oss-120b","openrouter/gpt-oss-20b"]},{"offering":"openrouter/gpt-oss-20b","on_frontier":false,"cap_assumed":false,"primary":114.0,"secondary_label":"aa_intelligence_index","secondary":15.0,"aa_index":"15","dominated_by":["openrouter/deepseek-v4-flash-0731","openrouter/gpt-5.6-luna","openrouter/gpt-5.6-terra","openrouter/gpt-oss-120b"]},{"offering":"openrouter/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":false,"primary":119.0,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["openrouter/gpt-5.6-luna","openrouter/gpt-5.6-terra"]},{"offering":"openrouter/qwen3-30b-a3b-2507","on_frontier":false,"cap_assumed":false,"primary":143.0,"secondary_label":"aa_intelligence_index","secondary":9.0,"aa_index":"9","dominated_by":["openrouter/gpt-oss-120b"]}],"members":[{"offering":"openrouter/claude-fable-5","on_frontier":true,"cap_assumed":false,"primary":67.0,"secondary_label":"aa_intelligence_index","secondary":62.0,"aa_index":"62","dominated_by":[]},{"offering":"openrouter/gpt-5.6-sol","on_frontier":true,"cap_assumed":false,"primary":81.0,"secondary_label":"aa_intelligence_index","secondary":61.0,"aa_index":"61","dominated_by":[]},{"offering":"openrouter/gpt-5.6-terra","on_frontier":true,"cap_assumed":false,"primary":119.0,"secondary_label":"aa_intelligence_index","secondary":57.0,"aa_index":"57","dominated_by":[]},{"offering":"openrouter/gpt-5.6-luna","on_frontier":true,"cap_assumed":false,"primary":132.0,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":[]},{"offering":"openrouter/gpt-oss-120b","on_frontier":true,"cap_assumed":false,"primary":168.0,"secondary_label":"aa_intelligence_index","secondary":24.0,"aa_index":"24","dominated_by":[]}]},{"id":"coding-subscription-economics","workload":"coding-session","axes":["usd/turn \u00d7 intelligence"],"primary_label":"USD/turn","default":"claude-pro/opus-5","bulk_default":"chatgpt-plus/gpt-5.6-luna","fallbacks":["clinepass/glm-5.3"],"selection_note":null,"ranked":[{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":0.00136,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":[]},{"offering":"clinepass/glm-5.3","on_frontier":true,"cap_assumed":true,"primary":0.01516,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":[]},{"offering":"opencode-go/glm-5.3","on_frontier":true,"cap_assumed":false,"primary":0.01516,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":[]},{"offering":"claude-pro/opus-5","on_frontier":true,"cap_assumed":true,"primary":0.03325,"secondary_label":"aa_intelligence_index","secondary":63.0,"aa_index":"63","dominated_by":[]},{"offering":"clinepass/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":true,"primary":0.001588,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["chatgpt-plus/gpt-5.6-luna"]},{"offering":"opencode-go/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":false,"primary":0.001588,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["chatgpt-plus/gpt-5.6-luna"]},{"offering":"opencode-go/qwen3.8-max","on_frontier":false,"cap_assumed":false,"primary":0.01854,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["chatgpt-plus/gpt-5.6-luna","clinepass/deepseek-v4-flash-0731","clinepass/glm-5.3","opencode-go/deepseek-v4-flash-0731","opencode-go/glm-5.3"]},{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":false,"cap_assumed":true,"primary":0.034,"secondary_label":"aa_intelligence_index","secondary":61.0,"aa_index":"61","dominated_by":["claude-pro/opus-5"]}],"members":[{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":0.00136,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":[]},{"offering":"clinepass/glm-5.3","on_frontier":true,"cap_assumed":true,"primary":0.01516,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":[]},{"offering":"opencode-go/glm-5.3","on_frontier":true,"cap_assumed":false,"primary":0.01516,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":[]},{"offering":"claude-pro/opus-5","on_frontier":true,"cap_assumed":true,"primary":0.03325,"secondary_label":"aa_intelligence_index","secondary":63.0,"aa_index":"63","dominated_by":[]}]},{"id":"math-smarts-coding-subscription","workload":"coding-session","axes":["usd/turn \u00d7 GPQA-Diamond"],"primary_label":"usd/turn","default":"chatgpt-plus/gpt-5.6-sol","bulk_default":null,"fallbacks":["chatgpt-plus/gpt-5.6-luna"],"selection_note":null,"ranked":[{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":0.00136,"secondary_label":"gpqa_diamond","secondary":91.1,"aa_index":null,"dominated_by":[]},{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":true,"cap_assumed":true,"primary":0.034,"secondary_label":"gpqa_diamond","secondary":94.1,"aa_index":null,"dominated_by":[]},{"offering":"clinepass/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":true,"primary":0.001588,"secondary_label":"gpqa_diamond","secondary":90.8,"aa_index":null,"dominated_by":["chatgpt-plus/gpt-5.6-luna"]},{"offering":"opencode-go/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":false,"primary":0.001588,"secondary_label":"gpqa_diamond","secondary":90.8,"aa_index":null,"dominated_by":["chatgpt-plus/gpt-5.6-luna"]}],"members":[{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":0.00136,"secondary_label":"gpqa_diamond","secondary":91.1,"aa_index":null,"dominated_by":[]},{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":true,"cap_assumed":true,"primary":0.034,"secondary_label":"gpqa_diamond","secondary":94.1,"aa_index":null,"dominated_by":[]}]},{"id":"math-smarts-coding","workload":"coding-session","axes":["usd/turn \u00d7 SWE-bench-Verified"],"primary_label":"usd/turn","default":"chatgpt-plus/gpt-5.6-sol","bulk_default":null,"fallbacks":["chatgpt-plus/gpt-5.6-luna"],"selection_note":null,"ranked":[{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":0.00136,"secondary_label":"gpqa_diamond","secondary":91.1,"aa_index":null,"dominated_by":[]},{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":true,"cap_assumed":true,"primary":0.034,"secondary_label":"gpqa_diamond","secondary":94.1,"aa_index":null,"dominated_by":[]},{"offering":"clinepass/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":true,"primary":0.001588,"secondary_label":"gpqa_diamond","secondary":90.8,"aa_index":null,"dominated_by":["chatgpt-plus/gpt-5.6-luna"]},{"offering":"opencode-go/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":false,"primary":0.001588,"secondary_label":"gpqa_diamond","secondary":90.8,"aa_index":null,"dominated_by":["chatgpt-plus/gpt-5.6-luna"]}],"members":[{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":0.00136,"secondary_label":"gpqa_diamond","secondary":91.1,"aa_index":null,"dominated_by":[]},{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":true,"cap_assumed":true,"primary":0.034,"secondary_label":"gpqa_diamond","secondary":94.1,"aa_index":null,"dominated_by":[]}]},{"id":"coding-subscription-responsiveness","workload":"coding-session","axes":["tok/s \u00d7 intelligence"],"primary_label":"out tok/s","default":"chatgpt-plus/gpt-5.6-sol","bulk_default":null,"fallbacks":[],"selection_note":null,"ranked":[{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":true,"cap_assumed":true,"primary":81.0,"secondary_label":"aa_intelligence_index","secondary":61.0,"aa_index":"61","dominated_by":[]},{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":132.0,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":[]},{"offering":"clinepass/glm-5.3","on_frontier":false,"cap_assumed":true,"primary":77.0,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":["chatgpt-plus/gpt-5.6-sol"]},{"offering":"opencode-go/glm-5.3","on_frontier":false,"cap_assumed":false,"primary":77.0,"secondary_label":"aa_intelligence_index","secondary":60.0,"aa_index":"60","dominated_by":["chatgpt-plus/gpt-5.6-sol"]},{"offering":"clinepass/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":true,"primary":119.0,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["chatgpt-plus/gpt-5.6-luna"]},{"offering":"opencode-go/deepseek-v4-flash-0731","on_frontier":false,"cap_assumed":false,"primary":119.0,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":["chatgpt-plus/gpt-5.6-luna"]}],"members":[{"offering":"chatgpt-plus/gpt-5.6-sol","on_frontier":true,"cap_assumed":true,"primary":81.0,"secondary_label":"aa_intelligence_index","secondary":61.0,"aa_index":"61","dominated_by":[]},{"offering":"chatgpt-plus/gpt-5.6-luna","on_frontier":true,"cap_assumed":true,"primary":132.0,"secondary_label":"aa_intelligence_index","secondary":52.0,"aa_index":"52","dominated_by":[]}]}],"crossover_vs_10usd_sub":{"openrouter/gpt-oss-20b":{"usd_per_turn":0.000515,"turns_per_10usd":19417,"aa_index":"15"},"openrouter/gpt-oss-120b":{"usd_per_turn":0.000641,"turns_per_10usd":15600,"aa_index":"24"},"openrouter/muse-spark-1.2-contributor":{"usd_per_turn":0.001911,"turns_per_10usd":5232,"aa_index":"57"},"openrouter/glm-5.3":{"usd_per_turn":0.066355,"turns_per_10usd":150,"aa_index":"60"},"openrouter/gpt-5.6-sol":{"usd_per_turn":0.068428,"turns_per_10usd":146,"aa_index":"61"},"openrouter/claude-fable-5":{"usd_per_turn":0.342141,"turns_per_10usd":29,"aa_index":"62"},"openrouter/qwen3-30b-a3b-2507":{"usd_per_turn":0.000815,"turns_per_10usd":12269,"aa_index":"9"},"openrouter/qwen3-coder-30b":{"usd_per_turn":0.001187,"turns_per_10usd":8424,"aa_index":"14"},"openrouter/deepseek-v4-flash-0731":{"usd_per_turn":0.003721,"turns_per_10usd":2687,"aa_index":"52"},"openrouter/glm-5.3-flash":{"usd_per_turn":0.003742,"turns_per_10usd":2672,"aa_index":"57"},"openrouter/longcat-2.0":{"usd_per_turn":0.006088,"turns_per_10usd":1642,"aa_index":"34"},"openrouter/gpt-5.6-luna":{"usd_per_turn":0.006961,"turns_per_10usd":1436,"aa_index":"52"},"openrouter/muse-spark-1.2":{"usd_per_turn":0.045749,"turns_per_10usd":218,"aa_index":"57"},"openrouter/gpt-5.6-terra":{"usd_per_turn":0.069612,"turns_per_10usd":143,"aa_index":"57"},"openrouter/qwen3.8-2.4t-a95b":{"usd_per_turn":0.074391,"turns_per_10usd":134,"aa_index":"52"},"openrouter/qwen3.8-max":{"usd_per_turn":0.074391,"turns_per_10usd":134,"aa_index":"52"}},"flagship_subs_20usd":{"chatgpt-plus/gpt-5.6-sol":{"modeled_cap_api_usd":160,"aa_index":61,"note":"Plus includes Sol (10-100 msgs/5h + unpublished weekly caps). Cap modeled 8x price (community: 'many times purchase price'); UNVERIFIED. Sub beats metered Sol above ~2,300 usd/turn-normalized turns/mo at modeled cap."},"claude-pro/opus-5":{"modeled_cap_api_usd":160,"aa_index":63,"note":"Pro flagship is Opus 5 (aa 63, current quality ceiling). Fable 5 NOT in Pro since 2026-07-20 (metered credits $10/$50). Cap modeled 8x price; UNVERIFIED."}},"svg":[{"id":"chat-subscription-economics","svg":"/chat-subscription-economics.svg","workload":"agent-chat","title":"Subscriptions \u00b7 cost\u2194smarts","points":8},{"id":"math-smarts-chat-subscription","svg":"/math-smarts-chat-subscription.svg","workload":"agent-chat","title":"Subscriptions \u00b7 math smarts\u2194cost","points":4},{"id":"chat-subscription-responsiveness","svg":"/chat-subscription-responsiveness.svg","workload":"agent-chat","title":"Subscriptions \u00b7 speed\u2194smarts","points":6},{"id":"chat-metered-economics","svg":"/chat-metered-economics.svg","workload":"agent-chat","title":"Metered \u00b7 cost\u2194smarts","points":16},{"id":"math-smarts-chat-metered","svg":"/math-smarts-chat-metered.svg","workload":"agent-chat","title":"Metered \u00b7 math smarts\u2194cost","points":6},{"id":"chat-metered-responsiveness","svg":"/chat-metered-responsiveness.svg","workload":"agent-chat","title":"Metered \u00b7 speed\u2194smarts","points":11},{"id":"coding-subscription-economics","svg":"/coding-subscription-economics.svg","workload":"coding-session","title":"Subscriptions \u00b7 coding cost\u2194smarts","points":8},{"id":"math-smarts-coding-subscription","svg":"/math-smarts-coding-subscription.svg","workload":"coding-session","title":"Subscriptions \u00b7 coding math\u2194cost","points":4},{"id":"math-smarts-coding","svg":"/math-smarts-coding.svg","workload":"coding-session","title":"Metered \u00b7 coding math\u2194cost","points":4},{"id":"coding-subscription-responsiveness","svg":"/coding-subscription-responsiveness.svg","workload":"coding-session","title":"Subscriptions \u00b7 coding speed\u2194smarts","points":6}],"model_map":{"gpt-5.6-luna":{"frontiers":["chat-subscription-economics","math-smarts-chat-subscription","chat-subscription-responsiveness","chat-metered-economics","math-smarts-chat-metered","chat-metered-responsiveness","coding-subscription-economics","math-smarts-coding-subscription","math-smarts-coding","coding-subscription-responsiveness"],"on":["chat-subscription-economics","math-smarts-chat-subscription","chat-subscription-responsiveness","chat-metered-responsiveness","coding-subscription-economics","math-smarts-coding-subscription","math-smarts-coding","coding-subscription-responsiveness"],"near":[],"best":"52","price":0.006961},"glm-5.3":{"frontiers":["chat-subscription-economics","chat-subscription-economics","chat-subscription-responsiveness","chat-subscription-responsiveness","chat-metered-economics","chat-metered-responsiveness","coding-subscription-economics","coding-subscription-economics","coding-subscription-responsiveness","coding-subscription-responsiveness"],"on":["chat-subscription-economics","chat-subscription-economics","chat-metered-economics","coding-subscription-economics","coding-subscription-economics"],"near":["chat-subscription-responsiveness (+5% off)","chat-subscription-responsiveness (+5% off)","chat-metered-responsiveness (+5% off)","coding-subscription-responsiveness (+5% off)","coding-subscription-responsiveness (+5% off)"],"best":"60","price":0.066355},"opus-5":{"frontiers":["chat-subscription-economics","coding-subscription-economics"],"on":["chat-subscription-economics","coding-subscription-economics"],"near":[],"best":"63","price":0.17107},"deepseek-v4-flash-0731":{"frontiers":["chat-subscription-economics","chat-subscription-economics","math-smarts-chat-subscription","math-smarts-chat-subscription","chat-subscription-responsiveness","chat-subscription-responsiveness","chat-metered-economics","math-smarts-chat-metered","chat-metered-responsiveness","coding-subscription-economics","coding-subscription-economics","math-smarts-coding-subscription","math-smarts-coding-subscription","math-smarts-coding","math-smarts-coding","coding-subscription-responsiveness","coding-subscription-responsiveness"],"on":["math-smarts-chat-metered"],"near":["chat-subscription-responsiveness (+10% off)","chat-subscription-responsiveness (+10% off)","chat-metered-responsiveness (+0% off)","coding-subscription-responsiveness (+10% off)","coding-subscription-responsiveness (+10% off)"],"best":"52","price":0.009535},"qwen3.8-max":{"frontiers":["chat-subscription-economics","chat-metered-economics","coding-subscription-economics"],"on":[],"near":["chat-metered-economics (+9% off)"],"best":"52","price":0.074391},"gpt-5.6-sol":{"frontiers":["chat-subscription-economics","math-smarts-chat-subscription","chat-subscription-responsiveness","chat-metered-economics","math-smarts-chat-metered","chat-metered-responsiveness","coding-subscription-economics","math-smarts-coding-subscription","math-smarts-coding","coding-subscription-responsiveness"],"on":["math-smarts-chat-subscription","chat-subscription-responsiveness","chat-metered-economics","math-smarts-chat-metered","chat-metered-responsiveness","math-smarts-coding-subscription","math-smarts-coding","coding-subscription-responsiveness"],"near":["chat-subscription-economics (+2% off)","coding-subscription-economics (+2% off)"],"best":"61","price":0.174031},"gpt-oss-20b":{"frontiers":["chat-metered-economics","chat-metered-responsiveness"],"on":["chat-metered-economics"],"near":["chat-metered-responsiveness (+4% off)"],"best":"15","price":0.000515},"gpt-oss-120b":{"frontiers":["chat-metered-economics","math-smarts-chat-metered","chat-metered-responsiveness"],"on":["chat-metered-economics","math-smarts-chat-metered","chat-metered-responsiveness"],"near":[],"best":"24","price":0.000641},"muse-spark-1.2-contributor":{"frontiers":["chat-metered-economics"],"on":["chat-metered-economics"],"near":[],"best":"57","price":0.001911},"claude-fable-5":{"frontiers":["chat-metered-economics","math-smarts-chat-metered","chat-metered-responsiveness"],"on":["chat-metered-economics","chat-metered-responsiveness"],"near":[],"best":"62","price":0.342141},"qwen3-30b-a3b-2507":{"frontiers":["chat-metered-economics","chat-metered-responsiveness"],"on":[],"near":["chat-metered-responsiveness (+8% off)"],"best":"9","price":0.000815},"qwen3-coder-30b":{"frontiers":["chat-metered-economics","chat-metered-responsiveness"],"on":[],"near":[],"best":"14","price":0.001187},"glm-5.3-flash":{"frontiers":["chat-metered-economics","chat-metered-responsiveness"],"on":[],"near":[],"best":"57","price":0.003742},"longcat-2.0":{"frontiers":["chat-metered-economics"],"on":[],"near":[],"best":"34","price":0.006088},"muse-spark-1.2":{"frontiers":["chat-metered-economics"],"on":[],"near":[],"best":"57","price":0.045749},"gpt-5.6-terra":{"frontiers":["chat-metered-economics","math-smarts-chat-metered","chat-metered-responsiveness"],"on":["chat-metered-responsiveness"],"near":["chat-metered-economics (+2% off)","math-smarts-chat-metered (+2% off)"],"best":"57","price":0.069612},"qwen3.8-2.4t-a95b":{"frontiers":["chat-metered-economics"],"on":[],"near":["chat-metered-economics (+9% off)"],"best":"52","price":0.074391}}};</script>
+<script>
+const FR = {}, ORDER = [], SHORT = {};
+(DATA.frontiers||[]).forEach(f => {
+  const p = (f.axes && f.axes[0] ? f.axes[0] : f.id).split('×');
+  const ranked = f.ranked || [];
+  const lab = ranked.length && ranked[0].secondary_label ? ranked[0].secondary_label : null;
+  FR[f.id] = { id:f.id, ax:p[0].trim(), ay:p.slice(1).join('×').trim(), ranked, ylabel:lab,
+               logx:/economics|smarts|math/.test(f.id) };
+  ORDER.push(f.id);
+});
+const SVGM = {}; (DATA.svg||[]).forEach(m => SVGM[m.id]=m);
+const SHORTN = {'chat-subscription-economics':'Subscriptions · cost↔smarts','chat-metered-economics':'Metered · cost↔smarts',
+ 'chat-subscription-responsiveness':'Subscriptions · speed↔smarts','chat-metered-responsiveness':'Metered · speed↔smarts',
+ 'coding-subscription-economics':'Subscriptions · coding cost↔smarts','coding-subscription-responsiveness':'Subscriptions · coding speed↔smarts',
+ 'math-smarts-chat-subscription':'Subscriptions · math smarts↔cost','math-smarts-chat-metered':'Metered · math smarts↔cost',
+ 'math-smarts-coding-subscription':'Subscriptions · coding math↔cost','math-smarts-coding':'Metered · coding math↔cost'};
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtMoney(v){
+  if (v == null) return '';
+  if (v < 0.01) return '$'+v.toFixed(5);
+  if (v < 1)    return '$'+v.toFixed(4);
+  return '$'+v.toFixed(2);
+}
+function yOf(r){ return parseFloat(r.aa_index != null ? r.aa_index : r.secondary); }
+function fmtY(f, r){
+  const y = yOf(r); if (!isFinite(y)) return '';
+  const yl = f.ylabel||'';
+  if (/gpqa/i.test(yl)) return y.toFixed(1);
+  if (/swe/i.test(yl))  return y.toFixed(1)+'%';
+  return String(Math.round(y*10)/10);
+}
+// ---- state ----
+const st = { fid: ORDER[0], budget: 0.02, log: false, taste: 'cheap' };
+// budget slider: 0..100 maps log-spaced across the union range of all frontiers
+const allCosts = [];
+ORDER.forEach(fid => FR[fid].ranked.forEach(r => { if (r.primary != null && r.primary > 0) allCosts.push(r.primary); }));
+const CMIN = Math.min(...allCosts), CMAX = Math.max(...allCosts);
+const LMIN = Math.log10(CMIN), LMAX = Math.log10(CMAX);
+function sliderToBudget(t){ return Math.pow(10, LMIN + (t/100)*(LMAX-LMIN)); }
+function budgetToSlider(b){ return 100*(Math.log10(b)-LMIN)/(LMAX-LMIN); }
+// ---- DOM refs ----
+const budget = document.getElementById('budget');
+const budgetNum = document.getElementById('budget-num');
+const budgetRead = document.getElementById('budget-readout');
+const logChk = document.getElementById('log');
+const wlSel = document.getElementById('wl');
+const verdictEl = document.getElementById('verdict');
+const nextEl = document.getElementById('nextstep');
+const bbody = document.getElementById('bbody');
+ORDER.forEach(fid => {
+  const o = document.createElement('option');
+  o.value = fid; o.textContent = (SVGM[fid] && SVGM[fid].title) ? SVGM[fid].title : (SHORTN[fid]||fid);
+  wlSel.appendChild(o);
+});
+// ---- main recompute ----
+function recompute(){
+  const f = FR[st.fid];
+  const pts = f.ranked.filter(r => r.primary != null && isFinite(yOf(r)));
+  const b = st.budget;
+  // reachable = affordable AND on frontier OR near (within-10% still an honest option at the ceiling)
+  const affordable = pts.filter(r => r.primary <= b);
+  // what's the best quality reachable at this budget (frontier-quality, not just affordable quality)?
+  const onF = pts.filter(r => r.on_frontier);
+  const bestReachable = affordable.filter(r => r.on_frontier).sort((a,b2)=>yOf(b2)-yOf(a))[0] || null;
+  // personal pick per taste
+  let pick = null;
+  if (st.taste === 'cheap') {
+    // cheapest affordable whose quality is >= 90% of the best reachable frontier quality at this budget
+    const bQual = bestReachable ? yOf(bestReachable) : 0;
+    pick = affordable.filter(r => yOf(r) >= 0.9*bQual).sort((a,b2)=>a.primary-b2.primary)[0] || null;
+  } else if (st.taste === 'best') {
+    pick = affordable.sort((a,b2)=>yOf(b2)-yOf(a))[0] || null;
+  } else if (st.taste === 'value') {
+    pick = affordable.filter(r => yOf(r) > 0).sort((a,b2)=> (yOf(b2)/b2.primary)-(yOf(a)/a.primary))[0] || null;
+  } else if (st.taste === 'value2') {
+    // decibel-style: y / |log10 cost| — punishes paying superlinearly for tiny gains
+    pick = affordable.filter(r => yOf(r) > 0).sort((a,b2)=> (yOf(b2)/Math.abs(Math.log10(b2.primary))) - (yOf(a)/Math.abs(Math.log10(a.primary))))[0] || null;
+  }
+  // verdict text
+  if (!pick) {
+    verdictEl.innerHTML = `No offering in this frontier costs ≤ <b>${esc(fmtMoney(b))}</b> per turn.
+      Cheapest option: <b>${esc(pts.length? fmtMoney(Math.min(...pts.map(r=>r.primary))):'—')}</b>.`;
+  } else {
+    const frQual = onF.length ? Math.max(...onF.map(yOf)) : 0;
+    const gap = frQual - yOf(pick);
+    verdictEl.innerHTML = `Pick: <b class="best">${esc(pick.offering)}</b> —
+      ${esc(fmtMoney(pick.primary))}/turn · ${esc(fmtY(f,pick))} ${esc(f.ylabel||'')}${pick.cap_assumed?' <span class="cap">†</span>':''}
+      ${pick.on_frontier?' · on the frontier':' · <span class="warn">off-frontier pick</span>'}.
+      ${gap > 0.01 ? 'Highest frontier quality at ANY budget here is ' + esc(fmtY(f, onF.sort((a,b2)=>yOf(b2)-yOf(a))[0])) + ' — you are leaving ' + esc(gap.toFixed(1)) + ' points on the table.' : 'This is the frontier ceiling at your budget.'}
+      ${pick.cap_assumed?' <span class="note">† cap is an UNVERIFIED model.</span>':''}`;
+  }
+  // next-step narration
+  const above = pts.filter(r => yOf(r) > yOf(pick||{secondary:-1}) && r.primary > (pick?pick.primary:0));
+  if (pick) {
+    const better = pts.filter(r => yOf(r) > yOf(pick)).sort((a,b2)=>a.primary-b2.primary);
+    if (better.length) {
+      const nb = better[0];
+      nextEl.innerHTML = `Next intelligence step up: <b>${esc(nb.offering)}</b> at
+        ${esc(fmtMoney(nb.primary))}/turn (${esc(fmtY(f,nb))} ${esc(f.ylabel||'')}) —
+        ${(nb.primary/pick.primary).toFixed(1)}× your current pick's cost for
+        +${esc((yOf(nb)-yOf(pick)).toFixed(1))} more ${esc(f.ylabel||'')}.
+        ${nb.cap_assumed?'<span class="cap">†</span>':''}`;
+    } else {
+      nextEl.innerHTML = 'You are already at the frontier ceiling for this workload — no smarter option exists in the data.';
+    }
+  } else {
+    nextEl.innerHTML = 'Raise the budget slider — nothing is affordable yet.';
+  }
+  // table
+  bbody.innerHTML = '';
+  const sorted = pts.slice().sort((a,b2)=>a.primary-b2.primary);
+  sorted.forEach(r => {
+    const isPick = pick && r.offering === pick.offering;
+    const row = document.createElement('tr');
+    row.className = isPick ? 'best-row' : (r.primary > b ? 'dominated-row' : '');
+    row.innerHTML = `<td>${esc(r.offering)}${r.cap_assumed?'<span class="cap">&nbsp;†</span>':''}</td>
+      <td>${esc(fmtMoney(r.primary))}</td>
+      <td>${esc(fmtY(f,r))}</td>
+      <td>${isPick?'<b>your pick</b>':(r.primary>b?'over budget':(r.on_frontier?'reachable · on frontier':'reachable · dominated'))}</td>
+      <td class="hint">${(!r.on_frontier && r.dominated_by && r.dominated_by.length)?esc(r.dominated_by.map(d=>d.split('/')[1]).join(', ')):''}</td>`;
+    bbody.appendChild(row);
+  });
+}
+// ---- wire controls ----
+function setBudget(v){
+  st.budget = v;
+  budgetNum.value = (v >= 0.01) ? v.toFixed(4) : v.toFixed(5);
+  budgetRead.textContent = fmtMoney(v);
+  recompute();
+}
+budget.addEventListener('input', () => setBudget(sliderToBudget(parseFloat(budget.value))));
+budgetNum.addEventListener('change', () => {
+  const v = parseFloat(budgetNum.value);
+  if (isFinite(v) && v > 0) { setBudget(Math.min(Math.max(v, CMIN*0.5), CMAX*1.5)); budget.value = budgetToSlider(st.budget); }
+});
+logChk.addEventListener('change', () => {
+  st.log = logChk.checked;
+  // log checkbox toggles readout style only (slider is already log-spaced); kept for API completeness
+});
+wlSel.addEventListener('change', () => {
+  st.fid = wlSel.value;
+  document.getElementById('wl-desc').textContent =
+    'x: ' + FR[st.fid].ax + ' · y: ' + (FR[st.fid].ylabel||'—');
+  recompute();
+});
+document.querySelectorAll('input[name=taste]').forEach(r =>
+  r.addEventListener('change', () => { st.taste = r.value; recompute(); }));
+// init
+st.fid = ORDER[0];
+wlSel.value = st.fid;
+document.getElementById('wl-desc').textContent = 'x: '+FR[st.fid].ax+' · y: '+(FR[st.fid].ylabel||'—');
+setBudget(sliderToBudget(50));
+</script>
+
+</body></html>
