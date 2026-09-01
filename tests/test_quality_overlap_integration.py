@@ -6,12 +6,14 @@ from model_skyline.engine import frontier_hash
 from model_skyline.models import (
     AxisDescriptor,
     AxisEstimate,
+    AxisEvidenceCandidate,
     EvaluatedOffering,
     FrontierSnapshot,
     Goal,
     OfferingKey,
     ProjectConfig,
     WorkloadReference,
+    build_axis_evidence_inventory,
 )
 from model_skyline.quality_bundle import (
     QualityBundleComponent,
@@ -72,6 +74,21 @@ def _frontier(
         )
         for offering, quality, cost, dominated_by in rows
     )
+    workload = WorkloadReference(
+        id=f"{frontier_id}-workload",
+        version="1",
+        unit="task",
+    )
+    axis_evidence = build_axis_evidence_inventory(
+        config_hash="1" * 64,
+        catalog_hash="2" * 64,
+        generated_at=generated_at,
+        workload=workload,
+        axes=axes,
+        candidates=tuple(
+            AxisEvidenceCandidate(offering=item.offering, axes=item.axes) for item in evaluated
+        ),
+    )
     provisional = FrontierSnapshot(
         snapshot_id="0" * 64,
         config_hash="1" * 64,
@@ -79,16 +96,13 @@ def _frontier(
         engine_version="integration-test",
         generated_at=generated_at,
         frontier_id=frontier_id,
-        workload=WorkloadReference(
-            id=f"{frontier_id}-workload",
-            version="1",
-            unit="task",
-        ),
+        workload=workload,
         order_by=cost_metric,
         uncertainty="point",
         axes=axes,
         members=tuple(item for item in evaluated if not item.dominated_by),
         evaluated=evaluated,
+        axis_evidence=axis_evidence,
     )
     return provisional.model_copy(update={"snapshot_id": frontier_hash(provisional)})
 

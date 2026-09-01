@@ -11,12 +11,15 @@ from xml.etree import ElementTree as ET
 import pytest
 
 from model_skyline import publisher
+from model_skyline.canonical import content_hash
+from model_skyline.engine import frontier_hash_matches
 from model_skyline.io import (
     load_frontier_history,
     load_frontier_snapshot,
     load_publication_manifest,
 )
 from model_skyline.models import (
+    FrontierSnapshot,
     ObservationCatalog,
     ProjectConfig,
     PublishedFile,
@@ -230,6 +233,61 @@ def test_public_mode_requires_explicit_source_license_authorization(
     assert result.manifest.policy.allowed_licenses == ("CC0-1.0",)
 
 
+def test_public_mode_cannot_override_categorical_private_metadata(
+    tmp_path: Path,
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    root = _root(tmp_path)
+    private_catalog = example_catalog.model_copy(deep=True)
+    for index, offering in enumerate(private_catalog.offerings):
+        assert offering.default_source is not None
+        private_catalog.offerings[index] = offering.model_copy(
+            update={
+                "default_source": offering.default_source.model_copy(
+                    update={"id": "internal-quality-projection", "license": "MIT"}
+                ),
+                "metadata": {**offering.metadata, "publication_safe": False},
+            }
+        )
+
+    with pytest.raises(PublicationError, match="publication_safe=false"):
+        publish_project(
+            example_config,
+            [private_catalog],
+            root,
+            project_id="coding-demo",
+            generated_at=NOW,
+            public=True,
+            base_url="https://example.test/model-skyline",
+            allowed_licenses=["MIT"],
+            authorized_source_ids=["internal-quality-projection"],
+        )
+
+    assert not root.exists()
+    private_result = _publish(root, example_config, private_catalog)
+    assert private_result.manifest.policy.public is False
+
+    clean_catalog = private_catalog.model_copy(deep=True)
+    for index, offering in enumerate(clean_catalog.offerings):
+        metadata = dict(offering.metadata)
+        metadata.pop("publication_safe")
+        clean_catalog.offerings[index] = offering.model_copy(update={"metadata": metadata})
+
+    with pytest.raises(PublicationError, match="publication_safe=false"):
+        publish_project(
+            example_config,
+            [clean_catalog],
+            root,
+            project_id="coding-demo",
+            generated_at=NOW + timedelta(minutes=10),
+            public=True,
+            base_url="https://example.test/model-skyline",
+            allowed_licenses=["MIT"],
+            authorized_source_ids=["internal-quality-projection"],
+        )
+
+
 def test_public_transition_authorizes_entire_retained_history(
     tmp_path: Path,
     example_config: ProjectConfig,
@@ -274,6 +332,55 @@ def test_public_transition_authorizes_entire_retained_history(
         allowed_licenses=["Apache-2.0", "CC0-1.0"],
     )
     assert result.manifest.policy.public
+
+
+def test_public_transition_blocks_retained_legacy_private_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    root = _root(tmp_path)
+    result = _publish(root, example_config, example_catalog)
+    committed_histories = publisher._load_committed_histories(root, result.manifest)
+    published = next(
+        item for item in result.manifest.frontiers if item.frontier_id == "coding-value"
+    )
+    current = load_frontier_snapshot(root / published.snapshot.path)
+    legacy_payload = current.model_dump(mode="json")
+    legacy_payload.pop("axis_evidence")
+    legacy_payload.pop("public_release_blocked")
+    legacy_payload["engine_version"] = "0.7.0"
+    dominated = next(
+        item
+        for item in legacy_payload["evaluated"]
+        if item["offering"]["offering_id"] == "fastcloud/legacy-mid@us-standard"
+    )
+    dominated["metadata"]["publication_safe"] = False
+    legacy_payload["snapshot_id"] = content_hash(
+        {key: value for key, value in legacy_payload.items() if key != "snapshot_id"}
+    )
+    retained_legacy = FrontierSnapshot.model_validate(legacy_payload)
+    assert frontier_hash_matches(retained_legacy)
+    committed_histories["coding-value"][retained_legacy.snapshot_id] = retained_legacy
+    monkeypatch.setattr(
+        publisher,
+        "_load_committed_histories",
+        lambda _root, _manifest: committed_histories,
+    )
+
+    with pytest.raises(PublicationError, match="publication_safe=false"):
+        publish_project(
+            example_config,
+            [example_catalog],
+            root,
+            project_id="coding-demo",
+            generated_at=NOW + timedelta(minutes=10),
+            public=True,
+            base_url="https://example.test/model-skyline",
+            allowed_licenses=["CC0-1.0"],
+            authorized_source_ids=[source.id for source in retained_legacy.sources],
+        )
 
 
 def test_public_license_gate_checks_every_ancestor_manifest(

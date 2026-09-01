@@ -23,7 +23,7 @@ from pydantic import (
     model_validator,
 )
 
-from model_skyline.canonical import canonical_bytes
+from model_skyline.canonical import canonical_bytes, content_hash
 
 SCHEMA_VERSION = "model-skyline/v1alpha1"
 CANONICAL_DECIMAL_PATTERN = r"^[+-]?\d+(?:\.\d+)?$"
@@ -603,6 +603,118 @@ class RejectedOffering(FrozenModel):
     reasons: tuple[str, ...]
 
 
+class AxisEvidenceCandidate(FrozenModel):
+    """Per-axis evidence for one complete offering, including partial failures."""
+
+    offering: OfferingKey
+    axes: dict[str, AxisEstimate] = Field(default_factory=dict)
+
+
+class _AxisEvidenceInventoryContent(FrozenModel):
+    """Canonical axis-specific inventory content before its identity is attached."""
+
+    schema_version: Literal["model-skyline/axis-evidence-inventory/v1alpha1"] = (
+        "model-skyline/axis-evidence-inventory/v1alpha1"
+    )
+    kind: Literal["axis-evidence-inventory"] = "axis-evidence-inventory"
+    hash_algorithm: Literal["sha256-rfc8785-v1"] = "sha256-rfc8785-v1"
+    config_hash: Sha256Digest
+    catalog_hash: Sha256Digest
+    generated_at: datetime
+    workload: WorkloadReference
+    axes: tuple[AxisDescriptor, AxisDescriptor]
+    candidate_universe_hash: Sha256Digest
+    candidates: tuple[AxisEvidenceCandidate, ...] = Field(
+        default=(),
+        max_length=MAX_SELECTION_CANDIDATES,
+    )
+
+    @field_validator("generated_at")
+    @classmethod
+    def generated_at_has_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            raise ValueError("axis evidence generation time must include a timezone")
+        return value
+
+    @model_validator(mode="after")
+    def inventory_is_coherent(self) -> Self:
+        descriptors = {axis.metric: axis for axis in self.axes}
+        if len(descriptors) != 2:
+            raise ValueError("axis evidence descriptors must be distinct")
+        identities = [canonical_bytes(candidate.offering) for candidate in self.candidates]
+        if len(identities) != len(set(identities)):
+            raise ValueError("axis evidence candidates must have distinct complete OfferingKeys")
+        offering_ids = [candidate.offering.offering_id for candidate in self.candidates]
+        if len(offering_ids) != len(set(offering_ids)):
+            raise ValueError("axis evidence candidates must have distinct offering_id values")
+        if identities != sorted(identities):
+            raise ValueError("axis evidence candidates must be canonically ordered")
+        expected_universe_hash = content_hash(
+            [candidate.offering.model_dump(mode="json") for candidate in self.candidates]
+        )
+        if self.candidate_universe_hash != expected_universe_hash:
+            raise ValueError("axis evidence candidate universe hash mismatch")
+        for candidate in self.candidates:
+            if not set(candidate.axes) <= set(descriptors):
+                raise ValueError("axis evidence contains an undeclared metric")
+            for metric, estimate in candidate.axes.items():
+                if estimate.unit != descriptors[metric].unit:
+                    raise ValueError("axis evidence estimate unit does not match its descriptor")
+        return self
+
+
+class AxisEvidenceInventory(_AxisEvidenceInventoryContent):
+    """Self-hashed axis-specific inventory replayed from one config and catalog."""
+
+    inventory_id: Sha256Digest
+
+    @model_validator(mode="after")
+    def inventory_hash_is_valid(self) -> Self:
+        if self.inventory_id != axis_evidence_inventory_hash(self):
+            raise ValueError("axis evidence inventory hash mismatch")
+        return self
+
+
+def axis_evidence_inventory_hash(inventory: AxisEvidenceInventory) -> str:
+    """Return the content identity of an axis evidence inventory."""
+
+    return content_hash(inventory.model_dump(mode="json", exclude={"inventory_id"}))
+
+
+def build_axis_evidence_inventory(
+    *,
+    config_hash: str,
+    catalog_hash: str,
+    generated_at: datetime,
+    workload: WorkloadReference,
+    axes: tuple[AxisDescriptor, AxisDescriptor],
+    candidates: Iterable[AxisEvidenceCandidate],
+) -> AxisEvidenceInventory:
+    """Build a canonical inventory from independently attempted frontier axes."""
+
+    canonical_candidates = tuple(
+        candidate
+        for _, candidate in sorted(
+            (canonical_bytes(candidate.offering), candidate) for candidate in candidates
+        )
+    )
+    content = _AxisEvidenceInventoryContent(
+        config_hash=config_hash,
+        catalog_hash=catalog_hash,
+        generated_at=generated_at,
+        workload=workload,
+        axes=axes,
+        candidate_universe_hash=content_hash(
+            [candidate.offering.model_dump(mode="json") for candidate in canonical_candidates]
+        ),
+        candidates=canonical_candidates,
+    )
+    return AxisEvidenceInventory(
+        inventory_id=content_hash(content),
+        **content.model_dump(),
+    )
+
+
 class FrontierSnapshot(FrozenModel):
     schema_version: Literal["model-skyline/v1alpha1"] = "model-skyline/v1alpha1"
     kind: Literal["frontier"] = "frontier"
@@ -620,6 +732,8 @@ class FrontierSnapshot(FrozenModel):
     members: tuple[EvaluatedOffering, ...]
     evaluated: tuple[EvaluatedOffering, ...]
     rejected: tuple[RejectedOffering, ...] = ()
+    axis_evidence: AxisEvidenceInventory | None = None
+    public_release_blocked: bool = False
     sources: tuple[SourceReference, ...] = ()
     source_watermarks: dict[str, datetime] = Field(default_factory=dict)
 
@@ -656,6 +770,14 @@ class FrontierSnapshot(FrozenModel):
         if set(evaluated_ids) & set(rejected_ids):
             raise ValueError("an offering cannot be both evaluated and rejected")
         evaluated_by_id = {item.offering.offering_id: item for item in self.evaluated}
+        if (
+            any(item.metadata.get("publication_safe") is False for item in self.evaluated)
+            and not self.public_release_blocked
+            and self.axis_evidence is not None
+        ):
+            raise ValueError(
+                "frontier with non-public evaluated metadata must block public release"
+            )
         for item in (*self.evaluated, *self.members):
             if set(item.axes) != axis_ids:
                 raise ValueError("every evaluated offering must contain exactly the two axes")
@@ -676,6 +798,37 @@ class FrontierSnapshot(FrozenModel):
         evaluated_id_set = set(evaluated_ids)
         artifact_sources = list(self.sources)
         snapshot_source_ids = {source.id for source in self.sources}
+        if self.axis_evidence is not None:
+            inventory = self.axis_evidence
+            if (
+                inventory.config_hash != self.config_hash
+                or inventory.catalog_hash != self.catalog_hash
+                or inventory.generated_at != self.generated_at
+                or inventory.workload != self.workload
+                or inventory.axes != self.axes
+            ):
+                raise ValueError("axis evidence inventory does not match its frontier binding")
+            inventory_by_id = {
+                candidate.offering.offering_id: candidate for candidate in inventory.candidates
+            }
+            if set(inventory_by_id) != set(evaluated_ids) | set(rejected_ids):
+                raise ValueError("axis evidence must cover every evaluated and rejected offering")
+            for offering_id, evaluated in evaluated_by_id.items():
+                candidate = inventory_by_id[offering_id]
+                if candidate.offering != evaluated.offering or candidate.axes != evaluated.axes:
+                    raise ValueError(
+                        "evaluated offering must exactly match its axis evidence candidate"
+                    )
+            for offering_id in rejected_ids:
+                if set(inventory_by_id[offering_id].axes) == axis_ids:
+                    raise ValueError("rejected offering cannot carry two successful axis estimates")
+            for candidate in inventory.candidates:
+                for estimate in candidate.axes.values():
+                    artifact_sources.extend(estimate.sources)
+                    if any(source not in self.sources for source in estimate.sources):
+                        raise ValueError(
+                            "axis evidence sources must be present in snapshot sources"
+                        )
         for item in self.evaluated:
             if item.offering.offering_id in item.dominated_by:
                 raise ValueError("an offering cannot dominate itself")

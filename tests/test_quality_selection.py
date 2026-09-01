@@ -10,6 +10,7 @@ from model_skyline.engine import dominates, frontier_hash
 from model_skyline.models import (
     AxisDescriptor,
     AxisEstimate,
+    AxisEvidenceCandidate,
     EvaluatedOffering,
     FrontierSnapshot,
     Goal,
@@ -17,6 +18,7 @@ from model_skyline.models import (
     ProjectConfig,
     UncertaintyMode,
     WorkloadReference,
+    build_axis_evidence_inventory,
 )
 from model_skyline.quality_bundle import (
     QualityBundleComponent,
@@ -26,6 +28,8 @@ from model_skyline.quality_bundle import (
 )
 from model_skyline.quality_selection import (
     QualityGatedSelectionSnapshot,
+    _build_gated_frontier,
+    _offering_identity,
     build_quality_gated_selection_snapshot,
     quality_gated_selection_hash,
     verify_quality_gated_selection_snapshot,
@@ -95,6 +99,21 @@ def _frontier(
         )
         for other in bare
     )
+    workload = WorkloadReference(
+        id=workload_id or f"{frontier_id}-workload",
+        version="1",
+        unit="task",
+    )
+    axis_evidence = build_axis_evidence_inventory(
+        config_hash="1" * 64,
+        catalog_hash="2" * 64,
+        generated_at=generated_at,
+        workload=workload,
+        axes=axes,
+        candidates=tuple(
+            AxisEvidenceCandidate(offering=item.offering, axes=item.axes) for item in evaluated
+        ),
+    )
     provisional = FrontierSnapshot(
         snapshot_id="0" * 64,
         config_hash="1" * 64,
@@ -102,16 +121,13 @@ def _frontier(
         engine_version="quality-selection-test",
         generated_at=generated_at,
         frontier_id=frontier_id,
-        workload=WorkloadReference(
-            id=workload_id or f"{frontier_id}-workload",
-            version="1",
-            unit="task",
-        ),
+        workload=workload,
         order_by=second_metric,
         uncertainty="point",
         axes=axes,
         members=tuple(item for item in evaluated if not item.dominated_by),
         evaluated=evaluated,
+        axis_evidence=axis_evidence,
     )
     return provisional.model_copy(update={"snapshot_id": frontier_hash(provisional)})
 
@@ -372,6 +388,29 @@ def test_gate_recomputes_pareto_before_overlap_selection() -> None:
     )
     assert result.quality_bundle_generated_at > result.source_primary_generated_at
     _verify(scenario, now=NOW + timedelta(minutes=2))
+
+
+def test_derived_gate_preserves_categorical_publication_block() -> None:
+    scenario = _scenario()
+    provisional_source = scenario.source_primary.model_copy(
+        update={"snapshot_id": "0" * 64, "public_release_blocked": True}
+    )
+    private_source = provisional_source.model_copy(
+        update={"snapshot_id": frontier_hash(provisional_source)}
+    )
+
+    gated = _build_gated_frontier(
+        private_source,
+        scenario.quality_bundle,
+        frozenset((_offering_identity(scenario.alpha), _offering_identity(scenario.beta))),
+        generated_at=NOW + timedelta(minutes=1),
+        require_complete_coverage=True,
+        require_nonempty=True,
+        label="primary",
+    )
+
+    assert gated.public_release_blocked is True
+    assert gated.snapshot_id == frontier_hash(gated)
 
 
 def test_gate_requires_complete_quality_coverage_records_for_primary_universe() -> None:

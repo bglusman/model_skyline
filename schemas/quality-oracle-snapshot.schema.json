@@ -1,0 +1,1231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:quality-oracle-snapshot",
+  "$defs": {
+    "AxisDescriptor": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "goal": {
+          "$ref": "#/$defs/Goal"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "epsilon_absolute": {
+          "default": "0",
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Epsilon Absolute",
+          "type": "string"
+        },
+        "epsilon_relative": {
+          "default": "0",
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Epsilon Relative",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "goal",
+        "unit"
+      ],
+      "title": "AxisDescriptor",
+      "type": "object"
+    },
+    "AxisEstimate": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Value",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "dependencies": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "sources": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SourceReference"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "oldest_observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oldest Observed At"
+        },
+        "minimum_sample_count": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum Sample Count"
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "title": "AxisEstimate",
+      "type": "object"
+    },
+    "FixedMinMaxNormalization": {
+      "additionalProperties": false,
+      "description": "A typed, self-hashed, operator-authored normalization reference.",
+      "properties": {
+        "schema_version": {
+          "const": "model-skyline/fixed-min-max-normalization-reference/v1alpha1",
+          "default": "model-skyline/fixed-min-max-normalization-reference/v1alpha1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "const": "fixed-min-max-normalization-reference",
+          "default": "fixed-min-max-normalization-reference",
+          "title": "Kind",
+          "type": "string"
+        },
+        "hash_algorithm": {
+          "const": "sha256-rfc8785-v1",
+          "default": "sha256-rfc8785-v1",
+          "title": "Hash Algorithm",
+          "type": "string"
+        },
+        "reference_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Reference Id",
+          "type": "string"
+        },
+        "reference_version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Reference Version",
+          "type": "string"
+        },
+        "input_unit": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Input Unit",
+          "type": "string"
+        },
+        "reference_min": {
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Reference Min",
+          "type": "string"
+        },
+        "reference_max": {
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Reference Max",
+          "type": "string"
+        },
+        "out_of_reference": {
+          "const": "reject",
+          "default": "reject",
+          "title": "Out Of Reference",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "reference_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Reference Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reference_id",
+        "reference_version",
+        "input_unit",
+        "reference_min",
+        "reference_max",
+        "rationale",
+        "reference_sha256"
+      ],
+      "title": "FixedMinMaxNormalization",
+      "type": "object"
+    },
+    "Goal": {
+      "enum": [
+        "minimize",
+        "maximize"
+      ],
+      "title": "Goal",
+      "type": "string"
+    },
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "billing_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Billing Mode"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider",
+        "endpoint",
+        "billing_mode",
+        "region",
+        "service_tier",
+        "quantization",
+        "reasoning_effort",
+        "agent_harness",
+        "capabilities"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    },
+    "QualityBundleComponent": {
+      "additionalProperties": false,
+      "description": "One exact frontier declared as a distinct quality component by policy.",
+      "properties": {
+        "component_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "frontier_id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Frontier Id",
+          "type": "string"
+        },
+        "frontier_snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Frontier Snapshot Id",
+          "type": "string"
+        },
+        "frontier_snapshot_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Frontier Snapshot Hash",
+          "type": "string"
+        },
+        "config_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "catalog_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Catalog Hash",
+          "type": "string"
+        },
+        "workload": {
+          "$ref": "#/$defs/WorkloadReference"
+        },
+        "axes": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/AxisDescriptor"
+            },
+            {
+              "$ref": "#/$defs/AxisDescriptor"
+            }
+          ],
+          "title": "Axes",
+          "type": "array"
+        },
+        "quality_metric": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Quality Metric",
+          "type": "string"
+        },
+        "max_age_seconds": {
+          "maximum": 31536000,
+          "minimum": 1,
+          "title": "Max Age Seconds",
+          "type": "integer"
+        },
+        "evidence_valid_until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Valid Until"
+        }
+      },
+      "required": [
+        "component_id",
+        "frontier_id",
+        "frontier_snapshot_id",
+        "frontier_snapshot_hash",
+        "config_hash",
+        "catalog_hash",
+        "workload",
+        "axes",
+        "quality_metric",
+        "max_age_seconds"
+      ],
+      "title": "QualityBundleComponent",
+      "type": "object"
+    },
+    "QualityOracleCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "status": {
+          "enum": [
+            "scored",
+            "rejected"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/QualityOracleComponentEvaluation"
+          },
+          "maxItems": 4,
+          "minItems": 2,
+          "title": "Components",
+          "type": "array"
+        },
+        "failed_component_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "title": "Failed Component Ids",
+          "type": "array"
+        },
+        "estimate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AxisEstimate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "offering",
+        "status",
+        "components"
+      ],
+      "title": "QualityOracleCandidate",
+      "type": "object"
+    },
+    "QualityOracleComponent": {
+      "additionalProperties": false,
+      "description": "Stable semantics and governance for one selected benchmark metric.",
+      "properties": {
+        "component_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "workload": {
+          "$ref": "#/$defs/WorkloadReference"
+        },
+        "quality_axis": {
+          "$ref": "#/$defs/AxisDescriptor"
+        },
+        "source_semantics": {
+          "items": {
+            "$ref": "#/$defs/QualityOracleSourceSemantic"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "title": "Source Semantics",
+          "type": "array"
+        },
+        "source_semantic_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Semantic Identity Sha256",
+          "type": "string"
+        },
+        "normalization": {
+          "$ref": "#/$defs/FixedMinMaxNormalization"
+        },
+        "weight": {
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Weight",
+          "type": "string"
+        },
+        "correlation_group": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Correlation Group",
+          "type": "string"
+        },
+        "rationale": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_id",
+        "workload",
+        "quality_axis",
+        "source_semantics",
+        "source_semantic_identity_sha256",
+        "normalization",
+        "weight",
+        "correlation_group",
+        "rationale"
+      ],
+      "title": "QualityOracleComponent",
+      "type": "object"
+    },
+    "QualityOracleComponentCapture": {
+      "additionalProperties": false,
+      "description": "Volatile exact bundle, frontier, source, retrieval, and rights binding.",
+      "properties": {
+        "component_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "bundle_component": {
+          "$ref": "#/$defs/QualityBundleComponent"
+        },
+        "selected_quality_projection_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Selected Quality Projection Sha256",
+          "type": "string"
+        },
+        "source_semantic_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Semantic Identity Sha256",
+          "type": "string"
+        },
+        "source_raw_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Raw Identity Sha256",
+          "type": "string"
+        },
+        "source_retrieval_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Retrieval Identity Sha256",
+          "type": "string"
+        },
+        "source_rights_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Rights Identity Sha256",
+          "type": "string"
+        },
+        "source_capture_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Capture Identity Sha256",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/SourceReference"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "component_id",
+        "bundle_component",
+        "selected_quality_projection_sha256",
+        "source_semantic_identity_sha256",
+        "source_raw_identity_sha256",
+        "source_retrieval_identity_sha256",
+        "source_rights_identity_sha256",
+        "source_capture_identity_sha256",
+        "sources"
+      ],
+      "title": "QualityOracleComponentCapture",
+      "type": "object"
+    },
+    "QualityOracleComponentEvaluation": {
+      "additionalProperties": false,
+      "description": "Candidate-level value with exact capture and component provenance.",
+      "properties": {
+        "component_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "frontier_snapshot_id": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Frontier Snapshot Id",
+          "type": "string"
+        },
+        "quality_metric": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Quality Metric",
+          "type": "string"
+        },
+        "source_semantic_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Semantic Identity Sha256",
+          "type": "string"
+        },
+        "source_capture_identity_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Capture Identity Sha256",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/QualityOracleComponentStatus"
+        },
+        "raw_estimate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AxisEstimate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized Value"
+        },
+        "normalized_lower": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized Lower"
+        },
+        "normalized_upper": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized Upper"
+        },
+        "weighted_contribution": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weighted Contribution"
+        },
+        "weighted_lower": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weighted Lower"
+        },
+        "weighted_upper": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weighted Upper"
+        },
+        "quarantine_reason_codes": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 32,
+          "title": "Quarantine Reason Codes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "component_id",
+        "frontier_snapshot_id",
+        "quality_metric",
+        "source_semantic_identity_sha256",
+        "source_capture_identity_sha256",
+        "status"
+      ],
+      "title": "QualityOracleComponentEvaluation",
+      "type": "object"
+    },
+    "QualityOracleComponentStatus": {
+      "enum": [
+        "measured",
+        "missing",
+        "quarantined",
+        "out_of_reference"
+      ],
+      "title": "QualityOracleComponentStatus",
+      "type": "string"
+    },
+    "QualityOraclePolicy": {
+      "additionalProperties": false,
+      "description": "Stable opt-in policy for one versioned composite quality workload.",
+      "properties": {
+        "schema_version": {
+          "const": "model-skyline/quality-oracle-policy/v1alpha1",
+          "default": "model-skyline/quality-oracle-policy/v1alpha1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "const": "quality-oracle-policy",
+          "default": "quality-oracle-policy",
+          "title": "Kind",
+          "type": "string"
+        },
+        "oracle_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Oracle Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "composite_workload": {
+          "$ref": "#/$defs/WorkloadReference"
+        },
+        "quality_metric": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Quality Metric",
+          "type": "string"
+        },
+        "quality_unit": {
+          "const": "normalized_quality_score",
+          "default": "normalized_quality_score",
+          "title": "Quality Unit",
+          "type": "string"
+        },
+        "quality_bundle_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Quality Bundle Id",
+          "type": "string"
+        },
+        "quality_bundle_version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Quality Bundle Version",
+          "type": "string"
+        },
+        "strategy": {
+          "const": "weighted-fixed-min-max",
+          "default": "weighted-fixed-min-max",
+          "title": "Strategy",
+          "type": "string"
+        },
+        "missing_signal_policy": {
+          "const": "reject-candidate",
+          "default": "reject-candidate",
+          "title": "Missing Signal Policy",
+          "type": "string"
+        },
+        "algorithm_version": {
+          "const": "weighted-fixed-min-max-decimal-v1",
+          "default": "weighted-fixed-min-max-decimal-v1",
+          "title": "Algorithm Version",
+          "type": "string"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/QualityOracleComponent"
+          },
+          "maxItems": 4,
+          "minItems": 2,
+          "title": "Components",
+          "type": "array"
+        },
+        "aggregation_rationale": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Aggregation Rationale",
+          "type": "string"
+        },
+        "correlation_rationale": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Correlation Rationale",
+          "type": "string"
+        },
+        "statistical_independence_assumed": {
+          "const": false,
+          "default": false,
+          "title": "Statistical Independence Assumed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "oracle_id",
+        "version",
+        "composite_workload",
+        "quality_metric",
+        "quality_bundle_id",
+        "quality_bundle_version",
+        "components",
+        "aggregation_rationale",
+        "correlation_rationale"
+      ],
+      "title": "QualityOraclePolicy",
+      "type": "object"
+    },
+    "QualityOracleSourceSemantic": {
+      "additionalProperties": false,
+      "description": "Stable benchmark-source identity, excluding capture and rights state.",
+      "properties": {
+        "id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "methodology": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Methodology",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "methodology"
+      ],
+      "title": "QualityOracleSourceSemantic",
+      "type": "object"
+    },
+    "SourceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "terms_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terms Url"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        },
+        "methodology": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Methodology"
+        },
+        "raw_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Sha256"
+        },
+        "retrieved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrieved At"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "SourceReference",
+      "type": "object"
+    },
+    "WorkloadReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "unit"
+      ],
+      "title": "WorkloadReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Content-addressed scalar quality index with exact replay captures.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/quality-oracle-snapshot/v1alpha1",
+      "default": "model-skyline/quality-oracle-snapshot/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "quality-oracle-snapshot",
+      "default": "quality-oracle-snapshot",
+      "title": "Kind",
+      "type": "string"
+    },
+    "hash_algorithm": {
+      "const": "sha256-rfc8785-v1",
+      "default": "sha256-rfc8785-v1",
+      "title": "Hash Algorithm",
+      "type": "string"
+    },
+    "policy_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Policy Hash",
+      "type": "string"
+    },
+    "policy": {
+      "$ref": "#/$defs/QualityOraclePolicy"
+    },
+    "quality_bundle_policy_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Quality Bundle Policy Hash",
+      "type": "string"
+    },
+    "quality_bundle_snapshot_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Quality Bundle Snapshot Id",
+      "type": "string"
+    },
+    "quality_bundle_snapshot_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Quality Bundle Snapshot Hash",
+      "type": "string"
+    },
+    "quality_bundle_generated_at": {
+      "format": "date-time",
+      "title": "Quality Bundle Generated At",
+      "type": "string"
+    },
+    "quality_bundle_valid_until": {
+      "format": "date-time",
+      "title": "Quality Bundle Valid Until",
+      "type": "string"
+    },
+    "quality_bundle_candidate_universe_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Quality Bundle Candidate Universe Hash",
+      "type": "string"
+    },
+    "selected_quality_projection_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Selected Quality Projection Sha256",
+      "type": "string"
+    },
+    "component_captures": {
+      "items": {
+        "$ref": "#/$defs/QualityOracleComponentCapture"
+      },
+      "maxItems": 4,
+      "minItems": 2,
+      "title": "Component Captures",
+      "type": "array"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "valid_until": {
+      "format": "date-time",
+      "title": "Valid Until",
+      "type": "string"
+    },
+    "candidate_universe_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Candidate Universe Hash",
+      "type": "string"
+    },
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/QualityOracleCandidate"
+      },
+      "maxItems": 10000,
+      "minItems": 1,
+      "title": "Candidates",
+      "type": "array"
+    },
+    "snapshot_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "policy_hash",
+    "policy",
+    "quality_bundle_policy_hash",
+    "quality_bundle_snapshot_id",
+    "quality_bundle_snapshot_hash",
+    "quality_bundle_generated_at",
+    "quality_bundle_valid_until",
+    "quality_bundle_candidate_universe_hash",
+    "selected_quality_projection_sha256",
+    "component_captures",
+    "generated_at",
+    "valid_until",
+    "candidate_universe_hash",
+    "candidates",
+    "snapshot_id"
+  ],
+  "title": "QualityOracleSnapshot",
+  "type": "object",
+  "$comment": "Consumers must replay this snapshot against its exact quality bundle before using the score for routing and authenticate its distribution channel. Missing and out-of-reference components reject a candidate; the weighted index does not assert statistical independence or publication rights for its component evidence."
+}

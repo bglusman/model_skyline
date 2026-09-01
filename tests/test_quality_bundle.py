@@ -10,17 +10,21 @@ from pydantic import ValidationError
 import model_skyline.io as io_module
 import model_skyline.quality_bundle as quality_bundle_module
 from model_skyline.canonical import content_hash
-from model_skyline.engine import frontier_hash
+from model_skyline.engine import FrontierEngine, frontier_hash
 from model_skyline.io import dump_json, load_quality_bundle_policy
 from model_skyline.models import (
     AxisDescriptor,
     AxisEstimate,
+    AxisEvidenceCandidate,
     EvaluatedOffering,
     FrontierSnapshot,
     Goal,
+    ObservationCatalog,
     OfferingKey,
+    ProjectConfig,
     RejectedOffering,
     WorkloadReference,
+    build_axis_evidence_inventory,
 )
 from model_skyline.quality_bundle import (
     QualityBundleComponent,
@@ -90,6 +94,16 @@ def _frontier(
         )
         for index, (offering, value) in enumerate(measured)
     )
+    axis_evidence = build_axis_evidence_inventory(
+        config_hash=config_hash,
+        catalog_hash=catalog_hash,
+        generated_at=generated_at,
+        workload=workload,
+        axes=axes,
+        candidates=tuple(
+            AxisEvidenceCandidate(offering=item.offering, axes=item.axes) for item in evaluated
+        ),
+    )
     provisional = FrontierSnapshot(
         snapshot_id="0" * 64,
         config_hash=config_hash,
@@ -103,6 +117,7 @@ def _frontier(
         axes=axes,
         members=evaluated,
         evaluated=evaluated,
+        axis_evidence=axis_evidence,
     )
     return provisional.model_copy(update={"snapshot_id": frontier_hash(provisional)})
 
@@ -207,6 +222,74 @@ def test_bundle_enforces_required_components_and_minimum_coverage() -> None:
     assert snapshot.snapshot_id == quality_bundle_snapshot_hash(snapshot)
 
 
+def test_bundle_uses_quality_axis_evidence_when_companion_axes_are_missing(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    target = example_catalog.offerings[0]
+    without_companions = target.model_copy(
+        update={
+            "signals": {
+                key: value
+                for key, value in target.signals.items()
+                if key not in {"input_uncached_usd_per_million", "ttft_p95_ms"}
+            }
+        }
+    )
+    catalog = example_catalog.model_copy(
+        update={"offerings": [without_companions, *example_catalog.offerings[1:]]}
+    )
+    frontiers = {
+        component_id: FrontierEngine().calculate(
+            example_config,
+            catalog,
+            frontier_id,
+            generated_at=NOW,
+        )
+        for component_id, frontier_id in (
+            ("cost-companion", "coding-value"),
+            ("latency-companion", "coding-responsiveness"),
+        )
+    }
+    assert all(
+        target.offering.offering_id in {rejection.offering_id for rejection in frontier.rejected}
+        for frontier in frontiers.values()
+    )
+    policy = QualityBundlePolicy(
+        bundle_id="companion-independent-quality",
+        version="1",
+        components=tuple(
+            QualityBundleComponent(
+                component_id=component_id,
+                frontier_id=frontier.frontier_id,
+                frontier_snapshot_id=frontier.snapshot_id,
+                frontier_snapshot_hash=frontier.snapshot_id,
+                config_hash=frontier.config_hash,
+                catalog_hash=frontier.catalog_hash,
+                workload=frontier.workload,
+                axes=frontier.axes,
+                quality_metric="coding_session_success",
+                max_age_seconds=3600,
+            )
+            for component_id, frontier in frontiers.items()
+        ),
+        required_component_ids=("cost-companion", "latency-companion"),
+        minimum_measured_components=2,
+    )
+
+    bundle = build_quality_bundle_snapshot(
+        policy,
+        frontiers,
+        [target.offering],
+        generated_at=NOW,
+    )
+
+    candidate = bundle.candidates[0]
+    assert candidate.eligible
+    assert candidate.measured_component_count == 2
+    assert {component.estimate.value for component in candidate.components} == {Decimal("0.62")}
+
+
 def test_bundle_artifact_size_bound_matches_pretty_json_round_trip(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
@@ -300,17 +383,21 @@ def test_cross_component_matching_uses_every_offering_key_field() -> None:
     }
     policy = _policy(frontiers, required=("coding", "tools"), minimum=2)
 
-    snapshot = build_quality_bundle_snapshot(
+    measured_snapshot = build_quality_bundle_snapshot(
         policy,
         frontiers,
-        [different_tier, measured, different_harness],
+        [measured],
         generated_at=NOW,
     )
-    by_identity = {candidate.offering: candidate for candidate in snapshot.candidates}
-
-    assert by_identity[measured].eligible
-    assert by_identity[different_tier].missing_component_ids == ("coding", "tools")
-    assert by_identity[different_harness].missing_component_ids == ("coding", "tools")
+    assert measured_snapshot.candidates[0].eligible
+    for drifted in (different_tier, different_harness):
+        drifted_snapshot = build_quality_bundle_snapshot(
+            policy,
+            frontiers,
+            [drifted],
+            generated_at=NOW,
+        )
+        assert drifted_snapshot.candidates[0].missing_component_ids == ("coding", "tools")
 
 
 @pytest.mark.parametrize("count", [1, 5])
@@ -374,7 +461,7 @@ def test_component_binding_rejects_source_hash_and_identity_tampering() -> None:
     policy = _policy(frontiers, required=("coding",), minimum=1)
 
     tampered = frontiers["coding"].model_copy(update={"catalog_hash": "f" * 64})
-    with pytest.raises(ValueError, match="frontier hash mismatch"):
+    with pytest.raises(ValueError, match="axis evidence inventory does not match"):
         build_quality_bundle_snapshot(
             policy,
             {**frontiers, "coding": tampered},
@@ -394,11 +481,11 @@ def test_component_binding_rejects_source_hash_and_identity_tampering() -> None:
 @pytest.mark.parametrize(
     ("update", "expected"),
     [
-        ({"config_hash": "a" * 64}, "config hash mismatch"),
-        ({"catalog_hash": "b" * 64}, "catalog hash mismatch"),
+        ({"config_hash": "a" * 64}, "axis evidence inventory does not match"),
+        ({"catalog_hash": "b" * 64}, "axis evidence inventory does not match"),
         (
             {"workload": WorkloadReference(id="different", version="1", unit="task")},
-            "workload mismatch",
+            "axis evidence inventory does not match",
         ),
         (
             {
@@ -533,6 +620,13 @@ def test_quarantine_and_candidate_inputs_are_exact_and_unambiguous() -> None:
             policy,
             frontiers,
             [offering, offering],
+            generated_at=NOW,
+        )
+    with pytest.raises(ValueError, match="distinct offering_id"):
+        build_quality_bundle_snapshot(
+            policy,
+            frontiers,
+            [offering, offering.model_copy(update={"provider": "other-provider"})],
             generated_at=NOW,
         )
     with pytest.raises(ValueError, match="unknown quality component"):
@@ -787,9 +881,19 @@ def test_explicit_evidence_deadline_limits_snapshot_freshness() -> None:
 
 def test_frontier_rejection_is_missing_without_exact_quarantine_identity() -> None:
     offering = _offering("a")
+    empty = _frontier("tools-quality", [])
+    axis_evidence = build_axis_evidence_inventory(
+        config_hash=empty.config_hash,
+        catalog_hash=empty.catalog_hash,
+        generated_at=empty.generated_at,
+        workload=empty.workload,
+        axes=empty.axes,
+        candidates=(AxisEvidenceCandidate(offering=offering),),
+    )
     rejected = _rehash_frontier(
-        _frontier("tools-quality", []),
+        empty,
         rejected=(RejectedOffering(offering_id=offering.offering_id, reasons=("no score",)),),
+        axis_evidence=axis_evidence,
     )
     frontiers = {
         "coding": _frontier("coding-quality", [(offering, "0.9")]),

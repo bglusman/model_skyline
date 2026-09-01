@@ -161,6 +161,27 @@ def test_quality_loader_rejects_deep_nesting_before_json_allocation(
         load_quality_reconciliation(path)
 
 
+def test_quality_loader_rejects_long_numeric_token_before_decimal_allocation(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    path = tmp_path / "long-number.json"
+    path.write_bytes(
+        b'{"schema_version":"model-skyline/quality-reconciliation/v1alpha1",'
+        b'"entries":[],"number":'
+        + (b"1" * (io_module.MAX_QUALITY_JSON_NUMBER_CHARACTERS + 1))
+        + b"}"
+    )
+
+    def unexpected_json_load(*_args, **_kwargs):
+        pytest.fail("json.loads must not run after the numeric-token limit is exceeded")
+
+    monkeypatch.setattr(io_module.json, "loads", unexpected_json_load)
+
+    with pytest.raises(InputError, match="numeric token exceeds the 1024-character limit"):
+        load_quality_reconciliation(path)
+
+
 def test_quality_json_preflight_ignores_punctuation_and_escapes_inside_strings(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

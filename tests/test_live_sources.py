@@ -11,6 +11,12 @@ from model_skyline.adapters.aider import (
     DEFAULT_SOURCE_URL,
     import_aider_polyglot,
 )
+from model_skyline.adapters.arc_agi import (
+    ARC_AGI_EXPECTED_TASKS,
+    ARC_AGI_HF_REVISION,
+    ARC_AGI_TASK_SET_SHA256,
+    capture_arc_agi_public_eval,
+)
 from model_skyline.adapters.mcpmark import (
     MCPMARK_SECTIONS,
     MCPMARK_VERIFIED_COMMIT,
@@ -19,7 +25,15 @@ from model_skyline.adapters.mcpmark import (
     build_mcpmark_project_config,
     fetch_mcpmark_catalogs,
 )
+from model_skyline.adapters.swe_bench import (
+    SWE_BENCH_WEBSITE_COMMIT,
+    SWE_BENCH_WEBSITE_SHA256,
+    SWE_BENCH_WEBSITE_URL,
+    capture_swe_bench,
+)
+from model_skyline.arc_feed_monitor import ArcAgiFeedState, check_arc_agi_feed_live
 from model_skyline.engine import FrontierEngine
+from model_skyline.feed_monitor import SweBenchFeedChange, inspect_swe_bench_feed
 
 pytestmark = pytest.mark.skipif(
     os.environ.get("MODELSKYLINE_TEST_LIVE_SOURCES") != "1",
@@ -102,3 +116,78 @@ def test_pinned_mcpmark_snapshot_catalogs_tasks_and_quality_time_frontier() -> N
         "gpt-5.5",
     ]
     assert not snapshot.rejected
+
+
+def test_pinned_swe_bench_bash_only_snapshot_is_recomputed_and_quarantined() -> None:
+    capture = capture_swe_bench()
+
+    assert SWE_BENCH_WEBSITE_COMMIT in SWE_BENCH_WEBSITE_URL
+    assert capture.evidence.raw_audit.raw_sha256 == SWE_BENCH_WEBSITE_SHA256
+    assert capture.rows_seen == 13
+    assert capture.valid_rows == 11
+    assert capture.invalid_rows == 2
+    assert {
+        row.invalid_result.code for row in capture.evidence.rows if row.invalid_result is not None
+    } == {"aggregate_detail_mismatch", "missing_per_instance_details"}
+    assert {
+        row.result.primary_metric for row in capture.evidence.rows if row.result is not None
+    } == {"swe_bench_resolved_percent"}
+    assert {
+        measurement.sample_count
+        for row in capture.evidence.rows
+        if row.result is not None
+        for measurement in row.result.measurements
+        if measurement.id == "swe_bench_resolved_percent"
+    } == {500}
+
+
+def test_latest_swe_bench_feed_is_semantically_current() -> None:
+    status = inspect_swe_bench_feed()
+
+    assert status.change in {SweBenchFeedChange.NONE, SweBenchFeedChange.RAW_ONLY}
+    assert status.semantic_change is False
+    assert status.rows_seen == 13
+    assert status.valid_rows == 11
+    assert status.invalid_rows == 2
+    assert dict(status.invalid_reason_counts) == {
+        "aggregate_detail_mismatch": 1,
+        "missing_per_instance_details": 1,
+    }
+
+
+def test_pinned_arc_agi_2_public_eval_is_recomputed_and_quarantined() -> None:
+    capture = capture_arc_agi_public_eval()
+
+    assert capture.evidence.raw_audit.upstream_revision == ARC_AGI_HF_REVISION
+    assert (
+        capture.evidence.source_identity.dataset.configuration["expected_tasks"]
+        == ARC_AGI_EXPECTED_TASKS
+    )
+    assert (
+        capture.evidence.source_identity.dataset.configuration["observed_task_id_set_sha256"]
+        == ARC_AGI_TASK_SET_SHA256
+    )
+    assert capture.rows_seen == 32
+    assert capture.valid_rows == 22
+    assert capture.invalid_rows == 10
+    assert {
+        row.invalid_result.code for row in capture.evidence.rows if row.invalid_result is not None
+    } == {"incomplete_task_cohort"}
+    assert {
+        row.result.primary_metric for row in capture.evidence.rows if row.result is not None
+    } == {"arc_agi_2_public_eval_score_percent"}
+    assert {
+        measurement.sample_count
+        for row in capture.evidence.rows
+        if row.result is not None
+        for measurement in row.result.measurements
+        if measurement.id == "arc_agi_2_public_eval_score_percent"
+    } == {120}
+
+
+def test_latest_arc_agi_2_dataset_head_is_the_reviewed_pin() -> None:
+    status = check_arc_agi_feed_live()
+
+    assert status.state is ArcAgiFeedState.PINNED
+    assert status.review_required is False
+    assert status.observed_revision == ARC_AGI_HF_REVISION

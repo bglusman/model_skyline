@@ -215,6 +215,51 @@ def test_absent_and_null_billing_mode_have_stable_hash_compatibility(
     assert routed_snapshot.snapshot_id != snapshot.snapshot_id
 
 
+def test_legacy_private_metadata_without_release_marker_remains_loadable_and_blocked(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    snapshot = FrontierEngine().calculate(
+        example_config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+    legacy_payload = snapshot.model_dump(mode="json")
+    legacy_payload.pop("axis_evidence")
+    legacy_payload.pop("public_release_blocked")
+    dominated = next(
+        item
+        for item in legacy_payload["evaluated"]
+        if item["offering"]["offering_id"] == "fastcloud/legacy-mid@us-standard"
+    )
+    dominated["metadata"]["publication_safe"] = False
+    legacy_payload["snapshot_id"] = content_hash(
+        {key: value for key, value in legacy_payload.items() if key != "snapshot_id"}
+    )
+
+    restored = FrontierSnapshot.model_validate(legacy_payload)
+
+    assert restored.public_release_blocked is False
+    assert frontier_hash_matches(restored)
+    round_tripped = FrontierSnapshot.model_validate(restored.model_dump(mode="json"))
+    assert round_tripped == restored
+    assert frontier_hash_matches(round_tripped)
+
+    current_payload = snapshot.model_dump(mode="json")
+    current_dominated = next(
+        item
+        for item in current_payload["evaluated"]
+        if item["offering"]["offering_id"] == "fastcloud/legacy-mid@us-standard"
+    )
+    current_dominated["metadata"]["publication_safe"] = False
+    with pytest.raises(
+        ValidationError,
+        match="frontier with non-public evaluated metadata must block public release",
+    ):
+        FrontierSnapshot.model_validate(current_payload)
+
+
 def test_no_frontier_member_is_dominated(
     example_config: ProjectConfig,
     example_catalog: ObservationCatalog,
@@ -260,6 +305,42 @@ def test_missing_axis_signal_is_rejected_with_reason(
         item for item in snapshot.rejected if item.offering_id == first.offering.offering_id
     )
     assert "signal 'success_rate' is missing" in rejected.reasons[0]
+
+
+def test_missing_companion_axis_preserves_independently_valid_quality_evidence(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    first = example_catalog.offerings[0]
+    changed = first.model_copy(
+        update={
+            "signals": {
+                key: value
+                for key, value in first.signals.items()
+                if key != "input_uncached_usd_per_million"
+            }
+        }
+    )
+    catalog = example_catalog.model_copy(
+        update={"offerings": [changed, *example_catalog.offerings[1:]]}
+    )
+
+    snapshot = FrontierEngine().calculate(
+        example_config,
+        catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    assert first.offering.offering_id in {rejection.offering_id for rejection in snapshot.rejected}
+    assert snapshot.axis_evidence is not None
+    evidence = next(
+        candidate
+        for candidate in snapshot.axis_evidence.candidates
+        if candidate.offering.offering_id == first.offering.offering_id
+    )
+    assert set(evidence.axes) == {"coding_session_success"}
+    assert evidence.axes["coding_session_success"].value == Decimal("0.62")
 
 
 def test_catalog_is_bound_to_exact_workload(

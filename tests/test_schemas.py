@@ -30,6 +30,8 @@ QUALITY_SCHEMA_NAMES = (
     "quality-import-report.schema.json",
     "quality-bundle-policy.schema.json",
     "quality-bundle-snapshot.schema.json",
+    "quality-oracle-policy.schema.json",
+    "quality-oracle-snapshot.schema.json",
     "quality-gated-selection-snapshot.schema.json",
 )
 
@@ -213,6 +215,7 @@ def test_quality_reconciliation_schema_requires_complete_offering_key() -> None:
         "quality-reconciliation.schema.json",
         "quality-import-report.schema.json",
         "quality-bundle-snapshot.schema.json",
+        "quality-oracle-snapshot.schema.json",
         "quality-gated-selection-snapshot.schema.json",
     ),
 )

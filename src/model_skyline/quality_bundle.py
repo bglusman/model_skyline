@@ -298,6 +298,9 @@ class _QualityBundleSnapshotContent(FrozenModel):
             raise ValueError("quality bundle OfferingKey identity exceeds the byte limit")
         if len(identities) != len(set(identities)):
             raise ValueError("quality bundle candidates must have distinct OfferingKeys")
+        offering_ids = [candidate.offering.offering_id for candidate in self.candidates]
+        if len(offering_ids) != len(set(offering_ids)):
+            raise ValueError("quality bundle candidates must have distinct offering_id values")
         if identities != sorted(identities):
             raise ValueError("quality bundle candidates must be canonically ordered")
         expected_universe_hash = content_hash(
@@ -398,6 +401,11 @@ def _validated_component_frontiers(
             raise ValueError(
                 f"quality component {component.component_id!r} quality metric mismatch"
             )
+        if frontier.axis_evidence is None:
+            raise ValueError(
+                f"quality component {component.component_id!r} lacks a complete axis evidence "
+                "inventory; re-evaluate it with ModelSkyline v0.8 or later"
+            )
         if frontier.generated_at > generated_at:
             raise ValueError(f"quality component {component.component_id!r} is future-dated")
         frontier_generated_at = frontier.generated_at.astimezone(UTC)
@@ -414,7 +422,8 @@ def _validated_component_frontiers(
         freshness_deadlines.append(deadline)
         measurements[component.component_id] = {
             _offering_identity(item.offering): item.axes[component.quality_metric]
-            for item in frontier.evaluated
+            for item in frontier.axis_evidence.candidates
+            if component.quality_metric in item.axes
         }
     return measurements, min(freshness_deadlines)
 
@@ -430,6 +439,9 @@ def _validated_candidates(candidates: Iterable[OfferingKey]) -> tuple[OfferingKe
         raise ValueError("quality bundle OfferingKey identity exceeds the byte limit")
     if len(identities) != len(set(identities)):
         raise ValueError("quality bundle candidates must have distinct complete OfferingKeys")
+    offering_ids = [offering.offering_id for offering in values]
+    if len(offering_ids) != len(set(offering_ids)):
+        raise ValueError("quality bundle candidates must have distinct offering_id values")
     return tuple(offering for _, offering in sorted(zip(identities, values, strict=True)))
 
 
