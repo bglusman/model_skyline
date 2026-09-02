@@ -1,0 +1,38 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "measured_at": "2026-09-01T22:12:27Z",
+  "measurement": {
+    "method": "median of 3x 64-token + 1x 500-token generations, warmup 1",
+    "decode_tok_s_64": 9.96,
+    "decode_tok_s_500": 10.8,
+    "endpoint": "http://192.168.1.175:11434/v1"
+  },
+  "offering": {
+    "offering_id": "local-mac-studio-m1max-64/gemma4:31b-it-q4_K_M",
+    "model_id": "gemma4:31b-it-q4_K_M",
+    "provider": "local-mac-studio-m1max-64",
+    "endpoint": "local",
+    "region": "home",
+    "service_tier": "standard",
+    "quantization": "ollama-default",
+    "agent_harness": "brian-harness@1 [Ollama over LAN]",
+    "capabilities": [
+      "text",
+      "tools"
+    ]
+  },
+  "signals": {
+    "local_decode_tokens_per_second": {
+      "value": "10.80",
+      "unit": "tokens/second",
+      "sample_count": 4,
+      "observed_at": "2026-09-01T22:12:27Z"
+    }
+  },
+  "default_source": {
+    "id": "brian-local-mac-studio-m1max-64-v1",
+    "version": "1",
+    "license": "MIT (derived); upstream terms preserved",
+    "methodology": "Measured decode on mac-studio-m1max-64 (Mac Studio: M1 Max 64GB unified memory, Ollama (LAN host)); Ollama OpenAI-compatible endpoint; median rates; AA scores are model-class approximations pending verification."
+  }
+}
