@@ -80,6 +80,7 @@ from model_skyline.arc_feed_monitor import (
     ArcAgiFeedMonitorError,
     inspect_arc_agi_feed,
 )
+from model_skyline.discovery import DiscoveryError, discover_offerings, load_frontier_policies
 from model_skyline.engine import FrontierEngine, validate_formula_cost_basis
 from model_skyline.feed_monitor import (
     FeedMonitorError,
@@ -302,6 +303,54 @@ def validate(
             f"{len(loaded_catalog.offerings)} offerings"
         )
     except (InputError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("discover", rich_help_panel=CORE_PANEL)
+def discover(
+    feeds: Annotated[
+        list[str] | None, typer.Option("--feed", help="HTTPS RSS/Atom feed URL (repeatable)")
+    ] = None,
+    include_openrouter: Annotated[bool, typer.Option("--openrouter/--no-openrouter")] = True,
+    model_pattern: Annotated[
+        str | None, typer.Option("--model-pattern", help="Regex applied to model ids")
+    ] = None,
+    admission_policy: Annotated[
+        str, typer.Option("--admission-policy", help="review, catalog-only, or vendor-reported")
+    ] = "review",
+    frontier_policy_file: Annotated[
+        Path | None,
+        typer.Option(
+            "--frontier-policy-file",
+            exists=True,
+            readable=True,
+            dir_okay=False,
+            help='JSON file: {"frontiers": {"frontier-id": "policy"}}',
+        ),
+    ] = None,
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+    review_queue: Annotated[Path | None, typer.Option("--review-queue")] = None,
+) -> None:
+    """Discover public model offerings and write a provenance-preserving review artifact."""
+    try:
+        artifact = discover_offerings(
+            feeds=feeds or (),
+            include_openrouter=include_openrouter,
+            model_pattern=model_pattern,
+            admission_policy=admission_policy,
+            frontier_policies=(
+                load_frontier_policies(frontier_policy_file)
+                if frontier_policy_file is not None
+                else None
+            ),
+        )
+        rendered = artifact.model_dump_json(indent=2) + "\n"
+        _emit(rendered, output)
+        if review_queue is not None:
+            review_queue.write_text(
+                json.dumps(artifact.review_queue, indent=2) + "\n", encoding="utf-8"
+            )
+    except (DiscoveryError, OSError, ValueError) as exc:
         _error(exc)
 
 
