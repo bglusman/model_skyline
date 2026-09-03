@@ -1,0 +1,1018 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "workload": {
+    "id": "aider-polyglot",
+    "version": "sha256:bb92c4555c1341c52f386c8c8b1ba7c5b3c56cec60a5f9129ecf8ee99a8cc2a8",
+    "unit": "polyglot_case"
+  },
+  "offerings": [
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-08-23-15-47-21--gpt-5-high@models.dev/64c305f6d78c91ee193af55814ef5a3ec87f2c44a47414eb205d3ee89f8bd3e0",
+        "model_id": "gpt-5",
+        "provider": "openai",
+        "endpoint": null,
+        "billing_mode": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "high",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "signals": {
+        "solve_rate_2": {
+          "value": "0.88",
+          "unit": "ratio",
+          "lower": "0.8310376629422354488855445582911975",
+          "upper": "0.9162045582934931679272912473142977",
+          "sample_count": 225,
+          "observed_at": "2025-08-23T00:00:00Z",
+          "source": null
+        },
+        "aider_prompt_tokens_total": {
+          "value": "2675561",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-23T00:00:00Z",
+          "source": null
+        },
+        "aider_completion_tokens_total": {
+          "value": "2623429",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-23T00:00:00Z",
+          "source": null
+        },
+        "aider_attempted_workunits": {
+          "value": "225",
+          "unit": "attempted_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-23T00:00:00Z",
+          "source": null
+        },
+        "aider_solved_workunits": {
+          "value": "198",
+          "unit": "solved_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-23T00:00:00Z",
+          "source": null
+        },
+        "models_dev_input_usd_per_million_tokens": {
+          "value": "1.25",
+          "unit": "USD/million_input_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        },
+        "models_dev_output_usd_per_million_tokens": {
+          "value": "10",
+          "unit": "USD/million_output_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        }
+      },
+      "metadata": {
+        "dirname": "2025-08-23-15-47-21--gpt-5-high",
+        "model": "gpt-5 (high)",
+        "edit_format": "diff",
+        "commit_hash": "32faf82",
+        "commit_dirty": false,
+        "benchmark_date": "2025-08-23",
+        "aider_version": "0.86.2.dev",
+        "test_cases": 225,
+        "total_tests": 225,
+        "pass_num_1": 117,
+        "pass_num_2": 198,
+        "reported_pass_rate_1_percent": "52",
+        "reported_pass_rate_2_percent": "88",
+        "provider_attribution": "not supplied by the Aider leaderboard",
+        "error_outputs": 23,
+        "exhausted_context_windows": 0,
+        "indentation_errors": 0,
+        "lazy_comments": 3,
+        "num_malformed_responses": 22,
+        "num_with_malformed_responses": 19,
+        "prompt_tokens": 2675561,
+        "completion_tokens": 2623429,
+        "syntax_errors": 0,
+        "test_timeouts": 3,
+        "user_asks": 96,
+        "percent_cases_well_formed": "91.6",
+        "reasoning_effort": "high",
+        "command_sha256": "195235c1d69d9275a17397f754ff1771dda83bb0556d390991b401dde213779c",
+        "source_offering_id": "aider-polyglot/2025-08-23-15-47-21--gpt-5-high",
+        "source_model_id": "gpt-5 (high)",
+        "models_dev_provider_id": "openai",
+        "models_dev_provider_name": "OpenAI",
+        "models_dev_model_id": "gpt-5",
+        "models_dev_model_name": "GPT-5",
+        "models_dev_route": "openai/gpt-5",
+        "models_dev_status": "unspecified",
+        "models_dev_optional_rates_usd_per_million": {
+          "cache_read": "0.125"
+        },
+        "models_dev_experimental_modes_excluded": [],
+        "models_dev_reasoning_efforts": [
+          "high",
+          "low",
+          "medium",
+          "minimal"
+        ],
+        "models_dev_catalog_source_id": "models-dev-api",
+        "models_dev_catalog_version": "api-sha256:1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_raw_sha256": "1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_retrieved_at": "2026-09-03T12:06:30.481620+00:00",
+        "pricing_scenario": "cache_disabled",
+        "performance_and_token_portability": "operator_asserted_same_provider_model_route_across_time",
+        "mapping_sha256": "ee0aeec23805feb52a82ea382e0c986d0a987d9288309cd4be32ec5a6f8a41f9",
+        "mapping_relationship": "same_provider_model_route",
+        "mapping_evidence": "The pinned Aider row command is `aider --model openai/gpt-5`; the row separately records reasoning_effort=high. OpenAI documents the alias as snapshot gpt-5-2025-08-07 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+        "mapping_reviewed_at": "2026-09-01T09:54:20+00:00"
+      },
+      "default_source": {
+        "id": "aider-polyglot-leaderboard",
+        "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+        "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+        "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+        "license": "Apache-2.0",
+        "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+        "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+        "retrieved_at": "2026-09-03T12:06:30.181241Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium@models.dev/64c305f6d78c91ee193af55814ef5a3ec87f2c44a47414eb205d3ee89f8bd3e0",
+        "model_id": "gpt-5",
+        "provider": "openai",
+        "endpoint": null,
+        "billing_mode": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "medium",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "signals": {
+        "solve_rate_2": {
+          "value": "0.8666666666666666666666666666666667",
+          "unit": "ratio",
+          "lower": "0.8160406625343363498879439739854155",
+          "upper": "0.9049825333948754733525116279146237",
+          "sample_count": 225,
+          "observed_at": "2025-08-25T00:00:00Z",
+          "source": null
+        },
+        "aider_prompt_tokens_total": {
+          "value": "2827261",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-25T00:00:00Z",
+          "source": null
+        },
+        "aider_completion_tokens_total": {
+          "value": "1468799",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-25T00:00:00Z",
+          "source": null
+        },
+        "aider_attempted_workunits": {
+          "value": "225",
+          "unit": "attempted_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-25T00:00:00Z",
+          "source": null
+        },
+        "aider_solved_workunits": {
+          "value": "195",
+          "unit": "solved_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-25T00:00:00Z",
+          "source": null
+        },
+        "models_dev_input_usd_per_million_tokens": {
+          "value": "1.25",
+          "unit": "USD/million_input_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        },
+        "models_dev_output_usd_per_million_tokens": {
+          "value": "10",
+          "unit": "USD/million_output_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        }
+      },
+      "metadata": {
+        "dirname": "2025-08-25-13-23-27--gpt-5-medium",
+        "model": "gpt-5 (medium)",
+        "edit_format": "diff",
+        "commit_hash": "32faf82",
+        "commit_dirty": false,
+        "benchmark_date": "2025-08-25",
+        "aider_version": "0.86.2.dev",
+        "test_cases": 225,
+        "total_tests": 225,
+        "pass_num_1": 112,
+        "pass_num_2": 195,
+        "reported_pass_rate_1_percent": "49.8",
+        "reported_pass_rate_2_percent": "86.7",
+        "provider_attribution": "not supplied by the Aider leaderboard",
+        "error_outputs": 40,
+        "exhausted_context_windows": 0,
+        "indentation_errors": 0,
+        "lazy_comments": 0,
+        "num_malformed_responses": 40,
+        "num_with_malformed_responses": 26,
+        "prompt_tokens": 2827261,
+        "completion_tokens": 1468799,
+        "syntax_errors": 0,
+        "test_timeouts": 0,
+        "user_asks": 102,
+        "percent_cases_well_formed": "88.4",
+        "reasoning_effort": "medium",
+        "command_sha256": "195235c1d69d9275a17397f754ff1771dda83bb0556d390991b401dde213779c",
+        "source_offering_id": "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+        "source_model_id": "gpt-5 (medium)",
+        "models_dev_provider_id": "openai",
+        "models_dev_provider_name": "OpenAI",
+        "models_dev_model_id": "gpt-5",
+        "models_dev_model_name": "GPT-5",
+        "models_dev_route": "openai/gpt-5",
+        "models_dev_status": "unspecified",
+        "models_dev_optional_rates_usd_per_million": {
+          "cache_read": "0.125"
+        },
+        "models_dev_experimental_modes_excluded": [],
+        "models_dev_reasoning_efforts": [
+          "high",
+          "low",
+          "medium",
+          "minimal"
+        ],
+        "models_dev_catalog_source_id": "models-dev-api",
+        "models_dev_catalog_version": "api-sha256:1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_raw_sha256": "1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_retrieved_at": "2026-09-03T12:06:30.481620+00:00",
+        "pricing_scenario": "cache_disabled",
+        "performance_and_token_portability": "operator_asserted_same_provider_model_route_across_time",
+        "mapping_sha256": "ee0aeec23805feb52a82ea382e0c986d0a987d9288309cd4be32ec5a6f8a41f9",
+        "mapping_relationship": "same_provider_model_route",
+        "mapping_evidence": "The pinned Aider row command is `aider --model openai/gpt-5`; the row separately records reasoning_effort=medium. OpenAI documents the alias as snapshot gpt-5-2025-08-07 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+        "mapping_reviewed_at": "2026-09-01T09:54:20+00:00"
+      },
+      "default_source": {
+        "id": "aider-polyglot-leaderboard",
+        "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+        "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+        "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+        "license": "Apache-2.0",
+        "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+        "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+        "retrieved_at": "2026-09-03T12:06:30.181241Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-08-25-14-16-37--gpt-5-low@models.dev/64c305f6d78c91ee193af55814ef5a3ec87f2c44a47414eb205d3ee89f8bd3e0",
+        "model_id": "gpt-5",
+        "provider": "openai",
+        "endpoint": null,
+        "billing_mode": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "low",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "signals": {
+        "solve_rate_2": {
+          "value": "0.8133333333333333333333333333333333",
+          "unit": "ratio",
+          "lower": "0.7573169041834719169910178396752826",
+          "upper": "0.8588301905196727319599169474029326",
+          "sample_count": 225,
+          "observed_at": "2025-08-25T00:00:00Z",
+          "source": null
+        },
+        "aider_prompt_tokens_total": {
+          "value": "2534059",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-25T00:00:00Z",
+          "source": null
+        },
+        "aider_completion_tokens_total": {
+          "value": "779568",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-25T00:00:00Z",
+          "source": null
+        },
+        "aider_attempted_workunits": {
+          "value": "225",
+          "unit": "attempted_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-25T00:00:00Z",
+          "source": null
+        },
+        "aider_solved_workunits": {
+          "value": "183",
+          "unit": "solved_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-08-25T00:00:00Z",
+          "source": null
+        },
+        "models_dev_input_usd_per_million_tokens": {
+          "value": "1.25",
+          "unit": "USD/million_input_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        },
+        "models_dev_output_usd_per_million_tokens": {
+          "value": "10",
+          "unit": "USD/million_output_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        }
+      },
+      "metadata": {
+        "dirname": "2025-08-25-14-16-37--gpt-5-low",
+        "model": "gpt-5 (low)",
+        "edit_format": "diff",
+        "commit_hash": "32faf82",
+        "commit_dirty": false,
+        "benchmark_date": "2025-08-25",
+        "aider_version": "0.86.2.dev",
+        "test_cases": 225,
+        "total_tests": 225,
+        "pass_num_1": 97,
+        "pass_num_2": 183,
+        "reported_pass_rate_1_percent": "43.1",
+        "reported_pass_rate_2_percent": "81.3",
+        "provider_attribution": "not supplied by the Aider leaderboard",
+        "error_outputs": 46,
+        "exhausted_context_windows": 0,
+        "indentation_errors": 0,
+        "lazy_comments": 1,
+        "num_malformed_responses": 46,
+        "num_with_malformed_responses": 30,
+        "prompt_tokens": 2534059,
+        "completion_tokens": 779568,
+        "syntax_errors": 0,
+        "test_timeouts": 1,
+        "user_asks": 113,
+        "percent_cases_well_formed": "86.7",
+        "reasoning_effort": "low",
+        "command_sha256": "195235c1d69d9275a17397f754ff1771dda83bb0556d390991b401dde213779c",
+        "source_offering_id": "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+        "source_model_id": "gpt-5 (low)",
+        "models_dev_provider_id": "openai",
+        "models_dev_provider_name": "OpenAI",
+        "models_dev_model_id": "gpt-5",
+        "models_dev_model_name": "GPT-5",
+        "models_dev_route": "openai/gpt-5",
+        "models_dev_status": "unspecified",
+        "models_dev_optional_rates_usd_per_million": {
+          "cache_read": "0.125"
+        },
+        "models_dev_experimental_modes_excluded": [],
+        "models_dev_reasoning_efforts": [
+          "high",
+          "low",
+          "medium",
+          "minimal"
+        ],
+        "models_dev_catalog_source_id": "models-dev-api",
+        "models_dev_catalog_version": "api-sha256:1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_raw_sha256": "1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_retrieved_at": "2026-09-03T12:06:30.481620+00:00",
+        "pricing_scenario": "cache_disabled",
+        "performance_and_token_portability": "operator_asserted_same_provider_model_route_across_time",
+        "mapping_sha256": "ee0aeec23805feb52a82ea382e0c986d0a987d9288309cd4be32ec5a6f8a41f9",
+        "mapping_relationship": "same_provider_model_route",
+        "mapping_evidence": "The pinned Aider row command is `aider --model openai/gpt-5`; the row separately records reasoning_effort=low. OpenAI documents the alias as snapshot gpt-5-2025-08-07 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+        "mapping_reviewed_at": "2026-09-01T09:54:20+00:00"
+      },
+      "default_source": {
+        "id": "aider-polyglot-leaderboard",
+        "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+        "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+        "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+        "license": "Apache-2.0",
+        "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+        "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+        "retrieved_at": "2026-09-03T12:06:30.181241Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-06-25-21-04-24--o3-price-reduction-high@models.dev/eceac72c8f71c8fe1441dca3684b8766be4474501125f10968a1e8e58aa368e6",
+        "model_id": "o3",
+        "provider": "openai",
+        "endpoint": null,
+        "billing_mode": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "high",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "signals": {
+        "solve_rate_2": {
+          "value": "0.8133333333333333333333333333333333",
+          "unit": "ratio",
+          "lower": "0.7573169041834719169910178396752826",
+          "upper": "0.8588301905196727319599169474029326",
+          "sample_count": 225,
+          "observed_at": "2025-06-25T00:00:00Z",
+          "source": null
+        },
+        "aider_prompt_tokens_total": {
+          "value": "3148932",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-25T00:00:00Z",
+          "source": null
+        },
+        "aider_completion_tokens_total": {
+          "value": "2047615",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-25T00:00:00Z",
+          "source": null
+        },
+        "aider_attempted_workunits": {
+          "value": "225",
+          "unit": "attempted_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-25T00:00:00Z",
+          "source": null
+        },
+        "aider_solved_workunits": {
+          "value": "183",
+          "unit": "solved_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-25T00:00:00Z",
+          "source": null
+        },
+        "models_dev_input_usd_per_million_tokens": {
+          "value": "2",
+          "unit": "USD/million_input_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        },
+        "models_dev_output_usd_per_million_tokens": {
+          "value": "8",
+          "unit": "USD/million_output_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        }
+      },
+      "metadata": {
+        "dirname": "2025-06-25-21-04-24--o3-price-reduction-high",
+        "model": "o3 (high)",
+        "edit_format": "diff",
+        "commit_hash": "c48fea6",
+        "commit_dirty": false,
+        "benchmark_date": "2025-06-25",
+        "aider_version": "0.84.1.dev",
+        "test_cases": 225,
+        "total_tests": 225,
+        "pass_num_1": 90,
+        "pass_num_2": 183,
+        "reported_pass_rate_1_percent": "40",
+        "reported_pass_rate_2_percent": "81.3",
+        "provider_attribution": "not supplied by the Aider leaderboard",
+        "error_outputs": 25,
+        "exhausted_context_windows": 1,
+        "indentation_errors": 0,
+        "lazy_comments": 0,
+        "num_malformed_responses": 23,
+        "num_with_malformed_responses": 12,
+        "prompt_tokens": 3148932,
+        "completion_tokens": 2047615,
+        "syntax_errors": 0,
+        "test_timeouts": 2,
+        "user_asks": 116,
+        "percent_cases_well_formed": "94.7",
+        "reasoning_effort": "high",
+        "command_sha256": "09bfddb170a0a91c8100279336cc5f70775354810830e9d849a2a8875956799a",
+        "source_offering_id": "aider-polyglot/2025-06-25-21-04-24--o3-price-reduction-high",
+        "source_model_id": "o3 (high)",
+        "models_dev_provider_id": "openai",
+        "models_dev_provider_name": "OpenAI",
+        "models_dev_model_id": "o3",
+        "models_dev_model_name": "o3",
+        "models_dev_route": "openai/o3",
+        "models_dev_status": "unspecified",
+        "models_dev_optional_rates_usd_per_million": {
+          "cache_read": "0.5"
+        },
+        "models_dev_experimental_modes_excluded": [],
+        "models_dev_reasoning_efforts": [
+          "high",
+          "low",
+          "medium"
+        ],
+        "models_dev_catalog_source_id": "models-dev-api",
+        "models_dev_catalog_version": "api-sha256:1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_raw_sha256": "1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_retrieved_at": "2026-09-03T12:06:30.481620+00:00",
+        "pricing_scenario": "cache_disabled",
+        "performance_and_token_portability": "operator_asserted_same_provider_model_route_across_time",
+        "mapping_sha256": "ee0aeec23805feb52a82ea382e0c986d0a987d9288309cd4be32ec5a6f8a41f9",
+        "mapping_relationship": "same_provider_model_route",
+        "mapping_evidence": "The pinned Aider row command is `aider --model o3 --reasoning-effort high`. Its Aider row commit pins LiteLLM 1.73.1; the reviewed sdist (SHA-256 33ad55ff051bf925419619ec37f32949decdc52a6109c8c0700cfb1209696590) classifies bare o3 as provider openai. OpenAI documents the alias as snapshot o3-2025-04-16 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+        "mapping_reviewed_at": "2026-09-01T09:54:20+00:00"
+      },
+      "default_source": {
+        "id": "aider-polyglot-leaderboard",
+        "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+        "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+        "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+        "license": "Apache-2.0",
+        "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+        "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+        "retrieved_at": "2026-09-03T12:06:30.181241Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction@models.dev/eceac72c8f71c8fe1441dca3684b8766be4474501125f10968a1e8e58aa368e6",
+        "model_id": "o3",
+        "provider": "openai",
+        "endpoint": null,
+        "billing_mode": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "signals": {
+        "solve_rate_2": {
+          "value": "0.7688888888888888888888888888888889",
+          "unit": "ratio",
+          "lower": "0.7095725895005266612839796630854589",
+          "upper": "0.8191777541808953424256877783079033",
+          "sample_count": 225,
+          "observed_at": "2025-06-25T00:00:00Z",
+          "source": null
+        },
+        "aider_prompt_tokens_total": {
+          "value": "2893189",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-25T00:00:00Z",
+          "source": null
+        },
+        "aider_completion_tokens_total": {
+          "value": "1154767",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-25T00:00:00Z",
+          "source": null
+        },
+        "aider_attempted_workunits": {
+          "value": "225",
+          "unit": "attempted_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-25T00:00:00Z",
+          "source": null
+        },
+        "aider_solved_workunits": {
+          "value": "173",
+          "unit": "solved_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-25T00:00:00Z",
+          "source": null
+        },
+        "models_dev_input_usd_per_million_tokens": {
+          "value": "2",
+          "unit": "USD/million_input_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        },
+        "models_dev_output_usd_per_million_tokens": {
+          "value": "8",
+          "unit": "USD/million_output_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        }
+      },
+      "metadata": {
+        "dirname": "2025-06-25-20-30-16--o3-price-reduction",
+        "model": "o3",
+        "edit_format": "diff",
+        "commit_hash": "c48fea6",
+        "commit_dirty": false,
+        "benchmark_date": "2025-06-25",
+        "aider_version": "0.84.1.dev",
+        "test_cases": 225,
+        "total_tests": 225,
+        "pass_num_1": 92,
+        "pass_num_2": 173,
+        "reported_pass_rate_1_percent": "40.9",
+        "reported_pass_rate_2_percent": "76.9",
+        "provider_attribution": "not supplied by the Aider leaderboard",
+        "error_outputs": 22,
+        "exhausted_context_windows": 0,
+        "indentation_errors": 0,
+        "lazy_comments": 2,
+        "num_malformed_responses": 22,
+        "num_with_malformed_responses": 14,
+        "prompt_tokens": 2893189,
+        "completion_tokens": 1154767,
+        "syntax_errors": 0,
+        "test_timeouts": 1,
+        "user_asks": 108,
+        "percent_cases_well_formed": "93.8",
+        "command_sha256": "4bafdedd66af12405da769f64de4470f3b229632e1fe38151debd34d98bc872f",
+        "source_offering_id": "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction",
+        "source_model_id": "o3",
+        "models_dev_provider_id": "openai",
+        "models_dev_provider_name": "OpenAI",
+        "models_dev_model_id": "o3",
+        "models_dev_model_name": "o3",
+        "models_dev_route": "openai/o3",
+        "models_dev_status": "unspecified",
+        "models_dev_optional_rates_usd_per_million": {
+          "cache_read": "0.5"
+        },
+        "models_dev_experimental_modes_excluded": [],
+        "models_dev_reasoning_efforts": [
+          "high",
+          "low",
+          "medium"
+        ],
+        "models_dev_catalog_source_id": "models-dev-api",
+        "models_dev_catalog_version": "api-sha256:1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_raw_sha256": "1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_retrieved_at": "2026-09-03T12:06:30.481620+00:00",
+        "pricing_scenario": "cache_disabled",
+        "performance_and_token_portability": "operator_asserted_same_provider_model_route_across_time",
+        "mapping_sha256": "ee0aeec23805feb52a82ea382e0c986d0a987d9288309cd4be32ec5a6f8a41f9",
+        "mapping_relationship": "same_provider_model_route",
+        "mapping_evidence": "The pinned Aider row command is `aider --model o3`. Its Aider row commit pins LiteLLM 1.73.1; the reviewed sdist (SHA-256 33ad55ff051bf925419619ec37f32949decdc52a6109c8c0700cfb1209696590) classifies bare o3 as provider openai. Reasoning effort was not explicitly configured. OpenAI documents the alias as snapshot o3-2025-04-16 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+        "mapping_reviewed_at": "2026-09-01T09:54:20+00:00"
+      },
+      "default_source": {
+        "id": "aider-polyglot-leaderboard",
+        "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+        "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+        "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+        "license": "Apache-2.0",
+        "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+        "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+        "retrieved_at": "2026-09-03T12:06:30.181241Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "aider-polyglot/2025-06-28-00-38-18--o3-pro-high@models.dev/5a399049ec600eff90a97658dfd697d50a9edf6b692a38dd03591a2eb37f7ce8",
+        "model_id": "o3-pro",
+        "provider": "openai",
+        "endpoint": null,
+        "billing_mode": null,
+        "region": null,
+        "service_tier": null,
+        "quantization": null,
+        "reasoning_effort": "high",
+        "agent_harness": "aider-polyglot-mixed-historical-leaderboard@1",
+        "capabilities": [
+          "coding",
+          "text"
+        ]
+      },
+      "signals": {
+        "solve_rate_2": {
+          "value": "0.8488888888888888888888888888888889",
+          "unit": "ratio",
+          "lower": "0.7962602371050974049054209605037077",
+          "upper": "0.8898042584154253602385277031223903",
+          "sample_count": 225,
+          "observed_at": "2025-06-28T00:00:00Z",
+          "source": null
+        },
+        "aider_prompt_tokens_total": {
+          "value": "2372636",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-28T00:00:00Z",
+          "source": null
+        },
+        "aider_completion_tokens_total": {
+          "value": "1235902",
+          "unit": "tokens/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-28T00:00:00Z",
+          "source": null
+        },
+        "aider_attempted_workunits": {
+          "value": "225",
+          "unit": "attempted_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-28T00:00:00Z",
+          "source": null
+        },
+        "aider_solved_workunits": {
+          "value": "191",
+          "unit": "solved_workunits/benchmark_run",
+          "lower": null,
+          "upper": null,
+          "sample_count": 225,
+          "observed_at": "2025-06-28T00:00:00Z",
+          "source": null
+        },
+        "models_dev_input_usd_per_million_tokens": {
+          "value": "20",
+          "unit": "USD/million_input_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        },
+        "models_dev_output_usd_per_million_tokens": {
+          "value": "80",
+          "unit": "USD/million_output_tokens",
+          "lower": null,
+          "upper": null,
+          "sample_count": null,
+          "observed_at": "2026-09-03T12:06:30.481620Z",
+          "source": {
+            "id": "models-dev-selected-cache-disabled-prices",
+            "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+            "url": "https://models.dev/api.json",
+            "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+            "license": "MIT",
+            "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+            "raw_sha256": null,
+            "retrieved_at": "2026-09-03T12:06:30.481620Z"
+          }
+        }
+      },
+      "metadata": {
+        "dirname": "2025-06-28-00-38-18--o3-pro-high",
+        "model": "o3-pro (high)",
+        "edit_format": "diff",
+        "commit_hash": "5318380",
+        "commit_dirty": false,
+        "benchmark_date": "2025-06-28",
+        "aider_version": "0.85.1.dev",
+        "test_cases": 225,
+        "total_tests": 225,
+        "pass_num_1": 98,
+        "pass_num_2": 191,
+        "reported_pass_rate_1_percent": "43.6",
+        "reported_pass_rate_2_percent": "84.9",
+        "provider_attribution": "not supplied by the Aider leaderboard",
+        "error_outputs": 20,
+        "exhausted_context_windows": 0,
+        "indentation_errors": 0,
+        "lazy_comments": 0,
+        "num_malformed_responses": 8,
+        "num_with_malformed_responses": 5,
+        "prompt_tokens": 2372636,
+        "completion_tokens": 1235902,
+        "syntax_errors": 0,
+        "test_timeouts": 1,
+        "user_asks": 100,
+        "percent_cases_well_formed": "97.8",
+        "reasoning_effort": "high",
+        "command_sha256": "e243d017115f5c5b3866841145cf16386278d395f1e4adbe88a0f51953cacd77",
+        "source_offering_id": "aider-polyglot/2025-06-28-00-38-18--o3-pro-high",
+        "source_model_id": "o3-pro (high)",
+        "models_dev_provider_id": "openai",
+        "models_dev_provider_name": "OpenAI",
+        "models_dev_model_id": "o3-pro",
+        "models_dev_model_name": "o3-pro",
+        "models_dev_route": "openai/o3-pro",
+        "models_dev_status": "unspecified",
+        "models_dev_optional_rates_usd_per_million": {},
+        "models_dev_experimental_modes_excluded": [],
+        "models_dev_reasoning_efforts": [
+          "high",
+          "low",
+          "medium"
+        ],
+        "models_dev_catalog_source_id": "models-dev-api",
+        "models_dev_catalog_version": "api-sha256:1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_raw_sha256": "1304cbff1034ddbf68308001cd0bcaec828fc1d11bd6d772434c5cd3f09de5fe",
+        "models_dev_catalog_retrieved_at": "2026-09-03T12:06:30.481620+00:00",
+        "pricing_scenario": "cache_disabled",
+        "performance_and_token_portability": "operator_asserted_same_provider_model_route_across_time",
+        "mapping_sha256": "ee0aeec23805feb52a82ea382e0c986d0a987d9288309cd4be32ec5a6f8a41f9",
+        "mapping_relationship": "same_provider_model_route",
+        "mapping_evidence": "The pinned Aider row command is `aider --model o3-pro`; the row separately records reasoning_effort=high. Its Aider row commit pins LiteLLM 1.73.1; the reviewed sdist (SHA-256 33ad55ff051bf925419619ec37f32949decdc52a6109c8c0700cfb1209696590) classifies bare o3-pro as provider openai. OpenAI documents the alias as snapshot o3-pro-2025-06-10 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+        "mapping_reviewed_at": "2026-09-01T09:54:20+00:00"
+      },
+      "default_source": {
+        "id": "aider-polyglot-leaderboard",
+        "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+        "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+        "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+        "license": "Apache-2.0",
+        "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+        "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+        "retrieved_at": "2026-09-03T12:06:30.181241Z"
+      }
+    }
+  ]
+}
