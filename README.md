@@ -88,6 +88,32 @@ Run `uv run modelskyline --help` to see commands for the core workflow,
 telemetry, data sources, source monitoring, quality evidence, publication, and
 contracts.
 
+### Discovery admission policies
+
+Discovery does not rank offerings and does not alter the `evaluate` or `select`
+JSON contracts. To record different admission rules for different frontiers,
+pass a strict JSON policy file:
+
+```console
+cat > frontier-policies.json <<'JSON'
+{"frontiers": {"agent-value": "require_quality", "experimental": "allow_catalog_only"}}
+JSON
+uv run modelskyline discover --frontier-policy-file frontier-policies.json \
+  --output discovery.json
+```
+
+The supported policies are `require_quality` (exclude offerings without
+evaluation quality evidence), `allow_catalog_only` (admit catalog-verified
+offerings only), `allow_vendor_reported` (also admit vendor-reported
+offerings), and `mark_unverified` (admit all discovered offerings as
+unverified). Every decision is retained under `frontier_admissions`, including
+an explicit exclusion reason. Weaker-evidence admissions carry
+`uncertainty_marker: true` and an admission value ending in `*` in that
+frontier's decision; the same offering can therefore be admitted by one
+frontier and excluded by another. Catalog identity is never treated as an
+evaluation result. The file is data-only JSON: arbitrary
+code, plugins, and executable policy are not supported.
+
 ## Small root API
 
 The package root intentionally exposes only the common calculation path:
