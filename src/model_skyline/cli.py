@@ -80,7 +80,13 @@ from model_skyline.arc_feed_monitor import (
     ArcAgiFeedMonitorError,
     inspect_arc_agi_feed,
 )
-from model_skyline.discovery import DiscoveryError, discover_offerings, load_frontier_policies
+from model_skyline.discovery import (
+    DiscoveryError,
+    PublishedBenchmarkSignal,
+    build_provisional_frontier,
+    discover_offerings,
+    load_frontier_policies,
+)
 from model_skyline.engine import FrontierEngine, validate_formula_cost_basis
 from model_skyline.feed_monitor import (
     FeedMonitorError,
@@ -212,6 +218,15 @@ def _hermes_identity_key_from_environment() -> bytes:
     return bytes.fromhex(value)
 
 
+def _load_provisional_benchmarks(path: Path | None) -> tuple[PublishedBenchmarkSignal, ...]:
+    if path is None:
+        return ()
+    value = json.loads(path.read_text(encoding="utf-8"), parse_float=Decimal)
+    if not isinstance(value, list):
+        raise ValueError("provisional benchmark file must contain an array")
+    return tuple(PublishedBenchmarkSignal.model_validate(item) for item in value)
+
+
 def _emit(value: str, output: Path | None) -> None:
     if output is None:
         typer.echo(value, nl=False)
@@ -330,6 +345,20 @@ def discover(
     ] = None,
     output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
     review_queue: Annotated[Path | None, typer.Option("--review-queue")] = None,
+    provisional_output: Annotated[
+        Path | None,
+        typer.Option("--provisional-output", help="write the separate day-one frontier artifact"),
+    ] = None,
+    provisional_benchmarks: Annotated[
+        Path | None,
+        typer.Option(
+            "--provisional-benchmarks",
+            exists=True,
+            readable=True,
+            dir_okay=False,
+            help="JSON array of published scores with benchmark and methodology",
+        ),
+    ] = None,
 ) -> None:
     """Discover public model offerings and write a provenance-preserving review artifact."""
     try:
@@ -349,6 +378,15 @@ def discover(
         if review_queue is not None:
             review_queue.write_text(
                 json.dumps(artifact.review_queue, indent=2) + "\n", encoding="utf-8"
+            )
+        if provisional_output is not None:
+            provisional = build_provisional_frontier(
+                artifact.offerings,
+                generated_at=artifact.retrieved_at,
+                published_benchmarks=_load_provisional_benchmarks(provisional_benchmarks),
+            )
+            provisional_output.write_text(
+                provisional.model_dump_json(indent=2) + "\n", encoding="utf-8"
             )
     except (DiscoveryError, OSError, ValueError) as exc:
         _error(exc)

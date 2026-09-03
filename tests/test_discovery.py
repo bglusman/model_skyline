@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from decimal import Decimal
 
 import httpx
 import pytest
@@ -9,6 +10,8 @@ import pytest
 from model_skyline.discovery import (
     DiscoveryError,
     DiscoverySource,
+    PublishedBenchmarkSignal,
+    build_provisional_frontier,
     discover_offerings,
     frontier_admission_decisions,
     load_frontier_policies,
@@ -122,3 +125,89 @@ def test_frontier_policy_file_is_strict_json(tmp_path) -> None:
     path.write_text('{"frontiers":{"fast":"plugin()"}}', encoding="utf-8")
     with pytest.raises(DiscoveryError, match="invalid frontier admission policy"):
         load_frontier_policies(path)
+
+
+def test_provisional_frontier_uses_catalog_signals_without_mature_quality() -> None:
+    source = DiscoverySource(
+        url="https://openrouter.ai/api/v1/models",
+        kind="catalog",
+        retrieved_at=datetime(2026, 1, 1, tzinfo=UTC),
+        raw_sha256="0" * 64,
+    )
+    offerings = parse_openrouter(
+        json.dumps(
+            {
+                "data": [
+                    {
+                        "id": "acme/model-batch",
+                        "context_length": 32768,
+                        "pricing": {"prompt": "0.000001", "completion": "0.000002"},
+                    },
+                    {
+                        "id": "acme/model-contributor",
+                        "context_length": 65536,
+                        "pricing": {"prompt": "0.000003", "completion": "0.000004"},
+                    },
+                ]
+            }
+        ).encode(),
+        source,
+    )
+
+    artifact = build_provisional_frontier(offerings)
+
+    assert [row.offering_id for row in artifact.records] == [
+        "openrouter/acme/model-batch",
+        "openrouter/acme/model-contributor",
+    ]
+    assert artifact.records[0].mature_evaluation_eligible is False
+    assert artifact.records[0].selection_eligible is False
+    assert artifact.records[0].signals["context_length"].value == 32768
+    assert artifact.records[0].signals["input_cost_usd_per_token"].evidence[0].label == (
+        "catalog_verified"
+    )
+    assert artifact.records[0].signals["input_cost_usd_per_token"].value == "0.000001"
+
+
+def test_provisional_frontier_does_not_treat_missing_quality_as_zero() -> None:
+    source = DiscoverySource(
+        url="https://openrouter.ai/api/v1/models",
+        kind="catalog",
+        retrieved_at=datetime(2026, 1, 1, tzinfo=UTC),
+        raw_sha256="0" * 64,
+    )
+    offering = parse_openrouter(
+        b'{"data":[{"id":"acme/new","context_length":4096,"pricing":{"prompt":"0.1"}}]}',
+        source,
+    )[0]
+
+    record = build_provisional_frontier([offering]).records[0]
+
+    assert "quality" not in record.signals
+    assert record.evaluation_status == "not_evaluated"
+
+
+def test_provisional_frontier_retains_named_vendor_benchmark_with_evidence_label() -> None:
+    source = DiscoverySource(
+        url="https://openrouter.ai/api/v1/models",
+        kind="catalog",
+        retrieved_at=datetime(2026, 1, 1, tzinfo=UTC),
+        raw_sha256="0" * 64,
+    )
+    offering = parse_openrouter(
+        b'{"data":[{"id":"acme/new","context_length":4096,"pricing":{"prompt":"0.1"}}]}',
+        source,
+    )[0]
+    benchmark = PublishedBenchmarkSignal(
+        offering_id=offering.offering_id,
+        benchmark="swe-bench",
+        methodology="vendor-card:v2; exact harness and split",
+        score=Decimal("0.42"),
+        source_url="https://acme.example/model-card",
+    )
+
+    signal = build_provisional_frontier([offering], published_benchmarks=[benchmark]).records[0]
+
+    assert signal.signals["benchmark:swe-bench"].value == "0.42"
+    assert signal.signals["benchmark:swe-bench"].evidence[0].label == "vendor_evaluated"
+    assert signal.signals["benchmark:swe-bench"].evidence[0].methodology.startswith("vendor-card")

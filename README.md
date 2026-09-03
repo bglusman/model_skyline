@@ -114,6 +114,33 @@ frontier and excluded by another. Catalog identity is never treated as an
 evaluation result. The file is data-only JSON: arbitrary
 code, plugins, and executable policy are not supported.
 
+### Day-one/provisional frontier view
+
+A discovery run can also emit a separate, explicitly non-mature artifact:
+
+```console
+uv run modelskyline discover --provisional-output provisional.json \
+  --output discovery.json
+```
+
+`provisional.json` is `model-skyline/provisional-frontier/v1alpha1`. It retains
+separate offering identities (including batch and contributor variants) and
+copies launch-day catalog signals such as exact OpenRouter input/output/cache
+prices, context length, and any explicitly supplied aggregator telemetry. Each
+signal has an evidence label: `catalog_verified`, `vendor_evaluated`,
+`independent_non_comparable`, `independent_comparable`, or
+`aggregator_telemetry`. No absent quality is converted to zero. Named published
+benchmark results may be supplied as a strict JSON array with
+`--provisional-benchmarks`; every row must include offering id, benchmark,
+methodology, score, source URL, and its evidence label.
+
+This is a separate discovery view, not an `ObservationCatalog`, mature frontier,
+or selection input. Its records carry `mature_evaluation_eligible: false` and
+`selection_eligible: false`; `evaluate` and `select` never read it. Vendor and
+independent benchmark evidence can therefore be useful with an uncertainty
+marker and provenance without weakening `require_quality` or promoting vendor
+claims to an independent score.
+
 ## Small root API
 
 The package root intentionally exposes only the common calculation path:

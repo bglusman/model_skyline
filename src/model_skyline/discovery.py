@@ -5,7 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Iterable
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Literal
 from urllib.parse import urlparse
@@ -88,6 +90,172 @@ class DiscoveredOffering(BaseModel):
     catalog_facts: dict[str, Any] = Field(default_factory=dict)
     vendor_quality: dict[str, Any] | None = None
     admission: str = Field(pattern=r"^(review|catalog-only\*|vendor-reported\*|unverified\*)$")
+
+
+class ProvisionalEvidence(BaseModel):
+    """A label explaining where one day-one signal came from."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    label: Literal[
+        "catalog_verified",
+        "vendor_evaluated",
+        "independent_non_comparable",
+        "independent_comparable",
+        "aggregator_telemetry",
+    ]
+    source_url: AnyHttpUrl
+    methodology: str | None = Field(default=None, min_length=1, max_length=512)
+
+
+class PublishedBenchmarkSignal(BaseModel):
+    """An already-published score, accepted only with explicit methodology."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    offering_id: str = Field(min_length=1, max_length=512)
+    benchmark: str = Field(min_length=1, max_length=256)
+    methodology: str = Field(min_length=1, max_length=512)
+    evidence_label: Literal[
+        "vendor_evaluated", "independent_non_comparable", "independent_comparable"
+    ] = "vendor_evaluated"
+    score: Decimal
+    source_url: AnyHttpUrl
+
+
+class ProvisionalSignal(BaseModel):
+    """One launch-day signal; absent quality is represented by absence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    value: str | int
+    unit: str = Field(min_length=1, max_length=128)
+    evidence: tuple[ProvisionalEvidence, ...] = Field(min_length=1, max_length=8)
+
+
+class ProvisionalOfferingRecord(BaseModel):
+    """Frontier-ready catalog record deliberately unusable by mature decisions."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    offering_id: str = Field(min_length=1, max_length=512)
+    model_id: str = Field(min_length=1, max_length=512)
+    provider: str = Field(min_length=1, max_length=256)
+    name: str | None = Field(default=None, max_length=1024)
+    signals: dict[str, ProvisionalSignal]
+    evaluation_status: Literal["not_evaluated"] = "not_evaluated"
+    mature_evaluation_eligible: Literal[False] = False
+    selection_eligible: Literal[False] = False
+
+
+class ProvisionalFrontierArtifact(BaseModel):
+    """Separate day-one view; never an input to ``evaluate`` or ``select``."""
+
+    model_config = ConfigDict(extra="forbid")
+    schema_version: str = "model-skyline/provisional-frontier/v1alpha1"
+    kind: Literal["provisional_frontier"] = "provisional_frontier"
+    generated_at: datetime
+    records: tuple[ProvisionalOfferingRecord, ...] = Field(max_length=MAX_MODELS)
+
+
+def _decimal_text(value: Any) -> str | None:
+    if isinstance(value, bool) or not isinstance(value, (str, int, Decimal)):
+        return None
+    try:
+        parsed = Decimal(str(value))
+    except InvalidOperation:
+        return None
+    if not parsed.is_finite() or parsed < 0:
+        return None
+    return format(parsed, "f")
+
+
+def build_provisional_frontier(
+    offerings: Iterable[DiscoveredOffering],
+    *,
+    generated_at: datetime | None = None,
+    published_benchmarks: Iterable[PublishedBenchmarkSignal] = (),
+) -> ProvisionalFrontierArtifact:
+    """Build deterministic day-one records from catalog and explicit evidence.
+
+    Each offering identity is retained, including batch/contributor variants.
+    Missing quality is absent rather than zero. Published scores are copied only
+    with an identified benchmark and methodology and remain separate from mature
+    evaluation inputs.
+    """
+    offering_values = tuple(offerings)
+    when = generated_at or max(
+        (offering.source.retrieved_at for offering in offering_values),
+        default=datetime(1970, 1, 1, tzinfo=UTC),
+    )
+    if when.tzinfo is None:
+        raise DiscoveryError("generated_at must include a timezone")
+    benchmark_by_offering: dict[str, list[PublishedBenchmarkSignal]] = {}
+    for signal in published_benchmarks:
+        benchmark_by_offering.setdefault(signal.offering_id, []).append(signal)
+    records: list[ProvisionalOfferingRecord] = []
+    for offering in sorted(offering_values, key=lambda item: item.offering_id):
+        facts = offering.catalog_facts
+        catalog_evidence = ProvisionalEvidence(
+            label="catalog_verified", source_url=offering.source.url
+        )
+        signals: dict[str, ProvisionalSignal] = {}
+        context = facts.get("context_length")
+        if isinstance(context, int) and not isinstance(context, bool) and context > 0:
+            signals["context_length"] = ProvisionalSignal(
+                value=context, unit="tokens", evidence=(catalog_evidence,)
+            )
+        pricing = facts.get("pricing")
+        if isinstance(pricing, dict):
+            for raw_name, name in (
+                ("prompt", "input_cost_usd_per_token"),
+                ("completion", "output_cost_usd_per_token"),
+                ("input", "input_cost_usd_per_token"),
+                ("output", "output_cost_usd_per_token"),
+                ("cache_read", "cache_read_cost_usd_per_token"),
+                ("cache_write", "cache_write_cost_usd_per_token"),
+            ):
+                value = _decimal_text(pricing.get(raw_name))
+                if value is not None and name not in signals:
+                    signals[name] = ProvisionalSignal(
+                        value=value, unit="USD/token", evidence=(catalog_evidence,)
+                    )
+        telemetry_names = {
+            "latency_ms": "milliseconds",
+            "throughput_tokens_per_second": "tokens/second",
+            "uptime": "fraction",
+        }
+        telemetry_evidence = ProvisionalEvidence(
+            label="aggregator_telemetry", source_url=offering.source.url
+        )
+        for name, unit in telemetry_names.items():
+            value = _decimal_text(facts.get(name))
+            if value is not None:
+                signals[name] = ProvisionalSignal(
+                    value=value, unit=unit, evidence=(telemetry_evidence,)
+                )
+        for benchmark in sorted(
+            benchmark_by_offering.get(offering.offering_id, []),
+            key=lambda item: (item.benchmark, item.methodology, str(item.source_url)),
+        ):
+            score = _decimal_text(benchmark.score)
+            if score is None:
+                continue
+            benchmark_evidence = ProvisionalEvidence(
+                label=benchmark.evidence_label,
+                source_url=benchmark.source_url,
+                methodology=benchmark.methodology,
+            )
+            signals[f"benchmark:{benchmark.benchmark}"] = ProvisionalSignal(
+                value=score, unit="score", evidence=(benchmark_evidence,)
+            )
+        if signals:
+            records.append(
+                ProvisionalOfferingRecord(
+                    offering_id=offering.offering_id,
+                    model_id=offering.model_id,
+                    provider=offering.provider,
+                    name=offering.name,
+                    signals=signals,
+                )
+            )
+    return ProvisionalFrontierArtifact(generated_at=when, records=tuple(records))
 
 
 class DiscoveryArtifact(BaseModel):
