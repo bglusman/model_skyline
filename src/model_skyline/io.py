@@ -14,6 +14,7 @@ import yaml
 from pydantic import BaseModel, ValidationError
 from yaml.nodes import ScalarNode
 
+from model_skyline.discovery import ProvisionalFrontierArtifact
 from model_skyline.models import (
     MAX_DECIMAL_INPUT_LENGTH,
     FrontierHistory,
@@ -337,6 +338,7 @@ def public_schemas() -> dict[str, dict[str, Any]]:
 
 SCHEMA_IDS = {
     "project-config.schema.json": "urn:model-skyline:schema:v1alpha1:project-config",
+    "provisional-frontier.schema.json": "urn:model-skyline:schema:v1alpha1:provisional-frontier",
     "observation-catalog.schema.json": ("urn:model-skyline:schema:v1alpha1:observation-catalog"),
     "frontier-snapshot.schema.json": ("urn:model-skyline:schema:v1alpha1:frontier-snapshot"),
     "selection-snapshot.schema.json": ("urn:model-skyline:schema:v1alpha1:selection-snapshot"),
@@ -803,6 +805,9 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
     request_trace_schema = RequestTrace.model_json_schema(mode="validation")
     generated = {
         "project-config.schema.json": ProjectConfig.model_json_schema(mode="validation"),
+        "provisional-frontier.schema.json": ProvisionalFrontierArtifact.model_json_schema(
+            mode="serialization"
+        ),
         "observation-catalog.schema.json": ObservationCatalog.model_json_schema(mode="validation"),
         "frontier-snapshot.schema.json": FrontierSnapshot.model_json_schema(mode="serialization"),
         "selection-snapshot.schema.json": SelectionSnapshot.model_json_schema(mode="serialization"),

@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:provisional-frontier",
+  "$defs": {
+    "ProvisionalEvidence": {
+      "additionalProperties": false,
+      "description": "A label explaining where one day-one signal came from.",
+      "properties": {
+        "label": {
+          "enum": [
+            "catalog_verified",
+            "vendor_evaluated",
+            "independent_non_comparable",
+            "independent_comparable",
+            "aggregator_telemetry"
+          ],
+          "title": "Label",
+          "type": "string"
+        },
+        "source_url": {
+          "format": "uri",
+          "minLength": 1,
+          "title": "Source Url",
+          "type": "string"
+        },
+        "methodology": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Methodology"
+        }
+      },
+      "required": [
+        "label",
+        "source_url"
+      ],
+      "title": "ProvisionalEvidence",
+      "type": "object"
+    },
+    "ProvisionalOfferingRecord": {
+      "additionalProperties": false,
+      "description": "Frontier-ready catalog record deliberately unusable by mature decisions.",
+      "properties": {
+        "offering_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "signals": {
+          "additionalProperties": {
+            "$ref": "#/$defs/ProvisionalSignal"
+          },
+          "title": "Signals",
+          "type": "object"
+        },
+        "evaluation_status": {
+          "const": "not_evaluated",
+          "default": "not_evaluated",
+          "title": "Evaluation Status",
+          "type": "string"
+        },
+        "mature_evaluation_eligible": {
+          "const": false,
+          "default": false,
+          "title": "Mature Evaluation Eligible",
+          "type": "boolean"
+        },
+        "selection_eligible": {
+          "const": false,
+          "default": false,
+          "title": "Selection Eligible",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider",
+        "signals"
+      ],
+      "title": "ProvisionalOfferingRecord",
+      "type": "object"
+    },
+    "ProvisionalSignal": {
+      "additionalProperties": false,
+      "description": "One launch-day signal; absent quality is represented by absence.",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/ProvisionalEvidence"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "evidence"
+      ],
+      "title": "ProvisionalSignal",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Separate day-one view; never an input to ``evaluate`` or ``select``.",
+  "properties": {
+    "schema_version": {
+      "default": "model-skyline/provisional-frontier/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "provisional_frontier",
+      "default": "provisional_frontier",
+      "title": "Kind",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "records": {
+      "items": {
+        "$ref": "#/$defs/ProvisionalOfferingRecord"
+      },
+      "maxItems": 10000,
+      "title": "Records",
+      "type": "array"
+    }
+  },
+  "required": [
+    "generated_at",
+    "records"
+  ],
+  "title": "ProvisionalFrontierArtifact",
+  "type": "object"
+}
