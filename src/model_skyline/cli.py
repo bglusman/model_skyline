@@ -80,7 +80,12 @@ from model_skyline.arc_feed_monitor import (
     ArcAgiFeedMonitorError,
     inspect_arc_agi_feed,
 )
-from model_skyline.discovery import DiscoveryError, discover_offerings, load_frontier_policies
+from model_skyline.discovery import (
+    DiscoveryError,
+    build_provisional_evidence_catalog,
+    discover_offerings,
+    load_frontier_policies,
+)
 from model_skyline.engine import FrontierEngine, validate_formula_cost_basis
 from model_skyline.feed_monitor import (
     FeedMonitorError,
@@ -99,6 +104,7 @@ from model_skyline.io import (
     load_paired_quality_estimate,
     load_portfolio_derivation,
     load_portfolio_policy,
+    load_published_benchmark_signals,
     load_quality_evidence,
     load_quality_import_report,
     load_quality_reconciliation,
@@ -441,9 +447,28 @@ def discover(
     ] = None,
     output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
     review_queue: Annotated[Path | None, typer.Option("--review-queue")] = None,
+    provisional_catalog_output: Annotated[
+        Path | None,
+        typer.Option(
+            "--provisional-catalog-output",
+            help="write a separate, non-ranking day-one evidence catalog",
+        ),
+    ] = None,
+    provisional_benchmarks: Annotated[
+        Path | None,
+        typer.Option(
+            "--provisional-benchmarks",
+            exists=True,
+            readable=True,
+            dir_okay=False,
+            help="JSON array of published scores with benchmark and methodology",
+        ),
+    ] = None,
 ) -> None:
     """Discover public model offerings and write a provenance-preserving review artifact."""
     try:
+        if provisional_benchmarks is not None and provisional_catalog_output is None:
+            raise ValueError("--provisional-benchmarks requires --provisional-catalog-output")
         artifact = discover_offerings(
             feeds=feeds or (),
             include_openrouter=include_openrouter,
@@ -460,6 +485,19 @@ def discover(
         if review_queue is not None:
             review_queue.write_text(
                 json.dumps(artifact.review_queue, indent=2) + "\n", encoding="utf-8"
+            )
+        if provisional_catalog_output is not None:
+            provisional = build_provisional_evidence_catalog(
+                artifact.offerings,
+                generated_at=artifact.retrieved_at,
+                published_benchmarks=(
+                    load_published_benchmark_signals(provisional_benchmarks)
+                    if provisional_benchmarks is not None
+                    else ()
+                ),
+            )
+            provisional_catalog_output.write_text(
+                provisional.model_dump_json(indent=2) + "\n", encoding="utf-8"
             )
     except (DiscoveryError, OSError, ValueError) as exc:
         _error(exc)

@@ -14,6 +14,7 @@ import yaml
 from pydantic import BaseModel, ValidationError
 from yaml.nodes import ScalarNode
 
+from model_skyline.discovery import ProvisionalEvidenceCatalog, PublishedBenchmarkSignal
 from model_skyline.local_measurements import LocalMeasurementRecord
 from model_skyline.models import (
     MAX_DECIMAL_INPUT_LENGTH,
@@ -315,6 +316,15 @@ def load_local_measurement(path: str | Path) -> LocalMeasurementRecord:
     return _validate_sensitive(LocalMeasurementRecord, value, path)
 
 
+def load_published_benchmark_signals(path: str | Path) -> tuple[PublishedBenchmarkSignal, ...]:
+    """Load bounded, duplicate-key-safe launch-day benchmark claims."""
+
+    value = _load_bounded_json(path, artifact_label="provisional benchmark artifact")
+    if not isinstance(value, list) or len(value) > 10_000:
+        raise InputError("provisional benchmark artifact must contain at most 10000 rows")
+    return tuple(_validate_sensitive(PublishedBenchmarkSignal, item, path) for item in value)
+
+
 def load_quality_reconciliation(path: str | Path) -> QualityReconciliation:
     return _validate_sensitive(QualityReconciliation, _load_quality_json(path), path)
 
@@ -358,6 +368,9 @@ def public_schemas() -> dict[str, dict[str, Any]]:
 
 SCHEMA_IDS = {
     "project-config.schema.json": "urn:model-skyline:schema:v1alpha1:project-config",
+    "provisional-evidence-catalog.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:provisional-evidence-catalog"
+    ),
     "observation-catalog.schema.json": ("urn:model-skyline:schema:v1alpha1:observation-catalog"),
     "frontier-snapshot.schema.json": ("urn:model-skyline:schema:v1alpha1:frontier-snapshot"),
     "selection-snapshot.schema.json": ("urn:model-skyline:schema:v1alpha1:selection-snapshot"),
@@ -879,6 +892,9 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
     request_trace_schema = RequestTrace.model_json_schema(mode="validation")
     generated = {
         "project-config.schema.json": ProjectConfig.model_json_schema(mode="validation"),
+        "provisional-evidence-catalog.schema.json": ProvisionalEvidenceCatalog.model_json_schema(
+            mode="serialization"
+        ),
         "observation-catalog.schema.json": ObservationCatalog.model_json_schema(mode="validation"),
         "frontier-snapshot.schema.json": FrontierSnapshot.model_json_schema(mode="serialization"),
         "selection-snapshot.schema.json": SelectionSnapshot.model_json_schema(mode="serialization"),
