@@ -60,6 +60,7 @@ frontier &middot; <span class="dm">&middot;</span> dominated.</p>
 <div id="generated" style="color:#888;font-size:.78rem"></div>
 
 <section id="dossiers"><h2>Model dossiers</h2>
+<p class="hint">Default view: frontier residents and models near at least one frontier. Dominated-only models remain available in the comparison table below.</p>
 <div class="dgrid" id="dgrid"></div></section>
 
 <section id="compare"><h2>Two-model head-to-head</h2>
@@ -154,7 +155,9 @@ function rivalFor(r, f, dir){ // dir: 'cheaper' or 'smarter'
 }
 // ---- dossier cards ----
 const dgrid = document.getElementById('dgrid');
-const models = Object.entries(MM).sort((a,b) =>
+const models = Object.entries(MM)
+  .filter(([name, mm]) => (mm.on||[]).length > 0 || (mm.near||[]).length > 0)
+  .sort((a,b) =>
   (2*(b[1].on||[]).length + (b[1].near||[]).length) - (2*(a[1].on||[]).length + (a[1].near||[]).length));
 models.forEach(([name, mm]) => {
   // collect row entries across frontiers
