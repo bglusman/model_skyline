@@ -108,6 +108,14 @@ disagreement. The evidence therefore identifies the mode as
 power governor. No thermal or performance warning was present on the later
 recheck.
 
+During a later sustained ShoeHorn exact-error pass using roughly 17 CPU cores,
+the raw Apple battery telemetry reported `SystemPowerIn=96993` and
+`BatteryPower=0` while the same USB-C adapter remained negotiated at 140 W.
+Those undocumented telemetry units plausibly mean about 97 W into the system,
+but this is not a wall-meter measurement. The defensible conclusion is that
+the cable sustained the workload without battery supplementation—not that the
+machine continuously drew the adapter's full 140 W rating.
+
 ## Cache and switch semantics
 
 On the measured host, llama-swap owns one OpenAI-compatible endpoint at

@@ -1,0 +1,36 @@
+{
+  "schema_version": "model-skyline/eval-corpus-manifest/v1",
+  "dataset_id": "Salesforce/wikitext",
+  "configuration": "wikitext-2-raw-v1",
+  "split": "test",
+  "revision": "f776294184f13b8ff2337b3841cf9269a6216d1e",
+  "source_url": "https://huggingface.co/datasets/Salesforce/wikitext/tree/f776294184f13b8ff2337b3841cf9269a6216d1e/wikitext-2-raw-v1",
+  "licenses": [
+    "CC-BY-SA-3.0",
+    "GFDL"
+  ],
+  "source_artifact": {
+    "path": "wikitext-2-raw-v1/test-00000-of-00001.parquet",
+    "size_bytes": 731216,
+    "sha256": "3ee89cd6a2ab912afd5d01e98867b46a67d9ec7a9eca0910e5e4c3cdd4cc1925"
+  },
+  "derived_artifact": {
+    "local_path": "/Users/80260986/Models/model-skyline/eval/wikitext-2-raw-v1-test.txt",
+    "size_bytes": 1292014,
+    "line_count": 7249,
+    "sha256": "bfe9eb16ab9987fb88bde4ea9a30a00f2a45db01dfc14bad78d05325789c4f12"
+  },
+  "evaluation_slice": {
+    "local_path": "/Users/80260986/Models/model-skyline/eval/wikitext-2-raw-v1-test-head512.txt",
+    "selection": "First 512 rows in source order after text conversion.",
+    "size_bytes": 101113,
+    "line_count": 512,
+    "sha256": "10976b6e2d59a3a813e5825970a18dfdcc902302e5250bbb3052c6eaa9b23415"
+  },
+  "conversion": {
+    "tool": "DuckDB",
+    "version": "v1.3.2 (Ossivalis) 0b83e5d2f6",
+    "method": "Select the text column in source row order and write one unquoted line per row."
+  },
+  "usage": "Use the 512-row slice for the initial quantization-sensitive held-out perplexity comparison; compare artifacts with the same runtime, context, and command."
+}

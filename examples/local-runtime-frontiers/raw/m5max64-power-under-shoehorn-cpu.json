@@ -1,0 +1,40 @@
+{
+  "schema_version": "model-skyline/raw-power-observation/v1",
+  "captured_at": "2026-09-13T04:22:43Z",
+  "host_id": "macbook-m5max-64",
+  "workload": {
+    "name": "ShoeHorn Ornith exact-row-error scoring",
+    "process_cpu_percent": 1779.7,
+    "process_resident_bytes": 43868061696,
+    "note": "CPU percentage is ps aggregate across cores; resident bytes include file-backed mappings."
+  },
+  "adapter": {
+    "manufacturer": "Apple Inc.",
+    "name": "140W USB-C Power Adapter",
+    "rated_watts": 140,
+    "advertised_voltage_mv": 28000,
+    "advertised_current_ma": 5000,
+    "connection": "direct-usb-c"
+  },
+  "telemetry": {
+    "system_voltage_in_mv": 27289,
+    "system_current_in_ma": 3554,
+    "system_power_in_mw": 96993,
+    "battery_power_mw": 0,
+    "battery_amperage_ma": 0,
+    "battery_percent": 100,
+    "battery_charging": false
+  },
+  "power_mode": {
+    "pmset_ac_powermode": 2,
+    "system_profiler_high_power_mode": false,
+    "system_profiler_low_power_mode": true,
+    "status": "configured-not-independently-verified"
+  },
+  "thermal": {
+    "thermal_warning_recorded": false,
+    "performance_warning_recorded": false,
+    "cpu_power_status_recorded": false
+  },
+  "redaction": "Adapter and battery serial numbers omitted. Apple telemetry field names retained; units inferred from field magnitudes and electrical consistency."
+}
