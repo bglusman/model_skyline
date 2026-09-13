@@ -121,9 +121,19 @@ changed reasoning length between cold and warm positions, but remained
 semantically correct in every trial. No request contained a llama-swap loading
 event or increased swap usage.
 
-This establishes a reproducible cache/first-request semantic divergence in the
-DFlash configuration; it does not by itself locate the defect in the draft
-engine, prompt-cache restoration, or their interaction. Target-only is the
-recommended agent route. DFlash remains exposed as experimental because its
-warm speedup is valuable enough to investigate, but a warm-only benchmark must
-not hide its cold failure.
+A follow-up control distinguishes persistent prompt reuse from the server's
+separate 8 GiB saved-prompt cache. Setting only `--cache-ram 0` did not disable
+same-slot longest-common-prefix reuse: the second request still reported 5,389
+cached tokens and changed from the wrong answer to the exact tool call. With
+both `--cache-ram 0` and `--no-cache-prompt`, two consecutive requests reported
+zero cached tokens and reproduced the identical 463-token wrong answer. The raw
+captures retain both controls.
+
+This isolates a reproducible semantic divergence to DFlash plus llama.cpp's
+prompt-reuse path: the same hashed request, seed, target/draft bytes, and runtime
+configuration yields a different answer when its 5,389-token prefix is reused.
+The evidence does not yet identify whether the incorrect state is the uncached
+or reused computation, but target-only supplies the expected tool call in both
+states. Target-only is therefore the recommended agent route. DFlash remains
+exposed as experimental because its warm speedup is valuable enough to
+investigate, but a warm-only benchmark must not hide the divergence.

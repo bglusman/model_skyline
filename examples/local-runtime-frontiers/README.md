@@ -468,6 +468,9 @@ answer byte-for-byte. Its ready transition was only 2.29–2.42 s; the failure i
 semantic, not loading text or a health-check timeout. With a 256-token ceiling,
 DFlash also failed all three requests by exhausting the allowance before a tool
 call.
+Disabling prompt reuse preserved the same wrong answer on consecutive requests;
+the correct tool call appeared only after a 5,389-token prefix-cache hit. This
+isolates the divergence to DFlash plus llama.cpp's prompt-reuse path.
 
 Consequently OpenCode and OMP label DFlash experimental and expose target-only
 as the recommended Muse route. Every capture reported zero loading-state
