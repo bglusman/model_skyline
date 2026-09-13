@@ -174,6 +174,14 @@ power snapshots; `--process-match` adds sampled peak RSS for a literal command
 substring. RSS is labeled as process RSS and must not be presented as Metal
 active memory. Cold-load and post-idle captures use `--runner-state` in a
 separate one-repetition run with no warmup.
+When a request goes through llama-swap, add
+`--runner-status-url http://127.0.0.1:8090/running` and, for an alias, its real
+`--runner-model-id`. The harness polls the router's `starting` to `ready`
+transition during the request and normalizes health-ready latency as
+`local_cold_load_seconds`; TTFT remains the separate user-visible
+load-plus-prefill measure. Before a deliberate cold run, unload managed models
+with `POST /api/models/unload` and verify `/running` is empty. These lifecycle
+endpoints are part of [llama-swap's documented API](https://github.com/mostlygeek/llama-swap#api-endpoints).
 For oMLX DFlash profiles, `--runtime-stats-url` captures the engine's exact
 per-request acceptance summary; normalization emits it as
 `local_speculative_acceptance_percent` rather than inferring acceptance from

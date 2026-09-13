@@ -244,18 +244,18 @@ def main() -> None:
     except ValueError as exc:
         parser.error(str(exc))
 
-    invocation_sha256 = content_hash(
-        {
-            "tool": "model-skyline/openai-matrix@v1",
-            "base_url": capture.get("base_url"),
-            "model": served_model,
-            "mode": mode,
-            "retrieval_position": capture.get("retrieval_position"),
-            "repetitions": capture.get("repetitions"),
-            "warmup": capture.get("warmup"),
-            "positions": sorted([list(key) for key in grouped]),
-        }
-    )
+    invocation_identity: dict[str, Any] = {
+        "tool": "model-skyline/openai-matrix@v1",
+        "base_url": capture.get("base_url"),
+        "model": served_model,
+        "mode": mode,
+        "repetitions": capture.get("repetitions"),
+        "warmup": capture.get("warmup"),
+        "positions": sorted([list(key) for key in grouped]),
+    }
+    if mode == "retrieval":
+        invocation_identity["retrieval_position"] = capture.get("retrieval_position")
+    invocation_sha256 = content_hash(invocation_identity)
     written: list[Path] = []
     for (approximate, maximum, state), group in sorted(grouped.items()):
         try:
@@ -285,6 +285,10 @@ def main() -> None:
                 values = _metric(group, row_field=row_field, usage_field=usage_field)
                 if values is not None:
                     metrics[name] = {"unit": unit, "values": values}
+            if capture.get("runner_state") in {"cold_model_load", "post_idle_expiry"}:
+                ready = _metric(group, row_field="runner_ready_seconds")
+                if ready is not None:
+                    metrics["cold_load_seconds"] = {"unit": "s", "values": ready}
             peak_rss = [row.get("peak_process_rss_bytes") for row in group]
             if all(isinstance(value, int) for value in peak_rss):
                 metrics["peak_process_rss_bytes"] = {

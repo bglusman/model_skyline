@@ -223,6 +223,70 @@ class _RssSampler:
         self.peak_bytes = value if self.peak_bytes is None else max(self.peak_bytes, value)
 
 
+class _RunnerStateSampler:
+    def __init__(self, url: str | None, model_id: str | None) -> None:
+        self.url = url
+        self.model_id = model_id
+        self.events: list[dict[str, Any]] = []
+        self.ready_seconds: float | None = None
+        self._started_ns = 0
+        self._stopped = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    def start(self, started_ns: int) -> None:
+        if self.url is None:
+            return
+        self._started_ns = started_ns
+        self._thread = threading.Thread(target=self._sample, daemon=True)
+        self._thread.start()
+
+    def stop(self) -> tuple[list[dict[str, Any]], float | None]:
+        self._stopped.set()
+        if self._thread is not None:
+            self._thread.join(timeout=6)
+        return self.events, self.ready_seconds
+
+    def _sample(self) -> None:
+        assert self.url is not None
+        previous: tuple[tuple[str, str], ...] | None = None
+        with httpx.Client(timeout=2) as client:
+            while not self._stopped.is_set():
+                sampled_ns = time.monotonic_ns()
+                try:
+                    response = client.get(self.url)
+                    response.raise_for_status()
+                    payload = response.json()
+                    running = payload.get("running") if isinstance(payload, dict) else None
+                    if not isinstance(running, list):
+                        raise ValueError("running response is not an array")
+                    snapshot = tuple(
+                        sorted(
+                            (item["model"], item["state"])
+                            for item in running
+                            if isinstance(item, dict)
+                            and isinstance(item.get("model"), str)
+                            and isinstance(item.get("state"), str)
+                            and (self.model_id is None or item["model"] == self.model_id)
+                        )
+                    )
+                except (httpx.HTTPError, json.JSONDecodeError, KeyError, ValueError):
+                    snapshot = (("capture", "error"),)
+                elapsed = (sampled_ns - self._started_ns) / 1_000_000_000
+                if snapshot != previous:
+                    self.events.append(
+                        {
+                            "elapsed_seconds": elapsed,
+                            "models": [
+                                {"model": model, "state": state} for model, state in snapshot
+                            ],
+                        }
+                    )
+                    previous = snapshot
+                if self.ready_seconds is None and any(state == "ready" for _, state in snapshot):
+                    self.ready_seconds = elapsed
+                self._stopped.wait(0.05)
+
+
 def _semantic_delta(delta: dict[str, Any]) -> str:
     for key in ("content", "reasoning_content", "reasoning"):
         value = delta.get(key)
@@ -243,6 +307,8 @@ def _stream_request(
     process_match: str | None,
     runtime_stats_url: str | None,
     expected_content: str | None,
+    runner_status_url: str | None,
+    runner_model_id: str | None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "model": model,
@@ -268,6 +334,8 @@ def _stream_request(
     rss_sampler = _RssSampler(process_match)
     rss_sampler.start()
     started_ns = time.monotonic_ns()
+    runner_sampler = _RunnerStateSampler(runner_status_url, runner_model_id)
+    runner_sampler.start(started_ns)
     first_semantic_ns: int | None = None
     content_parts: list[str] = []
     tool_names: dict[int, str] = {}
@@ -311,6 +379,7 @@ def _stream_request(
                         finish_reasons.append(choice["finish_reason"])
         completed_ns = time.monotonic_ns()
     finally:
+        runner_state_events, runner_ready_seconds = runner_sampler.stop()
         peak_process_rss_bytes = rss_sampler.stop()
         host_after = _host_state()
         runtime_stats_after = _runtime_stats(client, runtime_stats_url)
@@ -372,6 +441,8 @@ def _stream_request(
         "host_after": host_after,
         "runtime_stats_before": runtime_stats_before,
         "runtime_stats_after": runtime_stats_after,
+        "runner_state_events": runner_state_events,
+        "runner_ready_seconds": runner_ready_seconds,
     }
 
 
@@ -407,6 +478,14 @@ def main() -> None:
         "--runtime-stats-url",
         help="optional loopback JSON endpoint sampled before and after every request",
     )
+    parser.add_argument(
+        "--runner-status-url",
+        help="optional loopback llama-swap /running endpoint sampled during requests",
+    )
+    parser.add_argument(
+        "--runner-model-id",
+        help="optional real llama-swap model ID used to filter /running transitions",
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     parsed = urlparse(args.base_url)
@@ -420,6 +499,14 @@ def main() -> None:
             "::1",
         }:
             parser.error("--runtime-stats-url must be an HTTP loopback endpoint")
+    if args.runner_status_url is not None:
+        status_url = urlparse(args.runner_status_url)
+        if status_url.scheme != "http" or status_url.hostname not in {
+            "127.0.0.1",
+            "localhost",
+            "::1",
+        }:
+            parser.error("--runner-status-url must be an HTTP loopback endpoint")
     if args.repetitions <= 0:
         parser.error("--repetitions must be positive")
     if args.runner_state != "warm" and (args.warmup or args.repetitions != 1):
@@ -440,6 +527,8 @@ def main() -> None:
                 process_match=args.process_match,
                 runtime_stats_url=args.runtime_stats_url,
                 expected_content=None,
+                runner_status_url=args.runner_status_url,
+                runner_model_id=args.runner_model_id,
             )
         for approximate_tokens in args.prefix_tokens:
             if args.mode == "retrieval":
@@ -462,6 +551,8 @@ def main() -> None:
                         process_match=args.process_match,
                         runtime_stats_url=args.runtime_stats_url,
                         expected_content=expected_content,
+                        runner_status_url=args.runner_status_url,
+                        runner_model_id=args.runner_model_id,
                     )
                     results.append(
                         {
@@ -489,6 +580,8 @@ def main() -> None:
         "runner_state": args.runner_state,
         "process_match": args.process_match,
         "runtime_stats_url": args.runtime_stats_url,
+        "runner_status_url": args.runner_status_url,
+        "runner_model_id": args.runner_model_id,
         "results": results,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
