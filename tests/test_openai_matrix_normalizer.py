@@ -55,7 +55,7 @@ def test_extracts_dflash_acceptance_from_nested_runtime_stats() -> None:
                         }
                     }
                 ]
-            }
+            },
         }
     ]
 
@@ -128,9 +128,7 @@ def test_input_definition_hash_covers_system_prompt_and_tool_schema() -> None:
 
 def test_input_definition_hash_covers_thinking_mode() -> None:
     prompt = MATRIX._prefix("prose", 512)
-    disabled = MATRIX._input_definition(
-        prompt, "prose", thinking_mode="disabled"
-    )
+    disabled = MATRIX._input_definition(prompt, "prose", thinking_mode="disabled")
     enabled = MATRIX._input_definition(prompt, "prose", thinking_mode="enabled")
 
     assert disabled["chat_template_kwargs"] == {"enable_thinking": False}

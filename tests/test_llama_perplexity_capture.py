@@ -70,9 +70,7 @@ def test_parse_retains_ignored_tensor_cost() -> None:
     )
 
     assert result["chunks_evaluated"] == 3
-    assert result["unused_tensors"] == [
-        {"name": "blk.40.attn_q.weight", "size_bytes": 33_554_432}
-    ]
+    assert result["unused_tensors"] == [{"name": "blk.40.attn_q.weight", "size_bytes": 33_554_432}]
     assert result["unused_tensor_bytes"] == 33_554_432
 
 
@@ -89,15 +87,12 @@ def test_parse_retains_ignored_tensor_cost() -> None:
             "",
         ),
         (
-            "perplexity: calculating perplexity over 6 chunks\n"
-            "Final estimate: PPL = 7.1 +/- 0.1",
+            "perplexity: calculating perplexity over 6 chunks\nFinal estimate: PPL = 7.1 +/- 0.1",
             "build = 1 (abc)\nbuild = 2 (def)",
         ),
     ],
 )
-def test_parse_rejects_missing_duplicate_or_conflicting_evidence(
-    stdout: str, stderr: str
-) -> None:
+def test_parse_rejects_missing_duplicate_or_conflicting_evidence(stdout: str, stderr: str) -> None:
     capture = _load_capture()
 
     with pytest.raises(ValueError):
