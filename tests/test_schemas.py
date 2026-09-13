@@ -31,6 +31,7 @@ QUALITY_SCHEMA_NAMES = (
     "quality-portfolio-policy.schema.json",
     "quality-portfolio-derivation.schema.json",
 )
+LOCAL_SCHEMA_NAME = "local-measurement.schema.json"
 
 
 def _valid(schema: dict, payload: object) -> None:
@@ -157,6 +158,14 @@ def test_committed_quality_schemas_match_generator(name: str) -> None:
 
     Draft202012Validator.check_schema(generated)
     assert public_schemas()[name] == generated
+
+
+def test_committed_local_measurement_schema_matches_generator() -> None:
+    generated = generated_schemas()[LOCAL_SCHEMA_NAME]
+
+    Draft202012Validator.check_schema(generated)
+    assert public_schemas()[LOCAL_SCHEMA_NAME] == generated
+    assert "Model-quality claims are intentionally outside" in generated["$comment"]
 
 
 def test_quality_import_report_schema_is_explicitly_local_only() -> None:

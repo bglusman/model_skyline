@@ -1,0 +1,50 @@
+{
+  "schema_version": "model-skyline/local-system-profile/v1",
+  "served_model": "muse-glimmer-30b-dynamic-target",
+  "artifact": {
+    "model_id": "meta-models/Muse-Glimmer-30B",
+    "checkpoint": "Muse-Glimmer-30B",
+    "revision": "70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+    "format": "gguf",
+    "quantization": "KQuant-Dynamic-Q4_K_XL",
+    "size_bytes": 19653960832,
+    "content_sha256": "ac7023d6a4c704eb9af54ab53e476a66b7f5b6c0ef2fc4a8dde5253c291a6c38",
+    "source_url": "https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/tree/70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+    "license": "Apache-2.0",
+    "metadata": {
+      "filename": "Muse-Glimmer-30B-KQuant-Dynamic-Q4_K_XL.gguf"
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "build-10809",
+    "commit": "5266f24da",
+    "backend": "Metal",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "q8_0/q8_0",
+    "prefix_cache_enabled": true,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "runtime_binary_sha256": "30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9",
+      "allocated_context_tokens": 131072,
+      "parallel_slots": 1,
+      "batch_tokens": 2048,
+      "micro_batch_tokens": 512,
+      "max_output_tokens": 16384,
+      "n_gpu_layers": "all",
+      "flash_attention": true,
+      "fit": "off",
+      "jinja": true,
+      "cache_ram_bytes": 8589934592,
+      "cache_idle_slots": true,
+      "llama_swap_model_id": "muse-glimmer-30b-dynamic-target",
+      "llama_swap_exclusive_group": "local-memory"
+    }
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ]
+}

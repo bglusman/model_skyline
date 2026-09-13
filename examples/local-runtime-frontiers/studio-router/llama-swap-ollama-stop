@@ -1,0 +1,8 @@
+#!/bin/zsh
+set -u
+
+ollama_bin=/Applications/Ollama.app/Contents/Resources/ollama
+pid="${1:?holder pid required}"
+model="${2:?Ollama model required}"
+"${ollama_bin}" stop "${model}" >/dev/null 2>&1 || true
+kill -TERM "${pid}" 2>/dev/null || true

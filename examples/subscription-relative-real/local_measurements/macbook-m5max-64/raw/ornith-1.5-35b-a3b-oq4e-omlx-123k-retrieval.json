@@ -1,0 +1,35 @@
+{
+  "observed_at": "2026-09-13T00:45:51Z",
+  "runtime": "oMLX 0.6.4; MLX 0.32.2",
+  "model": "mlx-works/Ornith-1.5-35B-A3B-oQ4e-mtp",
+  "profile": "baseline-f16kv",
+  "configuration": {
+    "context_window": 262144,
+    "max_concurrent_requests": 1,
+    "cache": false,
+    "memory_guard": "balanced",
+    "mtp_enabled": false,
+    "turboquant_kv_enabled": false
+  },
+  "prompt": {
+    "prompt_tokens": 122906,
+    "characters": 530317,
+    "needles": [
+      "COPPER-LANTERN-731",
+      "GLASS-ORBIT-284",
+      "MAPLE-CIPHER-956"
+    ],
+    "approximate_positions": [0.1, 0.5, 0.9]
+  },
+  "result": {
+    "retrieval_passed": true,
+    "answer": [
+      "COPPER-LANTERN-731",
+      "GLASS-ORBIT-284",
+      "MAPLE-CIPHER-956"
+    ],
+    "completion_tokens": 189,
+    "wall_seconds": 95.807,
+    "server_total_seconds": 95.61
+  }
+}

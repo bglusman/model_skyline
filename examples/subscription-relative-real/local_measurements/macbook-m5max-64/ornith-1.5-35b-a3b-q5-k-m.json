@@ -1,0 +1,81 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "measured_at": "2026-09-13T00:29:27Z",
+  "measurement_tool": "llama-bench-json",
+  "measurement_config": {
+    "build_commit": "5266f24da",
+    "build_number": 10809,
+    "cpu_info": "Accelerate, Apple M5 Max",
+    "gpu_info": "Apple M5 Max",
+    "backends": "BLAS,MTL",
+    "model_filename": "Ornith-1.5-35B-Q5_K_M.gguf",
+    "model_type": "qwen35moe 35B.A3B Q5_K - Medium",
+    "model_size": 25336541696,
+    "model_n_params": 35505251456,
+    "n_batch": 2048,
+    "n_ubatch": 512,
+    "n_threads": 6,
+    "cpu_mask": "0x0",
+    "cpu_strict": false,
+    "poll": 50,
+    "type_k": "q8_0",
+    "type_v": "q8_0",
+    "n_gpu_layers": 99,
+    "n_cpu_moe": 0,
+    "split_mode": "layer",
+    "main_gpu": 0,
+    "no_kv_offload": false,
+    "flash_attn": 1,
+    "devices": "auto",
+    "tensor_split": "0.00",
+    "tensor_buft_overrides": "none",
+    "load_mode": "auto",
+    "lazy_mode": "auto",
+    "embeddings": false,
+    "no_op_offload": 0,
+    "no_host": false,
+    "fit_target": 0,
+    "fit_min_ctx": 0,
+    "n_prompt": 0,
+    "n_gen": 512,
+    "n_depth": 0,
+    "test_time": "2026-09-13T00:19:59Z",
+    "prefill_n_prompt": 2048
+  },
+  "stddev_tok_s": 0.203443,
+  "workload": "coding-session",
+  "offering": {
+    "offering_id": "local-macbook-m5max-64/ornith-1.5-35b-a3b-llama-cpp-q5-k-m",
+    "model_id": "ornith-1.5-35b-a3b",
+    "provider": "local-macbook-m5max-64",
+    "endpoint": "local",
+    "region": "home",
+    "service_tier": "standard",
+    "quantization": "Q5_K_M",
+    "agent_harness": "brian-harness@1 [llama.cpp 0.4.0 b10809 ngl=all fa=on q8_0-kv]",
+    "capabilities": [
+      "text",
+      "tools"
+    ]
+  },
+  "signals": {
+    "local_decode_tokens_per_second": {
+      "value": "104.90",
+      "unit": "tokens/second",
+      "sample_count": 3,
+      "observed_at": "2026-09-13T00:29:27Z"
+    },
+    "local_prefill_tokens_per_second": {
+      "value": "2769.7",
+      "unit": "tokens/second",
+      "observed_at": "2026-09-13T00:29:27Z",
+      "sample_count": 3
+    }
+  },
+  "default_source": {
+    "id": "brian-local-macbook-m5max-64-v1",
+    "version": "1",
+    "license": "MIT (derived); upstream terms preserved",
+    "methodology": "Local decode 104.90 tok/s on macbook-m5max-64 via llama.cpp 0.4.0 b10809 ngl=all fa=on q8_0-kv; measured with llama-bench-json (benchmark orchestration remains the source workflow's responsibility; config embedded in agent_harness/measurement_config); quality axis omitted pending verified evidence."
+  }
+}

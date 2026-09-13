@@ -1,0 +1,227 @@
+schema_version: model-skyline/v1alpha1
+
+workloads:
+  llama-bench-pp2048-tg512:
+    unit: benchmark_run
+    version: llama.cpp@5266f24da/model-skyline@v1
+    harness: llama-bench@5266f24da
+    cohort: same-checkpoint-quantization-diagnostic@v1
+    benchmark: llama-bench synthetic prompt/decode
+    description: >-
+      Five warm, serial repetitions of an identical 2,048-token synthetic prompt
+      and 512-token decode with fixed llama.cpp, Metal, KV, batch, and thread settings.
+      Artifact and hardware identity remain explicit. Each generated
+      quantization slice restricts candidates to one base checkpoint and is a
+      speed diagnostic that does not assume equal quality; cross-generation
+      hardware slices additionally restrict to identical artifact bytes.
+    variables: {}
+    assumptions:
+      cache_state: disabled
+      concurrency: 1
+      evidence_status: provisional
+
+  openai-agent-latency-v1:
+    unit: request
+    version: "1"
+    harness: model-skyline/openai-matrix@v1
+    cohort: byte-stable-prefix-ladder@v1
+    benchmark: streaming OpenAI-compatible requests
+    description: >-
+      Steady-state agent-facing matrix with model profile, prefix warmth,
+      prompt length, output length, and prose/code/tool mode fixed per position.
+    variables: {}
+    assumptions:
+      concurrency: 1
+
+  long-context-retrieval-v1:
+    unit: retrieval_probe
+    version: "1"
+    harness: model-skyline/passkey-and-distractors@v1
+    cohort: deterministic-byte-prompt-actual-token-count@v1
+    benchmark: long-context retrieval and latency
+    description: >-
+      Exact-answer retrieval checks at fixed character fractions in deterministic
+      prompts; API usage supplies the actual token count. A merely allocated context
+      window is not a successful retrieval result.
+    variables: {}
+    assumptions:
+      compaction: disabled_during_probe
+
+  validated-capacity-v1:
+    unit: context_position
+    version: "1"
+    harness: model-skyline/passkey-and-memory@v1
+    cohort: deterministic-byte-prompt-actual-token-count@v1
+    benchmark: validated retrieval capacity and peak memory
+    description: >-
+      Maximum fully passing retrieval position paired with measured peak
+      physical footprint; OOM-free allocation alone is insufficient.
+    variables: {}
+    assumptions:
+      swap_allowed: false
+
+metrics:
+  prompt_throughput:
+    kind: signal
+    signal: local_prompt_tokens_per_second
+    unit: token/s
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 5
+
+  decode_throughput:
+    kind: signal
+    signal: local_decode_tokens_per_second
+    unit: token/s
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 5
+
+  agent_decode_throughput:
+    kind: signal
+    signal: local_decode_tokens_per_second
+    unit: token/s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  ttft:
+    kind: signal
+    signal: local_time_to_first_token_seconds
+    unit: s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  end_to_end:
+    kind: signal
+    signal: local_end_to_end_seconds
+    unit: s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  tool_call_success:
+    kind: signal
+    signal: local_tool_call_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  tool_argument_parse_success:
+    kind: signal
+    signal: local_tool_argument_parse_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  retrieval_success:
+    kind: signal
+    signal: local_retrieval_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  validated_context:
+    kind: signal
+    signal: local_validated_context_tokens
+    unit: token
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  peak_physical_footprint:
+    kind: signal
+    signal: local_peak_process_physical_footprint_bytes
+    unit: byte
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+frontiers:
+  short-throughput-envelope:
+    workload: llama-bench-pp2048-tg512
+    axes:
+      - metric: prompt_throughput
+        goal: maximize
+        epsilon_relative: 0.03
+      - metric: decode_throughput
+        goal: maximize
+        epsilon_relative: 0.03
+    order_by: decode_throughput
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text]
+      allow_unknown_age: false
+    metadata_fields: [hardware, artifact, runtime, local_evidence_status]
+
+  interactive-agent-latency:
+    workload: openai-agent-latency-v1
+    axes:
+      - metric: ttft
+        goal: minimize
+        epsilon_relative: 0.05
+      - metric: agent_decode_throughput
+        goal: maximize
+        epsilon_relative: 0.05
+    order_by: ttft
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text]
+      allow_unknown_age: false
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+  tool-agent-operational:
+    workload: openai-agent-latency-v1
+    axes:
+      - metric: tool_call_success
+        goal: maximize
+      - metric: end_to_end
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: tool_call_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+      minimum_axis_values:
+        tool_call_success: 100
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+  long-context-operational:
+    workload: long-context-retrieval-v1
+    axes:
+      - metric: retrieval_success
+        goal: maximize
+      - metric: end_to_end
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: retrieval_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [long-context]
+      allow_unknown_age: false
+      minimum_axis_values:
+        retrieval_success: 100
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+  validated-capacity-memory:
+    workload: validated-capacity-v1
+    axes:
+      - metric: validated_context
+        goal: maximize
+        epsilon_relative: 0.02
+      - metric: peak_physical_footprint
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: validated_context
+    uncertainty: point
+    eligibility:
+      required_capabilities: [long-context]
+      allow_unknown_age: false
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+selections: {}

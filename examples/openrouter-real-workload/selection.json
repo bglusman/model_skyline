@@ -1,0 +1,186 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "kind": "selection",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "snapshot_id": "0e2d9eeb237c1a5f3be347c61ba861057f4b6bc2e8fcf8a270ed8d47f69c10eb",
+  "policy_hash": "d7daacd30610ac66c0b289b0df2ed6a869e3df6417675d83e2ea0ddb7ac51a6e",
+  "frontier_snapshot_id": "5b72fe9146c8ea95bd6826c047878efc002a3f41cf2d3d0276b9fe8f89b1d0c6",
+  "selection_id": "openrouter-example-defaults",
+  "frontier_id": "openrouter-value",
+  "workload": {
+    "id": "agent-turn-metered-v1",
+    "version": "1.0.0",
+    "unit": "successful_turn"
+  },
+  "strategy": "lexicographic",
+  "order_by": "aa_intelligence_index",
+  "requested_count": 3,
+  "max_per_provider": 3,
+  "on_insufficient": "return_available",
+  "generated_at": "2026-08-31T23:11:28.902470Z",
+  "valid_until": "2026-09-01T00:11:28.902470Z",
+  "default": {
+    "offering": {
+      "offering_id": "openrouter/z-ai/glm-5.3",
+      "model_id": "glm-5.3",
+      "provider": "openrouter",
+      "endpoint": "openai-compatible",
+      "region": "us",
+      "service_tier": "standard",
+      "quantization": null,
+      "reasoning_effort": null,
+      "agent_harness": "hermes-openclaw-agent@1",
+      "capabilities": [
+        "structured_output",
+        "text",
+        "tools"
+      ]
+    },
+    "axes": {
+      "metered_cost_per_turn": {
+        "value": "0.06635506",
+        "unit": "USD/success",
+        "lower": null,
+        "upper": null,
+        "dependencies": [
+          "signals.input_cache_read_tokens_per_success",
+          "signals.input_cache_read_usd_per_million",
+          "signals.input_uncached_tokens_per_success",
+          "signals.input_uncached_usd_per_million",
+          "signals.output_tokens_per_success",
+          "signals.output_usd_per_million"
+        ],
+        "source_ids": [
+          "openrouter-example-v1"
+        ],
+        "sources": [
+          {
+            "id": "openrouter-example-v1",
+            "version": "1",
+            "url": null,
+            "terms_url": null,
+            "license": "MIT (derived); upstream terms preserved",
+            "methodology": "Example: metered cost per successful turn at the 30-day OpenClaw token shape (uncached 14592, cache-read 166621, output 592) vs AA Intelligence Index. Excluded for missing verified AA score: deepseek-v4-pro-0813, kimi-k3, minimax-m3.",
+            "raw_sha256": null,
+            "retrieved_at": null
+          }
+        ],
+        "oldest_observed_at": "2026-08-31T23:15:00Z",
+        "minimum_sample_count": null
+      },
+      "aa_intelligence_index": {
+        "value": "60",
+        "unit": "index",
+        "lower": null,
+        "upper": null,
+        "dependencies": [
+          "signals.aa_intelligence_index"
+        ],
+        "source_ids": [
+          "openrouter-example-v1"
+        ],
+        "sources": [
+          {
+            "id": "openrouter-example-v1",
+            "version": "1",
+            "url": null,
+            "terms_url": null,
+            "license": "MIT (derived); upstream terms preserved",
+            "methodology": "Example: metered cost per successful turn at the 30-day OpenClaw token shape (uncached 14592, cache-read 166621, output 592) vs AA Intelligence Index. Excluded for missing verified AA score: deepseek-v4-pro-0813, kimi-k3, minimax-m3.",
+            "raw_sha256": null,
+            "retrieved_at": null
+          }
+        ],
+        "oldest_observed_at": "2026-08-31T23:15:00Z",
+        "minimum_sample_count": 1
+      }
+    },
+    "metadata": {
+      "aa_intelligence_index": 60,
+      "context_window": 1310720
+    }
+  },
+  "fallbacks": [
+    {
+      "offering": {
+        "offering_id": "openrouter/z-ai/glm-5.3-flash",
+        "model_id": "glm-5.3-flash",
+        "provider": "openrouter",
+        "endpoint": "openai-compatible",
+        "region": "us",
+        "service_tier": "standard",
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": "hermes-openclaw-agent@1",
+        "capabilities": [
+          "structured_output",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "metered_cost_per_turn": {
+          "value": "0.003741715",
+          "unit": "USD/success",
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.input_cache_read_tokens_per_success",
+            "signals.input_cache_read_usd_per_million",
+            "signals.input_uncached_tokens_per_success",
+            "signals.input_uncached_usd_per_million",
+            "signals.output_tokens_per_success",
+            "signals.output_usd_per_million"
+          ],
+          "source_ids": [
+            "openrouter-example-v1"
+          ],
+          "sources": [
+            {
+              "id": "openrouter-example-v1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": "MIT (derived); upstream terms preserved",
+              "methodology": "Example: metered cost per successful turn at the 30-day OpenClaw token shape (uncached 14592, cache-read 166621, output 592) vs AA Intelligence Index. Excluded for missing verified AA score: deepseek-v4-pro-0813, kimi-k3, minimax-m3.",
+              "raw_sha256": null,
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-08-31T23:15:00Z",
+          "minimum_sample_count": null
+        },
+        "aa_intelligence_index": {
+          "value": "57",
+          "unit": "index",
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.aa_intelligence_index"
+          ],
+          "source_ids": [
+            "openrouter-example-v1"
+          ],
+          "sources": [
+            {
+              "id": "openrouter-example-v1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": "MIT (derived); upstream terms preserved",
+              "methodology": "Example: metered cost per successful turn at the 30-day OpenClaw token shape (uncached 14592, cache-read 166621, output 592) vs AA Intelligence Index. Excluded for missing verified AA score: deepseek-v4-pro-0813, kimi-k3, minimax-m3.",
+              "raw_sha256": null,
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-08-31T23:15:00Z",
+          "minimum_sample_count": 1
+        }
+      },
+      "metadata": {
+        "aa_intelligence_index": 57,
+        "context_window": 1310720
+      }
+    }
+  ]
+}

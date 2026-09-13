@@ -1,0 +1,196 @@
+{
+  "schema_version": "model-skyline/local-measurement/v1alpha1",
+  "measurement_id": "qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-p32768-o64-miss-needle-0p5",
+  "status": "provisional",
+  "started_at": "2026-09-13T07:06:36.343902Z",
+  "completed_at": "2026-09-13T07:12:23.015611Z",
+  "hardware": {
+    "hardware_id": "macbook-m5max-64",
+    "manufacturer": "Apple",
+    "machine_model": "Mac17,6",
+    "chip": "Apple M5 Max",
+    "architecture": "arm64",
+    "memory_bytes": 68719476736,
+    "cpu_cores": 18,
+    "cpu_core_groups": {
+      "super": 6,
+      "performance": 12
+    },
+    "gpu_cores": 40,
+    "os_name": "macOS",
+    "os_version": "26.6.2 (25G83)",
+    "power_source": "ac",
+    "power_mode": "high-power-configured-pmset-2",
+    "negotiated_adapter_watts": 140,
+    "metadata": {
+      "power_connection": "direct-usb-c",
+      "pmset_powermode": 2,
+      "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+      "power_mode_status": "configured-not-independently-verified",
+      "related_report": "https://developer.apple.com/forums/thread/835131"
+    }
+  },
+  "artifact": {
+    "model_id": "Qwen/Qwen3.8-Flash-Next",
+    "checkpoint": "Qwen3.8-Flash-Next",
+    "revision": "DS4-IQ2@b8b20398acfcc9d9a05defb408ab857cfa02a56a+PLE@59a55fb819c82be7b162948282b50bd1a1e290b7",
+    "format": "ds4-composite-gguf",
+    "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+    "size_bytes": 76806769632,
+    "content_sha256": "4cefeb2f73958172ce6e0baaba97b694c12504c4daa2944ef5e552ac33b5adeb",
+    "source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-IQ2",
+    "license": "Apache-2.0",
+    "metadata": {
+      "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+      "manifest": "artifacts/qwen3.8-flash-next-ds4-q2-pleq41-manifest.json",
+      "base_includes_mtp": true,
+      "base_source_revision": "b8b20398acfcc9d9a05defb408ab857cfa02a56a",
+      "ple_source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-Q4",
+      "ple_source_revision": "59a55fb819c82be7b162948282b50bd1a1e290b7"
+    }
+  },
+  "runtime": {
+    "runtime_id": "DwarfStar/ds4",
+    "version": null,
+    "commit": "10830f4d6919a9820382f6934362683379f26d7b",
+    "backend": "Metal",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "Qwen-hybrid-raw-plus-compressed",
+    "prefix_cache_enabled": true,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "branch": "qwen3.8-flash-next",
+      "binary_sha256": "512223e80553502875a433068fba591b24dbc3b097f5fb2556fe9471752700e",
+      "native_context_tokens": 262144,
+      "allocated_context_tokens": 131072,
+      "prefill_chunk_tokens": 1024,
+      "max_output_tokens": 16384,
+      "resident_base_model": true,
+      "ple_access": "demand-paged-mmap",
+      "ple_eviction_interval_tokens": 1024,
+      "ssd_model_streaming": false,
+      "disk_kv_cache_enabled": false,
+      "live_prefix_reuse_enabled": true,
+      "mtp_present_in_artifact": true,
+      "mtp_enabled": false,
+      "planned_resident_gib_reported": "47.00",
+      "deployment_status": "aggressive-64gb-experiment"
+    }
+  },
+  "workload": {
+    "reference": {
+      "id": "openai-retrieval-p32768-o64-miss-needle-0p5",
+      "version": "model-skyline/openai-matrix@v1",
+      "unit": "request"
+    },
+    "kind": "long_context_retrieval",
+    "input_definition_sha256": "765847e6e5f25e9413b20a31755c23c9f79ec5feb29f1fdaa074e199fc0e7e6a",
+    "requested_input_tokens": 32768,
+    "max_output_tokens": 64,
+    "repetitions": 1,
+    "warmup_repetitions": 0,
+    "concurrency": 1,
+    "runner_state": "warm",
+    "prefix_cache_state": "miss",
+    "position": {
+      "mode": "retrieval",
+      "prompt_bytes": 50475,
+      "user_prompt_sha256": "83a0a94dc940a3dde712cb8c80545b87a87ea01e596f123a5ba4382712aa88a1",
+      "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+      "tool_schema_sha256": null,
+      "tool_count": 0,
+      "tool_choice": null,
+      "thinking_mode": "disabled",
+      "sampling": {
+        "temperature": 0,
+        "seed": 90421
+      },
+      "time_to_first_token_source": "client-first-streamed-text-event",
+      "decode_rate_source": "client-post-first-token-inter-token-rate",
+      "token_count_url": null,
+      "construction_input_tokens": null,
+      "finish_reasons": {
+        "stop": 1
+      },
+      "api": "openai-chat-completions-streaming",
+      "retrieval_character_fraction": "0.5"
+    }
+  },
+  "performance": {
+    "actual_input_tokens": 32732,
+    "output_token_counts": [
+      20
+    ],
+    "metrics": {
+      "time_to_first_semantic_event_seconds": {
+        "unit": "s",
+        "values": [
+          "50.583259166"
+        ]
+      },
+      "end_to_end_seconds": {
+        "unit": "s",
+        "values": [
+          "50.969610333"
+        ]
+      },
+      "time_to_first_token_seconds": {
+        "unit": "s",
+        "values": [
+          "50.583259166"
+        ]
+      },
+      "decode_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "49.17805774351384"
+        ]
+      },
+      "peak_process_rss_bytes": {
+        "unit": "byte",
+        "values": [
+          "1288175616"
+        ]
+      },
+      "swap_delta_bytes": {
+        "unit": "byte",
+        "values": [
+          "0"
+        ]
+      },
+      "prefix_cache_hit_tokens": {
+        "unit": "token",
+        "values": [
+          "0"
+        ]
+      }
+    }
+  },
+  "integrity": {
+    "retrieval": {
+      "passed": 1,
+      "total": 1
+    },
+    "tool_calls": null,
+    "tool_argument_parsing": null,
+    "structured_output": null
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ],
+  "provenance": {
+    "tool": "model-skyline/openai-matrix",
+    "tool_version": "v1",
+    "command_sha256": "91cdd7a4d0f118b7a4cc3cd80d390562c0008826e9ca242fb70cb45000f19a52",
+    "raw_artifact_path": "examples/local-runtime-frontiers/raw/qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-p2k-126k-o64.json",
+    "raw_sha256": "45ea53f815d9a3d129bec2a292fb51ab56a4bf4e1b9db43a39d0c55a2fa13291",
+    "captured_at": "2026-09-13T07:12:23.015611Z",
+    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+    "source_url": null,
+    "license": "CC0-1.0"
+  },
+  "notes": "Provisional operational runtime evidence; no model-quality claim."
+}

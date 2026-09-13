@@ -1,0 +1,1112 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "kind": "frontier",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "snapshot_id": "12abb6613aa32fc30e444554dd770294a3465cc197e841ca0ace1f3679e88eb0",
+  "config_hash": "91c2b96aa89d778800a82831c00eaf32f00f67e1cf9a8ea7e48f1412790fba8f",
+  "catalog_hash": "19bbe0127bab3395046760373fd5838142d338ccced6446fbf1aa3717793f312",
+  "engine_version": "0.9.0",
+  "generated_at": "2026-09-13T23:00:00Z",
+  "frontier_id": "tool-agent-operational",
+  "workload": {
+    "id": "openai-agent-latency-v1",
+    "version": "1",
+    "unit": "request"
+  },
+  "order_by": "tool_call_success",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "tool_call_success",
+      "goal": "maximize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "end_to_end",
+      "goal": "minimize",
+      "unit": "s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "members": [
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
+        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "oQ4e",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "tool_call_success": {
+          "value": "100",
+          "unit": "percent",
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_tool_call_success_percent"
+          ],
+          "source_ids": [
+            "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "41a093792628a7dd25d97dda50db64e7f54b99063bb0e1a469afebcf2066aca1",
+              "retrieved_at": "2026-09-13T13:07:36.284480Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T13:07:36.284480Z",
+          "minimum_sample_count": 3
+        },
+        "end_to_end": {
+          "value": "0.835464834",
+          "unit": "s",
+          "lower": "0.82548125",
+          "upper": "0.838906542",
+          "dependencies": [
+            "signals.local_end_to_end_seconds"
+          ],
+          "source_ids": [
+            "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "41a093792628a7dd25d97dda50db64e7f54b99063bb0e1a469afebcf2066aca1",
+              "retrieved_at": "2026-09-13T13:07:36.284480Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T13:07:36.284480Z",
+          "minimum_sample_count": 3
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "checkpoint": "Ornith-1.5-35B-A3B",
+          "revision": "fb9644b83ce290da1f2cb6139f04632c085fc1d5",
+          "format": "mlx-safetensors",
+          "quantization": "oQ4e",
+          "size_bytes": 20900464628,
+          "content_sha256": "ccd964246ed9c0cc2ef17b1d16c193bb4b4446937b0521061f53636f0979d1f4",
+          "source_url": "https://huggingface.co/mlx-works/Ornith-1.5-35B-A3B-oQ4e-mtp",
+          "license": "MIT",
+          "metadata": {
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/ornith-1.5-35b-a3b-oq4e-mtp-manifest.json",
+            "chat_template": "froggeric/Qwen-Fixed-Chat-Templates@v21.3",
+            "mtp_head_preserved": true,
+            "vision_tower_included": false
+          }
+        },
+        "runtime": {
+          "runtime_id": "oMLX",
+          "version": "0.6.4",
+          "commit": null,
+          "backend": "MLX/Metal",
+          "context_capacity_tokens": 262144,
+          "kv_cache": "f16",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "mlx_version": "0.32.0",
+            "mlx_lm_version": "0.31.3",
+            "model_profile": "baseline-f16kv",
+            "max_concurrent_requests": 1,
+            "max_output_tokens": 16384,
+            "memory_guard": "balanced",
+            "turboquant_kv_enabled": false,
+            "dflash_enabled": false,
+            "mtp_enabled": false,
+            "ane_prefill_enabled": false,
+            "specprefill_enabled": false,
+            "prefix_cache": {
+              "backend": "paged-ssd",
+              "max_size_bytes": 100000000000,
+              "hot_cache_max_size_bytes": 0
+            }
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "openai-tool-p2048-o1024-warm",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "agent_integration",
+          "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 1024,
+          "repetitions": 3,
+          "warmup_repetitions": 1,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "warm",
+          "position": {
+            "mode": "tool",
+            "prompt_bytes": 8293,
+            "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+            "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+            "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+            "tool_count": 30,
+            "tool_choice": "auto",
+            "thinking_mode": "disabled",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "server-reported",
+            "decode_rate_source": "server-reported",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "tool_calls": 3
+            },
+            "api": "openai-chat-completions-streaming"
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
+        "model_id": "Qwen/Qwen3.8-27B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "oQ4e",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "tool_call_success": {
+          "value": "100",
+          "unit": "percent",
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_tool_call_success_percent"
+          ],
+          "source_ids": [
+            "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "3c87a61253dd82c3711b39b62bd2ff87f1eb0793154afa0f04c91fec7556102f",
+              "retrieved_at": "2026-09-13T13:07:02.457373Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T13:07:02.457373Z",
+          "minimum_sample_count": 3
+        },
+        "end_to_end": {
+          "value": "0.86177025",
+          "unit": "s",
+          "lower": "0.846478833",
+          "upper": "0.862036875",
+          "dependencies": [
+            "signals.local_end_to_end_seconds"
+          ],
+          "source_ids": [
+            "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "3c87a61253dd82c3711b39b62bd2ff87f1eb0793154afa0f04c91fec7556102f",
+              "retrieved_at": "2026-09-13T13:07:02.457373Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T13:07:02.457373Z",
+          "minimum_sample_count": 3
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "Qwen/Qwen3.8-27B",
+          "checkpoint": "Qwen3.8-27B",
+          "revision": "1c0609b20321c1faff8294be5ea88c656cedaa59",
+          "format": "mlx-safetensors",
+          "quantization": "oQ4e",
+          "size_bytes": 16994894984,
+          "content_sha256": "6de9485449074319eb4ed22e027f73a66d6646e22fa2506f1422ce7b121b2e20",
+          "source_url": "https://huggingface.co/mlx-works/Qwen3.8-27B-oQ4e-mtp",
+          "license": "Apache-2.0",
+          "metadata": {
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/qwen3.8-27b-oq4e-mtp-manifest.json",
+            "chat_template": "froggeric/Qwen-Fixed-Chat-Templates",
+            "mtp_head_preserved": true
+          }
+        },
+        "runtime": {
+          "runtime_id": "oMLX",
+          "version": "0.6.4",
+          "commit": null,
+          "backend": "MLX/Metal",
+          "context_capacity_tokens": 262144,
+          "kv_cache": "TurboQuant-4bit-skip-last",
+          "prefix_cache_enabled": true,
+          "speculative_method": "DFlash2-block8-adaptive-tq4",
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "mlx_version": "0.32.0",
+            "mlx_lm_version": "0.31.3",
+            "model_profile": "dflash2-tq4",
+            "max_concurrent_requests": 1,
+            "max_output_tokens": 16384,
+            "memory_guard": "balanced",
+            "prefix_cache": {
+              "server_backend": "disabled",
+              "dflash_l1_enabled": true,
+              "dflash_l1_max_entries": 2,
+              "dflash_l1_max_bytes": 4294967296,
+              "dflash_l2_enabled": false
+            },
+            "turboquant_kv_enabled": true,
+            "turboquant_kv_bits": 4,
+            "turboquant_skip_last": true,
+            "dflash_enabled": true,
+            "dflash_block_size": 8,
+            "dflash_verify_mode": "adaptive",
+            "dflash_draft_quantization": "weights-4bit-activations-16bit-group64",
+            "dflash_artifact": {
+              "revision": "50307d4c4cde6860d4eee73e2547cd786fe8e8a4",
+              "size_bytes": 3848819135,
+              "content_sha256": "ff6ce190d207a229d262adbfdc7cd05740e06a8c7ab0b6bb86dbc5a37c21048b",
+              "manifest": "artifacts/qwen3.8-27b-dflash2-manifest.json"
+            },
+            "mtp_enabled": false,
+            "ane_prefill_enabled": false,
+            "specprefill_enabled": false
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "openai-tool-p2048-o1024-warm",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "agent_integration",
+          "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 1024,
+          "repetitions": 3,
+          "warmup_repetitions": 1,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "warm",
+          "position": {
+            "mode": "tool",
+            "prompt_bytes": 8293,
+            "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+            "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+            "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+            "tool_count": 30,
+            "tool_choice": "auto",
+            "thinking_mode": "disabled",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "server-reported",
+            "decode_rate_source": "server-reported",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "tool_calls": 3
+            },
+            "api": "openai-chat-completions-streaming"
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": []
+    }
+  ],
+  "evaluated": [
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
+        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "oQ4e",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "tool_call_success": {
+          "value": "100",
+          "unit": "percent",
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_tool_call_success_percent"
+          ],
+          "source_ids": [
+            "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "41a093792628a7dd25d97dda50db64e7f54b99063bb0e1a469afebcf2066aca1",
+              "retrieved_at": "2026-09-13T13:07:36.284480Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T13:07:36.284480Z",
+          "minimum_sample_count": 3
+        },
+        "end_to_end": {
+          "value": "0.835464834",
+          "unit": "s",
+          "lower": "0.82548125",
+          "upper": "0.838906542",
+          "dependencies": [
+            "signals.local_end_to_end_seconds"
+          ],
+          "source_ids": [
+            "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "41a093792628a7dd25d97dda50db64e7f54b99063bb0e1a469afebcf2066aca1",
+              "retrieved_at": "2026-09-13T13:07:36.284480Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T13:07:36.284480Z",
+          "minimum_sample_count": 3
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "checkpoint": "Ornith-1.5-35B-A3B",
+          "revision": "fb9644b83ce290da1f2cb6139f04632c085fc1d5",
+          "format": "mlx-safetensors",
+          "quantization": "oQ4e",
+          "size_bytes": 20900464628,
+          "content_sha256": "ccd964246ed9c0cc2ef17b1d16c193bb4b4446937b0521061f53636f0979d1f4",
+          "source_url": "https://huggingface.co/mlx-works/Ornith-1.5-35B-A3B-oQ4e-mtp",
+          "license": "MIT",
+          "metadata": {
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/ornith-1.5-35b-a3b-oq4e-mtp-manifest.json",
+            "chat_template": "froggeric/Qwen-Fixed-Chat-Templates@v21.3",
+            "mtp_head_preserved": true,
+            "vision_tower_included": false
+          }
+        },
+        "runtime": {
+          "runtime_id": "oMLX",
+          "version": "0.6.4",
+          "commit": null,
+          "backend": "MLX/Metal",
+          "context_capacity_tokens": 262144,
+          "kv_cache": "f16",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "mlx_version": "0.32.0",
+            "mlx_lm_version": "0.31.3",
+            "model_profile": "baseline-f16kv",
+            "max_concurrent_requests": 1,
+            "max_output_tokens": 16384,
+            "memory_guard": "balanced",
+            "turboquant_kv_enabled": false,
+            "dflash_enabled": false,
+            "mtp_enabled": false,
+            "ane_prefill_enabled": false,
+            "specprefill_enabled": false,
+            "prefix_cache": {
+              "backend": "paged-ssd",
+              "max_size_bytes": 100000000000,
+              "hot_cache_max_size_bytes": 0
+            }
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "openai-tool-p2048-o1024-warm",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "agent_integration",
+          "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 1024,
+          "repetitions": 3,
+          "warmup_repetitions": 1,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "warm",
+          "position": {
+            "mode": "tool",
+            "prompt_bytes": 8293,
+            "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+            "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+            "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+            "tool_count": 30,
+            "tool_choice": "auto",
+            "thinking_mode": "disabled",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "server-reported",
+            "decode_rate_source": "server-reported",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "tool_calls": 3
+            },
+            "api": "openai-chat-completions-streaming"
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
+        "model_id": "Qwen/Qwen3.8-27B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "oQ4e",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "tool_call_success": {
+          "value": "100",
+          "unit": "percent",
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_tool_call_success_percent"
+          ],
+          "source_ids": [
+            "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "3c87a61253dd82c3711b39b62bd2ff87f1eb0793154afa0f04c91fec7556102f",
+              "retrieved_at": "2026-09-13T13:07:02.457373Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T13:07:02.457373Z",
+          "minimum_sample_count": 3
+        },
+        "end_to_end": {
+          "value": "0.86177025",
+          "unit": "s",
+          "lower": "0.846478833",
+          "upper": "0.862036875",
+          "dependencies": [
+            "signals.local_end_to_end_seconds"
+          ],
+          "source_ids": [
+            "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "3c87a61253dd82c3711b39b62bd2ff87f1eb0793154afa0f04c91fec7556102f",
+              "retrieved_at": "2026-09-13T13:07:02.457373Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T13:07:02.457373Z",
+          "minimum_sample_count": 3
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "Qwen/Qwen3.8-27B",
+          "checkpoint": "Qwen3.8-27B",
+          "revision": "1c0609b20321c1faff8294be5ea88c656cedaa59",
+          "format": "mlx-safetensors",
+          "quantization": "oQ4e",
+          "size_bytes": 16994894984,
+          "content_sha256": "6de9485449074319eb4ed22e027f73a66d6646e22fa2506f1422ce7b121b2e20",
+          "source_url": "https://huggingface.co/mlx-works/Qwen3.8-27B-oQ4e-mtp",
+          "license": "Apache-2.0",
+          "metadata": {
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/qwen3.8-27b-oq4e-mtp-manifest.json",
+            "chat_template": "froggeric/Qwen-Fixed-Chat-Templates",
+            "mtp_head_preserved": true
+          }
+        },
+        "runtime": {
+          "runtime_id": "oMLX",
+          "version": "0.6.4",
+          "commit": null,
+          "backend": "MLX/Metal",
+          "context_capacity_tokens": 262144,
+          "kv_cache": "TurboQuant-4bit-skip-last",
+          "prefix_cache_enabled": true,
+          "speculative_method": "DFlash2-block8-adaptive-tq4",
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "mlx_version": "0.32.0",
+            "mlx_lm_version": "0.31.3",
+            "model_profile": "dflash2-tq4",
+            "max_concurrent_requests": 1,
+            "max_output_tokens": 16384,
+            "memory_guard": "balanced",
+            "prefix_cache": {
+              "server_backend": "disabled",
+              "dflash_l1_enabled": true,
+              "dflash_l1_max_entries": 2,
+              "dflash_l1_max_bytes": 4294967296,
+              "dflash_l2_enabled": false
+            },
+            "turboquant_kv_enabled": true,
+            "turboquant_kv_bits": 4,
+            "turboquant_skip_last": true,
+            "dflash_enabled": true,
+            "dflash_block_size": 8,
+            "dflash_verify_mode": "adaptive",
+            "dflash_draft_quantization": "weights-4bit-activations-16bit-group64",
+            "dflash_artifact": {
+              "revision": "50307d4c4cde6860d4eee73e2547cd786fe8e8a4",
+              "size_bytes": 3848819135,
+              "content_sha256": "ff6ce190d207a229d262adbfdc7cd05740e06a8c7ab0b6bb86dbc5a37c21048b",
+              "manifest": "artifacts/qwen3.8-27b-dflash2-manifest.json"
+            },
+            "mtp_enabled": false,
+            "ane_prefill_enabled": false,
+            "specprefill_enabled": false
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "openai-tool-p2048-o1024-warm",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "agent_integration",
+          "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 1024,
+          "repetitions": 3,
+          "warmup_repetitions": 1,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "warm",
+          "position": {
+            "mode": "tool",
+            "prompt_bytes": 8293,
+            "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+            "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+            "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+            "tool_count": 30,
+            "tool_choice": "auto",
+            "thinking_mode": "disabled",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "server-reported",
+            "decode_rate_source": "server-reported",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "tool_calls": 3
+            },
+            "api": "openai-chat-completions-streaming"
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": []
+    }
+  ],
+  "rejected": [
+    {
+      "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-12bcc817a4f190a7",
+      "reasons": [
+        "tool_call_success: value 75 is below eligible minimum 1E+2"
+      ]
+    }
+  ],
+  "axis_evidence": {
+    "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
+    "kind": "axis-evidence-inventory",
+    "hash_algorithm": "sha256-rfc8785-v1",
+    "config_hash": "91c2b96aa89d778800a82831c00eaf32f00f67e1cf9a8ea7e48f1412790fba8f",
+    "catalog_hash": "19bbe0127bab3395046760373fd5838142d338ccced6446fbf1aa3717793f312",
+    "generated_at": "2026-09-13T23:00:00Z",
+    "workload": {
+      "id": "openai-agent-latency-v1",
+      "version": "1",
+      "unit": "request"
+    },
+    "axes": [
+      {
+        "metric": "tool_call_success",
+        "goal": "maximize",
+        "unit": "percent",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0"
+      },
+      {
+        "metric": "end_to_end",
+        "goal": "minimize",
+        "unit": "s",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0.05"
+      }
+    ],
+    "candidate_universe_hash": "63beb96cb3f1125a328cdc98e099d49fe1b0b66068aafd28075343aa440a6c98",
+    "candidates": [
+      {
+        "offering": {
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
+          "model_id": "Qwen/Qwen3.8-27B",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "oQ4e",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "tool_call_success": {
+            "value": "100",
+            "unit": "percent",
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_tool_call_success_percent"
+            ],
+            "source_ids": [
+              "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "3c87a61253dd82c3711b39b62bd2ff87f1eb0793154afa0f04c91fec7556102f",
+                "retrieved_at": "2026-09-13T13:07:02.457373Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T13:07:02.457373Z",
+            "minimum_sample_count": 3
+          },
+          "end_to_end": {
+            "value": "0.86177025",
+            "unit": "s",
+            "lower": "0.846478833",
+            "upper": "0.862036875",
+            "dependencies": [
+              "signals.local_end_to_end_seconds"
+            ],
+            "source_ids": [
+              "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "3c87a61253dd82c3711b39b62bd2ff87f1eb0793154afa0f04c91fec7556102f",
+                "retrieved_at": "2026-09-13T13:07:02.457373Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T13:07:02.457373Z",
+            "minimum_sample_count": 3
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-12bcc817a4f190a7",
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "KQuant-Dynamic-Q4_K_XL",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "tool_call_success": {
+            "value": "75",
+            "unit": "percent",
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_tool_call_success_percent"
+            ],
+            "source_ids": [
+              "local-measurement:muse-glimmer-target-tool30-disabled-matched-p2048-o1024-warm"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:muse-glimmer-target-tool30-disabled-matched-p2048-o1024-warm",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "f52bf01b733282fe1529c63845aced9b2bd0b0f1ae6800df3b707dd03252c88d",
+                "retrieved_at": "2026-09-13T13:06:27.692954Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T13:06:27.692954Z",
+            "minimum_sample_count": 4
+          },
+          "end_to_end": {
+            "value": "30.647280396",
+            "unit": "s",
+            "lower": "27.947569083",
+            "upper": "41.115893292",
+            "dependencies": [
+              "signals.local_end_to_end_seconds"
+            ],
+            "source_ids": [
+              "local-measurement:muse-glimmer-target-tool30-disabled-matched-p2048-o1024-warm"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:muse-glimmer-target-tool30-disabled-matched-p2048-o1024-warm",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "f52bf01b733282fe1529c63845aced9b2bd0b0f1ae6800df3b707dd03252c88d",
+                "retrieved_at": "2026-09-13T13:06:27.692954Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T13:06:27.692954Z",
+            "minimum_sample_count": 4
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "oQ4e",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "tool_call_success": {
+            "value": "100",
+            "unit": "percent",
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_tool_call_success_percent"
+            ],
+            "source_ids": [
+              "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "41a093792628a7dd25d97dda50db64e7f54b99063bb0e1a469afebcf2066aca1",
+                "retrieved_at": "2026-09-13T13:07:36.284480Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T13:07:36.284480Z",
+            "minimum_sample_count": 3
+          },
+          "end_to_end": {
+            "value": "0.835464834",
+            "unit": "s",
+            "lower": "0.82548125",
+            "upper": "0.838906542",
+            "dependencies": [
+              "signals.local_end_to_end_seconds"
+            ],
+            "source_ids": [
+              "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "41a093792628a7dd25d97dda50db64e7f54b99063bb0e1a469afebcf2066aca1",
+                "retrieved_at": "2026-09-13T13:07:36.284480Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T13:07:36.284480Z",
+            "minimum_sample_count": 3
+          }
+        }
+      }
+    ],
+    "inventory_id": "2a7ec45dd71b35b1dab42cf91a07a51f161cc71091a63c1940741b5fb7340667"
+  },
+  "public_release_blocked": false,
+  "sources": [
+    {
+      "id": "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "41a093792628a7dd25d97dda50db64e7f54b99063bb0e1a469afebcf2066aca1",
+      "retrieved_at": "2026-09-13T13:07:36.284480Z"
+    },
+    {
+      "id": "local-measurement:muse-glimmer-target-tool30-disabled-matched-p2048-o1024-warm",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "f52bf01b733282fe1529c63845aced9b2bd0b0f1ae6800df3b707dd03252c88d",
+      "retrieved_at": "2026-09-13T13:06:27.692954Z"
+    },
+    {
+      "id": "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "3c87a61253dd82c3711b39b62bd2ff87f1eb0793154afa0f04c91fec7556102f",
+      "retrieved_at": "2026-09-13T13:07:02.457373Z"
+    }
+  ],
+  "source_watermarks": {
+    "local-measurement:qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm": "2026-09-13T13:07:02.457373Z",
+    "local-measurement:muse-glimmer-target-tool30-disabled-matched-p2048-o1024-warm": "2026-09-13T13:06:27.692954Z",
+    "local-measurement:ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm": "2026-09-13T13:07:36.284480Z"
+  }
+}

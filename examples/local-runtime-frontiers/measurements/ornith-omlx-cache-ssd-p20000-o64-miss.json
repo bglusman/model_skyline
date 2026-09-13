@@ -1,0 +1,157 @@
+{
+  "schema_version": "model-skyline/local-measurement/v1alpha1",
+  "measurement_id": "ornith-omlx-cache-ssd-p20000-o64-miss",
+  "status": "provisional",
+  "started_at": "2026-09-13T03:15:13.385004Z",
+  "completed_at": "2026-09-13T03:15:22.038686Z",
+  "hardware": {
+    "hardware_id": "macbook-m5max-64",
+    "manufacturer": "Apple",
+    "machine_model": "Mac17,6",
+    "chip": "Apple M5 Max",
+    "architecture": "arm64",
+    "memory_bytes": 68719476736,
+    "cpu_cores": 18,
+    "cpu_core_groups": {
+      "super": 6,
+      "performance": 12
+    },
+    "gpu_cores": 40,
+    "os_name": "macOS",
+    "os_version": "26.6.2 (25G83)",
+    "power_source": "ac",
+    "power_mode": "high-power-configured-pmset-2",
+    "negotiated_adapter_watts": 140,
+    "metadata": {
+      "power_connection": "direct-usb-c",
+      "pmset_powermode": 2,
+      "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+      "power_mode_status": "configured-not-independently-verified",
+      "related_report": "https://developer.apple.com/forums/thread/835131"
+    }
+  },
+  "artifact": {
+    "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+    "checkpoint": "Ornith-1.5-35B-A3B",
+    "revision": "fb9644b83ce290da1f2cb6139f04632c085fc1d5",
+    "format": "mlx-safetensors",
+    "quantization": "oQ4e",
+    "size_bytes": 20900464628,
+    "content_sha256": "ccd964246ed9c0cc2ef17b1d16c193bb4b4446937b0521061f53636f0979d1f4",
+    "source_url": "https://huggingface.co/mlx-works/Ornith-1.5-35B-A3B-oQ4e-mtp",
+    "license": "MIT",
+    "metadata": {
+      "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+      "manifest": "artifacts/ornith-1.5-35b-a3b-oq4e-mtp-manifest.json",
+      "chat_template": "froggeric/Qwen-Fixed-Chat-Templates@v21.3",
+      "mtp_head_preserved": true,
+      "vision_tower_included": false
+    }
+  },
+  "runtime": {
+    "runtime_id": "oMLX",
+    "version": "0.6.4",
+    "commit": null,
+    "backend": "MLX/Metal",
+    "context_capacity_tokens": 262144,
+    "kv_cache": "f16",
+    "prefix_cache_enabled": true,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "mlx_version": "0.32.0",
+      "mlx_lm_version": "0.31.3",
+      "model_profile": "baseline-f16kv",
+      "max_concurrent_requests": 1,
+      "max_output_tokens": 16384,
+      "memory_guard": "balanced",
+      "turboquant_kv_enabled": false,
+      "dflash_enabled": false,
+      "mtp_enabled": false,
+      "ane_prefill_enabled": false,
+      "specprefill_enabled": false,
+      "prefix_cache": {
+        "backend": "paged-ssd",
+        "max_size_bytes": 100000000000,
+        "hot_cache_max_size_bytes": 0
+      }
+    }
+  },
+  "workload": {
+    "reference": {
+      "id": "openai-prose-p20000-o64-miss",
+      "version": "model-skyline/openai-matrix@v1",
+      "unit": "request"
+    },
+    "kind": "prefix_cache",
+    "input_definition_sha256": "ed41c20e33d850cc4cfaa87ac6c9d74689b198663ce86222a446f40ca137230a",
+    "requested_input_tokens": 20000,
+    "max_output_tokens": 64,
+    "repetitions": 1,
+    "warmup_repetitions": 1,
+    "concurrency": 1,
+    "runner_state": "warm",
+    "prefix_cache_state": "miss",
+    "position": {
+      "mode": "prose",
+      "prompt_bytes": 80043,
+      "api": "openai-chat-completions-streaming"
+    }
+  },
+  "performance": {
+    "actual_input_tokens": 18099,
+    "output_token_counts": [
+      64
+    ],
+    "metrics": {
+      "time_to_first_token_seconds": {
+        "unit": "s",
+        "values": [
+          "4.652227042"
+        ]
+      },
+      "end_to_end_seconds": {
+        "unit": "s",
+        "values": [
+          "5.098169792"
+        ]
+      },
+      "decode_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "143.51618004777507"
+        ]
+      },
+      "prompt_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "3911.98"
+        ]
+      },
+      "prefix_cache_hit_tokens": {
+        "unit": "token",
+        "values": [
+          "0"
+        ]
+      }
+    }
+  },
+  "integrity": null,
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ],
+  "provenance": {
+    "tool": "model-skyline/openai-matrix",
+    "tool_version": "v1",
+    "command_sha256": "37cb4f0cc6c4d0e5101795f45e91390c0be3b8283d040b95a9c60c52a4bd92d5",
+    "raw_artifact_path": "raw/ornith-omlx-prefix20k-cache-ssd.json",
+    "raw_sha256": "a1986731a4bd3b9e38de61cc0366db47e366b202ce6b4e96dec0a5b6451f0a82",
+    "captured_at": "2026-09-13T03:15:22.038686Z",
+    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+    "source_url": null,
+    "license": "CC0-1.0"
+  },
+  "notes": "Provisional operational runtime evidence; no model-quality claim."
+}

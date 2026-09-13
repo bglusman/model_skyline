@@ -1,0 +1,80 @@
+{
+  "schema_version": "model-skyline/raw-openai-matrix/v1",
+  "started_at": "2026-09-13T03:15:13.385004Z",
+  "captured_at": "2026-09-13T03:15:22.038686Z",
+  "base_url": "http://127.0.0.1:8284/v1",
+  "model": "ornith-1.5-35b-a3b-oq4e-mtp:baseline-f16kv",
+  "mode": "prose",
+  "repetitions": 2,
+  "warmup": true,
+  "results": [
+    {
+      "approximate_prefix_tokens": 20000,
+      "prompt_bytes": 80043,
+      "prompt_sha256": "ed41c20e33d850cc4cfaa87ac6c9d74689b198663ce86222a446f40ca137230a",
+      "max_output_tokens": 64,
+      "repetition": 1,
+      "ttft_seconds": 4.652227042,
+      "end_to_end_seconds": 5.098169792,
+      "decode_tokens_per_second": 143.51618004777507,
+      "usage": {
+        "prompt_tokens": 18099,
+        "completion_tokens": 64,
+        "total_tokens": 18163,
+        "input_tokens": 18099,
+        "output_tokens": 64,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "time_to_first_token": 4.63,
+        "total_time": 5.07,
+        "prompt_eval_duration": 4.63,
+        "generation_duration": 0.45,
+        "prompt_tokens_per_second": 3911.98,
+        "generation_tokens_per_second": 143.01
+      },
+      "finish_reasons": [
+        "length"
+      ],
+      "content_sha256": "4c42bd71f0c6bd8ccdfd9e2540ec9d0fed68662c932ce3ac6ba8c6425e419fa6",
+      "content_bytes": 299,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0
+    },
+    {
+      "approximate_prefix_tokens": 20000,
+      "prompt_bytes": 80043,
+      "prompt_sha256": "ed41c20e33d850cc4cfaa87ac6c9d74689b198663ce86222a446f40ca137230a",
+      "max_output_tokens": 64,
+      "repetition": 2,
+      "ttft_seconds": 0.892489667,
+      "end_to_end_seconds": 1.339228708,
+      "decode_tokens_per_second": 143.2603693125625,
+      "usage": {
+        "prompt_tokens": 18099,
+        "completion_tokens": 64,
+        "total_tokens": 18163,
+        "input_tokens": 18099,
+        "output_tokens": 64,
+        "prompt_tokens_details": {
+          "cached_tokens": 16384
+        },
+        "time_to_first_token": 0.87,
+        "total_time": 1.31,
+        "prompt_eval_duration": 0.87,
+        "generation_duration": 0.45,
+        "prompt_tokens_per_second": 20922.49,
+        "generation_tokens_per_second": 142.71
+      },
+      "finish_reasons": [
+        "length"
+      ],
+      "content_sha256": "4c42bd71f0c6bd8ccdfd9e2540ec9d0fed68662c932ce3ac6ba8c6425e419fa6",
+      "content_bytes": 299,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0
+    }
+  ]
+}

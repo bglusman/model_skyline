@@ -1,0 +1,86 @@
+{
+  "schema_version": "model-skyline/raw-llama-perplexity/v1",
+  "captured_at": "2026-09-13T07:38:19.577117Z",
+  "started_at": "2026-09-13T07:37:47.526374Z",
+  "elapsed_ns": 32050364875,
+  "host": {
+    "host_id": "macbook-m5max-64",
+    "machine": "arm64",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  },
+  "artifact": {
+    "filename": "Muse-Glimmer-30B-KQuant-Dynamic-Q4_K_XL.gguf",
+    "size_bytes": 19653960832,
+    "sha256": "ac7023d6a4c704eb9af54ab53e476a66b7f5b6c0ef2fc4a8dde5253c291a6c38"
+  },
+  "corpus": {
+    "filename": "wikitext-2-raw-v1-test-head512.txt",
+    "size_bytes": 101113,
+    "sha256": "10976b6e2d59a3a813e5825970a18dfdcc902302e5250bbb3052c6eaa9b23415"
+  },
+  "runtime": {
+    "filename": "llama-perplexity",
+    "sha256": "ca8371d0f1e1bd1b8df5d5b64cff1fd469f26a81790d258ee47cc24878b9ecd2",
+    "version_output": "version: 0.4.0 (build 10809, commit 5266f24da)\nbuilt with AppleClang 21.0.0.21000101 for Darwin arm64"
+  },
+  "configuration": {
+    "context_tokens": 4096,
+    "chunks_requested": 6,
+    "threads": 6,
+    "batch": 2048,
+    "micro_batch": 512,
+    "gpu_layers": -1,
+    "kv_cache": "q8_0/q8_0",
+    "flash_attention": "on",
+    "fit": "off"
+  },
+  "invocation": {
+    "command": [
+      "${LLAMA_PERPLEXITY}",
+      "-m",
+      "${MODEL_FILE}",
+      "-f",
+      "${CORPUS_FILE}",
+      "-c",
+      "4096",
+      "--chunks",
+      "6",
+      "-ngl",
+      "-1",
+      "-fit",
+      "off",
+      "-ctk",
+      "q8_0",
+      "-ctv",
+      "q8_0",
+      "-fa",
+      "on",
+      "-t",
+      "6",
+      "-tb",
+      "6",
+      "-b",
+      "2048",
+      "-ub",
+      "512"
+    ],
+    "command_sha256": "fff58390a79994f6bfdfcdc0ed0fd70c4eb55448399f1c70d4ae8eb98c6a234f"
+  },
+  "coordination": {
+    "method": "bsd-flock",
+    "lock_file": "${LOCAL_MODEL_RUNNER_LOCK}",
+    "timeout_seconds": 0
+  },
+  "normalization": "Absolute binary/model/corpus paths replaced with portable placeholders; numeric estimates serialized as decimal strings.",
+  "result": {
+    "perplexity": "5.0167",
+    "standard_error": "0.11407",
+    "chunks_evaluated": 5,
+    "runtime_build_number": 10809,
+    "runtime_commit": "5266f24da",
+    "unused_tensors": [],
+    "unused_tensor_bytes": 0
+  },
+  "stdout": "0.48 minutes\n[1]7.6027,[2]6.2935,[3]5.0697,[4]4.9351,[5]5.0167,\n\n",
+  "stderr": "0.00.184.010 W load: setting token '<|message|>' (200023) attribute to USER_DEFINED (16), old attributes: 8\n0.00.184.299 W load: setting token '<|start|>' (200022) attribute to USER_DEFINED (16), old attributes: 8\n0.00.185.330 W load: special_eot_id is not in special_eog_ids - the tokenizer config may be incorrect\n0.00.768.132 I cmn          init: llama threadpool init, n_threads = 6\n0.00.830.550 I \n0.00.830.581 I system_info: n_threads = 6 (n_threads_batch = 6) / 18 | MTL : EMBED_LIBRARY = 1 | CPU : NEON = 1 | ARM_FMA = 1 | FP16_VA = 1 | MATMUL_INT8 = 1 | DOTPROD = 1 | SME = 1 | ACCELERATE = 1 | OPENMP = 1 | REPACK = 1 | \n0.00.830.597 I perplexity: tokenizing the input ..\n0.00.872.607 I perplexity: tokenization took 42.008 ms\n0.00.872.668 I perplexity: calculating perplexity over 5 chunks, n_ctx=4096, batch_size=2048, n_seq=1\n0.06.845.366 I perplexity: 5.97 seconds per pass - ETA 0.31.902.921 I Final estimate: PPL = 5.0167 +/- 0.11407\n"
+}

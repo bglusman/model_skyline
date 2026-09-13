@@ -66,6 +66,38 @@
           },
           "title": "Max Source Age Hours",
           "type": "object"
+        },
+        "minimum_axis_values": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                "type": "string",
+                "maxLength": 1024
+              }
+            ]
+          },
+          "title": "Minimum Axis Values",
+          "type": "object"
+        },
+        "maximum_axis_values": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                "type": "string",
+                "maxLength": 1024
+              }
+            ]
+          },
+          "title": "Maximum Axis Values",
+          "type": "object"
         }
       },
       "title": "EligibilityPolicy",

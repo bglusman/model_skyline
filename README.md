@@ -109,7 +109,8 @@ from model_skyline import (
 `model_skyline.__version__` is also public. Advanced APIs remain available from
 explicit modules such as `model_skyline.quality_evidence`,
 `model_skyline.quality_portfolio`, `model_skyline.traces`,
-`model_skyline.publisher`, and `model_skyline.resolver`.
+`model_skyline.local_measurements`, `model_skyline.publisher`, and
+`model_skyline.resolver`.
 
 ## Current boundaries
 
@@ -136,6 +137,8 @@ explicit modules such as `model_skyline.quality_evidence`,
 - [Agent-framework telemetry adapters](docs/framework-integrations.md)
 - [Pricing and cache-aware formulas](docs/models-dev-pricing.md)
 - [Benchmark evidence and quality portfolios](docs/quality-portfolios.md)
+- [Efficient subset estimation and quantization quality](docs/efficient-quality-estimation.md)
+- [Local runtime measurement and frontier example](examples/local-runtime-frontiers/README.md)
 - [Runtime and gateway integration options](docs/gateway-integrations.md)
 - [Research, sources, and prior art](docs/research.md)
 - [Security policy](SECURITY.md)

@@ -476,6 +476,8 @@ class EligibilityPolicy(StrictModel):
     required_capabilities: tuple[str, ...] = ()
     allow_unknown_age: bool = True
     max_source_age_hours: dict[SourceFreshnessId, PositiveSourceAge] = Field(default_factory=dict)
+    minimum_axis_values: dict[str, CanonicalDecimal] = Field(default_factory=dict)
+    maximum_axis_values: dict[str, CanonicalDecimal] = Field(default_factory=dict)
 
 
 class FrontierDefinition(StrictModel):
@@ -493,6 +495,27 @@ class FrontierDefinition(StrictModel):
             raise ValueError("frontier axes must reference two distinct metrics")
         if self.order_by not in metric_ids:
             raise ValueError("order_by must reference one of the two frontier metrics")
+        constrained = set(self.eligibility.minimum_axis_values) | set(
+            self.eligibility.maximum_axis_values
+        )
+        unknown = constrained - set(metric_ids)
+        if unknown:
+            raise ValueError(
+                "eligibility axis thresholds must reference frontier metrics: "
+                + ", ".join(sorted(unknown))
+            )
+        contradictory = {
+            metric
+            for metric in constrained
+            if metric in self.eligibility.minimum_axis_values
+            and metric in self.eligibility.maximum_axis_values
+            and self.eligibility.minimum_axis_values[metric]
+            > self.eligibility.maximum_axis_values[metric]
+        }
+        if contradictory:
+            raise ValueError(
+                "eligibility axis minimum exceeds maximum: " + ", ".join(sorted(contradictory))
+            )
         return self
 
 
@@ -819,9 +842,6 @@ class FrontierSnapshot(FrozenModel):
                     raise ValueError(
                         "evaluated offering must exactly match its axis evidence candidate"
                     )
-            for offering_id in rejected_ids:
-                if set(inventory_by_id[offering_id].axes) == axis_ids:
-                    raise ValueError("rejected offering cannot carry two successful axis estimates")
             for candidate in inventory.candidates:
                 for estimate in candidate.axes.values():
                     artifact_sources.extend(estimate.sources)

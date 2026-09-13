@@ -1,0 +1,220 @@
+{
+  "schema_version": "model-skyline/local-measurement/v1alpha1",
+  "measurement_id": "qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-r3-footprint-p126000-o64-miss-needle-0p5",
+  "status": "provisional",
+  "started_at": "2026-09-13T13:08:57.648069Z",
+  "completed_at": "2026-09-13T13:18:54.971906Z",
+  "hardware": {
+    "hardware_id": "macbook-m5max-64",
+    "manufacturer": "Apple",
+    "machine_model": "Mac17,6",
+    "chip": "Apple M5 Max",
+    "architecture": "arm64",
+    "memory_bytes": 68719476736,
+    "cpu_cores": 18,
+    "cpu_core_groups": {
+      "super": 6,
+      "performance": 12
+    },
+    "gpu_cores": 40,
+    "os_name": "macOS",
+    "os_version": "26.6.2 (25G83)",
+    "power_source": "ac",
+    "power_mode": "high-power-configured-pmset-2",
+    "negotiated_adapter_watts": 140,
+    "metadata": {
+      "power_connection": "direct-usb-c",
+      "pmset_powermode": 2,
+      "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+      "power_mode_status": "configured-not-independently-verified",
+      "related_report": "https://developer.apple.com/forums/thread/835131"
+    }
+  },
+  "artifact": {
+    "model_id": "Qwen/Qwen3.8-Flash-Next",
+    "checkpoint": "Qwen3.8-Flash-Next",
+    "revision": "DS4-IQ2@b8b20398acfcc9d9a05defb408ab857cfa02a56a+PLE@59a55fb819c82be7b162948282b50bd1a1e290b7",
+    "format": "ds4-composite-gguf",
+    "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+    "size_bytes": 76806769632,
+    "content_sha256": "4cefeb2f73958172ce6e0baaba97b694c12504c4daa2944ef5e552ac33b5adeb",
+    "source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-IQ2",
+    "license": "Apache-2.0",
+    "metadata": {
+      "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+      "manifest": "artifacts/qwen3.8-flash-next-ds4-q2-pleq41-manifest.json",
+      "base_includes_mtp": true,
+      "base_source_revision": "b8b20398acfcc9d9a05defb408ab857cfa02a56a",
+      "ple_source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-Q4",
+      "ple_source_revision": "59a55fb819c82be7b162948282b50bd1a1e290b7"
+    }
+  },
+  "runtime": {
+    "runtime_id": "DwarfStar/ds4",
+    "version": null,
+    "commit": "10830f4d6919a9820382f6934362683379f26d7b",
+    "backend": "Metal",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "Qwen-hybrid-raw-plus-compressed",
+    "prefix_cache_enabled": true,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "branch": "qwen3.8-flash-next",
+      "binary_sha256": "512223e80553502875a433068fba591b24dbc3b097f5fb2556fe9471752700e",
+      "native_context_tokens": 262144,
+      "allocated_context_tokens": 131072,
+      "prefill_chunk_tokens": 1024,
+      "max_output_tokens": 16384,
+      "resident_base_model": true,
+      "ple_access": "demand-paged-mmap",
+      "ple_eviction_interval_tokens": 1024,
+      "ssd_model_streaming": false,
+      "disk_kv_cache_enabled": false,
+      "live_prefix_reuse_enabled": true,
+      "mtp_present_in_artifact": true,
+      "mtp_enabled": false,
+      "planned_resident_gib_reported": "47.00",
+      "deployment_status": "aggressive-64gb-experiment"
+    }
+  },
+  "workload": {
+    "reference": {
+      "id": "openai-retrieval-p126000-o64-miss-needle-0p5",
+      "version": "model-skyline/openai-matrix@v1",
+      "unit": "request"
+    },
+    "kind": "long_context_retrieval",
+    "input_definition_sha256": "e9bfcc2a6a008959b6e0fada071424ef2ea55a65f5a4c4bff742aa0d2e8fd4a1",
+    "requested_input_tokens": 126000,
+    "max_output_tokens": 64,
+    "repetitions": 3,
+    "warmup_repetitions": 1,
+    "concurrency": 1,
+    "runner_state": "warm",
+    "prefix_cache_state": "miss",
+    "position": {
+      "mode": "retrieval",
+      "prompt_bytes": 193527,
+      "user_prompt_sha256": "055f6f5c8a61fa1c7aab17e58be7631726182504e283ebe5bd8c66c6f25f5876",
+      "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+      "tool_schema_sha256": null,
+      "tool_count": 0,
+      "tool_choice": null,
+      "thinking_mode": "disabled",
+      "sampling": {
+        "temperature": 0,
+        "seed": 90421
+      },
+      "time_to_first_token_source": "client-first-streamed-text-event",
+      "decode_rate_source": "client-post-first-token-inter-token-rate",
+      "token_count_url": null,
+      "construction_input_tokens": null,
+      "finish_reasons": {
+        "stop": 3
+      },
+      "api": "openai-chat-completions-streaming",
+      "retrieval_character_fraction": "0.5"
+    }
+  },
+  "performance": {
+    "actual_input_tokens": 125964,
+    "output_token_counts": [
+      21,
+      21,
+      21
+    ],
+    "metrics": {
+      "time_to_first_semantic_event_seconds": {
+        "unit": "s",
+        "values": [
+          "192.436091791",
+          "197.482919125",
+          "198.653534083"
+        ]
+      },
+      "end_to_end_seconds": {
+        "unit": "s",
+        "values": [
+          "192.893199833",
+          "197.92907925",
+          "199.0955975"
+        ]
+      },
+      "time_to_first_token_seconds": {
+        "unit": "s",
+        "values": [
+          "192.436091791",
+          "197.482919125",
+          "198.653534083"
+        ]
+      },
+      "decode_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "43.753332171739196",
+          "44.82695534478734",
+          "45.24237752069099"
+        ]
+      },
+      "peak_process_rss_bytes": {
+        "unit": "byte",
+        "values": [
+          "3145580544",
+          "2999238656",
+          "3034988544"
+        ]
+      },
+      "peak_process_physical_footprint_bytes": {
+        "unit": "byte",
+        "values": [
+          "5459109112",
+          "5460878608",
+          "5462484576"
+        ]
+      },
+      "swap_delta_bytes": {
+        "unit": "byte",
+        "values": [
+          "-16777216",
+          "0",
+          "-25165824"
+        ]
+      },
+      "prefix_cache_hit_tokens": {
+        "unit": "token",
+        "values": [
+          "0",
+          "0",
+          "0"
+        ]
+      }
+    }
+  },
+  "integrity": {
+    "retrieval": {
+      "passed": 3,
+      "total": 3
+    },
+    "tool_calls": null,
+    "tool_argument_parsing": null,
+    "structured_output": null
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ],
+  "provenance": {
+    "tool": "model-skyline/openai-matrix",
+    "tool_version": "v1",
+    "command_sha256": "f5ff1a7a652e08bd657e4097bdf25bd260ba7c9eeba66f0c4cb881d4a96d149d",
+    "raw_artifact_path": "examples/local-runtime-frontiers/raw/qwen38-flash-next-ds4-retrieval-mid-p126k-o64-r3-footprint.json",
+    "raw_sha256": "b329071ecfb000bcbe60a219769717a6b786c92347ff49b93215d2e24f7696e6",
+    "captured_at": "2026-09-13T13:18:54.971906Z",
+    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+    "source_url": null,
+    "license": "CC0-1.0"
+  },
+  "notes": "Provisional operational runtime evidence; no model-quality claim."
+}

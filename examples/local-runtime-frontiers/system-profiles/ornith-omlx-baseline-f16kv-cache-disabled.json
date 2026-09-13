@@ -1,0 +1,54 @@
+{
+  "schema_version": "model-skyline/local-system-profile/v1",
+  "served_model": "ornith-1.5-35b-a3b-oq4e-mtp:baseline-f16kv",
+    "artifact": {
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "checkpoint": "Ornith-1.5-35B-A3B",
+      "revision": "fb9644b83ce290da1f2cb6139f04632c085fc1d5",
+      "format": "mlx-safetensors",
+      "quantization": "oQ4e",
+      "size_bytes": 20900464628,
+      "content_sha256": "ccd964246ed9c0cc2ef17b1d16c193bb4b4446937b0521061f53636f0979d1f4",
+      "source_url": "https://huggingface.co/mlx-works/Ornith-1.5-35B-A3B-oQ4e-mtp",
+      "license": "MIT",
+      "metadata": {
+        "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+        "manifest": "artifacts/ornith-1.5-35b-a3b-oq4e-mtp-manifest.json",
+        "chat_template": "froggeric/Qwen-Fixed-Chat-Templates@v21.3",
+        "mtp_head_preserved": true,
+        "vision_tower_included": false
+      }
+    },
+  "runtime": {
+    "runtime_id": "oMLX",
+    "version": "0.6.4",
+    "commit": null,
+    "backend": "MLX/Metal",
+    "context_capacity_tokens": 262144,
+    "kv_cache": "f16",
+    "prefix_cache_enabled": false,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+        "mlx_version": "0.32.0",
+        "mlx_lm_version": "0.31.3",
+        "model_profile": "baseline-f16kv",
+        "max_concurrent_requests": 1,
+        "max_output_tokens": 16384,
+        "memory_guard": "balanced",
+        "turboquant_kv_enabled": false,
+        "dflash_enabled": false,
+        "mtp_enabled": false,
+        "ane_prefill_enabled": false,
+        "specprefill_enabled": false,
+      "prefix_cache": {
+        "backend": "disabled"
+      }
+    }
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ]
+}

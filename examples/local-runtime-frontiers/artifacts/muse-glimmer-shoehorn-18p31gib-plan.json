@@ -1,0 +1,66 @@
+{
+  "schema_version": "model-skyline/shoehorn-plan-observation/v1",
+  "captured_on": "2026-09-13",
+  "shoehorn_commit": "43908a1634f5f0989c360d437a71d756c9541889",
+  "source": {
+    "model_id": "AtomicChat/Muse-Glimmer-30B-GGUF",
+    "revision": "b26f8ce4a435571e24656d27efef978073809356",
+    "files": [
+      {
+        "filename": "Muse-Glimmer-30B-BF16-00001-of-00002.gguf",
+        "size_bytes": 27869304128,
+        "sha256": "c78eb5a0218a194ffec394a4f3c85de6973ac73c9fba977257be2abb50159832"
+      },
+      {
+        "filename": "Muse-Glimmer-30B-BF16-00002-of-00002.gguf",
+        "size_bytes": 27856207232,
+        "sha256": "030f0f7e7c5bc0a3fe5fd392bfed7d9e2868f2c57658ee311061ef9f868f7914"
+      }
+    ]
+  },
+  "importance_matrix": {
+    "filename": "muse-glimmer.imatrix.gguf",
+    "size_bytes": 13403200,
+    "sha256": "eae2b1317b4412675b1b62e86e375a28f4930fd55e149f74f140f26bce0ab054"
+  },
+  "request": {
+    "command": "shoehorn quantize --model Muse-Glimmer-30B-BF16-00001-of-00002.gguf --imatrix muse-glimmer.imatrix.gguf --ctx 131072 --kv q8_0 --budget 26.25GiB --reserve 4GiB --output Muse-Glimmer-30B-ShoeHorn-18.31GiB.gguf",
+    "context_tokens": 131072,
+    "kv_type": "q8_0",
+    "budget_bytes": 28185722880,
+    "reserve_bytes": 4294967296,
+    "exact_errors": false,
+    "sampled_rows_per_tensor": 128
+  },
+  "solver_observation": {
+    "tensor_count": 731,
+    "solved_tensor_count": 418,
+    "imatrix_solved_tensor_count": 417,
+    "fixed_tensor_count": 313,
+    "reported_weight_gib": "18.31",
+    "reported_overall_bpw": "5.646",
+    "reported_weight_slack_bytes": 290816,
+    "reported_kv_gib": "3.45",
+    "reported_compute_mib": "498.6",
+    "assignments": [
+      {"type": "F16", "tensors": 1, "reported_bytes": "2.50 GiB"},
+      {"type": "F32", "tensors": 313, "reported_bytes": "5.4 MiB"},
+      {"type": "IQ2_S", "tensors": 14, "reported_bytes": "439.3 MiB"},
+      {"type": "IQ2_XS", "tensors": 5, "reported_bytes": "183.2 MiB"},
+      {"type": "IQ2_XXS", "tensors": 37, "reported_bytes": "637.6 MiB"},
+      {"type": "IQ3_S", "tensors": 17, "reported_bytes": "493.0 MiB"},
+      {"type": "IQ3_XXS", "tensors": 24, "reported_bytes": "586.0 MiB"},
+      {"type": "IQ4_XS", "tensors": 7, "reported_bytes": "417.8 MiB"},
+      {"type": "Q5_K", "tensors": 66, "reported_bytes": "5.62 GiB"},
+      {"type": "Q6_K", "tensors": 246, "reported_bytes": "6.16 GiB"},
+      {"type": "Q8_0", "tensors": 1, "reported_bytes": "1.33 GiB"}
+    ]
+  },
+  "output": {
+    "filename": "Muse-Glimmer-30B-ShoeHorn-18.31GiB.gguf",
+    "size_bytes": 19672967680,
+    "sha256": "4037b09f40a0f4a212ed749ec1b53621925dcf4903f45f9d94d6e4fe3abb601e",
+    "metadata_file_type_at_creation": "F16",
+    "metadata_warning": "The artifact predates ShoeHorn commit ca565f8, which changes mixed-plan file_type from the largest single tensor type to the dominant aggregate byte type. Its tensors are unaffected, but the embedded display label is stale."
+  }
+}

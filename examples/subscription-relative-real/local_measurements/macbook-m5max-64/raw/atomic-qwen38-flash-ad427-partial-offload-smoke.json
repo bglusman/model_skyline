@@ -1,0 +1,25 @@
+{
+  "observed_at": "2026-09-13T00:13:44Z",
+  "model": "AtomicChat/Qwen3.8-Flash-Next-GGUF",
+  "file": "Qwen3.8-Flash-Next-AD-4.27bpw-Q4_K_M-M64-00001-of-00033.gguf",
+  "model_file_set_bytes": 94514368000,
+  "configuration": {
+    "context_slot_tokens": 131072,
+    "parallel": 1,
+    "n_gpu_layers": 47,
+    "flash_attention": true,
+    "fit": false,
+    "cache_type_k": "q8_0",
+    "cache_type_v": "q8_0",
+    "iogpu_wired_limit_mb": 0,
+    "recommended_max_working_set_mb": 55662.79
+  },
+  "result": {
+    "correctness_passed": true,
+    "prompt_tokens": 19,
+    "completion_tokens": 4,
+    "prefill_tokens_per_second": 18.253083810475346,
+    "decode_tokens_per_second": 6.194341262778409
+  },
+  "notes": "Diagnostic only. The publisher's 36 tok/s recipe uses full offload (-ngl 99) and sets iogpu.wired_limit_mb=57344. Partial offload fits without that system-wide change but is not a practical 128K path at the measured prefill rate."
+}

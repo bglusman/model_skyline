@@ -1,0 +1,15 @@
+#!/bin/zsh
+set -euo pipefail
+
+cd /Users/admin/Developer/ML-Models/ds4
+exec /Users/admin/.local/bin/local-model-exclusive \
+  /Users/admin/Developer/ML-Models/ds4/ds4-server \
+  --metal \
+  --model /Users/admin/Developer/ML-Models/ds4/ds4flash.gguf \
+  --host 127.0.0.1 \
+  --port "${STUDIO_DS4_PORT:-8182}" \
+  --ssd-streaming \
+  --ssd-streaming-cache-experts 32GB \
+  --ctx 32768 \
+  --tokens 8192 \
+  --trace /Users/admin/Developer/ML-Models/ds4/logs/ds4-server-flash-trace.jsonl

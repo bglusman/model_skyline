@@ -1,0 +1,140 @@
+{
+  "exact_offerings": [
+    {
+      "frontier_count": 3,
+      "frontiers": [
+        "long-context-126k",
+        "uncached-agent-tools",
+        "validated-capacity"
+      ],
+      "model_id": "Qwen/Qwen3.8-Flash-Next",
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1"
+    },
+    {
+      "frontier_count": 1,
+      "frontiers": [
+        "warm-agent-tools"
+      ],
+      "model_id": "Qwen/Qwen3.8-27B",
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e"
+    },
+    {
+      "frontier_count": 1,
+      "frontiers": [
+        "short-throughput"
+      ],
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "Q4_K_M"
+    },
+    {
+      "frontier_count": 1,
+      "frontiers": [
+        "warm-agent-tools"
+      ],
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e"
+    }
+  ],
+  "frontiers": [
+    {
+      "definition": "short-throughput-envelope",
+      "label": "short-throughput",
+      "members": [
+        {
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
+        }
+      ],
+      "rejected_count": 0,
+      "snapshot_id": "68df2eaace3e13d530cc80be952aacbd35f94ea31c44fa8367202e1711b18434"
+    },
+    {
+      "definition": "tool-agent-operational",
+      "label": "warm-agent-tools",
+      "members": [
+        {
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3"
+        },
+        {
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa"
+        }
+      ],
+      "rejected_count": 1,
+      "snapshot_id": "12abb6613aa32fc30e444554dd770294a3465cc197e841ca0ace1f3679e88eb0"
+    },
+    {
+      "definition": "tool-agent-operational",
+      "label": "uncached-agent-tools",
+      "members": [
+        {
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
+        }
+      ],
+      "rejected_count": 0,
+      "snapshot_id": "94fce596904b998259465e5669ceaaed16d9249e3ee63ad3206d38758bd91fc2"
+    },
+    {
+      "definition": "long-context-operational",
+      "label": "long-context-126k",
+      "members": [
+        {
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
+        }
+      ],
+      "rejected_count": 1,
+      "snapshot_id": "4c33a8c0d690c04e43d3416f2b9ff3158c006c7a6f8a1c0f9fa26010ba11f77a"
+    },
+    {
+      "definition": "validated-capacity-memory",
+      "label": "validated-capacity",
+      "members": [
+        {
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
+        }
+      ],
+      "rejected_count": 0,
+      "snapshot_id": "89a7e8b6f91b4e59e87e96d5a744a12d380b9939f9d8e622601dbb34b4614464"
+    }
+  ],
+  "membership_semantics": "Membership already incorporates each frontier axis's configured epsilon; this report does not add a second synthetic score.",
+  "model_families": [
+    {
+      "frontier_count": 3,
+      "frontiers": [
+        "long-context-126k",
+        "uncached-agent-tools",
+        "validated-capacity"
+      ],
+      "model_id": "Qwen/Qwen3.8-Flash-Next"
+    },
+    {
+      "frontier_count": 2,
+      "frontiers": [
+        "short-throughput",
+        "warm-agent-tools"
+      ],
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B"
+    },
+    {
+      "frontier_count": 1,
+      "frontiers": [
+        "warm-agent-tools"
+      ],
+      "model_id": "Qwen/Qwen3.8-27B"
+    }
+  ],
+  "schema_version": "model-skyline/local-frontier-coverage/v1"
+}

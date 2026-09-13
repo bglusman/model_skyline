@@ -1,0 +1,82 @@
+{
+  "observed_at": "2026-09-13T00:45:51Z",
+  "runtime": "oMLX 0.6.4; MLX 0.32.2",
+  "model": "mlx-works/Ornith-1.5-35B-A3B-oQ4e-mtp",
+  "quantization": "oQ4e",
+  "context_profile": "code_python",
+  "upload_skipped": true,
+  "results": [
+    {
+      "profile": "baseline-f16kv",
+      "requested_pp": 4096,
+      "prompt_tokens": 4369,
+      "completion_tokens": 512,
+      "processing_tps": 2945.6,
+      "gen_tps": 131.5,
+      "ttft_ms": 1483.2,
+      "e2e_latency_s": 5.376
+    },
+    {
+      "profile": "mtp-f16kv",
+      "requested_pp": 4096,
+      "prompt_tokens": 4365,
+      "completion_tokens": 512,
+      "processing_tps": 2978.0,
+      "gen_tps": 122.0,
+      "ttft_ms": 1465.8,
+      "e2e_latency_s": 5.664,
+      "mtp_acceptance": 0.523
+    },
+    {
+      "profile": "mtp-tq4",
+      "requested_pp": 4096,
+      "prompt_tokens": 4367,
+      "completion_tokens": 512,
+      "processing_tps": 3194.9,
+      "gen_tps": 111.0,
+      "ttft_ms": 1366.9,
+      "e2e_latency_s": 5.98
+    },
+    {
+      "profile": "baseline-f16kv",
+      "requested_pp": 65536,
+      "prompt_tokens": 61987,
+      "completion_tokens": 128,
+      "processing_tps": 2416.6,
+      "gen_tps": 101.3,
+      "ttft_ms": 25650.1,
+      "e2e_latency_s": 26.915
+    },
+    {
+      "profile": "mtp-f16kv",
+      "requested_pp": 65536,
+      "prompt_tokens": 61988,
+      "completion_tokens": 128,
+      "processing_tps": 2230.2,
+      "gen_tps": 89.9,
+      "ttft_ms": 27794.8,
+      "e2e_latency_s": 29.219,
+      "mtp_acceptance": 0.671
+    },
+    {
+      "profile": "mtp-tq4",
+      "requested_pp": 65536,
+      "prompt_tokens": 61989,
+      "completion_tokens": 128,
+      "processing_tps": 1679.9,
+      "gen_tps": 55.3,
+      "ttft_ms": 36901.4,
+      "e2e_latency_s": 39.216
+    },
+    {
+      "profile": "baseline-f16kv",
+      "requested_pp": 131072,
+      "prompt_tokens": 122420,
+      "completion_tokens": 128,
+      "processing_tps": 1376.8,
+      "gen_tps": 67.7,
+      "ttft_ms": 88917.6,
+      "e2e_latency_s": 90.809
+    }
+  ]
+}

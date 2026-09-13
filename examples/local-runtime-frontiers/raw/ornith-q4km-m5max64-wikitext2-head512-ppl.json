@@ -1,0 +1,167 @@
+{
+  "schema_version": "model-skyline/raw-llama-perplexity/v1",
+  "captured_at": "2026-09-13T05:11:40.356512Z",
+  "started_at": "2026-09-13T05:11:23.473398Z",
+  "elapsed_ns": 16882772250,
+  "host": {
+    "host_id": "macbook-m5max-64",
+    "machine": "arm64",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  },
+  "artifact": {
+    "filename": "Ornith-1.5-35B-Q4_K_M.gguf",
+    "size_bytes": 21713462848,
+    "sha256": "ca6ea26329c88b78ffd90a85163be2e746c2fafd1024f56db47e499f117f9a7f"
+  },
+  "corpus": {
+    "filename": "wikitext-2-raw-v1-test-head512.txt",
+    "size_bytes": 101113,
+    "sha256": "10976b6e2d59a3a813e5825970a18dfdcc902302e5250bbb3052c6eaa9b23415"
+  },
+  "runtime": {
+    "filename": "llama-perplexity",
+    "sha256": "ca8371d0f1e1bd1b8df5d5b64cff1fd469f26a81790d258ee47cc24878b9ecd2",
+    "version_output": "version: 0.4.0 (build 10809, commit 5266f24da)\nbuilt with AppleClang 21.0.0.21000101 for Darwin arm64"
+  },
+  "configuration": {
+    "context_tokens": 4096,
+    "chunks_requested": 6,
+    "threads": 6,
+    "batch": 2048,
+    "micro_batch": 512,
+    "gpu_layers": -1,
+    "kv_cache": "q8_0/q8_0",
+    "flash_attention": "on",
+    "fit": "off"
+  },
+  "invocation": {
+    "command": [
+      "${LLAMA_PERPLEXITY}",
+      "-m",
+      "${MODEL_FILE}",
+      "-f",
+      "${CORPUS_FILE}",
+      "-c",
+      "4096",
+      "--chunks",
+      "6",
+      "-ngl",
+      "-1",
+      "-fit",
+      "off",
+      "-ctk",
+      "q8_0",
+      "-ctv",
+      "q8_0",
+      "-fa",
+      "on",
+      "-t",
+      "6",
+      "-tb",
+      "6",
+      "-b",
+      "2048",
+      "-ub",
+      "512"
+    ],
+    "command_sha256": "fff58390a79994f6bfdfcdc0ed0fd70c4eb55448399f1c70d4ae8eb98c6a234f"
+  },
+  "coordination": {
+    "method": "bsd-flock",
+    "lock_file": "${LOCAL_MODEL_RUNNER_LOCK}",
+    "timeout_seconds": 0
+  },
+  "normalization": "Absolute binary/model/corpus paths replaced with portable placeholders; numeric estimates serialized as decimal strings.",
+  "result": {
+    "perplexity": "10.0669",
+    "standard_error": "0.28042",
+    "chunks_evaluated": 6,
+    "runtime_build_number": 10809,
+    "runtime_commit": "5266f24da",
+    "unused_tensors": [
+      {
+        "name": "blk.40.attn_norm.weight",
+        "size_bytes": 8192
+      },
+      {
+        "name": "blk.40.post_attention_norm.weight",
+        "size_bytes": 8192
+      },
+      {
+        "name": "blk.40.attn_q.weight",
+        "size_bytes": 9437184
+      },
+      {
+        "name": "blk.40.attn_k.weight",
+        "size_bytes": 589824
+      },
+      {
+        "name": "blk.40.attn_v.weight",
+        "size_bytes": 860160
+      },
+      {
+        "name": "blk.40.attn_output.weight",
+        "size_bytes": 4718592
+      },
+      {
+        "name": "blk.40.attn_q_norm.weight",
+        "size_bytes": 1024
+      },
+      {
+        "name": "blk.40.attn_k_norm.weight",
+        "size_bytes": 1024
+      },
+      {
+        "name": "blk.40.ffn_gate_inp.weight",
+        "size_bytes": 2097152
+      },
+      {
+        "name": "blk.40.ffn_down_exps.weight",
+        "size_bytes": 220200960
+      },
+      {
+        "name": "blk.40.ffn_gate_exps.weight",
+        "size_bytes": 150994944
+      },
+      {
+        "name": "blk.40.ffn_up_exps.weight",
+        "size_bytes": 150994944
+      },
+      {
+        "name": "blk.40.ffn_gate_inp_shexp.weight",
+        "size_bytes": 8192
+      },
+      {
+        "name": "blk.40.ffn_gate_shexp.weight",
+        "size_bytes": 589824
+      },
+      {
+        "name": "blk.40.ffn_up_shexp.weight",
+        "size_bytes": 589824
+      },
+      {
+        "name": "blk.40.ffn_down_shexp.weight",
+        "size_bytes": 860160
+      },
+      {
+        "name": "blk.40.nextn.eh_proj.weight",
+        "size_bytes": 4718592
+      },
+      {
+        "name": "blk.40.nextn.enorm.weight",
+        "size_bytes": 8192
+      },
+      {
+        "name": "blk.40.nextn.hnorm.weight",
+        "size_bytes": 8192
+      },
+      {
+        "name": "blk.40.nextn.shared_head_norm.weight",
+        "size_bytes": 8192
+      }
+    ],
+    "unused_tensor_bytes": 546703360
+  },
+  "stdout": "0.18 minutes\n[1]11.4708,[2]12.4017,[3]10.0927,[4]8.7733,[5]10.3234,[6]10.0669,\n\n",
+  "stderr": "0.00.196.633 W model has unused tensor blk.40.attn_norm.weight (size = 8192 bytes) -- ignoring\n0.00.196.638 W model has unused tensor blk.40.post_attention_norm.weight (size = 8192 bytes) -- ignoring\n0.00.196.657 W model has unused tensor blk.40.attn_q.weight (size = 9437184 bytes) -- ignoring\n0.00.196.662 W model has unused tensor blk.40.attn_k.weight (size = 589824 bytes) -- ignoring\n0.00.196.664 W model has unused tensor blk.40.attn_v.weight (size = 860160 bytes) -- ignoring\n0.00.196.669 W model has unused tensor blk.40.attn_output.weight (size = 4718592 bytes) -- ignoring\n0.00.196.672 W model has unused tensor blk.40.attn_q_norm.weight (size = 1024 bytes) -- ignoring\n0.00.196.673 W model has unused tensor blk.40.attn_k_norm.weight (size = 1024 bytes) -- ignoring\n0.00.196.675 W model has unused tensor blk.40.ffn_gate_inp.weight (size = 2097152 bytes) -- ignoring\n0.00.196.677 W model has unused tensor blk.40.ffn_down_exps.weight (size = 220200960 bytes) -- ignoring\n0.00.196.681 W model has unused tensor blk.40.ffn_gate_exps.weight (size = 150994944 bytes) -- ignoring\n0.00.196.682 W model has unused tensor blk.40.ffn_up_exps.weight (size = 150994944 bytes) -- ignoring\n0.00.196.685 W model has unused tensor blk.40.ffn_gate_inp_shexp.weight (size = 8192 bytes) -- ignoring\n0.00.196.687 W model has unused tensor blk.40.ffn_gate_shexp.weight (size = 589824 bytes) -- ignoring\n0.00.196.688 W model has unused tensor blk.40.ffn_up_shexp.weight (size = 589824 bytes) -- ignoring\n0.00.196.690 W model has unused tensor blk.40.ffn_down_shexp.weight (size = 860160 bytes) -- ignoring\n0.00.196.692 W model has unused tensor blk.40.nextn.eh_proj.weight (size = 4718592 bytes) -- ignoring\n0.00.196.694 W model has unused tensor blk.40.nextn.enorm.weight (size = 8192 bytes) -- ignoring\n0.00.196.697 W model has unused tensor blk.40.nextn.hnorm.weight (size = 8192 bytes) -- ignoring\n0.00.196.702 W model has unused tensor blk.40.nextn.shared_head_norm.weight (size = 8192 bytes) -- ignoring\n0.05.703.044 I cmn          init: llama threadpool init, n_threads = 6\n0.05.730.821 I \n0.05.730.849 I system_info: n_threads = 6 (n_threads_batch = 6) / 18 | MTL : EMBED_LIBRARY = 1 | CPU : NEON = 1 | ARM_FMA = 1 | FP16_VA = 1 | MATMUL_INT8 = 1 | DOTPROD = 1 | SME = 1 | ACCELERATE = 1 | OPENMP = 1 | REPACK = 1 | \n0.05.730.857 I perplexity: tokenizing the input ..\n0.05.753.643 I perplexity: tokenization took 22.783 ms\n0.05.753.687 I perplexity: calculating perplexity over 6 chunks, n_ctx=4096, batch_size=2048, n_seq=1\n0.07.683.566 I perplexity: 1.93 seconds per pass - ETA 0.16.701.128 I Final estimate: PPL = 10.0669 +/- 0.28042\n"
+}
