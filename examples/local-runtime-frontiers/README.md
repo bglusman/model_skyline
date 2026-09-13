@@ -24,6 +24,43 @@ does not inherit a score from its base checkpoint, and an MLX, DFlash, or agent
 harness result remains a distinct offering. Quality can be added only through
 the existing exact reconciliation and portfolio machinery.
 
+## Runtime choices on Apple Silicon
+
+- **MLX-LM** is the simplest native MLX baseline: direct safetensors models,
+  a small Python server, and explicit prompt-cache APIs. It is valuable as the
+  least layered comparison and for checking whether an oMLX optimization caused
+  a regression. It does not by itself provide this host's shared model pool,
+  SSD-backed prefix lifecycle, memory guard, or profile aliases. [Apple's MLX-LM
+  overview](https://developer.apple.com/videos/play/wwdc2025/298/)
+- **oMLX** remains the practical agent default when its profile passes
+  correctness checks. It adds a model pool, continuous batching, paged/SSD
+  prefix caching, memory enforcement and telemetry, TurboQuant KV, native MTP,
+  and DFlash profiles. Those features create more configuration identity and
+  more ways to benchmark the wrong combination. In particular, the current
+  DFlash engine performs full prefill without the ordinary paged prefix cache;
+  long-context fallback regains the batched engine's cache. [oMLX DFlash
+  integration](https://github.com/jundot/omlx/blob/main/docs/experimental/dflash_mlx_integration.md)
+- **llama.cpp/GGUF** is the portability and controlled-comparison path. The
+  exact same artifact and build can run on both Macs, and Apple Silicon is a
+  first-class Metal backend. It has a mature quantization/tooling ecosystem and
+  fewer Python layers, but cannot consume MLX safetensors or inherit oMLX-only
+  accelerators; newly supported hybrid architectures still require versioned
+  validation. [llama.cpp](https://github.com/ggml-org/llama.cpp)
+- **BaseRT** is a promising M5-specific follow-up, not part of the current
+  winner set. Its July M5 paper reports dedicated Metal 4 tensor kernels and
+  especially large prefill gains, and its server exposes tool calls, paged KV,
+  and prefix caching. However, the current 0.2 changelog names Qwen3.5/3.6
+  hybrid support—not Qwen3.8—and the execution engine is a separately licensed
+  proprietary binary even though the CLI/format are Apache-2.0. Test it only
+  after exact Qwen3.8 or Ornith compatibility is demonstrated; publisher
+  maxima are not a substitute for this harness. [BaseRT M5
+  paper](https://arxiv.org/abs/2607.19438) · [BaseRT
+  repository](https://github.com/basecompute/baseRT)
+
+MLX is the tensor framework beneath MLX-LM and oMLX; llama.cpp does not “support
+MLX” as a model format. Comparing them therefore means comparing separate MLX
+safetensors and GGUF artifacts, not flipping an MLX flag on one set of weights.
+
 ## Frontier definitions
 
 Every active frontier has exactly two decision axes:
@@ -84,6 +121,26 @@ modelskyline evaluate frontiers.yaml generated/short-throughput-catalog.json \
   --as-of 2026-09-13T03:15:00Z
 ```
 
+Quantization integrity uses a separate pinned-corpus capture. It hashes the
+runtime, model, and corpus bytes, disables llama.cpp's automatic fit behavior,
+holds the same host-wide runner lock, and retains the full native output plus
+the parsed final estimate and standard error:
+
+```console
+python examples/local-runtime-frontiers/capture_llama_perplexity.py \
+  --binary /path/to/llama-perplexity \
+  --model /path/to/model.gguf \
+  --corpus /path/to/wikitext-2-raw-v1-test-head512.txt \
+  --host-id macbook-m5max-64 \
+  --exclusive-lock ~/.local/state/model-skyline/local-model-runner.lock \
+  --output examples/local-runtime-frontiers/raw/model-ppl.json
+```
+
+PPL is compared only across captures with identical corpus bytes, tokenizer
+path, llama.cpp build, context/chunk settings, and KV/runtime configuration. It
+is a quantization-sensitive regression signal, not a general coding-quality
+score and not an axis of the throughput frontier.
+
 ## Initial exact-artifact result
 
 Medians from the retained repetitions:
@@ -135,9 +192,11 @@ operational messages as assistant content. The managed TTL is 900 seconds, and
 cold-load/post-expiry latency is measured separately. The oMLX launcher enables
 the paged SSD prefix cache by default with a zero-byte RAM hot cache; controlled
 cache-free measurements set `QWEN38_OMLX_CACHE=0`. OpenCode and OMP both expose
-the baseline, MTP/F16-KV, MTP/TQ4-KV, and DFlash/TQ4 aliases through the same
-router. OMP keeps the agreed 180,000-token global compaction trigger, while
-262K-capable backends advertise a 262,144-token hard ceiling.
+the non-speculative baseline/F16-KV and baseline/TQ4-KV controls, MTP/F16-KV,
+MTP/TQ4-KV, and DFlash/TQ4 aliases through the same router. The paired baseline
+profiles isolate KV compression from speculative decoding. OMP keeps the
+agreed 180,000-token global compaction trigger, while 262K-capable backends
+advertise a 262,144-token hard ceiling.
 
 `prefix_cache_enabled` belongs to runtime identity. Cache warmth (`disabled`,
 `miss`, `warm`, or `mixed`) belongs to the workload position. Cold load, warm
@@ -174,9 +233,16 @@ python examples/local-runtime-frontiers/openai_matrix.py \
 
 Normalize with `normalize_openai_matrix.py` plus an exact hardware profile and
 system profile. The normalizer rejects captures containing llama-swap loading
-content and automatically splits cache misses from warm hits. For tool mode it
-publishes both exact-call success and argument-JSON parse success, so a faster
-speculative profile cannot hide broken tool syntax behind aggregate TPS.
+content, rejects a requested output limit above the runtime profile's server
+ceiling, and automatically splits cache misses from warm hits. The semantic
+input hash covers the system message, user message, tool schema, and tool
+choice—not just the user text—and the tool count/schema hash and finish reasons
+remain in the position metadata. Real agent A/B tests should likewise keep
+system prompts and tool schemas byte-stable; reducing the tool set is a new
+workload and must not be mixed into the same position. For tool mode the
+normalizer publishes both exact-call success and argument-JSON parse success,
+so a faster speculative profile cannot hide broken tool syntax behind
+aggregate TPS.
 On macOS, each request also retains swap, memory-pressure, thermal-warning, and
 power snapshots; `--process-match` adds sampled peak RSS for a literal command
 substring. RSS is labeled as process RSS and must not be presented as Metal
@@ -193,7 +259,12 @@ endpoints are part of [llama-swap's documented API](https://github.com/mostlygee
 For oMLX DFlash profiles, `--runtime-stats-url` captures the engine's exact
 per-request acceptance summary; normalization emits it as
 `local_speculative_acceptance_percent` rather than inferring acceptance from
-TPS.
+TPS. Acceptance is measured separately for prose, code, and tool requests;
+there is no assumed constant acceptance rate. TurboQuant KV is likewise a
+separate runtime identity. Four-bit KV can greatly reduce the KV component, but
+it does not promise to double total context headroom when weights, recurrent
+state, compute buffers, or only a subset of hybrid layers dominate memory.
+Long-position retrieval and tool-call checks are required before promotion.
 
 Retrieval mode builds deterministic unique distractor records, inserts one
 passkey at a fixed character fraction, asks for that passkey alone, and counts

@@ -20,6 +20,8 @@ from urllib.parse import urlparse
 
 import httpx
 
+SYSTEM_PROMPT = "You are a deterministic local runtime measurement probe."
+
 
 def _timestamp() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
@@ -115,6 +117,33 @@ def _tool_definition() -> list[dict[str, Any]]:
             },
         }
     ]
+
+
+def _canonical_sha256(value: object) -> str:
+    encoded = json.dumps(
+        value,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode()
+    return _sha256(encoded)
+
+
+def _input_definition(prompt: str, mode: str) -> dict[str, Any]:
+    """Return the complete semantic request prefix, excluding output controls."""
+    value: dict[str, Any] = {
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ]
+    }
+    if mode == "tool":
+        value["tools"] = _tool_definition()
+        value["tool_choice"] = {
+            "type": "function",
+            "function": {"name": "lookup_fixture"},
+        }
+    return value
 
 
 def _command_output(arguments: list[str]) -> str | None:
@@ -312,13 +341,7 @@ def _stream_request(
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "model": model,
-        "messages": [
-            {
-                "role": "system",
-                "content": "You are a deterministic local runtime measurement probe.",
-            },
-            {"role": "user", "content": prompt},
-        ],
+        **_input_definition(prompt, mode),
         "max_tokens": max_tokens,
         "temperature": 0,
         "seed": 90421,
@@ -539,6 +562,7 @@ def main() -> None:
                 prompt = _prefix(args.mode, approximate_tokens)
                 expected_content = None
             prompt_sha256 = _sha256(prompt.encode())
+            input_definition_sha256 = _canonical_sha256(_input_definition(prompt, args.mode))
             for max_tokens in args.max_outputs:
                 for repetition in range(1, args.repetitions + 1):
                     result = _stream_request(
@@ -559,6 +583,7 @@ def main() -> None:
                             "approximate_prefix_tokens": approximate_tokens,
                             "prompt_bytes": len(prompt.encode()),
                             "prompt_sha256": prompt_sha256,
+                            "input_definition_sha256": input_definition_sha256,
                             "expected_content_sha256": (
                                 _sha256(expected_content.encode()) if expected_content else None
                             ),
@@ -582,6 +607,11 @@ def main() -> None:
         "runtime_stats_url": args.runtime_stats_url,
         "runner_status_url": args.runner_status_url,
         "runner_model_id": args.runner_model_id,
+        "system_prompt_sha256": _sha256(SYSTEM_PROMPT.encode()),
+        "tool_schema_sha256": (
+            _canonical_sha256(_tool_definition()) if args.mode == "tool" else None
+        ),
+        "tool_count": len(_tool_definition()) if args.mode == "tool" else 0,
         "results": results,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

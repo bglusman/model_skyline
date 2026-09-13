@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from collections import defaultdict
+from collections import Counter, defaultdict
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -148,8 +148,10 @@ def _swap_deltas(rows: list[dict[str, Any]]) -> list[int] | None:
 def _find_speculation_last(value: object) -> dict[str, Any] | None:
     if isinstance(value, dict):
         speculation = value.get("speculation")
-        if isinstance(speculation, dict) and isinstance(speculation.get("last"), dict):
-            return speculation["last"]
+        if isinstance(speculation, dict):
+            last = speculation.get("last")
+            if isinstance(last, dict):
+                return last
         for child in value.values():
             found = _find_speculation_last(child)
             if found is not None:
@@ -199,6 +201,15 @@ def _load_profile(path: Path) -> tuple[str, LocalArtifactIdentity, LocalRuntimeI
     )
 
 
+def _configured_max_output(runtime: LocalRuntimeIdentity) -> int | None:
+    value = runtime.configuration.get("max_output_tokens")
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise ValueError("runtime configuration max_output_tokens must be a positive integer")
+    return value
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--capture", type=Path, required=True)
@@ -234,11 +245,17 @@ def main() -> None:
 
     grouped: dict[tuple[int, int, str], list[dict[str, Any]]] = defaultdict(list)
     try:
+        configured_maximum = _configured_max_output(runtime)
         for row in rows:
             approximate = _integer(
                 row.get("approximate_prefix_tokens"), field="approximate_prefix_tokens"
             )
             maximum = _integer(row.get("max_output_tokens"), field="max_output_tokens")
+            if configured_maximum is not None and maximum > configured_maximum:
+                raise ValueError(
+                    f"requested max_output_tokens {maximum} exceeds runtime ceiling "
+                    f"{configured_maximum}"
+                )
             state = _cache_state(row, cache_enabled=runtime.prefix_cache_enabled)
             grouped[(approximate, maximum, state)].append(row)
     except ValueError as exc:
@@ -263,8 +280,11 @@ def main() -> None:
             if len(input_counts) != 1:
                 raise ValueError("a normalized position has inconsistent input token counts")
             prompt_hashes = {row.get("prompt_sha256") for row in group}
+            input_hashes = {
+                row.get("input_definition_sha256", row.get("prompt_sha256")) for row in group
+            }
             prompt_bytes = {row.get("prompt_bytes") for row in group}
-            if len(prompt_hashes) != 1 or len(prompt_bytes) != 1:
+            if len(prompt_hashes) != 1 or len(input_hashes) != 1 or len(prompt_bytes) != 1:
                 raise ValueError("a normalized position has inconsistent prompt identity")
             output_counts = [_usage_int(row, "output_tokens", "completion_tokens") for row in group]
             metrics: dict[str, dict[str, Any]] = {
@@ -330,6 +350,20 @@ def main() -> None:
             position = {
                 "mode": mode,
                 "prompt_bytes": next(iter(prompt_bytes)),
+                "user_prompt_sha256": next(iter(prompt_hashes)),
+                "system_prompt_sha256": capture.get("system_prompt_sha256"),
+                "tool_schema_sha256": capture.get("tool_schema_sha256"),
+                "tool_count": capture.get("tool_count", 0),
+                "finish_reasons": dict(
+                    sorted(
+                        Counter(
+                            reason
+                            for row in group
+                            for reason in row.get("finish_reasons", [])
+                            if isinstance(reason, str)
+                        ).items()
+                    )
+                ),
                 "api": "openai-chat-completions-streaming",
             }
             if mode == "retrieval":
@@ -353,7 +387,7 @@ def main() -> None:
                             "unit": "request",
                         },
                         "kind": args.kind,
-                        "input_definition_sha256": next(iter(prompt_hashes)),
+                        "input_definition_sha256": next(iter(input_hashes)),
                         "requested_input_tokens": approximate,
                         "max_output_tokens": maximum,
                         "repetitions": len(group),

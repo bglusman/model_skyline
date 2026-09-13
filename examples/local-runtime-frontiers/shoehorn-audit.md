@@ -60,10 +60,12 @@ the downloaded imatrix hashes to
 With
 `--ctx 131072 --budget 51.84GiB --kv q8_0 --exact-errors`, ShoeHorn reserves a
 modeled 5.45 GiB for KV, 517 MiB for compute, and 512 MiB for runtime overhead,
-leaving 45.39 GiB for weights. The solver assigned 307 tensors to F16, 99 to
-Q8_0, 41 to Q6_K, 11 to Q5_K, and the remaining selected tensors across Q4_K,
-IQ4_XS, IQ3_S, and IQ3_XXS. The modeled result is 10.981 bpw with 204,124 bytes
-of budget slack.
+leaving 45.39 GiB for weights. The earlier sampled-error dry plan assigned 307
+tensors to F16 and left 204,124 bytes of modeled weight slack. The completed
+exact-row-error solve took about 50 minutes on the M5 Max and instead assigned
+317 tensors to F16, 91 to Q8_0, 38 to Q6_K, 13 to Q5_K, 2 to Q4_K, 17 to
+IQ4_XS, 2 to IQ3_S, and 4 to IQ3_XXS. It retained the same 10.981 overall bpw
+but used the budget to within 48,476 bytes.
 
 ```console
 shoehorn fit bartowski/Ornith-1.5-35B-A3B-GGUF \
@@ -79,8 +81,18 @@ safe to try, but may leave about 4 GiB that a future architecture-aware plan
 could exchange for weight fidelity or context. Calibration was deliberately
 disabled because the current one-sequence llama.cpp parser neither disables
 llama.cpp auto-fit nor accounts for this recurrent layout. The real fit uses
-exact row errors and will be accepted only after an auto-fit-disabled load and
-runtime memory measurements.
+exact row errors and produced a 48,747,873,632-byte GGUF whose file SHA-256 is
+`138e4fad79b6c11b9e8cd206ba7bd442482efe599550f11a629b6af8f181b150`.
+Its retained file manifest is
+[`artifacts/ornith-1.5-35b-a3b-shoehorn-ctx131k-q8kv-manifest.json`](artifacts/ornith-1.5-35b-a3b-shoehorn-ctx131k-q8kv-manifest.json).
+
+The first runtime gate passed with llama.cpp build 10809: all layers on Metal,
+131,072-token context, Q8_0 K/V, flash attention on, and auto-fit off. A
+single-turn deterministic generation returned `SHOEHORN_SMOKE_OK` exactly. The
+first uncached process reached 48,914,366,464 bytes of RSS, reported no process
+swaps, and exited cleanly. RSS includes mapped file pages and is not an estimate
+of active Metal allocation; the result confirms operational fit, not the
+accuracy of ShoeHorn's modeled 51.84 GiB decomposition.
 
 ## Why Qwen3.8 Flash is different
 

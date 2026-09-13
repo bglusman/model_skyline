@@ -59,6 +59,31 @@ def test_retrieval_integrity_requires_an_exact_final_answer() -> None:
     assert NORMALIZER._retrieval_integrity(rows)["retrieval"] == {"passed": 1, "total": 2}
 
 
+def test_input_definition_hash_covers_system_prompt_and_tool_schema() -> None:
+    prompt = MATRIX._prefix("tool", 512)
+    tool_hash = MATRIX._canonical_sha256(MATRIX._input_definition(prompt, "tool"))
+    prose_hash = MATRIX._canonical_sha256(MATRIX._input_definition(prompt, "prose"))
+
+    assert tool_hash != prose_hash
+    assert tool_hash == MATRIX._canonical_sha256(MATRIX._input_definition(prompt, "tool"))
+
+
+def test_runtime_output_ceiling_is_checked() -> None:
+    runtime = NORMALIZER.LocalRuntimeIdentity.model_validate(
+        {
+            "runtime_id": "oMLX",
+            "version": "0.6.4",
+            "backend": "MLX/Metal",
+            "context_capacity_tokens": 262_144,
+            "kv_cache": "f16",
+            "prefix_cache_enabled": False,
+            "configuration": {"max_output_tokens": 16_384},
+        }
+    )
+
+    assert NORMALIZER._configured_max_output(runtime) == 16_384
+
+
 def test_normalizer_splits_prefix_cache_miss_and_warm_positions(tmp_path: Path) -> None:
     profile = tmp_path / "profile.json"
     profile.write_text(
