@@ -1,0 +1,180 @@
+schema_version: model-skyline/v1alpha1
+
+workloads:
+  llama-bench-pp2048-tg512:
+    unit: benchmark_run
+    version: llama.cpp@5266f24da/model-skyline@v1
+    harness: llama-bench@5266f24da
+    cohort: ornith-1.5-q4km-identical-artifact@sha256-ca6ea263
+    benchmark: llama-bench synthetic prompt/decode
+    description: >-
+      Five warm, serial repetitions of an identical 2,048-token synthetic prompt
+      and 512-token decode with fixed llama.cpp, Metal, KV, batch, and thread settings.
+    variables: {}
+    assumptions:
+      cache_state: disabled
+      concurrency: 1
+      evidence_status: provisional
+
+  openai-agent-latency-v1:
+    unit: request
+    version: "1"
+    harness: model-skyline/openai-matrix@v1
+    cohort: byte-stable-prefix-ladder@v1
+    benchmark: streaming OpenAI-compatible requests
+    description: >-
+      Future steady-state agent-facing matrix with cache profile, prefix warmth,
+      prompt length, output length, and prose/code/tool mode fixed per position.
+    variables: {}
+    assumptions:
+      concurrency: 1
+
+  long-context-retrieval-v1:
+    unit: retrieval_probe
+    version: "1"
+    harness: model-skyline/passkey-and-distractors@v1
+    cohort: exact-tokenized-context-ladder@v1
+    benchmark: long-context retrieval and latency
+    description: >-
+      Future exact retrieval checks at fixed context positions. A merely allocated
+      context window is not a successful retrieval result.
+    variables: {}
+    assumptions:
+      compaction: disabled_during_probe
+
+  validated-capacity-v1:
+    unit: context_position
+    version: "1"
+    harness: model-skyline/passkey-and-memory@v1
+    cohort: exact-tokenized-context-ladder@v1
+    benchmark: validated retrieval capacity and peak memory
+    description: >-
+      Future maximum fully passing retrieval position paired with measured peak
+      physical footprint; OOM-free allocation alone is insufficient.
+    variables: {}
+    assumptions:
+      swap_allowed: false
+
+metrics:
+  prompt_throughput:
+    kind: signal
+    signal: local_prompt_tokens_per_second
+    unit: token/s
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 5
+
+  decode_throughput:
+    kind: signal
+    signal: local_decode_tokens_per_second
+    unit: token/s
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 5
+
+  agent_decode_throughput:
+    kind: signal
+    signal: local_decode_tokens_per_second
+    unit: token/s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  ttft:
+    kind: signal
+    signal: local_time_to_first_token_seconds
+    unit: s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  end_to_end:
+    kind: signal
+    signal: local_end_to_end_seconds
+    unit: s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  retrieval_success:
+    kind: signal
+    signal: local_retrieval_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  validated_context:
+    kind: signal
+    signal: local_validated_context_tokens
+    unit: token
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  peak_process_rss:
+    kind: signal
+    signal: local_peak_process_rss_bytes
+    unit: byte
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+frontiers:
+  short-throughput-envelope:
+    workload: llama-bench-pp2048-tg512
+    axes:
+      - metric: prompt_throughput
+        goal: maximize
+      - metric: decode_throughput
+        goal: maximize
+    order_by: decode_throughput
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text]
+      allow_unknown_age: false
+    metadata_fields: [hardware, artifact, runtime, local_evidence_status]
+
+  interactive-agent-latency:
+    workload: openai-agent-latency-v1
+    axes:
+      - metric: ttft
+        goal: minimize
+      - metric: agent_decode_throughput
+        goal: maximize
+    order_by: ttft
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text]
+      allow_unknown_age: false
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+  long-context-operational:
+    workload: long-context-retrieval-v1
+    axes:
+      - metric: retrieval_success
+        goal: maximize
+      - metric: end_to_end
+        goal: minimize
+    order_by: retrieval_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [long-context]
+      allow_unknown_age: false
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+  validated-capacity-memory:
+    workload: validated-capacity-v1
+    axes:
+      - metric: validated_context
+        goal: maximize
+      - metric: peak_process_rss
+        goal: minimize
+    order_by: validated_context
+    uncertainty: point
+    eligibility:
+      required_capabilities: [long-context]
+      allow_unknown_age: false
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+selections: {}

@@ -94,6 +94,7 @@ from model_skyline.io import (
     load_catalog,
     load_config,
     load_frontier_snapshot,
+    load_local_measurement,
     load_portfolio_derivation,
     load_portfolio_policy,
     load_quality_evidence,
@@ -101,6 +102,7 @@ from model_skyline.io import (
     load_quality_reconciliation,
     public_schemas,
 )
+from model_skyline.local_measurements import build_local_catalog
 from model_skyline.models import OfferingKey
 from model_skyline.private_output import PrivateOutputError, write_private_text
 from model_skyline.publisher import PublicationError, publish_project
@@ -127,6 +129,7 @@ TELEMETRY_PANEL = "Telemetry"
 DATA_SOURCES_PANEL = "Data sources"
 SOURCE_MONITORING_PANEL = "Source monitoring"
 QUALITY_EVIDENCE_PANEL = "Quality evidence"
+LOCAL_EVIDENCE_PANEL = "Local runtime evidence"
 CONTRACTS_PANEL = "Contracts"
 
 
@@ -302,6 +305,37 @@ def validate(
             f"{len(loaded_catalog.offerings)} offerings"
         )
     except (InputError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("validate-local-measurement", rich_help_panel=LOCAL_EVIDENCE_PANEL)
+def validate_local_measurement(
+    measurement: Annotated[Path, typer.Argument(exists=True, readable=True)],
+) -> None:
+    """Validate one exact local hardware/runtime measurement record."""
+
+    try:
+        loaded = load_local_measurement(measurement)
+        offering = build_local_catalog([loaded]).offerings[0].offering
+        typer.echo(f"valid: {loaded.measurement_id} -> {offering.offering_id}")
+    except (InputError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("build-local-catalog", rich_help_panel=LOCAL_EVIDENCE_PANEL)
+def build_local_catalog_artifact(
+    measurements: Annotated[
+        list[Path],
+        typer.Argument(exists=True, readable=True, help="comparable local measurement records"),
+    ],
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """Project comparable local records into an ordinary Skyline catalog."""
+
+    try:
+        catalog = build_local_catalog(load_local_measurement(path) for path in measurements)
+        _emit(dump_json(catalog), output)
+    except (InputError, OSError, ValueError) as exc:
         _error(exc)
 
 

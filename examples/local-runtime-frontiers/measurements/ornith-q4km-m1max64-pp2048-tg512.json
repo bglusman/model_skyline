@@ -1,0 +1,150 @@
+{
+  "schema_version": "model-skyline/local-measurement/v1alpha1",
+  "measurement_id": "ornith-q4km-m1max64-pp2048-tg512-20260913",
+  "status": "provisional",
+  "started_at": "2026-09-13T03:07:25.230373Z",
+  "completed_at": "2026-09-13T03:08:28.200985Z",
+  "hardware": {
+    "hardware_id": "studio-m1max-64",
+    "manufacturer": "Apple",
+    "machine_model": "Mac13,1",
+    "chip": "Apple M1 Max",
+    "architecture": "arm64",
+    "memory_bytes": 68719476736,
+    "cpu_cores": 10,
+    "cpu_core_groups": {
+      "performance": 8,
+      "efficiency": 2
+    },
+    "gpu_cores": 32,
+    "os_name": "macOS",
+    "os_version": "26.3.1",
+    "power_source": "ac",
+    "power_mode": "automatic",
+    "negotiated_adapter_watts": null,
+    "metadata": {
+      "form_factor": "Mac Studio"
+    }
+  },
+  "artifact": {
+    "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+    "checkpoint": "Ornith-1.5-35B-A3B",
+    "revision": "unattested-source-revision",
+    "format": "gguf",
+    "quantization": "Q4_K_M",
+    "size_bytes": 21713462848,
+    "content_sha256": "ca6ea26329c88b78ffd90a85163be2e746c2fafd1024f56db47e499f117f9a7f",
+    "source_url": "https://huggingface.co/ornith-ai/Ornith-1.5-35B-A3B-GGUF",
+    "license": "MIT",
+    "metadata": {
+      "filename": "Ornith-1.5-35B-Q4_K_M.gguf"
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "build-10809",
+    "commit": "5266f24da",
+    "backend": "MTL,BLAS",
+    "context_capacity_tokens": 262144,
+    "kv_cache": "q8_0/q8_0",
+    "prefix_cache_enabled": false,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/llama-bench@v1",
+    "configuration": {
+      "runtime_binary_sha256": "7230175b0a6b7193b9ebf5079a0bbb499e600a6424b54c1f50c8156d15418b48",
+      "n_batch": 2048,
+      "n_ubatch": 512,
+      "n_threads": 6,
+      "cpu_mask": "0x0",
+      "cpu_strict": false,
+      "poll": 50,
+      "type_k": "q8_0",
+      "type_v": "q8_0",
+      "n_gpu_layers": 99,
+      "n_cpu_moe": 0,
+      "split_mode": "layer",
+      "main_gpu": 0,
+      "no_kv_offload": false,
+      "flash_attn": 1,
+      "devices": "auto",
+      "tensor_split": "0.00",
+      "tensor_buft_overrides": "none",
+      "load_mode": "auto",
+      "lazy_mode": "auto",
+      "embeddings": false,
+      "no_op_offload": 0,
+      "no_host": false,
+      "fit_target": 0,
+      "fit_min_ctx": 0
+    }
+  },
+  "workload": {
+    "reference": {
+      "id": "llama-bench-pp2048-tg512",
+      "version": "llama.cpp@5266f24da/model-skyline@v1",
+      "unit": "benchmark_run"
+    },
+    "kind": "short_decode",
+    "input_definition_sha256": "b46f0c244c8d4d5e2ff93c7ca4cd156be12566e539eb219f4f2814311146f101",
+    "requested_input_tokens": 2048,
+    "max_output_tokens": 512,
+    "repetitions": 5,
+    "warmup_repetitions": 1,
+    "concurrency": 1,
+    "runner_state": "warm",
+    "prefix_cache_state": "disabled",
+    "position": {
+      "batch": 2048,
+      "micro_batch": 512,
+      "threads": 6
+    }
+  },
+  "performance": {
+    "actual_input_tokens": 2048,
+    "output_token_counts": [
+      512,
+      512,
+      512,
+      512,
+      512
+    ],
+    "metrics": {
+      "prompt_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "780.403",
+          "782.42",
+          "778.092",
+          "775.65",
+          "775.449"
+        ]
+      },
+      "decode_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "56.791",
+          "56.7992",
+          "56.7164",
+          "56.7127",
+          "56.7327"
+        ]
+      }
+    }
+  },
+  "integrity": null,
+  "capabilities": [
+    "text"
+  ],
+  "provenance": {
+    "tool": "llama-bench",
+    "tool_version": "build-10809",
+    "command_sha256": "c29cba916b894e8400d135c4c6d2f4c32f73528f301bf03bc6101e251b37c7df",
+    "raw_artifact_path": "raw/ornith-q4km-m1max64-pp2048-tg512.json",
+    "raw_sha256": "ac961541bb42b794186077191494b5888b3f30481bf55faf5e22b34fccb1f822",
+    "captured_at": "2026-09-13T03:08:28.200985Z",
+    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+    "source_url": null,
+    "license": "CC0-1.0"
+  },
+  "notes": "Provisional cross-machine microbenchmark; no model-quality claim."
+}

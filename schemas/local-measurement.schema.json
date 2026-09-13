@@ -1,0 +1,833 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:local-measurement",
+  "$defs": {
+    "JsonValue": {},
+    "LocalArtifactIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "checkpoint": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Checkpoint",
+          "type": "string"
+        },
+        "revision": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Revision",
+          "type": "string"
+        },
+        "format": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Format",
+          "type": "string"
+        },
+        "quantization": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Quantization",
+          "type": "string"
+        },
+        "size_bytes": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "content_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "maxLength": 2048,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "model_id",
+        "checkpoint",
+        "revision",
+        "format",
+        "quantization",
+        "size_bytes",
+        "content_sha256"
+      ],
+      "title": "LocalArtifactIdentity",
+      "type": "object"
+    },
+    "LocalBenchmarkKind": {
+      "enum": [
+        "short_decode",
+        "prompt_processing",
+        "long_context_retrieval",
+        "agent_integration",
+        "prefix_cache",
+        "cold_start"
+      ],
+      "title": "LocalBenchmarkKind",
+      "type": "string"
+    },
+    "LocalBenchmarkWorkload": {
+      "additionalProperties": false,
+      "properties": {
+        "reference": {
+          "$ref": "#/$defs/WorkloadReference"
+        },
+        "kind": {
+          "$ref": "#/$defs/LocalBenchmarkKind"
+        },
+        "input_definition_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Input Definition Sha256",
+          "type": "string"
+        },
+        "requested_input_tokens": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Requested Input Tokens",
+          "type": "integer"
+        },
+        "max_output_tokens": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Max Output Tokens",
+          "type": "integer"
+        },
+        "repetitions": {
+          "maximum": 128,
+          "minimum": 1,
+          "title": "Repetitions",
+          "type": "integer"
+        },
+        "warmup_repetitions": {
+          "default": 0,
+          "maximum": 128,
+          "minimum": 0,
+          "title": "Warmup Repetitions",
+          "type": "integer"
+        },
+        "concurrency": {
+          "default": 1,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Concurrency",
+          "type": "integer"
+        },
+        "runner_state": {
+          "$ref": "#/$defs/LocalRunnerState",
+          "default": "warm"
+        },
+        "prefix_cache_state": {
+          "$ref": "#/$defs/LocalPrefixCacheState",
+          "default": "disabled"
+        },
+        "position": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Position",
+          "type": "object"
+        }
+      },
+      "required": [
+        "reference",
+        "kind",
+        "input_definition_sha256",
+        "requested_input_tokens",
+        "max_output_tokens",
+        "repetitions"
+      ],
+      "title": "LocalBenchmarkWorkload",
+      "type": "object"
+    },
+    "LocalCheckResult": {
+      "additionalProperties": false,
+      "properties": {
+        "passed": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Passed",
+          "type": "integer"
+        },
+        "total": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Total",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "passed",
+        "total"
+      ],
+      "title": "LocalCheckResult",
+      "type": "object"
+    },
+    "LocalEvidenceStatus": {
+      "enum": [
+        "provisional",
+        "reviewed"
+      ],
+      "title": "LocalEvidenceStatus",
+      "type": "string"
+    },
+    "LocalHardwareIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "hardware_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Hardware Id",
+          "type": "string"
+        },
+        "manufacturer": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Manufacturer",
+          "type": "string"
+        },
+        "machine_model": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Machine Model",
+          "type": "string"
+        },
+        "chip": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Chip",
+          "type": "string"
+        },
+        "architecture": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Architecture",
+          "type": "string"
+        },
+        "memory_bytes": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Memory Bytes",
+          "type": "integer"
+        },
+        "cpu_cores": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Cpu Cores",
+          "type": "integer"
+        },
+        "cpu_core_groups": {
+          "additionalProperties": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxProperties": 16,
+          "minProperties": 1,
+          "propertyNames": {
+            "maxLength": 512,
+            "minLength": 1
+          },
+          "title": "Cpu Core Groups",
+          "type": "object"
+        },
+        "gpu_cores": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Gpu Cores",
+          "type": "integer"
+        },
+        "os_name": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Os Name",
+          "type": "string"
+        },
+        "os_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Os Version",
+          "type": "string"
+        },
+        "power_source": {
+          "enum": [
+            "ac",
+            "battery",
+            "unknown"
+          ],
+          "title": "Power Source",
+          "type": "string"
+        },
+        "power_mode": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Power Mode",
+          "type": "string"
+        },
+        "negotiated_adapter_watts": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Negotiated Adapter Watts"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "hardware_id",
+        "manufacturer",
+        "machine_model",
+        "chip",
+        "architecture",
+        "memory_bytes",
+        "cpu_cores",
+        "cpu_core_groups",
+        "gpu_cores",
+        "os_name",
+        "os_version",
+        "power_source",
+        "power_mode"
+      ],
+      "title": "LocalHardwareIdentity",
+      "type": "object"
+    },
+    "LocalIntegrityEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "retrieval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LocalCheckResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tool_calls": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LocalCheckResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tool_argument_parsing": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LocalCheckResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "structured_output": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LocalCheckResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "LocalIntegrityEvidence",
+      "type": "object"
+    },
+    "LocalMeasurementProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Tool",
+          "type": "string"
+        },
+        "tool_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Tool Version",
+          "type": "string"
+        },
+        "command_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Command Sha256",
+          "type": "string"
+        },
+        "raw_artifact_path": {
+          "maxLength": 512,
+          "minLength": 1,
+          "pattern": "^(?:[a-z0-9][a-z0-9._-]{0,254}/)*[a-z0-9][a-z0-9._-]{0,254}\\.(?:csv|json|txt|xml)$",
+          "title": "Raw Artifact Path",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "captured_at": {
+          "format": "date-time",
+          "title": "Captured At",
+          "type": "string"
+        },
+        "methodology": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Methodology",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "maxLength": 2048,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        }
+      },
+      "required": [
+        "tool",
+        "tool_version",
+        "command_sha256",
+        "raw_artifact_path",
+        "raw_sha256",
+        "captured_at",
+        "methodology"
+      ],
+      "title": "LocalMeasurementProvenance",
+      "type": "object"
+    },
+    "LocalMetricName": {
+      "enum": [
+        "prompt_tokens_per_second",
+        "decode_tokens_per_second",
+        "time_to_first_token_seconds",
+        "end_to_end_seconds",
+        "cold_load_seconds",
+        "peak_process_rss_bytes",
+        "peak_metal_active_bytes",
+        "swap_delta_bytes",
+        "speculative_acceptance_percent",
+        "prefix_cache_hit_tokens"
+      ],
+      "title": "LocalMetricName",
+      "type": "string"
+    },
+    "LocalMetricSeries": {
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                "type": "string",
+                "maxLength": 1024
+              }
+            ]
+          },
+          "maxItems": 128,
+          "minItems": 1,
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "unit",
+        "values"
+      ],
+      "title": "LocalMetricSeries",
+      "type": "object"
+    },
+    "LocalPerformanceEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "actual_input_tokens": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Actual Input Tokens",
+          "type": "integer"
+        },
+        "output_token_counts": {
+          "items": {
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 128,
+          "minItems": 1,
+          "title": "Output Token Counts",
+          "type": "array"
+        },
+        "metrics": {
+          "additionalProperties": {
+            "$ref": "#/$defs/LocalMetricSeries"
+          },
+          "maxProperties": 32,
+          "minProperties": 1,
+          "propertyNames": {
+            "$ref": "#/$defs/LocalMetricName"
+          },
+          "title": "Metrics",
+          "type": "object"
+        }
+      },
+      "required": [
+        "actual_input_tokens",
+        "output_token_counts",
+        "metrics"
+      ],
+      "title": "LocalPerformanceEvidence",
+      "type": "object"
+    },
+    "LocalPrefixCacheState": {
+      "enum": [
+        "disabled",
+        "miss",
+        "warm",
+        "mixed"
+      ],
+      "title": "LocalPrefixCacheState",
+      "type": "string"
+    },
+    "LocalRunnerState": {
+      "enum": [
+        "warm",
+        "cold_model_load",
+        "post_idle_expiry"
+      ],
+      "title": "LocalRunnerState",
+      "type": "string"
+    },
+    "LocalRuntimeIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "runtime_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Runtime Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "commit": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Commit"
+        },
+        "backend": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Backend",
+          "type": "string"
+        },
+        "context_capacity_tokens": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Context Capacity Tokens",
+          "type": "integer"
+        },
+        "kv_cache": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Kv Cache",
+          "type": "string"
+        },
+        "prefix_cache_enabled": {
+          "title": "Prefix Cache Enabled",
+          "type": "boolean"
+        },
+        "speculative_method": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speculative Method"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "configuration": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Configuration",
+          "type": "object"
+        }
+      },
+      "required": [
+        "runtime_id",
+        "backend",
+        "context_capacity_tokens",
+        "kv_cache",
+        "prefix_cache_enabled"
+      ],
+      "title": "LocalRuntimeIdentity",
+      "type": "object"
+    },
+    "WorkloadReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "unit"
+      ],
+      "title": "WorkloadReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/local-measurement/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "measurement_id": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Measurement Id",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/LocalEvidenceStatus"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "completed_at": {
+      "format": "date-time",
+      "title": "Completed At",
+      "type": "string"
+    },
+    "hardware": {
+      "$ref": "#/$defs/LocalHardwareIdentity"
+    },
+    "artifact": {
+      "$ref": "#/$defs/LocalArtifactIdentity"
+    },
+    "runtime": {
+      "$ref": "#/$defs/LocalRuntimeIdentity"
+    },
+    "workload": {
+      "$ref": "#/$defs/LocalBenchmarkWorkload"
+    },
+    "performance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LocalPerformanceEvidence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "integrity": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LocalIntegrityEvidence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "capabilities": {
+      "default": [],
+      "items": {
+        "maxLength": 64,
+        "minLength": 1,
+        "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+        "type": "string"
+      },
+      "maxItems": 128,
+      "title": "Capabilities",
+      "type": "array"
+    },
+    "provenance": {
+      "$ref": "#/$defs/LocalMeasurementProvenance"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "maxLength": 2048,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "schema_version",
+    "measurement_id",
+    "status",
+    "started_at",
+    "completed_at",
+    "hardware",
+    "artifact",
+    "runtime",
+    "workload",
+    "provenance"
+  ],
+  "title": "LocalMeasurementRecord",
+  "type": "object",
+  "$comment": "A local runtime result is comparable only at the complete hardware, artifact, runtime/configuration, workload-position, and run-condition identity in this record. Model-quality claims are intentionally outside this contract and must be joined through reviewed exact OfferingKey reconciliation. JSON Schema does not reproduce all semantic cross-field validation; run ModelSkyline validation."
+}

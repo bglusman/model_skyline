@@ -140,6 +140,15 @@ advantage.
   separate named signal. The core engine and `FormulaMetric` then define any
   scalar quality axis and cost/quality frontier.
 
+`LocalMeasurementRecord`
+: A reproducible local-runtime evidence envelope. It binds exact hardware,
+  model bytes, runtime build and configuration, physical context capacity,
+  cache/speculation/harness identity, workload position, run conditions, raw
+  capture digest, and repeated performance or integrity observations. A
+  projection turns comparable records into an ordinary `ObservationCatalog`;
+  reviewed quality evidence still joins separately through the exact offering
+  reconciliation path.
+
 ## Metric evaluation and invalidation
 
 Signal metrics copy an observation after unit, freshness, sample-count, and

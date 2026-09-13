@@ -14,6 +14,7 @@ import yaml
 from pydantic import BaseModel, ValidationError
 from yaml.nodes import ScalarNode
 
+from model_skyline.local_measurements import LocalMeasurementRecord
 from model_skyline.models import (
     MAX_DECIMAL_INPUT_LENGTH,
     FrontierHistory,
@@ -77,7 +78,9 @@ def _read(path: str | Path) -> str:
         raise InputError(f"cannot read {source}: {exc}") from exc
 
 
-def _read_bounded_regular_file(path: str | Path, maximum: int) -> bytes:
+def _read_bounded_regular_file(
+    path: str | Path, maximum: int, *, artifact_label: str = "quality artifact"
+) -> bytes:
     source = Path(path)
     flags = (
         os.O_RDONLY
@@ -88,20 +91,20 @@ def _read_bounded_regular_file(path: str | Path, maximum: int) -> bytes:
     try:
         descriptor = os.open(source, flags)
     except OSError as exc:
-        raise InputError(f"cannot open quality artifact {source}: {exc}") from exc
+        raise InputError(f"cannot open {artifact_label} {source}: {exc}") from exc
     try:
         with os.fdopen(descriptor, "rb", closefd=True) as handle:
             before = os.fstat(handle.fileno())
             if not stat.S_ISREG(before.st_mode):
-                raise InputError(f"quality artifact is not a regular file: {source}")
+                raise InputError(f"{artifact_label} is not a regular file: {source}")
             if before.st_size > maximum:
-                raise InputError(f"quality artifact exceeds the {maximum}-byte input limit")
+                raise InputError(f"{artifact_label} exceeds the {maximum}-byte input limit")
             raw = handle.read(maximum + 1)
             after = os.fstat(handle.fileno())
     except InputError:
         raise
     except OSError as exc:
-        raise InputError(f"cannot read quality artifact {source}: {exc}") from exc
+        raise InputError(f"cannot read {artifact_label} {source}: {exc}") from exc
     identity_before = (
         before.st_dev,
         before.st_ino,
@@ -117,9 +120,9 @@ def _read_bounded_regular_file(path: str | Path, maximum: int) -> bytes:
         after.st_ctime_ns,
     )
     if identity_before != identity_after or len(raw) != before.st_size:
-        raise InputError(f"quality artifact changed while it was being read: {source}")
+        raise InputError(f"{artifact_label} changed while it was being read: {source}")
     if len(raw) > maximum:
-        raise InputError(f"quality artifact exceeds the {maximum}-byte input limit")
+        raise InputError(f"{artifact_label} exceeds the {maximum}-byte input limit")
     return raw
 
 
@@ -135,7 +138,7 @@ def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
-def _preflight_json_structure(raw: bytes) -> None:
+def _preflight_json_structure(raw: bytes, *, artifact_label: str = "quality artifact") -> None:
     """Bound container allocation before decoding JSON into Python objects.
 
     ASCII JSON punctuation cannot occur inside a multibyte UTF-8 code point, so
@@ -177,7 +180,7 @@ def _preflight_json_structure(raw: bytes) -> None:
                 number_characters += 1
                 if number_characters > MAX_QUALITY_JSON_NUMBER_CHARACTERS:
                     raise InputError(
-                        "cannot parse quality artifact JSON: numeric token exceeds the "
+                        f"cannot parse {artifact_label} JSON: numeric token exceeds the "
                         f"{MAX_QUALITY_JSON_NUMBER_CHARACTERS}-character limit"
                     )
                 continue
@@ -191,7 +194,7 @@ def _preflight_json_structure(raw: bytes) -> None:
             depth += 1
             if depth > MAX_QUALITY_JSON_NESTING_DEPTH:
                 raise InputError(
-                    "cannot parse quality artifact JSON: nesting exceeds the "
+                    f"cannot parse {artifact_label} JSON: nesting exceeds the "
                     f"{MAX_QUALITY_JSON_NESTING_DEPTH}-level limit"
                 )
         elif byte in closers and depth:
@@ -203,14 +206,16 @@ def _preflight_json_structure(raw: bytes) -> None:
             structural_tokens += 1
             if structural_tokens > MAX_QUALITY_JSON_STRUCTURAL_TOKENS:
                 raise InputError(
-                    "cannot parse quality artifact JSON: structure exceeds the "
+                    f"cannot parse {artifact_label} JSON: structure exceeds the "
                     f"{MAX_QUALITY_JSON_STRUCTURAL_TOKENS}-token limit"
                 )
 
 
-def _load_quality_json(path: str | Path) -> Any:
-    raw = _read_bounded_regular_file(path, MAX_QUALITY_ARTIFACT_BYTES)
-    _preflight_json_structure(raw)
+def _load_bounded_json(path: str | Path, *, artifact_label: str) -> Any:
+    raw = _read_bounded_regular_file(
+        path, MAX_QUALITY_ARTIFACT_BYTES, artifact_label=artifact_label
+    )
+    _preflight_json_structure(raw, artifact_label=artifact_label)
     try:
         text = raw.decode("utf-8")
         return json.loads(
@@ -222,7 +227,11 @@ def _load_quality_json(path: str | Path) -> Any:
     except InputError:
         raise
     except (UnicodeDecodeError, json.JSONDecodeError, RecursionError, ValueError) as exc:
-        raise InputError(f"cannot parse quality artifact JSON {path}: {exc}") from exc
+        raise InputError(f"cannot parse {artifact_label} JSON {path}: {exc}") from exc
+
+
+def _load_quality_json(path: str | Path) -> Any:
+    return _load_bounded_json(path, artifact_label="quality artifact")
 
 
 def _validate(model: type[ModelT], value: Any, path: str | Path) -> ModelT:
@@ -298,6 +307,13 @@ def load_quality_evidence(path: str | Path) -> QualityEvidenceSet:
     return _validate_sensitive(QualityEvidenceSet, _load_quality_json(path), path)
 
 
+def load_local_measurement(path: str | Path) -> LocalMeasurementRecord:
+    """Load a bounded local measurement artifact without echoing rejected data."""
+
+    value = _load_bounded_json(path, artifact_label="local measurement artifact")
+    return _validate_sensitive(LocalMeasurementRecord, value, path)
+
+
 def load_quality_reconciliation(path: str | Path) -> QualityReconciliation:
     return _validate_sensitive(QualityReconciliation, _load_quality_json(path), path)
 
@@ -361,6 +377,7 @@ SCHEMA_IDS = {
     "quality-portfolio-derivation.schema.json": (
         "urn:model-skyline:schema:v1alpha1:quality-portfolio-derivation"
     ),
+    "local-measurement.schema.json": "urn:model-skyline:schema:v1alpha1:local-measurement",
 }
 
 
@@ -828,6 +845,9 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         "quality-portfolio-derivation.schema.json": (
             PortfolioDerivationSnapshot.model_json_schema(mode="serialization")
         ),
+        "local-measurement.schema.json": LocalMeasurementRecord.model_json_schema(
+            mode="validation"
+        ),
     }
     result: dict[str, dict[str, Any]] = {}
     for name, schema in generated.items():
@@ -900,6 +920,14 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
                 "This compact lock does not duplicate selected AxisEstimate values. Consumers "
                 "must replay it against the trusted policy, base ObservationCatalog, and exact "
                 "frontier artifacts before routing; its catalog hash binds the enriched output."
+            )
+        if name == "local-measurement.schema.json":
+            generated_schema["$comment"] = (
+                "A local runtime result is comparable only at the complete hardware, artifact, "
+                "runtime/configuration, workload-position, and run-condition identity in this "
+                "record. Model-quality claims are intentionally outside this contract and must "
+                "be joined through reviewed exact OfferingKey reconciliation. JSON Schema does "
+                "not reproduce all semantic cross-field validation; run ModelSkyline validation."
             )
         result[name] = generated_schema
     return result
