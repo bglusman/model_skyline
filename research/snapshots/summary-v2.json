@@ -288,30 +288,10 @@
      "dominated_by": []
     },
     {
-     "offering": "openrouter/muse-spark-1.2-contributor",
+     "offering": "openrouter/muse-spark-1.3-contributor",
      "on_frontier": true,
      "cap_assumed": false,
      "primary": 0.001911,
-     "secondary_label": "aa_intelligence_index",
-     "secondary": 57.0,
-     "aa_index": "57",
-     "dominated_by": []
-    },
-    {
-     "offering": "openrouter/glm-5.3",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.066355,
-     "secondary_label": "aa_intelligence_index",
-     "secondary": 60.0,
-     "aa_index": "60",
-     "dominated_by": []
-    },
-    {
-     "offering": "openrouter/gpt-5.6-sol",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.068428,
      "secondary_label": "aa_intelligence_index",
      "secondary": 61.0,
      "aa_index": "61",
@@ -354,6 +334,18 @@
      ]
     },
     {
+     "offering": "openrouter/muse-spark-1.2-contributor",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.001911,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 57.0,
+     "aa_index": "57",
+     "dominated_by": [
+      "muse-spark-1.3-contributor"
+     ]
+    },
+    {
      "offering": "openrouter/deepseek-v4-flash-0731",
      "on_frontier": false,
      "cap_assumed": false,
@@ -363,7 +355,8 @@
      "aa_index": "52",
      "dominated_by": [
       "glm-5.3-flash",
-      "muse-spark-1.2-contributor"
+      "muse-spark-1.2-contributor",
+      "muse-spark-1.3-contributor"
      ]
     },
     {
@@ -375,7 +368,8 @@
      "secondary": 57.0,
      "aa_index": "57",
      "dominated_by": [
-      "muse-spark-1.2-contributor"
+      "muse-spark-1.2-contributor",
+      "muse-spark-1.3-contributor"
      ]
     },
     {
@@ -388,7 +382,8 @@
      "aa_index": "56",
      "dominated_by": [
       "glm-5.3-flash",
-      "muse-spark-1.2-contributor"
+      "muse-spark-1.2-contributor",
+      "muse-spark-1.3-contributor"
      ]
     },
     {
@@ -403,6 +398,7 @@
       "deepseek-v4-flash-0731",
       "glm-5.3-flash",
       "muse-spark-1.2-contributor",
+      "muse-spark-1.3-contributor",
       "qwen3.8-flash-next"
      ]
     },
@@ -418,7 +414,32 @@
       "deepseek-v4-flash-0731",
       "glm-5.3-flash",
       "muse-spark-1.2-contributor",
+      "muse-spark-1.3-contributor",
       "qwen3.8-flash-next"
+     ]
+    },
+    {
+     "offering": "openrouter/gemini-3.8-flash",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.025661,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 58.7,
+     "aa_index": "58.7",
+     "dominated_by": [
+      "muse-spark-1.3-contributor"
+     ]
+    },
+    {
+     "offering": "openrouter/muse-spark-1.3",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.045749,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 61.0,
+     "aa_index": "61",
+     "dominated_by": [
+      "muse-spark-1.3-contributor"
      ]
     },
     {
@@ -430,8 +451,37 @@
      "secondary": 57.0,
      "aa_index": "57",
      "dominated_by": [
+      "gemini-3.8-flash",
       "glm-5.3-flash",
-      "muse-spark-1.2-contributor"
+      "muse-spark-1.2-contributor",
+      "muse-spark-1.3",
+      "muse-spark-1.3-contributor"
+     ]
+    },
+    {
+     "offering": "openrouter/glm-5.3",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.066355,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.0,
+     "aa_index": "60",
+     "dominated_by": [
+      "muse-spark-1.3",
+      "muse-spark-1.3-contributor"
+     ]
+    },
+    {
+     "offering": "openrouter/gpt-5.6-sol",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.068428,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 61.0,
+     "aa_index": "61",
+     "dominated_by": [
+      "muse-spark-1.3",
+      "muse-spark-1.3-contributor"
      ]
     },
     {
@@ -443,11 +493,14 @@
      "secondary": 57.0,
      "aa_index": "57",
      "dominated_by": [
+      "gemini-3.8-flash",
       "glm-5.3",
       "glm-5.3-flash",
       "gpt-5.6-sol",
       "muse-spark-1.2",
-      "muse-spark-1.2-contributor"
+      "muse-spark-1.2-contributor",
+      "muse-spark-1.3",
+      "muse-spark-1.3-contributor"
      ]
     },
     {
@@ -460,6 +513,7 @@
      "aa_index": "52",
      "dominated_by": [
       "deepseek-v4-flash-0731",
+      "gemini-3.8-flash",
       "glm-5.3",
       "glm-5.3-flash",
       "gpt-5.6-luna",
@@ -467,6 +521,8 @@
       "gpt-5.6-terra",
       "muse-spark-1.2",
       "muse-spark-1.2-contributor",
+      "muse-spark-1.3",
+      "muse-spark-1.3-contributor",
       "qwen3.8-flash-next"
      ]
     },
@@ -480,6 +536,7 @@
      "aa_index": "52",
      "dominated_by": [
       "deepseek-v4-flash-0731",
+      "gemini-3.8-flash",
       "glm-5.3",
       "glm-5.3-flash",
       "gpt-5.6-luna",
@@ -487,7 +544,59 @@
       "gpt-5.6-terra",
       "muse-spark-1.2",
       "muse-spark-1.2-contributor",
+      "muse-spark-1.3",
+      "muse-spark-1.3-contributor",
       "qwen3.8-flash-next"
+     ]
+    },
+    {
+     "offering": "openrouter/grok-4.5",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.082722,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 55.8,
+     "aa_index": "55.8",
+     "dominated_by": [
+      "gemini-3.8-flash",
+      "glm-5.3",
+      "glm-5.3-flash",
+      "gpt-5.6-sol",
+      "gpt-5.6-terra",
+      "muse-spark-1.2",
+      "muse-spark-1.2-contributor",
+      "muse-spark-1.3",
+      "muse-spark-1.3-contributor",
+      "qwen3.8-flash-next"
+     ]
+    },
+    {
+     "offering": "openrouter/kimi-k3",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.102642,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 59.7,
+     "aa_index": "59.7",
+     "dominated_by": [
+      "glm-5.3",
+      "gpt-5.6-sol",
+      "muse-spark-1.3",
+      "muse-spark-1.3-contributor"
+     ]
+    },
+    {
+     "offering": "openrouter/grok-4.6",
+     "on_frontier": false,
+     "cap_assumed": false,
+     "primary": 0.116046,
+     "secondary_label": "aa_intelligence_index",
+     "secondary": 60.9,
+     "aa_index": "60.9",
+     "dominated_by": [
+      "gpt-5.6-sol",
+      "muse-spark-1.3",
+      "muse-spark-1.3-contributor"
      ]
     },
     {
@@ -525,30 +634,10 @@
      "dominated_by": []
     },
     {
-     "offering": "openrouter/muse-spark-1.2-contributor",
+     "offering": "openrouter/muse-spark-1.3-contributor",
      "on_frontier": true,
      "cap_assumed": false,
      "primary": 0.001911,
-     "secondary_label": "aa_intelligence_index",
-     "secondary": 57.0,
-     "aa_index": "57",
-     "dominated_by": []
-    },
-    {
-     "offering": "openrouter/glm-5.3",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.066355,
-     "secondary_label": "aa_intelligence_index",
-     "secondary": 60.0,
-     "aa_index": "60",
-     "dominated_by": []
-    },
-    {
-     "offering": "openrouter/gpt-5.6-sol",
-     "on_frontier": true,
-     "cap_assumed": false,
-     "primary": 0.068428,
      "secondary_label": "aa_intelligence_index",
      "secondary": 61.0,
      "aa_index": "61",
@@ -1218,30 +1307,13 @@
    "best": "24",
    "price": 0.000641
   },
-  "openrouter/muse-spark-1.2-contributor": {
+  "openrouter/muse-spark-1.3-contributor": {
    "on": [
     "chat-metered-economics"
-   ],
-   "near": [],
-   "best": "57",
-   "price": 0.001911
-  },
-  "openrouter/glm-5.3": {
-   "on": [
-    "chat-metered-economics"
-   ],
-   "near": [],
-   "best": "60",
-   "price": 0.066355
-  },
-  "openrouter/gpt-5.6-sol": {
-   "on": [
-    "chat-metered-economics",
-    "chat-metered-responsiveness"
    ],
    "near": [],
    "best": "61",
-   "price": 0.068428
+   "price": 0.001911
   },
   "openrouter/claude-fable-5.1": {
    "on": [
@@ -1263,6 +1335,12 @@
    "near": [],
    "best": "14",
    "price": 0.001187
+  },
+  "openrouter/muse-spark-1.2-contributor": {
+   "on": [],
+   "near": [],
+   "best": "57",
+   "price": 0.001911
   },
   "openrouter/deepseek-v4-flash-0731": {
    "on": [],
@@ -1296,11 +1374,37 @@
    "best": "52",
    "price": 0.006961
   },
+  "openrouter/gemini-3.8-flash": {
+   "on": [],
+   "near": [],
+   "best": "58.7",
+   "price": 0.025661
+  },
+  "openrouter/muse-spark-1.3": {
+   "on": [],
+   "near": [],
+   "best": "61",
+   "price": 0.045749
+  },
   "openrouter/muse-spark-1.2": {
    "on": [],
    "near": [],
    "best": "57",
    "price": 0.045749
+  },
+  "openrouter/glm-5.3": {
+   "on": [],
+   "near": [],
+   "best": "60",
+   "price": 0.066355
+  },
+  "openrouter/gpt-5.6-sol": {
+   "on": [
+    "chat-metered-responsiveness"
+   ],
+   "near": [],
+   "best": "61",
+   "price": 0.068428
   },
   "openrouter/gpt-5.6-terra": {
    "on": [
@@ -1322,6 +1426,24 @@
    "best": "52",
    "price": 0.074391
   },
+  "openrouter/grok-4.5": {
+   "on": [],
+   "near": [],
+   "best": "55.8",
+   "price": 0.082722
+  },
+  "openrouter/kimi-k3": {
+   "on": [],
+   "near": [],
+   "best": "59.7",
+   "price": 0.102642
+  },
+  "openrouter/grok-4.6": {
+   "on": [],
+   "near": [],
+   "best": "60.9",
+   "price": 0.116046
+  },
   "openrouter/claude-fable-5": {
    "on": [
     "chat-metered-responsiveness"
@@ -1342,19 +1464,9 @@
    "turns_per_10usd": 15600,
    "aa_index": "24"
   },
-  "openrouter/muse-spark-1.2-contributor": {
+  "openrouter/muse-spark-1.3-contributor": {
    "usd_per_turn": 0.001911,
    "turns_per_10usd": 5232,
-   "aa_index": "57"
-  },
-  "openrouter/glm-5.3": {
-   "usd_per_turn": 0.066355,
-   "turns_per_10usd": 150,
-   "aa_index": "60"
-  },
-  "openrouter/gpt-5.6-sol": {
-   "usd_per_turn": 0.068428,
-   "turns_per_10usd": 146,
    "aa_index": "61"
   },
   "openrouter/claude-fable-5.1": {
@@ -1371,6 +1483,11 @@
    "usd_per_turn": 0.001187,
    "turns_per_10usd": 8424,
    "aa_index": "14"
+  },
+  "openrouter/muse-spark-1.2-contributor": {
+   "usd_per_turn": 0.001911,
+   "turns_per_10usd": 5232,
+   "aa_index": "57"
   },
   "openrouter/deepseek-v4-flash-0731": {
    "usd_per_turn": 0.003721,
@@ -1397,10 +1514,30 @@
    "turns_per_10usd": 1436,
    "aa_index": "52"
   },
+  "openrouter/gemini-3.8-flash": {
+   "usd_per_turn": 0.025661,
+   "turns_per_10usd": 389,
+   "aa_index": "58.7"
+  },
+  "openrouter/muse-spark-1.3": {
+   "usd_per_turn": 0.045749,
+   "turns_per_10usd": 218,
+   "aa_index": "61"
+  },
   "openrouter/muse-spark-1.2": {
    "usd_per_turn": 0.045749,
    "turns_per_10usd": 218,
    "aa_index": "57"
+  },
+  "openrouter/glm-5.3": {
+   "usd_per_turn": 0.066355,
+   "turns_per_10usd": 150,
+   "aa_index": "60"
+  },
+  "openrouter/gpt-5.6-sol": {
+   "usd_per_turn": 0.068428,
+   "turns_per_10usd": 146,
+   "aa_index": "61"
   },
   "openrouter/gpt-5.6-terra": {
    "usd_per_turn": 0.069612,
@@ -1416,6 +1553,21 @@
    "usd_per_turn": 0.074391,
    "turns_per_10usd": 134,
    "aa_index": "52"
+  },
+  "openrouter/grok-4.5": {
+   "usd_per_turn": 0.082722,
+   "turns_per_10usd": 120,
+   "aa_index": "55.8"
+  },
+  "openrouter/kimi-k3": {
+   "usd_per_turn": 0.102642,
+   "turns_per_10usd": 97,
+   "aa_index": "59.7"
+  },
+  "openrouter/grok-4.6": {
+   "usd_per_turn": 0.116046,
+   "turns_per_10usd": 86,
+   "aa_index": "60.9"
   },
   "openrouter/claude-fable-5": {
    "usd_per_turn": 0.342141,
@@ -1455,7 +1607,7 @@
    "svg": "/chat-metered-economics.svg",
    "workload": "agent-chat",
    "title": "Metered \u00b7 cost\u2194smarts",
-   "points": 18
+   "points": 24
   },
   {
    "id": "chat-metered-responsiveness",
