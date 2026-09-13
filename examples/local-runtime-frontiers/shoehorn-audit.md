@@ -4,12 +4,14 @@ Audit date: 2026-09-13. Source reviewed: ShoeHorn 0.3.0 at
 `107e710ef34a75eeea3f6d74cc00d46030f4980a`; runtime checked against
 llama.cpp build 10809 at `5266f24da`.
 
-ShoeHorn is a worthwhile fitter for dense BF16/F16 GGUFs and conventional,
-fully resident MoE checkpoints such as Ornith 1.5. It is not yet a safe
-exact-fit path for Qwen3.8 Flash Next or other hybrid/recurrent/pageable-weight
-architectures. The active experiment therefore uses Ornith, retains the exact
-output bytes, and compares it with ordinary Q4_K_M/Q5_K_M artifacts rather than
-assuming the solver's error objective predicts agent quality.
+ShoeHorn is a worthwhile fitter for dense BF16/F16 GGUFs and fully resident
+checkpoints whose memory model has been validated. Ornith 1.5 is a hybrid
+attention/Gated-DeltaNet MoE, not a conventional all-attention MoE, so its
+current plan is a deliberately conservative experiment rather than an exact
+memory-fit claim. ShoeHorn is not yet a safe exact-fit path for Qwen3.8 Flash
+Next or other pageable-weight architectures. The active experiment retains the
+exact output bytes and compares them with ordinary Q4_K_M/Q5_K_M artifacts
+rather than assuming the solver's error objective predicts agent quality.
 
 ## Confirmed implementation findings
 
@@ -45,6 +47,28 @@ assuming the solver's error objective predicts agent quality.
    child that printed recognizable allocation lines and then failed. Until
    those are modeled, server calibration should be explicit about parallelism
    and context checkpoints and fail closed on nonzero child status.
+
+## Ornith plan observed on this host
+
+The source is Bartowski's two-shard BF16 checkpoint: 71.1 GB decimal (66.19
+GiB), 753 tensors, plus a 192,223,936-byte importance matrix. With
+`--ctx 131072 --budget 51.84GiB --kv q8_0 --exact-errors`, ShoeHorn reserves a
+modeled 5.45 GiB for KV, 517 MiB for compute, and 512 MiB for runtime overhead,
+leaving 45.39 GiB for weights. The solver assigned 307 tensors to F16, 99 to
+Q8_0, 41 to Q6_K, 11 to Q5_K, and the remaining selected tensors across Q4_K,
+IQ4_XS, IQ3_S, and IQ3_XXS. The modeled result is 10.981 bpw with 204,124 bytes
+of budget slack.
+
+Ornith exposes 40 hybrid layers but oMLX reports only 10 attention KV caches.
+ShoeHorn currently charges classic KV for all 40 layers, so its 5.45 GiB Q8 KV
+allowance is roughly four times the classic attention-only component; recurrent
+state still needs direct measurement. That conservatism should make the output
+safe to try, but may leave about 4 GiB that a future architecture-aware plan
+could exchange for weight fidelity or context. Calibration was deliberately
+disabled because the current one-sequence llama.cpp parser neither disables
+llama.cpp auto-fit nor accounts for this recurrent layout. The real fit uses
+exact row errors and will be accepted only after an auto-fit-disabled load and
+runtime memory measurements.
 
 ## Why Qwen3.8 Flash is different
 

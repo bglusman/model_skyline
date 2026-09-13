@@ -20,10 +20,14 @@
     "os_name": "macOS",
     "os_version": "26.6.2 (25G83)",
     "power_source": "ac",
-    "power_mode": "high-power",
+    "power_mode": "high-power-configured-pmset-2",
     "negotiated_adapter_watts": 140,
     "metadata": {
-      "power_connection": "direct-usb-c"
+      "power_connection": "direct-usb-c",
+      "pmset_powermode": 2,
+      "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+      "power_mode_status": "configured-not-independently-verified",
+      "related_report": "https://developer.apple.com/forums/thread/835131"
     }
   },
   "artifact": {

@@ -2,9 +2,9 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "ca13b0acca1215a025b7ea41a2a338bc015068e4b900ae5218c413eeff1ba993",
+  "snapshot_id": "7d29615fd3c4df7952d26bc4c8b2880bafa2b679b49197dc2b5264168751e925",
   "config_hash": "54d35bf527c9a21a1eb8a3c58a619c9c84c06062a5e8782b92eebb69da0f7133",
-  "catalog_hash": "ea4cee6db0a66f076c289bb68ee5bcd60d63d5560987929ac511ba6c22813f5f",
+  "catalog_hash": "9c9501a1746d9940bebe3e284ee6e9d12e37b9d2bb1f361c20f89241836f0b40",
   "engine_version": "0.9.0",
   "generated_at": "2026-09-13T03:15:00Z",
   "frontier_id": "short-throughput-envelope",
@@ -34,13 +34,13 @@
   "members": [
     {
       "offering": {
-        "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-480a5a2bb7df3f8f",
+        "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
         "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
         "provider": "local:macbook-m5max-64",
         "endpoint": null,
         "billing_mode": "owned_hardware",
         "region": "local",
-        "service_tier": "high-power",
+        "service_tier": "high-power-configured-pmset-2",
         "quantization": "Q4_K_M",
         "reasoning_effort": null,
         "agent_harness": "model-skyline/llama-bench@v1",
@@ -119,10 +119,14 @@
           "os_name": "macOS",
           "os_version": "26.6.2 (25G83)",
           "power_source": "ac",
-          "power_mode": "high-power",
+          "power_mode": "high-power-configured-pmset-2",
           "negotiated_adapter_watts": 140,
           "metadata": {
-            "power_connection": "direct-usb-c"
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
           }
         },
         "artifact": {
@@ -185,13 +189,13 @@
   "evaluated": [
     {
       "offering": {
-        "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-480a5a2bb7df3f8f",
+        "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
         "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
         "provider": "local:macbook-m5max-64",
         "endpoint": null,
         "billing_mode": "owned_hardware",
         "region": "local",
-        "service_tier": "high-power",
+        "service_tier": "high-power-configured-pmset-2",
         "quantization": "Q4_K_M",
         "reasoning_effort": null,
         "agent_harness": "model-skyline/llama-bench@v1",
@@ -270,10 +274,14 @@
           "os_name": "macOS",
           "os_version": "26.6.2 (25G83)",
           "power_source": "ac",
-          "power_mode": "high-power",
+          "power_mode": "high-power-configured-pmset-2",
           "negotiated_adapter_watts": 140,
           "metadata": {
-            "power_connection": "direct-usb-c"
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
           }
         },
         "artifact": {
@@ -480,7 +488,7 @@
         "local_evidence_status": "provisional"
       },
       "dominated_by": [
-        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-480a5a2bb7df3f8f"
+        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
       ]
     }
   ],
@@ -490,7 +498,7 @@
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
     "config_hash": "54d35bf527c9a21a1eb8a3c58a619c9c84c06062a5e8782b92eebb69da0f7133",
-    "catalog_hash": "ea4cee6db0a66f076c289bb68ee5bcd60d63d5560987929ac511ba6c22813f5f",
+    "catalog_hash": "9c9501a1746d9940bebe3e284ee6e9d12e37b9d2bb1f361c20f89241836f0b40",
     "generated_at": "2026-09-13T03:15:00Z",
     "workload": {
       "id": "llama-bench-pp2048-tg512",
@@ -513,17 +521,17 @@
         "epsilon_relative": "0"
       }
     ],
-    "candidate_universe_hash": "41b6ffdebb600c5f35104eb210173fda1b72f209d3318e4a6f8bd8f9a231d25f",
+    "candidate_universe_hash": "bde79877baabc57c1d167bc854b5cb52be049812cb4feb2529a5551b4544dbbd",
     "candidates": [
       {
         "offering": {
-          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-480a5a2bb7df3f8f",
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
           "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
           "provider": "local:macbook-m5max-64",
           "endpoint": null,
           "billing_mode": "owned_hardware",
           "region": "local",
-          "service_tier": "high-power",
+          "service_tier": "high-power-configured-pmset-2",
           "quantization": "Q4_K_M",
           "reasoning_effort": null,
           "agent_harness": "model-skyline/llama-bench@v1",
@@ -658,7 +666,7 @@
         }
       }
     ],
-    "inventory_id": "4a7592068112f9be35cc90a4ed013ae55aecd0445cd482fde2ddbddedd5f5e2a"
+    "inventory_id": "5baae15df95bfbc431600429d190696618716ac9cd1321992cdea03b58df2915"
   },
   "public_release_blocked": false,
   "sources": [

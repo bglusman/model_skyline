@@ -95,6 +95,15 @@ are useful evidence about where newer GPU/tensor capabilities matter; they do
 not justify projecting the same multipliers onto long-context attention,
 dense models, MLX, tool-heavy speculative decoding, or end-to-end agent work.
 
+The M5 capture used AC power through a directly connected Apple 140W adapter;
+the charger reports a negotiated 140W and `pmset` reports mode `2` (High Power
+configured). On this macOS/M5 combination, `system_profiler` nevertheless
+reports High Power “No” and Low Power “Yes,” matching a recent reported status
+disagreement. The evidence therefore identifies the mode as
+`high-power-configured-pmset-2`; it does not claim an independently verified
+power governor. No thermal or performance warning was present on the later
+recheck.
+
 ## Cache and switch semantics
 
 `prefix_cache_enabled` belongs to runtime identity. Cache warmth (`disabled`,

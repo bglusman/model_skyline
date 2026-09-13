@@ -31,12 +31,16 @@ The official Q5_K_M GGUF is 25.35 GB, and the local 123K retrieval pass confirms
 that it retains substantial memory headroom on this host. [Model
 card](https://huggingface.co/ornith-ai/Ornith-1.5-35B-A3B-GGUF)
 
-Qwen3-Coder-Next remains the strongest large follow-up specifically for coding
-specialization: 80B total / 3B active, 262K native context, and an official
-Q4_K_M GGUF around 48.4 GB. That should fit at 128K with compressed KV, but it
-is close enough to the Metal working-set boundary that it is a capacity-risk
-experiment rather than an automatic replacement for Ornith. [Model
-card](https://huggingface.co/Qwen/Qwen3-Coder-Next-GGUF)
+Qwen3-Coder-Next is intentionally excluded from the current download queue.
+Its older publisher evaluation reports 44.3 on SWE-bench Pro and 36.2 on
+Terminal-Bench 2.0, while the newer Qwen3.8-27B publisher evaluation reports
+61.7 on SWE-bench Pro and 73.0 on Terminal-Bench 2.1. The harness and benchmark
+versions differ, so those numbers do not prove a precise margin, but they also
+provide no evidence that the much larger Coder-Next artifact adds a current
+quality frontier. Reconsider it only if a recent, matched coding or agent
+evaluation demonstrates a complementary advantage. [Coder-Next evaluation
+metadata](https://huggingface.co/Qwen/Qwen3-Coder-Next/discussions/43/files),
+[Qwen3.8 model card](https://huggingface.co/Qwen/Qwen3.8-27B)
 
 Agents-A1 is a lower-priority complementary agent/research candidate. Published
 oMLX runs on this exact M5 Max class show a useful long-context speed ladder,
