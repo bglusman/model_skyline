@@ -1,0 +1,11 @@
+#!/bin/zsh
+set -euo pipefail
+
+if (( $# == 0 )); then
+  print -u2 "usage: local-model-exclusive command [arguments ...]"
+  exit 64
+fi
+
+state_dir=/Users/admin/.local/state/model-skyline
+mkdir -p "${state_dir}"
+exec /usr/bin/lockf -k "${state_dir}/local-model-runner.lock" "$@"

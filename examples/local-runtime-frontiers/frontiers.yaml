@@ -54,7 +54,7 @@ workloads:
     cohort: deterministic-byte-prompt-actual-token-count@v1
     benchmark: validated retrieval capacity and peak memory
     description: >-
-      Future maximum fully passing retrieval position paired with measured peak
+      Maximum fully passing retrieval position paired with measured peak
       physical footprint; OOM-free allocation alone is insufficient.
     variables: {}
     assumptions:
@@ -101,6 +101,22 @@ metrics:
       max_age_hours: 720
       minimum_samples: 3
 
+  tool_call_success:
+    kind: signal
+    signal: local_tool_call_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  tool_argument_parse_success:
+    kind: signal
+    signal: local_tool_argument_parse_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
   retrieval_success:
     kind: signal
     signal: local_retrieval_success_percent
@@ -117,9 +133,9 @@ metrics:
       max_age_hours: 720
       minimum_samples: 3
 
-  peak_process_rss:
+  peak_physical_footprint:
     kind: signal
-    signal: local_peak_process_rss_bytes
+    signal: local_peak_process_physical_footprint_bytes
     unit: byte
     requirements:
       max_age_hours: 720
@@ -131,8 +147,10 @@ frontiers:
     axes:
       - metric: prompt_throughput
         goal: maximize
+        epsilon_relative: 0.03
       - metric: decode_throughput
         goal: maximize
+        epsilon_relative: 0.03
     order_by: decode_throughput
     uncertainty: point
     eligibility:
@@ -145,13 +163,32 @@ frontiers:
     axes:
       - metric: ttft
         goal: minimize
+        epsilon_relative: 0.05
       - metric: agent_decode_throughput
         goal: maximize
+        epsilon_relative: 0.05
     order_by: ttft
     uncertainty: point
     eligibility:
       required_capabilities: [text]
       allow_unknown_age: false
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+  tool-agent-operational:
+    workload: openai-agent-latency-v1
+    axes:
+      - metric: tool_call_success
+        goal: maximize
+      - metric: end_to_end
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: tool_call_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+      minimum_axis_values:
+        tool_call_success: 100
     metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
 
   long-context-operational:
@@ -161,11 +198,14 @@ frontiers:
         goal: maximize
       - metric: end_to_end
         goal: minimize
+        epsilon_relative: 0.05
     order_by: retrieval_success
     uncertainty: point
     eligibility:
       required_capabilities: [long-context]
       allow_unknown_age: false
+      minimum_axis_values:
+        retrieval_success: 100
     metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
 
   validated-capacity-memory:
@@ -173,8 +213,10 @@ frontiers:
     axes:
       - metric: validated_context
         goal: maximize
-      - metric: peak_process_rss
+        epsilon_relative: 0.02
+      - metric: peak_physical_footprint
         goal: minimize
+        epsilon_relative: 0.05
     order_by: validated_context
     uncertainty: point
     eligibility:

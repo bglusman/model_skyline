@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from enum import StrEnum
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 import typer
 
@@ -102,8 +102,8 @@ from model_skyline.io import (
     load_quality_reconciliation,
     public_schemas,
 )
-from model_skyline.local_measurements import build_local_catalog
-from model_skyline.models import OfferingKey
+from model_skyline.local_measurements import build_local_capacity_catalog, build_local_catalog
+from model_skyline.models import OfferingKey, WorkloadReference
 from model_skyline.private_output import PrivateOutputError, write_private_text
 from model_skyline.publisher import PublicationError, publish_project
 from model_skyline.quality_catalog import (
@@ -329,11 +329,86 @@ def build_local_catalog_artifact(
         typer.Argument(exists=True, readable=True, help="comparable local measurement records"),
     ],
     output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+    workload_id: Annotated[
+        str | None,
+        typer.Option(
+            "--workload-id",
+            help="override position-specific record IDs with one configured workload ID",
+        ),
+    ] = None,
+    workload_version: Annotated[
+        str | None,
+        typer.Option("--workload-version", help="required with --workload-id"),
+    ] = None,
+    workload_unit: Annotated[
+        str | None,
+        typer.Option("--workload-unit", help="required with --workload-id"),
+    ] = None,
+    cache_cohort: Annotated[
+        Literal["exact", "uncached"],
+        typer.Option(
+            "--cache-cohort",
+            help="exact, or uncached to combine disabled and proven zero-hit miss records",
+        ),
+    ] = "exact",
 ) -> None:
     """Project comparable local records into an ordinary Skyline catalog."""
 
     try:
-        catalog = build_local_catalog(load_local_measurement(path) for path in measurements)
+        workload_parts = (workload_id, workload_version, workload_unit)
+        if any(value is not None for value in workload_parts) and not all(
+            value is not None for value in workload_parts
+        ):
+            raise ValueError(
+                "--workload-id, --workload-version, and --workload-unit must be used together"
+            )
+        workload = (
+            WorkloadReference(
+                id=workload_id,
+                version=workload_version,
+                unit=workload_unit,
+            )
+            if workload_id is not None
+            and workload_version is not None
+            and workload_unit is not None
+            else None
+        )
+        catalog = build_local_catalog(
+            (load_local_measurement(path) for path in measurements),
+            workload=workload,
+            cache_cohort=cache_cohort,
+        )
+        _emit(dump_json(catalog), output)
+    except (InputError, OSError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("build-local-capacity-catalog", rich_help_panel=LOCAL_EVIDENCE_PANEL)
+def build_local_capacity_catalog_artifact(
+    measurements: Annotated[
+        list[Path],
+        typer.Argument(
+            exists=True,
+            readable=True,
+            help="uncached retrieval records spanning one or more context positions",
+        ),
+    ],
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+    workload_id: Annotated[str, typer.Option("--workload-id")] = "validated-capacity-v1",
+    workload_version: Annotated[str, typer.Option("--workload-version")] = "1",
+    workload_unit: Annotated[str, typer.Option("--workload-unit")] = "context_position",
+) -> None:
+    """Roll retrieval ladders up to maximum passing context and physical footprint."""
+
+    try:
+        catalog = build_local_capacity_catalog(
+            (load_local_measurement(path) for path in measurements),
+            workload=WorkloadReference(
+                id=workload_id,
+                version=workload_version,
+                unit=workload_unit,
+            ),
+        )
         _emit(dump_json(catalog), output)
     except (InputError, OSError, ValueError) as exc:
         _error(exc)

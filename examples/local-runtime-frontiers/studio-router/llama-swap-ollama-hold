@@ -1,0 +1,8 @@
+#!/bin/zsh
+set -euo pipefail
+
+ollama_bin=/Applications/Ollama.app/Contents/Resources/ollama
+if ! curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
+  exec /Users/admin/.local/bin/local-model-exclusive "${ollama_bin}" serve
+fi
+exec /Users/admin/.local/bin/local-model-exclusive /bin/sleep 2147483647

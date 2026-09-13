@@ -9,17 +9,18 @@ local quant.
 
 | Candidate | Best current role | Evidence-backed advantage | Important limitation |
 | --- | --- | --- | --- |
-| Qwen3.8 27B oMLX DFlash2 | Warm iterative agent sessions | 30-tool warm-prefix run: 0.812 s median end-to-end, 67.50 decode token/s, exact 3/3; 126K exact retrieval with 39.8 GB peak active memory | 126K prefill was 486 s versus 281 s for baseline F16 KV; DFlash is not uniformly faster |
-| Qwen3.8 27B oMLX baseline/F16 KV | Cold or long-prefill control | Exact 30-tool calls and 126K retrieval; fastest measured 126K prefill among the three oMLX profiles | Roughly half DFlash's short-position decode rate; higher retained memory than TQ4 |
-| Qwen3.8 Flash Next on DS4 target-only | Largest-model 64 GB experiment | Exact retrieval through 125,964 input tokens, about 49 token/s decode there, exact 30-tool calls 3/3 | Aggressive 47.00 GiB resident plan plus demand-paged 32.0 GB PLE sidecar; no matched M1 run yet |
-| Ornith 1.5 Q4_K_M | Raw throughput / cross-Mac control | 3,022.92 prompt and 113.748 decode token/s on M5; same bytes measured on M1 | Tool/coding and long-context integrity portfolio is incomplete |
-| Muse Glimmer official Dynamic Q4_K_XL, target-only | Dense agent/tool alternative | Exact tool selection cold and warm; official quant beats the custom ShoeHorn fit | Only 24.9124 token/s in llama.cpp microbenchmark; long-context retrieval not yet measured |
+| Qwen3.8 Flash Next on DS4 target-only | Best uncached and 126K route | Sole member of three position-specific frontiers: exact tools 3/3 at 6.433 s; 126K retrieval 3/3 at 197.929 s; 5.461 GB sampled physical footprint | No matched M1 implementation; quality beyond these deterministic integrity probes is not established |
+| Ornith 1.5 oMLX baseline/F16 KV | Warm iterative tool sessions | Exact tools 3/3 at 0.835 s warm, co-frontier with Qwen3.8 DFlash under the 5% latency epsilon | Fast 126K execution failed the exact retrieval check 0/3, so it is ineligible for the long-context frontier |
+| Qwen3.8 27B oMLX DFlash2 | Warm iterative tool sessions | Exact tools 3/3 at 0.862 s warm, co-frontier with Ornith; earlier 256-token warm run was 0.812 s | The matched 126K baseline is much slower than DS4, and DFlash's earlier 126K prefill was slower still |
+| Qwen3.8 27B oMLX baseline/F16 KV | Stable uncached control | Exact tools 3/3 and 126K retrieval 3/3 | 126K median was 299.638 s with 47.855 GB physical footprint, dominated by DS4 on both active axes |
+| Ornith 1.5 Q4_K_M | Raw throughput / cross-Mac control | Sole cross-model pp2048/tg512 frontier member: 3,022.92 prompt and 113.748 decode token/s; byte-identical M1 evidence exists | The GGUF throughput result cannot inherit the oMLX route's tool evidence or any base-model quality score |
+| Muse Glimmer official Dynamic Q4_K_XL, target-only | Experimental dense alternative | Official quant beats the custom ShoeHorn fit | Matched warm tool probes were 0/4 at 256 tokens and only 3/4 at 1,024; it fails the 100% correctness eligibility gate |
 
-The practical default remains workload-dependent. oMLX Qwen3.8 is the best
-measured warm agent loop; its baseline/F16 profile is the safer long-prefill
-control. DS4 target-only is the most ambitious model that fits this 64 GB host.
-Ornith is the throughput leader. Muse is worth retaining for task-level agent
-quality comparisons, but not for speed.
+The practical default remains workload-dependent. DS4 Flash Next is the clear
+uncached/long-context operational winner. Ornith and Qwen3.8 DFlash are both
+near-optimal warm tool routes, with Ornith slightly faster in this sample.
+Ornith GGUF is the throughput leader. Muse stays available for investigation,
+but does not pass the current promotion gate.
 
 Muse DFlash2 remains selectable but is labeled experimental in both OMP and
 OpenCode. Two cold/cache-miss runs returned the same wrong non-tool answer;
@@ -31,38 +32,41 @@ load-state artifact.
 
 ## Local Pareto frontiers
 
-Four complementary local frontier views were created. They use Model Skyline's
-ordinary two-axis Pareto engine, but introduce a stricter local offering
-identity: hardware, exact artifact bytes, checkpoint, quantization, runtime
-commit, Metal/acceleration profile, KV type, cache enablement, speculative
-decoder, physical context capacity, and harness configuration remain distinct.
+Four complementary frontier definitions are now materialized as six
+position-specific snapshots. They use Model Skyline's ordinary two-axis Pareto
+engine and a strict local offering identity: hardware, exact artifact bytes,
+quantization, runtime build/profile, KV/cache/speculation configuration,
+physical context capacity, and harness remain distinct.
 
-| Frontier | Axes | Question answered | Current state |
+| Snapshot | Axes and eligibility | Members | Result |
 | --- | --- | --- | --- |
-| `short-throughput-envelope` | Maximize prompt and decode token/s | Which exact hardware/artifact/runtime combination is mechanically fastest at fixed pp2048/tg512? | Evaluated |
-| `interactive-agent-latency` | Minimize TTFT and maximize decode token/s | Which configuration is most responsive for one fixed agent prompt, output allowance, mode, and cache state? | Defined; normalized evidence captured |
-| `long-context-operational` | Maximize exact retrieval success and minimize end-to-end latency | Which configuration actually uses a fixed long-context position correctly and quickly? | Defined; 2K–126K evidence captured |
-| `validated-capacity-memory` | Maximize validated context and minimize peak physical memory | Which configuration delivers the largest repeatedly proven context without swap or retrieval failure? | Defined; repeated roll-up still needed |
+| `short-throughput` | Max prompt and decode token/s, 3% epsilon | Ornith Q4 GGUF | Ornith 3022.92/113.748; Qwen3.8 680.485/26.632; Muse 717.593/24.912 |
+| `exact-Qwen-cross-Mac` | Same axes; byte-identical Qwen artifact and runtime | M5 Max | M5 680.485/26.632; M1 128.356/11.566 |
+| `warm-agent-tools` | Max exact-call success, min end-to-end, 100% gate, 5% latency epsilon | Ornith oMLX; Qwen3.8 DFlash | 0.835 s vs 0.862 s, both 3/3; Muse rejected at 3/4 and 30.65 s median among successful-cache-position rows |
+| `uncached-agent-tools` | Same definition at a proven zero-hit position | DS4 Qwen3.8 Flash Next | DS4 6.433 s vs Qwen baseline 7.536 s, both 3/3 |
+| `long-context-126k` | 100% exact retrieval gate, min end-to-end, 5% epsilon | DS4 Qwen3.8 Flash Next | DS4 197.929 s; Qwen baseline 299.638 s; Ornith rejected at 0/3 despite 88.474 s median |
+| `validated-capacity` | Max repeatedly validated tokens, min sampled physical footprint | DS4 Qwen3.8 Flash Next | Both DS4 and Qwen validated 125,964 tokens 3/3; DS4 used 5.461 GB vs Qwen 47.855 GB |
 
-The short-throughput frontier has two generated same-checkpoint slices:
+The result now has the intended cross-frontier shape. At exact-route identity,
+DS4 Flash Next is on three frontiers. At model-family identity, DS4 Flash Next
+covers three and Ornith covers two (GGUF throughput plus oMLX warm tools).
+Qwen3.8 27B covers one warm frontier. Muse covers none. Epsilon-aware membership
+is used directly; there is no extra weighted score that could hide a weak axis.
+The coverage summary intentionally omits the duplicate hardware-only Qwen slice;
+that snapshot answers a machine-comparison question rather than adding a model
+candidate.
 
-- **Ornith:** Q4 and the ShoeHorn artifact were measured on both Macs, with Q5
-  additionally measured on the M5. M5 Q4 is the sole frontier member at
-  3,022.92 prompt and 113.748 decode token/s. M5 Q5, both ShoeHorn runs, and
-  both M1 offerings are dominated on these two speed axes.
-- **Muse:** official Dynamic Q4_K_XL is the sole frontier member at 717.593
-  prompt and 24.9124 decode token/s. The ShoeHorn fit is dominated on both
-  throughput axes. Its larger size and worse small-corpus PPL are supporting
-  diagnostics rather than frontier axes.
+The `interactive-agent-latency` TTFT/decode definition remains available for
+text-streaming positions, but it is not used for the cross-runtime tool result:
+DS4 and llama.cpp buffer tool calls and do not expose the same token-timing
+estimands. `tool-agent-operational` therefore uses exact-call success and
+end-to-end latency, which every backend provides.
 
-The other three definitions intentionally remain separate and provisional.
-Agent latency cannot pool cold and warm runners, cache misses and hits,
-prose/code/tool prompts, different output ceilings, or incompatible timing
-estimands. Long-context membership requires an exact retrieval pass rather than
-a successfully allocated context window. Validated capacity additionally needs
-the largest repeatedly passing position and one consistent physical-memory
-metric; process RSS, MLX active memory, and demand-paged PLE residency cannot be
-silently mixed.
+The capacity roll-up now selects each exact offering's largest fully passing
+uncached retrieval record and pairs it with macOS's sampled kernel-accounted
+physical footprint. This replaces the invalid RSS comparison that reported
+only a small wrapper/process view for Metal allocations. Clean demand-paged
+file mappings remain distinct from charged footprint and artifact size.
 
 These differ from Model Skyline's existing provider-facing frontiers, which
 typically compare intelligence or task success against API cost, subscription
@@ -77,26 +81,48 @@ diagnostic frontiers rather than a one-number “best local model” leaderboard
 Definitions and generated artifacts:
 
 - [`frontiers.yaml`](frontiers.yaml)
-- [`generated/short-throughput-frontier.json`](generated/short-throughput-frontier.json)
-- [`generated/muse-short-throughput-frontier.json`](generated/muse-short-throughput-frontier.json)
+- [`generated/cross-model-short-throughput-frontier.json`](generated/cross-model-short-throughput-frontier.json)
+- [`generated/qwen38-exact-cross-mac-short-throughput-frontier.json`](generated/qwen38-exact-cross-mac-short-throughput-frontier.json)
+- [`generated/tool-agent-warm-p2048-o1024-frontier.json`](generated/tool-agent-warm-p2048-o1024-frontier.json)
+- [`generated/tool-agent-uncached-p2048-o256-frontier.json`](generated/tool-agent-uncached-p2048-o256-frontier.json)
+- [`generated/long-context-uncached-p126k-frontier.json`](generated/long-context-uncached-p126k-frontier.json)
+- [`generated/validated-capacity-frontier.json`](generated/validated-capacity-frontier.json)
+- [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json)
 - [`README.md`](README.md)
 
 ## Hardware result
 
-The identical Ornith Q4_K_M artifact and llama.cpp build were 3.885x faster in
-M5 prompt processing and 2.005x faster in M5 decode than on the M1 Max:
+Two byte-identical artifact/runtime comparisons now show that the generation
+gap is strongly workload/model dependent:
 
-| Hardware | Prompt token/s | Decode token/s |
-| --- | ---: | ---: |
-| M5 Max, 40 GPU cores | 3,022.92 | 113.7480 |
-| M1 Max, 32 GPU cores | 778.092 | 56.7327 |
+| Artifact | M5 prompt | M1 prompt | Ratio | M5 decode | M1 decode | Ratio |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Ornith 1.5 Q4_K_M | 3,022.92 | 778.092 | 3.885x | 113.7480 | 56.7327 | 2.005x |
+| Qwen3.8 27B UD-Q4_K_M | 680.485 | 128.356 | 5.302x | 26.6322 | 11.5657 | 2.303x |
+
+For Qwen, both files hash to
+`322e194ff79741c7baa497c240f677f54b201b0efab44ca8e50f122b39123482`
+and both `llama-bench` binaries hash to
+`30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9`.
+The command position is also identical: pp2048/tg512, five repetitions, six
+threads, all Metal layers, Q8_0 KV, flash attention on, batch 2048, and
+micro-batch 512.
 
 The asymmetric multipliers make a single “M5 versus M1” factor indefensible.
 The much larger prefill gain plausibly reflects newer GPU/tensor execution and
 memory-system improvements; decode remains more bandwidth/serial constrained.
 CPU generation can matter for tokenization, orchestration, some recurrent
 kernels, and host-side quantization, but all compared model layers were on
-Metal, so these numbers do not isolate CPU contribution.
+Metal. These exact runs isolate the complete M1-Max-versus-M5-Max system change,
+not the CPU alone; a CPU-only position is required for a CPU-specific claim.
+
+That CPU-only control is now captured separately at pp512/tg64, three
+repetitions, six threads, and zero Metal layers. Qwen's median prompt/decode
+rates were 16.870/6.788 token/s on M5 and 15.077/4.730 on M1, advantages of
+1.119x and 1.435x. This measures the combined CPU, DRAM, and llama.cpp CPU
+backend—not CPU core IPC in isolation—but it strongly suggests that the much
+larger all-Metal prefill gaps above are accelerator-path effects. The CPU
+control is intentionally not mixed into the production frontier.
 
 The M5 direct USB-C connection negotiated the adapter's full 140 W capability;
 that is not the same as continuous 140 W draw. During a sustained CPU-heavy
@@ -132,6 +158,10 @@ See [the ShoeHorn audit](shoehorn-audit.md) and
 - llama-swap v0.2.55 owns `127.0.0.1:8090`, watches configuration changes, and
   places every managed heavyweight backend in one exclusive `local-memory`
   group. Managed launchers also share a BSD file lock with direct benchmarks.
+- The M1 Studio now has the same llama-swap version on LAN port 8090 and the
+  same one-runner exclusive policy. Qwen and Ornith use Homebrew llama.cpp build
+  10809; Qwen's routed artifact is the byte-identical M5 file. Route selection
+  and explicit unload smokes passed for Qwen and Ornith.
 - Loading-state streaming is disabled. Ollama's route TTL is 300 seconds to
   match its keep-alive; other routes use 900 seconds.
 - oMLX prefix caching is enabled by default. A controlled 18,099-token repeat
@@ -142,9 +172,15 @@ See [the ShoeHorn audit](shoehorn-audit.md) and
   unchanged and decoded 16% slower than F16 KV.
 - OMP v14.6.6 and OpenCode v1.3.17 both list the managed Qwen, DS4, Muse,
   Ornith, and Ollama routes. OMP's global compaction trigger is 180,000 tokens.
-- The final llama-swap `/running` state is empty; no goal-owned heavyweight
-  runner is active. The Studio's pre-existing processes were not killed or
-  reconfigured.
+- The M1 Studio now runs the same llama-swap v0.2.55 pattern at
+  `192.168.1.175:8090`: six configured routes in one exclusive group, child
+  servers on loopback, and loading messages disabled. Qwen-to-Ornith switching
+  and explicit unload were smoke-tested, ending with no resident route. The old
+  always-on DS4 LaunchAgent is preserved as a dated disabled rollback file.
+- The Studio's Ornith Q4 hash exactly matches the cross-Mac control. Its older
+  Qwen Q4 hash does not match the MacBook's Unsloth artifact, so no mixed-hash
+  Qwen hardware claim is allowed. The exact MacBook Qwen artifact is being
+  copied into a separate evidence directory before matched M1 captures.
 
 ## Storage and repository state
 
@@ -166,12 +202,13 @@ security, or wired memory setting was changed.
 1. Recheck the paste-ready
    [Muse DFlash reproducer](muse-dflash-prompt-cache-reproducer.md) on a newer
    llama.cpp commit, then submit it upstream only with explicit approval.
-2. Run target-only Muse retrieval at 2K/32K/64K/126K with early/middle/late
-   needles, then repeat only the useful positions with DFlash after the cache
-   divergence is fixed.
-3. Run the official Muse Dynamic Q4 bytes on the M1 Max when its pre-existing
-   workload is safely idle; do not substitute a different quant.
-4. Expand agent-quality comparisons across Qwen3.8 oMLX, DS4 Flash Next,
+2. Treat Muse's matched 0/4-at-256 and 3/4-at-1024 tool behavior as a failed
+   promotion gate; revisit long-context work only after the reasoning/tool
+   interaction is made deterministic.
+3. Complete byte-identical Qwen and Muse copies to the M1 Studio, then run the
+   same pp2048/tg512 capture with the same llama.cpp commit; do not substitute
+   the Studio's older Qwen artifact.
+4. Expand task-quality comparisons across Qwen3.8 oMLX, DS4 Flash Next,
    Ornith, and Muse using byte-stable coding/tool tasks and explicit output
    budgets. Keep task correctness as an eligibility gate, not a throughput
    axis.

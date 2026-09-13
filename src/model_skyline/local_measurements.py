@@ -9,6 +9,7 @@ evidence joins through ModelSkyline's exact OfferingKey reconciliation.
 
 from __future__ import annotations
 
+from collections import defaultdict
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from decimal import Decimal, localcontext
@@ -86,6 +87,7 @@ class LocalMetricName(StrEnum):
     end_to_end_seconds = "end_to_end_seconds"
     cold_load_seconds = "cold_load_seconds"
     peak_process_rss_bytes = "peak_process_rss_bytes"
+    peak_process_physical_footprint_bytes = "peak_process_physical_footprint_bytes"
     peak_metal_active_bytes = "peak_metal_active_bytes"
     swap_delta_bytes = "swap_delta_bytes"
     speculative_acceptance_percent = "speculative_acceptance_percent"
@@ -100,6 +102,7 @@ _METRIC_UNITS = {
     LocalMetricName.end_to_end_seconds: "s",
     LocalMetricName.cold_load_seconds: "s",
     LocalMetricName.peak_process_rss_bytes: "byte",
+    LocalMetricName.peak_process_physical_footprint_bytes: "byte",
     LocalMetricName.peak_metal_active_bytes: "byte",
     LocalMetricName.swap_delta_bytes: "byte",
     LocalMetricName.speculative_acceptance_percent: "percent",
@@ -378,38 +381,86 @@ def _percent(checks: LocalCheckResult) -> Decimal:
         return Decimal(100) * Decimal(checks.passed) / Decimal(checks.total)
 
 
-def build_local_catalog(records: Iterable[LocalMeasurementRecord]) -> ObservationCatalog:
+_NON_COMPARISON_POSITION_FIELDS = frozenset(
+    {
+        # These describe what the response/runtime exposed, not the request.
+        "decode_rate_source",
+        "finish_reasons",
+        "time_to_first_token_source",
+        # These describe how an already byte-identical prompt was constructed
+        # or counted. The input-definition and user-prompt digests remain exact.
+        "construction_input_tokens",
+        "token_count_url",
+    }
+)
+
+
+def _comparison_position(record: LocalMeasurementRecord) -> CanonicalJsonObject:
+    return {
+        key: value
+        for key, value in record.workload.position.items()
+        if key not in _NON_COMPARISON_POSITION_FIELDS
+    }
+
+
+def _is_uncached(record: LocalMeasurementRecord) -> bool:
+    state = record.workload.prefix_cache_state
+    if state is LocalPrefixCacheState.disabled:
+        return True
+    if state is not LocalPrefixCacheState.miss:
+        return False
+    if record.performance is None:
+        return False
+    cache_hits = record.performance.metrics.get(LocalMetricName.prefix_cache_hit_tokens)
+    return cache_hits is not None and all(value == 0 for value in cache_hits.values)
+
+
+def build_local_catalog(
+    records: Iterable[LocalMeasurementRecord],
+    *,
+    workload: WorkloadReference | None = None,
+    cache_cohort: Literal["exact", "uncached"] = "exact",
+) -> ObservationCatalog:
     """Project comparable local records into an ordinary ObservationCatalog."""
 
     materialized = tuple(records)
     if not materialized:
         raise ValueError("at least one local measurement record is required")
-    reference = materialized[0].workload.reference
+    reference = workload or materialized[0].workload.reference
+    if cache_cohort == "uncached" and any(not _is_uncached(record) for record in materialized):
+        raise ValueError(
+            "the uncached cohort requires cache-disabled or zero-hit cache-miss records"
+        )
+    if cache_cohort not in {"exact", "uncached"}:
+        raise ValueError("cache_cohort must be 'exact' or 'uncached'")
+    cache_identity = (
+        materialized[0].workload.prefix_cache_state if cache_cohort == "exact" else "uncached"
+    )
     workload_identity = (
-        reference,
+        None if workload is not None else materialized[0].workload.reference,
         materialized[0].workload.kind,
         materialized[0].workload.input_definition_sha256,
         materialized[0].workload.requested_input_tokens,
         materialized[0].workload.max_output_tokens,
         materialized[0].workload.concurrency,
         materialized[0].workload.runner_state,
-        materialized[0].workload.prefix_cache_state,
-        materialized[0].workload.position,
+        cache_identity,
+        _comparison_position(materialized[0]),
     )
     seen_measurements: set[str] = set()
     seen_offerings: set[str] = set()
     offerings: list[OfferingObservation] = []
     for record in materialized:
         candidate_identity = (
-            record.workload.reference,
+            None if workload is not None else record.workload.reference,
             record.workload.kind,
             record.workload.input_definition_sha256,
             record.workload.requested_input_tokens,
             record.workload.max_output_tokens,
             record.workload.concurrency,
             record.workload.runner_state,
-            record.workload.prefix_cache_state,
-            record.workload.position,
+            record.workload.prefix_cache_state if cache_cohort == "exact" else "uncached",
+            _comparison_position(record),
         )
         if candidate_identity != workload_identity:
             raise ValueError("local records must describe the same workload position")
@@ -473,6 +524,7 @@ def build_local_catalog(records: Iterable[LocalMeasurementRecord]) -> Observatio
                     "runtime": record.runtime.model_dump(mode="json"),
                     "runtime_identity_sha256": content_hash(record.runtime),
                     "workload": record.workload.model_dump(mode="json"),
+                    "local_cache_comparison_cohort": cache_cohort,
                     "raw_artifact_path": record.provenance.raw_artifact_path,
                 },
                 default_source=source,
@@ -482,4 +534,148 @@ def build_local_catalog(records: Iterable[LocalMeasurementRecord]) -> Observatio
         schema_version="model-skyline/v1alpha1",
         workload=reference,
         offerings=sorted(offerings, key=lambda item: item.offering.offering_id),
+    )
+
+
+def _capacity_protocol(record: LocalMeasurementRecord) -> tuple[object, ...]:
+    position = record.workload.position
+    return (
+        record.workload.kind,
+        record.workload.max_output_tokens,
+        record.workload.concurrency,
+        record.workload.runner_state,
+        position.get("mode"),
+        position.get("system_prompt_sha256"),
+        position.get("tool_schema_sha256"),
+        position.get("tool_count"),
+        position.get("tool_choice"),
+        position.get("thinking_mode"),
+        position.get("sampling"),
+        position.get("api"),
+        position.get("retrieval_character_fraction"),
+    )
+
+
+def build_local_capacity_catalog(
+    records: Iterable[LocalMeasurementRecord],
+    *,
+    workload: WorkloadReference,
+) -> ObservationCatalog:
+    """Roll an uncached retrieval ladder up to validated capacity and footprint."""
+
+    materialized = tuple(records)
+    if not materialized:
+        raise ValueError("at least one local retrieval measurement record is required")
+    measurement_ids = [record.measurement_id for record in materialized]
+    if len(measurement_ids) != len(set(measurement_ids)):
+        raise ValueError("capacity records must have unique measurement_id values")
+    if any(
+        record.workload.kind is not LocalBenchmarkKind.long_context_retrieval
+        for record in materialized
+    ):
+        raise ValueError("capacity records must be long-context retrieval measurements")
+    if any(not _is_uncached(record) for record in materialized):
+        raise ValueError(
+            "capacity records require cache-disabled or proven zero-hit cache-miss requests"
+        )
+    protocol = _capacity_protocol(materialized[0])
+    if any(_capacity_protocol(record) != protocol for record in materialized[1:]):
+        raise ValueError("capacity records must use one retrieval protocol")
+
+    grouped: dict[str, list[LocalMeasurementRecord]] = defaultdict(list)
+    for record in materialized:
+        grouped[local_offering_key(record).offering_id].append(record)
+
+    offerings: list[OfferingObservation] = []
+    for offering_id, candidates in sorted(grouped.items()):
+        passing = [
+            record
+            for record in candidates
+            if record.integrity is not None
+            and record.integrity.retrieval is not None
+            and record.integrity.retrieval.passed == record.integrity.retrieval.total
+            and record.performance is not None
+        ]
+        if not passing:
+            continue
+        selected = max(
+            passing,
+            key=lambda record: (
+                record.performance.actual_input_tokens if record.performance else 0,
+                record.completed_at,
+                record.measurement_id,
+            ),
+        )
+        assert selected.performance is not None
+        assert selected.integrity is not None
+        assert selected.integrity.retrieval is not None
+        footprint = selected.performance.metrics.get(
+            LocalMetricName.peak_process_physical_footprint_bytes
+        )
+        if footprint is None:
+            raise ValueError(
+                f"capacity record {selected.measurement_id!r} is missing sampled physical footprint"
+            )
+        source = _source(selected)
+        signals = {
+            "local_validated_context_tokens": Observation(
+                value=selected.performance.actual_input_tokens,
+                unit="token",
+                sample_count=selected.integrity.retrieval.total,
+                observed_at=selected.completed_at,
+                source=source,
+            ),
+            "local_peak_process_physical_footprint_bytes": _observation(
+                footprint.values,
+                unit="byte",
+                record=selected,
+                source=source,
+            ),
+        }
+        offering = local_offering_key(selected)
+        assert offering.offering_id == offering_id
+        attempted = sorted(
+            (
+                {
+                    "actual_input_tokens": (
+                        record.performance.actual_input_tokens
+                        if record.performance is not None
+                        else None
+                    ),
+                    "measurement_id": record.measurement_id,
+                    "passed": (
+                        record.integrity is not None
+                        and record.integrity.retrieval is not None
+                        and record.integrity.retrieval.passed == record.integrity.retrieval.total
+                    ),
+                }
+                for record in candidates
+            ),
+            key=lambda item: (item["actual_input_tokens"] or 0, item["measurement_id"]),
+        )
+        offerings.append(
+            OfferingObservation(
+                offering=offering,
+                signals=signals,
+                metadata={
+                    "local_measurement_id": selected.measurement_id,
+                    "local_evidence_status": selected.status.value,
+                    "hardware": selected.hardware.model_dump(mode="json"),
+                    "artifact": selected.artifact.model_dump(mode="json"),
+                    "runtime": selected.runtime.model_dump(mode="json"),
+                    "runtime_identity_sha256": content_hash(selected.runtime),
+                    "workload": selected.workload.model_dump(mode="json"),
+                    "raw_artifact_path": selected.provenance.raw_artifact_path,
+                    "capacity_ladder": attempted,
+                    "local_cache_comparison_cohort": "uncached",
+                },
+                default_source=source,
+            )
+        )
+    if not offerings:
+        raise ValueError("no offering passed any retrieval position")
+    return ObservationCatalog(
+        schema_version="model-skyline/v1alpha1",
+        workload=workload,
+        offerings=offerings,
     )

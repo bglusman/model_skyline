@@ -6,8 +6,10 @@ artifact bytes, runtime build and full configuration, physical context ceiling,
 KV/cache/speculation profile, harness, workload position, run conditions, and
 raw-result digest are all retained.
 
-The current artifacts are provisional. They demonstrate the contract and one
-controlled cross-generation comparison; they are not yet a broad model ranking.
+The current artifacts are provisional. They now include cross-model
+throughput, warm and uncached tool operation, repeated 126K retrieval, and a
+validated-capacity/physical-footprint roll-up. They remain workload-specific,
+not a universal model ranking.
 
 ## Evidence levels
 
@@ -71,6 +73,8 @@ Every active frontier has exactly two decision axes:
   latency or quality.
 - `interactive-agent-latency`: streaming TTFT (minimize) vs decode throughput
   (maximize), at an exact prompt/output/mode/cache position.
+- `tool-agent-operational`: exact tool-call success (maximize) vs end-to-end
+  latency (minimize). A 100% success threshold rejects fast broken routes.
 - `long-context-operational`: exact retrieval success (maximize) vs end-to-end
   latency (minimize), at a fixed long-context position.
 - `validated-capacity-memory`: largest fully passing retrieval position
@@ -82,9 +86,38 @@ efficiency view may compare decode throughput with peak memory, but must restric
 the candidate universe to one checkpoint/quality cohort so quantization quality
 is not silently assumed equal.
 
-## Reproduce the current comparison
+For a deliberately uncached comparison, `build-local-catalog
+--cache-cohort uncached` may combine cache-disabled records with cache-miss
+records only when every miss reports zero reused tokens. Runtime cache
+enablement remains part of exact offering identity. Position metadata derived
+from the observed response (finish reason and timing-source availability) does
+not change request identity.
 
-Both machines used the same model bytes and llama.cpp commit:
+The current epsilon-aware coverage result is:
+
+| Position-specific frontier | Member(s) |
+| --- | --- |
+| Cross-model pp2048/tg512 throughput | Ornith 1.5 Q4 GGUF |
+| Warm 30-tool, 2K-prefix/1K-output operation | Ornith 1.5 oMLX; Qwen3.8 27B DFlash |
+| Uncached 30-tool, 2K-prefix/256-output operation | Qwen3.8 Flash Next on DS4 |
+| Uncached 126K exact retrieval | Qwen3.8 Flash Next on DS4 |
+| Validated capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
+
+The cross-frontier summary is in
+[`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
+DS4 Flash Next is the only exact route on three frontiers; Ornith is the only
+other model family represented on two. Muse's matched warm tool run is retained
+but rejected by the 100% correctness threshold.
+
+A separate hardware-only slice compares the same Qwen3.8 27B UD-Q4_K_M bytes,
+llama.cpp/ggml binary, and command position on M1 Max and M5 Max. It is retained
+in [`generated/qwen38-exact-cross-mac-short-throughput-frontier.json`](generated/qwen38-exact-cross-mac-short-throughput-frontier.json)
+but omitted from model-family coverage so a duplicate hardware offering cannot
+inflate Qwen's cross-workload count.
+
+## Reproduce an exact cross-Mac comparison
+
+The original Ornith comparison used the same model bytes and llama.cpp commit:
 
 - artifact SHA-256:
   `ca6ea26329c88b78ffd90a85163be2e746c2fafd1024f56db47e499f117f9a7f`
@@ -122,6 +155,29 @@ modelskyline evaluate frontiers.yaml generated/short-throughput-catalog.json \
   --as-of 2026-09-13T03:15:00Z
 ```
 
+OpenAI-compatible captures retain a position-specific record reference. To
+evaluate several exact offerings under one declared workload, provide the
+configured catalog reference explicitly. `uncached` accepts only disabled or
+reported-zero-hit misses:
+
+```console
+modelskyline build-local-catalog measurements/qwen.json measurements/ds4.json \
+  --workload-id long-context-retrieval-v1 \
+  --workload-version 1 \
+  --workload-unit retrieval_probe \
+  --cache-cohort uncached \
+  --output generated/long-context-catalog.json
+```
+
+Capacity is a roll-up rather than a single prompt position. It chooses each
+exact offering's largest fully passing uncached retrieval record and requires a
+sampled physical-footprint series at that position:
+
+```console
+modelskyline build-local-capacity-catalog measurements/*retrieval*.json \
+  --output generated/validated-capacity-catalog.json
+```
+
 Quantization integrity uses a separate pinned-corpus capture. It hashes the
 runtime, model, and corpus bytes, disables llama.cpp's automatic fit behavior,
 holds the same host-wide runner lock, and retains the full native output plus
@@ -142,7 +198,7 @@ path, llama.cpp build, context/chunk settings, and KV/runtime configuration. It
 is a quantization-sensitive regression signal, not a general coding-quality
 score and not an axis of the throughput frontier.
 
-## Initial exact-artifact result
+## Ornith exact-artifact result
 
 Medians from the retained repetitions:
 
@@ -164,6 +220,33 @@ M5 Q4 on both axes, and the M5 ShoeHorn artifact is dominated by both ordinary
 quants. This is a speed-frontier result, not a claim that their quality is
 equal; the separate perplexity evidence in the ShoeHorn audit merely failed to
 show a compensating fidelity gain.
+
+## Qwen3.8 exact-artifact result
+
+The later dense-model control hashes both the 16,464,440,224-byte UD-Q4_K_M
+artifact and the runtime. Both hosts used artifact SHA-256
+`322e194ff79741c7baa497c240f677f54b201b0efab44ca8e50f122b39123482`
+and llama-bench SHA-256
+`30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9`.
+The pp2048/tg512 position and every runtime option match the Ornith protocol.
+
+| Hardware | Prompt tok/s | Decode tok/s |
+| --- | ---: | ---: |
+| MacBook Pro, M5 Max 40-core GPU, 64 GB | 680.485 | 26.6322 |
+| Mac Studio, M1 Max 32-core GPU, 64 GB | 128.356 | 11.5657 |
+
+The M5 advantage is 5.302x for prompt processing and 2.303x for decode. Along
+with Ornith's 3.885x/2.005x, this shows that a single hardware multiplier is
+not portable even across two exact llama.cpp positions. Because all model
+layers are on Metal, these runs compare the full systems rather than isolating
+CPU performance; a separate CPU-only position is needed for that claim.
+
+The separate CPU-only Qwen control uses pp512/tg64, three repetitions, six
+threads, and `--n-gpu-layers 0`. M5 medians are 16.870 prompt and 6.788 decode
+token/s; M1 medians are 15.077 and 4.730, respectively. The 1.119x/1.435x gaps
+are much smaller than the all-Metal gaps. They still measure CPU plus DRAM and
+the compiled ggml backend rather than pure CPU core IPC, and therefore remain a
+hardware diagnostic outside the production frontier.
 
 The M5 capture used AC power through a directly connected Apple 140W adapter;
 the charger reports a negotiated 140W and `pmset` reports mode `2` (High Power
@@ -295,10 +378,12 @@ normalizer publishes both exact-call success and argument-JSON parse success,
 so a faster speculative profile cannot hide broken tool syntax behind
 aggregate TPS.
 On macOS, each request also retains swap, memory-pressure, thermal-warning, and
-power snapshots; `--process-match` adds sampled peak RSS for a literal command
-substring. RSS is labeled as process RSS and must not be presented as Metal
-active memory. Cold-load and post-idle captures use `--runner-state` in a
-separate one-repetition run with no warmup.
+power snapshots; `--process-match` adds sampled peak RSS and macOS
+kernel-accounted physical footprint for a literal command substring. Physical
+footprint captures Metal allocations that ordinary RSS misses. Clean mapped
+files, artifact byte size, and physical footprint remain distinct quantities.
+Cold-load and post-idle captures use `--runner-state` in a separate
+one-repetition run with no warmup.
 When a request goes through llama-swap, add
 `--runner-status-url http://127.0.0.1:8090/running` and, for an alias, its real
 `--runner-model-id`. The harness polls the router's `starting` to `ready`

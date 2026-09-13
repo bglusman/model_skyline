@@ -1,0 +1,104 @@
+# Mac Studio M1 Max / 64 GB: one LAN endpoint and one heavyweight runner.
+healthCheckTimeout: 600
+unloadTimeout: 20
+globalTTL: 900
+startPort: 8180
+includeAliasesInList: true
+logLevel: info
+logToStdout: both
+sendLoadingState: false
+
+models:
+  qwen3.8-27b-gguf-q4km:
+    name: Qwen3.8 27B GGUF UD-Q4_K_M (llama.cpp, exact M5 artifact)
+    cmd: >-
+      /usr/bin/env STUDIO_LLAMA_PORT=${PORT}
+      /Users/admin/.local/bin/serve-qwen38-llama
+    checkEndpoint: /health
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 131072
+
+  ornith-1.5-35b-a3b-q4km:
+    name: Ornith 1.5 35B-A3B Q4_K_M (llama.cpp)
+    cmd: >-
+      /usr/bin/env STUDIO_LLAMA_PORT=${PORT}
+      /Users/admin/.local/bin/serve-ornith15-llama
+    checkEndpoint: /health
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 131072
+
+  deepseek-v4-flash-ds4:
+    name: DeepSeek V4 Flash IQ2 (DwarfStar SSD streaming)
+    aliases:
+      - deepseek-v4-flash
+      - deepseek-v4-pro
+    cmd: >-
+      /usr/bin/env STUDIO_DS4_PORT=${PORT}
+      /Users/admin/.local/bin/serve-deepseek-v4-ds4
+    checkEndpoint: /v1/models
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 32768
+
+  muse-glimmer:latest:
+    name: Muse Glimmer (Ollama)
+    cmd: /Users/admin/.local/bin/llama-swap-ollama-hold
+    cmdStop: /Users/admin/.local/bin/llama-swap-ollama-stop ${PID} muse-glimmer:latest
+    proxy: http://127.0.0.1:11434
+    checkEndpoint: /api/tags
+    ttl: 300
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 131072
+
+  qwen3.6:35b-a3b:
+    name: Qwen3.6 35B-A3B (Ollama control)
+    cmd: /Users/admin/.local/bin/llama-swap-ollama-hold
+    cmdStop: /Users/admin/.local/bin/llama-swap-ollama-stop ${PID} qwen3.6:35b-a3b
+    proxy: http://127.0.0.1:11434
+    checkEndpoint: /api/tags
+    ttl: 300
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 131072
+
+  gemma4:e4b:
+    name: Gemma 4 E4B (Ollama)
+    cmd: /Users/admin/.local/bin/llama-swap-ollama-hold
+    cmdStop: /Users/admin/.local/bin/llama-swap-ollama-stop ${PID} gemma4:e4b
+    proxy: http://127.0.0.1:11434
+    checkEndpoint: /api/tags
+    ttl: 300
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 131072
+
+routing:
+  router:
+    use: group
+    settings:
+      groups:
+        local-memory:
+          swap: true
+          exclusive: true
+          members:
+            - qwen3.8-27b-gguf-q4km
+            - ornith-1.5-35b-a3b-q4km
+            - deepseek-v4-flash-ds4
+            - muse-glimmer:latest
+            - qwen3.6:35b-a3b
+            - gemma4:e4b

@@ -355,9 +355,7 @@ def main() -> None:
                 raise ValueError("a normalized position has inconsistent input token counts")
             construction_counts = {row.get("construction_input_tokens") for row in group}
             if len(construction_counts) != 1:
-                raise ValueError(
-                    "a normalized position has inconsistent construction token counts"
-                )
+                raise ValueError("a normalized position has inconsistent construction token counts")
             prompt_hashes = {row.get("prompt_sha256") for row in group}
             input_hashes = {
                 row.get("input_definition_sha256", row.get("prompt_sha256")) for row in group
@@ -376,6 +374,12 @@ def main() -> None:
                 metrics["peak_process_rss_bytes"] = {
                     "unit": "byte",
                     "values": peak_rss,
+                }
+            peak_footprint = [row.get("peak_process_physical_footprint_bytes") for row in group]
+            if all(isinstance(value, int) for value in peak_footprint):
+                metrics["peak_process_physical_footprint_bytes"] = {
+                    "unit": "byte",
+                    "values": peak_footprint,
                 }
             peak_runtime_memory = [row.get("peak_runtime_memory_bytes") for row in group]
             if all(isinstance(value, int) for value in peak_runtime_memory):

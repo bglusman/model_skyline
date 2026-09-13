@@ -108,6 +108,50 @@ def test_example_frontier_and_dominance_explanation(
     assert snapshot.snapshot_id
 
 
+def test_axis_eligibility_threshold_rejects_fast_but_incorrect_candidate(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    frontier = example_config.frontiers["coding-value"]
+    eligibility = frontier.eligibility.model_copy(
+        update={"minimum_axis_values": {"coding_session_success": Decimal("100")}}
+    )
+    config = example_config.model_copy(
+        update={
+            "frontiers": {
+                **example_config.frontiers,
+                "coding-value": frontier.model_copy(update={"eligibility": eligibility}),
+            }
+        }
+    )
+
+    snapshot = FrontierEngine().calculate(
+        config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    assert any(
+        "coding_session_success: value" in reason and "below eligible minimum 100" in reason
+        for rejection in snapshot.rejected
+        for reason in rejection.reasons
+    )
+
+
+def test_axis_eligibility_threshold_must_reference_frontier_axis(
+    example_config: ProjectConfig,
+) -> None:
+    frontier = example_config.frontiers["coding-value"]
+    payload = frontier.model_dump(mode="python")
+    eligibility = payload["eligibility"]
+    assert isinstance(eligibility, dict)
+    eligibility["minimum_axis_values"] = {"not-an-axis": Decimal("1")}
+
+    with pytest.raises(ValidationError, match="must reference frontier metrics"):
+        frontier.__class__.model_validate(payload)
+
+
 def test_benchmark_harness_is_independent_of_production_route_harness(
     example_config: ProjectConfig,
     example_catalog: ObservationCatalog,

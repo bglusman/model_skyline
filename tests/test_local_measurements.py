@@ -13,9 +13,11 @@ from model_skyline.cli import app
 from model_skyline.io import load_catalog, load_local_measurement
 from model_skyline.local_measurements import (
     LocalMeasurementRecord,
+    build_local_capacity_catalog,
     build_local_catalog,
     local_offering_key,
 )
+from model_skyline.models import WorkloadReference
 
 
 def local_measurement_payload() -> dict[str, object]:
@@ -237,6 +239,155 @@ def test_catalog_requires_same_workload_position_and_unique_exact_offerings() ->
     workload["prefix_cache_state"] = "warm"
     with pytest.raises(ValueError, match="same workload position"):
         build_local_catalog([first, LocalMeasurementRecord.model_validate(changed)])
+
+
+def test_catalog_ignores_observed_response_metadata_in_workload_position() -> None:
+    first_payload = local_measurement_payload()
+    first_payload["measurement_id"] = "first"
+    first_artifact = first_payload["artifact"]
+    first_workload = first_payload["workload"]
+    assert isinstance(first_artifact, dict)
+    assert isinstance(first_workload, dict)
+    first_artifact["content_sha256"] = "1" * 64
+    first_workload["position"] = {
+        "batch": 2048,
+        "time_to_first_token_source": "server-reported",
+        "finish_reasons": {"stop": 3},
+    }
+    second_payload = deepcopy(first_payload)
+    second_payload["measurement_id"] = "second"
+    second_artifact = second_payload["artifact"]
+    second_workload = second_payload["workload"]
+    assert isinstance(second_artifact, dict)
+    assert isinstance(second_workload, dict)
+    second_artifact["content_sha256"] = "2" * 64
+    second_workload["position"] = {
+        "batch": 2048,
+        "time_to_first_token_source": "unavailable",
+        "finish_reasons": {"tool_calls": 3},
+    }
+
+    catalog = build_local_catalog(
+        [
+            LocalMeasurementRecord.model_validate(first_payload),
+            LocalMeasurementRecord.model_validate(second_payload),
+        ]
+    )
+
+    assert len(catalog.offerings) == 2
+
+
+def test_uncached_catalog_combines_disabled_and_proven_zero_hit_miss() -> None:
+    disabled_payload = local_measurement_payload()
+    disabled_payload["measurement_id"] = "disabled"
+    disabled_artifact = disabled_payload["artifact"]
+    assert isinstance(disabled_artifact, dict)
+    disabled_artifact["content_sha256"] = "1" * 64
+    miss_payload = deepcopy(disabled_payload)
+    miss_payload["measurement_id"] = "miss"
+    miss_artifact = miss_payload["artifact"]
+    miss_runtime = miss_payload["runtime"]
+    miss_workload = miss_payload["workload"]
+    miss_performance = miss_payload["performance"]
+    assert isinstance(miss_artifact, dict)
+    assert isinstance(miss_runtime, dict)
+    assert isinstance(miss_workload, dict)
+    assert isinstance(miss_performance, dict)
+    miss_artifact["content_sha256"] = "2" * 64
+    miss_runtime["prefix_cache_enabled"] = True
+    miss_workload["prefix_cache_state"] = "miss"
+    metrics = miss_performance["metrics"]
+    assert isinstance(metrics, dict)
+    metrics["prefix_cache_hit_tokens"] = {
+        "unit": "token",
+        "values": ["0", "0", "0"],
+    }
+
+    catalog = build_local_catalog(
+        [
+            LocalMeasurementRecord.model_validate(disabled_payload),
+            LocalMeasurementRecord.model_validate(miss_payload),
+        ],
+        workload=WorkloadReference(id="uncached-agent-v1", version="1", unit="request"),
+        cache_cohort="uncached",
+    )
+
+    assert catalog.workload.id == "uncached-agent-v1"
+    assert len(catalog.offerings) == 2
+
+
+def test_uncached_catalog_rejects_warm_or_unproven_miss() -> None:
+    payload = local_measurement_payload()
+    runtime = payload["runtime"]
+    workload = payload["workload"]
+    assert isinstance(runtime, dict)
+    assert isinstance(workload, dict)
+    runtime["prefix_cache_enabled"] = True
+    workload["prefix_cache_state"] = "miss"
+    record = LocalMeasurementRecord.model_validate(payload)
+
+    with pytest.raises(ValueError, match="zero-hit"):
+        build_local_catalog([record], cache_cohort="uncached")
+
+
+def _capacity_payload(tokens: int, measurement_id: str) -> dict[str, object]:
+    payload = local_measurement_payload()
+    payload["measurement_id"] = measurement_id
+    workload = payload["workload"]
+    performance = payload["performance"]
+    integrity = payload["integrity"]
+    assert isinstance(workload, dict)
+    assert isinstance(performance, dict)
+    assert isinstance(integrity, dict)
+    workload.update(
+        {
+            "kind": "long_context_retrieval",
+            "requested_input_tokens": tokens,
+            "max_output_tokens": 64,
+            "repetitions": 3,
+            "position": {
+                "mode": "retrieval",
+                "system_prompt_sha256": "e" * 64,
+                "tool_schema_sha256": None,
+                "tool_count": 0,
+                "tool_choice": None,
+                "thinking_mode": "disabled",
+                "sampling": {"temperature": 0, "seed": 90421},
+                "api": "openai-chat-completions-streaming",
+                "retrieval_character_fraction": "0.5",
+                "prompt_bytes": tokens * 2,
+                "user_prompt_sha256": "f" * 64,
+            },
+        }
+    )
+    performance["actual_input_tokens"] = tokens
+    performance["output_token_counts"] = [21, 21, 21]
+    metrics = performance["metrics"]
+    assert isinstance(metrics, dict)
+    metrics["peak_process_physical_footprint_bytes"] = {
+        "unit": "byte",
+        "values": ["20000000000", "21000000000", "20500000000"],
+    }
+    integrity["retrieval"] = {"passed": 3, "total": 3}
+    return payload
+
+
+def test_capacity_catalog_selects_largest_passing_position() -> None:
+    small = LocalMeasurementRecord.model_validate(_capacity_payload(2_048, "small"))
+    large = LocalMeasurementRecord.model_validate(_capacity_payload(126_000, "large"))
+
+    catalog = build_local_capacity_catalog(
+        [small, large],
+        workload=WorkloadReference(
+            id="validated-capacity-v1",
+            version="1",
+            unit="context_position",
+        ),
+    )
+
+    signals = catalog.offerings[0].signals
+    assert signals["local_validated_context_tokens"].value == Decimal("126000")
+    assert signals["local_peak_process_physical_footprint_bytes"].value == Decimal("20500000000")
 
 
 @pytest.mark.parametrize(

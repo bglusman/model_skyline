@@ -730,6 +730,19 @@ class FrontierEngine:
                         estimates[axis.metric] = estimate
                     except EvaluationError as exc:
                         reasons.append(f"{axis.metric}: {exc}")
+            if not reasons:
+                for metric, minimum in frontier.eligibility.minimum_axis_values.items():
+                    if estimates[metric].value < minimum:
+                        reasons.append(
+                            f"{metric}: value {estimates[metric].value} is below eligible "
+                            f"minimum {minimum}"
+                        )
+                for metric, maximum in frontier.eligibility.maximum_axis_values.items():
+                    if estimates[metric].value > maximum:
+                        reasons.append(
+                            f"{metric}: value {estimates[metric].value} exceeds eligible "
+                            f"maximum {maximum}"
+                        )
             axis_evidence_candidates.append(
                 AxisEvidenceCandidate(
                     offering=offering.offering,

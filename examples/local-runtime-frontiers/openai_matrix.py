@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import hashlib
 import json
 import os
@@ -113,9 +114,7 @@ def _calibrate_retrieval_prompt(
     """Find the shortest deterministic prompt meeting a tokenizer-count target."""
     low_characters = 1
     high_characters = max(target_tokens * 4, 4096)
-    prompt, expected = _retrieval_prompt(
-        target_tokens, position, target_characters=high_characters
-    )
+    prompt, expected = _retrieval_prompt(target_tokens, position, target_characters=high_characters)
     measured = count_prompt(prompt)
     while measured < target_tokens:
         low_characters = high_characters + 1
@@ -128,9 +127,7 @@ def _calibrate_retrieval_prompt(
     best = (prompt, expected, measured)
     while low_characters <= high_characters:
         middle = (low_characters + high_characters) // 2
-        prompt, expected = _retrieval_prompt(
-            target_tokens, position, target_characters=middle
-        )
+        prompt, expected = _retrieval_prompt(target_tokens, position, target_characters=middle)
         measured = count_prompt(prompt)
         if measured >= target_tokens:
             best = (prompt, expected, measured)
@@ -354,7 +351,7 @@ def _server_token_count(
     return count
 
 
-def _matching_process_rss_bytes(literal: str) -> int:
+def _matching_process_ids_and_rss(literal: str) -> tuple[list[int], int]:
     try:
         completed = subprocess.run(
             ["ps", "-axo", "pid=,rss=,command="],
@@ -364,8 +361,9 @@ def _matching_process_rss_bytes(literal: str) -> int:
             timeout=5,
         )
     except (OSError, subprocess.TimeoutExpired):
-        return 0
+        return [], 0
     output = completed.stdout
+    pids: list[int] = []
     total_kib = 0
     for line in output.splitlines():
         fields = line.strip().split(maxsplit=2)
@@ -376,8 +374,36 @@ def _matching_process_rss_bytes(literal: str) -> int:
         except ValueError:
             continue
         if pid != os.getpid() and "openai_matrix.py" not in fields[2]:
+            pids.append(pid)
             total_kib += rss_kib
-    return total_kib * 1024
+    return pids, total_kib * 1024
+
+
+def _physical_footprint_bytes(pid: int) -> int | None:
+    """Read macOS's kernel-accounted physical footprint for one process."""
+
+    if sys.platform != "darwin":
+        return None
+    try:
+        libproc = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
+        proc_pid_rusage = libproc.proc_pid_rusage
+        proc_pid_rusage.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
+        proc_pid_rusage.restype = ctypes.c_int
+        buffer = ctypes.create_string_buffer(512)
+        # RUSAGE_INFO_V4. ri_phys_footprint is the eighth uint64 after the UUID.
+        if proc_pid_rusage(pid, 4, buffer) != 0:
+            return None
+        return int.from_bytes(buffer.raw[72:80], byteorder=sys.byteorder)
+    except (AttributeError, OSError):
+        return None
+
+
+def _matching_process_memory_bytes(literal: str) -> tuple[int, int | None]:
+    pids, rss_bytes = _matching_process_ids_and_rss(literal)
+    footprints = [_physical_footprint_bytes(pid) for pid in pids]
+    if not footprints or any(value is None for value in footprints):
+        return rss_bytes, None
+    return rss_bytes, sum(value for value in footprints if value is not None)
 
 
 def _runtime_memory_bytes(value: object) -> int | None:
@@ -399,10 +425,11 @@ def _runtime_memory_bytes(value: object) -> int | None:
     return None
 
 
-class _RssSampler:
+class _ProcessMemorySampler:
     def __init__(self, process_match: str | None) -> None:
         self.process_match = process_match
         self.peak_bytes: int | None = None
+        self.peak_physical_footprint_bytes: int | None = None
         self._stopped = threading.Event()
         self._thread: threading.Thread | None = None
 
@@ -412,20 +439,27 @@ class _RssSampler:
         self._thread = threading.Thread(target=self._sample, daemon=True)
         self._thread.start()
 
-    def stop(self) -> int | None:
+    def stop(self) -> tuple[int | None, int | None]:
         self._stopped.set()
         if self._thread is not None:
             self._thread.join(timeout=6)
-        return self.peak_bytes
+        return self.peak_bytes, self.peak_physical_footprint_bytes
+
+    def _record(self, rss_bytes: int, physical_footprint_bytes: int | None) -> None:
+        self.peak_bytes = rss_bytes if self.peak_bytes is None else max(self.peak_bytes, rss_bytes)
+        if physical_footprint_bytes is not None:
+            self.peak_physical_footprint_bytes = (
+                physical_footprint_bytes
+                if self.peak_physical_footprint_bytes is None
+                else max(self.peak_physical_footprint_bytes, physical_footprint_bytes)
+            )
 
     def _sample(self) -> None:
         assert self.process_match is not None
         while not self._stopped.is_set():
-            value = _matching_process_rss_bytes(self.process_match)
-            self.peak_bytes = value if self.peak_bytes is None else max(self.peak_bytes, value)
+            self._record(*_matching_process_memory_bytes(self.process_match))
             self._stopped.wait(0.25)
-        value = _matching_process_rss_bytes(self.process_match)
-        self.peak_bytes = value if self.peak_bytes is None else max(self.peak_bytes, value)
+        self._record(*_matching_process_memory_bytes(self.process_match))
 
 
 class _RuntimeStatsSampler:
@@ -573,8 +607,8 @@ def _stream_request(
     }
     runtime_stats_before = _runtime_stats(client, runtime_stats_url, runtime_stats_cookie)
     host_before = _host_state()
-    rss_sampler = _RssSampler(process_match)
-    rss_sampler.start()
+    process_memory_sampler = _ProcessMemorySampler(process_match)
+    process_memory_sampler.start()
     runtime_sampler = _RuntimeStatsSampler(runtime_stats_url, runtime_stats_cookie)
     runtime_sampler.start()
     started_ns = time.monotonic_ns()
@@ -625,7 +659,10 @@ def _stream_request(
     finally:
         runner_state_events, runner_ready_seconds = runner_sampler.stop()
         peak_runtime_memory_bytes = runtime_sampler.stop()
-        peak_process_rss_bytes = rss_sampler.stop()
+        (
+            peak_process_rss_bytes,
+            peak_process_physical_footprint_bytes,
+        ) = process_memory_sampler.stop()
         host_after = _host_state()
         runtime_stats_after = _runtime_stats(client, runtime_stats_url, runtime_stats_cookie)
     if first_semantic_ns is None:
@@ -687,6 +724,7 @@ def _stream_request(
         "tool_correct": tool_correct,
         "loading_state_events": loading_state_events,
         "peak_process_rss_bytes": peak_process_rss_bytes,
+        "peak_process_physical_footprint_bytes": peak_process_physical_footprint_bytes,
         "peak_runtime_memory_bytes": peak_runtime_memory_bytes,
         "host_before": host_before,
         "host_after": host_after,
@@ -947,9 +985,7 @@ def main() -> None:
         "model": args.model,
         "mode": args.mode,
         "retrieval_position": (str(args.retrieval_position) if args.mode == "retrieval" else None),
-        "retrieval_characters": (
-            args.retrieval_characters if args.mode == "retrieval" else None
-        ),
+        "retrieval_characters": (args.retrieval_characters if args.mode == "retrieval" else None),
         "repetitions": args.repetitions,
         "warmup": args.warmup,
         "runner_state": args.runner_state,
