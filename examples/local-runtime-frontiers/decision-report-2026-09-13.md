@@ -29,6 +29,58 @@ the wrong answer byte-for-byte. Target-only passed both cold and warm. This is a
 reproducible DFlash + llama.cpp prompt-reuse semantic divergence, not a router
 load-state artifact.
 
+## Local Pareto frontiers
+
+Four complementary local frontier views were created. They use Model Skyline's
+ordinary two-axis Pareto engine, but introduce a stricter local offering
+identity: hardware, exact artifact bytes, checkpoint, quantization, runtime
+commit, Metal/acceleration profile, KV type, cache enablement, speculative
+decoder, physical context capacity, and harness configuration remain distinct.
+
+| Frontier | Axes | Question answered | Current state |
+| --- | --- | --- | --- |
+| `short-throughput-envelope` | Maximize prompt and decode token/s | Which exact hardware/artifact/runtime combination is mechanically fastest at fixed pp2048/tg512? | Evaluated |
+| `interactive-agent-latency` | Minimize TTFT and maximize decode token/s | Which configuration is most responsive for one fixed agent prompt, output allowance, mode, and cache state? | Defined; normalized evidence captured |
+| `long-context-operational` | Maximize exact retrieval success and minimize end-to-end latency | Which configuration actually uses a fixed long-context position correctly and quickly? | Defined; 2K–126K evidence captured |
+| `validated-capacity-memory` | Maximize validated context and minimize peak physical memory | Which configuration delivers the largest repeatedly proven context without swap or retrieval failure? | Defined; repeated roll-up still needed |
+
+The short-throughput frontier has two generated same-checkpoint slices:
+
+- **Ornith:** Q4 and the ShoeHorn artifact were measured on both Macs, with Q5
+  additionally measured on the M5. M5 Q4 is the sole frontier member at
+  3,022.92 prompt and 113.748 decode token/s. M5 Q5, both ShoeHorn runs, and
+  both M1 offerings are dominated on these two speed axes.
+- **Muse:** official Dynamic Q4_K_XL is the sole frontier member at 717.593
+  prompt and 24.9124 decode token/s. The ShoeHorn fit is dominated on both
+  throughput axes. Its larger size and worse small-corpus PPL are supporting
+  diagnostics rather than frontier axes.
+
+The other three definitions intentionally remain separate and provisional.
+Agent latency cannot pool cold and warm runners, cache misses and hits,
+prose/code/tool prompts, different output ceilings, or incompatible timing
+estimands. Long-context membership requires an exact retrieval pass rather than
+a successfully allocated context window. Validated capacity additionally needs
+the largest repeatedly passing position and one consistent physical-memory
+metric; process RSS, MLX active memory, and demand-paged PLE residency cannot be
+silently mixed.
+
+These differ from Model Skyline's existing provider-facing frontiers, which
+typically compare intelligence or task success against API cost, subscription
+cap consumption, or p95 latency. The local frontiers focus on deployment
+mechanics—throughput, TTFT, retrieval, context, and memory—and deliberately omit
+quality until a benchmark is reconciled to the exact local artifact. A local
+IQ2, Dynamic Q4, MLX, or ShoeHorn artifact never inherits its base model's
+publisher score automatically. Cache and runner warmth are workload positions,
+not noise, and no automatic local selection policy exists yet: these are
+diagnostic frontiers rather than a one-number “best local model” leaderboard.
+
+Definitions and generated artifacts:
+
+- [`frontiers.yaml`](frontiers.yaml)
+- [`generated/short-throughput-frontier.json`](generated/short-throughput-frontier.json)
+- [`generated/muse-short-throughput-frontier.json`](generated/muse-short-throughput-frontier.json)
+- [`README.md`](README.md)
+
 ## Hardware result
 
 The identical Ornith Q4_K_M artifact and llama.cpp build were 3.885x faster in
