@@ -39,6 +39,16 @@ def _positive_csv(value: str) -> list[int]:
     return values
 
 
+def _fraction(value: str) -> Decimal:
+    try:
+        parsed = Decimal(value)
+    except ArithmeticError as exc:
+        raise argparse.ArgumentTypeError("expected a decimal fraction") from exc
+    if not parsed.is_finite() or parsed <= 0 or parsed >= 1:
+        raise argparse.ArgumentTypeError("fraction must be greater than zero and less than one")
+    return parsed
+
+
 def _prefix(mode: str, approximate_tokens: int) -> str:
     if mode == "code":
         atom = "def stable_prefix(value: int) -> int:\n    return value * 17 + 3\n\n"
@@ -56,6 +66,34 @@ def _prefix(mode: str, approximate_tokens: int) -> str:
     else:
         instruction = "\nReply with a concise two-sentence summary."
     return repeated + instruction
+
+
+def _retrieval_prompt(approximate_tokens: int, position: Decimal) -> tuple[str, str]:
+    position_label = str(position).replace(".", "p")
+    expected = f"SKYLINE-PASSKEY-{approximate_tokens}-{position_label}-A7C9"
+    header = (
+        "A single archive record below has anchor ORION. At the final question, "
+        "return only that record's exact passkey. Ignore every decoy_code.\n\n"
+    )
+    needle = f"\nTarget archive record: anchor=ORION; passkey={expected}.\n"
+    footer = "\nQuestion: What is the exact passkey in the record whose anchor is ORION?\n"
+    target_characters = approximate_tokens * 4
+    filler_target = max(target_characters - len(header) - len(needle) - len(footer), 0)
+    lines: list[str] = []
+    characters = 0
+    index = 0
+    while characters < filler_target:
+        digest = hashlib.sha256(f"skyline-distractor-{index}".encode()).hexdigest()
+        line = (
+            f"Archive {index:06d}: anchor={digest[:12]}; decoy_code={digest[12:36]}; "
+            f"sequence={index * 104729 + 17}.\n"
+        )
+        lines.append(line)
+        characters += len(line)
+        index += 1
+    filler = "".join(lines)[:filler_target]
+    split = int(Decimal(len(filler)) * position)
+    return header + filler[:split] + needle + filler[split:] + footer, expected
 
 
 def _tool_definition() -> list[dict[str, Any]]:
@@ -204,6 +242,7 @@ def _stream_request(
     max_tokens: int,
     process_match: str | None,
     runtime_stats_url: str | None,
+    expected_content: str | None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "model": model,
@@ -324,6 +363,7 @@ def _stream_request(
         "finish_reasons": finish_reasons,
         "content_sha256": _sha256(content.encode()),
         "content_bytes": len(content.encode()),
+        "expected_content_exact": content.strip() == expected_content if expected_content else None,
         "tool_calls": parsed_calls,
         "tool_correct": tool_correct,
         "loading_state_events": loading_state_events,
@@ -339,7 +379,17 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base-url", default="http://127.0.0.1:8090/v1")
     parser.add_argument("--model", required=True)
-    parser.add_argument("--mode", choices=("prose", "code", "tool"), default="prose")
+    parser.add_argument(
+        "--mode",
+        choices=("prose", "code", "tool", "retrieval"),
+        default="prose",
+    )
+    parser.add_argument(
+        "--retrieval-position",
+        type=_fraction,
+        default=Decimal("0.5"),
+        help="fractional character position for the retrieval needle",
+    )
     parser.add_argument("--prefix-tokens", type=_positive_csv, default=[512, 2048, 8192, 32768])
     parser.add_argument("--max-outputs", type=_positive_csv, default=[64, 256, 1024])
     parser.add_argument("--repetitions", type=int, default=2)
@@ -389,9 +439,16 @@ def main() -> None:
                 max_tokens=8,
                 process_match=args.process_match,
                 runtime_stats_url=args.runtime_stats_url,
+                expected_content=None,
             )
         for approximate_tokens in args.prefix_tokens:
-            prompt = _prefix(args.mode, approximate_tokens)
+            if args.mode == "retrieval":
+                prompt, expected_content = _retrieval_prompt(
+                    approximate_tokens, args.retrieval_position
+                )
+            else:
+                prompt = _prefix(args.mode, approximate_tokens)
+                expected_content = None
             prompt_sha256 = _sha256(prompt.encode())
             for max_tokens in args.max_outputs:
                 for repetition in range(1, args.repetitions + 1):
@@ -404,12 +461,16 @@ def main() -> None:
                         max_tokens=max_tokens,
                         process_match=args.process_match,
                         runtime_stats_url=args.runtime_stats_url,
+                        expected_content=expected_content,
                     )
                     results.append(
                         {
                             "approximate_prefix_tokens": approximate_tokens,
                             "prompt_bytes": len(prompt.encode()),
                             "prompt_sha256": prompt_sha256,
+                            "expected_content_sha256": (
+                                _sha256(expected_content.encode()) if expected_content else None
+                            ),
                             "max_output_tokens": max_tokens,
                             "repetition": repetition,
                             **result,
@@ -422,6 +483,7 @@ def main() -> None:
         "base_url": args.base_url,
         "model": args.model,
         "mode": args.mode,
+        "retrieval_position": (str(args.retrieval_position) if args.mode == "retrieval" else None),
         "repetitions": args.repetitions,
         "warmup": args.warmup,
         "runner_state": args.runner_state,

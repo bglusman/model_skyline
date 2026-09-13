@@ -19,6 +19,11 @@ SPEC = importlib.util.spec_from_file_location("normalize_openai_matrix", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
 NORMALIZER = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(NORMALIZER)
+MATRIX_SCRIPT = ROOT / "examples" / "local-runtime-frontiers" / "openai_matrix.py"
+MATRIX_SPEC = importlib.util.spec_from_file_location("openai_matrix", MATRIX_SCRIPT)
+assert MATRIX_SPEC is not None and MATRIX_SPEC.loader is not None
+MATRIX = importlib.util.module_from_spec(MATRIX_SPEC)
+MATRIX_SPEC.loader.exec_module(MATRIX)
 
 
 def test_extracts_dflash_acceptance_from_nested_runtime_stats() -> None:
@@ -33,6 +38,25 @@ def test_extracts_dflash_acceptance_from_nested_runtime_stats() -> None:
     ]
 
     assert NORMALIZER._speculative_acceptance(rows) == [Decimal("62.500")]
+
+
+def test_retrieval_prompt_is_deterministic_unique_and_positioned() -> None:
+    prompt, expected = MATRIX._retrieval_prompt(32_768, Decimal("0.9"))
+    repeated_prompt, repeated_expected = MATRIX._retrieval_prompt(32_768, Decimal("0.9"))
+
+    assert (prompt, expected) == (repeated_prompt, repeated_expected)
+    assert len(prompt) == 32_768 * 4
+    assert prompt.count(expected) == 1
+    assert abs(prompt.index(expected) / len(prompt) - 0.9) < 0.01
+
+
+def test_retrieval_integrity_requires_an_exact_final_answer() -> None:
+    rows = [
+        {"expected_content_exact": True, "expected_content_sha256": "a" * 64},
+        {"expected_content_exact": False, "expected_content_sha256": "a" * 64},
+    ]
+
+    assert NORMALIZER._retrieval_integrity(rows)["retrieval"] == {"passed": 1, "total": 2}
 
 
 def test_normalizer_splits_prefix_cache_miss_and_warm_positions(tmp_path: Path) -> None:

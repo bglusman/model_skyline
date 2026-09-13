@@ -179,6 +179,26 @@ per-request acceptance summary; normalization emits it as
 `local_speculative_acceptance_percent` rather than inferring acceptance from
 TPS.
 
+Retrieval mode builds deterministic unique distractor records, inserts one
+passkey at a fixed character fraction, asks for that passkey alone, and counts
+only an exact stripped final answer as success. It never treats allocation or
+substring-bearing prose as a retrieval pass. The requested sizes are prompt
+construction targets; the response API's usage count is the actual token count
+published in evidence. Run early, middle, and late needles as separate captures:
+
+```console
+python examples/local-runtime-frontiers/openai_matrix.py \
+  --base-url http://127.0.0.1:8090/v1 \
+  --model exact-served-model-id \
+  --mode retrieval \
+  --retrieval-position 0.9 \
+  --prefix-tokens 2048,32768,65536,126000 \
+  --max-outputs 64 \
+  --repetitions 3 \
+  --warmup \
+  --output examples/local-runtime-frontiers/raw/retrieval-late.json
+```
+
 See [ShoeHorn applicability audit](shoehorn-audit.md) for the checked boundary
 between a meaningful Ornith exact-fit experiment and the architectural work
 still required before applying the same method to Qwen3.8 Flash Next.

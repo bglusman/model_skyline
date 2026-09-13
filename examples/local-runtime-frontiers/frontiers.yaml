@@ -33,11 +33,12 @@ workloads:
     unit: retrieval_probe
     version: "1"
     harness: model-skyline/passkey-and-distractors@v1
-    cohort: exact-tokenized-context-ladder@v1
+    cohort: deterministic-byte-prompt-actual-token-count@v1
     benchmark: long-context retrieval and latency
     description: >-
-      Future exact retrieval checks at fixed context positions. A merely allocated
-      context window is not a successful retrieval result.
+      Exact-answer retrieval checks at fixed character fractions in deterministic
+      prompts; API usage supplies the actual token count. A merely allocated context
+      window is not a successful retrieval result.
     variables: {}
     assumptions:
       compaction: disabled_during_probe
@@ -46,7 +47,7 @@ workloads:
     unit: context_position
     version: "1"
     harness: model-skyline/passkey-and-memory@v1
-    cohort: exact-tokenized-context-ladder@v1
+    cohort: deterministic-byte-prompt-actual-token-count@v1
     benchmark: validated retrieval capacity and peak memory
     description: >-
       Future maximum fully passing retrieval position paired with measured peak

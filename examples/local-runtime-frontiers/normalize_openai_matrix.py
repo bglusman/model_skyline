@@ -112,6 +112,24 @@ def _tool_integrity(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _retrieval_integrity(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    passed = 0
+    for row in rows:
+        success = row.get("expected_content_exact")
+        digest = row.get("expected_content_sha256")
+        if not isinstance(success, bool):
+            raise ValueError("retrieval rows must report exact expected-content presence")
+        if not isinstance(digest, str) or len(digest) != 64:
+            raise ValueError("retrieval rows must report the expected-content SHA-256")
+        passed += int(success)
+    return {
+        "retrieval": {"passed": passed, "total": len(rows)},
+        "tool_calls": None,
+        "tool_argument_parsing": None,
+        "structured_output": None,
+    }
+
+
 def _swap_deltas(rows: list[dict[str, Any]]) -> list[int] | None:
     values: list[int] = []
     for row in rows:
@@ -204,8 +222,10 @@ def main() -> None:
     if capture.get("model") != served_model:
         parser.error("capture model does not match the system profile")
     mode = capture.get("mode")
-    if mode not in {"prose", "code", "tool"}:
+    if mode not in {"prose", "code", "tool", "retrieval"}:
         parser.error("capture mode is invalid")
+    if mode == "retrieval" and args.kind != "long_context_retrieval":
+        parser.error("retrieval captures require --kind long_context_retrieval")
     rows = capture.get("results")
     if not isinstance(rows, list) or not rows:
         parser.error("capture results must be a non-empty array")
@@ -230,6 +250,7 @@ def main() -> None:
             "base_url": capture.get("base_url"),
             "model": served_model,
             "mode": mode,
+            "retrieval_position": capture.get("retrieval_position"),
             "repetitions": capture.get("repetitions"),
             "warmup": capture.get("warmup"),
             "positions": sorted([list(key) for key in grouped]),
@@ -287,8 +308,28 @@ def main() -> None:
                     "unit": "token",
                     "values": [_cached_tokens(row, cache_enabled=True) for row in group],
                 }
-            integrity = _tool_integrity(group) if mode == "tool" else None
-            identifier = f"{args.measurement_prefix}-p{approximate}-o{maximum}-{state}"
+            if mode == "tool":
+                integrity = _tool_integrity(group)
+            elif mode == "retrieval":
+                integrity = _retrieval_integrity(group)
+            else:
+                integrity = None
+            retrieval_position = capture.get("retrieval_position")
+            reference_suffix = (
+                f"-needle-{str(retrieval_position).replace('.', 'p')}"
+                if mode == "retrieval"
+                else ""
+            )
+            identifier = (
+                f"{args.measurement_prefix}-p{approximate}-o{maximum}-{state}{reference_suffix}"
+            )
+            position = {
+                "mode": mode,
+                "prompt_bytes": next(iter(prompt_bytes)),
+                "api": "openai-chat-completions-streaming",
+            }
+            if mode == "retrieval":
+                position["retrieval_character_fraction"] = retrieval_position
             record = LocalMeasurementRecord.model_validate(
                 {
                     "schema_version": "model-skyline/local-measurement/v1alpha1",
@@ -301,7 +342,9 @@ def main() -> None:
                     "runtime": runtime.model_dump(mode="json"),
                     "workload": {
                         "reference": {
-                            "id": f"openai-{mode}-p{approximate}-o{maximum}-{state}",
+                            "id": (
+                                f"openai-{mode}-p{approximate}-o{maximum}-{state}{reference_suffix}"
+                            ),
                             "version": "model-skyline/openai-matrix@v1",
                             "unit": "request",
                         },
@@ -314,11 +357,7 @@ def main() -> None:
                         "concurrency": 1,
                         "runner_state": capture.get("runner_state", "warm"),
                         "prefix_cache_state": state,
-                        "position": {
-                            "mode": mode,
-                            "prompt_bytes": next(iter(prompt_bytes)),
-                            "api": "openai-chat-completions-streaming",
-                        },
+                        "position": position,
                     },
                     "performance": {
                         "actual_input_tokens": next(iter(input_counts)),
