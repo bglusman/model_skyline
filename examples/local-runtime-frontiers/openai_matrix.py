@@ -21,7 +21,7 @@ from urllib.parse import urlparse
 
 import httpx
 
-SYSTEM_PROMPT = "You are a deterministic local runtime measurement probe."
+DEFAULT_SYSTEM_PROMPT = "You are a deterministic local runtime measurement probe."
 
 
 def _timestamp() -> str:
@@ -257,11 +257,12 @@ def _input_definition(
     tool_count: int = 1,
     tool_choice: str = "forced",
     thinking_mode: str = "runtime_default",
+    system_prompt: str = DEFAULT_SYSTEM_PROMPT,
 ) -> dict[str, Any]:
     """Return the complete semantic request prefix, excluding output controls."""
     value: dict[str, Any] = {
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt},
         ]
     }
@@ -335,10 +336,11 @@ def _server_token_count(
     model: str,
     prompt: str,
     thinking_mode: str,
+    system_prompt: str,
 ) -> int:
     payload: dict[str, Any] = {
         "model": model,
-        "system": SYSTEM_PROMPT,
+        "system": system_prompt,
         "messages": [{"role": "user", "content": prompt}],
     }
     if thinking_mode != "runtime_default":
@@ -544,6 +546,7 @@ def _stream_request(
     tool_count: int,
     tool_choice: str,
     thinking_mode: str,
+    system_prompt: str,
     max_tokens: int,
     process_match: str | None,
     runtime_stats_url: str | None,
@@ -554,7 +557,14 @@ def _stream_request(
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "model": model,
-        **_input_definition(prompt, mode, tool_count, tool_choice, thinking_mode),
+        **_input_definition(
+            prompt,
+            mode,
+            tool_count,
+            tool_choice,
+            thinking_mode,
+            system_prompt,
+        ),
         "max_tokens": max_tokens,
         "temperature": 0,
         "seed": 90421,
@@ -728,6 +738,14 @@ def main() -> None:
         default="disabled",
         help="explicit chat-template thinking policy retained in workload identity",
     )
+    parser.add_argument(
+        "--system-prompt",
+        default=DEFAULT_SYSTEM_PROMPT,
+        help=(
+            "exact system prompt to hash and send; useful for runtimes whose "
+            "reasoning policy is controlled in prompt text"
+        ),
+    )
     parser.add_argument("--prefix-tokens", type=_positive_csv, default=[512, 2048, 8192, 32768])
     parser.add_argument("--max-outputs", type=_positive_csv, default=[64, 256, 1024])
     parser.add_argument("--repetitions", type=int, default=2)
@@ -833,6 +851,7 @@ def main() -> None:
                 tool_count=args.tool_count,
                 tool_choice=args.tool_choice,
                 thinking_mode=args.thinking_mode,
+                system_prompt=args.system_prompt,
                 max_tokens=8,
                 process_match=args.process_match,
                 runtime_stats_url=args.runtime_stats_url,
@@ -866,6 +885,7 @@ def main() -> None:
                                 args.model,
                                 value,
                                 args.thinking_mode,
+                                args.system_prompt,
                             ),
                         )
                     )
@@ -881,6 +901,7 @@ def main() -> None:
                     args.tool_count,
                     args.tool_choice,
                     args.thinking_mode,
+                    args.system_prompt,
                 )
             )
             for max_tokens in args.max_outputs:
@@ -894,6 +915,7 @@ def main() -> None:
                         tool_count=args.tool_count,
                         tool_choice=args.tool_choice,
                         thinking_mode=args.thinking_mode,
+                        system_prompt=args.system_prompt,
                         max_tokens=max_tokens,
                         process_match=args.process_match,
                         runtime_stats_url=args.runtime_stats_url,
@@ -944,7 +966,7 @@ def main() -> None:
         ),
         "runner_status_url": args.runner_status_url,
         "runner_model_id": args.runner_model_id,
-        "system_prompt_sha256": _sha256(SYSTEM_PROMPT.encode()),
+        "system_prompt_sha256": _sha256(args.system_prompt.encode()),
         "tool_schema_sha256": (
             _canonical_sha256(_tool_definition(args.tool_count)) if args.mode == "tool" else None
         ),

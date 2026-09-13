@@ -1,0 +1,350 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "workload": {
+    "id": "llama-bench-pp2048-tg512",
+    "version": "llama.cpp@5266f24da/model-skyline@v1",
+    "unit": "benchmark_run"
+  },
+  "offerings": [
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-c4ab620b322920a4",
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "KQuant-Dynamic-Q4_K_XL",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/llama-bench@v1",
+        "capabilities": [
+          "text"
+        ]
+      },
+      "signals": {
+        "local_prompt_tokens_per_second": {
+          "value": "717.593",
+          "unit": "token/s",
+          "lower": "711.64",
+          "upper": "764.857",
+          "sample_count": 5,
+          "observed_at": "2026-09-13T07:34:38.660746Z",
+          "source": {
+            "id": "local-measurement:muse-glimmer-dynamic-q4xl-m5max64-pp2048-tg512",
+            "version": "llama-bench@build-10809",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+            "raw_sha256": "4516b13fef8a36edaef188f6a20230cad45ba6db8c8ccdd15bfe0fc9132665c7",
+            "retrieved_at": "2026-09-13T07:34:38.660746Z"
+          }
+        },
+        "local_decode_tokens_per_second": {
+          "value": "24.9124",
+          "unit": "token/s",
+          "lower": "24.8405",
+          "upper": "25.2708",
+          "sample_count": 5,
+          "observed_at": "2026-09-13T07:34:38.660746Z",
+          "source": {
+            "id": "local-measurement:muse-glimmer-dynamic-q4xl-m5max64-pp2048-tg512",
+            "version": "llama-bench@build-10809",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+            "raw_sha256": "4516b13fef8a36edaef188f6a20230cad45ba6db8c8ccdd15bfe0fc9132665c7",
+            "retrieved_at": "2026-09-13T07:34:38.660746Z"
+          }
+        }
+      },
+      "metadata": {
+        "local_measurement_id": "muse-glimmer-dynamic-q4xl-m5max64-pp2048-tg512",
+        "local_evidence_status": "provisional",
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "checkpoint": "Muse-Glimmer-30B",
+          "revision": "70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+          "format": "gguf",
+          "quantization": "KQuant-Dynamic-Q4_K_XL",
+          "size_bytes": 19653960832,
+          "content_sha256": "ac7023d6a4c704eb9af54ab53e476a66b7f5b6c0ef2fc4a8dde5253c291a6c38",
+          "source_url": "https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/tree/70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+          "license": "Apache-2.0",
+          "metadata": {
+            "filename": "Muse-Glimmer-30B-KQuant-Dynamic-Q4_K_XL.gguf"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "build-10809",
+          "commit": "5266f24da",
+          "backend": "BLAS,MTL",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/llama-bench@v1",
+          "configuration": {
+            "runtime_binary_sha256": "30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9",
+            "n_batch": 2048,
+            "n_ubatch": 512,
+            "n_threads": 6,
+            "cpu_mask": "0x0",
+            "cpu_strict": false,
+            "poll": 50,
+            "type_k": "q8_0",
+            "type_v": "q8_0",
+            "n_gpu_layers": -1,
+            "n_cpu_moe": 0,
+            "split_mode": "layer",
+            "main_gpu": 0,
+            "no_kv_offload": false,
+            "flash_attn": 1,
+            "devices": "auto",
+            "tensor_split": "0.00",
+            "tensor_buft_overrides": "none",
+            "load_mode": "auto",
+            "lazy_mode": "auto",
+            "embeddings": false,
+            "no_op_offload": 0,
+            "no_host": false,
+            "fit_target": 0,
+            "fit_min_ctx": 0
+          }
+        },
+        "runtime_identity_sha256": "484576b0a4fff20180bb2bfceb4470fbde7e982a51f73b1defd653699cdc13cc",
+        "workload": {
+          "reference": {
+            "id": "llama-bench-pp2048-tg512",
+            "version": "llama.cpp@5266f24da/model-skyline@v1",
+            "unit": "benchmark_run"
+          },
+          "kind": "short_decode",
+          "input_definition_sha256": "b46f0c244c8d4d5e2ff93c7ca4cd156be12566e539eb219f4f2814311146f101",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 512,
+          "repetitions": 5,
+          "warmup_repetitions": 1,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "disabled",
+          "position": {
+            "batch": 2048,
+            "micro_batch": 512,
+            "threads": 6
+          }
+        },
+        "raw_artifact_path": "raw/muse-glimmer-dynamic-q4xl-m5max64-pp2048-tg512.json"
+      },
+      "default_source": {
+        "id": "local-measurement:muse-glimmer-dynamic-q4xl-m5max64-pp2048-tg512",
+        "version": "llama-bench@build-10809",
+        "url": null,
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+        "raw_sha256": "4516b13fef8a36edaef188f6a20230cad45ba6db8c8ccdd15bfe0fc9132665c7",
+        "retrieved_at": "2026-09-13T07:34:38.660746Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-shoehorn-mixed-5.646bpw-ctx131k-q8kv-reserve4g-llama.cpp-04a0e22cf16ea507",
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "shoehorn-mixed-5.646bpw-ctx131k-q8kv-reserve4g",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/llama-bench@v1",
+        "capabilities": [
+          "text"
+        ]
+      },
+      "signals": {
+        "local_prompt_tokens_per_second": {
+          "value": "695.556",
+          "unit": "token/s",
+          "lower": "683.107",
+          "upper": "702.9",
+          "sample_count": 5,
+          "observed_at": "2026-09-13T07:36:55.352404Z",
+          "source": {
+            "id": "local-measurement:muse-glimmer-shoehorn-18p31gib-m5max64-pp2048-tg512",
+            "version": "llama-bench@build-10809",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+            "raw_sha256": "b38e19b89f7934aa2b3bd5a94e4b6fb1896a84e6dbc7a8e0f4979427e71a1290",
+            "retrieved_at": "2026-09-13T07:36:55.352404Z"
+          }
+        },
+        "local_decode_tokens_per_second": {
+          "value": "24.5243",
+          "unit": "token/s",
+          "lower": "24.4883",
+          "upper": "24.6513",
+          "sample_count": 5,
+          "observed_at": "2026-09-13T07:36:55.352404Z",
+          "source": {
+            "id": "local-measurement:muse-glimmer-shoehorn-18p31gib-m5max64-pp2048-tg512",
+            "version": "llama-bench@build-10809",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+            "raw_sha256": "b38e19b89f7934aa2b3bd5a94e4b6fb1896a84e6dbc7a8e0f4979427e71a1290",
+            "retrieved_at": "2026-09-13T07:36:55.352404Z"
+          }
+        }
+      },
+      "metadata": {
+        "local_measurement_id": "muse-glimmer-shoehorn-18p31gib-m5max64-pp2048-tg512",
+        "local_evidence_status": "provisional",
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "checkpoint": "Muse-Glimmer-30B",
+          "revision": "b26f8ce4a435571e24656d27efef978073809356",
+          "format": "gguf",
+          "quantization": "shoehorn-mixed-5.646bpw-ctx131k-q8kv-reserve4g",
+          "size_bytes": 19672967680,
+          "content_sha256": "4037b09f40a0f4a212ed749ec1b53621925dcf4903f45f9d94d6e4fe3abb601e",
+          "source_url": "https://huggingface.co/AtomicChat/Muse-Glimmer-30B-GGUF/tree/b26f8ce4a435571e24656d27efef978073809356",
+          "license": "Apache-2.0",
+          "metadata": {
+            "filename": "Muse-Glimmer-30B-ShoeHorn-18.31GiB.gguf"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "build-10809",
+          "commit": "5266f24da",
+          "backend": "BLAS,MTL",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/llama-bench@v1",
+          "configuration": {
+            "runtime_binary_sha256": "30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9",
+            "n_batch": 2048,
+            "n_ubatch": 512,
+            "n_threads": 6,
+            "cpu_mask": "0x0",
+            "cpu_strict": false,
+            "poll": 50,
+            "type_k": "q8_0",
+            "type_v": "q8_0",
+            "n_gpu_layers": -1,
+            "n_cpu_moe": 0,
+            "split_mode": "layer",
+            "main_gpu": 0,
+            "no_kv_offload": false,
+            "flash_attn": 1,
+            "devices": "auto",
+            "tensor_split": "0.00",
+            "tensor_buft_overrides": "none",
+            "load_mode": "auto",
+            "lazy_mode": "auto",
+            "embeddings": false,
+            "no_op_offload": 0,
+            "no_host": false,
+            "fit_target": 0,
+            "fit_min_ctx": 0
+          }
+        },
+        "runtime_identity_sha256": "484576b0a4fff20180bb2bfceb4470fbde7e982a51f73b1defd653699cdc13cc",
+        "workload": {
+          "reference": {
+            "id": "llama-bench-pp2048-tg512",
+            "version": "llama.cpp@5266f24da/model-skyline@v1",
+            "unit": "benchmark_run"
+          },
+          "kind": "short_decode",
+          "input_definition_sha256": "b46f0c244c8d4d5e2ff93c7ca4cd156be12566e539eb219f4f2814311146f101",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 512,
+          "repetitions": 5,
+          "warmup_repetitions": 1,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "disabled",
+          "position": {
+            "batch": 2048,
+            "micro_batch": 512,
+            "threads": 6
+          }
+        },
+        "raw_artifact_path": "raw/muse-glimmer-shoehorn-18p31gib-m5max64-pp2048-tg512.json"
+      },
+      "default_source": {
+        "id": "local-measurement:muse-glimmer-shoehorn-18p31gib-m5max64-pp2048-tg512",
+        "version": "llama-bench@build-10809",
+        "url": null,
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+        "raw_sha256": "b38e19b89f7934aa2b3bd5a94e4b6fb1896a84e6dbc7a8e0f4979427e71a1290",
+        "retrieved_at": "2026-09-13T07:36:55.352404Z"
+      }
+    }
+  ]
+}

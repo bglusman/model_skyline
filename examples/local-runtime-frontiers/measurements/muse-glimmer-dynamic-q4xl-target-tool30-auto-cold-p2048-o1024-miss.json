@@ -1,0 +1,185 @@
+{
+  "schema_version": "model-skyline/local-measurement/v1alpha1",
+  "measurement_id": "muse-glimmer-dynamic-q4xl-target-tool30-auto-cold-p2048-o1024-miss",
+  "status": "provisional",
+  "started_at": "2026-09-13T07:54:16.780484Z",
+  "completed_at": "2026-09-13T07:54:45.616129Z",
+  "hardware": {
+    "hardware_id": "macbook-m5max-64",
+    "manufacturer": "Apple",
+    "machine_model": "Mac17,6",
+    "chip": "Apple M5 Max",
+    "architecture": "arm64",
+    "memory_bytes": 68719476736,
+    "cpu_cores": 18,
+    "cpu_core_groups": {
+      "super": 6,
+      "performance": 12
+    },
+    "gpu_cores": 40,
+    "os_name": "macOS",
+    "os_version": "26.6.2 (25G83)",
+    "power_source": "ac",
+    "power_mode": "high-power-configured-pmset-2",
+    "negotiated_adapter_watts": 140,
+    "metadata": {
+      "power_connection": "direct-usb-c",
+      "pmset_powermode": 2,
+      "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+      "power_mode_status": "configured-not-independently-verified",
+      "related_report": "https://developer.apple.com/forums/thread/835131"
+    }
+  },
+  "artifact": {
+    "model_id": "meta-models/Muse-Glimmer-30B",
+    "checkpoint": "Muse-Glimmer-30B",
+    "revision": "70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+    "format": "gguf",
+    "quantization": "KQuant-Dynamic-Q4_K_XL",
+    "size_bytes": 19653960832,
+    "content_sha256": "ac7023d6a4c704eb9af54ab53e476a66b7f5b6c0ef2fc4a8dde5253c291a6c38",
+    "source_url": "https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/tree/70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+    "license": "Apache-2.0",
+    "metadata": {
+      "filename": "Muse-Glimmer-30B-KQuant-Dynamic-Q4_K_XL.gguf"
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "build-10809",
+    "commit": "5266f24da",
+    "backend": "Metal",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "q8_0/q8_0",
+    "prefix_cache_enabled": true,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "runtime_binary_sha256": "30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9",
+      "allocated_context_tokens": 131072,
+      "parallel_slots": 1,
+      "batch_tokens": 2048,
+      "micro_batch_tokens": 512,
+      "max_output_tokens": 16384,
+      "n_gpu_layers": "all",
+      "flash_attention": true,
+      "fit": "off",
+      "jinja": true,
+      "cache_ram_bytes": 8589934592,
+      "cache_idle_slots": true,
+      "llama_swap_model_id": "muse-glimmer-30b-dynamic-target",
+      "llama_swap_exclusive_group": "local-memory"
+    }
+  },
+  "workload": {
+    "reference": {
+      "id": "openai-tool-p2048-o1024-miss",
+      "version": "model-skyline/openai-matrix@v1",
+      "unit": "request"
+    },
+    "kind": "agent_integration",
+    "input_definition_sha256": "0f3c4e6e4432af693588b6727ac7468fe7c71d40c8548c76fca536365dd1f4de",
+    "requested_input_tokens": 2048,
+    "max_output_tokens": 1024,
+    "repetitions": 1,
+    "warmup_repetitions": 0,
+    "concurrency": 1,
+    "runner_state": "cold_model_load",
+    "prefix_cache_state": "miss",
+    "position": {
+      "mode": "tool",
+      "prompt_bytes": 8293,
+      "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+      "system_prompt_sha256": "c80853d0cdbabecef6b999f18559093343c669cc0fa92e280c18253572857485",
+      "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+      "tool_count": 30,
+      "tool_choice": "auto",
+      "thinking_mode": "runtime_default",
+      "sampling": {
+        "temperature": 0,
+        "seed": 90421
+      },
+      "time_to_first_token_source": "unavailable",
+      "decode_rate_source": "unavailable",
+      "token_count_url": null,
+      "construction_input_tokens": null,
+      "finish_reasons": {
+        "tool_calls": 1
+      },
+      "api": "openai-chat-completions-streaming"
+    }
+  },
+  "performance": {
+    "actual_input_tokens": 5390,
+    "output_token_counts": [
+      465
+    ],
+    "metrics": {
+      "time_to_first_semantic_event_seconds": {
+        "unit": "s",
+        "values": [
+          "10.544610208"
+        ]
+      },
+      "end_to_end_seconds": {
+        "unit": "s",
+        "values": [
+          "28.685254"
+        ]
+      },
+      "cold_load_seconds": {
+        "unit": "s",
+        "values": [
+          "2.302791125"
+        ]
+      },
+      "peak_process_rss_bytes": {
+        "unit": "byte",
+        "values": [
+          "21009793024"
+        ]
+      },
+      "swap_delta_bytes": {
+        "unit": "byte",
+        "values": [
+          "0"
+        ]
+      },
+      "prefix_cache_hit_tokens": {
+        "unit": "token",
+        "values": [
+          "0"
+        ]
+      }
+    }
+  },
+  "integrity": {
+    "retrieval": null,
+    "tool_calls": {
+      "passed": 1,
+      "total": 1
+    },
+    "tool_argument_parsing": {
+      "passed": 1,
+      "total": 1
+    },
+    "structured_output": null
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ],
+  "provenance": {
+    "tool": "model-skyline/openai-matrix",
+    "tool_version": "v1",
+    "command_sha256": "b2cfac28a1c230d7e5a953243eb0c21bc11b0d412907752e24095cfd51befce7",
+    "raw_artifact_path": "raw/muse-glimmer-dynamic-q4xl-target-tool30-auto-p2048-o1024-cold.json",
+    "raw_sha256": "a510f760978bb14596c35407b94e72e2e1d915fc54a25724790740a8ba984958",
+    "captured_at": "2026-09-13T07:54:45.616129Z",
+    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+    "source_url": null,
+    "license": "CC0-1.0"
+  },
+  "notes": "Provisional operational runtime evidence; no model-quality claim."
+}

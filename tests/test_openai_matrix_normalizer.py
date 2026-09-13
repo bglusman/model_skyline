@@ -138,6 +138,20 @@ def test_input_definition_hash_covers_thinking_mode() -> None:
     assert MATRIX._canonical_sha256(disabled) != MATRIX._canonical_sha256(enabled)
 
 
+def test_input_definition_hash_covers_custom_system_prompt() -> None:
+    prompt = MATRIX._prefix("prose", 512)
+    default = MATRIX._input_definition(prompt, "prose")
+    custom = MATRIX._input_definition(
+        prompt,
+        "prose",
+        system_prompt="Reasoning strength: low.",
+    )
+
+    assert default["messages"][0]["content"] == MATRIX.DEFAULT_SYSTEM_PROMPT
+    assert custom["messages"][0]["content"] == "Reasoning strength: low."
+    assert MATRIX._canonical_sha256(default) != MATRIX._canonical_sha256(custom)
+
+
 def test_tool_matrix_can_model_a_realistic_selection_surface() -> None:
     tools = MATRIX._tool_definition(30)
     forced = MATRIX._input_definition("probe", "tool", 30, "forced")

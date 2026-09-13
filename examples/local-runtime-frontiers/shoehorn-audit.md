@@ -1,8 +1,8 @@
 # ShoeHorn applicability audit
 
 Audit date: 2026-09-13. Source reviewed: ShoeHorn 0.3.0 at
-`107e710ef34a75eeea3f6d74cc00d46030f4980a` plus the local discovery fix at
-`43908a1`; runtime checked against llama.cpp build 10809 at `5266f24da`.
+`107e710ef34a75eeea3f6d74cc00d46030f4980a` plus local fixes through
+`ca565f8`; runtime checked against llama.cpp build 10809 at `5266f24da`.
 
 ShoeHorn is a worthwhile fitter for dense BF16/F16 GGUFs and fully resident
 checkpoints whose memory model has been validated. Ornith 1.5 is a hybrid
@@ -19,7 +19,7 @@ rather than assuming the solver's error objective predicts agent quality.
    BF16 shards or imatrices in subdirectories failed before planning. Local
    commit `43908a1` requests a recursive tree, uses an explicit 1,000-entry
    limit, safely flattens selected cache filenames, and adds regression tests.
-   All 24 tests pass. The commit is intentionally local and unpushed.
+   The commit is intentionally local and unpushed.
 2. Pagination beyond 1,000 entries is still unimplemented. Revisions are also
    resolved through mutable `main`, so a future fetch contract should record
    and use the immutable repository revision in both API and download URLs.
@@ -47,6 +47,12 @@ rather than assuming the solver's error objective predicts agent quality.
    child that printed recognizable allocation lines and then failed. Until
    those are modeled, server calibration should be explicit about parallelism
    and context checkpoints and fail closed on nonzero child status.
+7. Mixed plans previously derived GGUF `file_type` from the largest individual
+   solved tensor. Muse therefore displayed as F16 because its single output
+   tensor is 2.50 GiB, even though Q6_K accounts for the largest aggregate byte
+   assignment. Commit `ca565f8` aggregates bytes by quantization type and adds a
+   regression test. All 25 tests now pass. Existing artifacts created before
+   the fix retain a stale display label but unchanged tensor encodings.
 
 ## Ornith plan observed on this host
 

@@ -5,14 +5,15 @@ workloads:
     unit: benchmark_run
     version: llama.cpp@5266f24da/model-skyline@v1
     harness: llama-bench@5266f24da
-    cohort: ornith-1.5-same-checkpoint-quantization-diagnostic@v1
+    cohort: same-checkpoint-quantization-diagnostic@v1
     benchmark: llama-bench synthetic prompt/decode
     description: >-
       Five warm, serial repetitions of an identical 2,048-token synthetic prompt
       and 512-token decode with fixed llama.cpp, Metal, KV, batch, and thread settings.
-      Artifact and hardware identity remain explicit; the cross-generation slice
-      restricts to identical Q4 bytes, while the M5 quantization slice is a speed
-      diagnostic and does not assume equal quality.
+      Artifact and hardware identity remain explicit. Each generated
+      quantization slice restricts candidates to one base checkpoint and is a
+      speed diagnostic that does not assume equal quality; cross-generation
+      hardware slices additionally restrict to identical artifact bytes.
     variables: {}
     assumptions:
       cache_state: disabled

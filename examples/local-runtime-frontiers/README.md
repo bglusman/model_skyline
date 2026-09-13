@@ -276,6 +276,11 @@ Use `enabled` for a reasoning workload or `runtime_default` only when the
 runtime's implicit behavior is itself the subject of the measurement. A short
 output ceiling can otherwise truncate reasoning before any final answer and
 turn a retrieval check into a harness artifact.
+For models such as Muse that also interpret a text instruction for reasoning
+strength, `--system-prompt` sends an exact caller-supplied value. The harness
+hashes that value but does not retain its plaintext. System-prompt variants are
+therefore different workload positions, while private prompts remain absent
+from publishable raw evidence.
 
 Normalize with `normalize_openai_matrix.py` plus an exact hardware profile and
 system profile. The normalizer rejects captures containing llama-swap loading
@@ -439,6 +444,36 @@ These measurements establish capacity and narrow integrity checks, not quality
 equivalence with the oMLX 27B profile or any cloud model. Early/late needles,
 longer generated code, and repeated 126K positions are still required before
 DS4 enters a long-context utility frontier.
+
+## Provisional Muse Glimmer experiment
+
+Muse Glimmer is a dense 30B-class checkpoint; “DFlash2” in the local route is a
+separate speculative draft model and does not make Muse an MoE. The official
+19,653,960,832-byte Dynamic Q4_K_XL is the current quantization winner. At the
+same llama.cpp pp2048/tg512 position it reached median 717.593 prompt token/s
+and 24.9124 decode token/s. The 19,672,967,680-byte ShoeHorn fit reached
+695.556 and 24.5243 respectively, while its pinned-corpus PPL was 5.4027 versus
+5.0167 for the official artifact. The custom fit is therefore slightly larger,
+slower on both axes, and worse on two small PPL controls; it does not enter the
+recommended set.
+
+The llama-swap routes expose both the official target-only artifact and the
+same target plus the official DFlash2 Q4_K_M draft. Both use a 131,072-token
+allocation and explicit Q8_0 target/draft KV where applicable. On a 5,390-token
+30-tool prompt with a 1,024-token output allowance, target-only selected the
+exact tool cold (1/1) and warm (3/3). DFlash selected it warm in two independent
+3/3 batches, cutting one batch's median end-to-end time from 15.038 s to
+8.359 s, but failed after two independent cold loads with the same non-tool
+answer byte-for-byte. Its ready transition was only 2.29–2.42 s; the failure is
+semantic, not loading text or a health-check timeout. With a 256-token ceiling,
+DFlash also failed all three requests by exhausting the allowance before a tool
+call.
+
+Consequently OpenCode and OMP label DFlash experimental and expose target-only
+as the recommended Muse route. Every capture reported zero loading-state
+events and zero per-request swap growth. See the [Muse Glimmer audit](muse-glimmer-audit.md)
+for exact artifacts, the ShoeHorn plan, full cache-state evidence, and suggested
+upstream follow-ups.
 
 See [ShoeHorn applicability audit](shoehorn-audit.md) for the checked boundary
 between a meaningful Ornith exact-fit experiment and the architectural work

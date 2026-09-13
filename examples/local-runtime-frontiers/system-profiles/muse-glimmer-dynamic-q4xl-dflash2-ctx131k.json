@@ -1,0 +1,58 @@
+{
+  "schema_version": "model-skyline/local-system-profile/v1",
+  "served_model": "muse-glimmer-30b-dynamic-dflash2",
+  "artifact": {
+    "model_id": "meta-models/Muse-Glimmer-30B",
+    "checkpoint": "Muse-Glimmer-30B",
+    "revision": "main@70bf1b61ac09f91b24d39038091b41c582bc5d7a+draft@880882627431093d99d3b2368efb4a6fcf12d4cb",
+    "format": "gguf-composite",
+    "quantization": "KQuant-Dynamic-Q4_K_XL+DFlash2-Q4_K_M",
+    "size_bytes": 21299618112,
+    "content_sha256": "d995e5a6dbcfe858e59a33078a28f116d75f6bfc3d250b707d4a4ea1109f74ef",
+    "source_url": "https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/tree/70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+    "license": "Apache-2.0",
+    "metadata": {
+      "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+      "manifest": "artifacts/muse-glimmer-30b-dynamic-q4xl-dflash2-manifest.json",
+      "main_filename": "Muse-Glimmer-30B-KQuant-Dynamic-Q4_K_XL.gguf",
+      "draft_source_url": "https://huggingface.co/z-lab/Muse-Glimmer-30B-DFlash2-GGUF/tree/880882627431093d99d3b2368efb4a6fcf12d4cb",
+      "draft_source_revision": "880882627431093d99d3b2368efb4a6fcf12d4cb",
+      "draft_filename": "Muse-Glimmer-30B-DFlash2-Q4_K_M.gguf"
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "build-10809",
+    "commit": "5266f24da",
+    "backend": "Metal",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "q8_0/q8_0 target+draft",
+    "prefix_cache_enabled": true,
+    "speculative_method": "DFlash2-Q4_K_M",
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "runtime_binary_sha256": "30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9",
+      "allocated_context_tokens": 131072,
+      "parallel_slots": 1,
+      "batch_tokens": 2048,
+      "micro_batch_tokens": 512,
+      "max_output_tokens": 16384,
+      "n_gpu_layers": "all",
+      "n_gpu_layers_draft": "all",
+      "flash_attention": true,
+      "fit": "off",
+      "jinja": true,
+      "cache_ram_bytes": 8589934592,
+      "cache_idle_slots": true,
+      "spec_type": "draft-dflash",
+      "spec_draft_n_max": 3,
+      "llama_swap_model_id": "muse-glimmer-30b-dynamic-dflash2",
+      "llama_swap_exclusive_group": "local-memory"
+    }
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ]
+}
