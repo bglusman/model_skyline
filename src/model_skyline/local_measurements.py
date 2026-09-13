@@ -82,6 +82,7 @@ class LocalMetricName(StrEnum):
     prompt_tokens_per_second = "prompt_tokens_per_second"
     decode_tokens_per_second = "decode_tokens_per_second"
     time_to_first_token_seconds = "time_to_first_token_seconds"
+    time_to_first_semantic_event_seconds = "time_to_first_semantic_event_seconds"
     end_to_end_seconds = "end_to_end_seconds"
     cold_load_seconds = "cold_load_seconds"
     peak_process_rss_bytes = "peak_process_rss_bytes"
@@ -95,6 +96,7 @@ _METRIC_UNITS = {
     LocalMetricName.prompt_tokens_per_second: "token/s",
     LocalMetricName.decode_tokens_per_second: "token/s",
     LocalMetricName.time_to_first_token_seconds: "s",
+    LocalMetricName.time_to_first_semantic_event_seconds: "s",
     LocalMetricName.end_to_end_seconds: "s",
     LocalMetricName.cold_load_seconds: "s",
     LocalMetricName.peak_process_rss_bytes: "byte",

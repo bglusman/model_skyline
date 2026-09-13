@@ -37,8 +37,9 @@ the existing exact reconciliation and portfolio machinery.
   prefix caching, memory enforcement and telemetry, TurboQuant KV, native MTP,
   and DFlash profiles. Those features create more configuration identity and
   more ways to benchmark the wrong combination. In particular, the current
-  DFlash engine performs full prefill without the ordinary paged prefix cache;
-  long-context fallback regains the batched engine's cache. [oMLX DFlash
+  DFlash engine bypasses the ordinary paged prefix cache but has its own bounded
+  in-memory L1; a miss performs full prefill, while long-context fallback
+  regains the batched engine's cache. [oMLX DFlash
   integration](https://github.com/jundot/omlx/blob/main/docs/experimental/dflash_mlx_integration.md)
 - **llama.cpp/GGUF** is the portability and controlled-comparison path. The
   exact same artifact and build can run on both Macs, and Apple Silicon is a
@@ -156,6 +157,14 @@ are useful evidence about where newer GPU/tensor capabilities matter; they do
 not justify projecting the same multipliers onto long-context attention,
 dense models, MLX, tool-heavy speculative decoding, or end-to-end agent work.
 
+The regenerated diagnostic frontier now evaluates five exact offerings: Q4 on
+both Macs, the ShoeHorn mixed artifact on both Macs, and Q5 on the M5. The M5
+Q4 artifact is the sole prompt/decode frontier member. M5 Q5 is dominated by
+M5 Q4 on both axes, and the M5 ShoeHorn artifact is dominated by both ordinary
+quants. This is a speed-frontier result, not a claim that their quality is
+equal; the separate perplexity evidence in the ShoeHorn audit merely failed to
+show a compensating fidelity gain.
+
 The M5 capture used AC power through a directly connected Apple 140W adapter;
 the charger reports a negotiated 140W and `pmset` reports mode `2` (High Power
 configured). On this macOS/M5 combination, `system_profiler` nevertheless
@@ -198,6 +207,12 @@ profiles isolate KV compression from speculative decoding. OMP keeps the
 agreed 180,000-token global compaction trigger, while 262K-capable backends
 advertise a 262,144-token hard ceiling.
 
+The Ollama-backed `gpt-oss:20b` route is the one deliberate TTL exception:
+its per-model llama-swap TTL is 300 seconds, matching Ollama's documented
+five-minute default keep-alive. Without that alignment the router could report
+the holder as warm for ten minutes after Ollama had silently released the
+weights, hiding a reload inside an allegedly steady-state request.
+
 `prefix_cache_enabled` belongs to runtime identity. Cache warmth (`disabled`,
 `miss`, `warm`, or `mixed`) belongs to the workload position. Cold load, warm
 runner, and post-idle-expiry are also separate positions. A matrix should run
@@ -212,7 +227,8 @@ SSD prefix cache enabled, the miss took 4.652 s and the warm request took
 miss to 1.339 s warm while decode stayed near 143 token/s. These are separate
 miss and warm positions, not two samples of one distribution.
 
-`openai_matrix.py` captures streaming TTFT, end-to-end time, usage, output
+`openai_matrix.py` captures first semantic stream event, server TTFT when
+reported, end-to-end time, usage, output
 digests, loading-state contamination, and tool-call JSON/correctness. It sends
 one model in a contiguous serial batch and offers fixed prefix and output
 ladders:
@@ -222,14 +238,44 @@ python examples/local-runtime-frontiers/openai_matrix.py \
   --base-url http://127.0.0.1:8090/v1 \
   --model exact-served-model-id \
   --mode tool \
+  --tool-count 30 \
+  --tool-choice auto \
+  --thinking-mode disabled \
   --prefix-tokens 512,8192,32768 \
   --max-outputs 64,256 \
   --repetitions 3 \
   --warmup \
   --process-match 'omlx serve' \
   --runtime-stats-url http://127.0.0.1:8184/admin/api/stats \
+  --runtime-stats-cookie-env OMLX_ADMIN_SESSION \
   --output examples/local-runtime-frontiers/raw/tool-matrix.json
 ```
+
+Current oMLX protects its admin telemetry with a signed session cookie even
+when the inference API itself has no key. `--runtime-stats-cookie-env` sends an
+already-created session value only to the loopback stats URL and records the
+environment-variable name, never the credential. It may be omitted for an
+unprotected telemetry endpoint; a 401 is retained as a capture error and
+cannot yield speculative-acceptance evidence.
+While a request is active, the same authenticated sampler polls oMLX's reported
+MLX/Metal active-memory pressure once per second. Its maximum is published as
+`local_peak_metal_active_bytes`; process RSS remains a separate metric because
+it does not include all unified-memory allocations visible to MLX.
+
+Tool mode can expose one to 30 deterministic schemas. `--tool-choice forced`
+is the backward-compatible argument-generation control; `auto` also tests
+selection among realistic distractors, and `required` requires some tool
+without naming it. Tool count, complete schema, and choice policy are all part
+of the hashed semantic input and retained workload metadata. A 30-tool result
+must therefore remain distinct from the one-tool microbenchmark.
+
+Thinking is also an explicit workload dimension. The harness defaults to
+`--thinking-mode disabled`, sends that choice through chat-template arguments,
+includes it in the semantic request hash, and retains it in position metadata.
+Use `enabled` for a reasoning workload or `runtime_default` only when the
+runtime's implicit behavior is itself the subject of the measurement. A short
+output ceiling can otherwise truncate reasoning before any final answer and
+turn a retrieval check into a harness artifact.
 
 Normalize with `normalize_openai_matrix.py` plus an exact hardware profile and
 system profile. The normalizer rejects captures containing llama-swap loading
@@ -265,6 +311,18 @@ separate runtime identity. Four-bit KV can greatly reduce the KV component, but
 it does not promise to double total context headroom when weights, recurrent
 state, compute buffers, or only a subset of hybrid layers dominate memory.
 Long-position retrieval and tool-call checks are required before promotion.
+DFlash's private in-memory prefix cache is also independent of oMLX's ordinary
+paged cache. If enabled in the model profile, the runtime identity must say so
+and captures must split its zero-hit miss from warm hits. Tool APIs may buffer
+a structured call into one stream delta; in that case the harness retains
+first-complete-semantic-event latency separately and prefers the server's
+reported generation timing over a meaningless near-zero stream interval.
+Every normalized position records `time_to_first_token_source` and
+`decode_rate_source`. A server-reported generation rate and the client's
+post-first-token inter-token rate are different estimands and must not share a
+frontier axis without an explicit conversion policy. If a tool call is buffered
+and the server reports neither value, the normalizer deliberately omits TTFT and
+decode rate while retaining semantic-event and end-to-end latency.
 
 Retrieval mode builds deterministic unique distractor records, inserts one
 passkey at a fixed character fraction, asks for that passkey alone, and counts
@@ -278,13 +336,109 @@ python examples/local-runtime-frontiers/openai_matrix.py \
   --base-url http://127.0.0.1:8090/v1 \
   --model exact-served-model-id \
   --mode retrieval \
+  --thinking-mode disabled \
   --retrieval-position 0.9 \
   --prefix-tokens 2048,32768,65536,126000 \
   --max-outputs 64 \
   --repetitions 3 \
   --warmup \
+  --token-count-url http://127.0.0.1:8184/v1/messages/count_tokens \
   --output examples/local-runtime-frontiers/raw/retrieval-late.json
 ```
+
+When available, `--token-count-url` binary-searches prompt construction against
+the loaded model's tokenizer before inference. The requested ladder value,
+construction count, and response API's actual input count are all retained.
+This prevents high-entropy distractors from silently turning a nominal 32K
+prompt into a much larger tokenizer workload.
+For a runtime without token counting, replay the resulting byte-identical
+prompts with `--retrieval-characters` and one comma-separated character target
+per ladder position. This is preferable to assuming that four characters equal
+one token; the response's actual usage count remains authoritative.
+
+## Provisional Qwen3.8 agent controls
+
+The first realistic tool-selection control exposes 30 deterministic tool
+schemas, leaves selection on automatic, disables thinking explicitly, and asks
+for one exact call. The complete request contains 5,380 actual input tokens.
+Server-reported medians are:
+
+| oMLX profile / cache position | TTFT (s) | End-to-end (s) | Decode tok/s | Prompt tok/s | Exact calls |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| DFlash2 + TQ4 KV, miss | 6.76 | 7.430 | 63.92 | 795.56 | 1/1 |
+| DFlash2 + TQ4 KV, warm L1 | 0.18 | 0.812 | 67.50 | 30,181 | 3/3 |
+| Baseline + F16 KV, disabled | 6.34 | 7.536 | 33.68 | 849.22 | 3/3 |
+| Baseline + TQ4 KV, disabled | 6.80 | 8.095 | 32.23 | 790.72 | 3/3 |
+
+DFlash acceptance was 80.95% in every measured tool request, and every profile
+selected `lookup_fixture`, produced parseable JSON, and supplied the exact
+arguments. No request increased swap usage. These results contradict both a
+blanket claim that DFlash collapses on tool calls and a blanket claim that
+four-bit KV is automatically faster: DFlash doubled decode here, while TQ4
+without speculation was slower than F16 KV at this short position.
+
+The paired baseline and DFlash one-repetition 126K capacity probes reuse
+byte-identical prompts, contain 125,964 actual input tokens, disable thinking,
+and all return the middle-position passkey exactly:
+
+| oMLX profile | TTFT (s) | Decode tok/s | Prompt tok/s | Peak active bytes | Post-request active bytes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| DFlash2 + TQ4 KV | 486.20 | 35.92 | 259.08 | 39,785,067,960 | 25,957,774,848 |
+| Baseline + F16 KV | 281.49 | 20.81 | 447.49 | 47,971,333,248 | 25,651,737,728 |
+| Baseline + TQ4 KV | 273.47 | 17.47 | 460.61 | 47,957,374,032 | 22,298,621,032 |
+
+No request increased swap usage. TQ4 retained 3.35 GB less active memory after
+the request than F16, but its peak was effectively identical because this oMLX
+path prefills in F16 before converting the eligible cache layers. It also
+decoded 16% slower at this position. DFlash reduced peak active memory by about
+8.17 GB and decoded 73% faster than F16, but prefilling the same bytes took 73%
+longer. Its per-request speculative acceptance was 63.64%. These are provisional
+capacity observations, not stable latency distributions: each 126K profile has
+one measured repetition. The full DFlash ladder separately passed the same
+exact retrieval check at 2,012, 32,732, 65,500, and 125,964 actual input tokens.
+
+## Provisional DS4 Qwen3.8 Flash Next experiment
+
+Here, DS4 means [DwarfStar](https://github.com/antirez/ds4), not DeepSeek 4.
+The tested [Qwen3.8 port](https://github.com/antirez/ds4/pull/26) serves
+Qwen3.8 Flash Next weights through a DS4-specific Metal engine. The exact
+composite artifact is a 44,806,612,192-byte IQ2 main GGUF plus a
+32,000,157,440-byte Q4_1 PLE sidecar. The runtime maps the main artifact and
+demand-pages the sidecar; its launch plan is 47.00 GiB resident, including
+4.17 GiB of KV and 1.11 GiB of buffers. This is therefore an aggressive 64 GB
+experiment, not evidence that the full 76.81 GB composite is resident at once.
+
+The target-only engine returned the exact middle-position passkey at every
+point in this one-repetition ladder, with thinking explicitly disabled:
+
+| Actual input tokens | Client first text (s) | End-to-end (s) | Client post-first-token rate (token/s) | Exact retrieval |
+| ---: | ---: | ---: | ---: | ---: |
+| 2,012 | 3.932 | 4.267 | 53.62 | 1/1 |
+| 32,732 | 50.583 | 50.970 | 49.18 | 1/1 |
+| 65,500 | 100.887 | 101.275 | 48.99 | 1/1 |
+| 125,964 | 189.257 | 189.662 | 49.44 | 1/1 |
+
+A separate warmed-OS-cache, three-repetition 2K control makes target-only and
+native MTP easier to compare. The target-only medians were 2.399 s to first
+text, 2.731 s end-to-end, and 54.15 token/s post-first-token. MTP medians were
+2.531 s, 2.780 s, and 72.39 token/s. At 125,964 input tokens, the one-shot MTP
+request finished in 185.603 s versus 189.662 s target-only. MTP improved token
+cadence, but did not improve short-response end-to-end latency in the repeated
+2K control.
+
+Both profiles also selected the exact tool from 30 automatic choices and
+produced parseable, exact arguments in 3/3 trials. Median end-to-end latency was
+6.433 s target-only and 6.591 s with MTP. DS4 buffers the structured tool call
+and does not expose server timing in its response usage, so those tool records
+intentionally contain no TTFT or decode-rate metric. All published DS4 requests
+reported zero prefix-cache hit tokens and zero per-request swap growth. Native
+MTP remains benchmark-only for now; target-only is the safer default for agent
+work until longer coding-output controls show an end-to-end benefit.
+
+These measurements establish capacity and narrow integrity checks, not quality
+equivalence with the oMLX 27B profile or any cloud model. Early/late needles,
+longer generated code, and repeated 126K positions are still required before
+DS4 enters a long-context utility frontier.
 
 See [ShoeHorn applicability audit](shoehorn-audit.md) for the checked boundary
 between a meaningful Ornith exact-fit experiment and the architectural work

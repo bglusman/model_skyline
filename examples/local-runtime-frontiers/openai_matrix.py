@@ -12,6 +12,7 @@ import subprocess
 import sys
 import threading
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -70,7 +71,12 @@ def _prefix(mode: str, approximate_tokens: int) -> str:
     return repeated + instruction
 
 
-def _retrieval_prompt(approximate_tokens: int, position: Decimal) -> tuple[str, str]:
+def _retrieval_prompt(
+    approximate_tokens: int,
+    position: Decimal,
+    *,
+    target_characters: int | None = None,
+) -> tuple[str, str]:
     position_label = str(position).replace(".", "p")
     expected = f"SKYLINE-PASSKEY-{approximate_tokens}-{position_label}-A7C9"
     header = (
@@ -79,7 +85,8 @@ def _retrieval_prompt(approximate_tokens: int, position: Decimal) -> tuple[str, 
     )
     needle = f"\nTarget archive record: anchor=ORION; passkey={expected}.\n"
     footer = "\nQuestion: What is the exact passkey in the record whose anchor is ORION?\n"
-    target_characters = approximate_tokens * 4
+    if target_characters is None:
+        target_characters = approximate_tokens * 4
     filler_target = max(target_characters - len(header) - len(needle) - len(footer), 0)
     lines: list[str] = []
     characters = 0
@@ -98,25 +105,118 @@ def _retrieval_prompt(approximate_tokens: int, position: Decimal) -> tuple[str, 
     return header + filler[:split] + needle + filler[split:] + footer, expected
 
 
-def _tool_definition() -> list[dict[str, Any]]:
-    return [
+def _calibrate_retrieval_prompt(
+    target_tokens: int,
+    position: Decimal,
+    count_prompt: Callable[[str], int],
+) -> tuple[str, str, int]:
+    """Find the shortest deterministic prompt meeting a tokenizer-count target."""
+    low_characters = 1
+    high_characters = max(target_tokens * 4, 4096)
+    prompt, expected = _retrieval_prompt(
+        target_tokens, position, target_characters=high_characters
+    )
+    measured = count_prompt(prompt)
+    while measured < target_tokens:
+        low_characters = high_characters + 1
+        high_characters *= 2
+        prompt, expected = _retrieval_prompt(
+            target_tokens, position, target_characters=high_characters
+        )
+        measured = count_prompt(prompt)
+
+    best = (prompt, expected, measured)
+    while low_characters <= high_characters:
+        middle = (low_characters + high_characters) // 2
+        prompt, expected = _retrieval_prompt(
+            target_tokens, position, target_characters=middle
+        )
+        measured = count_prompt(prompt)
+        if measured >= target_tokens:
+            best = (prompt, expected, measured)
+            high_characters = middle - 1
+        else:
+            low_characters = middle + 1
+    return best
+
+
+def _tool_definition(count: int = 1) -> list[dict[str, Any]]:
+    primary = {
+        "type": "function",
+        "function": {
+            "name": "lookup_fixture",
+            "description": "Return one deterministic local fixture.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "key": {"type": "string"},
+                    "limit": {"type": "integer"},
+                },
+                "required": ["key", "limit"],
+                "additionalProperties": False,
+            },
+        },
+    }
+    distractor_names = (
+        "search_repository",
+        "read_source_file",
+        "list_directory",
+        "find_symbol",
+        "inspect_git_commit",
+        "query_issue_tracker",
+        "lookup_dependency",
+        "run_test_filter",
+        "check_build_status",
+        "fetch_runtime_logs",
+        "inspect_process",
+        "query_metrics",
+        "open_documentation",
+        "search_web_index",
+        "resolve_package_version",
+        "inspect_database_schema",
+        "query_database_rows",
+        "list_cloud_resources",
+        "inspect_service_health",
+        "read_configuration",
+        "compare_artifacts",
+        "calculate_checksum",
+        "inspect_model_metadata",
+        "query_benchmark_history",
+        "list_hardware_devices",
+        "inspect_memory_pressure",
+        "sample_power_metrics",
+        "resolve_network_host",
+        "create_change_summary",
+    )
+    if count < 1 or count > len(distractor_names) + 1:
+        raise ValueError(f"tool count must be between 1 and {len(distractor_names) + 1}")
+    distractors = [
         {
             "type": "function",
             "function": {
-                "name": "lookup_fixture",
-                "description": "Return one deterministic local fixture.",
+                "name": name,
+                "description": (
+                    f"Deterministically {name.replace('_', ' ')} for an evaluation task."
+                ),
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "key": {"type": "string"},
-                        "limit": {"type": "integer"},
+                        "query": {"type": "string", "description": "Exact lookup expression."},
+                        "limit": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "description": "Maximum records to return.",
+                        },
                     },
-                    "required": ["key", "limit"],
+                    "required": ["query"],
                     "additionalProperties": False,
                 },
             },
         }
+        for name in distractor_names[: count - 1]
     ]
+    return [primary, *distractors]
 
 
 def _canonical_sha256(value: object) -> str:
@@ -129,7 +229,35 @@ def _canonical_sha256(value: object) -> str:
     return _sha256(encoded)
 
 
-def _input_definition(prompt: str, mode: str) -> dict[str, Any]:
+def _client_decode_rate(
+    completion_tokens: object, ttft_seconds: float, end_to_end_seconds: float
+) -> float | None:
+    """Estimate post-first-token rate when the server omits native timing."""
+    if (
+        isinstance(completion_tokens, bool)
+        or not isinstance(completion_tokens, int)
+        or completion_tokens <= 1
+    ):
+        return None
+    decode_seconds = end_to_end_seconds - ttft_seconds
+    if decode_seconds <= 0:
+        return None
+    return (completion_tokens - 1) / decode_seconds
+
+
+def _tool_choice(value: str) -> str | dict[str, Any]:
+    if value == "forced":
+        return {"type": "function", "function": {"name": "lookup_fixture"}}
+    return value
+
+
+def _input_definition(
+    prompt: str,
+    mode: str,
+    tool_count: int = 1,
+    tool_choice: str = "forced",
+    thinking_mode: str = "runtime_default",
+) -> dict[str, Any]:
     """Return the complete semantic request prefix, excluding output controls."""
     value: dict[str, Any] = {
         "messages": [
@@ -138,11 +266,10 @@ def _input_definition(prompt: str, mode: str) -> dict[str, Any]:
         ]
     }
     if mode == "tool":
-        value["tools"] = _tool_definition()
-        value["tool_choice"] = {
-            "type": "function",
-            "function": {"name": "lookup_fixture"},
-        }
+        value["tools"] = _tool_definition(tool_count)
+        value["tool_choice"] = _tool_choice(tool_choice)
+    if thinking_mode != "runtime_default":
+        value["chat_template_kwargs"] = {"enable_thinking": thinking_mode == "enabled"}
     return value
 
 
@@ -183,11 +310,16 @@ def _host_state() -> dict[str, Any] | None:
     }
 
 
-def _runtime_stats(client: httpx.Client, url: str | None) -> dict[str, Any] | None:
+def _runtime_stats(
+    client: httpx.Client,
+    url: str | None,
+    session_cookie: str | None,
+) -> dict[str, Any] | None:
     if url is None:
         return None
     try:
-        response = client.get(url, timeout=10)
+        cookies = {"omlx_admin_session": session_cookie} if session_cookie is not None else None
+        response = client.get(url, timeout=10, cookies=cookies)
         response.raise_for_status()
         value = response.json()
     except (httpx.HTTPError, json.JSONDecodeError, ValueError) as exc:
@@ -195,6 +327,29 @@ def _runtime_stats(client: httpx.Client, url: str | None) -> dict[str, Any] | No
     if not isinstance(value, dict):
         return {"capture_error": "non_object_response"}
     return value
+
+
+def _server_token_count(
+    client: httpx.Client,
+    url: str,
+    model: str,
+    prompt: str,
+    thinking_mode: str,
+) -> int:
+    payload: dict[str, Any] = {
+        "model": model,
+        "system": SYSTEM_PROMPT,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    if thinking_mode != "runtime_default":
+        payload["thinking"] = {"type": thinking_mode}
+    response = client.post(url, json=payload, timeout=60)
+    response.raise_for_status()
+    value = response.json()
+    count = value.get("input_tokens") if isinstance(value, dict) else None
+    if isinstance(count, bool) or not isinstance(count, int) or count <= 0:
+        raise ValueError("token-count endpoint returned no positive input_tokens value")
+    return count
 
 
 def _matching_process_rss_bytes(literal: str) -> int:
@@ -221,6 +376,25 @@ def _matching_process_rss_bytes(literal: str) -> int:
         if pid != os.getpid() and "openai_matrix.py" not in fields[2]:
             total_kib += rss_kib
     return total_kib * 1024
+
+
+def _runtime_memory_bytes(value: object) -> int | None:
+    if isinstance(value, dict):
+        pressure = value.get("memory_pressure")
+        if isinstance(pressure, dict):
+            current = pressure.get("current_bytes")
+            if isinstance(current, int) and not isinstance(current, bool) and current >= 0:
+                return current
+        for child in value.values():
+            found = _runtime_memory_bytes(child)
+            if found is not None:
+                return found
+    elif isinstance(value, list):
+        for child in value:
+            found = _runtime_memory_bytes(child)
+            if found is not None:
+                return found
+    return None
 
 
 class _RssSampler:
@@ -250,6 +424,41 @@ class _RssSampler:
             self._stopped.wait(0.25)
         value = _matching_process_rss_bytes(self.process_match)
         self.peak_bytes = value if self.peak_bytes is None else max(self.peak_bytes, value)
+
+
+class _RuntimeStatsSampler:
+    def __init__(self, url: str | None, session_cookie: str | None) -> None:
+        self.url = url
+        self.session_cookie = session_cookie
+        self.peak_memory_bytes: int | None = None
+        self._stopped = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    def start(self) -> None:
+        if self.url is None:
+            return
+        self._thread = threading.Thread(target=self._sample, daemon=True)
+        self._thread.start()
+
+    def stop(self) -> int | None:
+        self._stopped.set()
+        if self._thread is not None:
+            self._thread.join(timeout=6)
+        return self.peak_memory_bytes
+
+    def _sample(self) -> None:
+        assert self.url is not None
+        with httpx.Client(timeout=10) as client:
+            while not self._stopped.is_set():
+                value = _runtime_stats(client, self.url, self.session_cookie)
+                memory = _runtime_memory_bytes(value)
+                if memory is not None:
+                    self.peak_memory_bytes = (
+                        memory
+                        if self.peak_memory_bytes is None
+                        else max(self.peak_memory_bytes, memory)
+                    )
+                self._stopped.wait(1)
 
 
 class _RunnerStateSampler:
@@ -332,30 +541,32 @@ def _stream_request(
     model: str,
     prompt: str,
     mode: str,
+    tool_count: int,
+    tool_choice: str,
+    thinking_mode: str,
     max_tokens: int,
     process_match: str | None,
     runtime_stats_url: str | None,
+    runtime_stats_cookie: str | None,
     expected_content: str | None,
     runner_status_url: str | None,
     runner_model_id: str | None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "model": model,
-        **_input_definition(prompt, mode),
+        **_input_definition(prompt, mode, tool_count, tool_choice, thinking_mode),
         "max_tokens": max_tokens,
         "temperature": 0,
         "seed": 90421,
         "stream": True,
         "stream_options": {"include_usage": True},
     }
-    if mode == "tool":
-        payload["tools"] = _tool_definition()
-        payload["tool_choice"] = {"type": "function", "function": {"name": "lookup_fixture"}}
-
-    runtime_stats_before = _runtime_stats(client, runtime_stats_url)
+    runtime_stats_before = _runtime_stats(client, runtime_stats_url, runtime_stats_cookie)
     host_before = _host_state()
     rss_sampler = _RssSampler(process_match)
     rss_sampler.start()
+    runtime_sampler = _RuntimeStatsSampler(runtime_stats_url, runtime_stats_cookie)
+    runtime_sampler.start()
     started_ns = time.monotonic_ns()
     runner_sampler = _RunnerStateSampler(runner_status_url, runner_model_id)
     runner_sampler.start(started_ns)
@@ -403,9 +614,10 @@ def _stream_request(
         completed_ns = time.monotonic_ns()
     finally:
         runner_state_events, runner_ready_seconds = runner_sampler.stop()
+        peak_runtime_memory_bytes = runtime_sampler.stop()
         peak_process_rss_bytes = rss_sampler.stop()
         host_after = _host_state()
-        runtime_stats_after = _runtime_stats(client, runtime_stats_url)
+        runtime_stats_after = _runtime_stats(client, runtime_stats_url, runtime_stats_cookie)
     if first_semantic_ns is None:
         raise RuntimeError("stream completed without a semantic content or tool-call delta")
 
@@ -439,16 +651,21 @@ def _stream_request(
 
     ttft_seconds = (first_semantic_ns - started_ns) / 1_000_000_000
     end_to_end_seconds = (completed_ns - started_ns) / 1_000_000_000
-    completion_tokens = usage.get("completion_tokens")
-    decode_seconds = end_to_end_seconds - ttft_seconds
+    derived_decode_tokens_per_second = _client_decode_rate(
+        usage.get("completion_tokens"), ttft_seconds, end_to_end_seconds
+    )
+    server_decode_tokens_per_second = usage.get("generation_tokens_per_second")
     decode_tokens_per_second = (
-        completion_tokens / decode_seconds
-        if isinstance(completion_tokens, int) and completion_tokens > 0 and decode_seconds > 0
-        else None
+        server_decode_tokens_per_second
+        if isinstance(server_decode_tokens_per_second, (int, float))
+        and not isinstance(server_decode_tokens_per_second, bool)
+        and server_decode_tokens_per_second > 0
+        else derived_decode_tokens_per_second
     )
     content = "".join(content_parts)
     return {
         "ttft_seconds": ttft_seconds,
+        "ttft_semantics": "first_complete_semantic_stream_event",
         "end_to_end_seconds": end_to_end_seconds,
         "decode_tokens_per_second": decode_tokens_per_second,
         "usage": usage,
@@ -460,6 +677,7 @@ def _stream_request(
         "tool_correct": tool_correct,
         "loading_state_events": loading_state_events,
         "peak_process_rss_bytes": peak_process_rss_bytes,
+        "peak_runtime_memory_bytes": peak_runtime_memory_bytes,
         "host_before": host_before,
         "host_after": host_after,
         "runtime_stats_before": runtime_stats_before,
@@ -484,6 +702,32 @@ def main() -> None:
         default=Decimal("0.5"),
         help="fractional character position for the retrieval needle",
     )
+    parser.add_argument(
+        "--retrieval-characters",
+        type=_positive_csv,
+        help=(
+            "optional comma-separated exact prompt character targets, one per "
+            "--prefix-tokens value, for runtimes without a token-count endpoint"
+        ),
+    )
+    parser.add_argument(
+        "--tool-count",
+        type=int,
+        default=1,
+        help="number of deterministic tool schemas exposed in tool mode (1-30)",
+    )
+    parser.add_argument(
+        "--tool-choice",
+        choices=("forced", "auto", "required"),
+        default="forced",
+        help="tool-selection policy in tool mode",
+    )
+    parser.add_argument(
+        "--thinking-mode",
+        choices=("disabled", "enabled", "runtime_default"),
+        default="disabled",
+        help="explicit chat-template thinking policy retained in workload identity",
+    )
     parser.add_argument("--prefix-tokens", type=_positive_csv, default=[512, 2048, 8192, 32768])
     parser.add_argument("--max-outputs", type=_positive_csv, default=[64, 256, 1024])
     parser.add_argument("--repetitions", type=int, default=2)
@@ -500,6 +744,20 @@ def main() -> None:
     parser.add_argument(
         "--runtime-stats-url",
         help="optional loopback JSON endpoint sampled before and after every request",
+    )
+    parser.add_argument(
+        "--token-count-url",
+        help=(
+            "optional loopback Anthropic-compatible token-count endpoint used to "
+            "calibrate retrieval prompts"
+        ),
+    )
+    parser.add_argument(
+        "--runtime-stats-cookie-env",
+        help=(
+            "optional environment variable containing an oMLX admin session cookie; "
+            "the value is used for stats requests but never retained"
+        ),
     )
     parser.add_argument(
         "--runner-status-url",
@@ -522,6 +780,30 @@ def main() -> None:
             "::1",
         }:
             parser.error("--runtime-stats-url must be an HTTP loopback endpoint")
+    if args.token_count_url is not None:
+        count_url = urlparse(args.token_count_url)
+        if count_url.scheme != "http" or count_url.hostname not in {
+            "127.0.0.1",
+            "localhost",
+            "::1",
+        }:
+            parser.error("--token-count-url must be an HTTP loopback endpoint")
+        if args.mode != "retrieval":
+            parser.error("--token-count-url is only valid in retrieval mode")
+    if args.retrieval_characters is not None:
+        if args.mode != "retrieval":
+            parser.error("--retrieval-characters is only valid in retrieval mode")
+        if args.token_count_url is not None:
+            parser.error("--retrieval-characters cannot be combined with --token-count-url")
+        if len(args.retrieval_characters) != len(args.prefix_tokens):
+            parser.error("--retrieval-characters must match the --prefix-tokens count")
+    runtime_stats_cookie = None
+    if args.runtime_stats_cookie_env is not None:
+        if args.runtime_stats_url is None:
+            parser.error("--runtime-stats-cookie-env requires --runtime-stats-url")
+        runtime_stats_cookie = os.environ.get(args.runtime_stats_cookie_env)
+        if not runtime_stats_cookie:
+            parser.error("--runtime-stats-cookie-env names an unset or empty variable")
     if args.runner_status_url is not None:
         status_url = urlparse(args.runner_status_url)
         if status_url.scheme != "http" or status_url.hostname not in {
@@ -532,6 +814,8 @@ def main() -> None:
             parser.error("--runner-status-url must be an HTTP loopback endpoint")
     if args.repetitions <= 0:
         parser.error("--repetitions must be positive")
+    if args.tool_count < 1 or args.tool_count > 30:
+        parser.error("--tool-count must be between 1 and 30")
     if args.runner_state != "warm" and (args.warmup or args.repetitions != 1):
         parser.error("cold/post-idle captures require no warmup and exactly one repetition")
 
@@ -546,23 +830,59 @@ def main() -> None:
                 model=args.model,
                 prompt="Reply with the word warm.",
                 mode="prose",
+                tool_count=args.tool_count,
+                tool_choice=args.tool_choice,
+                thinking_mode=args.thinking_mode,
                 max_tokens=8,
                 process_match=args.process_match,
                 runtime_stats_url=args.runtime_stats_url,
+                runtime_stats_cookie=runtime_stats_cookie,
                 expected_content=None,
                 runner_status_url=args.runner_status_url,
                 runner_model_id=args.runner_model_id,
             )
-        for approximate_tokens in args.prefix_tokens:
+        for prefix_index, approximate_tokens in enumerate(args.prefix_tokens):
             if args.mode == "retrieval":
-                prompt, expected_content = _retrieval_prompt(
-                    approximate_tokens, args.retrieval_position
-                )
+                if args.retrieval_characters is not None:
+                    prompt, expected_content = _retrieval_prompt(
+                        approximate_tokens,
+                        args.retrieval_position,
+                        target_characters=args.retrieval_characters[prefix_index],
+                    )
+                    construction_input_tokens = None
+                elif args.token_count_url is None:
+                    prompt, expected_content = _retrieval_prompt(
+                        approximate_tokens, args.retrieval_position
+                    )
+                    construction_input_tokens = None
+                else:
+                    prompt, expected_content, construction_input_tokens = (
+                        _calibrate_retrieval_prompt(
+                            approximate_tokens,
+                            args.retrieval_position,
+                            lambda value: _server_token_count(
+                                client,
+                                args.token_count_url,
+                                args.model,
+                                value,
+                                args.thinking_mode,
+                            ),
+                        )
+                    )
             else:
                 prompt = _prefix(args.mode, approximate_tokens)
                 expected_content = None
+                construction_input_tokens = None
             prompt_sha256 = _sha256(prompt.encode())
-            input_definition_sha256 = _canonical_sha256(_input_definition(prompt, args.mode))
+            input_definition_sha256 = _canonical_sha256(
+                _input_definition(
+                    prompt,
+                    args.mode,
+                    args.tool_count,
+                    args.tool_choice,
+                    args.thinking_mode,
+                )
+            )
             for max_tokens in args.max_outputs:
                 for repetition in range(1, args.repetitions + 1):
                     result = _stream_request(
@@ -571,9 +891,13 @@ def main() -> None:
                         model=args.model,
                         prompt=prompt,
                         mode=args.mode,
+                        tool_count=args.tool_count,
+                        tool_choice=args.tool_choice,
+                        thinking_mode=args.thinking_mode,
                         max_tokens=max_tokens,
                         process_match=args.process_match,
                         runtime_stats_url=args.runtime_stats_url,
+                        runtime_stats_cookie=runtime_stats_cookie,
                         expected_content=expected_content,
                         runner_status_url=args.runner_status_url,
                         runner_model_id=args.runner_model_id,
@@ -587,6 +911,7 @@ def main() -> None:
                             "expected_content_sha256": (
                                 _sha256(expected_content.encode()) if expected_content else None
                             ),
+                            "construction_input_tokens": construction_input_tokens,
                             "max_output_tokens": max_tokens,
                             "repetition": repetition,
                             **result,
@@ -600,18 +925,33 @@ def main() -> None:
         "model": args.model,
         "mode": args.mode,
         "retrieval_position": (str(args.retrieval_position) if args.mode == "retrieval" else None),
+        "retrieval_characters": (
+            args.retrieval_characters if args.mode == "retrieval" else None
+        ),
         "repetitions": args.repetitions,
         "warmup": args.warmup,
         "runner_state": args.runner_state,
         "process_match": args.process_match,
         "runtime_stats_url": args.runtime_stats_url,
+        "token_count_url": args.token_count_url,
+        "runtime_stats_auth": (
+            {
+                "method": "omlx-admin-session-cookie",
+                "environment_variable": args.runtime_stats_cookie_env,
+            }
+            if args.runtime_stats_cookie_env is not None
+            else None
+        ),
         "runner_status_url": args.runner_status_url,
         "runner_model_id": args.runner_model_id,
         "system_prompt_sha256": _sha256(SYSTEM_PROMPT.encode()),
         "tool_schema_sha256": (
-            _canonical_sha256(_tool_definition()) if args.mode == "tool" else None
+            _canonical_sha256(_tool_definition(args.tool_count)) if args.mode == "tool" else None
         ),
-        "tool_count": len(_tool_definition()) if args.mode == "tool" else 0,
+        "tool_count": args.tool_count if args.mode == "tool" else 0,
+        "tool_choice": args.tool_choice if args.mode == "tool" else None,
+        "thinking_mode": args.thinking_mode,
+        "sampling": {"temperature": 0, "seed": 90421},
         "results": results,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

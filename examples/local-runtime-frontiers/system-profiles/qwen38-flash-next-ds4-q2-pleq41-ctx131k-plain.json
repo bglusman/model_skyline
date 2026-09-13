@@ -1,0 +1,57 @@
+{
+  "schema_version": "model-skyline/local-system-profile/v1",
+  "served_model": "qwen3.8-flash-next",
+  "artifact": {
+    "model_id": "Qwen/Qwen3.8-Flash-Next",
+    "checkpoint": "Qwen3.8-Flash-Next",
+    "revision": "DS4-IQ2@b8b20398acfcc9d9a05defb408ab857cfa02a56a+PLE@59a55fb819c82be7b162948282b50bd1a1e290b7",
+    "format": "ds4-composite-gguf",
+    "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+    "size_bytes": 76806769632,
+    "content_sha256": "4cefeb2f73958172ce6e0baaba97b694c12504c4daa2944ef5e552ac33b5adeb",
+    "source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-IQ2",
+    "license": "Apache-2.0",
+    "metadata": {
+      "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+      "manifest": "artifacts/qwen3.8-flash-next-ds4-q2-pleq41-manifest.json",
+      "base_includes_mtp": true,
+      "base_source_revision": "b8b20398acfcc9d9a05defb408ab857cfa02a56a",
+      "ple_source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-Q4",
+      "ple_source_revision": "59a55fb819c82be7b162948282b50bd1a1e290b7"
+    }
+  },
+  "runtime": {
+    "runtime_id": "DwarfStar/ds4",
+    "version": null,
+    "commit": "10830f4d6919a9820382f6934362683379f26d7b",
+    "backend": "Metal",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "Qwen-hybrid-raw-plus-compressed",
+    "prefix_cache_enabled": true,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "branch": "qwen3.8-flash-next",
+      "binary_sha256": "512223e80553502875a433068fba591b24dbc3b097f5fb2556fe9471752700e",
+      "native_context_tokens": 262144,
+      "allocated_context_tokens": 131072,
+      "prefill_chunk_tokens": 1024,
+      "max_output_tokens": 16384,
+      "resident_base_model": true,
+      "ple_access": "demand-paged-mmap",
+      "ple_eviction_interval_tokens": 1024,
+      "ssd_model_streaming": false,
+      "disk_kv_cache_enabled": false,
+      "live_prefix_reuse_enabled": true,
+      "mtp_present_in_artifact": true,
+      "mtp_enabled": false,
+      "planned_resident_gib_reported": "47.00",
+      "deployment_status": "aggressive-64gb-experiment"
+    }
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ]
+}

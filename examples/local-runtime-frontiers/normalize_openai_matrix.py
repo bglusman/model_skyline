@@ -90,6 +90,56 @@ def _metric(
     return values
 
 
+def _timing_metrics(
+    rows: list[dict[str, Any]], *, mode: str
+) -> tuple[dict[str, dict[str, Any]], str, str]:
+    metrics: dict[str, dict[str, Any]] = {
+        "time_to_first_semantic_event_seconds": {
+            "unit": "s",
+            "values": _metric(rows, row_field="ttft_seconds"),
+        },
+        "end_to_end_seconds": {
+            "unit": "s",
+            "values": _metric(rows, row_field="end_to_end_seconds"),
+        },
+    }
+    server_ttft = _metric(rows, usage_field="time_to_first_token")
+    ttft_source = "unavailable"
+    if server_ttft is not None:
+        metrics["time_to_first_token_seconds"] = {
+            "unit": "s",
+            "values": server_ttft,
+        }
+        ttft_source = "server-reported"
+    elif mode != "tool":
+        client_ttft = _metric(rows, row_field="ttft_seconds")
+        if client_ttft is not None:
+            metrics["time_to_first_token_seconds"] = {
+                "unit": "s",
+                "values": client_ttft,
+            }
+            ttft_source = "client-first-streamed-text-event"
+
+    decode_rate = _metric(rows, usage_field="generation_tokens_per_second")
+    decode_rate_source = "server-reported" if decode_rate is not None else "unavailable"
+    if decode_rate is None and mode != "tool":
+        decode_rate = _metric(rows, row_field="decode_tokens_per_second")
+        if decode_rate is not None:
+            decode_rate_source = "client-post-first-token-inter-token-rate"
+    if decode_rate is not None:
+        metrics["decode_tokens_per_second"] = {
+            "unit": "token/s",
+            "values": decode_rate,
+        }
+    prompt_rate = _metric(rows, usage_field="prompt_tokens_per_second")
+    if prompt_rate is not None:
+        metrics["prompt_tokens_per_second"] = {
+            "unit": "token/s",
+            "values": prompt_rate,
+        }
+    return metrics, ttft_source, decode_rate_source
+
+
 def _tool_integrity(rows: list[dict[str, Any]]) -> dict[str, Any]:
     parse_passes = 0
     correct_passes = 0
@@ -145,20 +195,18 @@ def _swap_deltas(rows: list[dict[str, Any]]) -> list[int] | None:
     return values
 
 
-def _find_speculation_last(value: object) -> dict[str, Any] | None:
+def _find_speculation(value: object) -> dict[str, Any] | None:
     if isinstance(value, dict):
         speculation = value.get("speculation")
-        if isinstance(speculation, dict):
-            last = speculation.get("last")
-            if isinstance(last, dict):
-                return last
+        if isinstance(speculation, dict) and isinstance(speculation.get("last"), dict):
+            return speculation
         for child in value.values():
-            found = _find_speculation_last(child)
+            found = _find_speculation(child)
             if found is not None:
                 return found
     elif isinstance(value, list):
         for child in value:
-            found = _find_speculation_last(child)
+            found = _find_speculation(child)
             if found is not None:
                 return found
     return None
@@ -167,9 +215,29 @@ def _find_speculation_last(value: object) -> dict[str, Any] | None:
 def _speculative_acceptance(rows: list[dict[str, Any]]) -> list[Decimal] | None:
     values: list[Decimal] = []
     for row in rows:
-        last = _find_speculation_last(row.get("runtime_stats_after"))
-        if last is None or "acceptance_ratio" not in last:
+        before = _find_speculation(row.get("runtime_stats_before"))
+        after = _find_speculation(row.get("runtime_stats_after"))
+        if after is None:
             return None
+        last = after["last"]
+        totals = after.get("totals")
+        if not isinstance(totals, dict):
+            raise ValueError("DFlash stats are missing cumulative request counters")
+        after_requests = _integer(totals.get("requests"), field="DFlash requests after")
+        before_requests = 0
+        if before is not None:
+            before_totals = before.get("totals")
+            if not isinstance(before_totals, dict):
+                raise ValueError("DFlash stats are missing pre-request counters")
+            before_requests = _integer(
+                before_totals.get("requests"), field="DFlash requests before"
+            )
+        if after_requests != before_requests + 1:
+            raise ValueError(
+                "DFlash request counter did not advance exactly once during the measured request"
+            )
+        if "acceptance_ratio" not in last:
+            raise ValueError("DFlash stats are missing the per-request acceptance ratio")
         ratio = _decimal(last["acceptance_ratio"], field="acceptance_ratio")
         if ratio < 0 or ratio > 1:
             raise ValueError("acceptance_ratio must be between zero and one")
@@ -266,6 +334,12 @@ def main() -> None:
         "base_url": capture.get("base_url"),
         "model": served_model,
         "mode": mode,
+        "system_prompt_sha256": capture.get("system_prompt_sha256"),
+        "tool_schema_sha256": capture.get("tool_schema_sha256"),
+        "tool_count": capture.get("tool_count", 0),
+        "tool_choice": capture.get("tool_choice"),
+        "thinking_mode": capture.get("thinking_mode", "runtime_default"),
+        "sampling": capture.get("sampling", {"temperature": 0, "seed": 90421}),
         "repetitions": capture.get("repetitions"),
         "warmup": capture.get("warmup"),
         "positions": sorted([list(key) for key in grouped]),
@@ -279,6 +353,11 @@ def main() -> None:
             input_counts = {_usage_int(row, "input_tokens", "prompt_tokens") for row in group}
             if len(input_counts) != 1:
                 raise ValueError("a normalized position has inconsistent input token counts")
+            construction_counts = {row.get("construction_input_tokens") for row in group}
+            if len(construction_counts) != 1:
+                raise ValueError(
+                    "a normalized position has inconsistent construction token counts"
+                )
             prompt_hashes = {row.get("prompt_sha256") for row in group}
             input_hashes = {
                 row.get("input_definition_sha256", row.get("prompt_sha256")) for row in group
@@ -287,24 +366,7 @@ def main() -> None:
             if len(prompt_hashes) != 1 or len(input_hashes) != 1 or len(prompt_bytes) != 1:
                 raise ValueError("a normalized position has inconsistent prompt identity")
             output_counts = [_usage_int(row, "output_tokens", "completion_tokens") for row in group]
-            metrics: dict[str, dict[str, Any]] = {
-                "time_to_first_token_seconds": {
-                    "unit": "s",
-                    "values": _metric(group, row_field="ttft_seconds"),
-                },
-                "end_to_end_seconds": {
-                    "unit": "s",
-                    "values": _metric(group, row_field="end_to_end_seconds"),
-                },
-            }
-            optional_metrics = {
-                "decode_tokens_per_second": ("token/s", "decode_tokens_per_second", None),
-                "prompt_tokens_per_second": ("token/s", None, "prompt_tokens_per_second"),
-            }
-            for name, (unit, row_field, usage_field) in optional_metrics.items():
-                values = _metric(group, row_field=row_field, usage_field=usage_field)
-                if values is not None:
-                    metrics[name] = {"unit": unit, "values": values}
+            metrics, ttft_source, decode_rate_source = _timing_metrics(group, mode=mode)
             if capture.get("runner_state") in {"cold_model_load", "post_idle_expiry"}:
                 ready = _metric(group, row_field="runner_ready_seconds")
                 if ready is not None:
@@ -314,6 +376,12 @@ def main() -> None:
                 metrics["peak_process_rss_bytes"] = {
                     "unit": "byte",
                     "values": peak_rss,
+                }
+            peak_runtime_memory = [row.get("peak_runtime_memory_bytes") for row in group]
+            if all(isinstance(value, int) for value in peak_runtime_memory):
+                metrics["peak_metal_active_bytes"] = {
+                    "unit": "byte",
+                    "values": peak_runtime_memory,
                 }
             swap_deltas = _swap_deltas(group)
             if swap_deltas is not None:
@@ -354,6 +422,13 @@ def main() -> None:
                 "system_prompt_sha256": capture.get("system_prompt_sha256"),
                 "tool_schema_sha256": capture.get("tool_schema_sha256"),
                 "tool_count": capture.get("tool_count", 0),
+                "tool_choice": capture.get("tool_choice"),
+                "thinking_mode": capture.get("thinking_mode", "runtime_default"),
+                "sampling": capture.get("sampling", {"temperature": 0, "seed": 90421}),
+                "time_to_first_token_source": ttft_source,
+                "decode_rate_source": decode_rate_source,
+                "token_count_url": capture.get("token_count_url"),
+                "construction_input_tokens": next(iter(construction_counts)),
                 "finish_reasons": dict(
                     sorted(
                         Counter(

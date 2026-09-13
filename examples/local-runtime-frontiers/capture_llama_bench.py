@@ -75,8 +75,10 @@ def main() -> None:
     parser.add_argument("--flash-attention", choices=("on", "off", "auto"), default="on")
     args = parser.parse_args()
 
-    binary = args.binary.expanduser().resolve(strict=True)
-    model = args.model.expanduser().resolve(strict=True)
+    binary_argument = args.binary.expanduser()
+    model_argument = args.model.expanduser()
+    binary = binary_argument.resolve(strict=True)
+    model = model_argument.resolve(strict=True)
     if not binary.is_file() or not os.access(binary, os.X_OK):
         parser.error("--binary must be an executable regular file")
     if not model.is_file():
@@ -178,12 +180,12 @@ def main() -> None:
             "platform": platform.platform(),
         },
         "artifact": {
-            "filename": model.name,
+            "filename": model_argument.name,
             "size_bytes": model.stat().st_size,
             "sha256": _sha256(model),
         },
         "runtime": {
-            "filename": binary.name,
+            "filename": binary_argument.name,
             "sha256": _sha256(binary),
         },
         "invocation": {

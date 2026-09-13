@@ -29,6 +29,10 @@ _BUILD_PATTERNS = (
         r"\(?build\s+(?P<number>[0-9]+),\s*commit\s+(?P<commit>[0-9a-f]+)\)?"
     ),
 )
+_CHUNK_COUNT = re.compile(r"calculating perplexity over (?P<count>[0-9]+) chunks")
+_UNUSED_TENSOR = re.compile(
+    r"model has unused tensor (?P<name>\S+) \(size = (?P<size>[0-9]+) bytes\) -- ignoring"
+)
 
 
 def _sha256(path: Path) -> str:
@@ -73,11 +77,21 @@ def _parse_result(stdout: str, stderr: str) -> dict[str, Any]:
     if len(builds) > 1:
         raise ValueError("runtime output contains conflicting build identities")
     build = next(iter(builds), None)
+    chunk_counts = {int(item.group("count")) for item in _CHUNK_COUNT.finditer(combined)}
+    if len(chunk_counts) != 1:
+        raise ValueError(f"expected one actual perplexity chunk count, found {len(chunk_counts)}")
+    unused_tensors: list[dict[str, Any]] = [
+        {"name": item.group("name"), "size_bytes": int(item.group("size"))}
+        for item in _UNUSED_TENSOR.finditer(combined)
+    ]
     return {
         "perplexity": str(perplexity),
         "standard_error": str(standard_error),
+        "chunks_evaluated": next(iter(chunk_counts)),
         "runtime_build_number": None if build is None else int(build[0]),
         "runtime_commit": None if build is None else build[1],
+        "unused_tensors": unused_tensors,
+        "unused_tensor_bytes": sum(int(item["size_bytes"]) for item in unused_tensors),
     }
 
 
@@ -128,9 +142,12 @@ def main() -> None:
     parser.add_argument("--flash-attention", choices=("on", "off", "auto"), default="on")
     args = parser.parse_args()
 
-    binary = args.binary.expanduser().resolve(strict=True)
-    model = args.model.expanduser().resolve(strict=True)
-    corpus = args.corpus.expanduser().resolve(strict=True)
+    binary_argument = args.binary.expanduser()
+    model_argument = args.model.expanduser()
+    corpus_argument = args.corpus.expanduser()
+    binary = binary_argument.resolve(strict=True)
+    model = model_argument.resolve(strict=True)
+    corpus = corpus_argument.resolve(strict=True)
     if not binary.is_file() or not os.access(binary, os.X_OK):
         parser.error("--binary must be an executable regular file")
     if not model.is_file():
@@ -229,12 +246,12 @@ def main() -> None:
         raise SystemExit(str(exc)) from exc
 
     artifact = {
-        "filename": model.name,
+        "filename": model_argument.name,
         "size_bytes": model.stat().st_size,
         "sha256": _sha256(model),
     }
     corpus_identity = {
-        "filename": corpus.name,
+        "filename": corpus_argument.name,
         "size_bytes": corpus.stat().st_size,
         "sha256": _sha256(corpus),
     }
@@ -251,7 +268,7 @@ def main() -> None:
         "artifact": artifact,
         "corpus": corpus_identity,
         "runtime": {
-            "filename": binary.name,
+            "filename": binary_argument.name,
             "sha256": _sha256(binary),
             "version_output": runtime_version_output,
         },

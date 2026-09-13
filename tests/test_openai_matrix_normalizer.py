@@ -6,6 +6,9 @@ import subprocess
 import sys
 from decimal import Decimal
 from pathlib import Path
+from typing import Any, cast
+
+import pytest
 
 from model_skyline.io import load_local_measurement
 
@@ -29,15 +32,56 @@ MATRIX_SPEC.loader.exec_module(MATRIX)
 def test_extracts_dflash_acceptance_from_nested_runtime_stats() -> None:
     rows = [
         {
+            "runtime_stats_before": {
+                "models": [
+                    {
+                        "engine": {
+                            "speculation": {
+                                "last": {"acceptance_ratio": Decimal("0.5")},
+                                "totals": {"requests": 3},
+                            }
+                        }
+                    }
+                ]
+            },
             "runtime_stats_after": {
                 "models": [
-                    {"engine": {"speculation": {"last": {"acceptance_ratio": Decimal("0.625")}}}}
+                    {
+                        "engine": {
+                            "speculation": {
+                                "last": {"acceptance_ratio": Decimal("0.625")},
+                                "totals": {"requests": 4},
+                            }
+                        }
+                    }
                 ]
             }
         }
     ]
 
     assert NORMALIZER._speculative_acceptance(rows) == [Decimal("62.500")]
+
+
+def test_rejects_stale_dflash_acceptance_snapshot() -> None:
+    rows = [
+        {
+            "runtime_stats_before": {
+                "speculation": {
+                    "last": {"acceptance_ratio": Decimal("0.5")},
+                    "totals": {"requests": 3},
+                }
+            },
+            "runtime_stats_after": {
+                "speculation": {
+                    "last": {"acceptance_ratio": Decimal("0.5")},
+                    "totals": {"requests": 3},
+                }
+            },
+        }
+    ]
+
+    with pytest.raises(ValueError, match="did not advance exactly once"):
+        NORMALIZER._speculative_acceptance(rows)
 
 
 def test_retrieval_prompt_is_deterministic_unique_and_positioned() -> None:
@@ -48,6 +92,20 @@ def test_retrieval_prompt_is_deterministic_unique_and_positioned() -> None:
     assert len(prompt) == 32_768 * 4
     assert prompt.count(expected) == 1
     assert abs(prompt.index(expected) / len(prompt) - 0.9) < 0.01
+
+
+def test_retrieval_prompt_calibrates_to_a_tokenizer_count_target() -> None:
+    def count_prompt(value: str) -> int:
+        return len(value) // 5
+
+    prompt, expected, count = MATRIX._calibrate_retrieval_prompt(
+        32_768, Decimal("0.5"), count_prompt
+    )
+
+    assert count == 32_768
+    assert count_prompt(prompt[:-1]) < 32_768
+    assert prompt.count(expected) == 1
+    assert abs(prompt.index(expected) / len(prompt) - 0.5) < 0.01
 
 
 def test_retrieval_integrity_requires_an_exact_final_answer() -> None:
@@ -68,6 +126,30 @@ def test_input_definition_hash_covers_system_prompt_and_tool_schema() -> None:
     assert tool_hash == MATRIX._canonical_sha256(MATRIX._input_definition(prompt, "tool"))
 
 
+def test_input_definition_hash_covers_thinking_mode() -> None:
+    prompt = MATRIX._prefix("prose", 512)
+    disabled = MATRIX._input_definition(
+        prompt, "prose", thinking_mode="disabled"
+    )
+    enabled = MATRIX._input_definition(prompt, "prose", thinking_mode="enabled")
+
+    assert disabled["chat_template_kwargs"] == {"enable_thinking": False}
+    assert enabled["chat_template_kwargs"] == {"enable_thinking": True}
+    assert MATRIX._canonical_sha256(disabled) != MATRIX._canonical_sha256(enabled)
+
+
+def test_tool_matrix_can_model_a_realistic_selection_surface() -> None:
+    tools = MATRIX._tool_definition(30)
+    forced = MATRIX._input_definition("probe", "tool", 30, "forced")
+    automatic = MATRIX._input_definition("probe", "tool", 30, "auto")
+
+    assert len(tools) == 30
+    assert len({tool["function"]["name"] for tool in tools}) == 30
+    assert forced["tool_choice"]["function"]["name"] == "lookup_fixture"
+    assert automatic["tool_choice"] == "auto"
+    assert MATRIX._canonical_sha256(forced) != MATRIX._canonical_sha256(automatic)
+
+
 def test_runtime_output_ceiling_is_checked() -> None:
     runtime = NORMALIZER.LocalRuntimeIdentity.model_validate(
         {
@@ -82,6 +164,65 @@ def test_runtime_output_ceiling_is_checked() -> None:
     )
 
     assert NORMALIZER._configured_max_output(runtime) == 16_384
+
+
+def test_server_timing_wins_when_tool_stream_is_buffered() -> None:
+    rows = [
+        {
+            "ttft_seconds": Decimal("6.62"),
+            "end_to_end_seconds": Decimal("7.31"),
+            "decode_tokens_per_second": Decimal("90000"),
+            "usage": {
+                "time_to_first_token": Decimal("5.99"),
+                "generation_tokens_per_second": Decimal("67.05"),
+            },
+        }
+    ]
+
+    metrics, ttft_source, decode_source = NORMALIZER._timing_metrics(rows, mode="tool")
+
+    assert metrics["time_to_first_token_seconds"]["values"] == [Decimal("5.99")]
+    assert metrics["decode_tokens_per_second"]["values"] == [Decimal("67.05")]
+    assert ttft_source == "server-reported"
+    assert decode_source == "server-reported"
+
+
+def test_buffered_tool_stream_does_not_publish_client_pseudo_throughput() -> None:
+    rows = [
+        {
+            "ttft_seconds": Decimal("6.62"),
+            "end_to_end_seconds": Decimal("6.63"),
+            "decode_tokens_per_second": Decimal("90000"),
+            "usage": {},
+        }
+    ]
+
+    metrics, ttft_source, decode_source = NORMALIZER._timing_metrics(rows, mode="tool")
+
+    assert "time_to_first_token_seconds" not in metrics
+    assert "decode_tokens_per_second" not in metrics
+    assert metrics["time_to_first_semantic_event_seconds"]["values"] == [Decimal("6.62")]
+    assert ttft_source == "unavailable"
+    assert decode_source == "unavailable"
+
+
+def test_client_decode_rate_excludes_the_first_timed_token() -> None:
+    assert MATRIX._client_decode_rate(21, 2.0, 3.0) == 20.0
+    assert MATRIX._client_decode_rate(1, 2.0, 3.0) is None
+    assert MATRIX._client_decode_rate(21, 3.0, 3.0) is None
+
+
+def test_runtime_memory_finds_omlx_active_memory_pressure() -> None:
+    stats = {
+        "active_models": {
+            "memory_pressure": {
+                "enabled": True,
+                "current_bytes": 47_125_083_168,
+            }
+        }
+    }
+
+    assert MATRIX._runtime_memory_bytes(stats) == 47_125_083_168
 
 
 def test_normalizer_splits_prefix_cache_miss_and_warm_positions(tmp_path: Path) -> None:
@@ -150,7 +291,9 @@ def test_normalizer_splits_prefix_cache_miss_and_warm_positions(tmp_path: Path) 
     assert warm.workload.repetitions == 1
     assert miss.performance is not None
     assert warm.performance is not None
-    assert miss.performance.metrics["prefix_cache_hit_tokens"].values == (0,)
-    assert warm.performance.metrics["prefix_cache_hit_tokens"].values == (16384,)
+    miss_metrics = cast(dict[str, Any], miss.performance.metrics)
+    warm_metrics = cast(dict[str, Any], warm.performance.metrics)
+    assert miss_metrics["prefix_cache_hit_tokens"].values == (Decimal("0"),)
+    assert warm_metrics["prefix_cache_hit_tokens"].values == (Decimal("16384"),)
     assert miss.performance.output_token_counts == (64,)
-    assert warm.performance.metrics["time_to_first_token_seconds"].values[0] < 1
+    assert warm_metrics["time_to_first_token_seconds"].values[0] < 1

@@ -1,6 +1,6 @@
 {
   "schema_version": "model-skyline/local-system-profile/v1",
-  "served_model": "qwen3.8-27b-oq4e-mtp:dflash2-tq4",
+  "served_model": "qwen3.8-27b-oq4e-mtp:baseline-tq4",
   "artifact": {
     "model_id": "Qwen/Qwen3.8-27B",
     "checkpoint": "Qwen3.8-27B",
@@ -25,36 +25,23 @@
     "backend": "MLX/Metal",
     "context_capacity_tokens": 262144,
     "kv_cache": "TurboQuant-4bit-skip-last",
-    "prefix_cache_enabled": true,
-    "speculative_method": "DFlash2-block8-adaptive-tq4",
+    "prefix_cache_enabled": false,
+    "speculative_method": null,
     "agent_harness": "model-skyline/openai-matrix@v1",
     "configuration": {
       "mlx_version": "0.32.0",
       "mlx_lm_version": "0.31.3",
-      "model_profile": "dflash2-tq4",
+      "model_profile": "baseline-tq4",
       "max_concurrent_requests": 1,
       "max_output_tokens": 16384,
       "memory_guard": "balanced",
       "prefix_cache": {
-        "server_backend": "disabled",
-        "dflash_l1_enabled": true,
-        "dflash_l1_max_entries": 2,
-        "dflash_l1_max_bytes": 4294967296,
-        "dflash_l2_enabled": false
+        "backend": "disabled"
       },
       "turboquant_kv_enabled": true,
       "turboquant_kv_bits": 4,
       "turboquant_skip_last": true,
-      "dflash_enabled": true,
-      "dflash_block_size": 8,
-      "dflash_verify_mode": "adaptive",
-      "dflash_draft_quantization": "weights-4bit-activations-16bit-group64",
-      "dflash_artifact": {
-        "revision": "50307d4c4cde6860d4eee73e2547cd786fe8e8a4",
-        "size_bytes": 3848819135,
-        "content_sha256": "ff6ce190d207a229d262adbfdc7cd05740e06a8c7ab0b6bb86dbc5a37c21048b",
-        "manifest": "artifacts/qwen3.8-27b-dflash2-manifest.json"
-      },
+      "dflash_enabled": false,
       "mtp_enabled": false,
       "ane_prefill_enabled": false,
       "specprefill_enabled": false

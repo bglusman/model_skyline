@@ -1,0 +1,198 @@
+{
+  "schema_version": "model-skyline/local-measurement/v1alpha1",
+  "measurement_id": "qwen38-omlx-baseline-f16kv-retrieval-mid-p126000-o64-disabled-needle-0p5",
+  "status": "provisional",
+  "started_at": "2026-09-13T06:41:24.313166Z",
+  "completed_at": "2026-09-13T06:46:09.785424Z",
+  "hardware": {
+    "hardware_id": "macbook-m5max-64",
+    "manufacturer": "Apple",
+    "machine_model": "Mac17,6",
+    "chip": "Apple M5 Max",
+    "architecture": "arm64",
+    "memory_bytes": 68719476736,
+    "cpu_cores": 18,
+    "cpu_core_groups": {
+      "super": 6,
+      "performance": 12
+    },
+    "gpu_cores": 40,
+    "os_name": "macOS",
+    "os_version": "26.6.2 (25G83)",
+    "power_source": "ac",
+    "power_mode": "high-power-configured-pmset-2",
+    "negotiated_adapter_watts": 140,
+    "metadata": {
+      "power_connection": "direct-usb-c",
+      "pmset_powermode": 2,
+      "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+      "power_mode_status": "configured-not-independently-verified",
+      "related_report": "https://developer.apple.com/forums/thread/835131"
+    }
+  },
+  "artifact": {
+    "model_id": "Qwen/Qwen3.8-27B",
+    "checkpoint": "Qwen3.8-27B",
+    "revision": "1c0609b20321c1faff8294be5ea88c656cedaa59",
+    "format": "mlx-safetensors",
+    "quantization": "oQ4e",
+    "size_bytes": 16994894984,
+    "content_sha256": "6de9485449074319eb4ed22e027f73a66d6646e22fa2506f1422ce7b121b2e20",
+    "source_url": "https://huggingface.co/mlx-works/Qwen3.8-27B-oQ4e-mtp",
+    "license": "Apache-2.0",
+    "metadata": {
+      "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+      "manifest": "artifacts/qwen3.8-27b-oq4e-mtp-manifest.json",
+      "chat_template": "froggeric/Qwen-Fixed-Chat-Templates",
+      "mtp_head_preserved": true
+    }
+  },
+  "runtime": {
+    "runtime_id": "oMLX",
+    "version": "0.6.4",
+    "commit": null,
+    "backend": "MLX/Metal",
+    "context_capacity_tokens": 262144,
+    "kv_cache": "f16",
+    "prefix_cache_enabled": false,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "mlx_version": "0.32.0",
+      "mlx_lm_version": "0.31.3",
+      "model_profile": "baseline-f16kv",
+      "max_concurrent_requests": 1,
+      "max_output_tokens": 16384,
+      "memory_guard": "balanced",
+      "prefix_cache": {
+        "backend": "disabled"
+      },
+      "turboquant_kv_enabled": false,
+      "dflash_enabled": false,
+      "mtp_enabled": false,
+      "ane_prefill_enabled": false,
+      "specprefill_enabled": false
+    }
+  },
+  "workload": {
+    "reference": {
+      "id": "openai-retrieval-p126000-o64-disabled-needle-0p5",
+      "version": "model-skyline/openai-matrix@v1",
+      "unit": "request"
+    },
+    "kind": "long_context_retrieval",
+    "input_definition_sha256": "e9bfcc2a6a008959b6e0fada071424ef2ea55a65f5a4c4bff742aa0d2e8fd4a1",
+    "requested_input_tokens": 126000,
+    "max_output_tokens": 64,
+    "repetitions": 1,
+    "warmup_repetitions": 1,
+    "concurrency": 1,
+    "runner_state": "warm",
+    "prefix_cache_state": "disabled",
+    "position": {
+      "mode": "retrieval",
+      "prompt_bytes": 193527,
+      "user_prompt_sha256": "055f6f5c8a61fa1c7aab17e58be7631726182504e283ebe5bd8c66c6f25f5876",
+      "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+      "tool_schema_sha256": null,
+      "tool_count": 0,
+      "tool_choice": null,
+      "thinking_mode": "disabled",
+      "sampling": {
+        "temperature": 0,
+        "seed": 90421
+      },
+      "time_to_first_token_source": "server-reported",
+      "decode_rate_source": "server-reported",
+      "token_count_url": null,
+      "construction_input_tokens": null,
+      "finish_reasons": {
+        "stop": 1
+      },
+      "api": "openai-chat-completions-streaming",
+      "retrieval_character_fraction": "0.5"
+    }
+  },
+  "performance": {
+    "actual_input_tokens": 125964,
+    "output_token_counts": [
+      21
+    ],
+    "metrics": {
+      "time_to_first_semantic_event_seconds": {
+        "unit": "s",
+        "values": [
+          "281.60673225"
+        ]
+      },
+      "end_to_end_seconds": {
+        "unit": "s",
+        "values": [
+          "282.614048"
+        ]
+      },
+      "time_to_first_token_seconds": {
+        "unit": "s",
+        "values": [
+          "281.49"
+        ]
+      },
+      "decode_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "20.81"
+        ]
+      },
+      "prompt_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "447.49"
+        ]
+      },
+      "peak_process_rss_bytes": {
+        "unit": "byte",
+        "values": [
+          "16743219200"
+        ]
+      },
+      "peak_metal_active_bytes": {
+        "unit": "byte",
+        "values": [
+          "47971333248"
+        ]
+      },
+      "swap_delta_bytes": {
+        "unit": "byte",
+        "values": [
+          "0"
+        ]
+      }
+    }
+  },
+  "integrity": {
+    "retrieval": {
+      "passed": 1,
+      "total": 1
+    },
+    "tool_calls": null,
+    "tool_argument_parsing": null,
+    "structured_output": null
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ],
+  "provenance": {
+    "tool": "model-skyline/openai-matrix",
+    "tool_version": "v1",
+    "command_sha256": "34a6f93f14b0f6811cbcd49958145bd98eefc13f86cbac7866998969d2b456c2",
+    "raw_artifact_path": "examples/local-runtime-frontiers/raw/qwen38-omlx-baseline-f16kv-retrieval-mid-p126k-o64.json",
+    "raw_sha256": "c081f9b0e749fd02fe525df52785810ebad8cb4de41fa5b37cf1d6e1a7640bae",
+    "captured_at": "2026-09-13T06:46:09.785424Z",
+    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+    "source_url": null,
+    "license": "CC0-1.0"
+  },
+  "notes": "Provisional operational runtime evidence; no model-quality claim."
+}

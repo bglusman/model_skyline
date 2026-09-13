@@ -94,6 +94,41 @@ swaps, and exited cleanly. RSS includes mapped file pages and is not an estimate
 of active Metal allocation; the result confirms operational fit, not the
 accuracy of ShoeHorn's modeled 51.84 GiB decomposition.
 
+The first fixed-position M5 microbenchmark is also complete. At the same
+llama.cpp build/configuration and pp2048/tg512 position, the custom artifact's
+medians are 2,664.58 prompt token/s and 74.7645 decode token/s. The official
+Q4_K_M control reaches 3,022.92 and 113.748 respectively. The custom artifact
+therefore retains 88.1% of Q4 prompt throughput but only 65.7% of its decode
+throughput while occupying 2.245 times the file bytes. That is an efficiency
+regression unless a separate fidelity test demonstrates a compensating gain.
+The Q5_K_M control reaches 2,775.23 prompt token/s and 105.721 decode token/s;
+the custom artifact uses 1.923 times its bytes while retaining 96.0% and 70.7%
+of those rates. The captures preserve the literal `-ngl` choice; Q4 used 99
+and Q5/custom used -1, but all three report every 40-layer target block placed
+on Metal and no CPU MoE placement.
+
+The pinned six-chunk WikiText-2 slice did not demonstrate that gain:
+
+| Artifact | Bytes | PPL | Reported standard error | Ignored MTP bytes |
+| --- | ---: | ---: | ---: | ---: |
+| Official Q4_K_M | 21,713,462,848 | 10.0669 | 0.28042 | 546,703,360 |
+| Official Q5_K_M | 25,347,532,544 | 10.0506 | 0.28062 | 618,399,744 |
+| ShoeHorn exact-error mixed | 48,747,873,632 | 10.1321 | 0.28437 | 1,689,307,136 |
+
+All captures use identical corpus bytes, tokenizer/runtime build, 4,096-token
+context, Q8_0 K/V, and six chunks. The point estimates differ by much less than
+their reported uncertainty, so they do not establish a statistically reliable
+PPL ordering. They do establish that this nearly doubled weight budget produced
+no obvious held-out-language-modeling improvement. The raw captures also expose
+a concrete planning inefficiency: ordinary target-only llama.cpp ignores the 20
+`blk.40` MTP tensors, but the mixed plan spends 1.689 GB on them, including three
+512 MiB expert tensors retained at F16. A target-only fit should allow those
+tensors to be omitted or forced to a floor quant, while a speculative-runtime
+fit must account for them as a separate draft-head cohort. Today ShoeHorn does
+neither. This result makes the current artifact provisionally dominated on the
+M5; coding/tool and long-context integrity remain useful only as diagnostics of
+whether a task-specific exception exists.
+
 ## Why Qwen3.8 Flash is different
 
 Flash Next has hybrid attention/recurrent state and a very large PLE table.

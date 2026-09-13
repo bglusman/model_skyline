@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "7d29615fd3c4df7952d26bc4c8b2880bafa2b679b49197dc2b5264168751e925",
-  "config_hash": "54d35bf527c9a21a1eb8a3c58a619c9c84c06062a5e8782b92eebb69da0f7133",
-  "catalog_hash": "9c9501a1746d9940bebe3e284ee6e9d12e37b9d2bb1f361c20f89241836f0b40",
+  "snapshot_id": "cfd55649dc146b7272eda4b01e51c32e0ff00525e84ce51a8a082b30ef1d257e",
+  "config_hash": "bc55e35d0968c3837428762acdb99dc7631f404d680e55143f66dee500cb3a34",
+  "catalog_hash": "58178a74a4a0154d7f77eed36a53e1cd3be8ef504d1537f830e6c3c7996c3797",
   "engine_version": "0.9.0",
-  "generated_at": "2026-09-13T03:15:00Z",
+  "generated_at": "2026-09-13T06:15:00Z",
   "frontier_id": "short-throughput-envelope",
   "workload": {
     "id": "llama-bench-pp2048-tg512",
@@ -342,6 +342,317 @@
     },
     {
       "offering": {
+        "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q5_K_M-llama.cpp-c6663ee4b2f1088b",
+        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "Q5_K_M",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/llama-bench@v1",
+        "capabilities": [
+          "text"
+        ]
+      },
+      "axes": {
+        "prompt_throughput": {
+          "value": "2775.23",
+          "unit": "token/s",
+          "lower": "2772.55",
+          "upper": "2798.79",
+          "dependencies": [
+            "signals.local_prompt_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:ornith-q5km-m5max64-pp2048-tg512"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:ornith-q5km-m5max64-pp2048-tg512",
+              "version": "llama-bench@build-10809",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "2d2755632146ed89a93d0a903404c03c17c2b032214779ea96a4ce81ae67b541",
+              "retrieved_at": "2026-09-13T05:13:54.868727Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T05:13:54.868727Z",
+          "minimum_sample_count": 5
+        },
+        "decode_throughput": {
+          "value": "105.721",
+          "unit": "token/s",
+          "lower": "105.401",
+          "upper": "106.227",
+          "dependencies": [
+            "signals.local_decode_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:ornith-q5km-m5max64-pp2048-tg512"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:ornith-q5km-m5max64-pp2048-tg512",
+              "version": "llama-bench@build-10809",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "2d2755632146ed89a93d0a903404c03c17c2b032214779ea96a4ce81ae67b541",
+              "retrieved_at": "2026-09-13T05:13:54.868727Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T05:13:54.868727Z",
+          "minimum_sample_count": 5
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "checkpoint": "Ornith-1.5-35B-A3B",
+          "revision": "12393612fd4f730ff5aadc23e9b8f9648aa49ceb",
+          "format": "gguf",
+          "quantization": "Q5_K_M",
+          "size_bytes": 25347532544,
+          "content_sha256": "91df97de5845100e850b4b5ec5ff35695382020b880fad6f7f51787b3a953bd0",
+          "source_url": "https://huggingface.co/ornith-ai/Ornith-1.5-35B-A3B-GGUF/tree/12393612fd4f730ff5aadc23e9b8f9648aa49ceb",
+          "license": "MIT",
+          "metadata": {
+            "filename": "Ornith-1.5-35B-Q5_K_M.gguf"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "build-10809",
+          "commit": "5266f24da",
+          "backend": "BLAS,MTL",
+          "context_capacity_tokens": 262144,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/llama-bench@v1",
+          "configuration": {
+            "runtime_binary_sha256": "30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9",
+            "n_batch": 2048,
+            "n_ubatch": 512,
+            "n_threads": 6,
+            "cpu_mask": "0x0",
+            "cpu_strict": false,
+            "poll": 50,
+            "type_k": "q8_0",
+            "type_v": "q8_0",
+            "n_gpu_layers": -1,
+            "n_cpu_moe": 0,
+            "split_mode": "layer",
+            "main_gpu": 0,
+            "no_kv_offload": false,
+            "flash_attn": 1,
+            "devices": "auto",
+            "tensor_split": "0.00",
+            "tensor_buft_overrides": "none",
+            "load_mode": "auto",
+            "lazy_mode": "auto",
+            "embeddings": false,
+            "no_op_offload": 0,
+            "no_host": false,
+            "fit_target": 0,
+            "fit_min_ctx": 0
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": [
+        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-shoehorn-mixed-10.981bpw-exact-errors-llama.cpp-4c56f85646cabb17",
+        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "shoehorn-mixed-10.981bpw-exact-errors",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/llama-bench@v1",
+        "capabilities": [
+          "text"
+        ]
+      },
+      "axes": {
+        "prompt_throughput": {
+          "value": "2664.58",
+          "unit": "token/s",
+          "lower": "2652.75",
+          "upper": "2680.32",
+          "dependencies": [
+            "signals.local_prompt_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:ornith-shoehorn-m5max64-pp2048-tg512"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:ornith-shoehorn-m5max64-pp2048-tg512",
+              "version": "llama-bench@build-10809",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "449d46fe363c33e4ee46a69e29164d00233188a9ee92519445d82cf39e39f886",
+              "retrieved_at": "2026-09-13T04:53:10.339578Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T04:53:10.339578Z",
+          "minimum_sample_count": 5
+        },
+        "decode_throughput": {
+          "value": "74.7645",
+          "unit": "token/s",
+          "lower": "74.5444",
+          "upper": "74.8889",
+          "dependencies": [
+            "signals.local_decode_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:ornith-shoehorn-m5max64-pp2048-tg512"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:ornith-shoehorn-m5max64-pp2048-tg512",
+              "version": "llama-bench@build-10809",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "449d46fe363c33e4ee46a69e29164d00233188a9ee92519445d82cf39e39f886",
+              "retrieved_at": "2026-09-13T04:53:10.339578Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T04:53:10.339578Z",
+          "minimum_sample_count": 5
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "checkpoint": "Ornith-1.5-35B-A3B",
+          "revision": "64b0493d34a5ca4c1b4ad67bb99b41d74b4f07d6",
+          "format": "gguf",
+          "quantization": "shoehorn-mixed-10.981bpw-exact-errors",
+          "size_bytes": 48747873632,
+          "content_sha256": "138e4fad79b6c11b9e8cd206ba7bd442482efe599550f11a629b6af8f181b150",
+          "source_url": "https://huggingface.co/bartowski/Ornith-1.5-35B-A3B-GGUF/tree/64b0493d34a5ca4c1b4ad67bb99b41d74b4f07d6",
+          "license": "MIT",
+          "metadata": {
+            "filename": "Ornith-1.5-35B-A3B-shoehorn-64gb-ctx131k-q8kv.gguf"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "build-10809",
+          "commit": "5266f24da",
+          "backend": "BLAS,MTL",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/llama-bench@v1",
+          "configuration": {
+            "runtime_binary_sha256": "30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9",
+            "n_batch": 2048,
+            "n_ubatch": 512,
+            "n_threads": 6,
+            "cpu_mask": "0x0",
+            "cpu_strict": false,
+            "poll": 50,
+            "type_k": "q8_0",
+            "type_v": "q8_0",
+            "n_gpu_layers": -1,
+            "n_cpu_moe": 0,
+            "split_mode": "layer",
+            "main_gpu": 0,
+            "no_kv_offload": false,
+            "flash_attn": 1,
+            "devices": "auto",
+            "tensor_split": "0.00",
+            "tensor_buft_overrides": "none",
+            "load_mode": "auto",
+            "lazy_mode": "auto",
+            "embeddings": false,
+            "no_op_offload": 0,
+            "no_host": false,
+            "fit_target": 0,
+            "fit_min_ctx": 0
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": [
+        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
+        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q5_K_M-llama.cpp-c6663ee4b2f1088b"
+      ]
+    },
+    {
+      "offering": {
         "offering_id": "local/studio-m1max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-c2863deb426069be",
         "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
         "provider": "local:studio-m1max-64",
@@ -488,7 +799,162 @@
         "local_evidence_status": "provisional"
       },
       "dominated_by": [
-        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
+        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
+        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q5_K_M-llama.cpp-c6663ee4b2f1088b",
+        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-shoehorn-mixed-10.981bpw-exact-errors-llama.cpp-4c56f85646cabb17"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "local/studio-m1max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-shoehorn-mixed-10.981bpw-exact-errors-llama.cpp-6a22836363cb7771",
+        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "provider": "local:studio-m1max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "automatic",
+        "quantization": "shoehorn-mixed-10.981bpw-exact-errors",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/llama-bench@v1",
+        "capabilities": [
+          "text"
+        ]
+      },
+      "axes": {
+        "prompt_throughput": {
+          "value": "870.298",
+          "unit": "token/s",
+          "lower": "866.386",
+          "upper": "871.565",
+          "dependencies": [
+            "signals.local_prompt_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:ornith-shoehorn-m1max64-pp2048-tg512"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:ornith-shoehorn-m1max64-pp2048-tg512",
+              "version": "llama-bench@build-10809",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "4c746b3474976e7be9660a69d10c8642705523e6db67f37ea5896603ed3cf112",
+              "retrieved_at": "2026-09-13T05:26:09.100109Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T05:26:09.100109Z",
+          "minimum_sample_count": 5
+        },
+        "decode_throughput": {
+          "value": "40.718",
+          "unit": "token/s",
+          "lower": "40.7068",
+          "upper": "40.7282",
+          "dependencies": [
+            "signals.local_decode_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:ornith-shoehorn-m1max64-pp2048-tg512"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:ornith-shoehorn-m1max64-pp2048-tg512",
+              "version": "llama-bench@build-10809",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "4c746b3474976e7be9660a69d10c8642705523e6db67f37ea5896603ed3cf112",
+              "retrieved_at": "2026-09-13T05:26:09.100109Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-13T05:26:09.100109Z",
+          "minimum_sample_count": 5
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "studio-m1max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac13,1",
+          "chip": "Apple M1 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 10,
+          "cpu_core_groups": {
+            "performance": 8,
+            "efficiency": 2
+          },
+          "gpu_cores": 32,
+          "os_name": "macOS",
+          "os_version": "26.3.1",
+          "power_source": "ac",
+          "power_mode": "automatic",
+          "negotiated_adapter_watts": null,
+          "metadata": {
+            "form_factor": "Mac Studio"
+          }
+        },
+        "artifact": {
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "checkpoint": "Ornith-1.5-35B-A3B",
+          "revision": "64b0493d34a5ca4c1b4ad67bb99b41d74b4f07d6",
+          "format": "gguf",
+          "quantization": "shoehorn-mixed-10.981bpw-exact-errors",
+          "size_bytes": 48747873632,
+          "content_sha256": "138e4fad79b6c11b9e8cd206ba7bd442482efe599550f11a629b6af8f181b150",
+          "source_url": "https://huggingface.co/bartowski/Ornith-1.5-35B-A3B-GGUF/tree/64b0493d34a5ca4c1b4ad67bb99b41d74b4f07d6",
+          "license": "MIT",
+          "metadata": {
+            "filename": "Ornith-1.5-35B-A3B-shoehorn-64gb-ctx131k-q8kv.gguf"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "build-10809",
+          "commit": "5266f24da",
+          "backend": "MTL,BLAS",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/llama-bench@v1",
+          "configuration": {
+            "runtime_binary_sha256": "7230175b0a6b7193b9ebf5079a0bbb499e600a6424b54c1f50c8156d15418b48",
+            "n_batch": 2048,
+            "n_ubatch": 512,
+            "n_threads": 6,
+            "cpu_mask": "0x0",
+            "cpu_strict": false,
+            "poll": 50,
+            "type_k": "q8_0",
+            "type_v": "q8_0",
+            "n_gpu_layers": -1,
+            "n_cpu_moe": 0,
+            "split_mode": "layer",
+            "main_gpu": 0,
+            "no_kv_offload": false,
+            "flash_attn": 1,
+            "devices": "auto",
+            "tensor_split": "0.00",
+            "tensor_buft_overrides": "none",
+            "load_mode": "auto",
+            "lazy_mode": "auto",
+            "embeddings": false,
+            "no_op_offload": 0,
+            "no_host": false,
+            "fit_target": 0,
+            "fit_min_ctx": 0
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": [
+        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
+        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q5_K_M-llama.cpp-c6663ee4b2f1088b",
+        "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-shoehorn-mixed-10.981bpw-exact-errors-llama.cpp-4c56f85646cabb17"
       ]
     }
   ],
@@ -497,9 +963,9 @@
     "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
-    "config_hash": "54d35bf527c9a21a1eb8a3c58a619c9c84c06062a5e8782b92eebb69da0f7133",
-    "catalog_hash": "9c9501a1746d9940bebe3e284ee6e9d12e37b9d2bb1f361c20f89241836f0b40",
-    "generated_at": "2026-09-13T03:15:00Z",
+    "config_hash": "bc55e35d0968c3837428762acdb99dc7631f404d680e55143f66dee500cb3a34",
+    "catalog_hash": "58178a74a4a0154d7f77eed36a53e1cd3be8ef504d1537f830e6c3c7996c3797",
+    "generated_at": "2026-09-13T06:15:00Z",
     "workload": {
       "id": "llama-bench-pp2048-tg512",
       "version": "llama.cpp@5266f24da/model-skyline@v1",
@@ -521,7 +987,7 @@
         "epsilon_relative": "0"
       }
     ],
-    "candidate_universe_hash": "bde79877baabc57c1d167bc854b5cb52be049812cb4feb2529a5551b4544dbbd",
+    "candidate_universe_hash": "e38d24636dbf553c5a902a88c3712af9a9bd4df32ad78f7ee36ef19e6d630f30",
     "candidates": [
       {
         "offering": {
@@ -596,6 +1062,148 @@
       },
       {
         "offering": {
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q5_K_M-llama.cpp-c6663ee4b2f1088b",
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "Q5_K_M",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/llama-bench@v1",
+          "capabilities": [
+            "text"
+          ]
+        },
+        "axes": {
+          "prompt_throughput": {
+            "value": "2775.23",
+            "unit": "token/s",
+            "lower": "2772.55",
+            "upper": "2798.79",
+            "dependencies": [
+              "signals.local_prompt_tokens_per_second"
+            ],
+            "source_ids": [
+              "local-measurement:ornith-q5km-m5max64-pp2048-tg512"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:ornith-q5km-m5max64-pp2048-tg512",
+                "version": "llama-bench@build-10809",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                "raw_sha256": "2d2755632146ed89a93d0a903404c03c17c2b032214779ea96a4ce81ae67b541",
+                "retrieved_at": "2026-09-13T05:13:54.868727Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T05:13:54.868727Z",
+            "minimum_sample_count": 5
+          },
+          "decode_throughput": {
+            "value": "105.721",
+            "unit": "token/s",
+            "lower": "105.401",
+            "upper": "106.227",
+            "dependencies": [
+              "signals.local_decode_tokens_per_second"
+            ],
+            "source_ids": [
+              "local-measurement:ornith-q5km-m5max64-pp2048-tg512"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:ornith-q5km-m5max64-pp2048-tg512",
+                "version": "llama-bench@build-10809",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                "raw_sha256": "2d2755632146ed89a93d0a903404c03c17c2b032214779ea96a4ce81ae67b541",
+                "retrieved_at": "2026-09-13T05:13:54.868727Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T05:13:54.868727Z",
+            "minimum_sample_count": 5
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-shoehorn-mixed-10.981bpw-exact-errors-llama.cpp-4c56f85646cabb17",
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "shoehorn-mixed-10.981bpw-exact-errors",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/llama-bench@v1",
+          "capabilities": [
+            "text"
+          ]
+        },
+        "axes": {
+          "prompt_throughput": {
+            "value": "2664.58",
+            "unit": "token/s",
+            "lower": "2652.75",
+            "upper": "2680.32",
+            "dependencies": [
+              "signals.local_prompt_tokens_per_second"
+            ],
+            "source_ids": [
+              "local-measurement:ornith-shoehorn-m5max64-pp2048-tg512"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:ornith-shoehorn-m5max64-pp2048-tg512",
+                "version": "llama-bench@build-10809",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                "raw_sha256": "449d46fe363c33e4ee46a69e29164d00233188a9ee92519445d82cf39e39f886",
+                "retrieved_at": "2026-09-13T04:53:10.339578Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T04:53:10.339578Z",
+            "minimum_sample_count": 5
+          },
+          "decode_throughput": {
+            "value": "74.7645",
+            "unit": "token/s",
+            "lower": "74.5444",
+            "upper": "74.8889",
+            "dependencies": [
+              "signals.local_decode_tokens_per_second"
+            ],
+            "source_ids": [
+              "local-measurement:ornith-shoehorn-m5max64-pp2048-tg512"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:ornith-shoehorn-m5max64-pp2048-tg512",
+                "version": "llama-bench@build-10809",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                "raw_sha256": "449d46fe363c33e4ee46a69e29164d00233188a9ee92519445d82cf39e39f886",
+                "retrieved_at": "2026-09-13T04:53:10.339578Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T04:53:10.339578Z",
+            "minimum_sample_count": 5
+          }
+        }
+      },
+      {
+        "offering": {
           "offering_id": "local/studio-m1max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-c2863deb426069be",
           "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
           "provider": "local:studio-m1max-64",
@@ -664,12 +1272,113 @@
             "minimum_sample_count": 5
           }
         }
+      },
+      {
+        "offering": {
+          "offering_id": "local/studio-m1max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-shoehorn-mixed-10.981bpw-exact-errors-llama.cpp-6a22836363cb7771",
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "provider": "local:studio-m1max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "automatic",
+          "quantization": "shoehorn-mixed-10.981bpw-exact-errors",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/llama-bench@v1",
+          "capabilities": [
+            "text"
+          ]
+        },
+        "axes": {
+          "prompt_throughput": {
+            "value": "870.298",
+            "unit": "token/s",
+            "lower": "866.386",
+            "upper": "871.565",
+            "dependencies": [
+              "signals.local_prompt_tokens_per_second"
+            ],
+            "source_ids": [
+              "local-measurement:ornith-shoehorn-m1max64-pp2048-tg512"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:ornith-shoehorn-m1max64-pp2048-tg512",
+                "version": "llama-bench@build-10809",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                "raw_sha256": "4c746b3474976e7be9660a69d10c8642705523e6db67f37ea5896603ed3cf112",
+                "retrieved_at": "2026-09-13T05:26:09.100109Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T05:26:09.100109Z",
+            "minimum_sample_count": 5
+          },
+          "decode_throughput": {
+            "value": "40.718",
+            "unit": "token/s",
+            "lower": "40.7068",
+            "upper": "40.7282",
+            "dependencies": [
+              "signals.local_decode_tokens_per_second"
+            ],
+            "source_ids": [
+              "local-measurement:ornith-shoehorn-m1max64-pp2048-tg512"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:ornith-shoehorn-m1max64-pp2048-tg512",
+                "version": "llama-bench@build-10809",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                "raw_sha256": "4c746b3474976e7be9660a69d10c8642705523e6db67f37ea5896603ed3cf112",
+                "retrieved_at": "2026-09-13T05:26:09.100109Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-13T05:26:09.100109Z",
+            "minimum_sample_count": 5
+          }
+        }
       }
     ],
-    "inventory_id": "5baae15df95bfbc431600429d190696618716ac9cd1321992cdea03b58df2915"
+    "inventory_id": "07ecf9b64cc9290afbaf1853486b452c7b5d41812bbc5962ba2f167b514ad3b1"
   },
   "public_release_blocked": false,
   "sources": [
+    {
+      "id": "local-measurement:ornith-shoehorn-m5max64-pp2048-tg512",
+      "version": "llama-bench@build-10809",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+      "raw_sha256": "449d46fe363c33e4ee46a69e29164d00233188a9ee92519445d82cf39e39f886",
+      "retrieved_at": "2026-09-13T04:53:10.339578Z"
+    },
+    {
+      "id": "local-measurement:ornith-q5km-m5max64-pp2048-tg512",
+      "version": "llama-bench@build-10809",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+      "raw_sha256": "2d2755632146ed89a93d0a903404c03c17c2b032214779ea96a4ce81ae67b541",
+      "retrieved_at": "2026-09-13T05:13:54.868727Z"
+    },
+    {
+      "id": "local-measurement:ornith-shoehorn-m1max64-pp2048-tg512",
+      "version": "llama-bench@build-10809",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+      "raw_sha256": "4c746b3474976e7be9660a69d10c8642705523e6db67f37ea5896603ed3cf112",
+      "retrieved_at": "2026-09-13T05:26:09.100109Z"
+    },
     {
       "id": "local-measurement:ornith-q4km-m1max64-pp2048-tg512-20260913",
       "version": "llama-bench@build-10809",
@@ -693,6 +1402,9 @@
   ],
   "source_watermarks": {
     "local-measurement:ornith-q4km-m5max64-pp2048-tg512-20260913": "2026-09-13T03:07:12.269496Z",
-    "local-measurement:ornith-q4km-m1max64-pp2048-tg512-20260913": "2026-09-13T03:08:28.200985Z"
+    "local-measurement:ornith-q5km-m5max64-pp2048-tg512": "2026-09-13T05:13:54.868727Z",
+    "local-measurement:ornith-shoehorn-m5max64-pp2048-tg512": "2026-09-13T04:53:10.339578Z",
+    "local-measurement:ornith-q4km-m1max64-pp2048-tg512-20260913": "2026-09-13T03:08:28.200985Z",
+    "local-measurement:ornith-shoehorn-m1max64-pp2048-tg512": "2026-09-13T05:26:09.100109Z"
   }
 }

@@ -21,15 +21,21 @@ def _load_capture() -> ModuleType:
 def test_parse_final_perplexity_and_runtime_identity() -> None:
     capture = _load_capture()
     result = capture._parse_result(
-        "Final estimate: PPL = 7.1234 +/- 0.05678\n",
+        (
+            "perplexity: calculating perplexity over 6 chunks, n_ctx=4096\n"
+            "Final estimate: PPL = 7.1234 +/- 0.05678\n"
+        ),
         "build = 10809 (5266f24da)\n",
     )
 
     assert result == {
         "perplexity": "7.1234",
         "standard_error": "0.05678",
+        "chunks_evaluated": 6,
         "runtime_build_number": 10809,
         "runtime_commit": "5266f24da",
+        "unused_tensors": [],
+        "unused_tensor_bytes": 0,
     }
 
 
@@ -37,7 +43,10 @@ def test_parse_current_llama_cpp_version_format() -> None:
     capture = _load_capture()
 
     result = capture._parse_result(
-        "Final estimate: PPL = 7.1234 +/- 0.05678\n",
+        (
+            "perplexity: calculating perplexity over 6 chunks, n_ctx=4096\n"
+            "Final estimate: PPL = 7.1234 +/- 0.05678\n"
+        ),
         "version: 0.4.0 (build 10809, commit 5266f24da)\n",
     )
 
@@ -45,15 +54,45 @@ def test_parse_current_llama_cpp_version_format() -> None:
     assert result["runtime_commit"] == "5266f24da"
 
 
+def test_parse_retains_ignored_tensor_cost() -> None:
+    capture = _load_capture()
+
+    result = capture._parse_result(
+        (
+            "perplexity: calculating perplexity over 3 chunks, n_ctx=4096\n"
+            "Final estimate: PPL = 7.0 +/- 0.1\n"
+        ),
+        (
+            "model has unused tensor blk.40.attn_q.weight "
+            "(size = 33554432 bytes) -- ignoring\n"
+            "build: 10809 (5266f24da)\n"
+        ),
+    )
+
+    assert result["chunks_evaluated"] == 3
+    assert result["unused_tensors"] == [
+        {"name": "blk.40.attn_q.weight", "size_bytes": 33_554_432}
+    ]
+    assert result["unused_tensor_bytes"] == 33_554_432
+
+
 @pytest.mark.parametrize(
     "stdout, stderr",
     [
         ("no result", ""),
         (
-            "Final estimate: PPL = 7.1 +/- 0.1\nFinal estimate: PPL = 7.2 +/- 0.1",
+            (
+                "perplexity: calculating perplexity over 6 chunks\n"
+                "Final estimate: PPL = 7.1 +/- 0.1\n"
+                "Final estimate: PPL = 7.2 +/- 0.1"
+            ),
             "",
         ),
-        ("Final estimate: PPL = 7.1 +/- 0.1", "build = 1 (abc)\nbuild = 2 (def)"),
+        (
+            "perplexity: calculating perplexity over 6 chunks\n"
+            "Final estimate: PPL = 7.1 +/- 0.1",
+            "build = 1 (abc)\nbuild = 2 (def)",
+        ),
     ],
 )
 def test_parse_rejects_missing_duplicate_or_conflicting_evidence(

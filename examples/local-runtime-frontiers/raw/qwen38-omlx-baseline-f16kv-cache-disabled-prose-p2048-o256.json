@@ -1,0 +1,739 @@
+{
+  "schema_version": "model-skyline/raw-openai-matrix/v1",
+  "started_at": "2026-09-13T05:33:18.640178Z",
+  "captured_at": "2026-09-13T05:33:51.910342Z",
+  "base_url": "http://127.0.0.1:8284/v1",
+  "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv",
+  "mode": "prose",
+  "retrieval_position": null,
+  "repetitions": 3,
+  "warmup": true,
+  "runner_state": "warm",
+  "process_match": "omlx-server",
+  "runtime_stats_url": "http://127.0.0.1:8284/admin/api/stats",
+  "runtime_stats_auth": {
+    "method": "omlx-admin-session-cookie",
+    "environment_variable": "OMLX_ADMIN_SESSION"
+  },
+  "runner_status_url": null,
+  "runner_model_id": null,
+  "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+  "tool_schema_sha256": null,
+  "tool_count": 0,
+  "results": [
+    {
+      "approximate_prefix_tokens": 2048,
+      "prompt_bytes": 8235,
+      "prompt_sha256": "81734525e62cd36bfb75ce8c3283b162540e19bc264c6f3d0bf1cc20b267da2e",
+      "input_definition_sha256": "b9967bf9c7f5396e37f3a8162b7be87e8ba4293e292d400af08d1c28216cf8f9",
+      "expected_content_sha256": null,
+      "max_output_tokens": 256,
+      "repetition": 1,
+      "ttft_seconds": 2.282131459,
+      "end_to_end_seconds": 10.200678834,
+      "decode_tokens_per_second": 32.329161887473084,
+      "usage": {
+        "prompt_tokens": 1923,
+        "completion_tokens": 256,
+        "total_tokens": 2179,
+        "input_tokens": 1923,
+        "output_tokens": 256,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "time_to_first_token": 2.27,
+        "total_time": 10.19,
+        "prompt_eval_duration": 2.27,
+        "generation_duration": 7.92,
+        "prompt_tokens_per_second": 845.53,
+        "generation_tokens_per_second": 32.32
+      },
+      "finish_reasons": [
+        "length"
+      ],
+      "content_sha256": "56342fa821e5721ccab52b9259fe0103bb6fc8b0e1c1f28eb8946eb00ef5982a",
+      "content_bytes": 1265,
+      "expected_content_exact": null,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 16407592960,
+      "host_before": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 65%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; 0:00 remaining present: true"
+      },
+      "host_after": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 64%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; 0:00 remaining present: true"
+      },
+      "runtime_stats_before": {
+        "total_tokens_served": 29969,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 27400,
+        "total_completion_tokens": 2569,
+        "total_requests": 17,
+        "avg_prefill_tps": 770.5,
+        "avg_generation_tps": 62.9,
+        "uptime_seconds": 474.4,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 15731370304,
+              "actual_size_formatted": "14.65GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 0.7157459259033203,
+              "ttl_remaining_seconds": null,
+              "dflash": null
+            }
+          ],
+          "model_memory_used": 16560206472,
+          "model_memory_max": 55439725192,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 16560206472,
+            "soft_bytes": 49895752672,
+            "hard_bytes": 52667738932,
+            "current_formatted": "15.4GB",
+            "soft_formatted": "46.5GB",
+            "hard_formatted": "49.1GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 0,
+          "hot_cache_size_bytes": 0,
+          "hot_cache_entries": 0
+        }
+      },
+      "runtime_stats_after": {
+        "total_tokens_served": 32148,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 29323,
+        "total_completion_tokens": 2825,
+        "total_requests": 18,
+        "avg_prefill_tps": 775.0,
+        "avg_generation_tps": 57.9,
+        "uptime_seconds": 484.8,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 15731370304,
+              "actual_size_formatted": "14.65GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 10.273406982421875,
+              "ttl_remaining_seconds": null,
+              "dflash": null
+            }
+          ],
+          "model_memory_used": 16836899464,
+          "model_memory_max": 55446753928,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 16836899464,
+            "soft_bytes": 49902078535,
+            "hard_bytes": 52674416231,
+            "current_formatted": "15.7GB",
+            "soft_formatted": "46.5GB",
+            "hard_formatted": "49.1GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 0,
+          "hot_cache_size_bytes": 0,
+          "hot_cache_entries": 0
+        }
+      },
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    },
+    {
+      "approximate_prefix_tokens": 2048,
+      "prompt_bytes": 8235,
+      "prompt_sha256": "81734525e62cd36bfb75ce8c3283b162540e19bc264c6f3d0bf1cc20b267da2e",
+      "input_definition_sha256": "b9967bf9c7f5396e37f3a8162b7be87e8ba4293e292d400af08d1c28216cf8f9",
+      "expected_content_sha256": null,
+      "max_output_tokens": 256,
+      "repetition": 2,
+      "ttft_seconds": 2.283225416,
+      "end_to_end_seconds": 10.225065708,
+      "decode_tokens_per_second": 32.23434249337332,
+      "usage": {
+        "prompt_tokens": 1923,
+        "completion_tokens": 256,
+        "total_tokens": 2179,
+        "input_tokens": 1923,
+        "output_tokens": 256,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "time_to_first_token": 2.28,
+        "total_time": 10.22,
+        "prompt_eval_duration": 2.28,
+        "generation_duration": 7.94,
+        "prompt_tokens_per_second": 844.88,
+        "generation_tokens_per_second": 32.23
+      },
+      "finish_reasons": [
+        "length"
+      ],
+      "content_sha256": "56342fa821e5721ccab52b9259fe0103bb6fc8b0e1c1f28eb8946eb00ef5982a",
+      "content_bytes": 1265,
+      "expected_content_exact": null,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 16407904256,
+      "host_before": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 64%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; 0:00 remaining present: true"
+      },
+      "host_after": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 65%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; 0:00 remaining present: true"
+      },
+      "runtime_stats_before": {
+        "total_tokens_served": 32148,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 29323,
+        "total_completion_tokens": 2825,
+        "total_requests": 18,
+        "avg_prefill_tps": 775.0,
+        "avg_generation_tps": 57.9,
+        "uptime_seconds": 484.8,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 15731370304,
+              "actual_size_formatted": "14.65GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 10.276026725769043,
+              "ttl_remaining_seconds": null,
+              "dflash": null
+            }
+          ],
+          "model_memory_used": 16836899464,
+          "model_memory_max": 55446753928,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 16836899464,
+            "soft_bytes": 49902078535,
+            "hard_bytes": 52674416231,
+            "current_formatted": "15.7GB",
+            "soft_formatted": "46.5GB",
+            "hard_formatted": "49.1GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 0,
+          "hot_cache_size_bytes": 0,
+          "hot_cache_entries": 0
+        }
+      },
+      "runtime_stats_after": {
+        "total_tokens_served": 34327,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 31246,
+        "total_completion_tokens": 3081,
+        "total_requests": 19,
+        "avg_prefill_tps": 779.0,
+        "avg_generation_tps": 54.3,
+        "uptime_seconds": 495.1,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 15731370304,
+              "actual_size_formatted": "14.65GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 10.303355932235718,
+              "ttl_remaining_seconds": null,
+              "dflash": null
+            }
+          ],
+          "model_memory_used": 16699470472,
+          "model_memory_max": 55454413448,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 16699470472,
+            "soft_bytes": 49908972103,
+            "hard_bytes": 52681692775,
+            "current_formatted": "15.6GB",
+            "soft_formatted": "46.5GB",
+            "hard_formatted": "49.1GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 0,
+          "hot_cache_size_bytes": 0,
+          "hot_cache_entries": 0
+        }
+      },
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    },
+    {
+      "approximate_prefix_tokens": 2048,
+      "prompt_bytes": 8235,
+      "prompt_sha256": "81734525e62cd36bfb75ce8c3283b162540e19bc264c6f3d0bf1cc20b267da2e",
+      "input_definition_sha256": "b9967bf9c7f5396e37f3a8162b7be87e8ba4293e292d400af08d1c28216cf8f9",
+      "expected_content_sha256": null,
+      "max_output_tokens": 256,
+      "repetition": 3,
+      "ttft_seconds": 2.335044041,
+      "end_to_end_seconds": 10.260901416,
+      "decode_tokens_per_second": 32.29934477593347,
+      "usage": {
+        "prompt_tokens": 1923,
+        "completion_tokens": 256,
+        "total_tokens": 2179,
+        "input_tokens": 1923,
+        "output_tokens": 256,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "time_to_first_token": 2.33,
+        "total_time": 10.26,
+        "prompt_eval_duration": 2.33,
+        "generation_duration": 7.93,
+        "prompt_tokens_per_second": 826.18,
+        "generation_tokens_per_second": 32.29
+      },
+      "finish_reasons": [
+        "length"
+      ],
+      "content_sha256": "56342fa821e5721ccab52b9259fe0103bb6fc8b0e1c1f28eb8946eb00ef5982a",
+      "content_bytes": 1265,
+      "expected_content_exact": null,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 16407904256,
+      "host_before": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 65%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; 0:00 remaining present: true"
+      },
+      "host_after": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 64%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; 0:00 remaining present: true"
+      },
+      "runtime_stats_before": {
+        "total_tokens_served": 34327,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 31246,
+        "total_completion_tokens": 3081,
+        "total_requests": 19,
+        "avg_prefill_tps": 779.0,
+        "avg_generation_tps": 54.3,
+        "uptime_seconds": 495.1,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 15731370304,
+              "actual_size_formatted": "14.65GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 10.30621600151062,
+              "ttl_remaining_seconds": null,
+              "dflash": null
+            }
+          ],
+          "model_memory_used": 16699470472,
+          "model_memory_max": 55454413448,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 16699470472,
+            "soft_bytes": 49908972103,
+            "hard_bytes": 52681692775,
+            "current_formatted": "15.6GB",
+            "soft_formatted": "46.5GB",
+            "hard_formatted": "49.1GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 0,
+          "hot_cache_size_bytes": 0,
+          "hot_cache_entries": 0
+        }
+      },
+      "runtime_stats_after": {
+        "total_tokens_served": 36506,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 33169,
+        "total_completion_tokens": 3337,
+        "total_requests": 20,
+        "avg_prefill_tps": 781.5,
+        "avg_generation_tps": 51.6,
+        "uptime_seconds": 505.5,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 15731370304,
+              "actual_size_formatted": "14.65GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 10.352489948272705,
+              "ttl_remaining_seconds": null,
+              "dflash": null
+            }
+          ],
+          "model_memory_used": 16836883080,
+          "model_memory_max": 55454724744,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 16836883080,
+            "soft_bytes": 49909252269,
+            "hard_bytes": 52681988506,
+            "current_formatted": "15.7GB",
+            "soft_formatted": "46.5GB",
+            "hard_formatted": "49.1GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 0,
+          "hot_cache_size_bytes": 0,
+          "hot_cache_entries": 0
+        }
+      },
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    }
+  ]
+}

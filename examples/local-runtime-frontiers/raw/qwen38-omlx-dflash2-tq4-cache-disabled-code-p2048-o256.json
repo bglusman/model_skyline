@@ -1,0 +1,1591 @@
+{
+  "schema_version": "model-skyline/raw-openai-matrix/v1",
+  "started_at": "2026-09-13T05:30:49.545046Z",
+  "captured_at": "2026-09-13T05:31:15.179767Z",
+  "base_url": "http://127.0.0.1:8284/v1",
+  "model": "qwen3.8-27b-oq4e-mtp:dflash2-tq4",
+  "mode": "code",
+  "retrieval_position": null,
+  "repetitions": 3,
+  "warmup": true,
+  "runner_state": "warm",
+  "process_match": "omlx-server",
+  "runtime_stats_url": "http://127.0.0.1:8284/admin/api/stats",
+  "runtime_stats_auth": {
+    "method": "omlx-admin-session-cookie",
+    "environment_variable": "OMLX_ADMIN_SESSION"
+  },
+  "runner_status_url": null,
+  "runner_model_id": null,
+  "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+  "tool_schema_sha256": null,
+  "tool_count": 0,
+  "results": [
+    {
+      "approximate_prefix_tokens": 2048,
+      "prompt_bytes": 8244,
+      "prompt_sha256": "98a5c737f6c481f2c0c9b6df3d2979d4dae9d88e9a21ecf60a0fcdc1a4bc38b2",
+      "input_definition_sha256": "faef82e597d15faff898314b69967b9461b8e456573fca9430a51da9fc264d68",
+      "expected_content_sha256": null,
+      "max_output_tokens": 256,
+      "repetition": 1,
+      "ttft_seconds": 3.222521792,
+      "end_to_end_seconds": 7.750873875,
+      "decode_tokens_per_second": 56.532706668515466,
+      "usage": {
+        "prompt_tokens": 2845,
+        "completion_tokens": 256,
+        "total_tokens": 3101,
+        "input_tokens": 2845,
+        "output_tokens": 256,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "time_to_first_token": 3.22,
+        "total_time": 7.74,
+        "prompt_eval_duration": 3.22,
+        "generation_duration": 4.53,
+        "prompt_tokens_per_second": 884.61,
+        "generation_tokens_per_second": 56.53
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "content_sha256": "56186874185061a2db8a5eb24b6a70d8afcc098714cb8082ac8cc34f0cbd8a9e",
+      "content_bytes": 1318,
+      "expected_content_exact": null,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 16477224960,
+      "host_before": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 63%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; 0:00 remaining present: true"
+      },
+      "host_after": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 63%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; 0:00 remaining present: true"
+      },
+      "runtime_stats_before": {
+        "total_tokens_served": 6689,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 5905,
+        "total_completion_tokens": 784,
+        "total_requests": 5,
+        "avg_prefill_tps": 739.2,
+        "avg_generation_tps": 65.5,
+        "uptime_seconds": 323.8,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 12942189136,
+              "actual_size_formatted": "12.05GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 0.5799770355224609,
+              "ttl_remaining_seconds": null,
+              "dflash": {
+                "speculation": {
+                  "last": {
+                    "generation_tokens": 8,
+                    "cycles": 3,
+                    "acceptance_ratio": 0.625,
+                    "accepted_draft_tokens": 5,
+                    "tokens_per_cycle": 2.6666666666666665,
+                    "accepted_draft_tokens_per_cycle": 1.6666666666666667,
+                    "fallback_ar": false,
+                    "fallback_reason": null
+                  },
+                  "totals": {
+                    "requests": 5,
+                    "speculative_requests": 5,
+                    "fallback_requests": 0,
+                    "generation_tokens": 784,
+                    "accepted_draft_tokens": 544,
+                    "cycles": 240,
+                    "acceptance_ratio": 0.6938775510204082,
+                    "tokens_per_cycle": 3.2666666666666666,
+                    "accepted_draft_tokens_per_cycle": 2.2666666666666666
+                  }
+                },
+                "pairing_warning": null
+              }
+            }
+          ],
+          "model_memory_used": 17988072072,
+          "model_memory_max": 55662788608,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 17988072072,
+            "soft_bytes": 50096509747,
+            "hard_bytes": 52879649177,
+            "current_formatted": "16.8GB",
+            "soft_formatted": "46.7GB",
+            "hard_formatted": "49.2GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "block_size": 0,
+              "indexed_blocks": 0,
+              "indexed_blocks_display": "0",
+              "has_sub_block_cache": false,
+              "partial_block_skips": 0,
+              "partial_tokens_skipped": 0,
+              "last_partial_tokens_skipped": 0,
+              "last_tokens_to_next_block": 0,
+              "num_files": 0,
+              "total_size_bytes": 0,
+              "max_size_bytes": 0,
+              "hot_cache_max_bytes": 4294967296,
+              "hot_cache_size_bytes": 478414848,
+              "hot_cache_entries": 2,
+              "gdn_checkpoint_loads": 0,
+              "gdn_checkpoint_walkbacks": 0,
+              "gdn_last_restore": null,
+              "gdn_staging": {
+                "pending_bytes": 0,
+                "pending_peak_bytes": 0,
+                "backpressure_ms": 0.0,
+                "state_dtype": "fp32",
+                "state_dequantizations": 0,
+                "encode_failures": 0,
+                "decode_failures": 0,
+                "capability_fallbacks": 0,
+                "legacy_fp32_fallbacks": 0,
+                "sidecar_count": 0,
+                "sidecar_size_bytes": 0
+              },
+              "cache_rates": {
+                "windows": {
+                  "1m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 3,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 0,
+                    "eviction_rate_per_min": 0.0,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "5m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 3,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 0,
+                    "eviction_rate_per_min": 0.0,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "15m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 3,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 0,
+                    "eviction_rate_per_min": 0.0,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  }
+                },
+                "cumulative": {
+                  "prefix_hits": 0,
+                  "prefix_misses": 4,
+                  "prefix_hit_rate": 0.0,
+                  "prefix_tokens_saved": 0,
+                  "prefix_match_efficiency": 0.0,
+                  "evictions": 0,
+                  "ssd_hot_hits": 0,
+                  "ssd_disk_loads": 0,
+                  "ssd_saves": 0,
+                  "hot_cache_evictions": 0,
+                  "hot_cache_promotions": 0,
+                  "ssd_hot_rate": 0.0,
+                  "target_static_hits": 0,
+                  "target_static_misses": 0,
+                  "target_static_hit_rate": 0.0,
+                  "target_static_tokens_restored": 0,
+                  "draft_prefix_hits": 0,
+                  "draft_prefix_misses": 0,
+                  "draft_prefix_hit_rate": 0.0,
+                  "draft_prefix_tokens_saved": 0
+                }
+              }
+            }
+          ],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 4294967296,
+          "hot_cache_size_bytes": 478414848,
+          "hot_cache_entries": 2
+        }
+      },
+      "runtime_stats_after": {
+        "total_tokens_served": 9790,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 8750,
+        "total_completion_tokens": 1040,
+        "total_requests": 6,
+        "avg_prefill_tps": 780.9,
+        "avg_generation_tps": 63.0,
+        "uptime_seconds": 331.7,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 12942189136,
+              "actual_size_formatted": "12.05GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 7.828928709030151,
+              "ttl_remaining_seconds": null,
+              "dflash": {
+                "speculation": {
+                  "last": {
+                    "generation_tokens": 256,
+                    "cycles": 93,
+                    "acceptance_ratio": 0.63671875,
+                    "accepted_draft_tokens": 163,
+                    "tokens_per_cycle": 2.752688172043011,
+                    "accepted_draft_tokens_per_cycle": 1.7526881720430108,
+                    "fallback_ar": false,
+                    "fallback_reason": null
+                  },
+                  "totals": {
+                    "requests": 6,
+                    "speculative_requests": 6,
+                    "fallback_requests": 0,
+                    "generation_tokens": 1040,
+                    "accepted_draft_tokens": 707,
+                    "cycles": 333,
+                    "acceptance_ratio": 0.6798076923076923,
+                    "tokens_per_cycle": 3.123123123123123,
+                    "accepted_draft_tokens_per_cycle": 2.123123123123123
+                  }
+                },
+                "pairing_warning": null
+              }
+            }
+          ],
+          "model_memory_used": 18176750216,
+          "model_memory_max": 55591391880,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 18176750216,
+            "soft_bytes": 50032252692,
+            "hard_bytes": 52811822286,
+            "current_formatted": "16.9GB",
+            "soft_formatted": "46.6GB",
+            "hard_formatted": "49.2GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "block_size": 0,
+              "indexed_blocks": 0,
+              "indexed_blocks_display": "0",
+              "has_sub_block_cache": false,
+              "partial_block_skips": 0,
+              "partial_tokens_skipped": 0,
+              "last_partial_tokens_skipped": 0,
+              "last_tokens_to_next_block": 0,
+              "num_files": 0,
+              "total_size_bytes": 0,
+              "max_size_bytes": 0,
+              "hot_cache_max_bytes": 4294967296,
+              "hot_cache_size_bytes": 538839040,
+              "hot_cache_entries": 2,
+              "gdn_checkpoint_loads": 0,
+              "gdn_checkpoint_walkbacks": 0,
+              "gdn_last_restore": null,
+              "gdn_staging": {
+                "pending_bytes": 0,
+                "pending_peak_bytes": 0,
+                "backpressure_ms": 0.0,
+                "state_dtype": "fp32",
+                "state_dequantizations": 0,
+                "encode_failures": 0,
+                "decode_failures": 0,
+                "capability_fallbacks": 0,
+                "legacy_fp32_fallbacks": 0,
+                "sidecar_count": 0,
+                "sidecar_size_bytes": 0
+              },
+              "cache_rates": {
+                "windows": {
+                  "1m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 3,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 0,
+                    "eviction_rate_per_min": 0.0,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "5m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 3,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 0,
+                    "eviction_rate_per_min": 0.0,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "15m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 3,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 0,
+                    "eviction_rate_per_min": 0.0,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  }
+                },
+                "cumulative": {
+                  "prefix_hits": 0,
+                  "prefix_misses": 4,
+                  "prefix_hit_rate": 0.0,
+                  "prefix_tokens_saved": 0,
+                  "prefix_match_efficiency": 0.0,
+                  "evictions": 0,
+                  "ssd_hot_hits": 0,
+                  "ssd_disk_loads": 0,
+                  "ssd_saves": 0,
+                  "hot_cache_evictions": 0,
+                  "hot_cache_promotions": 0,
+                  "ssd_hot_rate": 0.0,
+                  "target_static_hits": 0,
+                  "target_static_misses": 0,
+                  "target_static_hit_rate": 0.0,
+                  "target_static_tokens_restored": 0,
+                  "draft_prefix_hits": 0,
+                  "draft_prefix_misses": 0,
+                  "draft_prefix_hit_rate": 0.0,
+                  "draft_prefix_tokens_saved": 0
+                }
+              }
+            }
+          ],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 4294967296,
+          "hot_cache_size_bytes": 538839040,
+          "hot_cache_entries": 2
+        }
+      },
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    },
+    {
+      "approximate_prefix_tokens": 2048,
+      "prompt_bytes": 8244,
+      "prompt_sha256": "98a5c737f6c481f2c0c9b6df3d2979d4dae9d88e9a21ecf60a0fcdc1a4bc38b2",
+      "input_definition_sha256": "faef82e597d15faff898314b69967b9461b8e456573fca9430a51da9fc264d68",
+      "expected_content_sha256": null,
+      "max_output_tokens": 256,
+      "repetition": 2,
+      "ttft_seconds": 3.52262575,
+      "end_to_end_seconds": 8.225566584,
+      "decode_tokens_per_second": 54.43402522720319,
+      "usage": {
+        "prompt_tokens": 2845,
+        "completion_tokens": 256,
+        "total_tokens": 3101,
+        "input_tokens": 2845,
+        "output_tokens": 256,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "time_to_first_token": 3.52,
+        "total_time": 8.22,
+        "prompt_eval_duration": 3.52,
+        "generation_duration": 4.7,
+        "prompt_tokens_per_second": 809.07,
+        "generation_tokens_per_second": 54.44
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "content_sha256": "56186874185061a2db8a5eb24b6a70d8afcc098714cb8082ac8cc34f0cbd8a9e",
+      "content_bytes": 1318,
+      "expected_content_exact": null,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 16477372416,
+      "host_before": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 63%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; 0:00 remaining present: true"
+      },
+      "host_after": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 63%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; (no estimate) present: true"
+      },
+      "runtime_stats_before": {
+        "total_tokens_served": 9790,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 8750,
+        "total_completion_tokens": 1040,
+        "total_requests": 6,
+        "avg_prefill_tps": 780.9,
+        "avg_generation_tps": 63.0,
+        "uptime_seconds": 331.7,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 12942189136,
+              "actual_size_formatted": "12.05GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 7.831995010375977,
+              "ttl_remaining_seconds": null,
+              "dflash": {
+                "speculation": {
+                  "last": {
+                    "generation_tokens": 256,
+                    "cycles": 93,
+                    "acceptance_ratio": 0.63671875,
+                    "accepted_draft_tokens": 163,
+                    "tokens_per_cycle": 2.752688172043011,
+                    "accepted_draft_tokens_per_cycle": 1.7526881720430108,
+                    "fallback_ar": false,
+                    "fallback_reason": null
+                  },
+                  "totals": {
+                    "requests": 6,
+                    "speculative_requests": 6,
+                    "fallback_requests": 0,
+                    "generation_tokens": 1040,
+                    "accepted_draft_tokens": 707,
+                    "cycles": 333,
+                    "acceptance_ratio": 0.6798076923076923,
+                    "tokens_per_cycle": 3.123123123123123,
+                    "accepted_draft_tokens_per_cycle": 2.123123123123123
+                  }
+                },
+                "pairing_warning": null
+              }
+            }
+          ],
+          "model_memory_used": 18176750216,
+          "model_memory_max": 55591391880,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 18176750216,
+            "soft_bytes": 50032252692,
+            "hard_bytes": 52811822286,
+            "current_formatted": "16.9GB",
+            "soft_formatted": "46.6GB",
+            "hard_formatted": "49.2GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "block_size": 0,
+              "indexed_blocks": 0,
+              "indexed_blocks_display": "0",
+              "has_sub_block_cache": false,
+              "partial_block_skips": 0,
+              "partial_tokens_skipped": 0,
+              "last_partial_tokens_skipped": 0,
+              "last_tokens_to_next_block": 0,
+              "num_files": 0,
+              "total_size_bytes": 0,
+              "max_size_bytes": 0,
+              "hot_cache_max_bytes": 4294967296,
+              "hot_cache_size_bytes": 538839040,
+              "hot_cache_entries": 2,
+              "gdn_checkpoint_loads": 0,
+              "gdn_checkpoint_walkbacks": 0,
+              "gdn_last_restore": null,
+              "gdn_staging": {
+                "pending_bytes": 0,
+                "pending_peak_bytes": 0,
+                "backpressure_ms": 0.0,
+                "state_dtype": "fp32",
+                "state_dequantizations": 0,
+                "encode_failures": 0,
+                "decode_failures": 0,
+                "capability_fallbacks": 0,
+                "legacy_fp32_fallbacks": 0,
+                "sidecar_count": 0,
+                "sidecar_size_bytes": 0
+              },
+              "cache_rates": {
+                "windows": {
+                  "1m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 3,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 0,
+                    "eviction_rate_per_min": 0.0,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "5m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 3,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 0,
+                    "eviction_rate_per_min": 0.0,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "15m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 3,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 0,
+                    "eviction_rate_per_min": 0.0,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  }
+                },
+                "cumulative": {
+                  "prefix_hits": 0,
+                  "prefix_misses": 4,
+                  "prefix_hit_rate": 0.0,
+                  "prefix_tokens_saved": 0,
+                  "prefix_match_efficiency": 0.0,
+                  "evictions": 0,
+                  "ssd_hot_hits": 0,
+                  "ssd_disk_loads": 0,
+                  "ssd_saves": 0,
+                  "hot_cache_evictions": 0,
+                  "hot_cache_promotions": 0,
+                  "ssd_hot_rate": 0.0,
+                  "target_static_hits": 0,
+                  "target_static_misses": 0,
+                  "target_static_hit_rate": 0.0,
+                  "target_static_tokens_restored": 0,
+                  "draft_prefix_hits": 0,
+                  "draft_prefix_misses": 0,
+                  "draft_prefix_hit_rate": 0.0,
+                  "draft_prefix_tokens_saved": 0
+                }
+              }
+            }
+          ],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 4294967296,
+          "hot_cache_size_bytes": 538839040,
+          "hot_cache_entries": 2
+        }
+      },
+      "runtime_stats_after": {
+        "total_tokens_served": 12891,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 11595,
+        "total_completion_tokens": 1296,
+        "total_requests": 7,
+        "avg_prefill_tps": 787.7,
+        "avg_generation_tps": 61.1,
+        "uptime_seconds": 340.0,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 12942189136,
+              "actual_size_formatted": "12.05GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 8.298882246017456,
+              "ttl_remaining_seconds": null,
+              "dflash": {
+                "speculation": {
+                  "last": {
+                    "generation_tokens": 256,
+                    "cycles": 93,
+                    "acceptance_ratio": 0.63671875,
+                    "accepted_draft_tokens": 163,
+                    "tokens_per_cycle": 2.752688172043011,
+                    "accepted_draft_tokens_per_cycle": 1.7526881720430108,
+                    "fallback_ar": false,
+                    "fallback_reason": null
+                  },
+                  "totals": {
+                    "requests": 7,
+                    "speculative_requests": 7,
+                    "fallback_requests": 0,
+                    "generation_tokens": 1296,
+                    "accepted_draft_tokens": 870,
+                    "cycles": 426,
+                    "acceptance_ratio": 0.6712962962962963,
+                    "tokens_per_cycle": 3.0422535211267605,
+                    "accepted_draft_tokens_per_cycle": 2.0422535211267605
+                  }
+                },
+                "pairing_warning": null
+              }
+            }
+          ],
+          "model_memory_used": 18198655624,
+          "model_memory_max": 55530631816,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 18198655624,
+            "soft_bytes": 49977568634,
+            "hard_bytes": 52754100225,
+            "current_formatted": "16.9GB",
+            "soft_formatted": "46.5GB",
+            "hard_formatted": "49.1GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "block_size": 0,
+              "indexed_blocks": 0,
+              "indexed_blocks_display": "0",
+              "has_sub_block_cache": false,
+              "partial_block_skips": 0,
+              "partial_tokens_skipped": 0,
+              "last_partial_tokens_skipped": 0,
+              "last_tokens_to_next_block": 0,
+              "num_files": 0,
+              "total_size_bytes": 0,
+              "max_size_bytes": 0,
+              "hot_cache_max_bytes": 4294967296,
+              "hot_cache_size_bytes": 538839040,
+              "hot_cache_entries": 2,
+              "gdn_checkpoint_loads": 0,
+              "gdn_checkpoint_walkbacks": 0,
+              "gdn_last_restore": null,
+              "gdn_staging": {
+                "pending_bytes": 0,
+                "pending_peak_bytes": 0,
+                "backpressure_ms": 0.0,
+                "state_dtype": "fp32",
+                "state_dequantizations": 0,
+                "encode_failures": 0,
+                "decode_failures": 0,
+                "capability_fallbacks": 0,
+                "legacy_fp32_fallbacks": 0,
+                "sidecar_count": 0,
+                "sidecar_size_bytes": 0
+              },
+              "cache_rates": {
+                "windows": {
+                  "1m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 4,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 1,
+                    "eviction_rate_per_min": 1.22,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "5m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 6,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 1,
+                    "eviction_rate_per_min": 0.97,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "15m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 6,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 1,
+                    "eviction_rate_per_min": 0.97,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  }
+                },
+                "cumulative": {
+                  "prefix_hits": 0,
+                  "prefix_misses": 7,
+                  "prefix_hit_rate": 0.0,
+                  "prefix_tokens_saved": 0,
+                  "prefix_match_efficiency": 0.0,
+                  "evictions": 1,
+                  "ssd_hot_hits": 0,
+                  "ssd_disk_loads": 0,
+                  "ssd_saves": 0,
+                  "hot_cache_evictions": 1,
+                  "hot_cache_promotions": 0,
+                  "ssd_hot_rate": 0.0,
+                  "target_static_hits": 0,
+                  "target_static_misses": 0,
+                  "target_static_hit_rate": 0.0,
+                  "target_static_tokens_restored": 0,
+                  "draft_prefix_hits": 0,
+                  "draft_prefix_misses": 0,
+                  "draft_prefix_hit_rate": 0.0,
+                  "draft_prefix_tokens_saved": 0
+                }
+              }
+            }
+          ],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 4294967296,
+          "hot_cache_size_bytes": 538839040,
+          "hot_cache_entries": 2
+        }
+      },
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    },
+    {
+      "approximate_prefix_tokens": 2048,
+      "prompt_bytes": 8244,
+      "prompt_sha256": "98a5c737f6c481f2c0c9b6df3d2979d4dae9d88e9a21ecf60a0fcdc1a4bc38b2",
+      "input_definition_sha256": "faef82e597d15faff898314b69967b9461b8e456573fca9430a51da9fc264d68",
+      "expected_content_sha256": null,
+      "max_output_tokens": 256,
+      "repetition": 3,
+      "ttft_seconds": 3.901032917,
+      "end_to_end_seconds": 8.653697542,
+      "decode_tokens_per_second": 53.86452026372469,
+      "usage": {
+        "prompt_tokens": 2845,
+        "completion_tokens": 256,
+        "total_tokens": 3101,
+        "input_tokens": 2845,
+        "output_tokens": 256,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "time_to_first_token": 3.89,
+        "total_time": 8.65,
+        "prompt_eval_duration": 3.89,
+        "generation_duration": 4.75,
+        "prompt_tokens_per_second": 730.44,
+        "generation_tokens_per_second": 53.87
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "content_sha256": "56186874185061a2db8a5eb24b6a70d8afcc098714cb8082ac8cc34f0cbd8a9e",
+      "content_bytes": 1318,
+      "expected_content_exact": null,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 16477356032,
+      "host_before": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 63%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; (no estimate) present: true"
+      },
+      "host_after": {
+        "swap_used_bytes": 6152645509,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 63%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; finishing charge; (no estimate) present: true"
+      },
+      "runtime_stats_before": {
+        "total_tokens_served": 12891,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 11595,
+        "total_completion_tokens": 1296,
+        "total_requests": 7,
+        "avg_prefill_tps": 787.7,
+        "avg_generation_tps": 61.1,
+        "uptime_seconds": 340.0,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 12942189136,
+              "actual_size_formatted": "12.05GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 8.301923274993896,
+              "ttl_remaining_seconds": null,
+              "dflash": {
+                "speculation": {
+                  "last": {
+                    "generation_tokens": 256,
+                    "cycles": 93,
+                    "acceptance_ratio": 0.63671875,
+                    "accepted_draft_tokens": 163,
+                    "tokens_per_cycle": 2.752688172043011,
+                    "accepted_draft_tokens_per_cycle": 1.7526881720430108,
+                    "fallback_ar": false,
+                    "fallback_reason": null
+                  },
+                  "totals": {
+                    "requests": 7,
+                    "speculative_requests": 7,
+                    "fallback_requests": 0,
+                    "generation_tokens": 1296,
+                    "accepted_draft_tokens": 870,
+                    "cycles": 426,
+                    "acceptance_ratio": 0.6712962962962963,
+                    "tokens_per_cycle": 3.0422535211267605,
+                    "accepted_draft_tokens_per_cycle": 2.0422535211267605
+                  }
+                },
+                "pairing_warning": null
+              }
+            }
+          ],
+          "model_memory_used": 18198655624,
+          "model_memory_max": 55530631816,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 18198655624,
+            "soft_bytes": 49977568634,
+            "hard_bytes": 52754100225,
+            "current_formatted": "16.9GB",
+            "soft_formatted": "46.5GB",
+            "hard_formatted": "49.1GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "block_size": 0,
+              "indexed_blocks": 0,
+              "indexed_blocks_display": "0",
+              "has_sub_block_cache": false,
+              "partial_block_skips": 0,
+              "partial_tokens_skipped": 0,
+              "last_partial_tokens_skipped": 0,
+              "last_tokens_to_next_block": 0,
+              "num_files": 0,
+              "total_size_bytes": 0,
+              "max_size_bytes": 0,
+              "hot_cache_max_bytes": 4294967296,
+              "hot_cache_size_bytes": 538839040,
+              "hot_cache_entries": 2,
+              "gdn_checkpoint_loads": 0,
+              "gdn_checkpoint_walkbacks": 0,
+              "gdn_last_restore": null,
+              "gdn_staging": {
+                "pending_bytes": 0,
+                "pending_peak_bytes": 0,
+                "backpressure_ms": 0.0,
+                "state_dtype": "fp32",
+                "state_dequantizations": 0,
+                "encode_failures": 0,
+                "decode_failures": 0,
+                "capability_fallbacks": 0,
+                "legacy_fp32_fallbacks": 0,
+                "sidecar_count": 0,
+                "sidecar_size_bytes": 0
+              },
+              "cache_rates": {
+                "windows": {
+                  "1m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 4,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 1,
+                    "eviction_rate_per_min": 1.22,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "5m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 6,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 1,
+                    "eviction_rate_per_min": 0.97,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "15m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 6,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 1,
+                    "eviction_rate_per_min": 0.97,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  }
+                },
+                "cumulative": {
+                  "prefix_hits": 0,
+                  "prefix_misses": 7,
+                  "prefix_hit_rate": 0.0,
+                  "prefix_tokens_saved": 0,
+                  "prefix_match_efficiency": 0.0,
+                  "evictions": 1,
+                  "ssd_hot_hits": 0,
+                  "ssd_disk_loads": 0,
+                  "ssd_saves": 0,
+                  "hot_cache_evictions": 1,
+                  "hot_cache_promotions": 0,
+                  "ssd_hot_rate": 0.0,
+                  "target_static_hits": 0,
+                  "target_static_misses": 0,
+                  "target_static_hit_rate": 0.0,
+                  "target_static_tokens_restored": 0,
+                  "draft_prefix_hits": 0,
+                  "draft_prefix_misses": 0,
+                  "draft_prefix_hit_rate": 0.0,
+                  "draft_prefix_tokens_saved": 0
+                }
+              }
+            }
+          ],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 4294967296,
+          "hot_cache_size_bytes": 538839040,
+          "hot_cache_entries": 2
+        }
+      },
+      "runtime_stats_after": {
+        "total_tokens_served": 15992,
+        "total_cached_tokens": 0,
+        "cache_efficiency": 0.0,
+        "total_prompt_tokens": 14440,
+        "total_completion_tokens": 1552,
+        "total_requests": 8,
+        "avg_prefill_tps": 775.7,
+        "avg_generation_tps": 59.8,
+        "uptime_seconds": 348.8,
+        "host": "127.0.0.1",
+        "port": 8284,
+        "api_key": "",
+        "cli_prefix": "omlx",
+        "engines": {
+          "mlx-lm": {
+            "name": "mlx-lm",
+            "version": "0.31.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-vlm": {
+            "name": "mlx-vlm",
+            "version": "0.6.3",
+            "commit": null,
+            "url": null
+          },
+          "mlx-embeddings": {
+            "name": "mlx-embeddings",
+            "version": "0.1.0",
+            "commit": null,
+            "url": null
+          },
+          "mlx-audio": {
+            "name": "mlx-audio",
+            "version": "0.4.3",
+            "commit": null,
+            "url": null
+          }
+        },
+        "active_models": {
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "estimated_size": 17820287139,
+              "estimated_size_formatted": "16.60GB",
+              "actual_size": 12942189136,
+              "actual_size_formatted": "12.05GB",
+              "pinned": false,
+              "is_loading": false,
+              "loading_elapsed_seconds": null,
+              "loading_estimated_seconds": null,
+              "loading_remaining_seconds_estimate": null,
+              "active_requests": 0,
+              "waiting_requests": 0,
+              "waiting": [],
+              "activities": [],
+              "prefilling": [],
+              "generating": [],
+              "idle_seconds": 8.719708919525146,
+              "ttl_remaining_seconds": null,
+              "dflash": {
+                "speculation": {
+                  "last": {
+                    "generation_tokens": 256,
+                    "cycles": 93,
+                    "acceptance_ratio": 0.63671875,
+                    "accepted_draft_tokens": 163,
+                    "tokens_per_cycle": 2.752688172043011,
+                    "accepted_draft_tokens_per_cycle": 1.7526881720430108,
+                    "fallback_ar": false,
+                    "fallback_reason": null
+                  },
+                  "totals": {
+                    "requests": 8,
+                    "speculative_requests": 8,
+                    "fallback_requests": 0,
+                    "generation_tokens": 1552,
+                    "accepted_draft_tokens": 1033,
+                    "cycles": 519,
+                    "acceptance_ratio": 0.6655927835051546,
+                    "tokens_per_cycle": 2.9903660886319847,
+                    "accepted_draft_tokens_per_cycle": 1.9903660886319845
+                  }
+                },
+                "pairing_warning": null
+              }
+            }
+          ],
+          "model_memory_used": 18101088904,
+          "model_memory_max": 54824964744,
+          "memory_pressure": {
+            "enabled": true,
+            "current_bytes": 18101088904,
+            "soft_bytes": 49342468269,
+            "hard_bytes": 52083716506,
+            "current_formatted": "16.9GB",
+            "soft_formatted": "46.0GB",
+            "hard_formatted": "48.5GB",
+            "pressure_level": "ok"
+          },
+          "total_active_requests": 0,
+          "total_waiting_requests": 0
+        },
+        "runtime_cache": {
+          "base_path": "/Users/80260986/.omlx",
+          "ssd_cache_dir": "/Users/80260986/.omlx/cache",
+          "response_state_dir": "/Users/80260986/.omlx/cache/response-state",
+          "models": [
+            {
+              "id": "Qwen3.8-27B-oQ4e-mtp",
+              "block_size": 0,
+              "indexed_blocks": 0,
+              "indexed_blocks_display": "0",
+              "has_sub_block_cache": false,
+              "partial_block_skips": 0,
+              "partial_tokens_skipped": 0,
+              "last_partial_tokens_skipped": 0,
+              "last_tokens_to_next_block": 0,
+              "num_files": 0,
+              "total_size_bytes": 0,
+              "max_size_bytes": 0,
+              "hot_cache_max_bytes": 4294967296,
+              "hot_cache_size_bytes": 538839040,
+              "hot_cache_entries": 2,
+              "gdn_checkpoint_loads": 0,
+              "gdn_checkpoint_walkbacks": 0,
+              "gdn_last_restore": null,
+              "gdn_staging": {
+                "pending_bytes": 0,
+                "pending_peak_bytes": 0,
+                "backpressure_ms": 0.0,
+                "state_dtype": "fp32",
+                "state_dequantizations": 0,
+                "encode_failures": 0,
+                "decode_failures": 0,
+                "capability_fallbacks": 0,
+                "legacy_fp32_fallbacks": 0,
+                "sidecar_count": 0,
+                "sidecar_size_bytes": 0
+              },
+              "cache_rates": {
+                "windows": {
+                  "1m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 4,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 1,
+                    "eviction_rate_per_min": 1.22,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "5m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 6,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 1,
+                    "eviction_rate_per_min": 0.97,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  },
+                  "15m": {
+                    "prefix_hit_rate": 0.0,
+                    "prefix_hits": 0,
+                    "prefix_misses": 6,
+                    "prefix_match_efficiency": 0.0,
+                    "evictions": 1,
+                    "eviction_rate_per_min": 0.97,
+                    "ssd_hot_hits": 0,
+                    "ssd_disk_loads": 0,
+                    "ssd_hot_rate": 0.0,
+                    "target_static_hits": 0,
+                    "target_static_misses": 0,
+                    "target_static_hit_rate": 0.0,
+                    "target_static_tokens_restored": 0,
+                    "draft_prefix_hits": 0,
+                    "draft_prefix_misses": 0,
+                    "draft_prefix_hit_rate": 0.0,
+                    "draft_prefix_tokens_saved": 0
+                  }
+                },
+                "cumulative": {
+                  "prefix_hits": 0,
+                  "prefix_misses": 7,
+                  "prefix_hit_rate": 0.0,
+                  "prefix_tokens_saved": 0,
+                  "prefix_match_efficiency": 0.0,
+                  "evictions": 1,
+                  "ssd_hot_hits": 0,
+                  "ssd_disk_loads": 0,
+                  "ssd_saves": 0,
+                  "hot_cache_evictions": 1,
+                  "hot_cache_promotions": 0,
+                  "ssd_hot_rate": 0.0,
+                  "target_static_hits": 0,
+                  "target_static_misses": 0,
+                  "target_static_hit_rate": 0.0,
+                  "target_static_tokens_restored": 0,
+                  "draft_prefix_hits": 0,
+                  "draft_prefix_misses": 0,
+                  "draft_prefix_hit_rate": 0.0,
+                  "draft_prefix_tokens_saved": 0
+                }
+              }
+            }
+          ],
+          "total_num_files": 8,
+          "total_size_bytes": 335623608,
+          "effective_block_sizes": [],
+          "disk_max_bytes": 107374182400,
+          "hot_cache_max_bytes": 4294967296,
+          "hot_cache_size_bytes": 538839040,
+          "hot_cache_entries": 2
+        }
+      },
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    }
+  ]
+}

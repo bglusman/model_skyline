@@ -1,0 +1,212 @@
+{
+  "schema_version": "model-skyline/local-measurement/v1alpha1",
+  "measurement_id": "qwen38-omlx-baseline-tq4-tool-p2048-o256-disabled",
+  "status": "provisional",
+  "started_at": "2026-09-13T05:36:59.524139Z",
+  "completed_at": "2026-09-13T05:37:15.917544Z",
+  "hardware": {
+    "hardware_id": "macbook-m5max-64",
+    "manufacturer": "Apple",
+    "machine_model": "Mac17,6",
+    "chip": "Apple M5 Max",
+    "architecture": "arm64",
+    "memory_bytes": 68719476736,
+    "cpu_cores": 18,
+    "cpu_core_groups": {
+      "super": 6,
+      "performance": 12
+    },
+    "gpu_cores": 40,
+    "os_name": "macOS",
+    "os_version": "26.6.2 (25G83)",
+    "power_source": "ac",
+    "power_mode": "high-power-configured-pmset-2",
+    "negotiated_adapter_watts": 140,
+    "metadata": {
+      "power_connection": "direct-usb-c",
+      "pmset_powermode": 2,
+      "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+      "power_mode_status": "configured-not-independently-verified",
+      "related_report": "https://developer.apple.com/forums/thread/835131"
+    }
+  },
+  "artifact": {
+    "model_id": "Qwen/Qwen3.8-27B",
+    "checkpoint": "Qwen3.8-27B",
+    "revision": "1c0609b20321c1faff8294be5ea88c656cedaa59",
+    "format": "mlx-safetensors",
+    "quantization": "oQ4e",
+    "size_bytes": 16994894984,
+    "content_sha256": "6de9485449074319eb4ed22e027f73a66d6646e22fa2506f1422ce7b121b2e20",
+    "source_url": "https://huggingface.co/mlx-works/Qwen3.8-27B-oQ4e-mtp",
+    "license": "Apache-2.0",
+    "metadata": {
+      "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+      "manifest": "artifacts/qwen3.8-27b-oq4e-mtp-manifest.json",
+      "chat_template": "froggeric/Qwen-Fixed-Chat-Templates",
+      "mtp_head_preserved": true
+    }
+  },
+  "runtime": {
+    "runtime_id": "oMLX",
+    "version": "0.6.4",
+    "commit": null,
+    "backend": "MLX/Metal",
+    "context_capacity_tokens": 262144,
+    "kv_cache": "TurboQuant-4bit-skip-last",
+    "prefix_cache_enabled": false,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "mlx_version": "0.32.0",
+      "mlx_lm_version": "0.31.3",
+      "model_profile": "baseline-tq4",
+      "max_concurrent_requests": 1,
+      "max_output_tokens": 16384,
+      "memory_guard": "balanced",
+      "prefix_cache": {
+        "backend": "disabled"
+      },
+      "turboquant_kv_enabled": true,
+      "turboquant_kv_bits": 4,
+      "turboquant_skip_last": true,
+      "dflash_enabled": false,
+      "mtp_enabled": false,
+      "ane_prefill_enabled": false,
+      "specprefill_enabled": false
+    }
+  },
+  "workload": {
+    "reference": {
+      "id": "openai-tool-p2048-o256-disabled",
+      "version": "model-skyline/openai-matrix@v1",
+      "unit": "request"
+    },
+    "kind": "agent_integration",
+    "input_definition_sha256": "516570903e510188fac5a376bb8dc8b79fa2cd8ab9bcf599c547c0abd888d697",
+    "requested_input_tokens": 2048,
+    "max_output_tokens": 256,
+    "repetitions": 3,
+    "warmup_repetitions": 1,
+    "concurrency": 1,
+    "runner_state": "warm",
+    "prefix_cache_state": "disabled",
+    "position": {
+      "mode": "tool",
+      "prompt_bytes": 8293,
+      "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+      "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+      "tool_schema_sha256": "bb82a827d102ae88889ea6a61f65df04f8b25592ab04b947d627b6ecf43c4bec",
+      "tool_count": 1,
+      "tool_choice": null,
+      "thinking_mode": "runtime_default",
+      "sampling": {
+        "temperature": 0,
+        "seed": 90421
+      },
+      "time_to_first_token_source": "server-reported",
+      "decode_rate_source": "server-reported",
+      "token_count_url": null,
+      "construction_input_tokens": null,
+      "finish_reasons": {
+        "tool_calls": 3
+      },
+      "api": "openai-chat-completions-streaming"
+    }
+  },
+  "performance": {
+    "actual_input_tokens": 2329,
+    "output_token_counts": [
+      74,
+      74,
+      74
+    ],
+    "metrics": {
+      "time_to_first_semantic_event_seconds": {
+        "unit": "s",
+        "values": [
+          "2.628204958",
+          "2.630765375",
+          "2.702232167"
+        ]
+      },
+      "end_to_end_seconds": {
+        "unit": "s",
+        "values": [
+          "5.027737",
+          "5.053424125",
+          "5.112673583"
+        ]
+      },
+      "time_to_first_token_seconds": {
+        "unit": "s",
+        "values": [
+          "2.62",
+          "2.62",
+          "2.69"
+        ]
+      },
+      "decode_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "30.81",
+          "30.51",
+          "30.68"
+        ]
+      },
+      "prompt_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "889.06",
+          "888.18",
+          "864.64"
+        ]
+      },
+      "peak_process_rss_bytes": {
+        "unit": "byte",
+        "values": [
+          "16513433600",
+          "16513761280",
+          "16513761280"
+        ]
+      },
+      "swap_delta_bytes": {
+        "unit": "byte",
+        "values": [
+          "0",
+          "0",
+          "0"
+        ]
+      }
+    }
+  },
+  "integrity": {
+    "retrieval": null,
+    "tool_calls": {
+      "passed": 3,
+      "total": 3
+    },
+    "tool_argument_parsing": {
+      "passed": 3,
+      "total": 3
+    },
+    "structured_output": null
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ],
+  "provenance": {
+    "tool": "model-skyline/openai-matrix",
+    "tool_version": "v1",
+    "command_sha256": "8ff2a1e2e60ba0960d15460037d2a0c6439d2087463a964ea2431a3c3c2c1c15",
+    "raw_artifact_path": "examples/local-runtime-frontiers/raw/qwen38-omlx-baseline-tq4-cache-disabled-tool-p2048-o256.json",
+    "raw_sha256": "198cc33a2f1fd27841cd0ca7b1cf61182b48b94118734a986b0dbbea53f88069",
+    "captured_at": "2026-09-13T05:37:15.917544Z",
+    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+    "source_url": null,
+    "license": "CC0-1.0"
+  },
+  "notes": "Provisional operational runtime evidence; no model-quality claim."
+}
