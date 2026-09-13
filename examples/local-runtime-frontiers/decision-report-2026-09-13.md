@@ -153,6 +153,34 @@ drawn.”
 See [the ShoeHorn audit](shoehorn-audit.md) and
 [the Muse audit](muse-glimmer-audit.md) for exact commands and provenance.
 
+## Efficient quality-calibration plan
+
+The current perplexity captures remain `proxy` evidence. They can reject a
+damaged artifact, as with the sampled Muse ShoeHorn fit, but they cannot assign
+HumanEval, BFCL, RULER, or agent-task quality. None of the current artifacts has
+an exact, same-protocol full-precision benchmark anchor in this repository, so
+no quantization-adjusted task score is claimed yet.
+
+The next quality pass will use three explicit tiers: proxy screening, calibrated
+subset estimates with confidence bounds, and full measurements for likely
+frontier residents. Candidate and high-fidelity anchor will be evaluated on
+identical task IDs and seeds. The default estimator transfers the
+benchmark-specific paired score difference, not a global multiplicative Q4/Q5
+factor. Long-context, coding, and tool-use deltas remain separate because
+quantization damage is not stable across those workloads.
+
+Estimated results will enter only a screening frontier using their conservative
+lower confidence bound. A complete run is promoted when the estimate's interval
+could change frontier membership, its epsilon-equivalent cluster, or the
+default/fallback order. Final local recommendations continue to prefer fully
+measured quality evidence.
+
+The reusable protocol, estimator requirements, and research basis are in
+[`../../docs/efficient-quality-estimation.md`](../../docs/efficient-quality-estimation.md).
+Copyable quantization, 128K, session-endurance, cache, local-agent, and remote
+frontier policies are in
+[`recommended-frontier-recipes.yaml`](recommended-frontier-recipes.yaml).
+
 ## Runtime and client state
 
 - llama-swap v0.2.55 owns `127.0.0.1:8090`, watches configuration changes, and
@@ -178,9 +206,9 @@ See [the ShoeHorn audit](shoehorn-audit.md) and
   and explicit unload were smoke-tested, ending with no resident route. The old
   always-on DS4 LaunchAgent is preserved as a dated disabled rollback file.
 - The Studio's Ornith Q4 hash exactly matches the cross-Mac control. Its older
-  Qwen Q4 hash does not match the MacBook's Unsloth artifact, so no mixed-hash
-  Qwen hardware claim is allowed. The exact MacBook Qwen artifact is being
-  copied into a separate evidence directory before matched M1 captures.
+  Qwen Q4 hash did not match the MacBook's Unsloth artifact, so it was excluded.
+  The exact MacBook Qwen artifact was copied into a separate evidence directory
+  and produced the matched M1 captures reported above.
 
 ## Storage and repository state
 
@@ -205,14 +233,15 @@ security, or wired memory setting was changed.
 2. Treat Muse's matched 0/4-at-256 and 3/4-at-1024 tool behavior as a failed
    promotion gate; revisit long-context work only after the reasoning/tool
    interaction is made deterministic.
-3. Complete byte-identical Qwen and Muse copies to the M1 Studio, then run the
-   same pp2048/tg512 capture with the same llama.cpp commit; do not substitute
-   the Studio's older Qwen artifact.
-4. Expand task-quality comparisons across Qwen3.8 oMLX, DS4 Flash Next,
-   Ornith, and Muse using byte-stable coding/tool tasks and explicit output
-   budgets. Keep task correctness as an eligibility gate, not a throughput
-   axis.
-5. Add reviewed benchmark portfolios only when they reconcile to exact local
+3. Complete a byte-identical Muse copy to the M1 Studio and run the same
+   pp2048/tg512 capture with the same llama.cpp commit. The exact Qwen transfer
+   and matched capture are complete.
+4. Build paired calibrated subsets for code, tool use, and long context across
+   Qwen3.8 oMLX, DS4 Flash Next, Ornith, and Muse. Preserve item IDs, seeds,
+   task-set hashes, estimator error, and confidence bounds; keep the existing
+   deterministic probes as operational gates rather than task-quality scores.
+5. Run complete benchmarks only for candidates whose estimated interval could
+   change a frontier or selection, then reconcile those results to exact local
    offerings. Do not inherit base-model scores onto ShoeHorn/IQ2 artifacts.
 6. Revisit Qwen3.6 only as a low-priority Skyline data point. Qwen3-Coder-Next
    remains intentionally undownloaded because no new evidence established a

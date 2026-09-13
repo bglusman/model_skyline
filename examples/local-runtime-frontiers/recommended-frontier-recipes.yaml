@@ -1,0 +1,245 @@
+schema_version: model-skyline/v1alpha1
+
+# These are copyable policy recipes, not claims about the example's current
+# artifacts. Build one exact workload catalog per recipe and retain every gate
+# observation used to form its cohort.
+workloads:
+  paired-coreset-quantization-v1:
+    unit: benchmark_item
+    version: "1"
+    harness: operator-pinned-paired-coreset
+    cohort: exact-anchor-candidate-and-task-set
+    benchmark: calibrated paired benchmark subset
+    description: >-
+      Candidate and high-fidelity anchor evaluated on identical selected items;
+      the quality observation is a conservative bound from a versioned estimator.
+    variables: {}
+    assumptions:
+      evidence_tier: estimated
+      score_transfer: benchmark_specific_paired_delta
+
+  measured-local-agent-v1:
+    unit: successful_agent_turn
+    version: "1"
+    harness: operator-pinned-agent-harness
+    cohort: exact-tools-context-budget-and-cache-state
+    benchmark: measured local agent quality and latency
+    description: >-
+      Full task-quality measurement paired with successful-turn latency after
+      correctness, context, memory-pressure, and swap-growth cohort gates.
+    variables: {}
+    assumptions:
+      evidence_tier: measured
+
+  fixed-128k-agent-v1:
+    unit: benchmark_task
+    version: "1"
+    harness: operator-pinned-long-context-agent-harness
+    cohort: fixed-128k-input-output-reserve-and-cache-state
+    benchmark: full long-context task portfolio at a fixed usable position
+    description: >-
+      Long-context quality and latency at 128K input with a realistic output
+      reserve; allocation alone is not eligibility evidence.
+    variables:
+      minimum_input_tokens: "128000"
+      minimum_output_reserve_tokens: "8192"
+    assumptions:
+      evidence_tier: measured
+
+  session-endurance-v1:
+    unit: agent_session
+    version: "1"
+    harness: operator-pinned-multiturn-agent-harness
+    cohort: byte-stable-tools-compaction-policy-and-correctness-floor
+    benchmark: effective session length and incremental turn latency
+    description: >-
+      Maximum validated pre-compaction session length paired with p95 latency of
+      successful incremental turns.
+    variables: {}
+    assumptions:
+      compaction_policy: pinned
+
+  warm-cache-operation-v1:
+    unit: eligible_agent_turn
+    version: "1"
+    harness: operator-pinned-cache-lifecycle-harness
+    cohort: fixed-prefix-cache-lifecycle-and-uncached-correctness-control
+    benchmark: token-weighted prefix reuse and successful-turn latency
+    description: >-
+      Reused shareable prefix tokens divided by eligible shareable prefix tokens,
+      paired with p95 successful-turn latency under one fixed cache lifecycle.
+    variables: {}
+    assumptions:
+      correctness_gate: equal_to_uncached_control
+
+  measured-remote-agent-v1:
+    unit: successful_work_unit
+    version: "1"
+    harness: operator-pinned-remote-agent-harness
+    cohort: exact-route-budget-price-and-quality-protocol
+    benchmark: measured remote agent value
+    description: >-
+      Measured task quality paired with expected cost per successful work unit
+      for an exact, freshness-bounded provider offering.
+    variables: {}
+    assumptions:
+      evidence_tier: measured
+
+metrics:
+  estimated_quality_lcb:
+    kind: signal
+    signal: estimated_quality_lower_confidence_bound_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 20
+
+  measured_agent_quality:
+    kind: signal
+    signal: measured_agent_quality_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 20
+
+  measured_long_context_quality:
+    kind: signal
+    signal: measured_long_context_quality_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 20
+
+  peak_physical_footprint:
+    kind: signal
+    signal: local_peak_process_physical_footprint_bytes
+    unit: byte
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  p95_successful_turn_latency:
+    kind: signal
+    signal: p95_successful_turn_seconds
+    unit: s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 20
+
+  effective_session_context:
+    kind: signal
+    signal: effective_pre_compaction_session_tokens
+    unit: token
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  eligible_prefix_reuse:
+    kind: signal
+    signal: eligible_prefix_reuse_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 20
+
+  expected_cost_per_success:
+    kind: signal
+    signal: expected_cost_usd_per_successful_work_unit
+    unit: USD/success
+    requirements:
+      max_age_hours: 24
+      minimum_samples: 20
+
+frontiers:
+  quantization-screening:
+    workload: paired-coreset-quantization-v1
+    axes:
+      - metric: estimated_quality_lcb
+        goal: maximize
+      - metric: peak_physical_footprint
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: estimated_quality_lcb
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text]
+      allow_unknown_age: false
+    metadata_fields: [evidence_tier, estimator, artifact, runtime, hardware]
+
+  interactive-local-value:
+    workload: measured-local-agent-v1
+    axes:
+      - metric: measured_agent_quality
+        goal: maximize
+      - metric: p95_successful_turn_latency
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: measured_agent_quality
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools, long-context]
+      allow_unknown_age: false
+    metadata_fields: [evidence_tier, artifact, runtime, hardware, gate_policy]
+
+  fixed-128k-usefulness:
+    workload: fixed-128k-agent-v1
+    axes:
+      - metric: measured_long_context_quality
+        goal: maximize
+      - metric: p95_successful_turn_latency
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: measured_long_context_quality
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools, long-context]
+      allow_unknown_age: false
+    metadata_fields: [evidence_tier, artifact, runtime, hardware, gate_policy]
+
+  session-endurance:
+    workload: session-endurance-v1
+    axes:
+      - metric: effective_session_context
+        goal: maximize
+        epsilon_relative: 0.02
+      - metric: p95_successful_turn_latency
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: effective_session_context
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools, long-context]
+      allow_unknown_age: false
+    metadata_fields: [artifact, runtime, hardware, compaction_policy, gate_policy]
+
+  warm-cache-operation:
+    workload: warm-cache-operation-v1
+    axes:
+      - metric: eligible_prefix_reuse
+        goal: maximize
+      - metric: p95_successful_turn_latency
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: p95_successful_turn_latency
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+    metadata_fields: [artifact, runtime, hardware, cache_lifecycle, gate_policy]
+
+  remote-agent-value:
+    workload: measured-remote-agent-v1
+    axes:
+      - metric: measured_agent_quality
+        goal: maximize
+      - metric: expected_cost_per_success
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: measured_agent_quality
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+    metadata_fields: [evidence_tier, route_revision, price_basis, gate_policy]
+
+selections: {}

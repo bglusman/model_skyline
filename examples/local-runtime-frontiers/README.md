@@ -26,6 +26,14 @@ does not inherit a score from its base checkpoint, and an MLX, DFlash, or agent
 harness result remains a distinct offering. Quality can be added only through
 the existing exact reconciliation and portfolio machinery.
 
+Small benchmark subsets can reduce that cost, but only through the explicit
+`proxy` → `estimated` → `measured` protocol in
+[`docs/efficient-quality-estimation.md`](../../docs/efficient-quality-estimation.md).
+Use the paired, benchmark-specific degradation from an exact high-fidelity
+anchor; do not apply one quantization multiplier across tasks. The copyable
+local, cache, context, quant-screening, and remote recipes are in
+[`recommended-frontier-recipes.yaml`](recommended-frontier-recipes.yaml).
+
 ## Runtime choices on Apple Silicon
 
 - **MLX-LM** is the simplest native MLX baseline: direct safetensors models,
