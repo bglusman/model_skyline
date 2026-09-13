@@ -1,0 +1,50 @@
+{
+  "observed_at": "2026-09-13T00:26:29Z",
+  "runtime": "llama.cpp 0.4.0 build 10809 (5266f24da), Metal",
+  "model": "ornith-ai/Ornith-1.5-35B-A3B-GGUF",
+  "file": "Ornith-1.5-35B-Q5_K_M.gguf",
+  "file_bytes": 25347532544,
+  "configuration": {
+    "context_slot_tokens": 262144,
+    "parallel": 1,
+    "n_gpu_layers": "all",
+    "flash_attention": true,
+    "fit": false,
+    "cache_type_k": "q8_0",
+    "cache_type_v": "q8_0"
+  },
+  "prompt": {
+    "raw_user_tokens": 122897,
+    "server_prompt_tokens": 122906,
+    "characters": 530317,
+    "needles": [
+      "COPPER-LANTERN-731",
+      "GLASS-ORBIT-284",
+      "MAPLE-CIPHER-956"
+    ],
+    "approximate_positions": [0.1, 0.5, 0.9]
+  },
+  "result": {
+    "retrieval_passed": true,
+    "answer": [
+      "COPPER-LANTERN-731",
+      "GLASS-ORBIT-284",
+      "MAPLE-CIPHER-956"
+    ],
+    "completion_tokens": 146,
+    "wall_seconds": 234.139,
+    "prefill_tokens_per_second": 532.0780241299501,
+    "decode_tokens_per_second": 48.14220876453812
+  },
+  "telemetry_after_run": {
+    "gpu_alloc_bytes": 34393767936,
+    "gpu_in_use_bytes": 29019537408,
+    "process_physical_footprint_bytes": 5470420992,
+    "process_clean_mapped_bytes_approx": 24696061952,
+    "swap_used_mib_systemwide": 7531.62,
+    "pmset_thermal_warning": false,
+    "adapter_negotiated_watts": 91,
+    "powermode": 2
+  },
+  "notes": "The system-wide swap figure includes earlier workload history and is not attributable solely to this request. The process and GPU completed without a reclaim/restart."
+}

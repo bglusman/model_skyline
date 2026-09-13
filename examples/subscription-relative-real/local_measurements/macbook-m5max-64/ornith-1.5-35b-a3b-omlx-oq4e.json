@@ -1,0 +1,53 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "measured_at": "2026-09-13T00:49:22Z",
+  "measurement_tool": "omlx-bench-json",
+  "measurement_config": {
+    "test_type": "single",
+    "pp": 4369,
+    "requested_pp": 4096,
+    "tg": 512,
+    "prompt_tokens": 4369,
+    "completion_tokens": 512,
+    "cached_tokens": 0,
+    "profile": "baseline-f16kv",
+    "runtime": "oMLX 0.6.4; MLX 0.32.2",
+    "quantization": "oQ4e"
+  },
+  "stddev_tok_s": 0,
+  "workload": "coding-session",
+  "offering": {
+    "offering_id": "local-macbook-m5max-64/ornith-1.5-35b-a3b-omlx-oq4e-baseline-f16kv",
+    "model_id": "ornith-1.5-35b-a3b",
+    "provider": "local-macbook-m5max-64",
+    "endpoint": "local",
+    "region": "home",
+    "service_tier": "standard",
+    "quantization": "oQ4e",
+    "agent_harness": "brian-harness@1 [oMLX 0.6.4; MLX 0.32.2; baseline-f16kv]",
+    "capabilities": [
+      "text",
+      "tools"
+    ]
+  },
+  "signals": {
+    "local_decode_tokens_per_second": {
+      "value": "131.50",
+      "unit": "tokens/second",
+      "sample_count": 1,
+      "observed_at": "2026-09-13T00:49:22Z"
+    },
+    "local_prefill_tokens_per_second": {
+      "value": "2945.6",
+      "unit": "tokens/second",
+      "observed_at": "2026-09-13T00:49:22Z",
+      "sample_count": 1
+    }
+  },
+  "default_source": {
+    "id": "brian-local-macbook-m5max-64-v1",
+    "version": "1",
+    "license": "MIT (derived); upstream terms preserved",
+    "methodology": "Local decode 131.50 tok/s on macbook-m5max-64 via oMLX 0.6.4; MLX 0.32.2; baseline-f16kv; measured with omlx-bench-json (benchmark orchestration remains the source workflow's responsibility; config embedded in agent_harness/measurement_config); quality axis omitted pending verified evidence."
+  }
+}

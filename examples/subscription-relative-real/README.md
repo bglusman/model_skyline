@@ -13,3 +13,24 @@ widget (pareto ranking + domination info).
 
 ClinePass cap is assumed at $35/month (advertised "2-5x usage on $9.99"),
 not dollar-published — see provenance in observations.json.
+
+## Local runtime measurements
+
+Treat each hardware, artifact format, quantization, runtime version, and tuned
+configuration as a distinct offering. In particular, an MLX conversion and a
+GGUF quant of the same upstream model are comparable candidates, not the same
+offering: their kernels, quantizers, prompt caches, and serving behavior differ.
+
+`measure-ingest.py` accepts current `llama-bench -o json`, MLX-LM benchmark
+text, Ollama benchmark CSV, and DS4 benchmark CSV output. DS4 ladders represent
+different context workloads rather than repeated samples; use
+`--context-tokens` to select the frontier being ingested (the largest is the
+default). Supply a runtime-specific `--offering-id`; add `--capability tools`
+or `--capability images` only after an end-to-end server test. Quality metadata
+is intentionally omitted unless both `--aa-index` and its `--aa-source` are
+supplied.
+
+For publishable comparisons, run one engine at a time with the same prompt and
+generation lengths, repeat count, power mode, and background-load policy.
+Record cold-load latency separately, and do not publish a run taken while OS
+indexing, synchronization, or another local model process is active.

@@ -81,8 +81,8 @@ LOCAL_HARDWARE = {
         "desc": "Reference: 48GB Apple Silicon Mac (slotstream author's measured host)",
         "models": {},  # see slotstream MEASUREMENTS.md for their published numbers
     },
-    "brian-m5-macbook-48": {
-        "desc": "48GB M5 MacBook (incoming)",
+    "macbook-m5max-64": {
+        "desc": "MacBook Pro: M5 Max 18-core CPU, 40-core GPU, 64GB, 614GB/s",
         "models": {},
     },
     "brian-mac-studio": {
