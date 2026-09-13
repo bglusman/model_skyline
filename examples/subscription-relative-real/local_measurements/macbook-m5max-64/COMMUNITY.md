@@ -54,6 +54,15 @@ parameter ratios without modeling KV growth, context position, runtime-specific
 kernels, Metal working-set limits, or quantization quality. Treat its order as
 a candidate queue, never as the local Pareto frontier.
 
+The 2026-09-13 coding snapshot ranks the relevant nominal models Qwen3.8-27B
+(52 AA), Muse Glimmer 30B (35), Qwen3.6-35B-A3B (32), Gemma 4 26B-A4B (26),
+and GPT-OSS 20B (15). Ornith 1.5 is not represented by the site's older Ornith
+1.0 entry. That ordering supports testing Qwen first and Muse as a behavioral
+counterpoint, but it does not override the exact local results: the page itself
+says its memory figures assume Q4_K_M plus small overhead, while the 64 GB
+long-context boundary depends heavily on runtime and KV layout. [Coding model
+browser](https://www.canirun.ai/models/coding?use=code)
+
 ## Qwen3.8-Flash-Next on 64 GB
 
 | Published | Hardware / runtime | Layout and result | Caveat |
