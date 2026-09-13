@@ -51,6 +51,22 @@ def _runtime_configuration(row: dict[str, Any], runtime_sha256: str) -> dict[str
     }
 
 
+def _display_count(value: int) -> str:
+    names = {
+        1: "one",
+        2: "two",
+        3: "three",
+        4: "four",
+        5: "five",
+        6: "six",
+        7: "seven",
+        8: "eight",
+        9: "nine",
+        10: "ten",
+    }
+    return names.get(value, str(value))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--capture", type=Path, required=True)
@@ -63,6 +79,11 @@ def main() -> None:
     parser.add_argument("--model-revision", required=True)
     parser.add_argument("--model-source-url", required=True)
     parser.add_argument("--model-license", required=True)
+    parser.add_argument(
+        "--quantization",
+        required=True,
+        help="exact artifact quantization label, including custom mixed schemes",
+    )
     parser.add_argument("--context-capacity", type=int, required=True)
     parser.add_argument("--agent-harness", default="model-skyline/llama-bench@v1")
     args = parser.parse_args()
@@ -94,6 +115,8 @@ def main() -> None:
     artifact = capture["artifact"]
     runtime = capture["runtime"]
     invocation = capture["invocation"]
+    workload_id = f"llama-bench-pp{prompt['n_prompt']}-tg{generation['n_gen']}"
+    workload_version = f"llama.cpp@{prompt['build_commit']}/model-skyline@v1"
     input_definition_sha256 = content_hash(
         {
             "generator": "llama-bench/synthetic-token-stream",
@@ -115,7 +138,7 @@ def main() -> None:
                 "checkpoint": args.checkpoint,
                 "revision": args.model_revision,
                 "format": "gguf",
-                "quantization": "Q4_K_M",
+                "quantization": args.quantization,
                 "size_bytes": artifact["size_bytes"],
                 "content_sha256": artifact["sha256"],
                 "source_url": args.model_source_url,
@@ -136,8 +159,8 @@ def main() -> None:
             },
             "workload": {
                 "reference": {
-                    "id": "llama-bench-pp2048-tg512",
-                    "version": "llama.cpp@5266f24da/model-skyline@v1",
+                    "id": workload_id,
+                    "version": workload_version,
                     "unit": "benchmark_run",
                 },
                 "kind": "short_decode",
@@ -179,8 +202,10 @@ def main() -> None:
                 "raw_sha256": _sha256(args.capture),
                 "captured_at": capture["captured_at"],
                 "methodology": (
-                    "llama-bench built-in warmup followed by five serial prompt-processing "
-                    "and decode repetitions; exact command and per-repetition samples retained."
+                    "llama-bench built-in warmup followed by "
+                    f"{_display_count(len(generation_samples))} serial prompt-processing "
+                    "and decode "
+                    "repetitions; exact command and per-repetition samples retained."
                 ),
                 "source_url": None,
                 "license": "CC0-1.0",

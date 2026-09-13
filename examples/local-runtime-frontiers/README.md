@@ -63,12 +63,16 @@ python examples/local-runtime-frontiers/capture_llama_bench.py \
   --binary /path/to/llama-bench \
   --model /path/to/Ornith-1.5-35B-Q4_K_M.gguf \
   --host-id macbook-m5max-64 \
+  --exclusive-lock ~/.local/state/model-skyline/local-model-runner.lock \
   --output examples/local-runtime-frontiers/raw/result.json
 ```
 
 The capture hashes the binary and model, retains every native sample, hashes the
-portable command, and replaces only absolute binary/model paths. Normalize with
-`normalize_llama_bench.py`, then build an ordinary catalog:
+portable command, and replaces only absolute binary/model paths. Normalization
+requires an explicit `--quantization` label; custom mixed artifacts must never
+inherit the Q4_K_M control's label. Workload identity and methodology are
+derived from the capture's actual prompt, generation, runtime commit, and
+repetition count. Then build an ordinary catalog:
 
 ```console
 modelskyline validate-local-measurement measurements/result.json
@@ -105,6 +109,27 @@ power governor. No thermal or performance warning was present on the later
 recheck.
 
 ## Cache and switch semantics
+
+On the measured host, llama-swap owns one OpenAI-compatible endpoint at
+`127.0.0.1:8090`. Every llama.cpp, MLX-LM, oMLX, DS4, Muse, Ornith, and Ollama
+model is a member of one exclusive `local-memory` group, so selecting a model
+ID unloads the previous managed runner before starting the next one. The oMLX
+process is shared by aliases for each exposed profile; switching between an
+oMLX profile and another heavyweight runtime still follows the same mutex.
+`/running` is the authoritative check before a direct benchmark bypasses the
+router. Every managed launcher also holds the same BSD file lock for its full
+lifetime. Direct llama-bench captures request that lock with a zero-second
+timeout, closing the race in which an agent request could start a runner after
+the idle check; a busy lock fails the capture instead of contaminating it.
+
+Loading-state streaming is disabled because some agent clients preserve those
+operational messages as assistant content. The managed TTL is 900 seconds, and
+cold-load/post-expiry latency is measured separately. The oMLX launcher enables
+the paged SSD prefix cache by default with a zero-byte RAM hot cache; controlled
+cache-free measurements set `QWEN38_OMLX_CACHE=0`. OpenCode and OMP both expose
+the baseline, MTP/F16-KV, MTP/TQ4-KV, and DFlash/TQ4 aliases through the same
+router. OMP keeps the agreed 180,000-token global compaction trigger, while
+262K-capable backends advertise a 262,144-token hard ceiling.
 
 `prefix_cache_enabled` belongs to runtime identity. Cache warmth (`disabled`,
 `miss`, `warm`, or `mixed`) belongs to the workload position. Cold load, warm

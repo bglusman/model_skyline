@@ -48,12 +48,29 @@ def main() -> None:
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--host-id", required=True)
+    parser.add_argument(
+        "--exclusive-lock",
+        type=Path,
+        help="optional BSD lock file shared with local model launchers",
+    )
+    parser.add_argument(
+        "--lock-timeout",
+        type=int,
+        default=0,
+        help="seconds to wait for --exclusive-lock; zero fails immediately",
+    )
     parser.add_argument("--prompt", type=int, default=2048)
     parser.add_argument("--generate", type=int, default=512)
     parser.add_argument("--repetitions", type=int, default=5)
     parser.add_argument("--threads", type=int, default=6)
     parser.add_argument("--batch", type=int, default=2048)
     parser.add_argument("--ubatch", type=int, default=512)
+    parser.add_argument(
+        "--gpu-layers",
+        type=int,
+        default=-1,
+        help="number of layers to offload; -1 requests every layer",
+    )
     parser.add_argument("--kv", default="q8_0")
     parser.add_argument("--flash-attention", choices=("on", "off", "auto"), default="on")
     args = parser.parse_args()
@@ -75,6 +92,10 @@ def main() -> None:
     for option, value in positive.items():
         if value <= 0:
             parser.error(f"{option} must be positive")
+    if args.gpu_layers < -1:
+        parser.error("--gpu-layers must be -1 or nonnegative")
+    if args.lock_timeout < 0:
+        parser.error("--lock-timeout must be nonnegative")
 
     command = [
         str(binary),
@@ -87,7 +108,7 @@ def main() -> None:
         "-r",
         str(args.repetitions),
         "-ngl",
-        "99",
+        str(args.gpu_layers),
         "-fa",
         args.flash_attention,
         "-ctk",
@@ -110,9 +131,31 @@ def main() -> None:
     command_sha256 = hashlib.sha256(
         json.dumps(command_template, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
     ).hexdigest()
+    run_command = command
+    coordination: dict[str, Any] | None = None
+    if args.exclusive_lock is not None:
+        lock = args.exclusive_lock.expanduser().resolve()
+        if not lock.parent.is_dir():
+            parser.error("--exclusive-lock parent directory must exist")
+        lockf = Path("/usr/bin/lockf")
+        if not lockf.is_file():
+            parser.error("--exclusive-lock requires /usr/bin/lockf")
+        run_command = [
+            str(lockf),
+            "-k",
+            "-t",
+            str(args.lock_timeout),
+            str(lock),
+            *command,
+        ]
+        coordination = {
+            "method": "bsd-flock",
+            "lock_file": "${LOCAL_MODEL_RUNNER_LOCK}",
+            "timeout_seconds": args.lock_timeout,
+        }
     started_at = _timestamp()
     start = time.monotonic_ns()
-    completed = subprocess.run(command, text=True, capture_output=True, check=False)
+    completed = subprocess.run(run_command, text=True, capture_output=True, check=False)
     elapsed_ns = time.monotonic_ns() - start
     completed_at = _timestamp()
     if completed.returncode != 0:
@@ -147,6 +190,7 @@ def main() -> None:
             "command": command_template,
             "command_sha256": command_sha256,
         },
+        "coordination": coordination,
         "normalization": "Absolute binary/model paths replaced with ${LLAMA_BENCH}/${MODEL_FILE}.",
         "results": _portable_result(results, binary=binary, model=model),
         "stderr": _portable_result(completed.stderr, binary=binary, model=model),

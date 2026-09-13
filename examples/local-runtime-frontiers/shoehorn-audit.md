@@ -1,8 +1,8 @@
 # ShoeHorn applicability audit
 
 Audit date: 2026-09-13. Source reviewed: ShoeHorn 0.3.0 at
-`107e710ef34a75eeea3f6d74cc00d46030f4980a`; runtime checked against
-llama.cpp build 10809 at `5266f24da`.
+`107e710ef34a75eeea3f6d74cc00d46030f4980a` plus the local discovery fix at
+`43908a1`; runtime checked against llama.cpp build 10809 at `5266f24da`.
 
 ShoeHorn is a worthwhile fitter for dense BF16/F16 GGUFs and fully resident
 checkpoints whose memory model has been validated. Ornith 1.5 is a hybrid
@@ -50,14 +50,26 @@ rather than assuming the solver's error objective predicts agent quality.
 
 ## Ornith plan observed on this host
 
-The source is Bartowski's two-shard BF16 checkpoint: 71.1 GB decimal (66.19
-GiB), 753 tensors, plus a 192,223,936-byte importance matrix. With
+The source is Bartowski's two-shard BF16 checkpoint at immutable repository
+revision `64b0493d34a5ca4c1b4ad67bb99b41d74b4f07d6`: 71.1 GB decimal (66.19
+GiB), 753 tensors, plus a 192,223,936-byte importance matrix. The two source
+LFS SHA-256 object IDs are `b50ba22a501bb2cb03c48bcc4b84d72f5d82c949afa13047369931d62e5522e9`
+and `626fc796b98a4fd64da2d48d3b0bc3ee4ccc1acc45072de5531a1dc5722330ec`;
+the downloaded imatrix hashes to
+`8d5b16938373b678b68c3081ef3f6985b789df9b25c18af130909658a47c0228`.
+With
 `--ctx 131072 --budget 51.84GiB --kv q8_0 --exact-errors`, ShoeHorn reserves a
 modeled 5.45 GiB for KV, 517 MiB for compute, and 512 MiB for runtime overhead,
 leaving 45.39 GiB for weights. The solver assigned 307 tensors to F16, 99 to
 Q8_0, 41 to Q6_K, 11 to Q5_K, and the remaining selected tensors across Q4_K,
 IQ4_XS, IQ3_S, and IQ3_XXS. The modeled result is 10.981 bpw with 204,124 bytes
 of budget slack.
+
+```console
+shoehorn fit bartowski/Ornith-1.5-35B-A3B-GGUF \
+  --ctx 131072 --budget 51.84GiB --kv q8_0 --exact-errors \
+  -o Ornith-1.5-35B-A3B-shoehorn-64gb-ctx131k-q8kv.gguf
+```
 
 Ornith exposes 40 hybrid layers but oMLX reports only 10 attention KV caches.
 ShoeHorn currently charges classic KV for all 40 layers, so its 5.45 GiB Q8 KV
