@@ -1,0 +1,136 @@
+{
+  "captured_at": "2026-09-14T22:36:08Z",
+  "engine_warm_seconds": 0.445521,
+  "measurements": [
+    {
+      "audio_seconds": 32.36,
+      "first_result_arrival_ms": 618.856,
+      "hit_token_cap": false,
+      "included_in_summary": false,
+      "leading_silence_ms": 64.0,
+      "perceived_ttfa_ms": 682.856,
+      "process_peak_rss_bytes": 2061811712,
+      "real_time_factor": 6.674797,
+      "result_count": 6,
+      "sample_rate_hz": 24000,
+      "sequence": 1,
+      "stage_seconds": {
+        "audio": 0.604548,
+        "mel": 0.259522,
+        "tokens": 4.710482
+      },
+      "suspect": false,
+      "testcase_id": "warmup",
+      "text_character_count": 583,
+      "wall_seconds": 4.848087
+    },
+    {
+      "audio_seconds": 32.36,
+      "first_result_arrival_ms": 610.841,
+      "hit_token_cap": false,
+      "included_in_summary": true,
+      "leading_silence_ms": 64.0,
+      "perceived_ttfa_ms": 674.841,
+      "process_peak_rss_bytes": 2061811712,
+      "real_time_factor": 6.629858,
+      "result_count": 6,
+      "sample_rate_hz": 24000,
+      "sequence": 2,
+      "stage_seconds": {
+        "audio": 0.609817,
+        "mel": 0.254645,
+        "tokens": 4.743137
+      },
+      "suspect": false,
+      "testcase_id": "L1",
+      "text_character_count": 583,
+      "wall_seconds": 4.880949
+    },
+    {
+      "audio_seconds": 34.72,
+      "first_result_arrival_ms": 554.834,
+      "hit_token_cap": false,
+      "included_in_summary": true,
+      "leading_silence_ms": 118.0,
+      "perceived_ttfa_ms": 672.834,
+      "process_peak_rss_bytes": 2061811712,
+      "real_time_factor": 6.510894,
+      "result_count": 8,
+      "sample_rate_hz": 24000,
+      "sequence": 3,
+      "stage_seconds": {
+        "audio": 0.820453,
+        "mel": 0.326167,
+        "tokens": 5.193165
+      },
+      "suspect": false,
+      "testcase_id": "L2",
+      "text_character_count": 633,
+      "wall_seconds": 5.332601
+    },
+    {
+      "audio_seconds": 35.68,
+      "first_result_arrival_ms": 1109.162,
+      "hit_token_cap": false,
+      "included_in_summary": true,
+      "leading_silence_ms": 104.0,
+      "perceived_ttfa_ms": 1213.162,
+      "process_peak_rss_bytes": 2061811712,
+      "real_time_factor": 6.686596,
+      "result_count": 6,
+      "sample_rate_hz": 24000,
+      "sequence": 4,
+      "stage_seconds": {
+        "audio": 0.619718,
+        "mel": 0.268691,
+        "tokens": 5.189401
+      },
+      "suspect": false,
+      "testcase_id": "L3",
+      "text_character_count": 628,
+      "wall_seconds": 5.336048
+    }
+  ],
+  "methodology": {
+    "audible_frame_seconds": 0.01,
+    "audible_hop_seconds": 0.001,
+    "audible_rms_threshold": 0.01,
+    "first_audio": "first complete LoudKit Result yielded in memory",
+    "metric_reference": "https://github.com/coval-ai/benchmarks/blob/c9786d181776ba393e85718e26e6b9f67fe19f7c/runner/src/coval_bench/metrics/ttfa.py",
+    "perceived_ttfa": "first result arrival plus leading-silence offset",
+    "streaming_granularity": "complete synthesis windows; a short single-window prompt is not codec-frame streaming",
+    "warning": "Component latency smoke only; no listening or intelligibility score."
+  },
+  "model_load_seconds": 1.841579,
+  "offering": {
+    "backend": "torch",
+    "checkpoint_sha256": "590dcf9e1dcec31c54650ee139f345b248bdd7ba11288def664c5f1508f33593",
+    "engine": "algo[e5303ba243087222] loudkit-1 single_path decode=fusion_mtp2 euler=1(cosine) temp=0.8 rep=1.2 min_p=0.05 sil=31 win=255 | exec[gen=cpu/render=mps attn=eager prec[encoder=fp32,estimator=fp16,token_generator=fp16,vocoder=fp32] tf32=off deterministic]",
+    "hardware": "Apple M5 Max",
+    "language": "en",
+    "model": "loudreader/loudr-1-turbo",
+    "os": "macOS-26.6.2-arm64-arm-64bit",
+    "runtime": "loudkit 0.1.1",
+    "seed": 7,
+    "source_revision": "7a17fa2351e59978b34d5aac07bae6349a7ca5d9",
+    "voice": "joe"
+  },
+  "resident_summary_excluding_first_request": {
+    "perceived_ttfa_p50_ms": 674.841,
+    "perceived_ttfa_p95_ms": 1159.33,
+    "process_peak_rss_bytes_max": 2061811712,
+    "real_time_factor_p05": 6.523,
+    "real_time_factor_p50": 6.63,
+    "sample_count": 3,
+    "suspect_case_count": 0,
+    "token_cap_case_count": 0
+  },
+  "schema": "model-skyline/experimental-loudkit-tts-capture/v1alpha1",
+  "workload": {
+    "manifest_id": "speaker-consistency-v1",
+    "manifest_sha256": "1e22dbdf98f474979da247aee673ceb8dd27675389876d9eb46408e3e9c8c4b8",
+    "manifest_version": "1.0.0",
+    "process_model": "one model load and engine warm, one unscored prompt warmup, then one request per prompt",
+    "prompt_count": 3
+  }
+}

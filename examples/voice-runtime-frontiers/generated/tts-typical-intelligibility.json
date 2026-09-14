@@ -2,9 +2,9 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "d2423c8c16c7597d39908b1c36b286f5e8e1f6c8910ed68788a3f9246e39770f",
+  "snapshot_id": "00d95feac6b4c41e619db6e401dc1729151fa9365944f48c1eb869c1541ff5f2",
   "config_hash": "44d528a7a58389bf5395e2d1663d6e628c28ea65d36b8baf5e373a5d9355ad73",
-  "catalog_hash": "0d5c6884025b1be0877eb50c56a887316c7fa9e8e85dd1c8d54bd35d39babbe2",
+  "catalog_hash": "7a0e2ae955460c2c9c9bfaebd406d857af38c778e77bb43bcd66497062b2c2d3",
   "engine_version": "0.9.0",
   "generated_at": "2026-09-14T23:00:00Z",
   "frontier_id": "tts-typical-intelligibility",
@@ -506,7 +506,7 @@
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
     "config_hash": "44d528a7a58389bf5395e2d1663d6e628c28ea65d36b8baf5e373a5d9355ad73",
-    "catalog_hash": "0d5c6884025b1be0877eb50c56a887316c7fa9e8e85dd1c8d54bd35d39babbe2",
+    "catalog_hash": "7a0e2ae955460c2c9c9bfaebd406d857af38c778e77bb43bcd66497062b2c2d3",
     "generated_at": "2026-09-14T23:00:00Z",
     "workload": {
       "id": "coval-tts-v1-local-whisper-pilot",
@@ -848,7 +848,7 @@
         }
       }
     ],
-    "inventory_id": "28e8aa568cacb77a4a922f95fb32f6483b30f457d3cb740ae61252698ec35b1a"
+    "inventory_id": "dd3193b9263a2ab688a572f43f23522a3b468c0105629b79045a8763e5338bb1"
   },
   "public_release_blocked": false,
   "sources": [
@@ -880,6 +880,16 @@
       "license": null,
       "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
       "raw_sha256": "c470b8c10c2659eb132ba4be90891604a5efc3c85298cc06f1da0977b8d4e5ce",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-pacing",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Deterministic reference-word rate and energy-pause proxies from the same saved audio; no naturalness threshold is asserted.",
+      "raw_sha256": "44c4e4078302cf9fd55757401e7681fd9975b1d639e1315775d3823065c807b8",
       "retrieved_at": null
     },
     {
@@ -933,6 +943,16 @@
       "retrieved_at": null
     },
     {
+      "id": "voice-pilot-loudr-1-turbo-loudkit-5060-pacing",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Deterministic reference-word rate and energy-pause proxies from the same saved audio; no naturalness threshold is asserted.",
+      "raw_sha256": "5f6119085bece9a05d07fb4eaf9076523a9c38350667bc8f18c480e90965e592",
+      "retrieved_at": null
+    },
+    {
       "id": "voice-pilot-loudr-1-turbo-loudkit-m5-wer",
       "version": "1",
       "url": null,
@@ -941,16 +961,40 @@
       "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
       "raw_sha256": "73b71cc174ea44ba0b3335a53174f4d4e0378fb3e0cf07a28315e42f3b71d029",
       "retrieved_at": null
+    },
+    {
+      "id": "voice-pilot-loudr-1-turbo-loudkit-m5-pacing",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Deterministic reference-word rate and energy-pause proxies from the same saved audio; no naturalness threshold is asserted.",
+      "raw_sha256": "e0d81e638d004e3f13f86bd052e2a62468d9dc2e0965d9e6e4365eb26b9479a8",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-pacing",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Deterministic reference-word rate and energy-pause proxies from the same saved audio; no naturalness threshold is asserted.",
+      "raw_sha256": "862b9050c5e70685af12fc006c7ccb8d0fec952c7cf0b4b6df61412167d008c4",
+      "retrieved_at": null
     }
   ],
   "source_watermarks": {
     "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-wer": "2026-09-14T21:50:13Z",
     "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-latency": "2026-09-14T21:42:05Z",
+    "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-pacing": "2026-09-14T22:27:13Z",
     "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-wer": "2026-09-14T22:05:59Z",
     "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency": "2026-09-14T22:05:43Z",
+    "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-pacing": "2026-09-14T22:27:13Z",
     "voice-pilot-loudr-1-turbo-loudkit-m5-wer": "2026-09-14T21:54:46Z",
     "voice-pilot-loudr-1-turbo-loudkit-m5-latency": "2026-09-14T21:43:17Z",
+    "voice-pilot-loudr-1-turbo-loudkit-m5-pacing": "2026-09-14T22:27:14Z",
     "voice-pilot-loudr-1-turbo-loudkit-5060-wer": "2026-09-14T21:54:52Z",
-    "voice-pilot-loudr-1-turbo-loudkit-5060-latency": "2026-09-14T21:45:48Z"
+    "voice-pilot-loudr-1-turbo-loudkit-5060-latency": "2026-09-14T21:45:48Z",
+    "voice-pilot-loudr-1-turbo-loudkit-5060-pacing": "2026-09-14T22:27:14Z"
   }
 }

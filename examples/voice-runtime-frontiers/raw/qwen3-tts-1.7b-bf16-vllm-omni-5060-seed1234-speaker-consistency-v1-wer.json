@@ -1,0 +1,93 @@
+{
+  "captured_at": "2026-09-14T22:40:40Z",
+  "instrument": {
+    "hardware": "arm",
+    "jiwer": "4.0.0",
+    "language": "en",
+    "mlx": "0.32.2",
+    "model": "mlx-community/whisper-large-v3-turbo-asr-fp16",
+    "os": "macOS-26.6.2-arm64-arm-64bit",
+    "resolved_revision": "624c19c9af5603fa73b83bce14d4aeea96156d18",
+    "runtime": "mlx-audio 0.5.4",
+    "whisper_normalizer": "0.1.12"
+  },
+  "instrument_warm_seconds": 0.816302,
+  "measurements": [
+    {
+      "audio_filename": "002-L1.wav",
+      "audio_seconds": 38.32,
+      "audio_sha256": "6997af9580fd2d5c6235948d597abc47e6743a7076db42fb4538eea073656137",
+      "deletions": 0,
+      "hypothesis": "Good afternoon, and thank you for calling the neighborhood library. I can help renew your books, check whether a title is available, or explain how to get a new library card. Before we begin, please have your card number nearby, but do not read any passwords or payment details allowed. The downtown branch closes at 8 o'clock tonight. The north branch closes at 6, and its study rooms are already reserved. If you need a quiet workspace, the Riverside branch still has two rooms open after 4.30. Tell me which service you need, and I will guide you through the next step.",
+      "insertions": 0,
+      "normalized_hypothesis": "good afternoon and thank you for calling the neighborhood library i can help renew your books check whether a title is available or explain how to get a new library card before we begin please have your card number nearby but do not read any passwords or payment details allowed the downtown branch closes at 80 clock tonight the north branch closes at 6 and its study rooms are already reserved if you need a quiet workspace the riverside branch still has 2 rooms open after 4.30 tell me which service you need and i will guide you through the next step",
+      "normalized_reference": "good afternoon and thank you for calling the neighborhood library i can help renew your books check whether a title is available or explain how to get a new library card before we begin please have your card number nearby but do not read any passwords or payment details aloud the downtown branch closes at 80 clock tonight the north branch closes at 6 and its study rooms are already reserved if you need a quiet workspace the riverside branch still has 2 rooms open after 430 tell me which service you need and i will guide you through the next step",
+      "reference": "Good afternoon, and thank you for calling the neighborhood library. I can help renew your books, check whether a title is available, or explain how to get a new library card. Before we begin, please have your card number nearby, but do not read any passwords or payment details aloud. The downtown branch closes at eight o'clock tonight. The north branch closes at six, and its study rooms are already reserved. If you need a quiet workspace, the riverside branch still has two rooms open after four thirty. Tell me which service you need, and I will guide you through the next step.",
+      "reference_words": 102,
+      "substitutions": 2,
+      "testcase_id": "L1",
+      "transcription_wall_seconds": 0.431445,
+      "wer_percentage": 1.960784
+    },
+    {
+      "audio_filename": "003-L2.wav",
+      "audio_seconds": 53.04,
+      "audio_sha256": "5ff84370aa45d9659f71e7769beeaca2823e793769ddd96ed0a506ca11abb328",
+      "deletions": 0,
+      "hypothesis": "Here is the travel update for Tuesday morning. Train 714 is expected on Platform 3 at 9.25, approximately 12 minutes behind schedule. Passengers traveling to Lakeview should remain on board through Central Station. Passengers for the airport must transfer to the Blue Line and allow at least 15 minutes for the connection. Elevators near the east entrance are temporarily unavailable, so anyone who needs step-free access should use the west entrance on Market Street. Keep your ticket available until you leave the destination station and listen for another announcement if the platform changes.",
+      "insertions": 0,
+      "normalized_hypothesis": "here is the travel update for tuesday morning train 714 is expected on platform 3 at 9.25 approximately 12 minutes behind schedule passengers traveling to lakeview should remain on board through central station passengers for the airport must transfer to the blue line and allow at least 15 minutes for the connection elevators near the east entrance are temporarily unavailable so anyone who needs step free access should use the west entrance on market street keep your ticket available until you leave the destination station and listen for another announcement if the platform changes",
+      "normalized_reference": "here is the travel update for tuesday morning train 714 is expected on platform 3 at 925 approximately 12 minutes behind schedule passengers traveling to lakeview should remain on board through central station passengers for the airport must transfer to the blue line and allow at least 15 minutes for the connection elevators near the east entrance are temporarily unavailable so anyone who needs step free access should use the west entrance on market street keep your ticket available until you leave the destination station and listen for another announcement if the platform changes",
+      "reference": "Here is the travel update for Tuesday morning. Train seven fourteen is expected on platform three at nine twenty-five, approximately twelve minutes behind schedule. Passengers traveling to Lakeview should remain on board through Central Station. Passengers for the airport must transfer to the blue line and allow at least fifteen minutes for the connection. Elevators near the east entrance are temporarily unavailable, so anyone who needs step-free access should use the west entrance on Market Street. Keep your ticket available until you leave the destination station, and listen for another announcement if the platform changes.",
+      "reference_words": 94,
+      "substitutions": 1,
+      "testcase_id": "L2",
+      "transcription_wall_seconds": 0.447278,
+      "wer_percentage": 1.06383
+    },
+    {
+      "audio_filename": "004-L3.wav",
+      "audio_seconds": 50.32,
+      "audio_sha256": "92f010b214f4674c84f00bc5f8eab227327e4984c9c5a06ea6b01cfabbeb029b",
+      "deletions": 0,
+      "hypothesis": "Let's review the plan one more time. First, save your work and close any programs that are using the shared folder. Second, confirm that the backup completed successfully at 2.15 this morning. Third, disconnect the old drive, label it with today's date, and place it in the locked cabinet. When the replacement drive is connected, wait for the green status light before starting the verification scan. The scan may take 20 to 30 minutes. If you see a red warning, stop immediately and record the exact message. Otherwise, let the process finish, open three sample files, and report the result to the support team.",
+      "insertions": 0,
+      "normalized_hypothesis": "let us review the plan one more time 1st save your work and close any programs that are using the shared folder 2nd confirm that the backup completed successfully at 2.15 this morning 3rd disconnect the old drive label it with today is date and place it in the locked cabinet when the replacement drive is connected wait for the green status light before starting the verification scan the scan may take 20 to 30 minutes if you see a red warning stop immediately and record the exact message otherwise let the process finish open 3 sample files and report the result to the support team",
+      "normalized_reference": "let us review the plan one more time 1st save your work and close any programs that are using the shared folder 2nd confirm that the backup completed successfully at 215 this morning 3rd disconnect the old drive label it with today is date and place it in the locked cabinet when the replacement drive is connected wait for the green status light before starting the verification scan the scan may take 20 to 30 minutes if you see a red warning stop immediately and record the exact message otherwise let the process finish open 3 sample files and report the result to the support team",
+      "reference": "Let's review the plan one more time. First, save your work and close any programs that are using the shared folder. Second, confirm that the backup completed successfully at two fifteen this morning. Third, disconnect the old drive, label it with today's date, and place it in the locked cabinet. When the replacement drive is connected, wait for the green status light before starting the verification scan. The scan may take twenty to thirty minutes. If you see a red warning, stop immediately and record the exact message. Otherwise, let the process finish, open three sample files, and report the result to the support team.",
+      "reference_words": 106,
+      "substitutions": 1,
+      "testcase_id": "L3",
+      "transcription_wall_seconds": 0.475723,
+      "wer_percentage": 0.943396
+    }
+  ],
+  "methodology": {
+    "disclosure": "Local MLX Whisper is the fixed measurement instrument. This is not numerically interchangeable with CoVAL's hosted whisper-1 instrument.",
+    "metric": "corpus word error rate",
+    "normalization": "whisper_normalizer EnglishTextNormalizer",
+    "normalization_version": "2",
+    "reference": "https://github.com/coval-ai/benchmarks/blob/c9786d181776ba393e85718e26e6b9f67fe19f7c/runner/src/coval_bench/metrics/wer.py",
+    "scope": "intelligibility proxy only; not naturalness or speaker similarity"
+  },
+  "model_load_seconds": 0.588845,
+  "schema": "model-skyline/experimental-tts-wer-capture/v1alpha1",
+  "source": {
+    "audio_set_sha256": "032086155f41558c868beeab3705d86309a7eb4ca0115bb569da7397627e8006",
+    "latency_capture_sha256": "75a60f7c80bc4cb7b25760a4f75d6fc7ac2dc7110a0139098441173f1589ae47",
+    "manifest_id": "speaker-consistency-v1",
+    "manifest_sha256": "1e22dbdf98f474979da247aee673ceb8dd27675389876d9eb46408e3e9c8c4b8",
+    "manifest_version": "1.0.0"
+  },
+  "summary": {
+    "corpus_wer_percentage": 1.324503,
+    "empty_hypothesis_count": 0,
+    "mlx_peak_memory_gb": 2.583166,
+    "sample_count": 3,
+    "total_deletions": 0,
+    "total_errors": 4,
+    "total_insertions": 0,
+    "total_reference_words": 302,
+    "total_substitutions": 4
+  }
+}

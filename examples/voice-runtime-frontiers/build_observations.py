@@ -25,6 +25,7 @@ SPECS: tuple[dict[str, Any], ...] = (
         "slug": "qwen3-tts-1.7b-6bit-mlx-m5",
         "latency": "qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1.json",
         "quality": "qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1-wer.json",
+        "pacing": "qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1-pacing.json",
         "offering_id": "self-hosted/qwen3-tts-1.7b-6bit-mlx@m5-max-64gb-vivian-en-seed1234",
         "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
         "endpoint": "in-process-mlx",
@@ -46,6 +47,10 @@ SPECS: tuple[dict[str, Any], ...] = (
         "slug": "qwen3-tts-1.7b-bf16-vllm-omni-5060",
         "latency": "qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1.json",
         "quality": "qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1-wer.json",
+        "pacing": (
+            "qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-"
+            "coval-tts-v1-pacing.json"
+        ),
         "offering_id": (
             "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni"
             "@rtx5060ti-16gb-vivian-en-seed1234"
@@ -73,6 +78,7 @@ SPECS: tuple[dict[str, Any], ...] = (
         "slug": "loudr-1-turbo-loudkit-m5",
         "latency": "loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1.json",
         "quality": "loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1-wer.json",
+        "pacing": "loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1-pacing.json",
         "offering_id": "self-hosted/loudr-1-turbo-loudkit@m5-max-64gb-joe-en-seed7",
         "model_id": "loudr-1-turbo",
         "endpoint": "in-process-loudkit",
@@ -97,6 +103,7 @@ SPECS: tuple[dict[str, Any], ...] = (
         "slug": "loudr-1-turbo-loudkit-5060",
         "latency": "loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1.json",
         "quality": "loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1-wer.json",
+        "pacing": "loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1-pacing.json",
         "offering_id": "self-hosted/loudr-1-turbo-loudkit@rtx5060ti-16gb-joe-en-seed7",
         "model_id": "loudr-1-turbo",
         "endpoint": "in-process-loudkit",
@@ -170,8 +177,10 @@ def _observation(
 def _offering(spec: dict[str, Any]) -> dict[str, Any]:
     latency_path = RAW / spec["latency"]
     quality_path = RAW / spec["quality"]
+    pacing_path = RAW / spec["pacing"]
     latency = _load(latency_path)
     quality = _load(quality_path)
+    pacing = _load(pacing_path)
     latency_digest = _sha256(latency_path)
     if quality["source"]["latency_capture_sha256"] != latency_digest:
         raise ValueError(f"{quality_path.name} does not bind {latency_path.name}")
@@ -179,9 +188,17 @@ def _offering(spec: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"unexpected prompt manifest in {latency_path.name}")
     if quality["source"]["manifest_sha256"] != MANIFEST_SHA256:
         raise ValueError(f"unexpected prompt manifest in {quality_path.name}")
+    if pacing["source"]["manifest_sha256"] != MANIFEST_SHA256:
+        raise ValueError(f"unexpected prompt manifest in {pacing_path.name}")
+    if pacing["source"]["audio_set_sha256"] != quality["source"]["audio_set_sha256"]:
+        raise ValueError(f"{pacing_path.name} and {quality_path.name} score different audio")
     summary = latency["resident_summary_excluding_first_request"]
     quality_summary = quality["summary"]
-    if summary["sample_count"] != 30 or quality_summary["sample_count"] != 30:
+    if (
+        summary["sample_count"] != 30
+        or quality_summary["sample_count"] != 30
+        or pacing["summary"]["sample_count"] != 30
+    ):
         raise ValueError(f"{spec['slug']} does not contain exactly 30 scored cases")
     if quality["instrument"]["resolved_revision"] != WHISPER_REVISION:
         raise ValueError(f"unexpected Whisper revision in {quality_path.name}")
@@ -197,6 +214,15 @@ def _offering(spec: dict[str, Any]) -> dict[str, Any]:
         "wer",
         quality_path,
         "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+    )
+    pacing_source = _source(
+        spec["slug"],
+        "pacing",
+        pacing_path,
+        (
+            "Deterministic reference-word rate and energy-pause proxies from the same "
+            "saved audio; no naturalness threshold is asserted."
+        ),
     )
     invalid_percent = Decimal(spec["invalid_count"]) * Decimal(100) / Decimal(30)
     wer_lower, wer_upper = spec["wer_interval"]
@@ -224,6 +250,7 @@ def _offering(spec: dict[str, Any]) -> dict[str, Any]:
             "pilot": "one fixed seed per exact offering",
             "latency_capture": f"raw/{spec['latency']}",
             "quality_capture": f"raw/{spec['quality']}",
+            "pacing_capture": f"raw/{spec['pacing']}",
             "audio_set_sha256": quality["source"]["audio_set_sha256"],
         },
         "signals": {
@@ -258,6 +285,24 @@ def _offering(spec: dict[str, Any]) -> dict[str, Any]:
                 "percent",
                 latency["captured_at"],
                 latency_source,
+            ),
+            "tts_corpus_words_per_minute": _observation(
+                pacing["summary"]["corpus_words_per_minute"],
+                "words/minute",
+                pacing["captured_at"],
+                pacing_source,
+            ),
+            "tts_words_per_minute_p95": _observation(
+                pacing["summary"]["words_per_minute_p95"],
+                "words/minute",
+                pacing["captured_at"],
+                pacing_source,
+            ),
+            "tts_internal_pause_fraction_p50": _observation(
+                pacing["summary"]["internal_pause_fraction_p50"],
+                "ratio",
+                pacing["captured_at"],
+                pacing_source,
             ),
         },
     }
