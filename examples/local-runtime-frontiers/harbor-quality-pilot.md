@@ -291,3 +291,25 @@ The first Ornith memory capture began after the job and used an earlier sampler
 without per-task coverage flags. Its observed peaks remain a private diagnostic,
 but the normalizer intentionally emits no memory axis from it. A clean capture
 must accompany a rerun before Ornith can enter the quality/memory frontier.
+
+## First matched replication
+
+The bounded-reasoning Qwen route scored 3/5 on its second identical five-task
+job, versus 4/5 initially. The two-run
+[`catalog`](generated/harbor-pilot5-qwen38-low-think4k-repeat2-catalog.json)
+therefore reports 7/10 pooled success (70%), a 60–80% observed run range, and a
+916.955-second pooled p95 whose retained range begins at 804.267 seconds. Both
+runs passed `fix-git`, `multi-source-data-merger`, and
+`fix-code-vulnerability`; `cancel-async-tasks` changed from pass to fail, while
+`build-cython-ext` failed both times. Peak process footprint was stable between
+23,765,922,632 and 23,782,290,440 bytes.
+
+This confirms that the initial 80% point result was not stable enough to promote
+as a default. The published one-run frontiers remain historical point evidence;
+the separate robust frontiers require the protocol's five attempts for every
+candidate in the compared cohort. The repeat bundle also remains ineligible for
+the cache-demand axis because the first job contained one incomplete API
+request, even though the second job's request accounting was complete. The
+prompt-free second-run
+[`summary`](raw/harbor-pilot5-qwen38-low-think4k-repeat2-summary.json) is
+retained for independent inspection.

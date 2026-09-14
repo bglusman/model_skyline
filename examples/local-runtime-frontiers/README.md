@@ -141,6 +141,12 @@ The current epsilon-aware coverage result is:
 | Five-task local-agent quality vs exact uncached input | Muse Glimmer |
 | Five-task local-agent quality vs process footprint | Qwen3.8 27B oMLX, low reasoning/4K thinking; Muse Glimmer |
 
+The three five-task rows above are the initial one-attempt point frontiers, not
+stable defaults. A matched second bounded-reasoning Qwen job scored 3/5 rather
+than 4/5, producing 70% pooled success with a 60–80% observed run range. The
+packaged robust frontiers stay unpublished until every compared candidate has
+the protocol's five repetitions.
+
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
 At model-family identity, dense Qwen3.8 covers three complementary frontiers;
