@@ -305,8 +305,10 @@ class LocalMeasurementRecord(FrozenModel):
             "long-context": None if self.integrity is None else self.integrity.retrieval,
         }
         for capability, checks in checks_by_capability.items():
-            if checks is not None and capability not in self.capabilities:
-                raise ValueError(f"integrity evidence for {capability!r} requires that capability")
+            if checks is not None and checks.passed > 0 and capability not in self.capabilities:
+                raise ValueError(
+                    f"nonzero integrity evidence for {capability!r} requires that capability"
+                )
         return self
 
 
@@ -580,7 +582,7 @@ def build_local_capacity_catalog(
     *,
     workload: WorkloadReference,
 ) -> ObservationCatalog:
-    """Roll an uncached retrieval ladder up to validated capacity and footprint."""
+    """Roll an uncached retrieval ladder up without hiding failed candidates."""
 
     materialized = tuple(records)
     if not materialized:
@@ -597,6 +599,12 @@ def build_local_capacity_catalog(
         raise ValueError(
             "capacity records require cache-disabled or proven zero-hit cache-miss requests"
         )
+    if any(record.performance is None for record in materialized):
+        raise ValueError("capacity records require actual input-token performance evidence")
+    if any(
+        record.integrity is None or record.integrity.retrieval is None for record in materialized
+    ):
+        raise ValueError("capacity records require explicit retrieval integrity evidence")
     protocol = _capacity_protocol(materialized[0])
     if any(_capacity_protocol(record) != protocol for record in materialized[1:]):
         raise ValueError("capacity records must use one retrieval protocol")
@@ -615,10 +623,9 @@ def build_local_capacity_catalog(
             and record.integrity.retrieval.passed == record.integrity.retrieval.total
             and record.performance is not None
         ]
-        if not passing:
-            continue
+        selection_pool = passing or candidates
         selected = max(
-            passing,
+            selection_pool,
             key=lambda record: (
                 record.performance.actual_input_tokens if record.performance else 0,
                 record.completed_at,
@@ -628,29 +635,32 @@ def build_local_capacity_catalog(
         assert selected.performance is not None
         assert selected.integrity is not None
         assert selected.integrity.retrieval is not None
-        footprint = selected.performance.metrics.get(
-            LocalMetricName.peak_process_physical_footprint_bytes
-        )
-        if footprint is None:
-            raise ValueError(
-                f"capacity record {selected.measurement_id!r} is missing sampled physical footprint"
-            )
         source = _source(selected)
-        signals = {
-            "local_validated_context_tokens": Observation(
-                value=selected.performance.actual_input_tokens,
-                unit="token",
-                sample_count=selected.integrity.retrieval.total,
-                observed_at=selected.completed_at,
-                source=source,
-            ),
-            "local_peak_process_physical_footprint_bytes": _observation(
-                footprint.values,
-                unit="byte",
-                record=selected,
-                source=source,
-            ),
-        }
+        signals: dict[str, Observation] = {}
+        if passing:
+            footprint = selected.performance.metrics.get(
+                LocalMetricName.peak_process_physical_footprint_bytes
+            )
+            if footprint is None:
+                raise ValueError(
+                    f"capacity record {selected.measurement_id!r} is missing sampled "
+                    "physical footprint"
+                )
+            signals = {
+                "local_validated_context_tokens": Observation(
+                    value=selected.performance.actual_input_tokens,
+                    unit="token",
+                    sample_count=selected.integrity.retrieval.total,
+                    observed_at=selected.completed_at,
+                    source=source,
+                ),
+                "local_peak_process_physical_footprint_bytes": _observation(
+                    footprint.values,
+                    unit="byte",
+                    record=selected,
+                    source=source,
+                ),
+            }
         offering = local_offering_key(selected)
         assert offering.offering_id == offering_id
         attempted = sorted(
@@ -667,6 +677,18 @@ def build_local_capacity_catalog(
                         and record.integrity.retrieval is not None
                         and record.integrity.retrieval.passed == record.integrity.retrieval.total
                     ),
+                    "passed_checks": (
+                        record.integrity.retrieval.passed
+                        if record.integrity is not None and record.integrity.retrieval is not None
+                        else None
+                    ),
+                    "total_checks": (
+                        record.integrity.retrieval.total
+                        if record.integrity is not None and record.integrity.retrieval is not None
+                        else None
+                    ),
+                    "raw_artifact_path": record.provenance.raw_artifact_path,
+                    "raw_sha256": record.provenance.raw_sha256,
                 }
                 for record in candidates
             ),
@@ -686,13 +708,24 @@ def build_local_capacity_catalog(
                     "workload": selected.workload.model_dump(mode="json"),
                     "raw_artifact_path": selected.provenance.raw_artifact_path,
                     "capacity_ladder": attempted,
+                    "capacity_validation": {
+                        "attempted_position_count": len(candidates),
+                        "configured_context_tokens": selected.runtime.context_capacity_tokens,
+                        "fully_passing_position_count": len(passing),
+                        "largest_attempted_context_tokens": max(
+                            record.performance.actual_input_tokens
+                            for record in candidates
+                            if record.performance is not None
+                        ),
+                        "largest_validated_context_tokens": (
+                            selected.performance.actual_input_tokens if passing else None
+                        ),
+                    },
                     "local_cache_comparison_cohort": "uncached",
                 },
                 default_source=source,
             )
         )
-    if not offerings:
-        raise ValueError("no offering passed any retrieval position")
     return ObservationCatalog(
         schema_version="model-skyline/v1alpha1",
         workload=workload,

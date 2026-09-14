@@ -2,9 +2,9 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "89a7e8b6f91b4e59e87e96d5a744a12d380b9939f9d8e622601dbb34b4614464",
-  "config_hash": "5073c0e34beb2c4870ff81a45ee0f5de9dbf54790849e1ea5ead63309e6ab36e",
-  "catalog_hash": "140529b4f3c2411206ce289e04f45ba10e23d730c303da5d8cf5283e635c0103",
+  "snapshot_id": "506f169ab259a090f8441e3af594ab29856807b38183d09dc9f8159c0e14b528",
+  "config_hash": "5a4c3180b8f3788c265759023ddc0c15ecf44b7e8864653ebd2f5de707929683",
+  "catalog_hash": "8b43dbe31f9d88e512c5a2da768337474d90224511d753acce6573747470cd71",
   "engine_version": "0.9.0",
   "generated_at": "2026-09-13T23:00:00Z",
   "frontier_id": "validated-capacity-memory",
@@ -54,6 +54,9 @@
         "validated_context": {
           "value": "125964",
           "unit": "token",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": null,
           "upper": null,
           "dependencies": [
@@ -80,6 +83,9 @@
         "peak_physical_footprint": {
           "value": "5460878608",
           "unit": "byte",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": "5459109112",
           "upper": "5462484576",
           "dependencies": [
@@ -246,6 +252,9 @@
         "validated_context": {
           "value": "125964",
           "unit": "token",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": null,
           "upper": null,
           "dependencies": [
@@ -272,6 +281,9 @@
         "peak_physical_footprint": {
           "value": "5460878608",
           "unit": "byte",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": "5459109112",
           "upper": "5462484576",
           "dependencies": [
@@ -436,6 +448,9 @@
         "validated_context": {
           "value": "125964",
           "unit": "token",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": null,
           "upper": null,
           "dependencies": [
@@ -462,6 +477,9 @@
         "peak_physical_footprint": {
           "value": "47855481168",
           "unit": "byte",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": "47852450152",
           "upper": "47910941032",
           "dependencies": [
@@ -603,13 +621,21 @@
       ]
     }
   ],
-  "rejected": [],
+  "rejected": [
+    {
+      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-559214e903b9bf5b",
+      "reasons": [
+        "validated_context: signal 'local_validated_context_tokens' is missing",
+        "peak_physical_footprint: signal 'local_peak_process_physical_footprint_bytes' is missing"
+      ]
+    }
+  ],
   "axis_evidence": {
     "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
-    "config_hash": "5073c0e34beb2c4870ff81a45ee0f5de9dbf54790849e1ea5ead63309e6ab36e",
-    "catalog_hash": "140529b4f3c2411206ce289e04f45ba10e23d730c303da5d8cf5283e635c0103",
+    "config_hash": "5a4c3180b8f3788c265759023ddc0c15ecf44b7e8864653ebd2f5de707929683",
+    "catalog_hash": "8b43dbe31f9d88e512c5a2da768337474d90224511d753acce6573747470cd71",
     "generated_at": "2026-09-13T23:00:00Z",
     "workload": {
       "id": "validated-capacity-v1",
@@ -632,7 +658,7 @@
         "epsilon_relative": "0.05"
       }
     ],
-    "candidate_universe_hash": "3cee5c12d0f8fcef3b96e41b5087fa0cecbb60b04022201797b1ed95f9bd8871",
+    "candidate_universe_hash": "bfec40dd5d073fc3bf32653e2c7bb616be8a2e386b19bd3af4bd15a17aec17cd",
     "candidates": [
       {
         "offering": {
@@ -656,6 +682,9 @@
           "validated_context": {
             "value": "125964",
             "unit": "token",
+            "evidence_tiers": [
+              "measured"
+            ],
             "lower": null,
             "upper": null,
             "dependencies": [
@@ -682,6 +711,9 @@
           "peak_physical_footprint": {
             "value": "47855481168",
             "unit": "byte",
+            "evidence_tiers": [
+              "measured"
+            ],
             "lower": "47852450152",
             "upper": "47910941032",
             "dependencies": [
@@ -729,6 +761,9 @@
           "validated_context": {
             "value": "125964",
             "unit": "token",
+            "evidence_tiers": [
+              "measured"
+            ],
             "lower": null,
             "upper": null,
             "dependencies": [
@@ -755,6 +790,9 @@
           "peak_physical_footprint": {
             "value": "5460878608",
             "unit": "byte",
+            "evidence_tiers": [
+              "measured"
+            ],
             "lower": "5459109112",
             "upper": "5462484576",
             "dependencies": [
@@ -779,12 +817,42 @@
             "minimum_sample_count": 3
           }
         }
+      },
+      {
+        "offering": {
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-559214e903b9bf5b",
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "oQ4e",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {}
       }
     ],
-    "inventory_id": "016b1320123609ac41930c1f3e3df74a77c9a839f33f91de7e4dcc3942b418ff"
+    "inventory_id": "f6e6324ea59f20c9479f2d5f7af728c4f454b8c89e1c8608e4bf02b18df74757"
   },
   "public_release_blocked": false,
   "sources": [
+    {
+      "id": "local-measurement:ornith-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "ca3f186858404e5e54fdf33b1228bd2b4cb005f4e467df9f530f3543e6a72299",
+      "retrieved_at": "2026-09-13T13:40:53.852342Z"
+    },
     {
       "id": "local-measurement:qwen38-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5",
       "version": "model-skyline/openai-matrix@v1",

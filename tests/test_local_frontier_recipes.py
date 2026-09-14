@@ -265,6 +265,37 @@ def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
     assert flash_coder_family["frontiers"] == ["uncached-agent-tools"]
 
 
+def test_published_capacity_frontier_retains_failed_candidate_for_audit() -> None:
+    generated = EXAMPLE / "generated"
+    catalog = load_catalog(generated / "validated-capacity-catalog.json")
+    offerings = {offering.offering.model_id: offering for offering in catalog.offerings}
+
+    assert set(offerings) == {
+        "Qwen/Qwen3.8-27B",
+        "Qwen/Qwen3.8-Flash-Next",
+        "ornith-ai/Ornith-1.5-35B-A3B",
+    }
+    ornith = offerings["ornith-ai/Ornith-1.5-35B-A3B"]
+    assert "local_validated_context_tokens" not in ornith.signals
+    assert "local_peak_process_physical_footprint_bytes" not in ornith.signals
+    assert ornith.metadata["capacity_validation"] == {
+        "attempted_position_count": 1,
+        "configured_context_tokens": 262144,
+        "fully_passing_position_count": 0,
+        "largest_attempted_context_tokens": 125964,
+        "largest_validated_context_tokens": None,
+    }
+
+    frontier = load_frontier_snapshot(generated / "validated-capacity-frontier.json")
+    assert [member.offering.model_id for member in frontier.members] == ["Qwen/Qwen3.8-Flash-Next"]
+    assert [rejected.offering_id for rejected in frontier.rejected] == [ornith.offering.offering_id]
+
+    coverage = json.loads((generated / "cross-frontier-coverage.json").read_text(encoding="utf-8"))
+    capacity = next(item for item in coverage["frontiers"] if item["label"] == "validated-capacity")
+    assert capacity["snapshot_id"] == frontier.snapshot_id
+    assert capacity["rejected_count"] == 1
+
+
 def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
     summaries = {
         name: json.loads(path.read_text(encoding="utf-8"))

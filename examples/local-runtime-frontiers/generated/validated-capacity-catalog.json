@@ -28,6 +28,7 @@
         "local_validated_context_tokens": {
           "value": "125964",
           "unit": "token",
+          "evidence_tier": "measured",
           "lower": null,
           "upper": null,
           "sample_count": 3,
@@ -46,6 +47,7 @@
         "local_peak_process_physical_footprint_bytes": {
           "value": "47855481168",
           "unit": "byte",
+          "evidence_tier": "measured",
           "lower": "47852450152",
           "upper": "47910941032",
           "sample_count": 3,
@@ -180,9 +182,20 @@
           {
             "actual_input_tokens": 125964,
             "measurement_id": "qwen38-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5",
-            "passed": true
+            "passed": true,
+            "passed_checks": 3,
+            "total_checks": 3,
+            "raw_artifact_path": "examples/local-runtime-frontiers/raw/qwen38-omlx-baseline-f16kv-retrieval-mid-p126k-o64-r3-footprint.json",
+            "raw_sha256": "aff8d47ebc345646d62f084a7528a8ff110ec16f0bc22de42a3bf83ff8912a39"
           }
         ],
+        "capacity_validation": {
+          "attempted_position_count": 1,
+          "configured_context_tokens": 262144,
+          "fully_passing_position_count": 1,
+          "largest_attempted_context_tokens": 125964,
+          "largest_validated_context_tokens": 125964
+        },
         "local_cache_comparison_cohort": "uncached"
       },
       "default_source": {
@@ -218,6 +231,7 @@
         "local_validated_context_tokens": {
           "value": "125964",
           "unit": "token",
+          "evidence_tier": "measured",
           "lower": null,
           "upper": null,
           "sample_count": 3,
@@ -236,6 +250,7 @@
         "local_peak_process_physical_footprint_bytes": {
           "value": "5460878608",
           "unit": "byte",
+          "evidence_tier": "measured",
           "lower": "5459109112",
           "upper": "5462484576",
           "sample_count": 3,
@@ -374,9 +389,20 @@
           {
             "actual_input_tokens": 125964,
             "measurement_id": "qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-r3-footprint-p126000-o64-miss-needle-0p5",
-            "passed": true
+            "passed": true,
+            "passed_checks": 3,
+            "total_checks": 3,
+            "raw_artifact_path": "examples/local-runtime-frontiers/raw/qwen38-flash-next-ds4-retrieval-mid-p126k-o64-r3-footprint.json",
+            "raw_sha256": "b329071ecfb000bcbe60a219769717a6b786c92347ff49b93215d2e24f7696e6"
           }
         ],
+        "capacity_validation": {
+          "attempted_position_count": 1,
+          "configured_context_tokens": 131072,
+          "fully_passing_position_count": 1,
+          "largest_attempted_context_tokens": 125964,
+          "largest_validated_context_tokens": 125964
+        },
         "local_cache_comparison_cohort": "uncached"
       },
       "default_source": {
@@ -388,6 +414,171 @@
         "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
         "raw_sha256": "b329071ecfb000bcbe60a219769717a6b786c92347ff49b93215d2e24f7696e6",
         "retrieved_at": "2026-09-13T13:18:54.971906Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-559214e903b9bf5b",
+        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "oQ4e",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "signals": {},
+      "metadata": {
+        "local_measurement_id": "ornith-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5",
+        "local_evidence_status": "provisional",
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "checkpoint": "Ornith-1.5-35B-A3B",
+          "revision": "fb9644b83ce290da1f2cb6139f04632c085fc1d5",
+          "format": "mlx-safetensors",
+          "quantization": "oQ4e",
+          "size_bytes": 20900464628,
+          "content_sha256": "ccd964246ed9c0cc2ef17b1d16c193bb4b4446937b0521061f53636f0979d1f4",
+          "source_url": "https://huggingface.co/mlx-works/Ornith-1.5-35B-A3B-oQ4e-mtp",
+          "license": "MIT",
+          "metadata": {
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/ornith-1.5-35b-a3b-oq4e-mtp-manifest.json",
+            "chat_template": "froggeric/Qwen-Fixed-Chat-Templates@v21.3",
+            "mtp_head_preserved": true,
+            "vision_tower_included": false
+          }
+        },
+        "runtime": {
+          "runtime_id": "oMLX",
+          "version": "0.6.4",
+          "commit": null,
+          "backend": "MLX/Metal",
+          "context_capacity_tokens": 262144,
+          "kv_cache": "f16",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "mlx_version": "0.32.0",
+            "mlx_lm_version": "0.31.3",
+            "model_profile": "baseline-f16kv",
+            "max_concurrent_requests": 1,
+            "max_output_tokens": 16384,
+            "memory_guard": "balanced",
+            "turboquant_kv_enabled": false,
+            "dflash_enabled": false,
+            "mtp_enabled": false,
+            "ane_prefill_enabled": false,
+            "specprefill_enabled": false,
+            "prefix_cache": {
+              "backend": "disabled"
+            }
+          }
+        },
+        "runtime_identity_sha256": "6c84e2347767227760573d1d958bf2bf2eeeb3285cc91789e26c0a85c900eae5",
+        "workload": {
+          "reference": {
+            "id": "openai-retrieval-p126000-o64-disabled-needle-0p5",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "long_context_retrieval",
+          "input_definition_sha256": "e9bfcc2a6a008959b6e0fada071424ef2ea55a65f5a4c4bff742aa0d2e8fd4a1",
+          "requested_input_tokens": 126000,
+          "max_output_tokens": 64,
+          "repetitions": 3,
+          "warmup_repetitions": 1,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "disabled",
+          "position": {
+            "mode": "retrieval",
+            "prompt_bytes": 193527,
+            "user_prompt_sha256": "055f6f5c8a61fa1c7aab17e58be7631726182504e283ebe5bd8c66c6f25f5876",
+            "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+            "tool_schema_sha256": null,
+            "tool_count": 0,
+            "tool_choice": null,
+            "thinking_mode": "disabled",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "server-reported",
+            "decode_rate_source": "server-reported",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "stop": 3
+            },
+            "api": "openai-chat-completions-streaming",
+            "retrieval_character_fraction": "0.5"
+          }
+        },
+        "raw_artifact_path": "examples/local-runtime-frontiers/raw/ornith-omlx-baseline-f16kv-retrieval-mid-p126k-o64-r3-footprint.json",
+        "capacity_ladder": [
+          {
+            "actual_input_tokens": 125964,
+            "measurement_id": "ornith-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5",
+            "passed": false,
+            "passed_checks": 0,
+            "total_checks": 3,
+            "raw_artifact_path": "examples/local-runtime-frontiers/raw/ornith-omlx-baseline-f16kv-retrieval-mid-p126k-o64-r3-footprint.json",
+            "raw_sha256": "ca3f186858404e5e54fdf33b1228bd2b4cb005f4e467df9f530f3543e6a72299"
+          }
+        ],
+        "capacity_validation": {
+          "attempted_position_count": 1,
+          "configured_context_tokens": 262144,
+          "fully_passing_position_count": 0,
+          "largest_attempted_context_tokens": 125964,
+          "largest_validated_context_tokens": null
+        },
+        "local_cache_comparison_cohort": "uncached"
+      },
+      "default_source": {
+        "id": "local-measurement:ornith-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5",
+        "version": "model-skyline/openai-matrix@v1",
+        "url": null,
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+        "raw_sha256": "ca3f186858404e5e54fdf33b1228bd2b4cb005f4e467df9f530f3543e6a72299",
+        "retrieved_at": "2026-09-13T13:40:53.852342Z"
       }
     }
   ]
