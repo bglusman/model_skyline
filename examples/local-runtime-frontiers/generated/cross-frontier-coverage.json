@@ -13,10 +13,20 @@
       "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1"
     },
     {
-      "frontier_count": 3,
+      "frontier_count": 2,
+      "frontiers": [
+        "quality-latency",
+        "quality-process-footprint"
+      ],
+      "model_id": "Qwen/Qwen3.8-27B",
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e"
+    },
+    {
+      "frontier_count": 2,
       "frontiers": [
         "quality-cache-efficiency",
-        "quality-latency",
         "quality-process-footprint"
       ],
       "model_id": "meta-models/Muse-Glimmer-30B",
@@ -51,16 +61,6 @@
       ],
       "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
       "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
-      "provider": "local:macbook-m5max-64",
-      "quantization": "oQ4e"
-    },
-    {
-      "frontier_count": 1,
-      "frontiers": [
-        "quality-latency"
-      ],
-      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
-      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
       "provider": "local:macbook-m5max-64",
       "quantization": "oQ4e"
     }
@@ -135,16 +135,12 @@
       "label": "quality-latency",
       "members": [
         {
-          "model_id": "meta-models/Muse-Glimmer-30B",
-          "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816"
-        },
-        {
-          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
-          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20"
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
         }
       ],
       "rejected_count": 1,
-      "snapshot_id": "018f80745ef146951e83012f3f732edecb62ed474d6c455f308b91c4a29b6090"
+      "snapshot_id": "597a98a7b9684d7f971336cd3a9e3880caa48640f610bb54f4c5f19e5f8bb6ab"
     },
     {
       "definition": "local-agent-quality-cache-efficiency",
@@ -155,24 +151,37 @@
           "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816"
         }
       ],
-      "rejected_count": 3,
-      "snapshot_id": "a49afe08fcc45c206f7355d1dcdd63bd7f1055fd4a335974efd2a1d538c53cd6"
+      "rejected_count": 4,
+      "snapshot_id": "9f98eeb5181b95c7ddd13f9b568c0044c1bb8b3a85f135fdb1232b35e3cebba2"
     },
     {
       "definition": "local-agent-quality-memory",
       "label": "quality-process-footprint",
       "members": [
         {
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
+        },
+        {
           "model_id": "meta-models/Muse-Glimmer-30B",
           "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816"
         }
       ],
       "rejected_count": 2,
-      "snapshot_id": "b384e27e54f139afa3c2c656ac678389667c68ad7cba4c170d3404d8cb23f403"
+      "snapshot_id": "9c11774ea69989d6cb93ba76d59954547eb0fe8f644bbed0c35693c473b846de"
     }
   ],
   "membership_semantics": "Membership already incorporates each frontier axis's configured epsilon; this report does not add a second synthetic score.",
   "model_families": [
+    {
+      "frontier_count": 3,
+      "frontiers": [
+        "quality-latency",
+        "quality-process-footprint",
+        "warm-agent-tools"
+      ],
+      "model_id": "Qwen/Qwen3.8-27B"
+    },
     {
       "frontier_count": 3,
       "frontiers": [
@@ -183,29 +192,20 @@
       "model_id": "Qwen/Qwen3.8-Flash-Next"
     },
     {
-      "frontier_count": 3,
+      "frontier_count": 2,
       "frontiers": [
         "quality-cache-efficiency",
-        "quality-latency",
         "quality-process-footprint"
       ],
       "model_id": "meta-models/Muse-Glimmer-30B"
     },
     {
-      "frontier_count": 3,
+      "frontier_count": 2,
       "frontiers": [
-        "quality-latency",
         "short-throughput",
         "warm-agent-tools"
       ],
       "model_id": "ornith-ai/Ornith-1.5-35B-A3B"
-    },
-    {
-      "frontier_count": 1,
-      "frontiers": [
-        "warm-agent-tools"
-      ],
-      "model_id": "Qwen/Qwen3.8-27B"
     }
   ],
   "schema_version": "model-skyline/local-frontier-coverage/v1"

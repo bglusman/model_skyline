@@ -124,17 +124,18 @@ The current epsilon-aware coverage result is:
 | Uncached 30-tool, 2K-prefix/256-output operation | Qwen3.8 Flash Next on DS4 |
 | Uncached 126K exact retrieval | Qwen3.8 Flash Next on DS4 |
 | Validated capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
-| Five-task local-agent quality vs latency | Muse Glimmer; Ornith 1.5 oMLX |
+| Five-task local-agent quality vs latency | Qwen3.8 27B oMLX, low reasoning/4K thinking |
 | Five-task local-agent quality vs exact uncached input | Muse Glimmer |
-| Five-task local-agent quality vs process footprint | Muse Glimmer |
+| Five-task local-agent quality vs process footprint | Qwen3.8 27B oMLX, low reasoning/4K thinking; Muse Glimmer |
 
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
-At model-family identity, DS4 Flash Next, Ornith, and Muse Glimmer are each
-represented on three complementary frontiers; the coverage artifact keeps their
-distinct harness and runtime offerings separate rather than manufacturing a
-synthetic score. Muse's matched warm tool probe remains rejected by the 100%
-correctness threshold even though its verifier-scored route enters three quality
+At model-family identity, dense Qwen3.8 and DS4 Flash Next are each represented
+on three complementary frontiers; Muse Glimmer and Ornith each cover two. The
+coverage artifact keeps distinct harness, reasoning, and runtime offerings
+separate rather than manufacturing a synthetic score. Muse's matched warm tool
+probe remains rejected by the 100% correctness threshold even though its
+verifier-scored route remains valuable on the cache-demand and memory
 frontiers.
 
 A separate hardware-only slice compares the same Qwen3.8 27B UD-Q4_K_M bytes,
@@ -143,23 +144,23 @@ in [`generated/qwen38-exact-cross-mac-short-throughput-frontier.json`](generated
 but omitted from model-family coverage so a duplicate hardware offering cannot
 inflate Qwen's cross-workload count.
 
-The first four-candidate quality population is retained in
+The first five-candidate quality population is retained in
 [`generated/harbor-pilot5-quality-catalog.json`](generated/harbor-pilot5-quality-catalog.json).
-Ornith, DS4 Flash Next, and Muse Glimmer each scored 3/5. Muse has the lowest
-all-task p95 at 836.343 seconds; Ornith's 857.665 seconds remains co-frontier
-under the configured latency epsilon, while DS4 measured 923.973 seconds.
+The low-reasoning/4K-thinking Qwen3.8 profile scored 4/5 and has the lowest
+all-task p95 at 804.267 seconds, making it the sole quality/latency resident.
+The otherwise identical default-reasoning route scored only 2/5. This is strong
+configuration-specific evidence, not a claim that the 40-point difference will
+transfer beyond one attempt on these five tasks.
 The recorded uncached-input totals (45,888 for DS4 and
 161,473 for Ornith) are lower bounds because their timeout paths contain
 incomplete API requests. Muse's terminal-wait timeout had no in-flight model
 request, making its 51,424-token uncached total exact and the first cache-demand
-resident. Muse also owns the quality/process-footprint frontier at
-3,484,714,192 bytes, ahead of DS4's 5,461,911,280 bytes. These footprints are
-active process working sets, not artifact sizes or a claim that file-backed
-demand-paged weights occupy no system cache. Dense Qwen3.8 scored
-2/5 with three timeouts, missing the 60% promotion gate; its complete sampler
-is complete; the bounded-reasoning Qwen profile remains before this is a
-complete configured-candidate comparison. Ornith's initial memory capture
-remains correctly rejected.
+resident. Tuned Qwen and Muse form the quality/process-footprint frontier:
+80% at 23,782,290,440 bytes versus 60% at 3,484,714,192 bytes. These footprints
+are active process working sets, not artifact sizes or a claim that file-backed
+demand-paged weights occupy no system cache. The tuned route's one in-flight
+timeout makes its 98,321 uncached-input subtotal ineligible for exact cache
+comparison. Ornith's initial memory capture remains correctly rejected.
 
 ## Reproduce an exact cross-Mac comparison
 

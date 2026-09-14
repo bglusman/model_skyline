@@ -20,6 +20,7 @@ HARBOR_PILOT_SUMMARIES = {
     "ornith": EXAMPLE / "raw" / "harbor-pilot5-ornith15-baseline-summary.json",
     "ds4": EXAMPLE / "raw" / "harbor-pilot5-qwen38-flash-next-ds4-summary.json",
     "qwen38": EXAMPLE / "raw" / "harbor-pilot5-qwen38-baseline-f16kv-summary.json",
+    "qwen38_low_think4k": EXAMPLE / "raw" / "harbor-pilot5-qwen38-low-think4k-summary.json",
     "muse": EXAMPLE / "raw" / "harbor-pilot5-muse-glimmer-target-summary.json",
 }
 
@@ -160,6 +161,7 @@ def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
         "ornith": ("60.0", "3.0"),
         "ds4": ("60.0", "3.0"),
         "qwen38": ("40.0", "2.0"),
+        "qwen38_low_think4k": ("80.0", "4.0"),
         "muse": ("60.0", "3.0"),
     }
     for name, summary in summaries.items():
@@ -175,8 +177,20 @@ def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
             "valid_trials": 5,
         }
 
-    expected_timeout_counts = {"ornith": 1, "ds4": 2, "qwen38": 3, "muse": 1}
-    expected_incomplete_counts = {"ornith": 1, "ds4": 2, "qwen38": 3, "muse": 0}
+    expected_timeout_counts = {
+        "ornith": 1,
+        "ds4": 2,
+        "qwen38": 3,
+        "qwen38_low_think4k": 1,
+        "muse": 1,
+    }
+    expected_incomplete_counts = {
+        "ornith": 1,
+        "ds4": 2,
+        "qwen38": 3,
+        "qwen38_low_think4k": 1,
+        "muse": 0,
+    }
     for name, summary in summaries.items():
         timeouts = [trial for trial in summary["trials"] if trial["quality_attributable_exception"]]
         assert len(timeouts) == expected_timeout_counts[name]
@@ -189,22 +203,28 @@ def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
         )
 
     catalog = load_catalog(EXAMPLE / "generated" / "harbor-pilot5-quality-catalog.json")
-    assert len(catalog.offerings) == 4
-    offerings = {offering.offering.model_id: offering for offering in catalog.offerings}
-    ornith = offerings["ornith-ai/Ornith-1.5-35B-A3B"]
-    ds4 = offerings["Qwen/Qwen3.8-Flash-Next"]
-    qwen38 = offerings["Qwen/Qwen3.8-27B"]
-    muse = offerings["meta-models/Muse-Glimmer-30B"]
+    assert len(catalog.offerings) == 5
+    offerings = {
+        offering.metadata["pilot"]["candidate"]: offering for offering in catalog.offerings
+    }
+    ornith = offerings["ornith15_baseline"]
+    ds4 = offerings["qwen38_flash_ds4"]
+    qwen38 = offerings["qwen38_baseline"]
+    qwen38_low_think4k = offerings["qwen38_low_think4k"]
+    muse = offerings["muse_glimmer_target"]
     assert ornith.signals["local_pilot_task_success_percent"].value == 60
     assert ds4.signals["local_pilot_task_success_percent"].value == 60
     assert qwen38.signals["local_pilot_task_success_percent"].value == 40
+    assert qwen38_low_think4k.signals["local_pilot_task_success_percent"].value == 80
     assert muse.signals["local_pilot_task_success_percent"].value == 60
     assert "local_pilot_total_uncached_input_tokens" not in ornith.signals
     assert "local_pilot_total_uncached_input_tokens" not in ds4.signals
     assert "local_pilot_total_uncached_input_tokens" not in qwen38.signals
+    assert "local_pilot_total_uncached_input_tokens" not in qwen38_low_think4k.signals
     assert ornith.metadata["pilot"]["token_accounting"]["incomplete_api_requests"] == 1
     assert ds4.metadata["pilot"]["token_accounting"]["incomplete_api_requests"] == 2
     assert qwen38.metadata["pilot"]["token_accounting"]["incomplete_api_requests"] == 3
+    assert qwen38_low_think4k.metadata["pilot"]["token_accounting"]["incomplete_api_requests"] == 1
     assert muse.signals["local_pilot_total_uncached_input_tokens"].value == 51_424
     assert muse.metadata["pilot"]["token_accounting"]["incomplete_api_requests"] == 0
     assert "local_peak_process_physical_footprint_bytes" not in ornith.signals
@@ -213,12 +233,17 @@ def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
     assert ds4.metadata["pilot"]["memory"]["eligible"] is True
     assert qwen38.signals["local_peak_process_physical_footprint_bytes"].value == 23_198_069_456
     assert qwen38.metadata["pilot"]["memory"]["eligible"] is True
+    assert (
+        qwen38_low_think4k.signals["local_peak_process_physical_footprint_bytes"].value
+        == 23_782_290_440
+    )
+    assert qwen38_low_think4k.metadata["pilot"]["memory"]["eligible"] is True
     assert muse.signals["local_peak_process_physical_footprint_bytes"].value == 3_484_714_192
     assert muse.metadata["pilot"]["memory"]["eligible"] is True
 
     expected_members = {
-        "latency": [muse, ornith],
-        "memory": [muse],
+        "latency": [qwen38_low_think4k],
+        "memory": [qwen38_low_think4k, muse],
     }
     for name, expected in expected_members.items():
         frontier = load_frontier_snapshot(
