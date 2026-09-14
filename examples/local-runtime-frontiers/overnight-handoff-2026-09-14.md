@@ -164,8 +164,12 @@ not continuous 140 W draw; adapter wattage is a ceiling rather than a target.
 - The M1 Studio at `192.168.1.175:8090` now uses the same version and exclusive
   one-runner policy. Qwen-to-Ornith switching and explicit unload passed.
 - OMP v14.6.6 and OpenCode v1.3.17 list managed Qwen, DS4, Muse, Ornith, and
-  Ollama routes. OMP compacts globally at 180,000 tokens; capable backends may
-  still advertise a 262,144 hard ceiling.
+  Ollama routes. OMP summarizes a conversation at 75% of the selected model's
+  declared window: 196,608 tokens on 262,144-token routes and 98,304 on
+  131,072-token routes. The remaining 25% is working room for responses, tools,
+  and summarization. A single 180,000-token setting was rejected because it is
+  larger than the smaller routes' entire window. This client setting is
+  separate from measured usable-context evidence.
 - `sendLoadingState` is disabled because operational messages were entering
   agent history.
 - oMLX paged prefix caching is on by default. Repeating an 18,099-token prefix
