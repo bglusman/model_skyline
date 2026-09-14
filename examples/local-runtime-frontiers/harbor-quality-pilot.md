@@ -21,18 +21,24 @@ The pilot materializes three useful local frontiers after the validity gates pas
   including quality-attributable timeouts; and
 - measured pilot success versus peak physical footprint; and
 - measured pilot success versus total uncached input tokens across all five
-  tasks, a cache-aware agent-compute measure that also penalizes excess turns.
+  tasks, a cache-aware agent-compute measure that also penalizes excess turns,
+  provided every API request has complete usage accounting.
 
-Both require at least 60% success on the exact task set. The threshold prevents a
-fast but mostly useless route from becoming a recommended resident. The existing
+All three require at least 60% success on the exact task set. The cache-demand
+frontier additionally requires zero incomplete API requests: a timeout can hide
+the final request's usage, and treating the recorded subtotal as exact would
+reward failure. The quality threshold prevents a fast but mostly useless route
+from becoming a recommended resident. The existing
 128K, cache, session-endurance, and operational frontiers remain separate because
 these short repository tasks do not test those capabilities.
 
-Cache reuse percentage, total output tokens, and successful-task-only p95 are
-retained as diagnostics, but they are not recommendation axes. Cache reuse can
-be gamed by taking more turns, and successful-only latency hides the 900-second
-cost of a timed-out task. The decision latency therefore includes every valid
-task, including quality-attributable failures. Context is controlled as an
+Exact cache reuse percentage, total output tokens, and successful-task-only p95
+are retained as diagnostics, but they are not recommendation axes. When a run
+has an incomplete API request, only explicitly labeled recorded-token lower
+bounds remain in metadata. Cache reuse can be gamed by taking more turns, and
+successful-only latency hides the 900-second cost of a timed-out task. The
+decision latency therefore includes every valid task, including
+quality-attributable failures. Context is controlled as an
 eligibility/cohort property here: all routes receive the same 114,688-token
 input and 16,384-token output envelope with the same compaction policy. Validated
 maximum context remains a separate retrieval frontier rather than a configured
@@ -228,14 +234,15 @@ passing `fix-git`, `multi-source-data-merger`, and
 `fix-code-vulnerability`. Both failed `build-cython-ext`; DS4 also timed out on
 `cancel-async-tasks`, while Ornith completed that trial with reward zero.
 
-| Exact route | Success | All-task p95 wall | Uncached input | Cache reuse | Output | Peak process footprint |
+| Exact route | Success | All-task p95 wall | Recorded uncached input lower bound | Recorded cache reuse | Recorded output lower bound | Peak process footprint |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Ornith 1.5 oQ4e, oMLX F16 KV | 3/5 | 857.665 s | 161,473 | 86.284% | 160,409 | ineligible capture |
 | Qwen3.8 Flash Next, DS4 Q2/PLE-Q4_1 | 3/5 | 923.973 s | 45,888 | 93.448% | 49,492 | 5,461,911,280 B |
 
-At equal measured success, Ornith is the latency resident and DS4 is the
-uncached-input resident. DS4 is also the first eligible process-footprint
-resident. The footprint is macOS's kernel-accounted active process working set;
+At equal measured success, Ornith is the latency resident and DS4 is the first
+eligible process-footprint resident. Neither is an exact cache-demand resident:
+each has at least one incomplete API request on a timeout path. The footprint is
+macOS's kernel-accounted active process working set;
 it does not replace the separately retained 76.8 GB composite artifact size and
 does not count file-backed demand-paged storage as if it were anonymous memory.
 The dense Qwen3.8 and Muse Glimmer runs remain necessary before selecting a

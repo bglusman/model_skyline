@@ -98,7 +98,9 @@ Every active frontier has exactly two decision axes:
 - `local-agent-quality-memory`: the same exact success score (maximize) vs a
   same-job, fully covered physical-footprint peak (minimize).
 - `local-agent-quality-cache-efficiency`: the same exact success score
-  (maximize) vs total uncached input tokens across all tasks (minimize).
+  (maximize) vs total uncached input tokens across all tasks (minimize), only
+  when every API request has complete usage accounting. Recorded tokens from a
+  timed-out or truncated final request are a lower bound, not an eligible axis.
 
 Do not pool prompt lengths, cache-warmth states, prose/code/tool modes, or cold
 and warm runner states. Build a catalog per position. A separate same-model
@@ -123,12 +125,12 @@ The current epsilon-aware coverage result is:
 | Uncached 126K exact retrieval | Qwen3.8 Flash Next on DS4 |
 | Validated capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
 | Five-task local-agent quality vs latency | Ornith 1.5 oMLX |
-| Five-task local-agent quality vs uncached input | Qwen3.8 Flash Next on DS4 |
+| Five-task local-agent quality vs exact uncached input | No eligible resident yet |
 | Five-task local-agent quality vs process footprint | Qwen3.8 Flash Next on DS4 |
 
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
-At model-family identity, DS4 Flash Next is represented on five frontiers and
+At model-family identity, DS4 Flash Next is represented on four frontiers and
 Ornith on three; the coverage artifact keeps their distinct harness and runtime
 offerings separate rather than manufacturing a synthetic score. Muse's matched
 warm tool run is retained but rejected by the 100% correctness threshold.
@@ -143,9 +145,11 @@ The first quality population is retained in
 [`generated/harbor-pilot5-quality-catalog.json`](generated/harbor-pilot5-quality-catalog.json).
 Ornith and DS4 Flash Next each scored 3/5, passing the same three tasks. Ornith
 owns the latency frontier at an all-task p95 of 857.665 seconds versus DS4's
-923.973 seconds. DS4 owns the uncached-input frontier at 45,888 versus 161,473
-tokens and is the first memory-eligible resident, with a 5,461,911,280-byte
-kernel-reported process-footprint peak. That footprint is the active process
+923.973 seconds. Their recorded uncached-input totals (45,888 for DS4 and
+161,473 for Ornith) are lower bounds because their timeout paths contain
+incomplete API requests, so neither is eligible for the exact cache-demand
+frontier. DS4 is the first memory-eligible resident, with a
+5,461,911,280-byte kernel-reported process-footprint peak. That footprint is the active process
 working set, not DS4's 76.8 GB composite artifact size or a claim that
 file-backed demand-paged weights occupy no system cache. Qwen3.8 dense and Muse
 Glimmer still need the same five tasks before this is a complete candidate

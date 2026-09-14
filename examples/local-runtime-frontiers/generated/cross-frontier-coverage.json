@@ -13,17 +13,6 @@
       "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1"
     },
     {
-      "frontier_count": 2,
-      "frontiers": [
-        "quality-cache-efficiency",
-        "quality-process-footprint"
-      ],
-      "model_id": "Qwen/Qwen3.8-Flash-Next",
-      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99",
-      "provider": "local:macbook-m5max-64",
-      "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1"
-    },
-    {
       "frontier_count": 1,
       "frontiers": [
         "warm-agent-tools"
@@ -32,6 +21,16 @@
       "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
       "provider": "local:macbook-m5max-64",
       "quantization": "oQ4e"
+    },
+    {
+      "frontier_count": 1,
+      "frontiers": [
+        "quality-process-footprint"
+      ],
+      "model_id": "Qwen/Qwen3.8-Flash-Next",
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1"
     },
     {
       "frontier_count": 1,
@@ -139,19 +138,14 @@
         }
       ],
       "rejected_count": 0,
-      "snapshot_id": "da894c092bb1002667eebb4d056a6fc1655a4cc1368ba0a637a266984153f5c7"
+      "snapshot_id": "ec486f4c422d8ce6bd63c7894489a270ffad12c8b7df4fb7f9b6fc0b6f808b07"
     },
     {
       "definition": "local-agent-quality-cache-efficiency",
       "label": "quality-cache-efficiency",
-      "members": [
-        {
-          "model_id": "Qwen/Qwen3.8-Flash-Next",
-          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99"
-        }
-      ],
-      "rejected_count": 0,
-      "snapshot_id": "a3e1fd0f1d58cb680d914a1aeada2524e409e91761d0085041dd421ff34a1e4d"
+      "members": [],
+      "rejected_count": 2,
+      "snapshot_id": "55c89f44a5f336f1d750fc4d137f5f4fd0d34e7d791b375df782fad9f754d23d"
     },
     {
       "definition": "local-agent-quality-memory",
@@ -163,16 +157,15 @@
         }
       ],
       "rejected_count": 1,
-      "snapshot_id": "805fa39026faa1d8ac99c00319a59221f81e9035b39d50e51cc9492c04a59005"
+      "snapshot_id": "dcfbb7f6687a219187a0a9ee9757f40587b6bbf8c416dc66c0e66688c4024a9f"
     }
   ],
   "membership_semantics": "Membership already incorporates each frontier axis's configured epsilon; this report does not add a second synthetic score.",
   "model_families": [
     {
-      "frontier_count": 5,
+      "frontier_count": 4,
       "frontiers": [
         "long-context-126k",
-        "quality-cache-efficiency",
         "quality-process-footprint",
         "uncached-agent-tools",
         "validated-capacity"

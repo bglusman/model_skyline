@@ -182,6 +182,10 @@ def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
     ds4 = offerings["Qwen/Qwen3.8-Flash-Next"]
     assert ornith.signals["local_pilot_task_success_percent"].value == 60
     assert ds4.signals["local_pilot_task_success_percent"].value == 60
+    assert "local_pilot_total_uncached_input_tokens" not in ornith.signals
+    assert "local_pilot_total_uncached_input_tokens" not in ds4.signals
+    assert ornith.metadata["pilot"]["token_accounting"]["incomplete_api_requests"] == 1
+    assert ds4.metadata["pilot"]["token_accounting"]["incomplete_api_requests"] == 2
     assert "local_peak_process_physical_footprint_bytes" not in ornith.signals
     assert ornith.metadata["pilot"]["memory"]["eligible"] is False
     assert ds4.signals["local_peak_process_physical_footprint_bytes"].value == 5_461_911_280
@@ -189,7 +193,6 @@ def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
 
     expected_member = {
         "latency": ornith,
-        "cache-efficiency": ds4,
         "memory": ds4,
     }
     for name, offering in expected_member.items():
@@ -197,3 +200,8 @@ def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
             EXAMPLE / "generated" / f"harbor-pilot5-quality-{name}-frontier.json"
         )
         assert [member.offering for member in frontier.members] == [offering.offering]
+
+    cache_frontier = load_frontier_snapshot(
+        EXAMPLE / "generated" / "harbor-pilot5-quality-cache-efficiency-frontier.json"
+    )
+    assert cache_frontier.members == ()

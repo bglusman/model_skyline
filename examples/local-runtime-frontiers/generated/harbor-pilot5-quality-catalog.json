@@ -39,8 +39,8 @@
             "url": null,
             "terms_url": null,
             "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "ee39359260dd0c0a0a56069126452804b6666a158249147df10ec927aa856d92",
             "retrieved_at": "2026-09-14T02:34:13.356364Z"
           }
         },
@@ -58,65 +58,8 @@
             "url": null,
             "terms_url": null,
             "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
-            "retrieved_at": "2026-09-14T02:34:13.356364Z"
-          }
-        },
-        "local_pilot_total_uncached_input_tokens": {
-          "value": "45888",
-          "unit": "token",
-          "evidence_tier": "measured",
-          "lower": null,
-          "upper": null,
-          "sample_count": 5,
-          "observed_at": "2026-09-14T02:34:13.356364Z",
-          "source": {
-            "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
-            "version": "model-skyline/harbor-local-job-summary/v1",
-            "url": null,
-            "terms_url": null,
-            "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
-            "retrieved_at": "2026-09-14T02:34:13.356364Z"
-          }
-        },
-        "local_pilot_cache_reuse_percent": {
-          "value": "93.44796912458253791248252691818386",
-          "unit": "percent",
-          "evidence_tier": "measured",
-          "lower": null,
-          "upper": null,
-          "sample_count": 5,
-          "observed_at": "2026-09-14T02:34:13.356364Z",
-          "source": {
-            "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
-            "version": "model-skyline/harbor-local-job-summary/v1",
-            "url": null,
-            "terms_url": null,
-            "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
-            "retrieved_at": "2026-09-14T02:34:13.356364Z"
-          }
-        },
-        "local_pilot_total_output_tokens": {
-          "value": "49492",
-          "unit": "token",
-          "evidence_tier": "measured",
-          "lower": null,
-          "upper": null,
-          "sample_count": 5,
-          "observed_at": "2026-09-14T02:34:13.356364Z",
-          "source": {
-            "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
-            "version": "model-skyline/harbor-local-job-summary/v1",
-            "url": null,
-            "terms_url": null,
-            "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "ee39359260dd0c0a0a56069126452804b6666a158249147df10ec927aa856d92",
             "retrieved_at": "2026-09-14T02:34:13.356364Z"
           }
         },
@@ -134,8 +77,8 @@
             "url": null,
             "terms_url": null,
             "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "ee39359260dd0c0a0a56069126452804b6666a158249147df10ec927aa856d92",
             "retrieved_at": "2026-09-14T02:34:13.356364Z"
           }
         },
@@ -281,14 +224,25 @@
         "pilot": {
           "candidate": "qwen38_flash_ds4",
           "role": "memory_efficient_uncached_and_long_context_candidate",
-          "protocol_sha256": "ba4961e108ecbfe9e443d58c37dabe15bef311600e62009b1ec80371c4af80cd",
+          "protocol_sha256": "de0a195f09e21ab50a3df07c80b1afaadf326fc69d7163eba558363ab036f297",
           "system_profile_sha256": "78746cf1827b4bcc65978b484fd6afb3fda645407cb64771b0ebc57a8f1e82aa",
-          "summary_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+          "summary_sha256": "ee39359260dd0c0a0a56069126452804b6666a158249147df10ec927aa856d92",
           "summary_file": "harbor-pilot5-qwen38-flash-next-ds4-summary.json",
           "job_id": "e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
           "job_lock_sha256": "9933ee7c6c14424302938c7d9ced82bd60a412936827b6f8faa7b85031cf0a27",
           "successes": "3.0",
           "task_count": 5,
+          "token_accounting": {
+            "eligible": false,
+            "ineligibility_reasons": [
+              "incomplete_api_requests:2"
+            ],
+            "incomplete_api_requests": 2,
+            "recorded_input_tokens_lower_bound": 700363,
+            "recorded_cache_tokens_lower_bound": 654475,
+            "recorded_uncached_input_tokens_lower_bound": 45888,
+            "recorded_output_tokens_lower_bound": 49492
+          },
           "memory": {
             "eligible": true,
             "ineligibility_reasons": [],
@@ -308,8 +262,8 @@
         "url": null,
         "terms_url": null,
         "license": "CC0-1.0",
-        "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-        "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+        "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+        "raw_sha256": "ee39359260dd0c0a0a56069126452804b6666a158249147df10ec927aa856d92",
         "retrieved_at": "2026-09-14T02:34:13.356364Z"
       }
     },
@@ -346,8 +300,8 @@
             "url": null,
             "terms_url": null,
             "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "672a4eedcb390cc62c05a9bbc63b649a5771d2a46d9e3066afddb6bb8432f446",
             "retrieved_at": "2026-09-14T01:47:07.928815Z"
           }
         },
@@ -365,65 +319,8 @@
             "url": null,
             "terms_url": null,
             "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
-            "retrieved_at": "2026-09-14T01:47:07.928815Z"
-          }
-        },
-        "local_pilot_total_uncached_input_tokens": {
-          "value": "161473",
-          "unit": "token",
-          "evidence_tier": "measured",
-          "lower": null,
-          "upper": null,
-          "sample_count": 5,
-          "observed_at": "2026-09-14T01:47:07.928815Z",
-          "source": {
-            "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
-            "version": "model-skyline/harbor-local-job-summary/v1",
-            "url": null,
-            "terms_url": null,
-            "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
-            "retrieved_at": "2026-09-14T01:47:07.928815Z"
-          }
-        },
-        "local_pilot_cache_reuse_percent": {
-          "value": "86.28424309914115661426626268494947",
-          "unit": "percent",
-          "evidence_tier": "measured",
-          "lower": null,
-          "upper": null,
-          "sample_count": 5,
-          "observed_at": "2026-09-14T01:47:07.928815Z",
-          "source": {
-            "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
-            "version": "model-skyline/harbor-local-job-summary/v1",
-            "url": null,
-            "terms_url": null,
-            "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
-            "retrieved_at": "2026-09-14T01:47:07.928815Z"
-          }
-        },
-        "local_pilot_total_output_tokens": {
-          "value": "160409",
-          "unit": "token",
-          "evidence_tier": "measured",
-          "lower": null,
-          "upper": null,
-          "sample_count": 5,
-          "observed_at": "2026-09-14T01:47:07.928815Z",
-          "source": {
-            "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
-            "version": "model-skyline/harbor-local-job-summary/v1",
-            "url": null,
-            "terms_url": null,
-            "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "672a4eedcb390cc62c05a9bbc63b649a5771d2a46d9e3066afddb6bb8432f446",
             "retrieved_at": "2026-09-14T01:47:07.928815Z"
           }
         },
@@ -441,8 +338,8 @@
             "url": null,
             "terms_url": null,
             "license": "CC0-1.0",
-            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-            "raw_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "672a4eedcb390cc62c05a9bbc63b649a5771d2a46d9e3066afddb6bb8432f446",
             "retrieved_at": "2026-09-14T01:47:07.928815Z"
           }
         }
@@ -568,14 +465,25 @@
         "pilot": {
           "candidate": "ornith15_baseline",
           "role": "fast_sparse_warm_agent_candidate",
-          "protocol_sha256": "ba4961e108ecbfe9e443d58c37dabe15bef311600e62009b1ec80371c4af80cd",
+          "protocol_sha256": "de0a195f09e21ab50a3df07c80b1afaadf326fc69d7163eba558363ab036f297",
           "system_profile_sha256": "73f2f807f4f57f2417e24e00ce92f55e26d5b201c1d27d9b4b105941535b0afe",
-          "summary_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
+          "summary_sha256": "672a4eedcb390cc62c05a9bbc63b649a5771d2a46d9e3066afddb6bb8432f446",
           "summary_file": "harbor-pilot5-ornith15-baseline-summary.json",
           "job_id": "ea41ee44-222c-40a1-8993-214bc4418151",
           "job_lock_sha256": "026772904e3088ae6bdd83892c2b1062ecb422da6eb434e526e6045c252c634d",
           "successes": "3.0",
           "task_count": 5,
+          "token_accounting": {
+            "eligible": false,
+            "ineligibility_reasons": [
+              "incomplete_api_requests:1"
+            ],
+            "incomplete_api_requests": 1,
+            "recorded_input_tokens_lower_bound": 1177281,
+            "recorded_cache_tokens_lower_bound": 1015808,
+            "recorded_uncached_input_tokens_lower_bound": 161473,
+            "recorded_output_tokens_lower_bound": 160409
+          },
           "memory": {
             "eligible": false,
             "ineligibility_reasons": [
@@ -590,8 +498,8 @@
         "url": null,
         "terms_url": null,
         "license": "CC0-1.0",
-        "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-        "raw_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
+        "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+        "raw_sha256": "672a4eedcb390cc62c05a9bbc63b649a5771d2a46d9e3066afddb6bb8432f446",
         "retrieved_at": "2026-09-14T01:47:07.928815Z"
       }
     }

@@ -236,8 +236,9 @@ def _quality_source(
         license="CC0-1.0",
         methodology=(
             "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; "
-            "verifier-backed rewards, complete task wall time, and token accounting were "
-            "normalized from the prompt-free summary."
+            "verifier-backed rewards, complete task wall time, and recorded complete-request "
+            "token accounting were normalized from the prompt-free summary. Exact token-demand "
+            "signals are emitted only when the harness reports no incomplete API request."
         ),
         raw_sha256=_sha256(path),
         retrieved_at=observed_at,
@@ -310,6 +311,10 @@ def _validate_summary(
         if reward not in {Decimal(0), Decimal(1)}:
             raise PilotCatalogError("pilot rewards must be binary")
         successes += reward
+        _integer(
+            trial.get("incomplete_api_requests"),
+            field=f"{task_name}.incomplete_api_requests",
+        )
         _trial_wall_seconds(trial)
     if seen != set(expected_tasks):
         raise PilotCatalogError("summary trials do not cover the exact task set")
@@ -522,6 +527,13 @@ def build_catalog(
             )
             for trial in trials
         )
+        incomplete_api_requests = sum(
+            _integer(
+                trial.get("incomplete_api_requests"),
+                field="trial.incomplete_api_requests",
+            )
+            for trial in trials
+        )
         if total_cache > total_input:
             raise PilotCatalogError("cached input tokens exceed total input tokens")
         successes = sum(rewards, start=Decimal(0))
@@ -549,28 +561,29 @@ def build_catalog(
                 observed_at=finished_at,
                 source=source,
             ),
-            "local_pilot_total_uncached_input_tokens": Observation(
+        }
+        if incomplete_api_requests == 0:
+            signals["local_pilot_total_uncached_input_tokens"] = Observation(
                 value=total_input - total_cache,
                 unit="token",
                 sample_count=len(trials),
                 observed_at=finished_at,
                 source=source,
-            ),
-            "local_pilot_cache_reuse_percent": Observation(
+            )
+            signals["local_pilot_cache_reuse_percent"] = Observation(
                 value=cache_reuse_percent,
                 unit="percent",
                 sample_count=len(trials),
                 observed_at=finished_at,
                 source=source,
-            ),
-            "local_pilot_total_output_tokens": Observation(
+            )
+            signals["local_pilot_total_output_tokens"] = Observation(
                 value=total_output,
                 unit="token",
                 sample_count=len(trials),
                 observed_at=finished_at,
                 source=source,
-            ),
-        }
+            )
         if successful_wall:
             signals["local_pilot_p95_successful_task_wall_seconds"] = Observation(
                 value=_quantile_cont(successful_wall, Decimal("0.95")),
@@ -629,6 +642,19 @@ def build_catalog(
                 ),
                 "successes": str(successes),
                 "task_count": len(trials),
+                "token_accounting": {
+                    "eligible": incomplete_api_requests == 0,
+                    "ineligibility_reasons": (
+                        []
+                        if incomplete_api_requests == 0
+                        else [f"incomplete_api_requests:{incomplete_api_requests}"]
+                    ),
+                    "incomplete_api_requests": incomplete_api_requests,
+                    "recorded_input_tokens_lower_bound": total_input,
+                    "recorded_cache_tokens_lower_bound": total_cache,
+                    "recorded_uncached_input_tokens_lower_bound": total_input - total_cache,
+                    "recorded_output_tokens_lower_bound": total_output,
+                },
                 "memory": memory_metadata,
             },
         }

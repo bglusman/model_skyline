@@ -136,6 +136,7 @@ def test_builds_exact_quality_latency_cache_and_memory_catalog(tmp_path: Path) -
     assert offering.signals["local_pilot_total_uncached_input_tokens"].value == 4500
     assert offering.signals["local_pilot_cache_reuse_percent"].value == 10
     assert offering.signals["local_peak_process_physical_footprint_bytes"].value == 24_000
+    assert offering.metadata["pilot"]["token_accounting"]["eligible"] is True
     assert offering.metadata["pilot"]["memory"]["eligible"] is True
 
     config = load_config(EXAMPLE / "frontiers.yaml")
@@ -170,6 +171,43 @@ def test_partial_memory_capture_is_retained_but_not_emitted_as_an_axis(tmp_path:
     offering = catalog.offerings[0]
     assert "local_peak_process_physical_footprint_bytes" not in offering.signals
     assert offering.metadata["pilot"]["memory"]["eligible"] is False
+
+
+def test_incomplete_api_request_makes_exact_token_demand_ineligible(tmp_path: Path) -> None:
+    summary_path, summary = _pilot_summary(tmp_path)
+    trials = summary["trials"]
+    assert isinstance(trials, list) and isinstance(trials[0], dict)
+    trials[0]["incomplete_api_requests"] = 1
+    _write_json(summary_path, summary)
+
+    catalog = NORMALIZER.build_catalog(
+        protocol_path=PROTOCOL,
+        hardware_path=HARDWARE,
+        task_set_name="pilot_5",
+        summary_paths=[summary_path],
+        memory_paths=[],
+    )
+
+    offering = catalog.offerings[0]
+    assert "local_pilot_total_uncached_input_tokens" not in offering.signals
+    assert "local_pilot_cache_reuse_percent" not in offering.signals
+    assert "local_pilot_total_output_tokens" not in offering.signals
+    assert offering.metadata["pilot"]["token_accounting"] == {
+        "eligible": False,
+        "ineligibility_reasons": ["incomplete_api_requests:1"],
+        "incomplete_api_requests": 1,
+        "recorded_input_tokens_lower_bound": 5000,
+        "recorded_cache_tokens_lower_bound": 500,
+        "recorded_uncached_input_tokens_lower_bound": 4500,
+        "recorded_output_tokens_lower_bound": 50,
+    }
+    snapshot = FrontierEngine().calculate(
+        load_config(EXAMPLE / "frontiers.yaml"),
+        catalog,
+        "local-agent-quality-cache-efficiency",
+        generated_at=datetime(2026, 9, 14, 3, tzinfo=UTC),
+    )
+    assert snapshot.members == ()
 
 
 def test_memory_capture_must_match_summary_job_lock(tmp_path: Path) -> None:

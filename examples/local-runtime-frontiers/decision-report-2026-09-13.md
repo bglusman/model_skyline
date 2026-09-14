@@ -69,7 +69,7 @@ load-state artifact.
 
 ## Local Pareto frontiers
 
-Seven complementary frontier definitions are now materialized as nine
+Eight complementary frontier definitions are now materialized as nine
 position-specific snapshots. They use Model Skyline's ordinary two-axis Pareto
 engine and a strict local offering identity: hardware, exact artifact bytes,
 quantization, runtime build/profile, KV/cache/speculation configuration,
@@ -84,11 +84,11 @@ physical context capacity, and harness remain distinct.
 | `long-context-126k` | 100% exact retrieval gate, min end-to-end, 5% epsilon | DS4 Qwen3.8 Flash Next | DS4 197.929 s; Qwen baseline 299.638 s; Ornith rejected at 0/3 despite 88.474 s median |
 | `validated-capacity` | Max repeatedly validated tokens, min sampled physical footprint | DS4 Qwen3.8 Flash Next | Both DS4 and Qwen validated 125,964 tokens 3/3; DS4 used 5.461 GB vs Qwen 47.855 GB |
 | `quality-latency` | Max exact five-task success, min all-task p95 wall time, 60% gate | Ornith oMLX | Both scored 3/5; Ornith p95 was 857.665 s vs DS4's 923.973 s |
-| `quality-cache-efficiency` | Max exact five-task success, min total uncached input tokens, 60% gate | DS4 Qwen3.8 Flash Next | Both scored 3/5; DS4 used 45,888 uncached tokens vs Ornith's 161,473 |
+| `quality-cache-efficiency` | Max exact five-task success, min total uncached input tokens, 60% gate, zero incomplete API requests | No eligible resident yet | Recorded lower bounds are DS4 45,888 and Ornith 161,473; timeout paths make neither subtotal exact |
 | `quality-process-footprint` | Max exact five-task success, min fully covered process footprint, 60% gate | DS4 Qwen3.8 Flash Next | DS4 peaked at 5,461,911,280 B; Ornith's late capture is ineligible |
 
 The result now has the intended cross-frontier shape. At model-family identity,
-DS4 Flash Next covers five frontiers and Ornith covers three. Their distinct
+DS4 Flash Next covers four frontiers and Ornith covers three. Their distinct
 GGUF, MLX, DS4, lightweight-probe, and Harbor offerings are not collapsed at
 exact-offering identity. Qwen3.8 27B currently covers one warm frontier, with
 its verifier-scored run in progress; Muse covers none. Epsilon-aware membership
