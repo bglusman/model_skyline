@@ -144,12 +144,12 @@ contains three authored 94–106 word passages. It is intentionally kept out of
 the CoVAL-derived frontier catalog: a different workload must not silently
 contribute observations to the existing frontier.
 
-| Exact offering | Scored audio range | Corpus WER | Unexpected-speaker cases | Corpus words/min |
-|---|---:|---:|---:|---:|
-| Qwen3-TTS 1.7B 6-bit, MLX/M5 | 47.2–77.6 s | 1.32% | 0/3 | 101.6 |
-| Qwen3-TTS 1.7B BF16, vLLM-Omni/5060 | 38.3–53.0 s | 1.32% | 0/3 | 128.0 |
-| LoudKit turbo, M5 | 32.4–35.7 s | 1.66% | 0/3 | 180.1 |
-| LoudKit turbo, 5060 | 31.1–36.6 s | 1.99% | 0/3 | 180.8 |
+| Exact offering | Audio range | WER | Unexpected-speaker cases | Repetition warnings | Words/min |
+|---|---:|---:|---:|---:|---:|
+| Qwen3-TTS 1.7B 6-bit, MLX/M5 | 47.2–77.6 s | 1.32% | 0/3 | 1/3 | 101.6 |
+| Qwen3-TTS 1.7B BF16, vLLM-Omni/5060 | 38.3–53.0 s | 1.32% | 0/3 | 0/3 | 128.0 |
+| LoudKit turbo, M5 | 32.4–35.7 s | 1.66% | 0/3 | 0/3 | 180.1 |
+| LoudKit turbo, 5060 | 31.1–36.6 s | 1.99% | 0/3 | 0/3 | 180.8 |
 
 The pinned 117M-parameter MLX
 [Streaming Sortformer](https://huggingface.co/nvidia/diar_streaming_sortformer_4spk-v2.1)
@@ -165,6 +165,11 @@ the controls are synthetic rather than matched human recordings. One Qwen/MLX
 passage lasted 77.6 seconds and its ASR hypothesis ended with repeated
 ellipsis-like output. Normalized WER charged only one insertion, illustrating
 why completion, repetition, pacing, and speaker stability need separate gates.
+The deterministic [`score_tts_completion.py`](score_tts_completion.py) replay
+flags that case because its ASR hypothesis ends in eight identical punctuation
+tokens while the reference has one. It also looks for adjacent one-to-eight
+word loops. These are ASR-derived warnings, not proof of an acoustic defect,
+and are not frontier gates yet.
 The short-panel LoudKit/CUDA cap did not recur here, but three successful long
 passages do not erase the retained 1/30 short-panel failure.
 
@@ -366,6 +371,10 @@ python examples/voice-runtime-frontiers/score_tts_speaker_drift.py \
     examples/voice-runtime-frontiers/prompts/speaker-consistency-v1.json \
   --latency-capture result-long.json \
   --output result-long-diarization.json
+
+python examples/voice-runtime-frontiers/score_tts_completion.py \
+  --wer-capture result-long-wer.json \
+  --output result-long-completion.json
 
 python examples/voice-runtime-frontiers/build_observations.py
 modelskyline validate \
