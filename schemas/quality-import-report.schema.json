@@ -2,6 +2,16 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:model-skyline:schema:v1alpha1:quality-import-report",
   "$defs": {
+    "EvidenceTier": {
+      "description": "How directly an observation represents the declared metric.",
+      "enum": [
+        "proxy",
+        "estimated",
+        "measured"
+      ],
+      "title": "EvidenceTier",
+      "type": "string"
+    },
     "JsonValue": {},
     "MappedQualityRow": {
       "additionalProperties": false,
@@ -370,6 +380,10 @@
           "title": "Unit",
           "type": "string"
         },
+        "evidence_tier": {
+          "$ref": "#/$defs/EvidenceTier",
+          "default": "measured"
+        },
         "lower": {
           "anyOf": [
             {
@@ -420,7 +434,39 @@
         "unit"
       ],
       "title": "QualityMeasurement",
-      "type": "object"
+      "type": "object",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_tier": {
+                "const": "estimated"
+              }
+            },
+            "required": [
+              "evidence_tier"
+            ]
+          },
+          "then": {
+            "properties": {
+              "lower": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "upper": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "lower",
+              "upper"
+            ]
+          }
+        }
+      ]
     },
     "QualityMeasurementRole": {
       "description": "Controls which evidence can be projected onto a reviewed production route.",

@@ -24,6 +24,7 @@ from model_skyline.models import (
     PublicationManifest,
     SelectionSnapshot,
 )
+from model_skyline.quality_estimation import PairedQualityEstimate
 from model_skyline.quality_evidence import (
     MAX_QUALITY_ARTIFACT_BYTES,
     QualityEvidenceSet,
@@ -322,6 +323,10 @@ def load_quality_import_report(path: str | Path) -> QualityImportReport:
     return _validate_sensitive(QualityImportReport, _load_quality_json(path), path)
 
 
+def load_paired_quality_estimate(path: str | Path) -> PairedQualityEstimate:
+    return _validate_sensitive(PairedQualityEstimate, _load_quality_json(path), path)
+
+
 def load_portfolio_policy(path: str | Path) -> PortfolioPolicy:
     return _validate_sensitive(PortfolioPolicy, _load_quality_json(path), path)
 
@@ -378,6 +383,9 @@ SCHEMA_IDS = {
         "urn:model-skyline:schema:v1alpha1:quality-portfolio-derivation"
     ),
     "local-measurement.schema.json": "urn:model-skyline:schema:v1alpha1:local-measurement",
+    "paired-quality-estimate.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:paired-quality-estimate"
+    ),
 }
 
 
@@ -811,6 +819,57 @@ def _portfolio_policy_conditionals(schema: dict[str, Any]) -> None:
             value["uniqueItems"] = True
 
 
+def _evidence_tier_conditionals(schema: dict[str, Any]) -> None:
+    """Expose tier bounds and set invariants to non-Python validators."""
+
+    definitions = schema.get("$defs")
+    if not isinstance(definitions, dict):
+        return
+    for model_name in ("Observation", "QualityMeasurement"):
+        model = definitions.get(model_name)
+        if not isinstance(model, dict):
+            continue
+        model.setdefault("allOf", []).append(
+            {
+                "if": {
+                    "properties": {"evidence_tier": {"const": "estimated"}},
+                    "required": ["evidence_tier"],
+                },
+                "then": {
+                    "properties": {
+                        "lower": {"not": {"type": "null"}},
+                        "upper": {"not": {"type": "null"}},
+                    },
+                    "required": ["lower", "upper"],
+                },
+            }
+        )
+    axis_estimate = definitions.get("AxisEstimate")
+    if isinstance(axis_estimate, dict):
+        axis_estimate.setdefault("allOf", []).append(
+            {
+                "if": {
+                    "properties": {"evidence_tiers": {"contains": {"const": "estimated"}}},
+                    "required": ["evidence_tiers"],
+                },
+                "then": {
+                    "properties": {
+                        "lower": {"not": {"type": "null"}},
+                        "upper": {"not": {"type": "null"}},
+                    },
+                    "required": ["lower", "upper"],
+                },
+            }
+        )
+    requirements = definitions.get("ObservationRequirements")
+    if isinstance(requirements, dict):
+        properties = requirements.get("properties")
+        if isinstance(properties, dict):
+            accepted = properties.get("accepted_evidence_tiers")
+            if isinstance(accepted, dict):
+                accepted["uniqueItems"] = True
+
+
 def generated_schemas() -> dict[str, dict[str, Any]]:
     """Generate candidate schemas from models for maintainer review."""
 
@@ -848,10 +907,14 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         "local-measurement.schema.json": LocalMeasurementRecord.model_json_schema(
             mode="validation"
         ),
+        "paired-quality-estimate.schema.json": PairedQualityEstimate.model_json_schema(
+            mode="validation"
+        ),
     }
     result: dict[str, dict[str, Any]] = {}
     for name, schema in generated.items():
         _normalize_schema(schema)
+        _evidence_tier_conditionals(schema)
         if name == "project-config.schema.json":
             _project_config_conditionals(schema)
         if name == "quality-evidence.schema.json":
@@ -928,6 +991,15 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
                 "record. Model-quality claims are intentionally outside this contract and must "
                 "be joined through reviewed exact OfferingKey reconciliation. JSON Schema does "
                 "not reproduce all semantic cross-field validation; run ModelSkyline validation."
+            )
+        if name == "paired-quality-estimate.schema.json":
+            _quality_complete_offering_key(generated_schema)
+            generated_schema["$comment"] = (
+                "A paired estimate is not a full benchmark measurement. ModelSkyline semantic "
+                "validation replays the weighted delta, selected-item digest, conservative "
+                "interval, and artifact hash; JSON Schema alone does not. Exact anchor and "
+                "candidate OfferingKeys are required, and publication still requires a separate "
+                "rights-reviewed decision."
             )
         result[name] = generated_schema
     return result

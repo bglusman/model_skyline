@@ -198,6 +198,7 @@ def project_quality_import_report(
             measurement.id: Observation(
                 value=measurement.value,
                 unit=measurement.unit,
+                evidence_tier=measurement.evidence_tier,
                 lower=measurement.lower,
                 upper=measurement.upper,
                 sample_count=measurement.sample_count,

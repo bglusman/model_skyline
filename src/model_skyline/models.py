@@ -232,6 +232,14 @@ class UncertaintyMode(StrEnum):
     ROBUST = "robust"
 
 
+class EvidenceTier(StrEnum):
+    """How directly an observation represents the declared metric."""
+
+    PROXY = "proxy"
+    ESTIMATED = "estimated"
+    MEASURED = "measured"
+
+
 def _public_source_url(value: AnyHttpUrl) -> AnyHttpUrl:
     if value.username is not None or value.password is not None:
         raise ValueError("public source URLs cannot contain user information")
@@ -300,6 +308,7 @@ class Observation(FrozenModel):
 
     value: CanonicalDecimal
     unit: str = Field(min_length=1)
+    evidence_tier: EvidenceTier = EvidenceTier.MEASURED
     lower: CanonicalDecimal | None = None
     upper: CanonicalDecimal | None = None
     sample_count: SafeCount | None = None
@@ -321,6 +330,10 @@ class Observation(FrozenModel):
             raise ValueError("upper cannot be below value")
         if self.lower is not None and self.upper is not None and self.lower > self.upper:
             raise ValueError("lower cannot exceed upper")
+        if self.evidence_tier is EvidenceTier.ESTIMATED and (
+            self.lower is None or self.upper is None
+        ):
+            raise ValueError("estimated observations require lower and upper bounds")
         return self
 
 
@@ -415,6 +428,18 @@ class ObservationRequirements(StrictModel):
     minimum_samples: PositiveSafeCount | None = None
     require_bounds: bool = False
     require_source: bool = False
+    accepted_evidence_tiers: tuple[EvidenceTier, ...] = Field(
+        default=(EvidenceTier.MEASURED,),
+        min_length=1,
+        max_length=len(EvidenceTier),
+    )
+
+    @field_validator("accepted_evidence_tiers")
+    @classmethod
+    def canonical_evidence_tiers(cls, value: tuple[EvidenceTier, ...]) -> tuple[EvidenceTier, ...]:
+        if len(value) != len(set(value)):
+            raise ValueError("accepted_evidence_tiers must not contain duplicates")
+        return tuple(sorted(value, key=lambda tier: tier.value))
 
 
 class MetricBase(StrictModel):
@@ -582,6 +607,7 @@ class AxisDescriptor(FrozenModel):
 class AxisEstimate(FrozenModel):
     value: CanonicalDecimal
     unit: str
+    evidence_tiers: tuple[EvidenceTier, ...] = (EvidenceTier.MEASURED,)
     lower: CanonicalDecimal | None = None
     upper: CanonicalDecimal | None = None
     dependencies: tuple[str, ...] = ()
@@ -605,8 +631,17 @@ class AxisEstimate(FrozenModel):
             raise ValueError("axis upper bound cannot be below value")
         if self.lower is not None and self.upper is not None and self.lower > self.upper:
             raise ValueError("axis lower bound cannot exceed upper bound")
+        if EvidenceTier.ESTIMATED in self.evidence_tiers and (
+            self.lower is None or self.upper is None
+        ):
+            raise ValueError("estimated axis evidence requires lower and upper bounds")
         if len(self.dependencies) != len(set(self.dependencies)):
             raise ValueError("axis dependencies must be unique")
+        if not self.evidence_tiers:
+            raise ValueError("axis evidence_tiers must not be empty")
+        expected_tiers = tuple(sorted(set(self.evidence_tiers), key=lambda tier: tier.value))
+        if self.evidence_tiers != expected_tiers:
+            raise ValueError("axis evidence_tiers must be unique and canonically ordered")
         expected_source_ids = tuple(sorted({source.id for source in self.sources}))
         if self.source_ids != expected_source_ids:
             raise ValueError("source_ids must match the embedded axis sources")
@@ -701,7 +736,17 @@ class AxisEvidenceInventory(_AxisEvidenceInventoryContent):
 def axis_evidence_inventory_hash(inventory: AxisEvidenceInventory) -> str:
     """Return the content identity of an axis evidence inventory."""
 
-    return content_hash(inventory.model_dump(mode="json", exclude={"inventory_id"}))
+    return _axis_evidence_content_hash(inventory.model_dump(mode="json", exclude={"inventory_id"}))
+
+
+def _axis_evidence_content_hash(payload: dict[str, Any]) -> str:
+    """Hash an inventory while preserving its measured-only legacy identity."""
+
+    for candidate in payload["candidates"]:
+        for estimate in candidate["axes"].values():
+            if estimate.get("evidence_tiers") == [EvidenceTier.MEASURED.value]:
+                estimate.pop("evidence_tiers")
+    return content_hash(payload)
 
 
 def build_axis_evidence_inventory(
@@ -733,7 +778,7 @@ def build_axis_evidence_inventory(
         candidates=canonical_candidates,
     )
     return AxisEvidenceInventory(
-        inventory_id=content_hash(content),
+        inventory_id=_axis_evidence_content_hash(content.model_dump(mode="json")),
         **content.model_dump(),
     )
 

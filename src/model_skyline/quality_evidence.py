@@ -45,6 +45,7 @@ from model_skyline.canonical import canonical_bytes, content_hash
 from model_skyline.models import (
     CanonicalDecimal,
     CanonicalJsonObject,
+    EvidenceTier,
     FrozenModel,
     OfferingKey,
     SafeCount,
@@ -216,6 +217,18 @@ def quality_content_sha256(
     payload = _model_json(value)
     if not isinstance(payload, dict):  # pragma: no cover - every accepted input is object-like
         raise TypeError("quality digest payload must be a JSON object")
+    if domain is QualityDigestDomain.RESULT:
+        measurements = payload.get("measurements")
+        if isinstance(measurements, list):
+            for measurement in measurements:
+                if (
+                    isinstance(measurement, dict)
+                    and measurement.get("evidence_tier") == EvidenceTier.MEASURED.value
+                ):
+                    # Preserve result identities minted before tiers were
+                    # explicit. An estimated or proxy tier always remains in
+                    # the content-addressed domain.
+                    measurement.pop("evidence_tier")
     _bounded_canonical_object(payload)
     encoded = canonical_bytes(
         {
@@ -439,6 +452,7 @@ class QualityMeasurement(FrozenModel):
     role: QualityMeasurementRole
     value: CanonicalDecimal
     unit: Identifier
+    evidence_tier: EvidenceTier = EvidenceTier.MEASURED
     lower: CanonicalDecimal | None = None
     upper: CanonicalDecimal | None = None
     sample_count: SafeCount | None = None
@@ -451,6 +465,10 @@ class QualityMeasurement(FrozenModel):
             raise ValueError("measurement upper cannot be below value")
         if self.lower is not None and self.upper is not None and self.lower > self.upper:
             raise ValueError("measurement lower cannot exceed upper")
+        if self.evidence_tier is EvidenceTier.ESTIMATED and (
+            self.lower is None or self.upper is None
+        ):
+            raise ValueError("estimated quality measurements require lower and upper bounds")
         return self
 
 

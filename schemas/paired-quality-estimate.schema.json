@@ -1,0 +1,742 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:paired-quality-estimate",
+  "$defs": {
+    "JsonValue": {},
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "billing_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Billing Mode"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider",
+        "endpoint",
+        "billing_mode",
+        "region",
+        "service_tier",
+        "quantization",
+        "reasoning_effort",
+        "agent_harness",
+        "capabilities"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    },
+    "PairedItemScore": {
+      "additionalProperties": false,
+      "description": "One item scored under identical anchor and candidate semantics.",
+      "properties": {
+        "item_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Item Id",
+          "type": "string"
+        },
+        "anchor_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "title": "Anchor Score"
+        },
+        "candidate_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "title": "Candidate Score"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?![+]?0*(?:\\.0*)?$)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "default": "1",
+          "title": "Weight"
+        },
+        "task_group": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Group"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        }
+      },
+      "required": [
+        "item_id",
+        "anchor_score",
+        "candidate_score"
+      ],
+      "title": "PairedItemScore",
+      "type": "object"
+    },
+    "QualityComponentIdentity": {
+      "additionalProperties": false,
+      "description": "One versioned evaluator, scorer, protocol, dataset, or adapter component.",
+      "properties": {
+        "id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "configuration": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Configuration",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "title": "QualityComponentIdentity",
+      "type": "object"
+    },
+    "QualityEstimatorValidation": {
+      "additionalProperties": false,
+      "description": "Held-out error added conservatively to sampling uncertainty.",
+      "properties": {
+        "protocol": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "training_population_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Training Population Sha256",
+          "type": "string"
+        },
+        "held_out_offering_count": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Held Out Offering Count",
+          "type": "integer"
+        },
+        "absolute_error_bound": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "title": "Absolute Error Bound"
+        },
+        "coverage_probability": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            {
+              "pattern": "^(?!-)(?![+]?0*(?:\\.0*)?$)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "title": "Coverage Probability"
+        },
+        "validated_domain": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "minProperties": 1,
+          "title": "Validated Domain",
+          "type": "object"
+        }
+      },
+      "required": [
+        "protocol",
+        "training_population_sha256",
+        "held_out_offering_count",
+        "absolute_error_bound",
+        "coverage_probability",
+        "validated_domain"
+      ],
+      "title": "QualityEstimatorValidation",
+      "type": "object"
+    },
+    "QualityPublicationPermission": {
+      "enum": [
+        "unrestricted",
+        "derived_only",
+        "prohibited",
+        "unknown"
+      ],
+      "title": "QualityPublicationPermission",
+      "type": "string"
+    },
+    "QualityRawAudit": {
+      "additionalProperties": false,
+      "description": "Acquisition provenance; mappings do not bind it unless explicitly pinned.",
+      "properties": {
+        "source_locator": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Source Locator",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "upstream_revision": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upstream Revision"
+        },
+        "capture_method": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Capture Method",
+          "type": "string"
+        },
+        "parser_implementation": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "source_locator",
+        "raw_sha256",
+        "retrieved_at",
+        "capture_method",
+        "parser_implementation"
+      ],
+      "title": "QualityRawAudit",
+      "type": "object"
+    },
+    "QualityRights": {
+      "additionalProperties": false,
+      "description": "A reviewed rights assertion independent of score and route identity.",
+      "properties": {
+        "license_expression": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "License Expression",
+          "type": "string"
+        },
+        "terms_locator": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terms Locator"
+        },
+        "publication_permission": {
+          "$ref": "#/$defs/QualityPublicationPermission"
+        },
+        "reviewed_at": {
+          "format": "date-time",
+          "title": "Reviewed At",
+          "type": "string"
+        },
+        "review_evidence": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Review Evidence",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "license_expression",
+        "publication_permission",
+        "reviewed_at",
+        "review_evidence"
+      ],
+      "title": "QualityRights",
+      "type": "object"
+    },
+    "QualitySourceIdentity": {
+      "additionalProperties": false,
+      "description": "Semantic benchmark identity shared by every row in an evidence set.",
+      "properties": {
+        "source_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Source Version",
+          "type": "string"
+        },
+        "benchmark": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "dataset": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "split": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Split",
+          "type": "string"
+        },
+        "evaluator_harness": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "scorer": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "protocol": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "projection": {
+          "$ref": "#/$defs/QualityComponentIdentity"
+        },
+        "scope": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "minProperties": 1,
+          "title": "Scope",
+          "type": "object"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_version",
+        "benchmark",
+        "dataset",
+        "split",
+        "evaluator_harness",
+        "scorer",
+        "protocol",
+        "projection",
+        "scope"
+      ],
+      "title": "QualitySourceIdentity",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Self-hashed estimate with exact anchor, candidate, and benchmark identity.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/paired-quality-estimate/v1alpha1",
+      "default": "model-skyline/paired-quality-estimate/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "hash_algorithm": {
+      "const": "sha256-rfc8785-v1",
+      "default": "sha256-rfc8785-v1",
+      "title": "Hash Algorithm",
+      "type": "string"
+    },
+    "anchor_offering": {
+      "$ref": "#/$defs/OfferingKey"
+    },
+    "candidate_offering": {
+      "$ref": "#/$defs/OfferingKey"
+    },
+    "raw_audit": {
+      "$ref": "#/$defs/QualityRawAudit"
+    },
+    "source_identity": {
+      "$ref": "#/$defs/QualitySourceIdentity"
+    },
+    "rights": {
+      "$ref": "#/$defs/QualityRights"
+    },
+    "metric_id": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Metric Id",
+      "type": "string"
+    },
+    "unit": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Unit",
+      "type": "string"
+    },
+    "metric_minimum": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "title": "Metric Minimum"
+    },
+    "metric_maximum": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "title": "Metric Maximum"
+    },
+    "full_anchor_score": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "title": "Full Anchor Score"
+    },
+    "full_anchor_result_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Full Anchor Result Sha256",
+      "type": "string"
+    },
+    "subset_selection": {
+      "$ref": "#/$defs/QualityComponentIdentity"
+    },
+    "estimator": {
+      "$ref": "#/$defs/QualityComponentIdentity"
+    },
+    "selected_items_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Selected Items Sha256",
+      "type": "string"
+    },
+    "items": {
+      "items": {
+        "$ref": "#/$defs/PairedItemScore"
+      },
+      "maxItems": 10000,
+      "minItems": 1,
+      "title": "Items",
+      "type": "array"
+    },
+    "paired_delta": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "title": "Paired Delta"
+    },
+    "paired_delta_lower": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "title": "Paired Delta Lower"
+    },
+    "paired_delta_upper": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "title": "Paired Delta Upper"
+    },
+    "validation": {
+      "$ref": "#/$defs/QualityEstimatorValidation"
+    },
+    "estimated_value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "title": "Estimated Value"
+    },
+    "estimated_lower": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "title": "Estimated Lower"
+    },
+    "estimated_upper": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+          "type": "string",
+          "maxLength": 1024
+        }
+      ],
+      "title": "Estimated Upper"
+    },
+    "observed_at": {
+      "format": "date-time",
+      "title": "Observed At",
+      "type": "string"
+    },
+    "estimate_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Estimate Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "anchor_offering",
+    "candidate_offering",
+    "raw_audit",
+    "source_identity",
+    "rights",
+    "metric_id",
+    "unit",
+    "metric_minimum",
+    "metric_maximum",
+    "full_anchor_score",
+    "full_anchor_result_sha256",
+    "subset_selection",
+    "estimator",
+    "selected_items_sha256",
+    "items",
+    "paired_delta",
+    "paired_delta_lower",
+    "paired_delta_upper",
+    "validation",
+    "estimated_value",
+    "estimated_lower",
+    "estimated_upper",
+    "observed_at",
+    "estimate_id"
+  ],
+  "title": "PairedQualityEstimate",
+  "type": "object",
+  "$comment": "A paired estimate is not a full benchmark measurement. ModelSkyline semantic validation replays the weighted delta, selected-item digest, conservative interval, and artifact hash; JSON Schema alone does not. Exact anchor and candidate OfferingKeys are required, and publication still requires a separate rights-reviewed decision."
+}

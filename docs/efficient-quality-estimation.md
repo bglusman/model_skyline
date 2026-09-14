@@ -30,6 +30,24 @@ evidence may drive an automatic default only when policy explicitly opts in,
 uses the conservative confidence bound, and records the estimator's validated
 domain. Proxy evidence is never a quality axis.
 
+ModelSkyline observations now default to `measured` for compatibility, while
+metric requirements default to accepting only `measured`. An estimated metric
+must opt in and require bounds explicitly:
+
+```yaml
+estimated_quality_lcb:
+  kind: signal
+  signal: estimated_quality_lower_confidence_bound_percent
+  unit: percent
+  requirements:
+    require_bounds: true
+    accepted_evidence_tiers: [estimated]
+```
+
+The tier is retained on each evaluated axis. Formula metrics currently reject
+estimated inputs because formula interval propagation is not implemented; this
+prevents a transformation from silently discarding estimator uncertainty.
+
 ## Paired delta, not a universal multiplier
 
 When an exact full-precision or high-fidelity anchor can be evaluated with the
@@ -44,6 +62,23 @@ score_hat(q)     = score_full(b) + delta_hat(q, b)
 Clip only to the benchmark's declared numeric range. The item weights must come
 from the subset-selection protocol; a curated subset is not automatically a
 simple random sample.
+
+The `PairedQualityEstimate` contract implements this calculation with exact
+decimal arithmetic. It binds complete anchor and candidate `OfferingKey`
+values, the full anchor result digest, benchmark identity, selected-item
+identity digest, selection and estimator versions, paired scores and weights,
+sampling interval, held-out validation error, provenance, and rights. Its
+self-hash and every derived number are replayed on load. The catalog projection
+uses the estimate's conservative lower bound as the observation value, retains
+the full interval, labels it `estimated`, and marks the enriched catalog
+non-public pending a separate rights review.
+
+```console
+modelskyline validate-paired-quality-estimate estimate.json
+modelskyline apply-paired-quality-estimate local-catalog.json estimate.json \
+  --signal-id estimated_quality_lower_confidence_bound_percent \
+  --output private-estimated-catalog.json
+```
 
 A raw ratio such as `subset_quant / subset_base` is a poor default. Ratios are
 unstable near zero, ignore chance floors, behave strangely near a ceiling, and
