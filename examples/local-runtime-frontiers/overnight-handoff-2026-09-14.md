@@ -7,9 +7,8 @@ in [`decision-report-2026-09-13.md`](decision-report-2026-09-13.md).
 
 ## Executive summary
 
-- Twenty-four pull requests were merged into `main` during this work window.
-  The deliberately incomplete five-repeat data PR #47 remains draft. The
-  current published `main` includes PR #57 at commit `650d4dc`.
+- The five-repeat Qwen data in PR #47 is now complete. Its paired result is
+  ready for review alongside the work already merged to `main`.
 - Local selection is no longer represented by one misleading leaderboard.
   Nine complementary frontier definitions are materialized as ten snapshots,
   including throughput, warm and uncached tools, cache reuse, validated
@@ -117,18 +116,21 @@ Advertised context length is not accepted as usable capacity.
 
 ## Qwen five-repeat experiment
 
-The robust Qwen comparison remains in draft [PR #47](https://github.com/bglusman/model_skyline/pull/47),
-whose CI is green.
+The completed robust Qwen comparison is in
+[PR #47](https://github.com/bglusman/model_skyline/pull/47).
 
 - The default-reasoning profile has completed all five runs: 13/25 tasks =
   52%, with per-run success ranging from 40% to 60% and all-task p95 wall time
   of 925.232 s.
-- The low-reasoning/4K-thinking profile has completed three full runs: 10/15 =
-  66.7%, with run results of 80%, 60%, and 60%.
-- Tuned repeat 4 is in progress at this snapshot. It and repeat 5 must finish
-  before the robust winner can be published.
-- The existing 70% versus 50% two-repeat comparison is directional: the
-  observed quality ranges touch at 60%, and latency ranges overlap.
+- The low-reasoning/4K-thinking profile completed all five runs: 17/25 tasks =
+  68%, with per-run results of 80%, 60%, 60%, 60%, and 80%.
+- On the paired robust quality × time and quality × memory frontiers, bounded
+  reasoning is the only eligible member; default reasoning fails the 60%
+  pooled-quality floor.
+- The robust quality × uncached-input frontier is empty because both profiles
+  have incomplete token accounting on timed-out requests.
+- This is a configuration result within Qwen3.8, not a cross-model robust
+  winner. Other families need the same five-run protocol before comparison.
 
 The queue runs one model/profile batch at a time so it does not measure
 `llama-swap` churn. No competing model download or inference benchmark should
@@ -209,8 +211,8 @@ promising for dense BF16/F16 GGUF and conventional fully resident MoE models.
 
 ## Next queue
 
-1. Finish tuned Qwen repeats 3–5, publish the complete paired robust catalog,
-   and merge PR #47 only if the protocol is complete and CI remains green.
+1. Run the same five-repeat pilot for the most competitive non-Qwen residents
+   before promoting the Qwen configuration result to a cross-model default.
 2. Run plain Laguna NVFP4 under oMLX, then Agents-A1 uniform-4 oMLX, with GGUF
    controls where exact compatible artifacts exist. Try Laguna DFlash only
    after the target-only control.

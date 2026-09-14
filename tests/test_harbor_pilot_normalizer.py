@@ -6,13 +6,14 @@ import json
 import sys
 from copy import deepcopy
 from datetime import UTC, datetime
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
 import yaml
 
 from model_skyline.engine import FrontierEngine
-from model_skyline.io import dump_json, load_config
+from model_skyline.io import dump_json, load_catalog, load_config, load_frontier_snapshot
 from model_skyline.models import UncertaintyMode
 
 ROOT = Path(__file__).parents[1]
@@ -54,6 +55,26 @@ PUBLISHED_BASELINE_REPEAT_MEMORY = tuple(
         "harbor-pilot5-qwen38-baseline-f16kv-repeat2-runner-memory-summary.json",
     )
 )
+PUBLISHED_BASELINE_FIVE_REPEATS = tuple(
+    EXAMPLE / "raw" / filename
+    for filename in (
+        "harbor-pilot5-qwen38-baseline-f16kv-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat2-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat3-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat4-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat5-summary.json",
+    )
+)
+PUBLISHED_BASELINE_FIVE_REPEAT_MEMORY = tuple(
+    EXAMPLE / "raw" / filename
+    for filename in (
+        "harbor-pilot5-qwen38-baseline-f16kv-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat2-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat3-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat4-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat5-runner-memory-summary.json",
+    )
+)
 PUBLISHED_TUNED_REPEATS = tuple(
     EXAMPLE / "raw" / filename
     for filename in (
@@ -67,6 +88,24 @@ PUBLISHED_TUNED_REPEAT_MEMORY = tuple(
         "harbor-pilot5-qwen38-low-think4k-runner-memory-summary.json",
         "harbor-pilot5-qwen38-low-think4k-repeat2-runner-memory-summary.json",
     )
+)
+PUBLISHED_TUNED_THREE_REPEATS = PUBLISHED_TUNED_REPEATS + (
+    EXAMPLE / "raw" / "harbor-pilot5-qwen38-low-think4k-repeat3-summary.json",
+)
+PUBLISHED_TUNED_THREE_REPEAT_MEMORY = PUBLISHED_TUNED_REPEAT_MEMORY + (
+    EXAMPLE / "raw" / "harbor-pilot5-qwen38-low-think4k-repeat3-runner-memory-summary.json",
+)
+PUBLISHED_TUNED_FOUR_REPEATS = PUBLISHED_TUNED_THREE_REPEATS + (
+    EXAMPLE / "raw" / "harbor-pilot5-qwen38-low-think4k-repeat4-summary.json",
+)
+PUBLISHED_TUNED_FOUR_REPEAT_MEMORY = PUBLISHED_TUNED_THREE_REPEAT_MEMORY + (
+    EXAMPLE / "raw" / "harbor-pilot5-qwen38-low-think4k-repeat4-runner-memory-summary.json",
+)
+PUBLISHED_TUNED_FIVE_REPEATS = PUBLISHED_TUNED_FOUR_REPEATS + (
+    EXAMPLE / "raw" / "harbor-pilot5-qwen38-low-think4k-repeat5-summary.json",
+)
+PUBLISHED_TUNED_FIVE_REPEAT_MEMORY = PUBLISHED_TUNED_FOUR_REPEAT_MEMORY + (
+    EXAMPLE / "raw" / "harbor-pilot5-qwen38-low-think4k-repeat5-runner-memory-summary.json",
 )
 SPEC = importlib.util.spec_from_file_location("normalize_harbor_pilot", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
@@ -341,14 +380,29 @@ def test_published_compact_memory_evidence_rebuilds_one_run_catalog() -> None:
     ("summaries", "memory", "generated_filename"),
     (
         (
-            PUBLISHED_TUNED_REPEATS,
-            PUBLISHED_TUNED_REPEAT_MEMORY,
-            "harbor-pilot5-qwen38-low-think4k-repeat2-catalog.json",
+            PUBLISHED_TUNED_FOUR_REPEATS,
+            PUBLISHED_TUNED_FOUR_REPEAT_MEMORY,
+            "harbor-pilot5-qwen38-low-think4k-repeat4-catalog.json",
+        ),
+        (
+            PUBLISHED_TUNED_FIVE_REPEATS,
+            PUBLISHED_TUNED_FIVE_REPEAT_MEMORY,
+            "harbor-pilot5-qwen38-low-think4k-five-repeat-catalog.json",
+        ),
+        (
+            PUBLISHED_BASELINE_FIVE_REPEATS + PUBLISHED_TUNED_FIVE_REPEATS,
+            PUBLISHED_BASELINE_FIVE_REPEAT_MEMORY + PUBLISHED_TUNED_FIVE_REPEAT_MEMORY,
+            "harbor-pilot5-qwen38-paired-five-repeat-catalog.json",
         ),
         (
             PUBLISHED_BASELINE_REPEATS + PUBLISHED_TUNED_REPEATS,
             PUBLISHED_BASELINE_REPEAT_MEMORY + PUBLISHED_TUNED_REPEAT_MEMORY,
             "harbor-pilot5-qwen38-paired-repeat2-catalog.json",
+        ),
+        (
+            PUBLISHED_BASELINE_FIVE_REPEATS,
+            PUBLISHED_BASELINE_FIVE_REPEAT_MEMORY,
+            "harbor-pilot5-qwen38-baseline-five-repeat-catalog.json",
         ),
     ),
 )
@@ -367,6 +421,97 @@ def test_published_compact_memory_evidence_rebuilds_repeat_catalogs(
 
     expected = (EXAMPLE / "generated" / generated_filename).read_text(encoding="utf-8")
     assert dump_json(catalog) == expected
+
+
+@pytest.mark.parametrize(
+    ("frontier_id", "generated_filename"),
+    (
+        (
+            "repeated-local-agent-quality-latency",
+            "harbor-pilot5-qwen38-baseline-five-repeat-quality-latency-frontier.json",
+        ),
+        (
+            "repeated-local-agent-quality-memory",
+            "harbor-pilot5-qwen38-baseline-five-repeat-quality-memory-frontier.json",
+        ),
+        (
+            "repeated-local-agent-quality-cache-efficiency",
+            "harbor-pilot5-qwen38-baseline-five-repeat-quality-cache-efficiency-frontier.json",
+        ),
+    ),
+)
+def test_published_baseline_five_repeat_frontiers_rebuild(
+    frontier_id: str, generated_filename: str
+) -> None:
+    catalog = load_catalog(
+        EXAMPLE / "generated" / "harbor-pilot5-qwen38-baseline-five-repeat-catalog.json"
+    )
+    snapshot = FrontierEngine().calculate(
+        load_config(EXAMPLE / "harbor-repeated-frontiers.yaml"),
+        catalog,
+        frontier_id,
+        generated_at=datetime(2026, 9, 14, 13, tzinfo=UTC),
+    )
+
+    expected = (EXAMPLE / "generated" / generated_filename).read_text(encoding="utf-8")
+    assert dump_json(snapshot) == expected
+
+
+@pytest.mark.parametrize(
+    ("frontier_id", "generated_filename"),
+    (
+        (
+            "repeated-local-agent-quality-latency",
+            "harbor-pilot5-qwen38-paired-five-repeat-quality-latency-frontier.json",
+        ),
+        (
+            "repeated-local-agent-quality-memory",
+            "harbor-pilot5-qwen38-paired-five-repeat-quality-memory-frontier.json",
+        ),
+        (
+            "repeated-local-agent-quality-cache-efficiency",
+            "harbor-pilot5-qwen38-paired-five-repeat-quality-cache-efficiency-frontier.json",
+        ),
+    ),
+)
+def test_published_paired_five_repeat_frontiers_rebuild(
+    frontier_id: str, generated_filename: str
+) -> None:
+    catalog = load_catalog(
+        EXAMPLE / "generated" / "harbor-pilot5-qwen38-paired-five-repeat-catalog.json"
+    )
+    snapshot = FrontierEngine().calculate(
+        load_config(EXAMPLE / "harbor-repeated-frontiers.yaml"),
+        catalog,
+        frontier_id,
+        generated_at=datetime(2026, 9, 14, 15, tzinfo=UTC),
+    )
+
+    expected = (EXAMPLE / "generated" / generated_filename).read_text(encoding="utf-8")
+    assert dump_json(snapshot) == expected
+
+
+def test_paired_five_repeat_result_keeps_the_bounded_profile_only_where_complete() -> None:
+    generated = EXAMPLE / "generated"
+    latency = load_frontier_snapshot(
+        generated / "harbor-pilot5-qwen38-paired-five-repeat-quality-latency-frontier.json"
+    )
+    memory = load_frontier_snapshot(
+        generated / "harbor-pilot5-qwen38-paired-five-repeat-quality-memory-frontier.json"
+    )
+    cache = load_frontier_snapshot(
+        generated / "harbor-pilot5-qwen38-paired-five-repeat-quality-cache-efficiency-frontier.json"
+    )
+
+    for snapshot in (latency, memory):
+        assert len(snapshot.members) == 1
+        assert snapshot.members[0].metadata["pilot"]["candidate"] == "qwen38_low_think4k"
+        assert snapshot.members[0].axes["repeated_pilot_task_success"].value == Decimal("68")
+        assert len(snapshot.rejected) == 1
+        assert "below eligible minimum" in snapshot.rejected[0].reasons[0]
+    assert cache.members == ()
+    assert len(cache.rejected) == 2
+    assert all("is missing" in rejection.reasons[0] for rejection in cache.rejected)
 
 
 def test_partial_memory_capture_is_retained_but_not_emitted_as_an_axis(tmp_path: Path) -> None:

@@ -234,6 +234,15 @@ another only when their observed per-run ranges do not overlap adversely on
 either axis. These ranges measure repeatability of the exact pilot; they are not
 confidence intervals for the full 89-task benchmark.
 
+The first five-repeat catalog is intentionally a paired dense-Qwen profile
+cohort. Its robust snapshots measure whether the reasoning-profile difference
+survives repeated jobs; they do not establish a cross-model default. Keep those
+snapshots out of the general cross-frontier family count until Muse, DS4,
+Ornith, and any other compared model families have the same repetition count
+under this protocol. This avoids both replacing broader point evidence with a
+narrow profile cohort and double-counting one model family for repeating the
+same workload.
+
 ```console
 python examples/local-runtime-frontiers/normalize_harbor_pilot.py \
   --protocol examples/local-runtime-frontiers/harbor-quality-pilot.yaml \
@@ -337,3 +346,58 @@ initial job contains one. Prompt-free second-run summaries are retained for the
 [`default`](raw/harbor-pilot5-qwen38-baseline-f16kv-repeat2-summary.json) and
 [`bounded-reasoning`](raw/harbor-pilot5-qwen38-low-think4k-repeat2-summary.json)
 profiles.
+
+The bounded-reasoning profile's third job scored 3/5, again passing
+`fix-git`, `multi-source-data-merger`, and `fix-code-vulnerability`. Its
+[`three-repeat catalog`](generated/harbor-pilot5-qwen38-low-think4k-repeat3-catalog.json)
+pools 10/15 successes (66.7%), retains the 60–80% per-run range, records a
+916.926-second pooled all-task p95, and has complete memory coverage with a
+23,782,290,440-byte maximum process footprint. Two incomplete API requests
+across the three jobs keep exact cache demand ineligible.
+
+The fourth bounded-reasoning job reproduced the same 3/5 task pattern. Its
+[`four-repeat catalog`](generated/harbor-pilot5-qwen38-low-think4k-repeat4-catalog.json)
+pools 13/20 successes (65%), retains the 60–80% per-run range, records a
+916.676-second pooled all-task p95, and preserves complete memory coverage at
+the same 23,782,290,440-byte maximum. Three incomplete API requests keep exact
+cache demand ineligible.
+
+## Completed default-profile repetitions
+
+The default reasoning profile has now completed all five jobs. Its
+[`five-repeat catalog`](generated/harbor-pilot5-qwen38-baseline-five-repeat-catalog.json)
+pools 13/25 successes (52%), with a 40–60% per-run quality range, 925.232 seconds
+pooled all-task p95, and a 24,049,218,352-byte maximum fully covered process
+footprint. Repeat 5 scored 2/5, passing `fix-git` and
+`multi-source-data-merger`.
+
+This profile is deliberately not a robust resident: the published
+[`latency`](generated/harbor-pilot5-qwen38-baseline-five-repeat-quality-latency-frontier.json)
+and
+[`memory`](generated/harbor-pilot5-qwen38-baseline-five-repeat-quality-memory-frontier.json)
+snapshots reject its 52% pooled score below the 60% eligibility gate, while the
+[`cache-demand`](generated/harbor-pilot5-qwen38-baseline-five-repeat-quality-cache-efficiency-frontier.json)
+snapshot rejects missing exact token demand caused by incomplete API requests.
+These explicit rejections are evidence, not empty benchmark cells.
+
+## Completed paired five-run comparison
+
+The bounded-reasoning profile's fifth job scored 4/5, passing every task except
+`build-cython-ext`. Across all five runs it solved 17/25 tasks (68%), with a
+60–80% per-run range and 917.424 seconds pooled all-task p95. Its maximum fully
+covered process footprint was 25,084,113,760 bytes. Three incomplete API
+requests keep its uncached-input total a lower bound.
+
+The exact
+[`paired catalog`](generated/harbor-pilot5-qwen38-paired-five-repeat-catalog.json)
+therefore produces a simple result:
+
+| Two quantities compared | Result |
+| --- | --- |
+| coding success × task time | bounded reasoning is the only member; default reasoning fails the 60% quality floor |
+| coding success × process memory | bounded reasoning is the only member; default reasoning fails the 60% quality floor |
+| coding success × exact uncached input | no member; both profiles have incomplete request accounting |
+
+The first two rows establish the preferred configuration among these two exact
+Qwen profiles. They do not establish Qwen as a robust cross-model winner: the
+other model families have only one run in this pilot.

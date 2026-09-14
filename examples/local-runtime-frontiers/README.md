@@ -200,6 +200,15 @@ five equal-count repetitions per candidate and compare per-run repeatability
 bounds; the initial one-run snapshots remain in `frontiers.yaml` as point
 evidence.
 
+A repeated frontier is scoped to the exact cohort supplied to it. The current
+five-repeat experiment compares two dense-Qwen reasoning profiles, so its
+snapshots answer a configuration-stability question rather than a cross-model
+winner question. They must not replace the broader one-run quality population
+or add extra Qwen family coverage to `cross-frontier-coverage.json`. Promote a
+repeated quality frontier into that general coverage report only after the
+relevant cross-model candidates have equal repetition counts under the same
+pinned protocol.
+
 Do not pool prompt lengths, cache-warmth states, prose/code/tool modes, or cold
 and warm runner states. Build a catalog per position. A separate same-model
 efficiency view may compare decode throughput with peak memory, but must restrict
@@ -253,14 +262,24 @@ rejection, not inferred success. The generated
 [`enriched catalog`](generated/harbor-pilot5-operational-gated-catalog.json) and
 all three snapshots retain the policy hash and applied mapping notes.
 
-The three five-task rows above are the initial one-attempt point frontiers, not
-stable defaults. Matched second Qwen jobs produced 5/10 pooled success for the
-default profile (40–60% observed run range) and 7/10 for bounded reasoning
-(60–80%). Their quality ranges touch at 60% and their latency ranges overlap,
-so this is directional configuration evidence rather than a robust winner. The
-packaged robust frontiers stay unpublished until every compared candidate has
-the protocol's five repetitions. The exact paired evidence is retained in the
-[`two-repeat catalog`](generated/harbor-pilot5-qwen38-paired-repeat2-catalog.json).
+The three five-task rows above remain the broad one-attempt, cross-model point
+frontiers. A separate completed five-run comparison tests only the two dense
+Qwen reasoning profiles. Low reasoning with a 4K thinking budget solved 17/25
+tasks (68%, per-run range 60–80%) versus 13/25 (52%, range 40–60%) for default
+reasoning. The robust quality × time and quality × memory frontiers retain only
+the bounded-reasoning profile; default reasoning is below their 60% quality
+floor. The quality × uncached-input frontier has no member because timed-out
+requests leave both profiles' token totals incomplete.
+
+This supports a Qwen configuration choice, not a cross-model winner. Muse,
+DS4, Ornith, and future challengers still need five matched runs before the
+repeated result can replace the wider point frontier or enter the family
+coverage count. The exact evidence is retained in the
+[`paired five-run catalog`](generated/harbor-pilot5-qwen38-paired-five-repeat-catalog.json)
+and its [quality × time](generated/harbor-pilot5-qwen38-paired-five-repeat-quality-latency-frontier.json),
+[quality × memory](generated/harbor-pilot5-qwen38-paired-five-repeat-quality-memory-frontier.json),
+and [quality × uncached input](generated/harbor-pilot5-qwen38-paired-five-repeat-quality-cache-efficiency-frontier.json)
+snapshots.
 
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
