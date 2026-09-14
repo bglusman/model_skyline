@@ -14,6 +14,7 @@ import yaml
 from pydantic import BaseModel, ValidationError
 from yaml.nodes import ScalarNode
 
+from model_skyline.catalog_composition import CatalogEnrichmentPolicy
 from model_skyline.discovery import ProvisionalEvidenceCatalog, PublishedBenchmarkSignal
 from model_skyline.local_measurements import LocalMeasurementRecord
 from model_skyline.models import (
@@ -337,6 +338,10 @@ def load_paired_quality_estimate(path: str | Path) -> PairedQualityEstimate:
     return _validate_sensitive(PairedQualityEstimate, _load_quality_json(path), path)
 
 
+def load_catalog_enrichment_policy(path: str | Path) -> CatalogEnrichmentPolicy:
+    return _validate_sensitive(CatalogEnrichmentPolicy, _load_quality_json(path), path)
+
+
 def load_portfolio_policy(path: str | Path) -> PortfolioPolicy:
     return _validate_sensitive(PortfolioPolicy, _load_quality_json(path), path)
 
@@ -398,6 +403,9 @@ SCHEMA_IDS = {
     "local-measurement.schema.json": "urn:model-skyline:schema:v1alpha1:local-measurement",
     "paired-quality-estimate.schema.json": (
         "urn:model-skyline:schema:v1alpha1:paired-quality-estimate"
+    ),
+    "catalog-enrichment-policy.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:catalog-enrichment-policy"
     ),
 }
 
@@ -926,6 +934,9 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         "paired-quality-estimate.schema.json": PairedQualityEstimate.model_json_schema(
             mode="validation"
         ),
+        "catalog-enrichment-policy.schema.json": (
+            CatalogEnrichmentPolicy.model_json_schema(mode="validation")
+        ),
     }
     result: dict[str, dict[str, Any]] = {}
     for name, schema in generated.items():
@@ -1016,6 +1027,14 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
                 "interval, and artifact hash; JSON Schema alone does not. Exact anchor and "
                 "candidate OfferingKeys are required, and publication still requires a separate "
                 "rights-reviewed decision."
+            )
+        if name == "catalog-enrichment-policy.schema.json":
+            _quality_complete_offering_key(generated_schema)
+            generated_schema["$comment"] = (
+                "This policy authorizes only the named signals to move between explicitly "
+                "reviewed complete OfferingKeys and exact catalog/workload hashes. JSON Schema "
+                "does not verify input hashes, unique target-signal mappings, canonical order, "
+                "or the policy byte limit; run ModelSkyline semantic validation and replay."
             )
         result[name] = generated_schema
     return result

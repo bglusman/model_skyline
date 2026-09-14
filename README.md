@@ -208,6 +208,7 @@ explicit modules such as `model_skyline.quality_evidence`,
 - [Agent-framework telemetry adapters](docs/framework-integrations.md)
 - [Pricing and cache-aware formulas](docs/models-dev-pricing.md)
 - [Benchmark evidence and quality portfolios](docs/quality-portfolios.md)
+- [Same- and cross-workload catalog composition](docs/catalog-enrichment.md)
 - [Efficient subset estimation and quantization quality](docs/efficient-quality-estimation.md)
 - [Local runtime measurement and frontier example](examples/local-runtime-frontiers/README.md)
 - [Runtime and gateway integration options](docs/gateway-integrations.md)

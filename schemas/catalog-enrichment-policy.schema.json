@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:catalog-enrichment-policy",
+  "$defs": {
+    "CatalogSignalMapping": {
+      "additionalProperties": false,
+      "description": "Reviewed projection of named signals between two complete offerings.",
+      "properties": {
+        "source_offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "target_offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "signal_ids": {
+          "items": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 512,
+          "minItems": 1,
+          "title": "Signal Ids",
+          "type": "array"
+        },
+        "review_note": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Review Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_offering",
+        "target_offering",
+        "signal_ids",
+        "review_note"
+      ],
+      "title": "CatalogSignalMapping",
+      "type": "object"
+    },
+    "CatalogSignalProjection": {
+      "additionalProperties": false,
+      "description": "One exact source catalog and its reviewed offering mappings.",
+      "properties": {
+        "projection_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Projection Id",
+          "type": "string"
+        },
+        "catalog_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Catalog Sha256",
+          "type": "string"
+        },
+        "workload": {
+          "$ref": "#/$defs/WorkloadReference"
+        },
+        "mappings": {
+          "items": {
+            "$ref": "#/$defs/CatalogSignalMapping"
+          },
+          "maxItems": 10000,
+          "minItems": 1,
+          "title": "Mappings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "projection_id",
+        "catalog_sha256",
+        "workload",
+        "mappings"
+      ],
+      "title": "CatalogSignalProjection",
+      "type": "object"
+    },
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "billing_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Billing Mode"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider",
+        "endpoint",
+        "billing_mode",
+        "region",
+        "service_tier",
+        "quantization",
+        "reasoning_effort",
+        "agent_harness",
+        "capabilities"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    },
+    "WorkloadReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "unit"
+      ],
+      "title": "WorkloadReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Data-only policy for reviewed signal projection across workloads.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/catalog-enrichment-policy/v1alpha1",
+      "default": "model-skyline/catalog-enrichment-policy/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "catalog-enrichment-policy",
+      "default": "catalog-enrichment-policy",
+      "title": "Kind",
+      "type": "string"
+    },
+    "algorithm_version": {
+      "const": "reviewed-exact-offering-signal-projection-v1",
+      "default": "reviewed-exact-offering-signal-projection-v1",
+      "title": "Algorithm Version",
+      "type": "string"
+    },
+    "policy_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "base_catalog_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Base Catalog Sha256",
+      "type": "string"
+    },
+    "base_workload": {
+      "$ref": "#/$defs/WorkloadReference"
+    },
+    "output_workload_id": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Output Workload Id",
+      "type": "string"
+    },
+    "output_workload_unit": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Output Workload Unit",
+      "type": "string"
+    },
+    "projections": {
+      "items": {
+        "$ref": "#/$defs/CatalogSignalProjection"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "title": "Projections",
+      "type": "array"
+    }
+  },
+  "required": [
+    "policy_id",
+    "base_catalog_sha256",
+    "base_workload",
+    "output_workload_id",
+    "output_workload_unit",
+    "projections"
+  ],
+  "title": "CatalogEnrichmentPolicy",
+  "type": "object",
+  "$comment": "This policy authorizes only the named signals to move between explicitly reviewed complete OfferingKeys and exact catalog/workload hashes. JSON Schema does not verify input hashes, unique target-signal mappings, canonical order, or the policy byte limit; run ModelSkyline semantic validation and replay."
+}

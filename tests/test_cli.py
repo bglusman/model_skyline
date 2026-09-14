@@ -329,6 +329,7 @@ def test_cli_exports_contract_schemas(tmp_path) -> None:
     assert (output / "quality-import-report.schema.json").is_file()
     assert (output / "quality-portfolio-policy.schema.json").is_file()
     assert (output / "quality-portfolio-derivation.schema.json").is_file()
+    assert (output / "catalog-enrichment-policy.schema.json").is_file()
     assert (output / "project-config.schema.json").read_bytes() == (
         ROOT / "schemas" / "project-config.schema.json"
     ).read_bytes()
