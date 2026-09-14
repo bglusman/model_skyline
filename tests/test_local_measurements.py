@@ -447,7 +447,6 @@ def test_capacity_catalog_selects_largest_passing_position() -> None:
 def test_capacity_catalog_retains_failed_candidate_without_validated_signal() -> None:
     payload = _capacity_payload(126_000, "failed")
     payload["integrity"] = {"retrieval": {"passed": 0, "total": 3}}
-    payload["capabilities"] = ["text", "tools"]
 
     catalog = build_local_capacity_catalog(
         [LocalMeasurementRecord.model_validate(payload)],
@@ -460,7 +459,12 @@ def test_capacity_catalog_retains_failed_candidate_without_validated_signal() ->
 
     offering = catalog.offerings[0]
     assert offering.signals == {}
-    assert offering.offering.capabilities == ("text", "tools")
+    assert offering.offering.capabilities == (
+        "long-context",
+        "structured-output",
+        "text",
+        "tools",
+    )
     assert offering.metadata["capacity_validation"] == {
         "attempted_position_count": 1,
         "configured_context_tokens": 262_144,
