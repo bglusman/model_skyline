@@ -45,6 +45,7 @@ def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
     assert pilot["schema_version"] == "model-skyline/local-quality-pilot/v1"
     assert pilot["benchmark"]["full_task_count"] == 89
     assert pilot["benchmark"]["leaderboard_attempts_per_task"] == 5
+    assert all(phase["task_set"] in pilot["task_sets"] for phase in pilot["phases"])
 
     smoke = pilot["task_sets"]["smoke"]
     selected = pilot["task_sets"]["pilot_5"]
@@ -56,6 +57,10 @@ def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
     assert len({task["name"] for task in selected["tasks"]}) == 5
     assert len({task["digest"] for task in selected["tasks"]}) == 5
     assert all(task["digest"].startswith("sha256:") for task in selected["tasks"])
+    full = pilot["task_sets"]["all_89"]
+    assert full["full_dataset"] is True
+    assert full["expected_task_count"] == pilot["benchmark"]["full_task_count"]
+    assert full["source_revision"] == pilot["benchmark"]["revision"]
 
     context_capacities = []
     for candidate in pilot["candidates"].values():

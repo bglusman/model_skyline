@@ -288,6 +288,21 @@ def test_rejects_ctrf_statuses_that_disagree_with_summary(tmp_path: Path) -> Non
         SUMMARY.summarize_job(job)
 
 
+def test_rejects_symlinked_or_incomplete_trial_directories(tmp_path: Path) -> None:
+    job = _job(tmp_path)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (job / "linked-trial").symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(SUMMARY.InvalidHarborTrial, match="symlinked entry"):
+        SUMMARY.summarize_job(job)
+
+    (job / "linked-trial").unlink()
+    (job / "incomplete-trial").mkdir()
+    with pytest.raises(SUMMARY.InvalidHarborTrial, match="directory count"):
+        SUMMARY.summarize_job(job)
+
+
 def test_protocol_enforces_harness_and_harbor_identity(tmp_path: Path) -> None:
     job = _job(tmp_path)
     expectation = SUMMARY._protocol_expectation(

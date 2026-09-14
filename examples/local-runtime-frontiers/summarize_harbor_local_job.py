@@ -458,6 +458,8 @@ def summarize_job(
     protocol_identity: dict[str, str] | None = None,
     allow_invalid: bool = False,
 ) -> dict[str, Any]:
+    if job_dir.is_symlink() or not job_dir.is_dir():
+        raise InvalidHarborTrial("job directory must be a regular directory")
     if expected_task_digests is not None:
         digest_tasks = set(expected_task_digests)
         if expected_tasks is None:
@@ -501,9 +503,13 @@ def summarize_job(
     if expected_concurrency is not None and concurrency != expected_concurrency:
         raise InvalidHarborTrial("job concurrency does not match the protocol")
 
-    trial_dirs = sorted(
-        child for child in job_dir.iterdir() if child.is_dir() and (child / "result.json").is_file()
-    )
+    trial_dirs: list[Path] = []
+    for child in job_dir.iterdir():
+        if child.is_symlink():
+            raise InvalidHarborTrial(f"job contains a symlinked entry: {child.name}")
+        if child.is_dir():
+            trial_dirs.append(child)
+    trial_dirs.sort()
     if len(trial_dirs) != total:
         raise InvalidHarborTrial("trial directory count does not match n_total_trials")
     valid: list[dict[str, Any]] = []

@@ -61,6 +61,19 @@ task_sets:
         digest: sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1
         stratum: software-engineering/concurrency-debugging/hard
 
+  all_89:
+    evidence_tier: measured
+    measured_workload_name: terminal-bench-2.1-all-89@7131e437
+    transferable_to_full_benchmark: true
+    full_dataset: true
+    expected_task_count: 89
+    source_revision: 7131e4375048a0e408a8fb404b5f499d726b695b
+    task_selection: every task directory at the pinned benchmark revision
+    digest_policy: >-
+      Before this phase runs, materialize all 89 Harbor content digests into an
+      immutable task manifest and require every trial lock to match it. The
+      prompt-free summarizer rejects this task set until that manifest exists.
+
 candidates:
   qwen38_baseline:
     route: qwen3.8-27b-oq4e-mtp:baseline-f16kv
