@@ -1,0 +1,116 @@
+schema_version: model-skyline/v1alpha1
+
+workloads:
+  terminal-bench-2.1-local-pilot-5@7131e437:
+    unit: task
+    version: terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1+attempts-5
+    harness: harbor/terminus-2@2.0.0+harbor@0.23.0
+    cohort: exact-five-task-local-agent-five-repetitions@v1
+    benchmark: Terminal-Bench 2.1 deliberately stratified five-task local pilot
+    description: >-
+      Five serial verifier-scored attempts on each of five pinned tasks. A
+      catalog is valid only when every exact candidate has the same repetition
+      count and otherwise identical task, agent, context, parser, and sampling
+      settings. Per-run ranges are repeatability bounds, not a confidence
+      interval for the full Terminal-Bench benchmark.
+    variables: {}
+    assumptions:
+      attempts_per_task: 5
+      max_input_tokens: 114688
+      max_output_tokens: 16384
+      proactive_summarization_free_tokens: 8192
+      concurrency: 1
+      model_switching: batch_all_tasks_for_one_route
+      cache_accounting: prompt_tokens_include_cached_tokens
+      evidence_status: provisional
+
+metrics:
+  repeated_pilot_task_success:
+    kind: signal
+    signal: local_pilot_task_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 25
+      require_bounds: true
+
+  repeated_pilot_p95_task_wall:
+    kind: signal
+    signal: local_pilot_p95_task_wall_seconds
+    unit: s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 25
+      require_bounds: true
+
+  repeated_pilot_peak_physical_footprint:
+    kind: signal
+    signal: local_peak_process_physical_footprint_bytes
+    unit: byte
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 25
+      require_bounds: true
+
+  repeated_pilot_uncached_input_tokens:
+    kind: signal
+    signal: local_pilot_total_uncached_input_tokens
+    unit: token
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 25
+      require_bounds: true
+
+frontiers:
+  repeated-local-agent-quality-latency:
+    workload: terminal-bench-2.1-local-pilot-5@7131e437
+    axes:
+      - metric: repeated_pilot_task_success
+        goal: maximize
+      - metric: repeated_pilot_p95_task_wall
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: repeated_pilot_task_success
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+      minimum_axis_values:
+        repeated_pilot_task_success: 60
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status, pilot]
+
+  repeated-local-agent-quality-memory:
+    workload: terminal-bench-2.1-local-pilot-5@7131e437
+    axes:
+      - metric: repeated_pilot_task_success
+        goal: maximize
+      - metric: repeated_pilot_peak_physical_footprint
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: repeated_pilot_task_success
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+      minimum_axis_values:
+        repeated_pilot_task_success: 60
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status, pilot]
+
+  repeated-local-agent-quality-cache-efficiency:
+    workload: terminal-bench-2.1-local-pilot-5@7131e437
+    axes:
+      - metric: repeated_pilot_task_success
+        goal: maximize
+      - metric: repeated_pilot_uncached_input_tokens
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: repeated_pilot_task_success
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+      minimum_axis_values:
+        repeated_pilot_task_success: 60
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status, pilot]
+
+selections: {}

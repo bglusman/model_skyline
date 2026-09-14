@@ -104,9 +104,16 @@ Every active frontier has exactly two decision axes:
 - `local-agent-quality-memory`: the same exact success score (maximize) vs a
   same-job, fully covered physical-footprint peak (minimize).
 - `local-agent-quality-cache-efficiency`: the same exact success score
-  (maximize) vs total uncached input tokens across all tasks (minimize), only
-  when every API request has complete usage accounting. Recorded tokens from a
-  timed-out or truncated final request are a lower bound, not an eligible axis.
+  (maximize) vs mean uncached input tokens per complete task-set repetition
+  (minimize), only when every API request has complete usage accounting.
+  Recorded tokens from a timed-out or truncated final request are a lower
+  bound, not an eligible axis.
+
+[`harbor-repeated-frontiers.yaml`](harbor-repeated-frontiers.yaml) packages
+robust versions of the three quality frontiers. They require the protocol's
+five equal-count repetitions per candidate and compare per-run repeatability
+bounds; the initial one-run snapshots remain in `frontiers.yaml` as point
+evidence.
 
 Do not pool prompt lengths, cache-warmth states, prose/code/tool modes, or cold
 and warm runner states. Build a catalog per position. A separate same-model

@@ -25,9 +25,10 @@ The pilot materializes three useful local frontiers after the validity gates pas
 - measured pilot success versus p95 wall time across every valid task,
   including quality-attributable timeouts; and
 - measured pilot success versus peak physical footprint; and
-- measured pilot success versus total uncached input tokens across all five
-  tasks, a cache-aware agent-compute measure that also penalizes excess turns,
-  provided every API request has complete usage accounting.
+- measured pilot success versus mean uncached input tokens per complete
+  five-task repetition, a cache-aware agent-compute measure that also penalizes
+  excess turns without penalizing additional measurement runs, provided every
+  API request has complete usage accounting.
 
 All three require at least 60% success on the exact task set. The cache-demand
 frontier additionally requires zero incomplete API requests: a timeout can hide
@@ -202,11 +203,22 @@ per episode.
 
 ## Normalize and evaluate
 
-[`normalize_harbor_pilot.py`](normalize_harbor_pilot.py) accepts one prompt-free
-summary per exact candidate and optional job-matched memory captures. It emits
-an ordinary `ObservationCatalog`, with the Terminus/Harbor configuration hashed
-into `OfferingKey.agent_harness` so these results cannot be silently joined to
-the same inference server measured under the lightweight OpenAI matrix harness.
+[`normalize_harbor_pilot.py`](normalize_harbor_pilot.py) accepts one or more
+prompt-free summaries per exact candidate and optional job-matched memory
+captures. Every candidate in one catalog must have the same repetition count.
+It emits an ordinary `ObservationCatalog`, with the Terminus/Harbor
+configuration hashed into `OfferingKey.agent_harness` so these results cannot
+be silently joined to the same inference server measured under the lightweight
+OpenAI matrix harness.
+
+The historical [`frontiers.yaml`](frontiers.yaml) snapshots retain the initial
+one-attempt cohort. Once each candidate supplied to a catalog has the
+protocol's five jobs, evaluate it with
+[`harbor-repeated-frontiers.yaml`](harbor-repeated-frontiers.yaml). Those three
+frontiers require bounds and use robust dominance, so one route dominates
+another only when their observed per-run ranges do not overlap adversely on
+either axis. These ranges measure repeatability of the exact pilot; they are not
+confidence intervals for the full 89-task benchmark.
 
 ```console
 python examples/local-runtime-frontiers/normalize_harbor_pilot.py \
@@ -226,11 +238,16 @@ modelskyline evaluate examples/local-runtime-frontiers/frontiers.yaml \
   --as-of 2026-09-14T02:00:00Z
 ```
 
-The latency axis uses a deterministic Hyndman–Fan type-7 p95 over the five
-complete task wall times. The memory signal is omitted unless capture began
-before every task's agent execution and every task has a positive
-kernel-accounted physical-footprint peak. An incomplete capture therefore
-remains auditable metadata but is rejected from the memory frontier.
+The latency axis uses a deterministic Hyndman–Fan type-7 p95 over all complete
+task wall times. Repeated quality is the pooled verifier success rate. Quality,
+token demand, and per-run peak-memory ranges are retained as repeatability
+bounds; p95 latency bounds also enclose the pooled p95 when type-7 interpolation
+places it just outside the individual-run p95 range. Token-demand axes use the
+mean per complete task-set repetition rather than growing with the number of
+runs. The memory signal is the maximum across repetitions and is omitted unless
+every job's capture began before every task's agent execution and every task
+has a positive kernel-accounted physical-footprint peak. An incomplete capture
+therefore remains auditable metadata but is rejected from the memory frontier.
 
 ## First five five-task results
 
