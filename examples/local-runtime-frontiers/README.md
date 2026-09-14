@@ -118,6 +118,15 @@ five equal-count repetitions per candidate and compare per-run repeatability
 bounds; the initial one-run snapshots remain in `frontiers.yaml` as point
 evidence.
 
+A repeated frontier is scoped to the exact cohort supplied to it. The current
+five-repeat experiment compares two dense-Qwen reasoning profiles, so its
+snapshots answer a configuration-stability question rather than a cross-model
+winner question. They must not replace the broader one-run quality population
+or add extra Qwen family coverage to `cross-frontier-coverage.json`. Promote a
+repeated quality frontier into that general coverage report only after the
+relevant cross-model candidates have equal repetition counts under the same
+pinned protocol.
+
 Do not pool prompt lengths, cache-warmth states, prose/code/tool modes, or cold
 and warm runner states. Build a catalog per position. A separate same-model
 efficiency view may compare decode throughput with peak memory, but must restrict

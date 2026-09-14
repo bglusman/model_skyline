@@ -234,6 +234,15 @@ another only when their observed per-run ranges do not overlap adversely on
 either axis. These ranges measure repeatability of the exact pilot; they are not
 confidence intervals for the full 89-task benchmark.
 
+The first five-repeat catalog is intentionally a paired dense-Qwen profile
+cohort. Its robust snapshots measure whether the reasoning-profile difference
+survives repeated jobs; they do not establish a cross-model default. Keep those
+snapshots out of the general cross-frontier family count until Muse, DS4,
+Ornith, and any other compared model families have the same repetition count
+under this protocol. This avoids both replacing broader point evidence with a
+narrow profile cohort and double-counting one model family for repeating the
+same workload.
+
 ```console
 python examples/local-runtime-frontiers/normalize_harbor_pilot.py \
   --protocol examples/local-runtime-frontiers/harbor-quality-pilot.yaml \
