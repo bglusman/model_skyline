@@ -111,6 +111,26 @@ prompts, terminal content, and model messages. The current summaries are
 and
 [`raw/harbor-smoke-qwen38-baseline-f16kv-fix-git-summary.json`](raw/harbor-smoke-qwen38-baseline-f16kv-fix-git-summary.json).
 
+Render Harbor's machine-local `JobConfig` directly from the pinned protocol so
+candidate route, task order, context/output budget, parser, sampling, compaction,
+and concurrency do not drift between runs. Absolute task/job/overlay paths remain
+in the private rendered config and are not publication artifacts.
+
+```console
+python examples/local-runtime-frontiers/render_harbor_pilot_config.py \
+  --protocol examples/local-runtime-frontiers/harbor-quality-pilot.yaml \
+  --candidate qwen38_flash_ds4 \
+  --task-set pilot_5 \
+  --tasks-directory /path/to/terminal-bench-2-1/tasks \
+  --jobs-directory /path/to/harbor/jobs/local-quality-pilot \
+  --job-name pilot5-v1-qwen38-flash-next-ds4 \
+  --api-base http://127.0.0.1:8090/v1 \
+  --extra-docker-compose /path/to/private-docker-overlay.yaml \
+  --output /path/to/private-harbor-job-config.json
+
+harbor run --config /path/to/private-harbor-job-config.json --yes
+```
+
 ```console
 python examples/local-runtime-frontiers/summarize_harbor_local_job.py \
   --job-directory /path/to/harbor/job \
