@@ -1,0 +1,56 @@
+{
+  "schema_version": "model-skyline/local-system-profile/v1",
+  "served_model": "qwen3.8-flash-coder-26gb-q4km-xhigh-think8k",
+  "artifact": {
+    "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+    "checkpoint": "qwen3.8-flash-coder-85gb-bf16-160-expert-subnet",
+    "revision": "4d62a522f3c70b6e9579015602129a15fe161804",
+    "format": "gguf",
+    "quantization": "Q4_K_M",
+    "size_bytes": 28394087776,
+    "content_sha256": "11f6a81dba702bf9603d1a1249b01752e84e3e049d15ae366c2f80032670d121",
+    "source_url": "https://huggingface.co/Jab1718/qwen3.8-flash-coder-26gb-gguf/tree/4d62a522f3c70b6e9579015602129a15fe161804",
+    "license": "Apache-2.0",
+    "metadata": {
+      "filename": "qwen3.8-flash-coder-26gb-q4_k_m.gguf",
+      "base_model": "Jab1718/qwen3.8-flash-coder-85gb-bf16",
+      "upstream_family": "Qwen/Qwen3.8-Flash-Next",
+      "expert_count": 160,
+      "construction": "hardware-aligned coding subnet selected with Jab1718/Moe-slices"
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "0.4.0-build-10809",
+    "commit": "5266f24da",
+    "backend": "Metal4",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "q8_0/q8_0",
+    "prefix_cache_enabled": true,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "runtime_binary_sha256": "8939a1cf8a4e9a5cc18d6cd4d2d55440b48f8a44db00abe459a28d837ea051f7",
+      "native_context_tokens": 262144,
+      "allocated_context_tokens": 131072,
+      "parallel_slots": 1,
+      "batch_tokens": 2048,
+      "micro_batch_tokens": 512,
+      "max_output_tokens": 16384,
+      "n_gpu_layers": "all",
+      "flash_attention": true,
+      "fit": "off",
+      "jinja": true,
+      "cache_ram_bytes": 8589934592,
+      "cache_idle_slots": true,
+      "reasoning_effort": "xhigh",
+      "thinking_budget_tokens": 8192,
+      "llama_swap_model_id": "qwen3.8-flash-coder-26gb-q4km-xhigh-think8k",
+      "llama_swap_exclusive_group": "local-memory"
+    }
+  },
+  "capabilities": [
+    "text",
+    "tools"
+  ]
+}

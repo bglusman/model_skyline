@@ -14,8 +14,21 @@ ROOT = Path(__file__).parents[1]
 EXAMPLE = ROOT / "examples" / "local-runtime-frontiers"
 RECIPES = EXAMPLE / "recommended-frontier-recipes.yaml"
 PILOT = EXAMPLE / "harbor-quality-pilot.yaml"
+FLASH_CODER_SCREEN = EXAMPLE / "harbor-quality-screen-qwen38-flash-coder.yaml"
 TASK_MANIFEST = EXAMPLE / "terminal-bench-2.1-task-manifest.json"
-HARBOR_SMOKE_SUMMARIES = sorted((EXAMPLE / "raw").glob("harbor-smoke-*-summary.json"))
+HARBOR_PILOT_SMOKE_SUMMARIES = sorted(
+    path
+    for path in (EXAMPLE / "raw").glob("harbor-smoke-*-summary.json")
+    if "qwen38-flash-coder" not in path.name
+)
+FLASH_CODER_SCREEN_SUMMARIES = {
+    "qwen38_flash_coder_q4km": (
+        EXAMPLE / "raw" / "harbor-smoke-qwen38-flash-coder-q4km-fix-git-summary.json"
+    ),
+    "qwen38_flash_coder_q4km_xhigh": (
+        EXAMPLE / "raw" / "harbor-smoke-qwen38-flash-coder-q4km-xhigh-fix-git-summary.json"
+    ),
+}
 HARBOR_PILOT_SUMMARIES = {
     "ornith": EXAMPLE / "raw" / "harbor-pilot5-ornith15-baseline-summary.json",
     "ds4": EXAMPLE / "raw" / "harbor-pilot5-qwen38-flash-next-ds4-summary.json",
@@ -125,10 +138,10 @@ def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
 
 
 def test_published_harbor_smoke_summaries_are_prompt_free_and_auditable() -> None:
-    assert len(HARBOR_SMOKE_SUMMARIES) >= 2
+    assert len(HARBOR_PILOT_SMOKE_SUMMARIES) >= 2
     expected_digest = "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e"
 
-    for path in HARBOR_SMOKE_SUMMARIES:
+    for path in HARBOR_PILOT_SMOKE_SUMMARIES:
         summary = json.loads(path.read_text(encoding="utf-8"))
         serialized = json.dumps(summary)
         assert summary["schema_version"] == "model-skyline/harbor-local-job-summary/v1"
@@ -150,6 +163,68 @@ def test_published_harbor_smoke_summaries_are_prompt_free_and_auditable() -> Non
                 len(digest) == 64 and set(digest) <= set("0123456789abcdef")
                 for digest in trial["audit"].values()
             )
+
+
+def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
+    pilot_digest = hashlib.sha256(PILOT.read_bytes()).hexdigest()
+    screen_digest = hashlib.sha256(FLASH_CODER_SCREEN.read_bytes()).hexdigest()
+    screen = yaml.safe_load(FLASH_CODER_SCREEN.read_text(encoding="utf-8"))
+    pilot = yaml.safe_load(PILOT.read_text(encoding="utf-8"))
+
+    assert screen["schema_version"] == "model-skyline/local-quality-pilot/v1"
+    assert screen["screen"]["relationship_to_frozen_pilot"] == "additive_candidate_gate"
+    assert screen["screen"]["comparable_protocol_sha256"] == pilot_digest
+    assert screen["screen"]["on_failure"] == "do_not_run_five_task_pilot"
+    for field in (
+        "name",
+        "version",
+        "harbor_version",
+        "harbor_revision",
+        "parser",
+        "temperature",
+        "top_p",
+        "max_turns",
+        "max_input_tokens",
+        "max_output_tokens",
+    ):
+        assert screen["harness"][field] == pilot["harness"][field]
+
+    for candidate_name, candidate in screen["candidates"].items():
+        profile_path = EXAMPLE / candidate["system_profile"]
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        assert (
+            candidate["system_profile_sha256"]
+            == hashlib.sha256(profile_path.read_bytes()).hexdigest()
+        )
+        assert profile["served_model"] == candidate["route"]
+        assert "long-context" not in profile["capabilities"]
+        LocalArtifactIdentity.model_validate(profile["artifact"])
+        runtime = LocalRuntimeIdentity.model_validate(profile["runtime"])
+        assert runtime.context_capacity_tokens == 131072
+
+        summary = json.loads(
+            FLASH_CODER_SCREEN_SUMMARIES[candidate_name].read_text(encoding="utf-8")
+        )
+        serialized = json.dumps(summary)
+        assert summary["contains_prompts_or_model_messages"] is False
+        assert "/Users/" not in serialized
+        assert summary["protocol"]["protocol_sha256"] == screen_digest
+        assert summary["aggregate"] == {
+            "invalid_trials": 0,
+            "success_percent": "0.0",
+            "successes": "0.0",
+            "valid_trials": 1,
+        }
+        trial = summary["trials"][0]
+        assert trial["reward"] == "0.0"
+        assert trial["agent_episodes"] == 40
+        assert trial["ctrf"]["failed"] == trial["ctrf"]["tests"] == 2
+        assert trial["parser_feedback_events"]["errors"] > 0
+
+    for profile_path in (EXAMPLE / "system-profiles").glob("qwen38-flash-coder-26gb-q4km-*.json"):
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        LocalArtifactIdentity.model_validate(profile["artifact"])
+        LocalRuntimeIdentity.model_validate(profile["runtime"])
 
 
 def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:

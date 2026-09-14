@@ -1,0 +1,148 @@
+{
+  "aggregate": {
+    "invalid_trials": 0,
+    "success_percent": "0.0",
+    "successes": "0.0",
+    "valid_trials": 1
+  },
+  "contains_prompts_or_model_messages": false,
+  "expected": {
+    "model": "qwen3.8-flash-coder-26gb-q4km-low-think4k",
+    "quality_attributable_exceptions": [
+      "AgentSafetyRefusalError",
+      "AgentTimeoutError"
+    ],
+    "task_digests": {
+      "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e"
+    },
+    "tasks": [
+      "terminal-bench/fix-git"
+    ]
+  },
+  "invalid": [],
+  "job": {
+    "concurrency": 1,
+    "finished_at": "2026-09-14T02:50:13.871032",
+    "harbor": {
+      "git_commit_hash": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+      "version": "0.23.0"
+    },
+    "id": "25184bd8-54a3-432e-8e30-ff46c1dc82a3",
+    "job_config_sha256": "180667e81e1628bc771ac50cd2e0589478664495921713fa2cb5d8cace17c147",
+    "job_lock_sha256": "fd03ebb9d3ed06eb9d821871c6ad51a144956152df9c472ae02456168f0b1b99",
+    "job_result_sha256": "a95f3562be4d0de6b4399c4dbd3922cee00c053e7411ec41e2b06ddc0024b7dd",
+    "started_at": "2026-09-14T02:48:51.350309"
+  },
+  "protocol": {
+    "candidate": "qwen38_flash_coder_q4km",
+    "protocol_sha256": "255efefebec3a6e657c5993aaac90ff13cd976e955fb7a0318b2091c09f3d7b8",
+    "system_profile": "system-profiles/qwen38-flash-coder-26gb-q4km-low-think4k-ctx131k.json",
+    "system_profile_sha256": "e1b6c8f78665ff06ce2d4fa86987b7303bcbe60b8cc08327794cdd448274f3e6",
+    "task_set": "smoke"
+  },
+  "schema_version": "model-skyline/harbor-local-job-summary/v1",
+  "trials": [
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 40,
+      "api_request_times_msec": [
+        "3590.2111530303955",
+        "1932.6448440551758",
+        "1917.1679019927979",
+        "1901.719093322754",
+        "2589.843988418579",
+        "1639.357089996338",
+        "2068.5300827026367",
+        "1599.8542308807373",
+        "1709.5258235931396",
+        "1683.0551624298096",
+        "484.2529296875",
+        "1788.7811660766602",
+        "2283.740758895874",
+        "545.4890727996826",
+        "342.0279026031494",
+        "339.22505378723145",
+        "1839.5068645477295",
+        "1832.306146621704",
+        "1833.9760303497314",
+        "345.6532955169678",
+        "347.37682342529297",
+        "338.63306045532227",
+        "1477.613925933838",
+        "491.03307723999023",
+        "345.304012298584",
+        "347.7342128753662",
+        "1744.399070739746",
+        "360.8260154724121",
+        "341.6907787322998",
+        "351.1178493499756",
+        "2057.1300983428955",
+        "348.92988204956055",
+        "358.45398902893066",
+        "341.261625289917",
+        "354.86793518066406",
+        "1491.3289546966553",
+        "1657.2377681732178",
+        "350.2018451690674",
+        "2162.9717350006104",
+        "497.3478317260742"
+      ],
+      "audit": {
+        "ctrf_sha256": "b58237cfc2e3e65fa9e21a219d4a47f271e65e14ec688643ce27f16de58322c1",
+        "reward_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "trajectory_sha256": "2402498ba5f89b67efc246c9fc3f60a69d3b292eb29f81aa3b5650739bcb1322",
+        "trial_config_sha256": "346f0accee99e0e4276ba7cdefbcf3f59340c52fb61dae33f6907d95a94e5871",
+        "trial_lock_sha256": "cf132e23cff7a8b7e825f685d0e1e9eddb34a128a6c33cf0fe5a19cc92d4e36c",
+        "trial_result_sha256": "44ffe075817d24d8267220054d419baaf1941e5cd174c7d01ee8f319e79ca6d4",
+        "verifier_stdout_sha256": "8eae60b75c8494c0193d22c57dc5a847d35426b3f8ee69f8121d0022cad5fa6c"
+      },
+      "ctrf": {
+        "failed": 2,
+        "other": 0,
+        "passed": 0,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 2,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "qwen3.8-flash-coder-26gb-q4km-low-think4k",
+      "parser_feedback_events": {
+        "errors": 28,
+        "warnings": 11
+      },
+      "quality_attributable_exception": null,
+      "reward": "0.0",
+      "task_checksum": "e89f54f2fc73ac576f976c1cd09758e4c9ccf152e53c2dcd91da0c178b89abc7",
+      "task_lock_digest": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+      "task_name": "terminal-bench/fix-git",
+      "timing_seconds": {
+        "agent_execution": "57.184581",
+        "agent_setup": "11.03408",
+        "environment_setup": "2.657748",
+        "verifier": "7.341774"
+      },
+      "tokens": {
+        "cache": 97672,
+        "input": 101645,
+        "output": 1571
+      },
+      "trial_id": "6a0254ee-97a9-472c-9219-2a1ec48704f5",
+      "trial_name": "fix-git__wVy2VUB"
+    }
+  ]
+}

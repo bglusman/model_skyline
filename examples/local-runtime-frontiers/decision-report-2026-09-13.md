@@ -11,7 +11,8 @@ local quant.
 | --- | --- | --- | --- |
 | Qwen3.8 27B oQ4e, oMLX F16 KV, low reasoning/4K thinking | Best measured pilot quality/latency | Scored 4/5 and owns quality/latency at 804.267 s p95; the same artifact/runtime with default reasoning scored 2/5 | One in-flight timeout makes token demand inexact; 23.782 GB footprint; one attempt on five tasks |
 | Muse Glimmer official Dynamic Q4_K_XL, target-only | Compact verifier-scored agent route | Scored 3/5; owns exact cache demand and supplies the 3.485 GB endpoint of the quality/memory frontier | Its lightweight warm tool probe was only 3/4, it exhausted 40 turns without fixing one vulnerability, and this is one pilot attempt |
-| Qwen3.8 Flash Next on DS4 target-only | Best uncached and 126K route | Member of three deployment frontiers and scored 3/5 on the verifier-scored pilot | Its two 900 s timeouts make 45,888 uncached input tokens only a recorded lower bound; no matched M1 implementation |
+| Qwen3.8 Flash Next on DS4 target-only | Best validated 126K route | Member of the long-context and validated-capacity frontiers and scored 3/5 on the verifier-scored pilot | Its two 900 s timeouts make 45,888 uncached input tokens only a recorded lower bound; no matched M1 implementation |
+| Qwen3.8 Flash Coder 160-expert Q4_K_M | Narrow uncached tool-call specialist | Exact cache-disabled 30-tool call 3/3 at 5.527 s median, the current uncached-tool frontier | Failed strict retrieval at 2K–126K and failed both low and xhigh verifier-scored agent smokes; not a default |
 | Ornith 1.5 oMLX baseline/F16 KV | Warm iterative and latency-sensitive agent work | Exact tools 3/3 at 0.835 s warm and scored 3/5 on the agent pilot | Fast 126K execution failed exact retrieval 0/3, and its first pilot memory capture was ineligible |
 | Qwen3.8 27B oMLX DFlash2 | Warm iterative tool sessions | Exact tools 3/3 at 0.862 s warm, co-frontier with Ornith; earlier 256-token warm run was 0.812 s | The matched 126K baseline is much slower than DS4, and DFlash's earlier 126K prefill was slower still |
 | Qwen3.8 27B oMLX baseline/F16 KV | Stable uncached control | Exact tools 3/3 and 126K retrieval 3/3 | Scored only 2/5 with three timeouts; its valid pilot capture peaked at 23.198 GB, but it misses every quality frontier's 60% gate |
@@ -21,21 +22,23 @@ The practical default remains workload-dependent. Bounded-reasoning Qwen is the
 strongest first choice for the measured five-task agent workload: it owns the
 quality/latency frontier and pairs its 80% score with Muse's 60%/3.485 GB point
 on the quality/memory frontier. Muse remains the exact cache-demand and compact
-memory choice. DS4 Flash Next is the clear uncached probe, long-context, and
-validated-capacity winner. Ornith remains near-optimal for warm tool work and
-leads raw GGUF throughput. The 2/5 versus 4/5 paired configuration result makes
-reasoning policy part of the default/fallback identity, but repeated runs are
-still needed before treating the observed 40-point gap as stable.
+memory choice. DS4 Flash Next is the clear long-context and validated-capacity
+winner. The custom Flash Coder slice wins one cache-disabled tool microposition,
+but its agent and retrieval failures keep it out of the default set. Ornith
+remains near-optimal for warm tool work and leads raw GGUF throughput. The 2/5
+versus 4/5 paired configuration result makes reasoning policy part of the
+default/fallback identity, but repeated runs are still needed before treating
+the observed 40-point gap as stable.
 
-### Newly queued candidate
+### Screened custom expert-slice candidate
 
 The next model artifact after the controlled baseline and tuned profiles is
 [`Jab1718/qwen3.8-flash-coder-26gb-gguf`](https://huggingface.co/Jab1718/qwen3.8-flash-coder-26gb-gguf),
 a 160-expert coding subnet sliced from Qwen3.8 Flash Next. Its Q4_K_M artifact
-is 26.43 GB; the author reports a 64K-context load near 33 GB wired memory and
-about 32 decode token/s on an M5 Pro 64 GB with current llama.cpp. That creates
-a materially different operating point from the 76.8 GB demand-paged DS4
-composite and should plausibly fit a controlled 128K experiment here.
+is 26.43 GB. The exact 28,394,087,776-byte artifact loaded at a fixed 131,072
+token allocation on the M5 Max and decoded the deterministic tool control near
+58 token/s. Three cache-disabled 30-tool calls were exact at a 5.527-second
+median, displacing DS4 on that narrow frontier.
 
 Its published sandbox percentage is not imported as quality evidence. The
 project describes a DoRA recovery loop trained against earlier failure cases,
@@ -43,8 +46,12 @@ so the reported tasks are not a clean held-out estimate. A separate public
 engineering-task experiment does provide useful family-level prior evidence:
 [Qwen3.8 Flash Next Q3_K_XL scored 35.38/40 across four runs](https://github.com/sandst1/qwen3.8-27b-bench#results),
 ahead of the tested dense Qwen3.8 and Ornith variants on that one workload. The
-subnet must still pass this repository's exact tool/parser smoke, 128K retrieval,
-and fresh Harbor pilot before becoming a recommendation.
+The subnet did not pass the broader gates. Strict late-position retrieval failed
+at 2K, 32K, 65K, and 126K; the 126K request took 400.303 seconds end-to-end.
+The low/4K and xhigh/8K Terminus profiles both scored zero on the verifier-valid
+`fix-git` smoke after exhausting 40 turns. It therefore did not advance to the
+five-task pilot and is not an OpenCode/OMP default. The complete additive screen
+is in [`qwen38-flash-coder-screen.md`](qwen38-flash-coder-screen.md).
 
 ### “Flash”, DFlash, and DS4 are different things
 
@@ -85,7 +92,7 @@ physical context capacity, and harness remain distinct.
 | `short-throughput` | Max prompt and decode token/s, 3% epsilon | Ornith Q4 GGUF | Ornith 3022.92/113.748; Qwen3.8 680.485/26.632; Muse 717.593/24.912 |
 | `exact-Qwen-cross-Mac` | Same axes; byte-identical Qwen artifact and runtime | M5 Max | M5 680.485/26.632; M1 128.356/11.566 |
 | `warm-agent-tools` | Max exact-call success, min end-to-end, 100% gate, 5% latency epsilon | Ornith oMLX; Qwen3.8 DFlash | 0.835 s vs 0.862 s, both 3/3; Muse rejected at 3/4 and 30.65 s median among successful-cache-position rows |
-| `uncached-agent-tools` | Same definition at a proven zero-hit position | DS4 Qwen3.8 Flash Next | DS4 6.433 s vs Qwen baseline 7.536 s, both 3/3 |
+| `uncached-agent-tools` | Same definition at a proven zero-hit position | Qwen3.8 Flash Coder 160-expert Q4_K_M | Flash Coder 5.527 s vs DS4 6.433 s and Qwen baseline 7.536 s, all 3/3 |
 | `long-context-126k` | 100% exact retrieval gate, min end-to-end, 5% epsilon | DS4 Qwen3.8 Flash Next | DS4 197.929 s; Qwen baseline 299.638 s; Ornith rejected at 0/3 despite 88.474 s median |
 | `validated-capacity` | Max repeatedly validated tokens, min sampled physical footprint | DS4 Qwen3.8 Flash Next | Both DS4 and Qwen validated 125,964 tokens 3/3; DS4 used 5.461 GB vs Qwen 47.855 GB |
 | `quality-latency` | Max exact five-task success, min all-task p95 wall time, 60% gate | Qwen3.8 27B oMLX, low reasoning/4K thinking | Qwen scored 4/5 at 804.267 s p95, improving the same artifact/runtime's default-reasoning 2/5 result |
@@ -93,10 +100,11 @@ physical context capacity, and harness remain distinct.
 | `quality-process-footprint` | Max exact five-task success, min fully covered process footprint, 60% gate | Qwen3.8 27B oMLX, low reasoning/4K thinking; Muse | Qwen pairs 80% with 23,782,290,440 B; Muse pairs 60% with 3,484,714,192 B; neither dominates the other |
 
 The result now has the intended cross-frontier shape. At model-family identity,
-dense Qwen3.8 and DS4 Flash Next each cover three complementary frontiers, while
-Muse and Ornith cover two. Their distinct GGUF, MLX, DS4, reasoning,
-lightweight-probe, and Harbor offerings are not collapsed at exact-offering
-identity. Epsilon-aware membership
+dense Qwen3.8 covers three complementary frontiers; DS4 Flash Next, Muse, and
+Ornith each cover two. The custom Flash Coder slice covers one narrow frontier
+and remains screened out of general-agent and long-context use. Their distinct
+GGUF, MLX, DS4, reasoning, lightweight-probe, and Harbor offerings are not
+collapsed at exact-offering identity. Epsilon-aware membership
 is used directly, with no extra weighted score that could hide a weak axis. The
 coverage summary intentionally omits the duplicate hardware-only Qwen slice;
 that snapshot answers a machine-comparison question rather than adding a model
