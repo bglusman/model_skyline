@@ -163,6 +163,13 @@ A coding/terminal score cannot stand in for any of these, and they cannot stand
 in for one another. Their upstream benchmark mapping and publication rules are
 documented in
 [`research frontier benchmark map`](research-frontier-benchmark-map.md).
+The
+[`prompt-free real-world summary contract`](real-world-agent-summary-contract.md)
+makes those recipes executable: it normalizes task digests, scores, timings,
+tool checks, and research grounding through the existing reviewed quality
+reconciliation path while rejecting task contents and overbroad BrowseComp or
+GAIA publication claims. Context retrieval and swap remain separate exact-route
+gates rather than being inferred from a benchmark run.
 
 [`harbor-repeated-frontiers.yaml`](harbor-repeated-frontiers.yaml) packages
 robust versions of the three quality frontiers. They require the protocol's
