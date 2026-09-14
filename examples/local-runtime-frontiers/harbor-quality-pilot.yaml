@@ -86,6 +86,11 @@ candidates:
     system_profile: system-profiles/qwen38-omlx-baseline-f16kv-cache-ssd.json
     system_profile_sha256: 2569e724dc866ac94f879eb24a24e7c8a877e8e5cb2ed61c4545a5b23ad2313d
     role: stable_dense_baseline
+  qwen38_low_think4k:
+    route: qwen3.8-27b-oq4e-mtp:baseline-f16kv-low-think4k
+    system_profile: system-profiles/qwen38-omlx-baseline-f16kv-low-think4k-cache-ssd.json
+    system_profile_sha256: ce43f4a37975455c303064d63b09cf1d044406dfcefd5e7c14c468d641b6fa3c
+    role: bounded_reasoning_dense_candidate
   ornith15_baseline:
     route: ornith-1.5-35b-a3b-oq4e-mtp:baseline-f16kv
     system_profile: system-profiles/ornith-omlx-baseline-f16kv-cache-ssd.json
@@ -103,6 +108,9 @@ candidates:
     role: dense_local_agent_candidate
 
 implementation_equivalence_checks:
+  - candidate_route: qwen3.8-27b-oq4e-mtp:baseline-f16kv-low-think4k
+    anchor_route: qwen3.8-27b-oq4e-mtp:baseline-f16kv
+    purpose: measure_quality_and_latency_effect_of_bounded_low_reasoning
   - candidate_route: qwen3.8-27b-oq4e-mtp:dflash2-tq4
     anchor_route: qwen3.8-27b-oq4e-mtp:baseline-f16kv
     purpose: detect_semantic_regression_before_treating_speculation_as_equivalent
@@ -114,12 +122,26 @@ phases:
   - name: harness_smoke
     task_set: smoke
     attempts_per_task: 1
-    candidates: [qwen38_baseline, ornith15_baseline, qwen38_flash_ds4, muse_glimmer_target]
+    candidates:
+      [
+        qwen38_baseline,
+        qwen38_low_think4k,
+        ornith15_baseline,
+        qwen38_flash_ds4,
+        muse_glimmer_target,
+      ]
     promotion: every_trial_has_valid_verifier_evidence
   - name: stratified_pilot
     task_set: pilot_5
     attempts_per_task: 1
-    candidates: [qwen38_baseline, ornith15_baseline, qwen38_flash_ds4, muse_glimmer_target]
+    candidates:
+      [
+        qwen38_baseline,
+        qwen38_low_think4k,
+        ornith15_baseline,
+        qwen38_flash_ds4,
+        muse_glimmer_target,
+      ]
     promotion: result_can_change_any_pilot_frontier_or_default_fallback_order
   - name: repeated_pilot
     task_set: pilot_5

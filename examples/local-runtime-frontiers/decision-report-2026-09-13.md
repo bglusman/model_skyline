@@ -9,18 +9,21 @@ local quant.
 
 | Candidate | Best current role | Evidence-backed advantage | Important limitation |
 | --- | --- | --- | --- |
-| Qwen3.8 Flash Next on DS4 target-only | Best uncached and 126K route | Member of five model-family frontiers; scored 3/5 on the verifier-scored pilot and used only 45,888 uncached input tokens | Its two 900 s timeouts make it slower than Ornith at the pilot p95; no matched M1 implementation |
+| Qwen3.8 Flash Next on DS4 target-only | Best uncached and 126K route | Member of four model-family frontiers; scored 3/5 on the verifier-scored pilot and owns the fully covered process-footprint frontier | Its two 900 s timeouts make 45,888 uncached input tokens only a recorded lower bound, not an exact cache-demand result; no matched M1 implementation |
 | Ornith 1.5 oMLX baseline/F16 KV | Warm iterative and latency-sensitive agent work | Exact tools 3/3 at 0.835 s warm; scored 3/5 on the pilot and owns its quality/latency frontier | Fast 126K execution failed exact retrieval 0/3, and its first pilot memory capture was ineligible |
 | Qwen3.8 27B oMLX DFlash2 | Warm iterative tool sessions | Exact tools 3/3 at 0.862 s warm, co-frontier with Ornith; earlier 256-token warm run was 0.812 s | The matched 126K baseline is much slower than DS4, and DFlash's earlier 126K prefill was slower still |
-| Qwen3.8 27B oMLX baseline/F16 KV | Stable uncached control | Exact tools 3/3 and 126K retrieval 3/3 | 126K median was 299.638 s with 47.855 GB physical footprint, dominated by DS4 on both active axes |
+| Qwen3.8 27B oMLX baseline/F16 KV | Stable uncached control | Exact tools 3/3 and 126K retrieval 3/3 | Scored only 2/5 with three timeouts; its valid pilot capture peaked at 23.198 GB, but it misses every quality frontier's 60% gate |
 | Ornith 1.5 Q4_K_M | Raw throughput / cross-Mac control | Sole cross-model pp2048/tg512 frontier member: 3,022.92 prompt and 113.748 decode token/s; byte-identical M1 evidence exists | The GGUF throughput result cannot inherit the oMLX route's tool evidence or any base-model quality score |
 | Muse Glimmer official Dynamic Q4_K_XL, target-only | Experimental dense alternative | Official quant beats the custom ShoeHorn fit | Matched warm tool probes were 0/4 at 256 tokens and only 3/4 at 1,024; it fails the 100% correctness eligibility gate |
 
 The practical default remains workload-dependent. DS4 Flash Next is the clear
-uncached/long-context and cache-aware-compute winner. Ornith is the faster of
-the first two verifier-scored routes and remains near-optimal for warm tool
-work. Ornith GGUF is the throughput leader. Dense Qwen3.8 and Muse still need
-the same five-task workload before the default/fallback order is final.
+uncached/long-context and process-footprint winner. Exact cache-demand ranking
+is unresolved because incomplete timeout requests make both published token
+subtotals lower bounds. Ornith is the faster of the first two verifier-scored
+routes and remains near-optimal for warm tool work. Ornith GGUF is the
+throughput leader. Dense Qwen3.8's first five-task result is now complete but
+below gate; Muse and the bounded-reasoning Qwen profile remain before the
+default/fallback order is final.
 
 ### Newly queued candidate
 
@@ -84,14 +87,15 @@ physical context capacity, and harness remain distinct.
 | `long-context-126k` | 100% exact retrieval gate, min end-to-end, 5% epsilon | DS4 Qwen3.8 Flash Next | DS4 197.929 s; Qwen baseline 299.638 s; Ornith rejected at 0/3 despite 88.474 s median |
 | `validated-capacity` | Max repeatedly validated tokens, min sampled physical footprint | DS4 Qwen3.8 Flash Next | Both DS4 and Qwen validated 125,964 tokens 3/3; DS4 used 5.461 GB vs Qwen 47.855 GB |
 | `quality-latency` | Max exact five-task success, min all-task p95 wall time, 60% gate | Ornith oMLX | Both scored 3/5; Ornith p95 was 857.665 s vs DS4's 923.973 s |
-| `quality-cache-efficiency` | Max exact five-task success, min total uncached input tokens, 60% gate, zero incomplete API requests | No eligible resident yet | Recorded lower bounds are DS4 45,888 and Ornith 161,473; timeout paths make neither subtotal exact |
+| `quality-cache-efficiency` | Max exact five-task success, min total uncached input tokens, 60% gate, zero incomplete API requests | No eligible resident yet | Recorded lower bounds are DS4 45,888, Qwen 87,051, and Ornith 161,473; timeout paths make every subtotal inexact, and Qwen also misses the quality gate |
 | `quality-process-footprint` | Max exact five-task success, min fully covered process footprint, 60% gate | DS4 Qwen3.8 Flash Next | DS4 peaked at 5,461,911,280 B; Ornith's late capture is ineligible |
 
 The result now has the intended cross-frontier shape. At model-family identity,
 DS4 Flash Next covers four frontiers and Ornith covers three. Their distinct
 GGUF, MLX, DS4, lightweight-probe, and Harbor offerings are not collapsed at
-exact-offering identity. Qwen3.8 27B currently covers one warm frontier, with
-its verifier-scored run in progress; Muse covers none. Epsilon-aware membership
+exact-offering identity. Qwen3.8 27B currently covers one warm frontier; its 2/5
+verifier-scored route is retained but rejected by the quality gate. Muse covers
+none. Epsilon-aware membership
 is used directly, with no extra weighted score that could hide a weak axis. The
 coverage summary intentionally omits the duplicate hardware-only Qwen slice;
 that snapshot answers a machine-comparison question rather than adding a model
@@ -278,22 +282,25 @@ power, security, or wired-memory setting was changed.
 
 ## Exact next experiments
 
-1. Recheck the paste-ready
+1. Add a backend-side, task-scoped request-usage capture that retains exact
+   prompt/cache/output counts for requests the harness cancels or truncates;
+   keep the cache-demand frontier fail-closed until that capture is validated.
+2. Recheck the paste-ready
    [Muse DFlash reproducer](muse-dflash-prompt-cache-reproducer.md) on a newer
    llama.cpp commit, then submit it upstream only with explicit approval.
-2. Treat Muse's matched 0/4-at-256 and 3/4-at-1024 tool behavior as a failed
+3. Treat Muse's matched 0/4-at-256 and 3/4-at-1024 tool behavior as a failed
    promotion gate; revisit long-context work only after the reasoning/tool
    interaction is made deterministic.
-3. Complete a byte-identical Muse copy to the M1 Studio and run the same
+4. Complete a byte-identical Muse copy to the M1 Studio and run the same
    pp2048/tg512 capture with the same llama.cpp commit. The exact Qwen transfer
    and matched capture are complete.
-4. Build paired calibrated subsets for code, tool use, and long context across
+5. Build paired calibrated subsets for code, tool use, and long context across
    Qwen3.8 oMLX, DS4 Flash Next, Ornith, and Muse. Preserve item IDs, seeds,
    task-set hashes, estimator error, and confidence bounds; keep the existing
    deterministic probes as operational gates rather than task-quality scores.
-5. Run complete benchmarks only for candidates whose estimated interval could
+6. Run complete benchmarks only for candidates whose estimated interval could
    change a frontier or selection, then reconcile those results to exact local
    offerings. Do not inherit base-model scores onto ShoeHorn/IQ2 artifacts.
-6. Revisit Qwen3.6 only as a low-priority Skyline data point. Qwen3-Coder-Next
+7. Revisit Qwen3.6 only as a low-priority Skyline data point. Qwen3-Coder-Next
    remains intentionally undownloaded because no new evidence established a
    competitive frontier.

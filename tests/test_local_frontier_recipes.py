@@ -19,6 +19,7 @@ HARBOR_SMOKE_SUMMARIES = sorted((EXAMPLE / "raw").glob("harbor-smoke-*-summary.j
 HARBOR_PILOT_SUMMARIES = {
     "ornith": EXAMPLE / "raw" / "harbor-pilot5-ornith15-baseline-summary.json",
     "ds4": EXAMPLE / "raw" / "harbor-pilot5-qwen38-flash-next-ds4-summary.json",
+    "qwen38": EXAMPLE / "raw" / "harbor-pilot5-qwen38-baseline-f16kv-summary.json",
 }
 
 
@@ -154,19 +155,25 @@ def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
         name: json.loads(path.read_text(encoding="utf-8"))
         for name, path in HARBOR_PILOT_SUMMARIES.items()
     }
-    for summary in summaries.values():
+    expected_aggregates = {
+        "ornith": ("60.0", "3.0"),
+        "ds4": ("60.0", "3.0"),
+        "qwen38": ("40.0", "2.0"),
+    }
+    for name, summary in summaries.items():
         serialized = json.dumps(summary)
         assert summary["contains_prompts_or_model_messages"] is False
         assert "/Users/" not in serialized
         assert "all_messages" not in serialized
+        success_percent, successes = expected_aggregates[name]
         assert summary["aggregate"] == {
             "invalid_trials": 0,
-            "success_percent": "60.0",
-            "successes": "3.0",
+            "success_percent": success_percent,
+            "successes": successes,
             "valid_trials": 5,
         }
 
-    expected_timeout_counts = {"ornith": 1, "ds4": 2}
+    expected_timeout_counts = {"ornith": 1, "ds4": 2, "qwen38": 3}
     for name, summary in summaries.items():
         timeouts = [trial for trial in summary["trials"] if trial["quality_attributable_exception"]]
         assert len(timeouts) == expected_timeout_counts[name]
@@ -176,20 +183,26 @@ def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
         assert all(trial["incomplete_api_requests"] == 1 for trial in timeouts)
 
     catalog = load_catalog(EXAMPLE / "generated" / "harbor-pilot5-quality-catalog.json")
-    assert len(catalog.offerings) == 2
+    assert len(catalog.offerings) == 3
     offerings = {offering.offering.model_id: offering for offering in catalog.offerings}
     ornith = offerings["ornith-ai/Ornith-1.5-35B-A3B"]
     ds4 = offerings["Qwen/Qwen3.8-Flash-Next"]
+    qwen38 = offerings["Qwen/Qwen3.8-27B"]
     assert ornith.signals["local_pilot_task_success_percent"].value == 60
     assert ds4.signals["local_pilot_task_success_percent"].value == 60
+    assert qwen38.signals["local_pilot_task_success_percent"].value == 40
     assert "local_pilot_total_uncached_input_tokens" not in ornith.signals
     assert "local_pilot_total_uncached_input_tokens" not in ds4.signals
+    assert "local_pilot_total_uncached_input_tokens" not in qwen38.signals
     assert ornith.metadata["pilot"]["token_accounting"]["incomplete_api_requests"] == 1
     assert ds4.metadata["pilot"]["token_accounting"]["incomplete_api_requests"] == 2
+    assert qwen38.metadata["pilot"]["token_accounting"]["incomplete_api_requests"] == 3
     assert "local_peak_process_physical_footprint_bytes" not in ornith.signals
     assert ornith.metadata["pilot"]["memory"]["eligible"] is False
     assert ds4.signals["local_peak_process_physical_footprint_bytes"].value == 5_461_911_280
     assert ds4.metadata["pilot"]["memory"]["eligible"] is True
+    assert qwen38.signals["local_peak_process_physical_footprint_bytes"].value == 23_198_069_456
+    assert qwen38.metadata["pilot"]["memory"]["eligible"] is True
 
     expected_member = {
         "latency": ornith,

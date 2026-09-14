@@ -141,7 +141,7 @@ in [`generated/qwen38-exact-cross-mac-short-throughput-frontier.json`](generated
 but omitted from model-family coverage so a duplicate hardware offering cannot
 inflate Qwen's cross-workload count.
 
-The first quality population is retained in
+The first three-candidate quality population is retained in
 [`generated/harbor-pilot5-quality-catalog.json`](generated/harbor-pilot5-quality-catalog.json).
 Ornith and DS4 Flash Next each scored 3/5, passing the same three tasks. Ornith
 owns the latency frontier at an all-task p95 of 857.665 seconds versus DS4's
@@ -151,9 +151,12 @@ incomplete API requests, so neither is eligible for the exact cache-demand
 frontier. DS4 is the first memory-eligible resident, with a
 5,461,911,280-byte kernel-reported process-footprint peak. That footprint is the active process
 working set, not DS4's 76.8 GB composite artifact size or a claim that
-file-backed demand-paged weights occupy no system cache. Qwen3.8 dense and Muse
-Glimmer still need the same five tasks before this is a complete candidate
-comparison. Ornith's initial memory capture remains correctly rejected.
+file-backed demand-paged weights occupy no system cache. Dense Qwen3.8 scored
+2/5 with three timeouts, missing the 60% promotion gate; its complete sampler
+run peaked at 23,198,069,456 bytes but is quality-ineligible. Muse Glimmer and
+the bounded-reasoning Qwen profile still need the same five tasks before this
+is a complete candidate comparison. Ornith's initial memory capture remains
+correctly rejected.
 
 ## Reproduce an exact cross-Mac comparison
 
