@@ -397,8 +397,8 @@ model-focused views with an explicit balanced matrix:
 
 ```console
 modelskyline model-frontier-view \
-  cross-mac-short-throughput-model-view-policy.json \
   generated/cross-mac-two-model-short-throughput-frontier.json \
+  --balanced-policy cross-mac-short-throughput-model-view-policy.json \
   --format json \
   --output generated/cross-mac-two-model-short-throughput-model-view.json
 ```

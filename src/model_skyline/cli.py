@@ -677,8 +677,11 @@ def evaluate(
 
 @app.command("model-frontier-view", rich_help_panel=CORE_PANEL)
 def model_frontier_view_command(
-    policy: Annotated[Path, typer.Argument(exists=True, readable=True)],
     snapshot: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    balanced_policy: Annotated[
+        Path | None,
+        typer.Option("--balanced-policy", exists=True, readable=True),
+    ] = None,
     output_format: Annotated[
         ModelViewOutputFormat, typer.Option("--format", "-f")
     ] = ModelViewOutputFormat.TABLE,
@@ -688,8 +691,12 @@ def model_frontier_view_command(
 
     try:
         view = build_model_frontier_view(
-            load_model_frontier_view_policy(policy),
             load_frontier_snapshot(snapshot),
+            balanced_policy=(
+                load_model_frontier_view_policy(balanced_policy)
+                if balanced_policy is not None
+                else None
+            ),
         )
         rendered = (
             dump_json(view)
