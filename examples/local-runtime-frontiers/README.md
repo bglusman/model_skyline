@@ -34,6 +34,17 @@ anchor; do not apply one quantization multiplier across tasks. The copyable
 local, cache, context, quant-screening, and remote recipes are in
 [`recommended-frontier-recipes.yaml`](recommended-frontier-recipes.yaml).
 
+Those recipes also include named lexicographic selectors for quality-first,
+latency-first, memory-first, cache-demand, fixed-128K, session-endurance, warm
+cache, and quantization-screening priorities. A selector ranks only eligible
+members of one Pareto frontier: its correctness, context, evidence, freshness,
+and no-swap gates have already been applied. `return_available` deliberately
+returns fewer than three choices when the evidence cannot support three; it
+does not backfill an ineligible model. These are reusable policy templates, not
+a claim that the provisional example population is ready for unattended
+automatic routing. Cross-frontier coverage remains an advisory portfolio view,
+not a hidden weighted score or a selector that merges incompatible workloads.
+
 The first verifier-scored local-agent population is specified in
 [`harbor-quality-pilot.yaml`](harbor-quality-pilot.yaml) and explained in
 [`harbor-quality-pilot.md`](harbor-quality-pilot.md). Its five-task score is a
@@ -48,6 +59,16 @@ The additive
 evaluates one custom MoE slice without changing the frozen pilot digest. It
 earns the narrow uncached-tool frontier but fails the real-agent smoke and the
 retrieval ladder, so it is not a general local-agent recommendation.
+
+Two next candidates are pinned without treating external scores as local
+measurements. The
+[`North Mini Code local intake`](north-mini-code-intake.md) is the agent-quality
+challenger: it targets terminal work directly and has both oMLX and portable
+GGUF controls. The
+[`Nemotron 3.5 Lightning local intake`](nemotron-lightning-intake.md) is the
+architecture-efficiency challenger and separates plain oMLX, embedded-MTP, and
+external-DSpark profiles. Both define correctness, cache, context, memory, and
+real-agent promotion gates; neither is a measured frontier resident yet.
 
 ## Runtime choices on Apple Silicon
 

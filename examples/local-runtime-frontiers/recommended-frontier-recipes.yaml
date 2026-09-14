@@ -354,4 +354,83 @@ frontiers:
       allow_unknown_age: false
     metadata_fields: [evidence_tier, route_revision, price_basis, gate_policy]
 
-selections: {}
+selections:
+  local-agent-quality-first:
+    frontier: interactive-local-value
+    strategy: lexicographic
+    count: 3
+    order_by: measured_agent_quality
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-agent-latency-first:
+    frontier: interactive-local-value
+    strategy: lexicographic
+    count: 3
+    order_by: p95_agent_task_wall
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-agent-memory-first:
+    frontier: local-agent-memory-value
+    strategy: lexicographic
+    count: 3
+    order_by: peak_physical_footprint
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-agent-cache-demand-first:
+    frontier: local-agent-cache-demand
+    strategy: lexicographic
+    count: 3
+    order_by: total_uncached_agent_input
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-128k-quality-first:
+    frontier: fixed-128k-usefulness
+    strategy: lexicographic
+    count: 3
+    order_by: measured_long_context_quality
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-128k-latency-first:
+    frontier: fixed-128k-usefulness
+    strategy: lexicographic
+    count: 3
+    order_by: p95_successful_turn_latency
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-session-endurance-first:
+    frontier: session-endurance
+    strategy: lexicographic
+    count: 3
+    order_by: effective_session_context
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-warm-cache-latency-first:
+    frontier: warm-cache-operation
+    strategy: lexicographic
+    count: 3
+    order_by: p95_successful_turn_latency
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-warm-cache-reuse-first:
+    frontier: warm-cache-operation
+    strategy: lexicographic
+    count: 3
+    order_by: eligible_prefix_reuse
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  quantization-screening-candidates:
+    frontier: quantization-screening
+    strategy: lexicographic
+    count: 3
+    order_by: estimated_quality_lcb
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
