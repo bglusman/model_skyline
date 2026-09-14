@@ -226,7 +226,11 @@ modelskyline build-local-catalog measurements/qwen.json measurements/ds4.json \
 
 Capacity is a roll-up rather than a single prompt position. It chooses each
 exact offering's largest fully passing uncached retrieval record and requires a
-sampled physical-footprint series at that position:
+sampled physical-footprint series at that position. Attempted offerings that
+never pass are retained with their ladder and configured context in audit
+metadata, but receive no validated-context or paired-memory signal. The
+frontier therefore rejects them visibly instead of treating allocation as
+usable context or dropping them from the candidate universe:
 
 ```console
 modelskyline build-local-capacity-catalog measurements/*retrieval*.json \

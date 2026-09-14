@@ -52,10 +52,12 @@ cold and warm requests, prose and tool modes, or different prompt lengths.
 Runtime cache enablement belongs to offering identity because it changes the
 deployed system. Cache warmth belongs to the workload position because it
 describes a request. Speculative acceptance, tool parsing, and throughput may
-  coexist as evidence. Configured capabilities remain stable system identity
-  across workloads; any integrity check must name a capability configured on
-  that offering, while the check's pass rate—not configuration alone—is the
-  evidence used by an operational frontier.
+coexist as evidence. Configured capabilities remain stable system identity
+across workloads. Nonzero integrity evidence must name a capability configured
+on that offering. A zero-pass probe may document why an attempted capability
+was deliberately omitted; it does not manufacture the capability. The check's
+pass rate—not configuration alone—is the evidence used by an operational
+frontier.
 
 Quality is deliberately absent from the local contract. GGUF, MLX, speculative,
 and harness variants remain separate offerings. Benchmark quality can be added
@@ -82,6 +84,13 @@ Raw captures remain the replay boundary; normalized records retain their
 digests but do not copy every backend-specific field into top-level schema.
 The contract can represent GGUF, MLX, DFlash, oMLX, Ollama, and other runtimes
 without blessing any one benchmark harness.
+
+Capacity roll-ups retain every attempted exact offering. An offering with no
+fully passing retrieval position carries its attempted ladder and configured
+context in audit metadata, but receives no validated-context or paired-memory
+signal. It is therefore visible as a rejected candidate instead of silently
+disappearing, while an allocated or advertised window can never substitute for
+validated usable context.
 
 The alpha contract does not collect measurements, coordinate model residency,
 infer physical memory capacity, assign quality scores, or decide compaction

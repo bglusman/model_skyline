@@ -400,7 +400,7 @@ def build_local_capacity_catalog_artifact(
     workload_version: Annotated[str, typer.Option("--workload-version")] = "1",
     workload_unit: Annotated[str, typer.Option("--workload-unit")] = "context_position",
 ) -> None:
-    """Roll retrieval ladders up to maximum passing context and physical footprint."""
+    """Roll retrieval ladders up while retaining failed candidates for audit."""
 
     try:
         catalog = build_local_capacity_catalog(

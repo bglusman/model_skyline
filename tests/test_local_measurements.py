@@ -4,13 +4,15 @@ import json
 from copy import deepcopy
 from datetime import UTC, datetime
 from decimal import Context, Decimal, localcontext
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 from typer.testing import CliRunner
 
 from model_skyline.cli import app
-from model_skyline.io import load_catalog, load_local_measurement
+from model_skyline.engine import FrontierEngine
+from model_skyline.io import load_catalog, load_config, load_local_measurement
 from model_skyline.local_measurements import (
     LocalMeasurementRecord,
     build_local_capacity_catalog,
@@ -19,6 +21,8 @@ from model_skyline.local_measurements import (
     local_system_offering_key,
 )
 from model_skyline.models import WorkloadReference
+
+ROOT = Path(__file__).parents[1]
 
 
 def local_measurement_payload() -> dict[str, object]:
@@ -401,7 +405,11 @@ def _capacity_payload(tokens: int, measurement_id: str) -> dict[str, object]:
 
 def test_capacity_catalog_selects_largest_passing_position() -> None:
     small = LocalMeasurementRecord.model_validate(_capacity_payload(2_048, "small"))
-    large = LocalMeasurementRecord.model_validate(_capacity_payload(126_000, "large"))
+    large_payload = _capacity_payload(126_000, "large-failed")
+    large_integrity = large_payload["integrity"]
+    assert isinstance(large_integrity, dict)
+    large_integrity["retrieval"] = {"passed": 0, "total": 3}
+    large = LocalMeasurementRecord.model_validate(large_payload)
 
     catalog = build_local_capacity_catalog(
         [small, large],
@@ -412,9 +420,82 @@ def test_capacity_catalog_selects_largest_passing_position() -> None:
         ),
     )
 
-    signals = catalog.offerings[0].signals
-    assert signals["local_validated_context_tokens"].value == Decimal("126000")
+    offering = catalog.offerings[0]
+    signals = offering.signals
+    assert signals["local_validated_context_tokens"].value == Decimal("2048")
     assert signals["local_peak_process_physical_footprint_bytes"].value == Decimal("20500000000")
+    assert offering.metadata["capacity_validation"] == {
+        "attempted_position_count": 2,
+        "configured_context_tokens": 262_144,
+        "fully_passing_position_count": 1,
+        "largest_attempted_context_tokens": 126_000,
+        "largest_validated_context_tokens": 2_048,
+    }
+    ladder = offering.metadata["capacity_ladder"]
+    assert isinstance(ladder, list)
+    assert [position["passed"] for position in ladder if isinstance(position, dict)] == [
+        True,
+        False,
+    ]
+    assert all(
+        "raw_artifact_path" in position and "raw_sha256" in position
+        for position in ladder
+        if isinstance(position, dict)
+    )
+
+
+def test_capacity_catalog_retains_failed_candidate_without_validated_signal() -> None:
+    payload = _capacity_payload(126_000, "failed")
+    payload["integrity"] = {"retrieval": {"passed": 0, "total": 3}}
+    payload["capabilities"] = ["text", "tools"]
+
+    catalog = build_local_capacity_catalog(
+        [LocalMeasurementRecord.model_validate(payload)],
+        workload=WorkloadReference(
+            id="validated-capacity-v1",
+            version="1",
+            unit="context_position",
+        ),
+    )
+
+    offering = catalog.offerings[0]
+    assert offering.signals == {}
+    assert offering.offering.capabilities == ("text", "tools")
+    assert offering.metadata["capacity_validation"] == {
+        "attempted_position_count": 1,
+        "configured_context_tokens": 262_144,
+        "fully_passing_position_count": 0,
+        "largest_attempted_context_tokens": 126_000,
+        "largest_validated_context_tokens": None,
+    }
+    snapshot = FrontierEngine().calculate(
+        load_config(ROOT / "examples" / "local-runtime-frontiers" / "frontiers.yaml"),
+        catalog,
+        "validated-capacity-memory",
+        generated_at=datetime(2026, 9, 14, tzinfo=UTC),
+    )
+    assert snapshot.members == ()
+    assert [rejected.offering_id for rejected in snapshot.rejected] == [
+        offering.offering.offering_id
+    ]
+
+
+def test_zero_pass_check_can_document_an_unclaimed_capability() -> None:
+    payload = local_measurement_payload()
+    payload["capabilities"] = ["text"]
+    payload["integrity"] = {"retrieval": {"passed": 0, "total": 3}}
+
+    record = LocalMeasurementRecord.model_validate(payload)
+
+    assert record.integrity is not None
+    assert record.integrity.retrieval is not None
+    assert record.integrity.retrieval.passed == 0
+
+    integrity = payload["integrity"]
+    assert isinstance(integrity, dict)
+    integrity["retrieval"] = {"passed": 1, "total": 3}
+    with pytest.raises(ValidationError, match="nonzero integrity evidence"):
+        LocalMeasurementRecord.model_validate(payload)
 
 
 @pytest.mark.parametrize(
