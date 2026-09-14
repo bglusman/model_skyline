@@ -25,9 +25,7 @@ _FINAL_ESTIMATE = re.compile(
 )
 _BUILD_PATTERNS = (
     re.compile(r"build\s*[:=]\s*(?P<number>[0-9]+)\s*\((?P<commit>[0-9a-f]+)\)"),
-    re.compile(
-        r"\(?build\s+(?P<number>[0-9]+),\s*commit\s+(?P<commit>[0-9a-f]+)\)?"
-    ),
+    re.compile(r"\(?build\s+(?P<number>[0-9]+),\s*commit\s+(?P<commit>[0-9a-f]+)\)?"),
 )
 _CHUNK_COUNT = re.compile(r"calculating perplexity over (?P<count>[0-9]+) chunks")
 _UNUSED_TENSOR = re.compile(
