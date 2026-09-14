@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -90,6 +91,16 @@ def test_rejects_task_peaks_that_do_not_replay(tmp_path: Path) -> None:
         SUMMARY.build_summary(capture)
 
 
+def test_rejects_boolean_task_peak_values(tmp_path: Path) -> None:
+    capture = _capture(tmp_path)
+    value = json.loads(capture.read_text(encoding="utf-8"))
+    value["task_peaks"]["terminal-bench/task"]["samples"] = True
+    capture.write_text(json.dumps(value), encoding="utf-8")
+
+    with pytest.raises(SUMMARY.MemorySummaryError, match="non-negative integer"):
+        SUMMARY.build_summary(capture)
+
+
 def test_canonicalizes_legacy_basename_task_samples(tmp_path: Path) -> None:
     capture = _capture(tmp_path)
     value = json.loads(capture.read_text(encoding="utf-8"))
@@ -114,3 +125,19 @@ def test_rejects_unmarked_or_empty_source_capture(tmp_path: Path) -> None:
 
     with pytest.raises(SUMMARY.MemorySummaryError, match="not marked prompt-free"):
         SUMMARY.build_summary(capture)
+
+
+def test_cli_does_not_overwrite_source_capture(tmp_path: Path) -> None:
+    capture = _capture(tmp_path)
+    before = capture.read_bytes()
+
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), "--capture", str(capture), "--output", str(capture)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 2
+    assert "must not overwrite" in result.stderr
+    assert capture.read_bytes() == before

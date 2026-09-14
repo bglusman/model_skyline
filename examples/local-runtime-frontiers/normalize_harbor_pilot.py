@@ -404,7 +404,12 @@ def _memory_signal(
         if source_capture.get("schema_version") != MEMORY_SCHEMA:
             raise PilotCatalogError("runner-memory summary has an unsupported source schema")
         _sha256_string(source_capture.get("raw_sha256"), field="memory.source_capture.raw_sha256")
-        _integer(source_capture.get("raw_bytes"), field="memory.source_capture.raw_bytes")
+        source_bytes = _integer(
+            source_capture.get("raw_bytes"), field="memory.source_capture.raw_bytes"
+        )
+        assert source_bytes is not None
+        if source_bytes <= 0:
+            raise PilotCatalogError("runner-memory summary source byte count must be positive")
         summary_sample_count = _integer(memory.get("sample_count"), field="memory.sample_count")
         assert summary_sample_count is not None
         if summary_sample_count <= 0:

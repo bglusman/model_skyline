@@ -166,12 +166,29 @@ def _validated_peaks(
                 )
 
     recorded_raw = _mapping(capture.get("task_peaks"), field="task_peaks")
-    recorded: dict[str, Any] = {}
-    for task, peak in recorded_raw.items():
+    recorded: dict[str, dict[str, int | None]] = {}
+    for task, peak_value in recorded_raw.items():
         canonical = canonical_task_name(task)
         if canonical in recorded:
             raise MemorySummaryError("task_peaks contain duplicate canonical tasks")
-        recorded[canonical] = peak
+        peak = _mapping(peak_value, field=f"task_peaks.{task}")
+        if set(peak) != {"rss_bytes", "physical_footprint_bytes", "samples"}:
+            raise MemorySummaryError("task peak fields do not match the capture schema")
+        rss = _integer(peak.get("rss_bytes"), field=f"task_peaks.{task}.rss_bytes")
+        physical = _integer(
+            peak.get("physical_footprint_bytes"),
+            field=f"task_peaks.{task}.physical_footprint_bytes",
+            allow_none=True,
+        )
+        sample_total = _integer(peak.get("samples"), field=f"task_peaks.{task}.samples")
+        assert rss is not None and sample_total is not None
+        if sample_total <= 0:
+            raise MemorySummaryError("task peak sample counts must be positive")
+        recorded[canonical] = {
+            "rss_bytes": rss,
+            "physical_footprint_bytes": physical,
+            "samples": sample_total,
+        }
     if dict(sorted(recorded.items())) != dict(sorted(peaks.items())):
         raise MemorySummaryError("task_peaks do not replay from the source samples")
     declared_name_form = capture.get("task_name_form")
@@ -243,6 +260,10 @@ def main() -> None:
     parser.add_argument("--capture", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    if args.capture.resolve() == args.output.resolve():
+        parser.error("--output must not overwrite --capture")
+    if args.output.is_symlink() or (args.output.exists() and not args.output.is_file()):
+        parser.error("--output must be a regular non-symlink file")
     try:
         summary = build_summary(args.capture)
     except (OSError, MemorySummaryError) as exc:
