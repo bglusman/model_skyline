@@ -17,7 +17,7 @@ retention, and any attestations named by an adapter.
 | --- | --- | --- | --- |
 | Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with `gpt-5.4`, the installed default route, and two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
 | Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | Contract and adversarial fixtures only. The installed Claude CLI was `2.1.220`, which is intentionally rejected rather than treated as `2.1.251`. |
-| OpenClaw | `2026.8.1` at [`2a6c333`](https://github.com/openclaw/openclaw/tree/2a6c333225e5c886bfd630e36037fb7b206408ef) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures only. The installed `2026.3.2` is intentionally unsupported. |
+| OpenClaw | `2026.8.1` at [`2a6c333`](https://github.com/openclaw/openclaw/tree/2a6c333225e5c886bfd630e36037fb7b206408ef) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection, or one ordered JSONL stream of those envelopes | Contract and adversarial fixtures only. The installed `2026.3.2` is intentionally unsupported. |
 | Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7), session schema `26` | A `hermes -z --usage-file` JSON report or read-only state SQLite database | Contract, synthetic report, and synthetic schema-v26 database tests only. Hermes was not installed locally. |
 
 The Codex `0.144.2` success run reported 11,250 inclusive input tokens,
@@ -192,9 +192,12 @@ call error remains unknown. OpenClaw's time-to-first-byte and full call duration
 are coherence-checked but are not mislabeled as TTFT or token throughput.
 
 ```python
+from pathlib import Path
+
 from model_skyline.adapters.openclaw import (
     adapt_openclaw_event,
     compute_openclaw_projection_signature,
+    import_openclaw_projection_jsonl,
 )
 from model_skyline.models import OfferingKey
 
@@ -229,19 +232,34 @@ projection["collector_signature"] = compute_openclaw_projection_signature(
     projection,
     collector_key=collector_key,
 )
+trace_offering = OfferingKey(
+    offering_id="synthetic-provider/synthetic-model@openclaw",
+    model_id="synthetic-model",
+    provider="synthetic-provider",
+    agent_harness="openclaw",
+)
 trace = adapt_openclaw_event(
     projection,
-    offering=OfferingKey(
-        offering_id="synthetic-provider/synthetic-model@openclaw",
-        model_id="synthetic-model",
-        provider="synthetic-provider",
-        agent_harness="openclaw",
-    ),
+    offering=trace_offering,
     collector_key=collector_key,
     expected_api="messages",
     expected_transport="https",
     route_details_attested=False,
 )
+
+# For durable collector output, write one signed envelope per line. Keep each
+# private file within one OpenClaw process epoch, workload definition, and exact
+# route, then replay the whole file atomically:
+replay = import_openclaw_projection_jsonl(
+    Path("private/openclaw-safe-projections.jsonl"),
+    offering=trace_offering,
+    collector_key=collector_key,
+    expected_api="messages",
+    expected_transport="https",
+    route_details_attested=False,
+)
+# `replay.raw_sha256`, `first_seq`, and `last_seq` form a private checkpoint;
+# only `replay.traces` should enter a canonical trace JSONL.
 ```
 
 Raw run and call ids are domain-separated and HMAC-pseudonymized with the
@@ -249,6 +267,25 @@ collector key before publication, preventing low-entropy ids from being
 recovered by an unkeyed dictionary. The safe envelope rejects unknown fields
 and credential-, URL-, and path-shaped metadata. The collector key and any
 pre-projection event remain private.
+
+The JSONL replay reader additionally rejects symlinks and special files, caps
+file, line, nesting, and event counts, rejects duplicate keys and nonstandard
+numbers, and validates every HMAC before returning anything. It requires the
+process-global OpenClaw diagnostic `seq` to increase strictly, rejects a second
+terminal event for the same `(runId, callId)`, and binds every call in a run to
+one reviewed work unit while requiring one judged outcome across every run for
+that work unit. This prevents an overlapping or reordered collector replay from
+silently double-counting usage. OpenClaw resets its sequence on process restart,
+so a collector must rotate to a new JSONL file at that boundary. A file may
+contain gaps because the trusted projector discards non-terminal and non-model
+events; gaps are not evidence of dropped model calls.
+The exact raw SHA-256 and sequence bounds are returned for a private checkpoint,
+but raw ids and rejected content never enter canonical trace rows or errors.
+
+ModelSkyline still does not ship or claim an installed OpenClaw in-process
+projector. The projector must use OpenClaw's trusted diagnostic listener and
+object-identity lifecycle provenance before it signs this restricted envelope;
+the Python signing helper alone cannot establish that origin.
 
 ## Hermes report and state database
 

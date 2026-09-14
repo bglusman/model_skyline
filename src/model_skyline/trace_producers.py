@@ -17,6 +17,7 @@ from model_skyline.models import SourceReference
 
 ProducerKey = tuple[str, str, str, str, str, str | None, str | None]
 _REVIEWED_AT: Final = datetime(2026, 8, 30, tzinfo=UTC)
+_CLAUDE_CODE_CLI_REVIEWED_AT: Final = datetime(2026, 9, 1, tzinfo=UTC)
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,6 +34,7 @@ def _source(
     terms_url: str,
     license_name: str,
     methodology: str,
+    retrieved_at: datetime = _REVIEWED_AT,
 ) -> SourceReference:
     return SourceReference(
         id=source_id,
@@ -41,7 +43,7 @@ def _source(
         terms_url=terms_url,
         license=license_name,
         methodology=methodology,
-        retrieved_at=_REVIEWED_AT,
+        retrieved_at=retrieved_at,
     )
 
 
@@ -51,6 +53,9 @@ _CODEX_LICENSE = (
 _CLAUDE_LICENSE = (
     "https://github.com/anthropics/claude-agent-sdk-python/blob/"
     "af5ff1b9f2f279575f89b78f17572c6e35fbc2b6/LICENSE"
+)
+_CLAUDE_CODE_LICENSE = (
+    "https://github.com/anthropics/claude-code/blob/v2.1.220/LICENSE.md"
 )
 _HERMES_LICENSE = (
     "https://github.com/NousResearch/hermes-agent/blob/"
@@ -126,6 +131,34 @@ _register(
                 "Exact reviewed Claude Agent SDK ResultMessage contract with the bundled "
                 "Claude Code CLI version pinned separately by the adapter."
             ),
+        ),
+    )
+)
+
+_register(
+    TrustedTraceProducer(
+        key=(
+            "model-skyline/claude-code-result-json",
+            "1",
+            "anthropics/claude-code",
+            "2.1.220",
+            "4073f59596e272f39393db4f96abc5f4b10eff21",
+            None,
+            None,
+        ),
+        source=_source(
+            source_id="producer:anthropic-claude-code:2.1.220",
+            version="4073f59596e272f39393db4f96abc5f4b10eff21",
+            url="https://github.com/anthropics/claude-code/releases/tag/v2.1.220",
+            terms_url=_CLAUDE_CODE_LICENSE,
+            license_name="LicenseRef-Anthropic-Commercial-Terms",
+            methodology=(
+                "Exact Claude Code 2.1.220 JSON terminal-result schema reviewed from the "
+                "installed native release identified by its embedded build SHA; the official "
+                "headless-mode documentation independently describes total and per-model cost "
+                "output. The adapter accepts only that version and build identity."
+            ),
+            retrieved_at=_CLAUDE_CODE_CLI_REVIEWED_AT,
         ),
     )
 )
