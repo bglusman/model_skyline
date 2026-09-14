@@ -1,0 +1,107 @@
+schema_version: model-skyline/local-frontier-candidate-population/v1
+population_id: m5max-64-local-agent-candidates-2026-09-14
+
+# This is an evaluation roster, not a list of recommended routes. A model family
+# remains unmeasured on a required frontier until an exact local offering is
+# either evaluated or explicitly rejected by that frontier's ordinary gates.
+scope:
+  hardware_profile: hardware/macbook-m5max-64.json
+  purpose: >-
+    Candidate families selected for interactive coding, terminal work, tool
+    use, long-context retrieval, and memory/runtime efficiency on 64 GB Apple
+    Silicon.
+  selection_cutoff: "2026-09-14"
+
+candidates:
+  - model_id: Qwen/Qwen3.8-27B
+    role: dense quality and configuration baseline
+    required_frontiers:
+      - short-throughput
+      - warm-agent-tools
+      - uncached-agent-tools
+      - long-context-126k
+      - validated-capacity
+      - quality-latency
+      - quality-cache-efficiency
+      - quality-process-footprint
+    sources:
+      - https://huggingface.co/Qwen/Qwen3.8-27B
+
+  - model_id: Qwen/Qwen3.8-Flash-Next
+    role: memory-efficient long-context and uncached-agent candidate
+    required_frontiers:
+      - uncached-agent-tools
+      - long-context-126k
+      - validated-capacity
+      - quality-latency
+      - quality-cache-efficiency
+      - quality-process-footprint
+    sources:
+      - https://huggingface.co/Qwen/Qwen3.8-Flash-Next
+      - https://github.com/antirez/ds4
+
+  - model_id: meta-models/Muse-Glimmer-30B
+    role: compact dense agent and cache-efficiency candidate
+    required_frontiers:
+      - short-throughput
+      - warm-agent-tools
+      - uncached-agent-tools
+      - long-context-126k
+      - validated-capacity
+      - quality-latency
+      - quality-cache-efficiency
+      - quality-process-footprint
+    sources:
+      - https://huggingface.co/meta-models/Muse-Glimmer-30B
+
+  - model_id: ornith-ai/Ornith-1.5-35B-A3B
+    role: sparse low-latency and throughput candidate
+    required_frontiers:
+      - short-throughput
+      - warm-agent-tools
+      - uncached-agent-tools
+      - long-context-126k
+      - validated-capacity
+      - quality-latency
+      - quality-cache-efficiency
+      - quality-process-footprint
+    sources:
+      - https://huggingface.co/ornith-ai/Ornith-1.5-35B-A3B
+
+  - model_id: Jab1718/qwen3.8-flash-coder-26gb-gguf
+    role: custom-quantized uncached coding screen
+    required_frontiers:
+      - warm-agent-tools
+      - uncached-agent-tools
+      - long-context-126k
+      - validated-capacity
+    sources:
+      - https://huggingface.co/Jab1718/qwen3.8-flash-coder-26gb-gguf/tree/4d62a522f3c70b6e9579015602129a15fe161804
+
+  - model_id: CohereLabs/North-Mini-Code-1.0
+    role: terminal and agentic-coding quality challenger
+    required_frontiers:
+      - short-throughput
+      - warm-agent-tools
+      - uncached-agent-tools
+      - long-context-126k
+      - validated-capacity
+      - quality-latency
+      - quality-cache-efficiency
+      - quality-process-footprint
+    sources:
+      - https://huggingface.co/CohereLabs/North-Mini-Code-1.0
+
+  - model_id: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16
+    role: sparse MTP and speculative-efficiency challenger
+    required_frontiers:
+      - short-throughput
+      - warm-agent-tools
+      - uncached-agent-tools
+      - long-context-126k
+      - validated-capacity
+      - quality-latency
+      - quality-cache-efficiency
+      - quality-process-footprint
+    sources:
+      - https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16

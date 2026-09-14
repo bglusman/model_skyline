@@ -20,6 +20,7 @@ from model_skyline.models import EvidenceTier, UncertaintyMode
 ROOT = Path(__file__).parents[1]
 EXAMPLE = ROOT / "examples" / "local-runtime-frontiers"
 RECIPES = EXAMPLE / "recommended-frontier-recipes.yaml"
+CANDIDATE_POPULATION = EXAMPLE / "candidate-population.yaml"
 PILOT = EXAMPLE / "harbor-quality-pilot.yaml"
 FLASH_CODER_SCREEN = EXAMPLE / "harbor-quality-screen-qwen38-flash-coder.yaml"
 FLASH_CODER_CAPACITY_RAW = (
@@ -141,14 +142,23 @@ def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) ->
     ]
     for label, filename in COVERAGE_FRONTIERS:
         command.extend(("--frontier", f"{label}={generated / filename}"))
-    command.extend(("--near-epsilon", "0.05", "--output", str(output)))
+    command.extend(
+        (
+            "--near-epsilon",
+            "0.05",
+            "--candidate-population",
+            str(CANDIDATE_POPULATION),
+            "--output",
+            str(output),
+        )
+    )
 
     result = subprocess.run(command, check=False, capture_output=True, text=True)
 
     assert result.returncode == 0, result.stderr
     assert output.read_bytes() == (generated / "cross-frontier-coverage.json").read_bytes()
     coverage = json.loads(output.read_text(encoding="utf-8"))
-    assert coverage["schema_version"] == "model-skyline/local-frontier-coverage/v2"
+    assert coverage["schema_version"] == "model-skyline/local-frontier-coverage/v3"
     assert coverage["near_epsilon"] == "0.05"
     assert not any(frontier["near_members"] for frontier in coverage["frontiers"])
     assert all(
@@ -156,6 +166,80 @@ def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) ->
         for frontier in coverage["frontiers"]
         for item in frontier["evaluated"]
     )
+    population = coverage["candidate_population"]
+    assert {
+        key: population[key]
+        for key in (
+            "candidate_count",
+            "required_cell_count",
+            "attempted_cell_count",
+            "eligible_cell_count",
+            "exact_member_cell_count",
+            "attempted_percent",
+        )
+    } == {
+        "candidate_count": 7,
+        "required_cell_count": 50,
+        "attempted_cell_count": 29,
+        "eligible_cell_count": 21,
+        "exact_member_cell_count": 10,
+        "attempted_percent": "58.00",
+    }
+    candidates = {candidate["model_id"]: candidate for candidate in population["candidates"]}
+    assert candidates["Qwen/Qwen3.8-27B"]["attempted_percent"] == "100.00"
+    assert candidates["Qwen/Qwen3.8-27B"]["unattempted_frontiers"] == []
+    assert candidates["meta-models/Muse-Glimmer-30B"]["unattempted_frontiers"] == [
+        "long-context-126k",
+        "uncached-agent-tools",
+        "validated-capacity",
+    ]
+    for model_id in (
+        "CohereLabs/North-Mini-Code-1.0",
+        "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
+    ):
+        assert candidates[model_id]["attempted_frontier_count"] == 0
+        assert candidates[model_id]["attempted_percent"] == "0.00"
+        assert len(candidates[model_id]["unattempted_frontiers"]) == 8
+    families = {family["model_id"]: family for family in coverage["model_families"]}
+    assert families["ornith-ai/Ornith-1.5-35B-A3B"]["rejected_only_frontiers"] == [
+        "long-context-126k",
+        "quality-cache-efficiency",
+        "quality-process-footprint",
+        "validated-capacity",
+    ]
+    assert "quality-latency" in families["Qwen/Qwen3.8-27B"]["frontiers_with_rejected_offerings"]
+    assert "quality-latency" not in families["Qwen/Qwen3.8-27B"]["rejected_only_frontiers"]
+
+
+def test_cross_frontier_candidate_population_rejects_unknown_cells(tmp_path: Path) -> None:
+    population = yaml.safe_load(CANDIDATE_POPULATION.read_text(encoding="utf-8"))
+    population["candidates"][0]["required_frontiers"].append("invented-frontier")
+    invalid = tmp_path / "invalid-population.yaml"
+    invalid.write_text(yaml.safe_dump(population), encoding="utf-8")
+    output = tmp_path / "coverage.json"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(EXAMPLE / "summarize_frontier_coverage.py"),
+            "--frontier",
+            (
+                "short-throughput="
+                f"{EXAMPLE / 'generated' / 'cross-model-short-throughput-frontier.json'}"
+            ),
+            "--candidate-population",
+            str(invalid),
+            "--output",
+            str(output),
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 2
+    assert "unknown frontiers" in result.stderr
+    assert not output.exists()
 
 
 def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
@@ -341,7 +425,7 @@ def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
     )
 
     coverage = json.loads((generated / "cross-frontier-coverage.json").read_text(encoding="utf-8"))
-    assert coverage["schema_version"] == "model-skyline/local-frontier-coverage/v2"
+    assert coverage["schema_version"] == "model-skyline/local-frontier-coverage/v3"
     assert coverage["near_epsilon"] == "0.05"
     assert not any(frontier["near_members"] for frontier in coverage["frontiers"])
     flash_coder_family = next(
