@@ -35,13 +35,17 @@ still running.
 - PR [#53](https://github.com/bglusman/model_skyline/pull/53) populated an
   observed input-reuse/latency frontier with correctness and swap gates, and
   fixed Decimal34 median handling exposed by the derived reuse percentages.
-- Main is clean and synchronized at `053da95`. The implementation progress is
+- PR [#54](https://github.com/bglusman/model_skyline/pull/54) added a robust
+  evidence-grounded research/search quality-versus-latency recipe and pinned
+  exact Agents-A1 and Laguna XS 2.1 MLX/GGUF/DFlash intake controls.
+- Main is clean and synchronized at `92e793e`. The implementation progress is
   also tracked on issue
   [#32](https://github.com/bglusman/model_skyline/issues/32#issuecomment-5662742682).
 
 Each merged PR passed two CI matrices on Python 3.11–3.14 plus both package
-jobs. Local validation after PR #53 passed the full suite with 6 skipped; its touched
-Python files also pass Ruff format and lint.
+jobs. Local validation after PR #54 passed the full suite with 6 skipped; its
+touched Python files also pass Ruff format and lint, and mypy passes all 38
+source files.
 
 ## Current broad local frontier residents
 
@@ -67,12 +71,12 @@ frontier. The closest other dominated candidates are Flash Coder on warm-cache
 reuse at 12.65%, DS4 on uncached tools at 14.09%, and Flash Coder on warm tools
 at 15.32%.
 
-Those residents cover 33 of the 56 model-family/frontier cells nominated for
-their intended roles (58.93%). Dense Qwen and DS4 have complete attempt coverage
+Those residents cover 33 of the 74 model-family/frontier cells nominated for
+their intended roles (44.59%). Dense Qwen and DS4 have complete attempt coverage
 for their declared positions; Muse is missing three, Ornith one, Flash Coder
-one, and the newly pinned North and Nemotron candidates remain 0/9. An explicit
-eligibility rejection counts as an attempted cell but never as exact or near
-membership.
+one, and the newly pinned North, Nemotron, Agents-A1, and Laguna candidates
+remain 0/9. An explicit eligibility rejection counts as an attempted cell but
+never as exact or near membership.
 
 The three one-run quality rows remain historical point evidence. They are not
 stable defaults, and the paired Qwen repeat experiment must not inflate the
@@ -155,11 +159,19 @@ The next controlled experiments after the Qwen queue have different purposes:
 2. **Architecture-efficiency challenger:** evaluate Nemotron 3.5 Lightning
    30B-A3B. Its selected oQ4e/MTP artifact is about 21.8 GB; test plain oMLX,
    verified embedded MTP, and external DSpark as separate profiles.
-3. **Hardware isolation:** copy the exact 19,653,960,832-byte Muse Glimmer
+3. **Long-horizon research challenger:** evaluate Agents-A1 35B-A3B using the
+   pinned 20.42 GB uniform MLX control and official 21.17 GB Q4_K_M. Its
+   search/science/tool claim belongs to the new frozen-source research recipe,
+   not the Terminal-Bench score alone.
+4. **Local-first coding challenger:** evaluate Laguna XS 2.1 33B-A3B using its
+   first-party 21.57 GB NVFP4 MLX and 20.27 GB Q4_K_M controls, then add DFlash
+   only after plain correctness. Preserve interleaved reasoning and explicitly
+   test the documented Metal empty-output risk.
+5. **Hardware isolation:** copy the exact 19,653,960,832-byte Muse Glimmer
    Dynamic Q4_K_XL artifact to the M1 Studio, verify SHA-256
    `ac7023d6a4c704eb9af54ab53e476a66b7f5b6c0ef2fc4a8dde5253c291a6c38`,
    and run the same llama.cpp pp2048/tg512 control on both Macs.
-4. Expand equal-repeat real-agent evidence to other model families before any
+6. Expand equal-repeat real-agent evidence to other model families before any
    robust Qwen profile result is promoted as a cross-model default.
 
 No additional model transfer or benchmark is running concurrently with the
