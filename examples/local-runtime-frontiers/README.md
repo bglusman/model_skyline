@@ -492,8 +492,13 @@ cache-free measurements set `QWEN38_OMLX_CACHE=0`. OpenCode and OMP both expose
 the non-speculative baseline/F16-KV and baseline/TQ4-KV controls, MTP/F16-KV,
 MTP/TQ4-KV, and DFlash/TQ4 aliases through the same router. The paired baseline
 profiles isolate KV compression from speculative decoding. OMP keeps the
-agreed 180,000-token global compaction trigger, while 262K-capable backends
-advertise a 262,144-token hard ceiling.
+configured `thresholdPercent: 75` with `thresholdTokens: -1`. In installed OMP
+14.6.6, a positive fixed threshold would take precedence and otherwise the
+percentage is evaluated against the selected model's context window. The
+effective trigger is therefore 196,608 tokens for a 262,144-token route and
+98,304 for a 131,072-token route. This per-route policy supersedes the earlier
+180,000-token plan: a fixed 180K threshold cannot be safe for both classes and
+would be clamped to one token below the smaller route's ceiling.
 
 The Ollama-backed `gpt-oss:20b` route is the one deliberate TTL exception:
 its per-model llama-swap TTL is 300 seconds, matching Ollama's documented
