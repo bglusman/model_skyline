@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.9.0 - 2026-08-31
+
+- Add request-trace `v1alpha4` with optional, provenance-bound task
+  classification. Namespaced classes carry an explicit operator, harness,
+  registered-classifier, or oracle source and canonical Decimal confidence;
+  executable sources require a digest. JSONL and Parquet enforce the same
+  contract, one work unit cannot mix classifications, and the released
+  `v1alpha1` through `v1alpha3` schemas remain byte-for-byte unchanged. The
+  contract deliberately stops before per-class catalog materialization.
+- Add a bounded Claude Code `2.1.220` terminal-JSON adapter distinct from the
+  Claude Agent SDK adapter. It binds the exact reviewed aggregate shape,
+  service tier/geography/speed, one model and route/pricing attestation,
+  reconciles cache/token/tool/cost totals, strips all result/session/tool
+  content, and preserves unknown accounting on observed failure shapes. A real
+  installed failure path was exercised; successful billable accounting remains
+  synthetic contract-tested and cost is explicitly an estimate.
+- Add atomic replay of signed OpenClaw projection JSONL. The importer verifies
+  bounded strict JSON, envelope HMACs, routes, process-global sequence,
+  parent/retry identities, terminal uniqueness, lifecycle completeness, and
+  raw byte identity before returning content-free canonical traces. It rejects
+  partial output, symlinks, special files, duplicate keys, nonstandard numbers,
+  excessive depth/cardinality, and unsupported local OpenClaw versions.
+- Add a machine-readable gateway-consumer compatibility manifest that indexes
+  every public `gateway-pointer/v1alpha1` schema and conformance input by exact
+  role, media type, length, and SHA-256. Package and end-to-end tests verify the
+  manifest, accepted route, rejected vectors, and a base install without the
+  crypto extra. It is release metadata rather than a trust root, and explicitly
+  reports that remote routing material and quality-gated selection are not yet
+  supported by the signed profile.
+- Clarify that the legacy MCPMark unknown-provider catalogs are research-only
+  and must not be price-joined by model alias. The planned production bridge
+  will retain the pinned parser while requiring route-free quality evidence and
+  reviewed complete-offering reconciliation.
+
 ## 0.8.0 - 2026-08-31
 
 - Add pinned, fail-closed collectors for the official SWE-bench bash-only

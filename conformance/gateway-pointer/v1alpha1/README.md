@@ -4,6 +4,15 @@ These deterministic files exercise ADR 0003 without requiring the Python
 package. They are intended for independent Go, Elixir, Rust, TypeScript, and
 other native gateway consumers.
 
+[`compatibility.json`](compatibility.json) is the machine-readable index for
+consumer implementations. It pins the protocol features and limits plus the
+exact length, SHA-256, media type, role, and stable ID of every required schema
+and public fixture. Validate it with
+[`gateway-consumer-compatibility.schema.json`](../../../schemas/gateway-consumer-compatibility.schema.json),
+then verify every indexed byte before running the vectors. Its
+`resource_set_sha256` is a compact fixture-set identifier, not authentication;
+the release itself must arrive through a trusted pinned channel.
+
 `valid/payload.json` has no trailing newline: its exact bytes are the DSSE
 payload. `artifacts/publication.json` and `artifacts/selection.json` likewise
 retain the exact published bytes whose raw SHA-256 and lengths appear in the
@@ -26,10 +35,13 @@ Normative structure is in the three gateway JSON Schemas:
 The verification and authorization rules that schemas cannot express are in
 [ADR 0003](../../../docs/adr/0003-signed-gateway-selection-protocol.md).
 
-The two `*.test-seed.hex` files are public, deterministic test inputs. They are
-not secrets and must never be used for a production signing key. Production
-private keys never belong in ModelSkyline configuration, publications, traces,
-fixtures, or source control.
+The two `*.test-seed.hex` files are public, non-confidential deterministic
+Ed25519 private-key test material. They remain package-shipped so independent
+producer implementations can reproduce the expected signatures, but they must
+never be used for a production signing key. Production private keys never
+belong in ModelSkyline configuration, publications, traces, fixtures, or source
+control. The compatibility index deliberately excludes the test seeds because
+a verifier needs only the public JWKs and signed bytes.
 
 Expected decisions at the time in `valid/expected.json`:
 

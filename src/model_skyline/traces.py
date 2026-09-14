@@ -11,8 +11,9 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal, InvalidOperation, localcontext
+from enum import StrEnum
 from pathlib import Path
-from typing import Any, Literal
+from typing import Annotated, Any, Literal, Self
 
 import duckdb
 from pydantic import Field, ValidationError, field_validator, model_validator
@@ -31,10 +32,13 @@ from model_skyline.models import (
 from model_skyline.trace_producers import ProducerKey, trusted_trace_producer
 
 TRACE_COHERENCE_DECIMAL_PRECISION = 50
-TRACE_SCHEMA_VERSION = "model-skyline/request-trace/v1alpha3"
-PREVIOUS_TRACE_SCHEMA_VERSION = "model-skyline/request-trace/v1alpha2"
+TRACE_SCHEMA_VERSION = "model-skyline/request-trace/v1alpha4"
+PREVIOUS_TRACE_SCHEMA_VERSION = "model-skyline/request-trace/v1alpha3"
+OLDER_TRACE_SCHEMA_VERSION = "model-skyline/request-trace/v1alpha2"
 LEGACY_TRACE_SCHEMA_VERSION = "model-skyline/request-trace/v1alpha1"
-SUPPORTED_TRACE_SCHEMA_VERSIONS = frozenset({PREVIOUS_TRACE_SCHEMA_VERSION, TRACE_SCHEMA_VERSION})
+SUPPORTED_TRACE_SCHEMA_VERSIONS = frozenset(
+    {OLDER_TRACE_SCHEMA_VERSION, PREVIOUS_TRACE_SCHEMA_VERSION, TRACE_SCHEMA_VERSION}
+)
 MAX_TRACE_JSONL_BYTES = 256 * 1024 * 1024
 MAX_TRACE_PARQUET_BYTES = 1024 * 1024 * 1024
 MAX_TRACE_JSONL_LINE_BYTES = 4 * 1024 * 1024
@@ -48,6 +52,8 @@ TRACE_DUCKDB_MAX_TEMP_DIRECTORY_SIZE = "512 MiB"
 TRACE_DUCKDB_THREADS = 2
 TRACE_RESULT_FETCH_BATCH_SIZE = 1_000
 TRACE_PROVENANCE_IDENTIFIER_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,255}$"
+TRACE_CLASS_ID_PATTERN = r"^[a-z0-9][a-z0-9_-]*(?:/[a-z0-9][a-z0-9_-]*){1,5}$"
+MAX_TRACE_CLASS_ID_LENGTH = 128
 TRACE_TIMESTAMP_PATTERN = re.compile(
     r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$"
 )
@@ -59,12 +65,72 @@ def _exact_decimal_sum(values: list[Decimal]) -> Decimal:
         return sum(values, Decimal(0))
 
 
+TraceClassId = Annotated[
+    str,
+    Field(
+        min_length=3,
+        max_length=MAX_TRACE_CLASS_ID_LENGTH,
+        pattern=TRACE_CLASS_ID_PATTERN,
+    ),
+]
+
+
+class TraceClassificationMethod(StrEnum):
+    """Reviewed mechanisms that may classify a typed trace row."""
+
+    HARNESS_TAG = "harness_tag"
+    OPERATOR = "operator"
+    REGISTERED_CLASSIFIER = "registered_classifier"
+    ORACLE = "oracle"
+
+
+class TraceClassificationSource(FrozenModel):
+    """Versioned, non-executable provenance for one classification decision."""
+
+    method: TraceClassificationMethod
+    id: str = Field(
+        min_length=1,
+        max_length=256,
+        pattern=TRACE_PROVENANCE_IDENTIFIER_PATTERN,
+    )
+    version: str = Field(
+        min_length=1,
+        max_length=256,
+        pattern=TRACE_PROVENANCE_IDENTIFIER_PATTERN,
+    )
+    sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def executable_methods_are_content_bound(self) -> Self:
+        if (
+            self.method
+            in {
+                TraceClassificationMethod.REGISTERED_CLASSIFIER,
+                TraceClassificationMethod.ORACLE,
+            }
+            and self.sha256 is None
+        ):
+            raise ValueError(
+                "registered_classifier and oracle classification sources require sha256"
+            )
+        return self
+
+
+class TraceClassification(FrozenModel):
+    """Optional, internally complete task classification carried only by raw traces."""
+
+    class_id: TraceClassId
+    source: TraceClassificationSource
+    confidence: CanonicalDecimal = Field(ge=0, le=1, max_digits=18, decimal_places=9)
+
+
 class RequestTrace(FrozenModel):
     """Canonical usage row consumed by the DuckDB work-unit aggregator."""
 
     schema_version: Literal[
         "model-skyline/request-trace/v1alpha2",
         "model-skyline/request-trace/v1alpha3",
+        "model-skyline/request-trace/v1alpha4",
     ]
     timestamp: datetime
     workload_id: str = Field(min_length=1)
@@ -250,6 +316,13 @@ class RequestTrace(FrozenModel):
     output_tokens_per_second: CanonicalDecimal | None = Field(
         default=None, ge=0, max_digits=38, decimal_places=9
     )
+    trace_classification: TraceClassification | None = Field(
+        default=None,
+        description=(
+            "Optional workload class with versioned provenance. It is trace input only; "
+            "derived catalogs bind one exact workload instead of copying this annotation."
+        ),
+    )
 
     @field_validator("timestamp", mode="before")
     @classmethod
@@ -270,10 +343,12 @@ class RequestTrace(FrozenModel):
     @model_validator(mode="after")
     def request_scope_is_coherent(self) -> RequestTrace:
         if (
-            self.schema_version == PREVIOUS_TRACE_SCHEMA_VERSION
+            self.schema_version == OLDER_TRACE_SCHEMA_VERSION
             and self.observation_unit == "model_call"
         ):
             raise ValueError("model_call observations require request-trace v1alpha3")
+        if self.schema_version != TRACE_SCHEMA_VERSION and self.trace_classification is not None:
+            raise ValueError("trace_classification requires request-trace v1alpha4")
         producer_fields = (
             self.adapter_id,
             self.adapter_version,
@@ -380,7 +455,16 @@ class RequestTrace(FrozenModel):
         return self
 
 
-TRACE_COLUMNS = {
+TRACE_CLASSIFICATION_STRUCT = (
+    'STRUCT(class_id VARCHAR, "source" STRUCT("method" VARCHAR, id VARCHAR, '
+    '"version" VARCHAR, sha256 VARCHAR), confidence DECIMAL(18,9))'
+)
+TRACE_CLASSIFICATION_STRUCT_RE = re.compile(
+    r'^STRUCT\(class_id VARCHAR, "source" STRUCT\("method" VARCHAR, id VARCHAR, '
+    r'"version" VARCHAR, sha256 VARCHAR\), confidence DECIMAL\((\d+),(\d+)\)\)$'
+)
+
+BASE_TRACE_COLUMNS = {
     "schema_version": "VARCHAR",
     "timestamp": "TIMESTAMPTZ",
     "workload_id": "VARCHAR",
@@ -420,6 +504,10 @@ TRACE_COLUMNS = {
     "provider_marginal_cost_usd": "DECIMAL(38,12)",
     "ttft_ms": "DECIMAL(38,9)",
     "output_tokens_per_second": "DECIMAL(38,9)",
+}
+TRACE_COLUMNS = {
+    **BASE_TRACE_COLUMNS,
+    "trace_classification": TRACE_CLASSIFICATION_STRUCT,
 }
 
 REQUIRED_TRACE_COLUMNS = frozenset(
@@ -746,7 +834,7 @@ def _validate_json_lines(path: Path) -> tuple[int, str]:
                         payload = {
                             **{name: Decimal(0) for name in LEGACY_DEFAULT_ZERO_COLUMNS},
                             **payload,
-                            "schema_version": PREVIOUS_TRACE_SCHEMA_VERSION,
+                            "schema_version": OLDER_TRACE_SCHEMA_VERSION,
                         }
                     elif row_schema not in SUPPORTED_TRACE_SCHEMA_VERSIONS:
                         raise _InvalidTraceJson
@@ -817,11 +905,12 @@ def _canonical_parquet_relation(
                 "trace Parquet has a mixed, null, or unsupported schema version"
             )
         detected_schema = str(schema_rows[0][0])
-    allowed_columns = (
-        set(LEGACY_TRACE_COLUMNS)
-        if detected_schema == LEGACY_TRACE_SCHEMA_VERSION
-        else set(TRACE_COLUMNS)
-    )
+    if detected_schema == LEGACY_TRACE_SCHEMA_VERSION:
+        allowed_columns = set(LEGACY_TRACE_COLUMNS)
+    elif detected_schema == TRACE_SCHEMA_VERSION:
+        allowed_columns = set(TRACE_COLUMNS)
+    else:
+        allowed_columns = set(BASE_TRACE_COLUMNS)
     missing = sorted(REQUIRED_TRACE_COLUMNS - set(columns))
     extras = sorted(set(columns) - allowed_columns)
     if missing:
@@ -847,9 +936,7 @@ def _canonical_parquet_relation(
         source_type = column_types.get(name)
         if source_type is None:
             if name == "schema_version":
-                projections.append(
-                    f"'{PREVIOUS_TRACE_SCHEMA_VERSION}'::{target_type} AS \"{name}\""
-                )
+                projections.append(f"'{OLDER_TRACE_SCHEMA_VERSION}'::{target_type} AS \"{name}\"")
             elif name == "observation_unit":
                 projections.append(f"'request'::{target_type} AS \"{name}\"")
             elif (
@@ -874,6 +961,18 @@ def _canonical_parquet_relation(
             if source_type not in INTEGER_TYPES:
                 raise TraceAggregationError(
                     f"trace column {name} must use an exact integer type, got {source_type}"
+                )
+        elif name == "trace_classification":
+            struct_match = TRACE_CLASSIFICATION_STRUCT_RE.fullmatch(source_type)
+            if struct_match is None:
+                raise TraceAggregationError(
+                    "trace column trace_classification must use the canonical classification STRUCT"
+                )
+            precision = int(struct_match.group(1))
+            scale = int(struct_match.group(2))
+            if precision > 18 or scale > 9:
+                raise TraceAggregationError(
+                    "trace column trace_classification confidence exceeds DECIMAL(18,9)"
                 )
         else:
             decimal_match = DECIMAL_TYPE_RE.fullmatch(source_type)
@@ -902,7 +1001,7 @@ def _legacy_json_projection(relation: Any) -> Any:
     projections: list[str] = []
     for name, target_type in TRACE_COLUMNS.items():
         if name == "schema_version":
-            projections.append(f"'{PREVIOUS_TRACE_SCHEMA_VERSION}'::{target_type} AS \"{name}\"")
+            projections.append(f"'{OLDER_TRACE_SCHEMA_VERSION}'::{target_type} AS \"{name}\"")
         elif name in LEGACY_DEFAULT_ZERO_COLUMNS:
             projections.append(f'coalesce("{name}", 0::{target_type}) AS "{name}"')
         else:
@@ -1094,10 +1193,13 @@ WHERE timestamp IS NULL
    OR schema_version IS NULL
    OR schema_version NOT IN (
        'model-skyline/request-trace/v1alpha2',
-       'model-skyline/request-trace/v1alpha3'
+       'model-skyline/request-trace/v1alpha3',
+       'model-skyline/request-trace/v1alpha4'
    )
    OR (schema_version = 'model-skyline/request-trace/v1alpha2'
        AND observation_unit = 'model_call')
+   OR (schema_version != 'model-skyline/request-trace/v1alpha4'
+       AND trace_classification IS NOT NULL)
    OR workload_id IS NULL OR workload_id = ''
    OR workload_version IS NULL OR workload_version = ''
    OR work_unit_id IS NULL OR work_unit_id = ''
@@ -1160,6 +1262,43 @@ WHERE timestamp IS NULL
         OR coalesce(output_total_tokens, 0) > 0
        ))
    OR work_unit_success IS NULL OR work_unit_success < 0 OR work_unit_success > 1
+   OR (trace_classification IS NOT NULL
+       AND (
+           trace_classification.class_id IS NULL
+        OR length(trace_classification.class_id) > 128
+        OR NOT regexp_full_match(
+               trace_classification.class_id,
+               '[a-z0-9][a-z0-9_-]*(/[a-z0-9][a-z0-9_-]*){1,5}'
+           )
+        OR trace_classification."source" IS NULL
+        OR trace_classification."source"."method" IS NULL
+        OR trace_classification."source"."method" NOT IN (
+               'harness_tag', 'operator', 'registered_classifier', 'oracle'
+           )
+        OR trace_classification."source".id IS NULL
+        OR length(trace_classification."source".id) > 256
+        OR NOT regexp_full_match(
+               trace_classification."source".id,
+               '[A-Za-z0-9][A-Za-z0-9._:/@+\\-]{0,255}'
+           )
+        OR trace_classification."source"."version" IS NULL
+        OR length(trace_classification."source"."version") > 256
+        OR NOT regexp_full_match(
+               trace_classification."source"."version",
+               '[A-Za-z0-9][A-Za-z0-9._:/@+\\-]{0,255}'
+           )
+        OR (trace_classification."source".sha256 IS NOT NULL
+            AND NOT regexp_full_match(
+                trace_classification."source".sha256, '[0-9a-f]{64}'
+            ))
+        OR (trace_classification."source"."method" IN (
+                'registered_classifier', 'oracle'
+            )
+            AND trace_classification."source".sha256 IS NULL)
+        OR trace_classification.confidence IS NULL
+        OR trace_classification.confidence < 0
+        OR trace_classification.confidence > 1
+       ))
    OR coalesce(input_uncached_tokens, 0) < 0
    OR coalesce(input_cache_read_tokens, 0) < 0
    OR coalesce(input_cache_write_tokens, 0) < 0
@@ -1253,6 +1392,23 @@ FROM (
     FROM request_traces
     GROUP BY workload_id, workload_version, work_unit_id
     HAVING min(work_unit_success) != max(work_unit_success)
+)
+"""
+
+
+INCONSISTENT_CLASSIFICATIONS_SQL = """
+SELECT count(*)
+FROM (
+    SELECT workload_id, workload_version, work_unit_id
+    FROM request_traces
+    GROUP BY workload_id, workload_version, work_unit_id
+    HAVING count(trace_classification) NOT IN (0, count(*))
+       OR count(DISTINCT trace_classification.class_id) > 1
+       OR count(DISTINCT trace_classification."source"."method") > 1
+       OR count(DISTINCT trace_classification."source".id) > 1
+       OR count(DISTINCT trace_classification."source"."version") > 1
+       OR count(DISTINCT coalesce(trace_classification."source".sha256, '')) > 1
+       OR count(DISTINCT trace_classification.confidence) > 1
 )
 """
 
@@ -1462,6 +1618,15 @@ def _query_trace_snapshot(
             if inconsistent:
                 raise TraceAggregationError(
                     f"trace input contains {inconsistent} work units with inconsistent outcomes"
+                )
+            classification_result = connection.sql(INCONSISTENT_CLASSIFICATIONS_SQL).fetchone()
+            if classification_result is None:
+                raise TraceAggregationError("trace classification validation returned no result")
+            inconsistent_classifications = int(classification_result[0])
+            if inconsistent_classifications:
+                raise TraceAggregationError(
+                    "trace input contains "
+                    f"{inconsistent_classifications} work units with inconsistent classifications"
                 )
             duplicate_result = connection.sql(DUPLICATE_REQUESTS_SQL).fetchone()
             if duplicate_result is None:

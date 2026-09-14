@@ -1,0 +1,375 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:gateway-consumer-compatibility:v1alpha1",
+  "$defs": {
+    "GatewayCompatibilityCryptography": {
+      "additionalProperties": false,
+      "properties": {
+        "dsse_version": {
+          "const": "1.0.2",
+          "title": "Dsse Version",
+          "type": "string"
+        },
+        "signature_algorithm": {
+          "const": "Ed25519",
+          "title": "Signature Algorithm",
+          "type": "string"
+        },
+        "canonical_json": {
+          "const": "RFC8785",
+          "title": "Canonical Json",
+          "type": "string"
+        },
+        "base64": {
+          "const": "RFC4648-standard-padded",
+          "title": "Base64",
+          "type": "string"
+        },
+        "content_digest": {
+          "const": "sha256",
+          "title": "Content Digest",
+          "type": "string"
+        },
+        "key_id": {
+          "const": "RFC7638-sha256-jwk-thumbprint-rfc9278-uri",
+          "title": "Key Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dsse_version",
+        "signature_algorithm",
+        "canonical_json",
+        "base64",
+        "content_digest",
+        "key_id"
+      ],
+      "title": "GatewayCompatibilityCryptography",
+      "type": "object"
+    },
+    "GatewayCompatibilityFeatures": {
+      "additionalProperties": false,
+      "properties": {
+        "supported_selection_kinds": {
+          "items": {
+            "const": "selection",
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "title": "Supported Selection Kinds",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "durable_sequence_checkpoint": {
+          "const": true,
+          "title": "Durable Sequence Checkpoint",
+          "type": "boolean"
+        },
+        "same_sequence_equivocation_rejection": {
+          "const": true,
+          "title": "Same Sequence Equivocation Rejection",
+          "type": "boolean"
+        },
+        "semantic_artifact_hash_verification": {
+          "const": true,
+          "title": "Semantic Artifact Hash Verification",
+          "type": "boolean"
+        },
+        "exact_complete_offering_binding": {
+          "const": true,
+          "title": "Exact Complete Offering Binding",
+          "type": "boolean"
+        },
+        "immutable_target_revision_binding": {
+          "const": true,
+          "title": "Immutable Target Revision Binding",
+          "type": "boolean"
+        },
+        "work_unit_route_pinning": {
+          "const": true,
+          "title": "Work Unit Route Pinning",
+          "type": "boolean"
+        },
+        "supports_quality_gated_selection": {
+          "const": false,
+          "title": "Supports Quality Gated Selection",
+          "type": "boolean"
+        },
+        "permits_remote_routing_material": {
+          "const": false,
+          "title": "Permits Remote Routing Material",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "supported_selection_kinds",
+        "durable_sequence_checkpoint",
+        "same_sequence_equivocation_rejection",
+        "semantic_artifact_hash_verification",
+        "exact_complete_offering_binding",
+        "immutable_target_revision_binding",
+        "work_unit_route_pinning",
+        "supports_quality_gated_selection",
+        "permits_remote_routing_material"
+      ],
+      "title": "GatewayCompatibilityFeatures",
+      "type": "object"
+    },
+    "GatewayCompatibilityLimits": {
+      "additionalProperties": false,
+      "properties": {
+        "envelope_bytes": {
+          "const": 65536,
+          "title": "Envelope Bytes",
+          "type": "integer"
+        },
+        "pointer_bytes": {
+          "const": 32768,
+          "title": "Pointer Bytes",
+          "type": "integer"
+        },
+        "default_artifact_bytes": {
+          "const": 2097152,
+          "title": "Default Artifact Bytes",
+          "type": "integer"
+        },
+        "maximum_artifact_bytes": {
+          "const": 10485760,
+          "title": "Maximum Artifact Bytes",
+          "type": "integer"
+        },
+        "signatures": {
+          "const": 16,
+          "title": "Signatures",
+          "type": "integer"
+        },
+        "trusted_keys": {
+          "const": 32,
+          "title": "Trusted Keys",
+          "type": "integer"
+        },
+        "audiences": {
+          "const": 16,
+          "title": "Audiences",
+          "type": "integer"
+        },
+        "pointer_lifetime_seconds": {
+          "const": 2678400,
+          "title": "Pointer Lifetime Seconds",
+          "type": "integer"
+        },
+        "not_before_lead_seconds": {
+          "const": 86400,
+          "title": "Not Before Lead Seconds",
+          "type": "integer"
+        },
+        "json_depth": {
+          "const": 32,
+          "title": "Json Depth",
+          "type": "integer"
+        },
+        "json_values": {
+          "const": 100000,
+          "title": "Json Values",
+          "type": "integer"
+        },
+        "runtime_candidates": {
+          "const": 1024,
+          "title": "Runtime Candidates",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "envelope_bytes",
+        "pointer_bytes",
+        "default_artifact_bytes",
+        "maximum_artifact_bytes",
+        "signatures",
+        "trusted_keys",
+        "audiences",
+        "pointer_lifetime_seconds",
+        "not_before_lead_seconds",
+        "json_depth",
+        "json_values",
+        "runtime_candidates"
+      ],
+      "title": "GatewayCompatibilityLimits",
+      "type": "object"
+    },
+    "GatewayCompatibilityMediaTypes": {
+      "additionalProperties": false,
+      "properties": {
+        "compatibility_manifest": {
+          "const": "application/vnd.model-skyline.gateway-consumer-compatibility.v1alpha1+json",
+          "title": "Compatibility Manifest",
+          "type": "string"
+        },
+        "pointer_payload": {
+          "const": "application/vnd.model-skyline.gateway-selection-pointer.v1alpha1+json",
+          "title": "Pointer Payload",
+          "type": "string"
+        },
+        "envelope": {
+          "const": "application/vnd.model-skyline.gateway-selection-pointer.v1alpha1+dsse",
+          "title": "Envelope",
+          "type": "string"
+        },
+        "publication": {
+          "const": "application/json",
+          "title": "Publication",
+          "type": "string"
+        },
+        "selection": {
+          "const": "application/json",
+          "title": "Selection",
+          "type": "string"
+        }
+      },
+      "required": [
+        "compatibility_manifest",
+        "pointer_payload",
+        "envelope",
+        "publication",
+        "selection"
+      ],
+      "title": "GatewayCompatibilityMediaTypes",
+      "type": "object"
+    },
+    "GatewayCompatibilityResource": {
+      "additionalProperties": false,
+      "properties": {
+        "resource_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9.-]*$",
+          "title": "Resource Id",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "accepted-vector",
+            "bound-artifact",
+            "fixture-expectation",
+            "fixture-policy",
+            "intermediate",
+            "protocol-schema",
+            "public-test-key",
+            "rejected-vector"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "path": {
+          "maxLength": 512,
+          "minLength": 1,
+          "pattern": "^(?:schemas/[a-z0-9][a-z0-9._-]{0,254}\\.schema\\.json|conformance/gateway-pointer/v1alpha1/(?:artifacts|intermediate|invalid|keys|valid)/[a-z0-9][a-z0-9._-]{0,254}\\.(?:bin|json))$",
+          "title": "Path",
+          "type": "string"
+        },
+        "media_type": {
+          "enum": [
+            "application/json",
+            "application/octet-stream",
+            "application/schema+json",
+            "application/vnd.model-skyline.gateway-selection-pointer.v1alpha1+json",
+            "application/vnd.model-skyline.gateway-selection-pointer.v1alpha1+dsse"
+          ],
+          "title": "Media Type",
+          "type": "string"
+        },
+        "length": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Length",
+          "type": "integer"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource_id",
+        "role",
+        "path",
+        "media_type",
+        "length",
+        "sha256"
+      ],
+      "title": "GatewayCompatibilityResource",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/gateway-consumer-compatibility/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "gateway-consumer-compatibility",
+      "title": "Kind",
+      "type": "string"
+    },
+    "profile": {
+      "const": "gateway-pointer/v1alpha1",
+      "title": "Profile",
+      "type": "string"
+    },
+    "status": {
+      "const": "alpha",
+      "title": "Status",
+      "type": "string"
+    },
+    "offering_identity_profile": {
+      "const": "model-skyline/offering-key/v1alpha1",
+      "title": "Offering Identity Profile",
+      "type": "string"
+    },
+    "media_types": {
+      "$ref": "#/$defs/GatewayCompatibilityMediaTypes"
+    },
+    "cryptography": {
+      "$ref": "#/$defs/GatewayCompatibilityCryptography"
+    },
+    "features": {
+      "$ref": "#/$defs/GatewayCompatibilityFeatures"
+    },
+    "limits": {
+      "$ref": "#/$defs/GatewayCompatibilityLimits"
+    },
+    "resources": {
+      "items": {
+        "$ref": "#/$defs/GatewayCompatibilityResource"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "title": "Resources",
+      "type": "array"
+    },
+    "resource_set_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Resource Set Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "profile",
+    "status",
+    "offering_identity_profile",
+    "media_types",
+    "cryptography",
+    "features",
+    "limits",
+    "resources",
+    "resource_set_sha256"
+  ],
+  "title": "GatewayConsumerCompatibility",
+  "type": "object",
+  "$comment": "This manifest is release metadata, not authentication or routing authority. JSON Schema cannot enforce the exact v1alpha1 resource inventory, canonical resource order, resource_set_sha256, or indexed file bytes. Acquire the release through a trusted pinned channel, reject unsupported features, and verify every listed length and SHA-256 before running the native conformance vectors."
+}

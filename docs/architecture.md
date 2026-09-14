@@ -320,17 +320,24 @@ v1alpha1 format, including its legacy zero defaults. The retained
 `request-trace-v1alpha2.schema.json` and remains byte-for-byte unchanged.
 `model-skyline/request-trace/v1alpha3` validates against
 `request-trace-v1alpha3.schema.json` and adds only the `model_call` observation
-scope needed by logical-call telemetry such as OpenClaw's. Both Draft 2020-12
+scope needed by logical-call telemetry such as OpenClaw's. The additive
+`model-skyline/request-trace/v1alpha4` contract adds only an optional, complete
+task classification with a namespaced class, versioned source, canonical
+Decimal confidence, and a required digest for registered classifiers or
+oracles. The released v1alpha1-v1alpha3 schema bytes remain unchanged. These Draft 2020-12
 schemas enforce row-local scope/count rules, request-only timing, cache-write
 representation, and complete producer/collector provenance. A single input
 must use exactly one supported schema version. JSON Schema cannot compare
 arbitrary exact Decimal fields, so it is not the complete trust boundary:
 consumers MUST also run the `RequestTrace` semantic validator for input/output
 total arithmetic and the trace aggregator for cross-row identity, scope,
-outcome, offering, timestamp, and provenance coherence.
+outcome, offering, timestamp, provenance, and classification coherence. The
+current aggregator validates v1alpha4 but does not yet materialize per-class
+catalogs; see ADR 0005 for that explicit boundary.
 
 `RequestTrace` can declare `observation_unit` as `request`, `attempt`, or
-`work_unit` under v1alpha2, with v1alpha3 additionally allowing `model_call`. A
+`work_unit` under v1alpha2, with v1alpha3 and v1alpha4 additionally allowing
+`model_call`. A
 request row contributes one actual provider request. A `model_call` row
 represents one logical model invocation, which may span an unknown number of
 provider requests because of retries or transport behavior. Aggregate rows contribute only an explicit

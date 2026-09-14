@@ -39,6 +39,42 @@ preserving the published order. If none remain, it fails closed. It cannot
 fall through to the gateway's catch-all model, route-DAG descendants, or a
 target that merely shares provider/model text.
 
+## Machine-readable consumer compatibility
+
+[`compatibility.json`](../conformance/gateway-pointer/v1alpha1/compatibility.json)
+is the secret-free bootstrap boundary for native gateway implementations. Its
+language-neutral
+[`gateway-consumer-compatibility.schema.json`](../schemas/gateway-consumer-compatibility.schema.json)
+contract declares the exact pointer profile, media types, cryptographic
+algorithms, resource limits, supported selection kinds, and required
+fail-closed runtime behaviors. It indexes every consumer-facing schema and
+public conformance input by stable ID, byte length, media type, and SHA-256; a
+canonical hash of that resource index gives integrations one compact fixture
+set identifier.
+
+The manifest is release metadata, not a signature, trust root, discovery
+document, or live selection endpoint. Acquire the repository/package through a
+trusted pinned commit, tag, or distribution digest before relying on it. Then a
+consumer should:
+
+1. validate the manifest structurally and reject an unknown profile, algorithm,
+   required feature, or resource role;
+2. load only the listed safe relative package paths and verify every exact
+   length and SHA-256 before parsing;
+3. run all accepted and rejected vectors in its native runtime, without calling
+   ModelSkyline Python as an oracle; and
+4. keep production signing keys, endpoints, credentials, and local target
+   mappings outside the manifest and every public fixture.
+
+The deterministic Ed25519 private-key test seeds retained beside the vectors
+are intentionally public, non-confidential fixture-generation material. They
+remain package-shipped so producer implementations can reproduce the expected
+signatures, but the consumer index excludes them because a verifier needs only
+the public JWKs and signed bytes. They must never become production keys. The
+compatibility feature flags also make the current limitation explicit:
+gateway-pointer `v1alpha1` accepts ordinary `selection` artifacts and does not
+yet authenticate `quality-gated-selection`.
+
 ## Integration priorities
 
 | System | Best integration point | Value | Constraint before production |
@@ -82,8 +118,10 @@ Keep the projects separate. A Wardwright native consumer should add:
    separate identities. Map ModelSkyline offerings only to concrete direct
    provider targets in the first version.
 2. A supervised resolver per logical model/source. It consumes schemas and
-   fixtures with OTP Ed25519 and a real RFC 8785 implementation—never a Python
-   subprocess or the existing adapter HMAC helper.
+   fixtures pinned by the compatibility manifest, with OTP Ed25519 and a real
+   RFC 8785 implementation—never a Python subprocess or the existing adapter
+   HMAC helper. Its CI first verifies every indexed byte and refuses unsupported
+   compatibility features before exercising the vectors.
 3. SQLite tables for checkpoints, exact installed generations, selection
    sources, immutable model revisions, and HMAC-pseudonymized work-unit pins.
    Use one `BEGIN IMMEDIATE` transaction and commit before swapping GenServer

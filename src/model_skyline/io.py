@@ -394,6 +394,7 @@ SCHEMA_IDS = {
     "request-trace.schema.json": "urn:model-skyline:schema:v1alpha1:request-trace",
     "request-trace-v1alpha2.schema.json": "urn:model-skyline:schema:v1alpha2:request-trace",
     "request-trace-v1alpha3.schema.json": "urn:model-skyline:schema:v1alpha3:request-trace",
+    "request-trace-v1alpha4.schema.json": "urn:model-skyline:schema:v1alpha4:request-trace",
     "gateway-selection-pointer.schema.json": (
         "urn:model-skyline:schema:gateway-selection-pointer:v1alpha1"
     ),
@@ -401,6 +402,9 @@ SCHEMA_IDS = {
         "urn:model-skyline:schema:gateway-selection-envelope:v1alpha1"
     ),
     "gateway-trust-policy.schema.json": ("urn:model-skyline:schema:gateway-trust-policy:v1alpha1"),
+    "gateway-consumer-compatibility.schema.json": (
+        "urn:model-skyline:schema:gateway-consumer-compatibility:v1alpha1"
+    ),
     "harbor-terminal-bench-import-config.schema.json": (
         "urn:model-skyline:schema:v1alpha1:harbor-terminal-bench-import-config"
     ),
@@ -636,10 +640,37 @@ def _request_trace_conditionals(
     ]
 
 
+def _request_trace_classification_conditionals(schema: dict[str, Any]) -> None:
+    """Require a content digest for executable classifier/oracle identities."""
+
+    definitions = schema.get("$defs")
+    if not isinstance(definitions, dict):
+        return
+    source = definitions.get("TraceClassificationSource")
+    if not isinstance(source, dict):
+        return
+    source["allOf"] = [
+        {
+            "if": {
+                "properties": {
+                    "method": {
+                        "enum": ["registered_classifier", "oracle"],
+                    }
+                },
+                "required": ["method"],
+            },
+            "then": {
+                "properties": {"sha256": {"not": {"type": "null"}}},
+                "required": ["sha256"],
+            },
+        }
+    ]
+
+
 def _configure_request_trace_schema(
     schema: dict[str, Any],
     *,
-    version: Literal["v1alpha2", "v1alpha3"],
+    version: Literal["v1alpha2", "v1alpha3", "v1alpha4"],
 ) -> None:
     properties = schema["properties"]
     schema_version = properties["schema_version"]
@@ -651,7 +682,7 @@ def _configure_request_trace_schema(
             "type": "string",
         }
     )
-    allow_model_call = version == "v1alpha3"
+    allow_model_call = version in {"v1alpha3", "v1alpha4"}
     if not allow_model_call:
         properties["observation_unit"]["description"] = "Granularity represented by this row."
         properties["observation_unit"]["enum"] = ["request", "attempt", "work_unit"]
@@ -664,6 +695,12 @@ def _configure_request_trace_schema(
             "Request and attempt rows derive attempts from attempt_id."
         )
     _request_trace_conditionals(schema, allow_model_call=allow_model_call)
+    if version == "v1alpha4":
+        _request_trace_classification_conditionals(schema)
+        schema["$comment"] = schema["$comment"].replace(
+            "timestamp, and provenance checks.",
+            "timestamp, provenance, and classification-coherence checks.",
+        )
 
 
 def _project_config_conditionals(schema: dict[str, Any]) -> None:
@@ -859,6 +896,28 @@ def _quality_bundle_policy_conditionals(schema: dict[str, Any]) -> None:
             value["uniqueItems"] = True
 
 
+def _request_trace_schema_without_classification(
+    schema: dict[str, Any],
+) -> dict[str, Any]:
+    """Project the current model back to the byte-stable v1alpha2/v1alpha3 shape."""
+
+    projected = deepcopy(schema)
+    properties = projected.get("properties")
+    if isinstance(properties, dict):
+        properties.pop("trace_classification", None)
+    definitions = projected.get("$defs")
+    if isinstance(definitions, dict):
+        for name in (
+            "TraceClassification",
+            "TraceClassificationMethod",
+            "TraceClassificationSource",
+        ):
+            definitions.pop(name, None)
+        if not definitions:
+            projected.pop("$defs", None)
+    return projected
+
+
 def generated_schemas() -> dict[str, dict[str, Any]]:
     """Generate candidate schemas from models for maintainer review."""
 
@@ -868,6 +927,7 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         GatewaySelectionPointer,
         GatewayTrustPolicy,
     )
+    from model_skyline.gateway_compatibility import GatewayConsumerCompatibility
     from model_skyline.selection_overlap import generated_overlap_schemas
     from model_skyline.traces import RequestTrace
 
@@ -881,8 +941,13 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
             mode="serialization"
         ),
         "frontier-history.schema.json": FrontierHistory.model_json_schema(mode="serialization"),
-        "request-trace-v1alpha2.schema.json": deepcopy(request_trace_schema),
-        "request-trace-v1alpha3.schema.json": deepcopy(request_trace_schema),
+        "request-trace-v1alpha2.schema.json": _request_trace_schema_without_classification(
+            request_trace_schema
+        ),
+        "request-trace-v1alpha3.schema.json": _request_trace_schema_without_classification(
+            request_trace_schema
+        ),
+        "request-trace-v1alpha4.schema.json": deepcopy(request_trace_schema),
         "gateway-selection-pointer.schema.json": GatewaySelectionPointer.model_json_schema(
             mode="serialization"
         ),
@@ -891,6 +956,9 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
             mode="serialization",
         ),
         "gateway-trust-policy.schema.json": GatewayTrustPolicy.model_json_schema(mode="validation"),
+        "gateway-consumer-compatibility.schema.json": (
+            GatewayConsumerCompatibility.model_json_schema(mode="serialization")
+        ),
         "harbor-terminal-bench-import-config.schema.json": (
             HarborTerminalBenchImportConfig.model_json_schema(mode="validation")
         ),
@@ -938,12 +1006,22 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
             _configure_request_trace_schema(schema, version="v1alpha2")
         if name == "request-trace-v1alpha3.schema.json":
             _configure_request_trace_schema(schema, version="v1alpha3")
+        if name == "request-trace-v1alpha4.schema.json":
+            _configure_request_trace_schema(schema, version="v1alpha4")
         generated_schema = {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "$id": SCHEMA_IDS[name],
             **schema,
         }
-        if name.startswith("gateway-"):
+        if name == "gateway-consumer-compatibility.schema.json":
+            generated_schema["$comment"] = (
+                "This manifest is release metadata, not authentication or routing authority. "
+                "JSON Schema cannot enforce the exact v1alpha1 resource inventory, canonical "
+                "resource order, resource_set_sha256, or indexed file bytes. Acquire the release "
+                "through a trusted pinned channel, reject unsupported features, and verify every "
+                "listed length and SHA-256 before running the native conformance vectors."
+            )
+        elif name.startswith("gateway-"):
             generated_schema["$comment"] = (
                 "Structural validation is not routing authorization. Consumers MUST also "
                 "perform the signature, canonical-byte, time, sequence, semantic-artifact, "

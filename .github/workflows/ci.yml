@@ -58,9 +58,12 @@ jobs:
       - name: Verify base-wheel gateway resources import without crypto
         run: >-
           /tmp/modelskyline-wheel/bin/python -c
-          'from importlib.resources import files; import model_skyline.gateway;
-          assert files("model_skyline").joinpath("conformance", "gateway-pointer",
-          "v1alpha1", "valid", "payload.json").read_bytes().startswith(b"{")'
+          'import json; from importlib.resources import files; import model_skyline.gateway;
+          root=files("model_skyline"); kit=root.joinpath("conformance", "gateway-pointer",
+          "v1alpha1"); manifest=json.loads(kit.joinpath("compatibility.json").read_bytes());
+          assert kit.joinpath("valid", "payload.json").read_bytes().startswith(b"{");
+          assert root.joinpath("schemas", "gateway-consumer-compatibility.schema.json").is_file();
+          assert manifest["features"]["permits_remote_routing_material"] is False'
       - run: >-
           /tmp/modelskyline-wheel/bin/modelskyline evaluate
           examples/coding-session/frontier.yaml

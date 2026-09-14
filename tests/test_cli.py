@@ -111,9 +111,11 @@ def test_cli_exports_contract_schemas(tmp_path) -> None:
     assert (output / "request-trace.schema.json").is_file()
     assert (output / "request-trace-v1alpha2.schema.json").is_file()
     assert (output / "request-trace-v1alpha3.schema.json").is_file()
+    assert (output / "request-trace-v1alpha4.schema.json").is_file()
     assert (output / "gateway-selection-pointer.schema.json").is_file()
     assert (output / "gateway-selection-envelope.schema.json").is_file()
     assert (output / "gateway-trust-policy.schema.json").is_file()
+    assert (output / "gateway-consumer-compatibility.schema.json").is_file()
     assert (output / "cross-frontier-selection-policy.schema.json").is_file()
     assert (output / "frontier-proximity.schema.json").is_file()
     assert (output / "quality-gated-selection-snapshot.schema.json").is_file()
@@ -128,7 +130,7 @@ def test_cli_reports_package_version() -> None:
     result = runner.invoke(app, ["--version"])
 
     assert result.exit_code == 0
-    assert result.output.strip() == "0.8.0"
+    assert result.output.strip() == "0.9.0"
 
 
 def test_cli_arc_feed_monitor_fails_after_rendering_changed_head(

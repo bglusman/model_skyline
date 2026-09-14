@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 from copy import deepcopy
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -9,6 +11,7 @@ from typing import Any
 
 import pytest
 
+import model_skyline.adapters.openclaw as openclaw_module
 from model_skyline.adapters.openclaw import (
     OPENCLAW_ADAPTER_VERSION,
     OPENCLAW_ATTEMPT_SETUP_URL,
@@ -22,9 +25,11 @@ from model_skyline.adapters.openclaw import (
     OPENCLAW_REVIEWED_VERSION,
     OPENCLAW_TRACE_SCHEMA_VERSION,
     OpenClawAdapterError,
+    OpenClawProjectionReplay,
     OpenClawTraceEnvelope,
     adapt_openclaw_event,
     compute_openclaw_projection_signature,
+    import_openclaw_projection_jsonl,
 )
 from model_skyline.models import OfferingKey, WorkloadReference
 from model_skyline.traces import TraceAggregationError, aggregate_traces
@@ -96,6 +101,15 @@ def _resign(payload: dict[str, Any]) -> None:
         payload,
         collector_key=COLLECTOR_KEY,
     )
+
+
+def _write_projection_jsonl(path: Path, payloads: list[dict[str, Any]]) -> bytes:
+    raw = b"".join(
+        json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8") + b"\n"
+        for payload in payloads
+    )
+    path.write_bytes(raw)
+    return raw
 
 
 def test_model_call_event_maps_attested_complete_usage_without_raw_ids() -> None:
@@ -291,6 +305,326 @@ def test_adapter_output_preserves_usage_without_inventing_provider_request_count
     assert "request_count_per_work_unit" not in signals
     assert signals["input_cache_write_tokens_per_work_unit"].value == Decimal(375)
     assert signals["output_total_tokens_per_work_unit"].value == Decimal(160)
+
+
+def test_projection_jsonl_replays_ordered_calls_atomically_with_exact_digest(
+    tmp_path: Path,
+) -> None:
+    first = _payload()
+    second = deepcopy(first)
+    second["event"]["seq"] = 47
+    second["event"]["callId"] = "run-synthetic-17:model-call:3"
+    second["event"]["ts"] += 1_000
+    second["event"]["usage"]["output"] = 80
+    second["event"]["usage"]["reasoningTokens"] = 20
+    _resign(second)
+    path = tmp_path / "safe-projections.jsonl"
+    raw = _write_projection_jsonl(path, [first, second])
+
+    replay = import_openclaw_projection_jsonl(
+        path,
+        offering=OFFERING,
+        collector_key=COLLECTOR_KEY,
+        expected_api=None,
+        expected_transport=None,
+        route_details_attested=False,
+    )
+
+    assert isinstance(replay, OpenClawProjectionReplay)
+    assert replay.raw_sha256 == hashlib.sha256(raw).hexdigest()
+    assert replay.first_seq == 41
+    assert replay.last_seq == 47
+    assert len(replay.traces) == 2
+    assert replay.traces[0].request_id != replay.traces[1].request_id
+    assert replay.traces[0].attempt_id == replay.traces[1].attempt_id
+    assert replay.traces[1].output_tokens == Decimal(60)
+    serialized = repr(replay)
+    assert "run-synthetic-17" not in serialized
+    assert "model-call:3" not in serialized
+
+    trace_path = tmp_path / "canonical-traces.jsonl"
+    trace_path.write_text(
+        "".join(
+            json.dumps(trace.model_dump(mode="json"), separators=(",", ":")) + "\n"
+            for trace in replay.traces
+        ),
+        encoding="utf-8",
+    )
+    summary = aggregate_traces(
+        trace_path,
+        workload=WorkloadReference(id="coding-issue", version="1.2.0", unit="coding_issue"),
+    )
+    signals = summary.offerings[OFFERING.offering_id]
+    assert "request_count_per_work_unit" not in signals
+    assert signals["attempt_count_per_work_unit"].value == Decimal(1)
+    assert signals["output_total_tokens_per_work_unit"].value == Decimal(240)
+
+
+@pytest.mark.parametrize("second_seq", [41, 40])
+def test_projection_jsonl_rejects_duplicate_or_reordered_sequence(
+    tmp_path: Path,
+    second_seq: int,
+) -> None:
+    first = _payload()
+    second = deepcopy(first)
+    second["event"]["seq"] = second_seq
+    second["event"]["callId"] = "run-synthetic-17:model-call:3"
+    _resign(second)
+    path = tmp_path / "bad-sequence.jsonl"
+    _write_projection_jsonl(path, [first, second])
+
+    with pytest.raises(OpenClawAdapterError, match="duplicated or out of order"):
+        import_openclaw_projection_jsonl(
+            path,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
+
+
+def test_projection_jsonl_rejects_exact_terminal_replay_but_accepts_retry_ordinal(
+    tmp_path: Path,
+) -> None:
+    first = _payload()
+    replayed = deepcopy(first)
+    replayed["event"]["seq"] = 42
+    _resign(replayed)
+    path = tmp_path / "replayed-call.jsonl"
+    _write_projection_jsonl(path, [first, replayed])
+
+    with pytest.raises(OpenClawAdapterError, match="repeats a terminal"):
+        import_openclaw_projection_jsonl(
+            path,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
+
+    retry = deepcopy(replayed)
+    retry["runAttempt"] = 2
+    _resign(retry)
+    _write_projection_jsonl(path, [first, retry])
+    accepted = import_openclaw_projection_jsonl(
+        path,
+        offering=OFFERING,
+        collector_key=COLLECTOR_KEY,
+        expected_api=None,
+        expected_transport=None,
+        route_details_attested=False,
+    )
+    assert len(accepted.traces) == 2
+    assert accepted.traces[0].request_id != accepted.traces[1].request_id
+    assert accepted.traces[0].attempt_id != accepted.traces[1].attempt_id
+
+
+def test_projection_jsonl_scopes_reused_ids_and_requires_one_work_unit_outcome(
+    tmp_path: Path,
+) -> None:
+    first = _payload()
+    reused = deepcopy(first)
+    reused["event"]["seq"] = 42
+    reused["work_unit_id"] = "synthetic-case-18"
+    _resign(reused)
+    path = tmp_path / "reused-ids.jsonl"
+    _write_projection_jsonl(path, [first, reused])
+
+    accepted = import_openclaw_projection_jsonl(
+        path,
+        offering=OFFERING,
+        collector_key=COLLECTOR_KEY,
+        expected_api=None,
+        expected_transport=None,
+        route_details_attested=False,
+    )
+    assert accepted.traces[0].request_id != accepted.traces[1].request_id
+    assert accepted.traces[0].attempt_id != accepted.traces[1].attempt_id
+
+    conflicting_outcome = deepcopy(reused)
+    conflicting_outcome["event"]["runId"] = "run-synthetic-18"
+    conflicting_outcome["work_unit_id"] = first["work_unit_id"]
+    conflicting_outcome["work_unit_success"] = "0.5"
+    _resign(conflicting_outcome)
+    _write_projection_jsonl(path, [first, conflicting_outcome])
+    with pytest.raises(OpenClawAdapterError, match="inconsistent outcomes"):
+        import_openclaw_projection_jsonl(
+            path,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
+
+    mixed = deepcopy(reused)
+    mixed["workload_id"] = "research-task"
+    _resign(mixed)
+    _write_projection_jsonl(path, [first, mixed])
+    with pytest.raises(OpenClawAdapterError, match="mixes workload definitions"):
+        import_openclaw_projection_jsonl(
+            path,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
+
+
+def test_projection_jsonl_reader_rejects_unsafe_or_ambiguous_input_without_echo(
+    tmp_path: Path,
+) -> None:
+    real = tmp_path / "safe.jsonl"
+    _write_projection_jsonl(real, [_payload()])
+    symlink = tmp_path / "linked.jsonl"
+    symlink.symlink_to(real)
+    with pytest.raises(OpenClawAdapterError, match="cannot open"):
+        import_openclaw_projection_jsonl(
+            symlink,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
+
+    secret = "sk-" + "proj-" + ("Q" * 24)
+    duplicate = tmp_path / "duplicate.jsonl"
+    duplicate.write_text(
+        '{"' + secret + '":1,"' + secret + '":2}\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(OpenClawAdapterError, match="invalid event") as caught:
+        import_openclaw_projection_jsonl(
+            duplicate,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
+    assert secret not in str(caught.value)
+
+    empty = tmp_path / "empty.jsonl"
+    empty.write_text("\n", encoding="utf-8")
+    with pytest.raises(OpenClawAdapterError, match="contains no events"):
+        import_openclaw_projection_jsonl(
+            empty,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        b'{"value":NaN}\n',
+        (b"[" * 33) + b"0" + (b"]" * 33) + b"\n",
+        b"not-json\n",
+    ],
+    ids=["nonstandard-number", "excessive-depth", "invalid-json"],
+)
+def test_projection_jsonl_reader_rejects_adversarial_json_without_echo(
+    tmp_path: Path,
+    raw: bytes,
+) -> None:
+    path = tmp_path / "adversarial.jsonl"
+    path.write_bytes(raw)
+
+    with pytest.raises(OpenClawAdapterError, match="invalid event") as caught:
+        import_openclaw_projection_jsonl(
+            path,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
+
+    assert raw.strip().decode("utf-8") not in str(caught.value)
+
+
+def test_projection_jsonl_reader_enforces_file_line_and_event_limits(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    first = _payload()
+    second = deepcopy(first)
+    second["event"]["seq"] = 42
+    second["event"]["callId"] = "run-synthetic-17:model-call:3"
+    _resign(second)
+    path = tmp_path / "bounded.jsonl"
+    raw = _write_projection_jsonl(path, [first, second])
+
+    monkeypatch.setattr(
+        openclaw_module,
+        "MAX_OPENCLAW_PROJECTION_JSONL_BYTES",
+        len(raw) - 1,
+    )
+    with pytest.raises(OpenClawAdapterError, match="byte limit"):
+        import_openclaw_projection_jsonl(
+            path,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
+
+    monkeypatch.setattr(
+        openclaw_module,
+        "MAX_OPENCLAW_PROJECTION_JSONL_BYTES",
+        len(raw) + 1,
+    )
+    monkeypatch.setattr(openclaw_module, "MAX_OPENCLAW_PROJECTION_JSONL_LINE_BYTES", 32)
+    with pytest.raises(OpenClawAdapterError, match="line limit"):
+        import_openclaw_projection_jsonl(
+            path,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
+
+    monkeypatch.setattr(
+        openclaw_module,
+        "MAX_OPENCLAW_PROJECTION_JSONL_LINE_BYTES",
+        len(raw),
+    )
+    monkeypatch.setattr(openclaw_module, "MAX_OPENCLAW_PROJECTION_JSONL_EVENTS", 1)
+    with pytest.raises(OpenClawAdapterError, match="event limit"):
+        import_openclaw_projection_jsonl(
+            path,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
+
+
+def test_projection_jsonl_reader_rejects_fifo_without_blocking(tmp_path: Path) -> None:
+    if not hasattr(os, "mkfifo") or not hasattr(os, "O_NONBLOCK"):
+        pytest.skip("FIFO nonblocking semantics are not available")
+    path = tmp_path / "projection.fifo"
+    os.mkfifo(path)
+
+    with pytest.raises(OpenClawAdapterError, match="regular file"):
+        import_openclaw_projection_jsonl(
+            path,
+            offering=OFFERING,
+            collector_key=COLLECTOR_KEY,
+            expected_api=None,
+            expected_transport=None,
+            route_details_attested=False,
+        )
 
 
 def test_two_calls_in_one_attempt_share_attempt_identity(tmp_path: Path) -> None:

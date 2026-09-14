@@ -10,17 +10,26 @@ terminal events, and contradictory accounting fail closed. A missing
 measurement stays `null`; only an upstream measurement or an explicit
 billing-state assertion becomes zero.
 
+The optional v1alpha4 task-classification contract is a separate preprocessing
+boundary. None of these stock accounting adapters guesses coding, research, or
+tool-use classes from model names, prompts, paths, or tool payloads. A host may
+upgrade a row to v1alpha4 only through an explicit harness/operator declaration,
+registered content-bound classifier, or registered oracle, and the current
+aggregator still does not materialize per-class catalogs. See
+[ADR 0005](adr/0005-trace-task-classification.md).
+
 These adapters are accounting projectors, not inference clients. The operator
 still owns execution, task-outcome judgment, exact offering identity, raw-data
 retention, and any attestations named by an adapter.
 
 ## Reviewed contracts and validation status
 
-| Adapter | Accepted upstream contract | Accepted input | Local live validation on 2026-08-30 |
+| Adapter | Accepted upstream contract | Accepted input | Local validation |
 | --- | --- | --- | --- |
 | Codex | `0.144.2` at [`a6645b6`](https://github.com/openai/codex/tree/a6645b6b8a656360fa16fb7e1c6721d0697d3d6a) and `0.151.0` at [`78c2908`](https://github.com/openai/codex/tree/78c290807ce710180111df227df3b7a4fe845452) | One `codex exec --json` JSONL file | `0.144.2` was exercised successfully with both the installed default and an explicit `-m gpt-5.4` route, plus two local-account route failures. `0.151.0` has fixture/contract tests but was not installed locally. |
-| Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | An actual installed SDK `0.2.148` `ResultMessage` passed the adapter contract; no inference was run. The installed Claude CLI was `2.1.220`, which is intentionally rejected rather than treated as `2.1.251`. |
-| OpenClaw | `2026.8.1` at [`2a6c333`](https://github.com/openclaw/openclaw/tree/2a6c333225e5c886bfd630e36037fb7b206408ef) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection | Contract and adversarial fixtures only. The installed `2026.3.2` is intentionally unsupported. |
+| Claude Agent SDK | Python SDK `0.2.148` at [`af5ff1b`](https://github.com/anthropics/claude-agent-sdk-python/tree/af5ff1b9f2f279575f89b78f17572c6e35fbc2b6), bundled Claude Code CLI `2.1.251` | The final typed `ResultMessage`, not a transcript or serialized session | An actual installed SDK `0.2.148` `ResultMessage` passed the adapter contract; no inference was run. The installed Claude CLI `2.1.220` is intentionally rejected by this SDK adapter rather than treated as `2.1.251`. |
+| Claude Code CLI | `2.1.220` release, embedded build SHA `4073f59596e272f39393db4f96abc5f4b10eff21` | One complete private `claude -p --output-format json` result file | The installed native binary's embedded terminal schema was reviewed and an isolated real API-error result exercised the failure path on 2026-09-01. No successful billable inference was obtained, so metered success remains fixture/contract validated. |
+| OpenClaw | `2026.8.1` at [`2a6c333`](https://github.com/openclaw/openclaw/tree/2a6c333225e5c886bfd630e36037fb7b206408ef) | One HMAC-signed, content-free `model.call.completed` or `model.call.error` projection, or one ordered JSONL stream of those envelopes | Contract and adversarial fixtures only. The installed `2026.3.2` is intentionally unsupported. |
 | Hermes Agent | `0.20.6` at [`4f22543`](https://github.com/NousResearch/hermes-agent/tree/4f22543509d1b91dc45bcb369447126c5eb14fb7), session schema `26` | A `hermes -z --usage-file` JSON report or read-only state SQLite database | Contract, synthetic report, and synthetic schema-v26 database tests only. Hermes was not installed locally. |
 
 The Codex `0.144.2` success run reported 11,250 inclusive input tokens,
@@ -52,8 +61,8 @@ not provide a bill, so this run produced no cost measurement.
 - Failed executions remain useful reliability observations. Usage and cost
   fields absent before failure remain unknown.
 
-Cost provenance is kept explicit. Claude's SDK estimate maps only to
-`estimated_total_cost_usd`. Hermes maps provider-reported, estimated, and
+Cost provenance is kept explicit. Claude SDK and Claude Code CLI estimates map
+only to `estimated_total_cost_usd`. Hermes maps provider-reported, estimated, and
 included-in-a-contract cost states to `provider_reported_total_cost_usd`,
 `estimated_total_cost_usd`, and an explicit-zero
 `provider_marginal_cost_usd`, respectively. An unknown Hermes ledger component
@@ -192,6 +201,111 @@ cache-write meter; it is not relabeled as a five-minute or one-hour write.
 visible-output/reasoning split. SDK costs are client estimates, not billed
 amounts.
 
+## Claude Code JSON result
+
+`adapt_claude_code_result_json` is a separate adapter for the installed Claude
+Code CLI; it does not pretend that CLI JSON is a Python SDK `ResultMessage`.
+Version `2.1.220` serializes the terminal per-model map as camel-case
+`modelUsage`, while the Python SDK surface uses `model_usage`. The adapter
+accepts one complete JSON result from a fresh print invocation:
+
+```shell
+umask 077
+claude --safe-mode --setting-sources "" --no-session-persistence --tools "" \
+  -p --output-format json \
+  < private/workload-prompt.txt > private/claude-result.json
+```
+
+Keep that file private. It contains result text, a session id, a result UUID,
+permission-denial tool inputs, and possibly structured output. The adapter
+validates bounded UTF-8 JSON, rejects duplicate members, symlinks, FIFOs,
+unknown terminal fields, and unreviewed versions, but does not make the source
+file safe to publish.
+
+```python
+from datetime import UTC, datetime
+from decimal import Decimal
+from pathlib import Path
+
+from model_skyline.adapters.claude_code import (
+    ClaudeCodeRouteMapping,
+    adapt_claude_code_result_json,
+)
+from model_skyline.models import OfferingKey
+
+route = ClaudeCodeRouteMapping(
+    offering=OfferingKey(
+        offering_id="anthropic/claude-synthetic@claude-code",
+        model_id="claude-synthetic",
+        provider="anthropic",
+        agent_harness="claude-code",
+    ),
+    model_usage_key="claude-synthetic",
+    upstream_provider="firstParty",
+    expected_usage_service_tier="standard",
+    expected_usage_inference_geo="",
+    expected_usage_speed="standard",
+    single_route_and_pricing_basis_attested=True,
+    route_details_attested=False,
+)
+
+trace = adapt_claude_code_result_json(
+    Path("private/claude-result.json"),
+    claude_code_version="2.1.220",
+    final_cumulative_result=True,
+    accounting_scope="single_print_invocation",
+    timestamp=datetime(2026, 9, 1, 2, 0, tzinfo=UTC),
+    workload_id="synthetic-coding",
+    workload_version="v1",
+    work_unit_id="case-0003",
+    route=route,
+    result_id="result-0003",
+    attempt_id="attempt-0003",
+    work_unit_success=Decimal("1"),
+)
+```
+
+`modelUsage` is cumulative and may include main-agent, subagent, fallback, and
+internal calls. The adapter therefore emits one attempt aggregate and leaves
+`model_request_count` unknown. It rejects multiple model keys and reconciles
+the single entry's four token counters and cost against the terminal
+aggregates. Optional emitted `canonicalModel` and `provider` values must match
+the attested route; the mapping supplies them when the CLI omits them. The CLI
+does not emit a `costBasis` field in this reviewed contract, so the caller's
+single-route-and-pricing-basis attestation is required and cost remains an
+estimate, never a bill. Its producer provenance is labeled
+`LicenseRef-Anthropic-Commercial-Terms`; public publication still requires an
+operator to allow that license or authorize the exact source after a separate
+terms review.
+
+The complete reviewed aggregate `usage` shape is bound as well, rather than
+accepting arbitrary nested metadata. The installed build's `q_a()` serializer
+starts from a fixed `jw` record containing the four token counters,
+`server_tool_use`, `service_tier`, `cache_creation`, `inference_geo`,
+`iterations`, and `speed`; the content-free real failure result contained
+exactly those fields. The three route-sensitive strings must equal the
+mapping's explicit expected upstream values. This is an asserted mapping from
+the upstream vocabulary to the supplied `OfferingKey`, not an automatic name
+join. Because the reviewed serializer leaves these strings at its fixed `jw`
+defaults, they are schema-drift checks, not independent proof of the actual
+provider route; `single_route_and_pricing_basis_attested` remains the binding
+operator assertion. The reviewed serializer also leaves retention-tier cache
+buckets, `web_fetch_requests`, and `iterations` as empty/zero placeholders, so
+nonempty values fail closed instead of being silently discarded. Unknown or
+missing `usage` fields are schema drift. A pre-parse
+100,000-structural-token limit bounds JSON-tree amplification even though a
+long result string may remain within the separate 64 MiB file limit.
+
+Do not use this contract for `--resume`, `--continue`, streaming input, or
+`--output-format stream-json`; their accounting segment boundaries were not
+validated. Apparent zeroes from `error_during_execution` and the locally
+observed API-error-with-empty-`modelUsage` shape become unknown meters rather
+than false zero-cost evidence. A `success` subtype with `is_error=true` and a
+nonempty, coherent `modelUsage` retains its measured accounting; suppression
+is limited to the observed empty-map failure shape. Although the result schema
+can expose a terminal `ttft_ms`, this row covers an attempt with potentially
+many requests, so it is not relabeled as request-level TTFT.
+
 ## OpenClaw trusted projection
 
 The OpenClaw adapter does not accept transcripts or complete plugin-hook
@@ -239,9 +353,12 @@ full call duration are coherence-checked but are not mislabeled as TTFT or token
 throughput.
 
 ```python
+from pathlib import Path
+
 from model_skyline.adapters.openclaw import (
     adapt_openclaw_event,
     compute_openclaw_projection_signature,
+    import_openclaw_projection_jsonl,
 )
 from model_skyline.models import OfferingKey
 
@@ -281,19 +398,34 @@ projection["collector_signature"] = compute_openclaw_projection_signature(
     projection,
     collector_key=collector_key,
 )
+trace_offering = OfferingKey(
+    offering_id="synthetic-provider/synthetic-model@openclaw",
+    model_id="synthetic-model",
+    provider="synthetic-provider",
+    agent_harness="openclaw",
+)
 trace = adapt_openclaw_event(
     projection,
-    offering=OfferingKey(
-        offering_id="synthetic-provider/synthetic-model@openclaw",
-        model_id="synthetic-model",
-        provider="synthetic-provider",
-        agent_harness="openclaw",
-    ),
+    offering=trace_offering,
     collector_key=collector_key,
     expected_api="messages",
     expected_transport="https",
     route_details_attested=False,
 )
+
+# For durable collector output, write one signed envelope per line. Keep each
+# private file within one OpenClaw process epoch, workload definition, and exact
+# route, then replay the whole file atomically:
+replay = import_openclaw_projection_jsonl(
+    Path("private/openclaw-safe-projections.jsonl"),
+    offering=trace_offering,
+    collector_key=collector_key,
+    expected_api="messages",
+    expected_transport="https",
+    route_details_attested=False,
+)
+# `replay.raw_sha256`, `first_seq`, and `last_seq` form a private replay
+# checkpoint. Only `replay.traces` should enter canonical trace JSONL.
 ```
 
 Raw run and call ids plus workload identity, work-unit identity, and the
@@ -303,6 +435,31 @@ low-entropy ids and false duplicate collisions when an upstream run id is reused
 across work units. The safe envelope rejects unknown fields and credential-,
 URL-, and path-shaped metadata. The collector key and any pre-projection event
 remain private.
+
+The JSONL replay reader additionally rejects symlinks and special files, caps
+file, line, nesting, and event counts, rejects duplicate keys and nonstandard
+numbers, and validates every coverage-attested envelope and HMAC before
+returning anything. It requires the process-global OpenClaw diagnostic `seq` to
+increase strictly and rejects a second terminal event for the same signed
+workload/work-unit/run/attempt/call identity. A retry may legitimately reuse a
+run or call id because its one-based `runAttempt` remains part of identity, and
+raw ids reused across work units remain scoped to those work units. The replay
+also requires one judged outcome across every run for a work unit. These checks
+prevent an overlapping or reordered collector replay from silently
+double-counting usage without weakening projector-v3 completeness rules.
+
+OpenClaw resets its sequence on process restart, so a collector must rotate to
+a new JSONL file at that boundary. A file may contain gaps because the trusted
+projector discards non-terminal and non-model events; sequence continuity is
+not a substitute for `segmentEventsComplete`. The exact raw SHA-256 and
+sequence bounds are returned for a private checkpoint, but raw ids and rejected
+content never enter canonical trace rows or errors.
+
+ModelSkyline still does not ship or claim an installed OpenClaw in-process
+projector. The projector must use OpenClaw's trusted diagnostic listener,
+trace-parent attempt correlation, drop-epoch accounting, and usage-completeness
+proof before signing these restricted envelopes. The Python signing helper
+alone cannot establish that origin.
 
 ## Hermes report and state database
 
@@ -416,7 +573,10 @@ DeepSeek V4 Pro Max (0.4783, 156.93 s), Claude Fable 5 Max (0.8261, 256.08 s),
 and GPT-5.5 xhigh (0.9565, 308.06 s). On Playwright quality versus input
 tokens, Kimi K2.7 Code reached (0.84, 1,475,166) while GPT-5.6 Sol Max reached
 (1.00, 1,556,260). MCPMark supplies no exact provider route, cache telemetry,
-or bill, so the adapter intentionally emits no cost and no cost frontier.
+or bill, so the adapter intentionally emits no cost and no cost frontier. Its
+current unknown-provider catalogs are research-only and predate the generic
+quality-evidence/reconciliation contract; they must not be matched to provider
+pricing by model alias.
 
 ## Operational boundary
 

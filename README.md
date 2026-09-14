@@ -494,7 +494,12 @@ Its experiment-results repository had no declared license at the pinned
 revision, so no results are vendored and generated outputs should be treated as
 locally analyzed data, not redistributed. It deliberately emits no cost:
 the source lacks provider route and cache telemetry, and inventing those would
-turn a useful benchmark into a misleading bill estimate.
+turn a useful benchmark into a misleading bill estimate. This legacy adapter
+also emits research-only offerings with an unknown provider; it does not yet
+produce `QualityEvidenceSet` rows or pass through reviewed reconciliation.
+Never join those aliases directly to a live price catalog. A follow-on adapter
+will preserve the parser while moving MCPMark quality behind the same exact
+complete-`OfferingKey` review boundary used by SWE-bench, ARC-AGI-2, and Harbor.
 
 Both adapters use point estimates for frontier membership. Their Wilson bounds
 are descriptive binomial reference intervals under an IID task-sampling
@@ -513,6 +518,15 @@ expose. Raw prompts, responses, tool payloads, paths, and credentials are
 deliberately outside the adapter outputs. See
 [`docs/framework-integrations.md`](docs/framework-integrations.md) for exact
 supported versions, limitations, and examples.
+
+Request-trace v1alpha4 adds an optional provenance-bound task classification
+for later coding, research, or tool-use workload slicing. It requires a
+namespaced class, versioned source, canonical Decimal confidence, and a digest
+for registered classifiers/oracles; released v1alpha1-v1alpha3 schemas remain
+byte-for-byte stable. The current aggregator validates this contract but does
+not yet materialize per-class catalogs, so it must not be presented as an
+automatic workload classifier. See
+[`ADR 0005`](docs/adr/0005-trace-task-classification.md).
 
 See `docs/architecture.md` for semantics and `docs/research.md` for prior art,
 data sources, workload evidence, licenses, and integration recommendations.

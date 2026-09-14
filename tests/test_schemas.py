@@ -22,6 +22,7 @@ from model_skyline.traces import RequestTrace
 NOW = datetime(2026, 8, 29, 19, tzinfo=UTC)
 TRACE_V2 = "model-skyline/request-trace/v1alpha2"
 TRACE_V3 = "model-skyline/request-trace/v1alpha3"
+TRACE_V4 = "model-skyline/request-trace/v1alpha4"
 SCHEMA_ROOT = Path(__file__).resolve().parents[1] / "schemas"
 QUALITY_SCHEMA_NAMES = (
     "harbor-terminal-bench-import-config.schema.json",
@@ -119,18 +120,25 @@ def test_committed_publication_schemas_validate_publisher_artifacts(
 def test_request_trace_schema_versions_are_distinct_and_v1alpha1_is_preserved() -> None:
     schemas = public_schemas()
     legacy = schemas["request-trace.schema.json"]
-    previous = schemas["request-trace-v1alpha2.schema.json"]
-    current = schemas["request-trace-v1alpha3.schema.json"]
+    v2 = schemas["request-trace-v1alpha2.schema.json"]
+    v3 = schemas["request-trace-v1alpha3.schema.json"]
+    current = schemas["request-trace-v1alpha4.schema.json"]
 
     assert legacy["$id"] == "urn:model-skyline:schema:v1alpha1:request-trace"
     assert "schema_version" not in legacy["properties"]
     assert legacy["properties"]["input_uncached_tokens"]["default"] == "0"
-    assert previous["$id"] == "urn:model-skyline:schema:v1alpha2:request-trace"
-    assert previous["properties"]["schema_version"]["const"] == TRACE_V2
-    assert "model_call" not in previous["properties"]["observation_unit"]["enum"]
-    assert current["$id"] == "urn:model-skyline:schema:v1alpha3:request-trace"
-    assert current["properties"]["schema_version"]["const"] == TRACE_V3
+    assert v2["$id"] == "urn:model-skyline:schema:v1alpha2:request-trace"
+    assert v2["properties"]["schema_version"]["const"] == TRACE_V2
+    assert "model_call" not in v2["properties"]["observation_unit"]["enum"]
+    assert "trace_classification" not in v2["properties"]
+    assert v3["$id"] == "urn:model-skyline:schema:v1alpha3:request-trace"
+    assert v3["properties"]["schema_version"]["const"] == TRACE_V3
+    assert "model_call" in v3["properties"]["observation_unit"]["enum"]
+    assert "trace_classification" not in v3["properties"]
+    assert current["$id"] == "urn:model-skyline:schema:v1alpha4:request-trace"
+    assert current["properties"]["schema_version"]["const"] == TRACE_V4
     assert "model_call" in current["properties"]["observation_unit"]["enum"]
+    assert "trace_classification" in current["properties"]
     assert "schema_version" in current["required"]
     _valid(
         legacy,
@@ -146,12 +154,58 @@ def test_released_request_trace_v1alpha2_schema_bytes_are_immutable() -> None:
     assert digest == "405a150c126da7bd7b788f3fe9e2839f6e3e9327573e68248d47defcb3fc5b5b"
 
 
+def test_released_request_trace_v1alpha3_schema_bytes_are_immutable() -> None:
+    digest = hashlib.sha256(
+        (SCHEMA_ROOT / "request-trace-v1alpha3.schema.json").read_bytes()
+    ).hexdigest()
+
+    assert digest == "ef5f1a29962e1f05d78a0b11dda392506a4094c429412e18d5e32868711ba1d4"
+
+
 @pytest.mark.parametrize(
     "name",
-    ["request-trace-v1alpha2.schema.json", "request-trace-v1alpha3.schema.json"],
+    [
+        "request-trace-v1alpha2.schema.json",
+        "request-trace-v1alpha3.schema.json",
+        "request-trace-v1alpha4.schema.json",
+    ],
 )
 def test_committed_request_trace_schemas_match_generator(name: str) -> None:
     assert public_schemas()[name] == generated_schemas()[name]
+
+
+def test_request_trace_v1alpha4_schema_enforces_classification_source_contract() -> None:
+    schema = public_schemas()["request-trace-v1alpha4.schema.json"]
+    classification = {
+        "class_id": "openclaw/coding/repo-change",
+        "source": {
+            "method": "registered_classifier",
+            "id": "openclaw/task-classifier",
+            "version": "1.0.0",
+            "sha256": "a" * 64,
+        },
+        "confidence": "0.875",
+    }
+    payload = _trace_payload(
+        schema_version=TRACE_V4,
+        trace_classification=classification,
+    )
+    _valid(schema, payload)
+
+    missing_digest = deepcopy(payload)
+    del missing_digest["trace_classification"]["source"]["sha256"]
+    with pytest.raises(JsonSchemaValidationError):
+        _valid(schema, missing_digest)
+
+    invalid_class = deepcopy(payload)
+    invalid_class["trace_classification"]["class_id"] = "not-namespaced"
+    with pytest.raises(JsonSchemaValidationError):
+        _valid(schema, invalid_class)
+
+    old_payload = deepcopy(payload)
+    old_payload["schema_version"] = TRACE_V3
+    with pytest.raises(JsonSchemaValidationError):
+        _valid(public_schemas()["request-trace-v1alpha3.schema.json"], old_payload)
 
 
 @pytest.mark.parametrize("name", QUALITY_SCHEMA_NAMES)

@@ -33,6 +33,7 @@ from model_skyline.gateway import (
     trusted_gateway_key,
     verify_gateway_bundle,
 )
+from model_skyline.gateway_compatibility import build_gateway_consumer_compatibility
 from model_skyline.io import load_catalog, load_config
 from model_skyline.publisher import publish_project
 
@@ -348,6 +349,15 @@ def main() -> None:
     _write(
         OUTPUT / "invalid" / "expired.dsse.json",
         envelope_bytes(sign_gateway_pointer(expiring, (key_1,))),
+    )
+
+    compatibility = build_gateway_consumer_compatibility(
+        schema_root=ROOT / "schemas",
+        conformance_root=OUTPUT,
+    )
+    _write(
+        OUTPUT / "compatibility.json",
+        _json_bytes(compatibility.model_dump(mode="json")),
     )
 
 

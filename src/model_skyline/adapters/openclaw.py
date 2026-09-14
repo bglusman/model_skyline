@@ -12,7 +12,9 @@ every provider request represented by the model call. The stock drain helper
 alone is not that proof under concurrent traffic. The collector then adds
 workload, offering, and judged work-unit outcome before calling
 :func:`adapt_openclaw_event`. Terminal model-call diagnostics alone are
-insufficient for this projection.
+insufficient for this projection. Durable signed-envelope output can be
+replayed atomically with :func:`import_openclaw_projection_jsonl`, which also
+prevents duplicate or reordered terminal calls from being counted twice.
 
 OpenClaw keeps prompt/response/tool content in a separate private diagnostic
 channel.  This module accepts none of those fields, nor session keys, paths,
@@ -28,10 +30,16 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import json
+import os
 import re
+import stat
 from collections.abc import Mapping
+from contextlib import suppress
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from pathlib import Path
 from typing import Annotated, Any, Final, Literal
 
 from pydantic import Field, StrictBool, ValidationError, field_validator, model_validator
@@ -53,6 +61,10 @@ OPENCLAW_ADAPTER_VERSION: Final = "1alpha3"
 OPENCLAW_COLLECTOR_ID: Final = "model-skyline/openclaw-trusted-projector"
 OPENCLAW_COLLECTOR_VERSION: Final = "3"
 MIN_COLLECTOR_KEY_BYTES: Final = 16
+MAX_OPENCLAW_PROJECTION_JSONL_BYTES: Final = 64 * 1024 * 1024
+MAX_OPENCLAW_PROJECTION_JSONL_LINE_BYTES: Final = 1024 * 1024
+MAX_OPENCLAW_PROJECTION_JSONL_EVENTS: Final = 100_000
+MAX_OPENCLAW_PROJECTION_JSON_DEPTH: Final = 32
 OPENCLAW_PACKAGE_URL = (
     f"https://github.com/openclaw/openclaw/blob/{OPENCLAW_REVIEWED_COMMIT}/package.json"
 )
@@ -129,12 +141,160 @@ class OpenClawAdapterError(ValueError):
     """An OpenClaw event is unsupported, incomplete, or unsafe to normalize."""
 
 
+class _DuplicateJsonKey(ValueError):
+    pass
+
+
+@dataclass(frozen=True, slots=True)
+class OpenClawProjectionReplay:
+    """Atomic result of importing one private, single-route collector stream.
+
+    ``raw_sha256`` identifies the exact private JSONL bytes without copying any
+    upstream run or call identifiers into the canonical rows. Sequence bounds
+    make it possible for a collector checkpoint to detect gaps or overlap.
+    """
+
+    raw_sha256: str
+    first_seq: int
+    last_seq: int
+    traces: tuple[RequestTrace, ...]
+
+
 def _safe_metadata_value(value: str) -> str:
     if "://" in value or "\\" in value or _CREDENTIAL_RE.search(value):
         raise ValueError("metadata must not contain URLs, paths, or credential-shaped values")
     if any(part in {".", ".."} for part in value.split("/")):
         raise ValueError("metadata must not contain relative path segments")
     return value
+
+
+def _reject_nonstandard_number(_value: str) -> None:
+    raise ValueError
+
+
+def _unique_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise _DuplicateJsonKey
+        result[key] = value
+    return result
+
+
+def _validate_json_depth(text: str) -> None:
+    depth = 0
+    in_string = False
+    escaped = False
+    for character in text:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == '"':
+                in_string = False
+            continue
+        if character == '"':
+            in_string = True
+        elif character in "[{":
+            depth += 1
+            if depth > MAX_OPENCLAW_PROJECTION_JSON_DEPTH:
+                raise ValueError
+        elif character in "]}":
+            depth -= 1
+            if depth < 0:
+                raise ValueError
+
+
+def _parse_projection_line(raw_line: bytes) -> Mapping[str, Any]:
+    try:
+        text = raw_line.decode("utf-8")
+        _validate_json_depth(text)
+        value = json.loads(
+            text,
+            parse_float=Decimal,
+            parse_constant=_reject_nonstandard_number,
+            object_pairs_hook=_unique_json_object,
+        )
+    except (
+        UnicodeDecodeError,
+        json.JSONDecodeError,
+        _DuplicateJsonKey,
+        ValueError,
+        RecursionError,
+        MemoryError,
+    ):
+        # JSON may contain the very content this adapter excludes. Never echo
+        # a parse error, key, or rejected input fragment.
+        raise OpenClawAdapterError("OpenClaw projection JSONL contains an invalid event") from None
+    if not isinstance(value, Mapping):
+        raise OpenClawAdapterError("OpenClaw projection JSONL events must be objects")
+    return value
+
+
+def _read_projection_jsonl(
+    path: Path,
+) -> tuple[str, tuple[OpenClawTraceEnvelope, ...]]:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_CLOEXEC"):
+        flags |= os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    if hasattr(os, "O_NONBLOCK"):
+        flags |= os.O_NONBLOCK
+    try:
+        descriptor = os.open(path, flags)
+    except OSError:
+        raise OpenClawAdapterError("cannot open OpenClaw projection JSONL input") from None
+
+    digest = hashlib.sha256()
+    envelopes: list[OpenClawTraceEnvelope] = []
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise OpenClawAdapterError("OpenClaw projection JSONL input must be a regular file")
+        if metadata.st_size > MAX_OPENCLAW_PROJECTION_JSONL_BYTES:
+            raise OpenClawAdapterError("OpenClaw projection JSONL input exceeds the byte limit")
+        with os.fdopen(descriptor, "rb", closefd=True) as stream:
+            descriptor = -1
+            consumed = 0
+            while True:
+                raw_line = stream.readline(MAX_OPENCLAW_PROJECTION_JSONL_LINE_BYTES + 1)
+                if not raw_line:
+                    break
+                consumed += len(raw_line)
+                if consumed > MAX_OPENCLAW_PROJECTION_JSONL_BYTES:
+                    raise OpenClawAdapterError(
+                        "OpenClaw projection JSONL input exceeds the byte limit"
+                    )
+                if len(raw_line) > MAX_OPENCLAW_PROJECTION_JSONL_LINE_BYTES:
+                    raise OpenClawAdapterError(
+                        "OpenClaw projection JSONL event exceeds the line limit"
+                    )
+                digest.update(raw_line)
+                if not raw_line.strip():
+                    continue
+                payload = _parse_projection_line(raw_line)
+                try:
+                    envelope = OpenClawTraceEnvelope.model_validate(payload)
+                except ValidationError:
+                    raise OpenClawAdapterError(
+                        "OpenClaw event failed content-free safe-envelope validation"
+                    ) from None
+                envelopes.append(envelope)
+                if len(envelopes) > MAX_OPENCLAW_PROJECTION_JSONL_EVENTS:
+                    raise OpenClawAdapterError(
+                        "OpenClaw projection JSONL input exceeds the event limit"
+                    )
+    except OSError:
+        raise OpenClawAdapterError("cannot read OpenClaw projection JSONL input") from None
+    finally:
+        if descriptor >= 0:
+            with suppress(OSError):
+                os.close(descriptor)
+    if not envelopes:
+        raise OpenClawAdapterError("OpenClaw projection JSONL contains no events")
+    return digest.hexdigest(), tuple(envelopes)
 
 
 class OpenClawUsage(FrozenModel):
@@ -417,6 +577,25 @@ def adapt_openclaw_event(
         ) from None
 
     _validate_collector_key(collector_key)
+    return _adapt_validated_openclaw_envelope(
+        envelope,
+        offering=offering,
+        collector_key=collector_key,
+        expected_api=expected_api,
+        expected_transport=expected_transport,
+        route_details_attested=route_details_attested,
+    )
+
+
+def _adapt_validated_openclaw_envelope(
+    envelope: OpenClawTraceEnvelope,
+    *,
+    offering: OfferingKey,
+    collector_key: bytes,
+    expected_api: str | None,
+    expected_transport: str | None,
+    route_details_attested: bool,
+) -> RequestTrace:
     expected_signature = _projection_signature(envelope, collector_key=collector_key)
     if not hmac.compare_digest(envelope.collector_signature, expected_signature):
         raise OpenClawAdapterError("OpenClaw collector signature is invalid")
@@ -494,4 +673,86 @@ def adapt_openclaw_event(
         output_total_tokens=(
             Decimal(usage.output) if usage is not None and usage.output is not None else None
         ),
+    )
+
+
+def import_openclaw_projection_jsonl(
+    path: str | Path,
+    *,
+    offering: OfferingKey,
+    collector_key: bytes,
+    expected_api: str | None,
+    expected_transport: str | None,
+    route_details_attested: bool,
+) -> OpenClawProjectionReplay:
+    """Atomically import one ordered, private, single-route projection stream.
+
+    A projector stream is scoped to one workload definition and one reviewed
+    offering. OpenClaw's process-global diagnostic sequence must increase
+    strictly. An exact workload/work-unit/run/attempt/call terminal lifecycle
+    may occur once, while a retry that legitimately reuses a run or call id is
+    distinguished by its signed one-based attempt ordinal. Those checks reject
+    reordered or overlapping replays before any canonical rows are returned.
+    One judged outcome is required across every run for a work unit.
+
+    This reads only the signed, coverage-attested safe envelopes. It does not
+    accept OpenClaw's raw diagnostics, transcripts, hook payloads, or private
+    diagnostic data.
+    """
+
+    _validate_collector_key(collector_key)
+    raw_sha256, envelopes = _read_projection_jsonl(Path(path))
+    first = envelopes[0]
+    workload = (first.workload_id, first.workload_version)
+    prior_seq: int | None = None
+    seen_calls: set[tuple[str, str, str, str, int, str]] = set()
+    work_unit_outcomes: dict[str, Decimal] = {}
+    traces: list[RequestTrace] = []
+
+    for envelope in envelopes:
+        if (envelope.workload_id, envelope.workload_version) != workload:
+            raise OpenClawAdapterError("OpenClaw projection JSONL mixes workload definitions")
+        event = envelope.event
+        if prior_seq is not None and event.seq <= prior_seq:
+            raise OpenClawAdapterError(
+                "OpenClaw projection JSONL sequence is duplicated or out of order"
+            )
+        prior_seq = event.seq
+        call_key = (
+            envelope.workload_id,
+            envelope.workload_version,
+            envelope.work_unit_id,
+            event.run_id,
+            envelope.run_attempt,
+            event.call_id,
+        )
+        if call_key in seen_calls:
+            raise OpenClawAdapterError(
+                "OpenClaw projection JSONL repeats a terminal model-call lifecycle"
+            )
+        seen_calls.add(call_key)
+        prior_outcome = work_unit_outcomes.setdefault(
+            envelope.work_unit_id,
+            envelope.work_unit_success,
+        )
+        if prior_outcome != envelope.work_unit_success:
+            raise OpenClawAdapterError(
+                "OpenClaw work unit has inconsistent outcomes across projected runs"
+            )
+        traces.append(
+            _adapt_validated_openclaw_envelope(
+                envelope,
+                offering=offering,
+                collector_key=collector_key,
+                expected_api=expected_api,
+                expected_transport=expected_transport,
+                route_details_attested=route_details_attested,
+            )
+        )
+
+    return OpenClawProjectionReplay(
+        raw_sha256=raw_sha256,
+        first_seq=first.event.seq,
+        last_seq=envelopes[-1].event.seq,
+        traces=tuple(traces),
     )

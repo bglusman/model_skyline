@@ -11,10 +11,17 @@ from pathlib import Path
 
 import duckdb
 import pytest
+from pydantic import ValidationError
 
 import model_skyline.traces as traces_module
 from model_skyline.models import ObservationCatalog, WorkloadReference
-from model_skyline.traces import TraceAggregationError, aggregate_traces, enrich_catalog
+from model_skyline.traces import (
+    TRACE_CLASSIFICATION_STRUCT,
+    RequestTrace,
+    TraceAggregationError,
+    aggregate_traces,
+    enrich_catalog,
+)
 
 WORKLOAD = WorkloadReference(
     id="coding-session-v1",
@@ -23,6 +30,7 @@ WORKLOAD = WorkloadReference(
 )
 TRACE_V2 = "model-skyline/request-trace/v1alpha2"
 TRACE_V3 = "model-skyline/request-trace/v1alpha3"
+TRACE_V4 = "model-skyline/request-trace/v1alpha4"
 
 
 def _v2(row: dict[str, object]) -> dict[str, object]:
@@ -31,6 +39,171 @@ def _v2(row: dict[str, object]) -> dict[str, object]:
 
 def _v3(row: dict[str, object]) -> dict[str, object]:
     return {"schema_version": TRACE_V3, **row}
+
+
+def _v4(row: dict[str, object]) -> dict[str, object]:
+    return {"schema_version": TRACE_V4, **row}
+
+
+CLASSIFICATION_SOURCE: dict[str, object] = {
+    "method": "registered_classifier",
+    "id": "openclaw/task-classifier",
+    "version": "1.0.0",
+    "sha256": "a" * 64,
+}
+CLASSIFICATION: dict[str, object] = {
+    "class_id": "openclaw/coding/repo-change",
+    "source": CLASSIFICATION_SOURCE,
+    "confidence": "0.875",
+}
+
+
+def _classification_row(**updates: object) -> dict[str, object]:
+    row: dict[str, object] = {
+        "timestamp": "2026-08-29T18:00:00Z",
+        "workload_id": WORKLOAD.id,
+        "workload_version": WORKLOAD.version,
+        "work_unit_id": "unit-1",
+        "offering_id": "provider/model@tier",
+        "request_id": "request-1",
+        "attempt_id": "attempt-1",
+        "work_unit_success": 1,
+    }
+    row.update(updates)
+    return _v4(row)
+
+
+def test_v1alpha4_classification_is_optional_but_complete_when_present() -> None:
+    assert RequestTrace.model_validate(_classification_row()).trace_classification is None
+
+    trace = RequestTrace.model_validate(_classification_row(trace_classification=CLASSIFICATION))
+
+    assert trace.trace_classification is not None
+    assert trace.trace_classification.class_id == "openclaw/coding/repo-change"
+    assert trace.trace_classification.source.id == "openclaw/task-classifier"
+    assert trace.trace_classification.confidence == Decimal("0.875")
+
+
+@pytest.mark.parametrize("version", [TRACE_V2, TRACE_V3])
+def test_released_trace_versions_reject_classification(version: str) -> None:
+    payload = _classification_row(trace_classification=CLASSIFICATION)
+    payload["schema_version"] = version
+
+    with pytest.raises(ValidationError, match="requires request-trace v1alpha4"):
+        RequestTrace.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    "class_id",
+    [
+        "OpenClaw/coding",
+        "openclaw",
+        "openclaw/",
+        "/coding",
+        "openclaw/coding/repo.change",
+        "openclaw/coding/repo/change/with/too/many",
+        "x/" + "y" * 127,
+    ],
+)
+def test_classification_rejects_nonportable_or_unbounded_class_ids(class_id: str) -> None:
+    classification = {**CLASSIFICATION, "class_id": class_id}
+
+    with pytest.raises(ValidationError):
+        RequestTrace.model_validate(_classification_row(trace_classification=classification))
+
+
+@pytest.mark.parametrize(
+    "class_id",
+    ["openclaw/coding", "openclaw/coding/repo-change", "org/team_1/research"],
+)
+def test_classification_accepts_namespaced_class_ids(class_id: str) -> None:
+    classification = {**CLASSIFICATION, "class_id": class_id}
+
+    trace = RequestTrace.model_validate(_classification_row(trace_classification=classification))
+
+    assert trace.trace_classification is not None
+    assert trace.trace_classification.class_id == class_id
+
+
+@pytest.mark.parametrize("missing", ["class_id", "source", "confidence"])
+def test_classification_rejects_partial_objects(missing: str) -> None:
+    classification = {key: value for key, value in CLASSIFICATION.items() if key != missing}
+
+    with pytest.raises(ValidationError):
+        RequestTrace.model_validate(_classification_row(trace_classification=classification))
+
+
+@pytest.mark.parametrize("method", ["registered_classifier", "oracle"])
+def test_executable_classification_sources_require_digest(method: str) -> None:
+    source = {**CLASSIFICATION_SOURCE, "method": method}
+    source.pop("sha256")
+
+    with pytest.raises(ValidationError, match="require sha256"):
+        RequestTrace.model_validate(
+            _classification_row(trace_classification={**CLASSIFICATION, "source": source})
+        )
+
+
+@pytest.mark.parametrize("method", ["harness_tag", "operator"])
+def test_declarative_classification_sources_are_still_versioned(method: str) -> None:
+    source = {
+        "method": method,
+        "id": "operator/workload-policy",
+        "version": "2026-08-31",
+    }
+
+    trace = RequestTrace.model_validate(
+        _classification_row(
+            trace_classification={**CLASSIFICATION, "source": source, "confidence": "1"}
+        )
+    )
+
+    assert trace.trace_classification is not None
+    assert trace.trace_classification.source.sha256 is None
+
+
+@pytest.mark.parametrize(
+    "confidence",
+    ["NaN", "Infinity", "-0.000000001", "1.000000001", "0.1234567891"],
+)
+def test_classification_confidence_is_bounded_canonical_decimal(confidence: str) -> None:
+    with pytest.raises(ValidationError):
+        RequestTrace.model_validate(
+            _classification_row(trace_classification={**CLASSIFICATION, "confidence": confidence})
+        )
+
+
+def test_v1alpha4_jsonl_classification_survives_validation_and_aggregation(tmp_path) -> None:
+    path = tmp_path / "classified.jsonl"
+    rows = [
+        _classification_row(
+            request_id="request-1",
+            trace_classification=CLASSIFICATION,
+        ),
+        _classification_row(
+            request_id="request-2",
+            trace_classification=CLASSIFICATION,
+        ),
+    ]
+    path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+
+    summary = aggregate_traces(path, workload=WORKLOAD)
+
+    assert summary.source.version == TRACE_V4
+    assert summary.offerings["provider/model@tier"]["request_count_per_work_unit"].value == 2
+
+
+def test_one_work_unit_cannot_mix_classifications(tmp_path) -> None:
+    path = tmp_path / "mixed-classification.jsonl"
+    other = {**CLASSIFICATION, "class_id": "openclaw/research"}
+    rows = [
+        _classification_row(request_id="request-1", trace_classification=CLASSIFICATION),
+        _classification_row(request_id="request-2", trace_classification=other),
+    ]
+    path.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+
+    with pytest.raises(TraceAggregationError, match="inconsistent classifications"):
+        aggregate_traces(path, workload=WORKLOAD)
 
 
 def test_trace_aggregation_retains_failed_work_units_and_cache_meters(tmp_path) -> None:
@@ -509,7 +682,7 @@ def test_v1alpha2_jsonl_rejects_v1alpha3_model_call_scope(tmp_path) -> None:
     "versions",
     [
         (TRACE_V2, TRACE_V3),
-        (TRACE_V3, "model-skyline/request-trace/v1alpha4"),
+        (TRACE_V4, "model-skyline/request-trace/v1alpha5"),
     ],
     ids=["mixed-supported", "unsupported"],
 )
@@ -769,6 +942,126 @@ def _write_versioned_parquet_trace(
         connection.close()
 
 
+def _write_classified_parquet(
+    path: Path,
+    classification: dict[str, object] | None,
+    *,
+    schema_version: str = TRACE_V4,
+    struct_type: str = TRACE_CLASSIFICATION_STRUCT,
+) -> None:
+    connection = duckdb.connect(database=":memory:")
+    try:
+        connection.execute(
+            f"""
+            CREATE TABLE traces (
+                schema_version VARCHAR,
+                timestamp TIMESTAMPTZ,
+                workload_id VARCHAR,
+                workload_version VARCHAR,
+                work_unit_id VARCHAR,
+                offering_id VARCHAR,
+                request_id VARCHAR,
+                attempt_id VARCHAR,
+                observation_unit VARCHAR,
+                work_unit_success DECIMAL(18,9),
+                trace_classification {struct_type}
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO traces VALUES (
+                ?, TIMESTAMPTZ '2026-08-29T18:00:00Z', ?, ?, 'unit-1',
+                'provider/model@tier', 'request-1', 'attempt-1', 'request', 1, ?
+            )
+            """,
+            [schema_version, WORKLOAD.id, WORKLOAD.version, classification],
+        )
+        connection.execute(f"COPY traces TO '{path}' (FORMAT PARQUET)")
+    finally:
+        connection.close()
+
+
+def test_v1alpha4_parquet_classification_round_trip(tmp_path) -> None:
+    path = tmp_path / "classified.parquet"
+    _write_classified_parquet(path, CLASSIFICATION)
+
+    summary = aggregate_traces(path, workload=WORKLOAD)
+
+    assert summary.source.version == TRACE_V4
+    assert summary.offerings["provider/model@tier"]["work_unit_count"].value == 1
+
+
+def test_released_parquet_schema_cannot_smuggle_classification(tmp_path) -> None:
+    path = tmp_path / "old-version-classified.parquet"
+    _write_classified_parquet(path, CLASSIFICATION, schema_version=TRACE_V3)
+
+    with pytest.raises(TraceAggregationError, match="unknown column"):
+        aggregate_traces(path, workload=WORKLOAD)
+
+
+@pytest.mark.parametrize(
+    "classification",
+    [
+        {**CLASSIFICATION, "class_id": "not-namespaced"},
+        {
+            **CLASSIFICATION,
+            "source": {**CLASSIFICATION_SOURCE, "method": "unregistered"},
+        },
+        {
+            **CLASSIFICATION,
+            "source": {**CLASSIFICATION_SOURCE, "sha256": "A" * 64},
+        },
+        {
+            **CLASSIFICATION,
+            "source": {**CLASSIFICATION_SOURCE, "id": ""},
+        },
+        {
+            **CLASSIFICATION,
+            "source": {
+                "method": "registered_classifier",
+                "id": "openclaw/task-classifier",
+                "version": "1.0.0",
+                "sha256": None,
+            },
+        },
+        {**CLASSIFICATION, "confidence": "1.000000001"},
+    ],
+    ids=[
+        "class-id",
+        "method",
+        "digest-syntax",
+        "empty-identity",
+        "missing-digest",
+        "confidence",
+    ],
+)
+def test_parquet_classification_semantics_match_json_validation(
+    tmp_path,
+    classification: dict[str, object],
+) -> None:
+    path = tmp_path / "invalid-classification.parquet"
+    _write_classified_parquet(path, classification)
+
+    with pytest.raises(TraceAggregationError, match="invalid canonical usage rows"):
+        aggregate_traces(path, workload=WORKLOAD)
+
+
+def test_parquet_classification_struct_shape_and_precision_are_bounded(tmp_path) -> None:
+    wrong_shape = tmp_path / "wrong-shape.parquet"
+    _write_classified_parquet(wrong_shape, None, struct_type="VARCHAR")
+
+    with pytest.raises(TraceAggregationError, match="canonical classification STRUCT"):
+        aggregate_traces(wrong_shape, workload=WORKLOAD)
+
+    excessive_precision = tmp_path / "excessive-precision.parquet"
+    wide_struct = TRACE_CLASSIFICATION_STRUCT.replace("DECIMAL(18,9)", "DECIMAL(19,9)")
+    _write_classified_parquet(excessive_precision, CLASSIFICATION, struct_type=wide_struct)
+
+    with pytest.raises(TraceAggregationError, match=r"exceeds DECIMAL\(18,9\)"):
+        aggregate_traces(excessive_precision, workload=WORKLOAD)
+
+
 def test_parquet_decimal_meters_remain_exact(tmp_path) -> None:
     path = tmp_path / "exact.parquet"
     _write_parquet_trace(path, other_cost_type="DECIMAL(10,2)")
@@ -862,7 +1155,7 @@ def test_v1alpha2_parquet_rejects_v1alpha3_model_call_scope(tmp_path) -> None:
     "rows",
     [
         [(TRACE_V2, "request"), (TRACE_V3, "request")],
-        [("model-skyline/request-trace/v1alpha4", "request")],
+        [("model-skyline/request-trace/v1alpha5", "request")],
         [(None, "request")],
     ],
     ids=["mixed-supported", "unsupported", "null"],

@@ -318,10 +318,13 @@ The code benchmark repository is Apache-2.0, but the separate experiments
 repository had no license at the pinned revision. ModelSkyline therefore does
 not vendor those results and labels their license `NOASSERTION`. The verified
 summary also has no provider endpoint, cache split, tool charge, or cost. A
-models.dev price join is technically possible for the six aliases, but it would
-be a route-assumed current-price counterfactual, not observed cost; the initial
-adapter deliberately limits itself to quality/time and quality/input-token
-frontiers.
+models.dev price join by alias would manufacture route identity and is not a
+supported operation. The initial adapter deliberately emits research-only
+unknown-provider catalogs and limits itself to quality/time and
+quality/input-token frontiers. It predates `QualityEvidenceSet` and reviewed
+reconciliation; a production-quality follow-on must expose the aliases only as
+untrusted subject claims and require a reviewed quality-only projection to one
+complete `OfferingKey`.
 
 These workload-specific results differ materially. For example, the
 quality/time frontier has four members for filesystem and Notion, three for
