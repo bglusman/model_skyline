@@ -11,11 +11,13 @@ exist; a model list should not advertise a path that cannot start. Each future
 llama.cpp launcher must use `local-model-exclusive`, `-ngl all -fit off`, an
 explicit context/KV profile, and a loopback `${PORT}` supplied by llama-swap.
 
-The mutex is cooperative. A client that calls Ollama directly on port 11434 can
-still reload a model behind llama-swap's back. Consumers should use port 8090.
-Before a benchmark, unload every router model, stop both known Ollama models,
-confirm `/running` is empty, and confirm `nvidia-smi` shows the expected free
-VRAM. Retain that free-memory value with the capture.
+The checked-in `ollama-model-skyline.conf` binds Ollama to loopback, limits it
+to one loaded model, and aligns its five-minute keep-alive with llama-swap's
+300-second TTL. This makes port 8090 the only LAN entry point instead of merely
+asking clients to cooperate. Before a benchmark, unload every router model,
+stop both known Ollama models, confirm `/running` is empty, and confirm
+`nvidia-smi` shows the expected free VRAM. Retain that free-memory value with
+the capture.
 
 The lock wrapper acquires `flock` on file descriptor 9 and then `exec`s the
 runner. This detail matters: `flock FILE command` forks on this host, so killing
@@ -39,3 +41,9 @@ transition. An explicit router unload left no Ollama runner, no holder, and
 display stack). The earlier `flock FILE command` wrapper and Ollama CLI stop
 hook both failed this validation; the checked-in descriptor-lock and HTTP
 unload forms are the tested versions.
+
+A later audit found simultaneous 9B chat and 0.6B embedding runners loaded by
+direct LAN calls to Ollama even while `/running` was empty. This was the
+remaining bypass that motivated the loopback binding and
+`OLLAMA_MAX_LOADED_MODELS=1` defense above. Clients formerly using port 11434
+must select the same model IDs through port 8090.
