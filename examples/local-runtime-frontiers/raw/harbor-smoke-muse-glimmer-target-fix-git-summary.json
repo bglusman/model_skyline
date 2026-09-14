@@ -1,0 +1,110 @@
+{
+  "aggregate": {
+    "invalid_trials": 0,
+    "success_percent": "100.0",
+    "successes": "1.0",
+    "valid_trials": 1
+  },
+  "contains_prompts_or_model_messages": false,
+  "expected": {
+    "model": "muse-glimmer-30b-dynamic-target",
+    "task_digests": {
+      "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e"
+    },
+    "tasks": [
+      "terminal-bench/fix-git"
+    ]
+  },
+  "invalid": [],
+  "job": {
+    "concurrency": 1,
+    "finished_at": "2026-09-13T20:56:58.789689",
+    "harbor": {
+      "git_commit_hash": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+      "version": "0.23.0"
+    },
+    "id": "211d0a46-5ef0-4bbc-91e0-4b9878d2cf95",
+    "job_config_sha256": "064f63f7ba8e6f98f5289b20417cefd63834021148b6560699587cb3dcd73b72",
+    "job_lock_sha256": "19b39c512c1d39f98fcfc44fceb7e4d559315c6573622c0c7af8cf21cd5b8bc8",
+    "job_result_sha256": "f6e8b3a0ba8ffa1fdf7c31ce7e22dc8143522fc6d8914c0393aca867a7c970d3",
+    "started_at": "2026-09-13T20:53:11.446260"
+  },
+  "protocol": {
+    "candidate": "muse_glimmer_target",
+    "protocol_sha256": "c0c7624e700c76fa2a51291ec966163a6d06bfc60e1dd375b97b94193eff0842",
+    "system_profile": "system-profiles/muse-glimmer-dynamic-q4xl-target-ctx131k.json",
+    "system_profile_sha256": "ff471eef2691e65aec02f87768086b911df9856d6e2499d7cb3df111470fff0e",
+    "task_set": "smoke"
+  },
+  "schema_version": "model-skyline/harbor-local-job-summary/v1",
+  "trials": [
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 8,
+      "api_request_times_msec": [
+        "32672.479152679443",
+        "115649.70111846924",
+        "9766.79015159607",
+        "10570.168018341064",
+        "5727.728843688965",
+        "6275.930881500244",
+        "3786.062002182007",
+        "10396.719217300415"
+      ],
+      "audit": {
+        "ctrf_sha256": "df7065b51845f569cc09de6e267338615688127ed9f5e50c914331fc1ae2b514",
+        "reward_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "trajectory_sha256": "e24fa614a3b5226872fa0526a63dbb47ebddc9e9a55a4ccfe15d2d18d4152488",
+        "trial_config_sha256": "c7e14e13f1b3b16a90c0d724c84328b3218273295d75b94dc6815be7c826928e",
+        "trial_lock_sha256": "dcc7e083c52c9b46733cf2658c60ca588902227624f2b2458828ffbbe8213b33",
+        "trial_result_sha256": "cc525971bae9070085b277de4b7f5d1c03d19bab6432c0c8a8778c54e1698e45",
+        "verifier_stdout_sha256": "cd275e8dd35d964dffb6972a490bb4afc757653b1bd51382166a94db4c13c9dd"
+      },
+      "ctrf": {
+        "failed": 0,
+        "other": 0,
+        "passed": 2,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 2,
+        "tool_version": "8.4.1"
+      },
+      "model": "muse-glimmer-30b-dynamic-target",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 0
+      },
+      "reward": "1.0",
+      "task_checksum": "e89f54f2fc73ac576f976c1cd09758e4c9ccf152e53c2dcd91da0c178b89abc7",
+      "task_lock_digest": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+      "task_name": "terminal-bench/fix-git",
+      "timing_seconds": {
+        "agent_execution": "203.476917",
+        "agent_setup": "11.268437",
+        "environment_setup": "1.01394",
+        "verifier": "7.025333"
+      },
+      "tokens": {
+        "cache": 17808,
+        "input": 20707,
+        "output": 4605
+      },
+      "trial_id": "567ddd4d-1122-4f7f-b49e-506fd4f33198",
+      "trial_name": "fix-git__nc9VMxB"
+    }
+  ]
+}
