@@ -1,5 +1,9 @@
 # Local-model overnight status — 2026-09-14
 
+> Historical checkpoint: this file predates the completed Laguna XS 2.1
+> measurements. See [`current-model-frontiers.md`](current-model-frontiers.md)
+> for the live residents and coverage counts.
+
 This is the durable handoff for the M5 Max 64 GB local-model and Model Skyline
 work. It distinguishes published default behavior from experiments that are
 still running.

@@ -18,6 +18,7 @@ from model_skyline.io import (
 )
 from model_skyline.local_measurements import (
     LocalArtifactIdentity,
+    LocalHardwareIdentity,
     LocalRuntimeIdentity,
     build_local_catalog,
 )
@@ -29,6 +30,8 @@ RECIPES = EXAMPLE / "recommended-frontier-recipes.yaml"
 CANDIDATE_POPULATION = EXAMPLE / "candidate-population.yaml"
 PILOT = EXAMPLE / "harbor-quality-pilot.yaml"
 FLASH_CODER_SCREEN = EXAMPLE / "harbor-quality-screen-qwen38-flash-coder.yaml"
+LAGUNA_SCREEN = EXAMPLE / "harbor-quality-screen-laguna-xs21.yaml"
+LAGUNA_SCREEN_SUMMARY = EXAMPLE / "raw" / "harbor-smoke-laguna-xs21-nvfp4-fix-git-summary.json"
 FLASH_CODER_CAPACITY_RAW = (
     EXAMPLE / "raw" / "qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json"
 )
@@ -43,7 +46,9 @@ COVERAGE_FRONTIERS = (
     ("warm-cache-reuse", "warm-cache-operational-p2048-o1024-frontier.json"),
     ("uncached-agent-tools", "tool-agent-uncached-p2048-o256-frontier.json"),
     ("long-context-126k", "long-context-uncached-p126k-frontier.json"),
+    ("long-context-value-126k", "long-context-value-uncached-p126k-frontier.json"),
     ("validated-capacity", "validated-capacity-frontier.json"),
+    ("retrieved-value-capacity", "retrieved-value-capacity-frontier.json"),
     ("quality-latency", "harbor-pilot5-quality-latency-frontier.json"),
     ("quality-cache-efficiency", "harbor-pilot5-quality-cache-efficiency-frontier.json"),
     ("quality-process-footprint", "harbor-pilot5-quality-memory-frontier.json"),
@@ -51,7 +56,7 @@ COVERAGE_FRONTIERS = (
 HARBOR_PILOT_SMOKE_SUMMARIES = sorted(
     path
     for path in (EXAMPLE / "raw").glob("harbor-smoke-*-summary.json")
-    if "qwen38-flash-coder" not in path.name
+    if "qwen38-flash-coder" not in path.name and "laguna-xs21" not in path.name
 )
 FLASH_CODER_SCREEN_SUMMARIES = {
     "qwen38_flash_coder_q4km": (
@@ -69,6 +74,9 @@ HARBOR_PILOT_SUMMARIES = {
     "muse": EXAMPLE / "raw" / "harbor-pilot5-muse-glimmer-target-summary.json",
 }
 WARM_CACHE_MEASUREMENTS = (
+    EXAMPLE
+    / "measurements"
+    / "laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o1024-warm.json",
     EXAMPLE / "measurements" / "qwen38-flash-coder-q4km-tool30-auto-p2048-o1024-warm.json",
     EXAMPLE
     / "measurements"
@@ -78,6 +86,11 @@ WARM_CACHE_MEASUREMENTS = (
     / "measurements"
     / "ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm.json",
 )
+
+
+def test_published_local_hardware_profiles_validate() -> None:
+    for path in (EXAMPLE / "hardware").glob("*.json"):
+        LocalHardwareIdentity.model_validate_json(path.read_text(encoding="utf-8"))
 
 
 def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() -> None:
@@ -233,7 +246,7 @@ def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) ->
         )
         for frontier in coverage["frontiers"]
         if frontier["near_members"]
-    ] == [("warm-cache-reuse", ["ornith-ai/Ornith-1.5-35B-A3B"])]
+    ] == [("retrieved-value-capacity", ["poolside/Laguna-XS-2.1"])]
     assert all(
         item["membership"] in {"exact", "near", "dominated"}
         for frontier in coverage["frontiers"]
@@ -242,11 +255,11 @@ def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) ->
     warm_cache = next(
         frontier for frontier in coverage["frontiers"] if frontier["label"] == "warm-cache-reuse"
     )
-    assert [member["model_id"] for member in warm_cache["members"]] == ["Qwen/Qwen3.8-27B"]
-    assert [member["model_id"] for member in warm_cache["near_members"]] == [
-        "ornith-ai/Ornith-1.5-35B-A3B"
+    assert [member["model_id"] for member in warm_cache["members"]] == [
+        "poolside/Laguna-XS-2.1",
+        "Qwen/Qwen3.8-27B",
     ]
-    assert warm_cache["near_members"][0]["minimal_relative_epsilon"] == "0"
+    assert warm_cache["near_members"] == []
     assert [item["offering_id"] for item in warm_cache["rejected"]] == [
         "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@"
         "gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-12bcc817a4f190a7"
@@ -264,17 +277,19 @@ def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) ->
         )
     } == {
         "candidate_count": 9,
-        "required_cell_count": 74,
-        "attempted_cell_count": 33,
-        "eligible_cell_count": 24,
-        "exact_member_cell_count": 11,
-        "attempted_percent": "44.59",
+        "required_cell_count": 92,
+        "attempted_cell_count": 47,
+        "eligible_cell_count": 33,
+        "exact_member_cell_count": 13,
+        "attempted_percent": "51.09",
     }
     candidates = {candidate["model_id"]: candidate for candidate in population["candidates"]}
     assert candidates["Qwen/Qwen3.8-27B"]["attempted_percent"] == "100.00"
     assert candidates["Qwen/Qwen3.8-27B"]["unattempted_frontiers"] == []
     assert candidates["meta-models/Muse-Glimmer-30B"]["unattempted_frontiers"] == [
         "long-context-126k",
+        "long-context-value-126k",
+        "retrieved-value-capacity",
         "uncached-agent-tools",
         "validated-capacity",
     ]
@@ -282,14 +297,22 @@ def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) ->
         "CohereLabs/North-Mini-Code-1.0",
         "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
         "InternScience/Agents-A1",
-        "poolside/Laguna-XS-2.1",
     ):
         assert candidates[model_id]["attempted_frontier_count"] == 0
         assert candidates[model_id]["attempted_percent"] == "0.00"
-        assert len(candidates[model_id]["unattempted_frontiers"]) == 9
+        assert len(candidates[model_id]["unattempted_frontiers"]) == 11
+    assert candidates["poolside/Laguna-XS-2.1"]["attempted_frontier_count"] == 7
+    assert candidates["poolside/Laguna-XS-2.1"]["attempted_percent"] == "63.64"
+    assert candidates["poolside/Laguna-XS-2.1"]["unattempted_frontiers"] == [
+        "quality-cache-efficiency",
+        "quality-latency",
+        "quality-process-footprint",
+        "short-throughput",
+    ]
     families = {family["model_id"]: family for family in coverage["model_families"]}
     assert families["ornith-ai/Ornith-1.5-35B-A3B"]["rejected_only_frontiers"] == [
         "long-context-126k",
+        "long-context-value-126k",
         "quality-cache-efficiency",
         "quality-process-footprint",
         "validated-capacity",
@@ -358,7 +381,10 @@ def test_warm_cache_frontier_is_reproducible_and_gates_correctness() -> None:
     )
 
     assert rebuilt == published
-    assert [member.offering.model_id for member in published.members] == ["Qwen/Qwen3.8-27B"]
+    assert [member.offering.model_id for member in published.members] == [
+        "poolside/Laguna-XS-2.1",
+        "Qwen/Qwen3.8-27B",
+    ]
     by_model = {offering.offering.model_id: offering for offering in catalog.offerings}
     assert by_model["Qwen/Qwen3.8-27B"].signals[
         "local_prefix_cache_reuse_percent"
@@ -532,9 +558,12 @@ def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
     uncached_frontier = load_frontier_snapshot(
         generated / "tool-agent-uncached-p2048-o256-frontier.json"
     )
-    assert [member.offering for member in uncached_frontier.members] == [
-        uncached_candidate[0].offering
+    assert [member.offering.model_id for member in uncached_frontier.members] == [
+        "poolside/Laguna-XS-2.1"
     ]
+    assert all(
+        member.offering != uncached_candidate[0].offering for member in uncached_frontier.members
+    )
 
     warm_catalog = load_catalog(generated / "tool-agent-warm-p2048-o1024-catalog.json")
     assert any(
@@ -552,14 +581,44 @@ def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
     assert coverage["near_epsilon"] == "0.05"
     assert [
         frontier["label"] for frontier in coverage["frontiers"] if frontier["near_members"]
-    ] == ["warm-cache-reuse"]
+    ] == ["retrieved-value-capacity"]
     flash_coder_family = next(
         family
         for family in coverage["model_families"]
         if family["model_id"] == "Jab1718/qwen3.8-flash-coder-26gb-gguf"
     )
-    assert flash_coder_family["frontier_count"] == 1
-    assert flash_coder_family["frontiers"] == ["uncached-agent-tools"]
+    assert flash_coder_family["frontier_count"] == 0
+    assert flash_coder_family["frontiers"] == []
+
+
+def test_laguna_screen_is_prompt_free_and_blocks_quality_pilot() -> None:
+    screen = yaml.safe_load(LAGUNA_SCREEN.read_text(encoding="utf-8"))
+    summary = json.loads(LAGUNA_SCREEN_SUMMARY.read_text(encoding="utf-8"))
+
+    assert screen["schema_version"] == "model-skyline/local-quality-pilot/v1"
+    assert screen["screen"]["relationship_to_frozen_pilot"] == "additive_candidate_gate"
+    assert screen["screen"]["on_failure"] == "do_not_run_five_task_pilot"
+    assert summary["contains_prompts_or_model_messages"] is False
+    assert "/Users/" not in json.dumps(summary)
+    assert (
+        summary["protocol"]["protocol_sha256"]
+        == hashlib.sha256(LAGUNA_SCREEN.read_bytes()).hexdigest()
+    )
+    assert summary["aggregate"] == {
+        "invalid_trials": 0,
+        "success_percent": "0.0",
+        "successes": "0.0",
+        "valid_trials": 1,
+    }
+    trial = summary["trials"][0]
+    assert trial["reward"] == "0.0"
+    assert trial["agent_episodes"] == 40
+    assert {key: trial["ctrf"][key] for key in ("failed", "passed", "tests")} == {
+        "failed": 2,
+        "passed": 0,
+        "tests": 2,
+    }
+    assert trial["parser_feedback_events"]["errors"] == 25
 
 
 def test_published_capacity_frontier_retains_failed_candidate_for_audit() -> None:
@@ -592,6 +651,7 @@ def test_published_capacity_frontier_retains_failed_candidate_for_audit() -> Non
         "Qwen/Qwen3.8-27B",
         "Qwen/Qwen3.8-Flash-Next",
         "ornith-ai/Ornith-1.5-35B-A3B",
+        "poolside/Laguna-XS-2.1",
     }
     flash_coder = offerings["Jab1718/qwen3.8-flash-coder-26gb-gguf"]
     ornith = offerings["ornith-ai/Ornith-1.5-35B-A3B"]
@@ -599,6 +659,7 @@ def test_published_capacity_frontier_retains_failed_candidate_for_audit() -> Non
     assert "local_validated_context_tokens" not in flash_coder.signals
     assert "local_peak_process_physical_footprint_bytes" not in flash_coder.signals
     assert flash_coder.metadata["capacity_validation"] == {
+        "integrity_check": "retrieval",
         "attempted_position_count": 4,
         "configured_context_tokens": 131072,
         "fully_passing_position_count": 0,
@@ -618,6 +679,7 @@ def test_published_capacity_frontier_retains_failed_candidate_for_audit() -> Non
     assert "local_validated_context_tokens" not in ornith.signals
     assert "local_peak_process_physical_footprint_bytes" not in ornith.signals
     assert ornith.metadata["capacity_validation"] == {
+        "integrity_check": "retrieval",
         "attempted_position_count": 1,
         "configured_context_tokens": 262144,
         "fully_passing_position_count": 0,
@@ -630,12 +692,24 @@ def test_published_capacity_frontier_retains_failed_candidate_for_audit() -> Non
     assert {rejected.offering_id for rejected in frontier.rejected} == {
         flash_coder.offering.offering_id,
         ornith.offering.offering_id,
+        offerings["poolside/Laguna-XS-2.1"].offering.offering_id,
     }
 
     coverage = json.loads((generated / "cross-frontier-coverage.json").read_text(encoding="utf-8"))
     capacity = next(item for item in coverage["frontiers"] if item["label"] == "validated-capacity")
     assert capacity["snapshot_id"] == frontier.snapshot_id
-    assert capacity["rejected_count"] == 2
+    assert capacity["rejected_count"] == 3
+
+    value_frontier = load_frontier_snapshot(
+        generated / "long-context-value-uncached-p126k-frontier.json"
+    )
+    assert [member.offering.model_id for member in value_frontier.members] == [
+        "poolside/Laguna-XS-2.1"
+    ]
+    value_capacity = load_frontier_snapshot(generated / "retrieved-value-capacity-frontier.json")
+    assert [member.offering.model_id for member in value_capacity.members] == [
+        "Qwen/Qwen3.8-Flash-Next"
+    ]
 
 
 def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:

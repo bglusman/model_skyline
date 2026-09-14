@@ -7,14 +7,17 @@ Those fixes are published in upstream PR
 [#3](https://github.com/notactuallytreyanastasio/shoehorn/pull/3), which remains
 open and mergeable.
 
-ShoeHorn is a worthwhile fitter for dense BF16/F16 GGUFs and fully resident
-checkpoints whose memory model has been validated. Ornith 1.5 is a hybrid
-attention/Gated-DeltaNet MoE, not a conventional all-attention MoE, so its
-current plan is a deliberately conservative experiment rather than an exact
-memory-fit claim. ShoeHorn is not yet a safe exact-fit path for Qwen3.8 Flash
-Next or other pageable-weight architectures. The active experiment retains the
-exact output bytes and compares them with ordinary Q4_K_M/Q5_K_M artifacts
-rather than assuming the solver's error objective predicts agent quality.
+[ShoeHorn](https://github.com/notactuallytreyanastasio/shoehorn) is a worthwhile
+fitter for dense BF16/F16 GGUFs and fully resident checkpoints whose runtime
+memory model has been validated. Its result is a valid exact local offering:
+it may enter a hardware-filtered frontier when the source revision, plan,
+output bytes, context/KV settings, and measurements are all retained. Ornith
+1.5 is a hybrid attention/Gated-DeltaNet MoE, not a conventional all-attention
+MoE, so its current plan is a deliberately conservative experiment rather than
+an independently proven memory decomposition. ShoeHorn is not yet a safe fit
+path for pageable-weight architectures. The active experiments retain exact
+output bytes and compare them with ordinary artifacts rather than assuming the
+solver's error objective predicts agent quality.
 
 ## Confirmed implementation findings
 
@@ -79,14 +82,18 @@ shoehorn fit bartowski/Ornith-1.5-35B-A3B-GGUF \
   -o Ornith-1.5-35B-A3B-shoehorn-64gb-ctx131k-q8kv.gguf
 ```
 
-Ornith exposes 40 hybrid layers but oMLX reports only 10 attention KV caches.
-ShoeHorn currently charges classic KV for all 40 layers, so its 5.45 GiB Q8 KV
-allowance is roughly four times the classic attention-only component; recurrent
-state still needs direct measurement. That conservatism should make the output
-safe to try, but may leave about 4 GiB that a future architecture-aware plan
-could exchange for weight fidelity or context. Calibration was deliberately
-disabled because the current one-sequence llama.cpp parser neither disables
-llama.cpp auto-fit nor accounts for this recurrent layout. The real fit uses
+Ornith exposes 40 hybrid layers while oMLX reports only 10 full attention KV
+caches. That does **not** prove llama.cpp allocates only one quarter as much:
+the current standard llama.cpp KV path creates per-layer K/V tensors using one
+common `kv_size`, including sliding-window layers. ShoeHorn's all-layer charge
+may therefore match current llama.cpp allocation even though it overstates the
+model's semantic attention window. Recurrent state and the actual runtime
+allocation still need direct measurement before claiming either overcount or
+reclaimable space. See the current
+[`llama-kv-cache.cpp`](https://github.com/ggml-org/llama.cpp/blob/master/src/llama-kv-cache.cpp).
+Calibration was deliberately disabled because the current one-sequence
+llama.cpp parser neither disables llama.cpp auto-fit nor accounts for this
+recurrent layout. The real fit uses
 exact row errors and produced a 48,747,873,632-byte GGUF whose file SHA-256 is
 `138e4fad79b6c11b9e8cd206ba7bd442482efe599550f11a629b6af8f181b150`.
 Its retained file manifest is
@@ -138,14 +145,39 @@ whether a task-specific exception exists.
 ## Why Qwen3.8 Flash is different
 
 Flash Next has hybrid attention/recurrent state and a very large PLE table.
-ShoeHorn currently multiplies KV dimensions by every layer, which overstates
-128K attention KV by roughly four times for this architecture, while omitting
-some recurrent/server state. It then budgets every weight byte as resident,
-merges all input shards into one output, and removes `split.*` metadata. That
-destroys the model's useful separation between ordinarily resident weights and
-the pageable PLE shard. A plausible fit therefore requires architecture-aware
-attention masks, recurrent-state accounting, residency classes, and
-split-preserving output—not merely a different quantization target.
+ShoeHorn currently charges ordinary KV dimensions for every layer and omits
+some recurrent/server state; the net accuracy of that estimate depends on the
+exact llama.cpp cache implementation and must be measured. More importantly,
+it budgets every weight byte as resident, merges all input shards into one
+output, and removes `split.*` metadata. That destroys the model's useful
+separation between ordinarily resident weights and the pageable PLE shard. A
+plausible fit therefore requires recurrent-state accounting, residency classes,
+and split-preserving output—not merely a different quantization target.
+
+## RTX 5060 Ti 16 GB target
+
+The new discrete-GPU target is
+[`inference-vm-rtx5060ti16`](hardware/inference-vm-rtx5060ti16.json): NVIDIA
+reports 16,311 MiB of VRAM, while the VM has 9.64 GiB of ordinary RAM. Existing
+Ollama processes must be unloaded before measuring usable VRAM; the inventory
+snapshot found only 4,080 MiB free because two unrelated models were resident.
+The planning budget therefore uses the unloaded capacity minus an explicit
+reserve, not that contaminated free-memory snapshot.
+
+The first candidate is Laguna XS 2.1 from a pinned BF16 GGUF plus pinned
+importance matrix. Three distinct targets are intentionally kept separate:
+
+| Target | Why test it | Frontier interpretation |
+| --- | --- | --- |
+| 32K context, Q8 KV | Leaves the largest weight budget and should maximize quantized quality | Useful small-context 5060 offering; does not satisfy the 128K gate |
+| 128K context, Q4 KV | Exchanges KV fidelity for enough weight space to attempt the desired context | Valid 128K candidate only if exact retrieval and quality pass |
+| 128K context, Q8 KV | Higher-fidelity cache control | May be infeasible fully resident; a failed plan/load is still useful admission evidence |
+
+Each successful output will retain the ShoeHorn source revision, importance
+matrix digest, commit, solved tensor assignments, output SHA-256, llama.cpp
+build, actual placement, and measured peak VRAM. A plan that fits only by
+spilling heavily into the VM's limited RAM is not equivalent to a resident-GPU
+offering and must remain a separate placement profile.
 
 Recent upstream reports also show why runtime version and server configuration
 must remain evidence identity for hybrid models: recurrent checkpoint handling

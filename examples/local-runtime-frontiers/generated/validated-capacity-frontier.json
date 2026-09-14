@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "2b7751ee7ee0bcf459b37bf2a52330ada1392036fc47eccb3ad7fa33fe1be624",
+  "snapshot_id": "35a39c76fbec15c4b1cfc8047e09fae71bcfc14579dce0da190c0daf037c7cc3",
   "config_hash": "5a4c3180b8f3788c265759023ddc0c15ecf44b7e8864653ebd2f5de707929683",
-  "catalog_hash": "c5850f7f952609fa00f9e0c8cbd3d534ebf45ae99460e5b3110cfd6988698c71",
+  "catalog_hash": "d781ef2bd9f8652707a7bac03b4c2674408915518f01718eaa5f570b68347d75",
   "engine_version": "0.9.0",
-  "generated_at": "2026-09-14T08:00:00Z",
+  "generated_at": "2026-09-14T23:59:59-04:00",
   "frontier_id": "validated-capacity-memory",
   "workload": {
     "id": "validated-capacity-v1",
@@ -634,6 +634,13 @@
         "validated_context: signal 'local_validated_context_tokens' is missing",
         "peak_physical_footprint: signal 'local_peak_process_physical_footprint_bytes' is missing"
       ]
+    },
+    {
+      "offering_id": "local/macbook-m5max-64/poolside/Laguna-XS-2.1@mlx-safetensors-NVFP4-group16-oMLX-d77b710dbd6c5187",
+      "reasons": [
+        "validated_context: signal 'local_validated_context_tokens' is missing",
+        "peak_physical_footprint: signal 'local_peak_process_physical_footprint_bytes' is missing"
+      ]
     }
   ],
   "axis_evidence": {
@@ -641,8 +648,8 @@
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
     "config_hash": "5a4c3180b8f3788c265759023ddc0c15ecf44b7e8864653ebd2f5de707929683",
-    "catalog_hash": "c5850f7f952609fa00f9e0c8cbd3d534ebf45ae99460e5b3110cfd6988698c71",
-    "generated_at": "2026-09-14T08:00:00Z",
+    "catalog_hash": "d781ef2bd9f8652707a7bac03b4c2674408915518f01718eaa5f570b68347d75",
+    "generated_at": "2026-09-14T23:59:59-04:00",
     "workload": {
       "id": "validated-capacity-v1",
       "version": "1",
@@ -664,7 +671,7 @@
         "epsilon_relative": "0.05"
       }
     ],
-    "candidate_universe_hash": "4510268a5ffc282e09052b1b762aea71260851c8b6ba42acd5a7c9ee716a4bbc",
+    "candidate_universe_hash": "2af514f6f75295739f21a51f3a64a011819b53e8276e5427346d13c1f80d83a3",
     "candidates": [
       {
         "offering": {
@@ -846,6 +853,26 @@
       },
       {
         "offering": {
+          "offering_id": "local/macbook-m5max-64/poolside/Laguna-XS-2.1@mlx-safetensors-NVFP4-group16-oMLX-d77b710dbd6c5187",
+          "model_id": "poolside/Laguna-XS-2.1",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "NVFP4-group16",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {}
+      },
+      {
+        "offering": {
           "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
           "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
           "provider": "local:macbook-m5max-64",
@@ -864,7 +891,7 @@
         "axes": {}
       }
     ],
-    "inventory_id": "3ae43a545943a0a44bc0e0985547c1e67566424d05dfff6189bedde6a3a44c3e"
+    "inventory_id": "bacaffbe9f6441097beb41ec8232f6672e663c445bbb3dd8ece18e7b637f6ae8"
   },
   "public_release_blocked": false,
   "sources": [
@@ -897,6 +924,16 @@
       "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
       "raw_sha256": "aff8d47ebc345646d62f084a7528a8ff110ec16f0bc22de42a3bf83ff8912a39",
       "retrieved_at": "2026-09-13T13:34:30.556320Z"
+    },
+    {
+      "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "5fabb00c5d392668e74b69f33eacf1210c252420a29059d9f53704a6e60fa53a",
+      "retrieved_at": "2026-09-14T15:32:14.204746Z"
     },
     {
       "id": "local-measurement:qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-r3-footprint-p126000-o64-miss-needle-0p5",

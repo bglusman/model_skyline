@@ -1,9 +1,10 @@
 # Poolside Laguna XS 2.1 local intake
 
 This intake pins a local-first coding and terminal-agent challenger for 64 GB
-Apple Silicon. It is an experiment plan, not a measured ModelSkyline offering
-or a frontier claim. Publisher benchmark results define relevance and test
-priority; they are not quality observations for a quantized local artifact.
+Apple Silicon and the first 16 GB RTX 5060 fit experiment. The NVFP4 MLX route
+is now a measured ModelSkyline offering; the publisher benchmarks still define
+relevance and test priority rather than supplying quality observations for that
+quantized artifact.
 
 ## Candidate hypothesis
 
@@ -17,7 +18,7 @@ Use these first-party controls:
 
 | Profile | Pinned artifact |
 | --- | --- |
-| Primary MLX | `poolside/Laguna-XS-2.1-NVFP4-mlx` at `841778bda563a36104dd521e37d99218e46f4f25`; 21,568,905,520 repository bytes |
+| Primary MLX | `poolside/Laguna-XS-2.1-NVFP4-mlx` at `841778bda563a36104dd521e37d99218e46f4f25`; 21,568,898,815 defining file bytes; manifest SHA-256 `61f1951f6ef2a5d22a59e7a8e89b2683c506be15bbd616928c7f59b5964ec45d` |
 | Portable GGUF | `poolside/Laguna-XS-2.1-GGUF` at `1a37c0a5fb8c7a18e6106decb6be6327d1b63fa6`; `Laguna-XS-2.1-Q4_K_M.gguf`; 20,274,300,032 bytes; SHA-256 `1ac7079101fca5a6df8c5a7523a3c30ea7d1c0e4b1258090e7d6d4039287f6cb` |
 | Optional DFlash draft | `poolside/Laguna-XS-2.1-DFlash` at `5c36361aab23c8ed3afbd079c10c426b677bc607`; 924,135,848-byte safetensor; SHA-256 `0b51e20d76200a80e636414f45fb51a5c0e13b0852d977ba2db788214c68f6b8` |
 
@@ -67,6 +68,31 @@ Runtime support is concrete but still requires local admission:
 Use the release sampler for quality: temperature 1.0, top-k 20, top-p 1.0,
 thinking enabled. Deterministic operational probes remain separate positions.
 Never combine cache-disabled, cache-miss, warm-hit, or DFlash samples.
+
+## Measured NVFP4 status
+
+The M5 Max route loads in 5.31 seconds and allocates about 20.32 GB in MLX. It
+passes the simple response gate, multi-turn reconstruction, 3/3 uncached exact
+automatic tool calls, and 4/4 warm exact automatic tool calls. At the matched
+30-tool positions it is the fastest current resident: 1.815 s uncached and
+0.692 s warm. With the SSD prefix cache it reused 96.71% of the fixed input;
+Qwen3.8 DFlash remains beside it on the cache frontier because Qwen reused
+99.87% at a slower 0.862 s.
+
+Those wins are deliberately narrow. The frozen Harbor smoke ran all 40 turns,
+solved 0/2 verifier checks, and recorded 25 parser errors. At 2K, 32K, 65K, and
+126K the model found the hidden retrieval value, including 3/3 repetitions at
+126K, but never returned the value alone as instructed. It therefore receives
+the explanatory `retrieval_value` signal but fails strict retrieval and gets no
+validated-context capacity. The current conclusion is “fast structured-call
+specialist, not yet a reliable general coding agent.”
+
+The 5060 experiment uses
+[ShoeHorn](https://github.com/notactuallytreyanastasio/shoehorn) to create exact
+hardware-targeted GGUF offerings from BF16 plus an importance matrix. The
+32K/Q8-KV and 128K/Q4-KV targets remain separate because their KV budgets leave
+different weight-fidelity budgets. Neither may inherit this MLX route's tool or
+retrieval results.
 
 ## Evaluation sequence and promotion gates
 

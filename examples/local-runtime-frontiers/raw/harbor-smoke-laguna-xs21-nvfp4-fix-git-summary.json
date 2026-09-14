@@ -1,0 +1,148 @@
+{
+  "aggregate": {
+    "invalid_trials": 0,
+    "success_percent": "0.0",
+    "successes": "0.0",
+    "valid_trials": 1
+  },
+  "contains_prompts_or_model_messages": false,
+  "expected": {
+    "model": "laguna-xs-2.1-nvfp4",
+    "quality_attributable_exceptions": [
+      "AgentSafetyRefusalError",
+      "AgentTimeoutError"
+    ],
+    "task_digests": {
+      "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e"
+    },
+    "tasks": [
+      "terminal-bench/fix-git"
+    ]
+  },
+  "invalid": [],
+  "job": {
+    "concurrency": 1,
+    "finished_at": "2026-09-14T11:42:20.310288",
+    "harbor": {
+      "git_commit_hash": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+      "version": "0.23.0"
+    },
+    "id": "b7a4fae2-0b8c-47c2-b48e-1b44d34eb68d",
+    "job_config_sha256": "19c19f165608f42af46cd6b73f180e98ab5ff09db2b345decd79076eec094444",
+    "job_lock_sha256": "d0abafa2660626fdaf1754467baaa2310bc2f6e8afe2a7aff69601e334eaff2d",
+    "job_result_sha256": "562457cec69b7353b9d6e08b80459ad4dc0b7c74c1cf314487e8f8ac996bb4ec",
+    "started_at": "2026-09-14T11:39:10.962871"
+  },
+  "protocol": {
+    "candidate": "laguna_xs21_nvfp4",
+    "protocol_sha256": "2d8a82b280a45874ec4bc349012f12761271b1eca3bc348498a23d5d852fa3ba",
+    "system_profile": "system-profiles/laguna-xs21-nvfp4-omlx-baseline-f16kv-cache-ssd.json",
+    "system_profile_sha256": "eec5a0a2e5a2e2d0b694cf8197824bcbd839e2f1772d04fde13272bc37745c35",
+    "task_set": "smoke"
+  },
+  "schema_version": "model-skyline/harbor-local-job-summary/v1",
+  "trials": [
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 40,
+      "api_request_times_msec": [
+        "9199.735164642334",
+        "2851.3848781585693",
+        "2454.710006713867",
+        "2554.5008182525635",
+        "3055.469036102295",
+        "3208.796739578247",
+        "3126.9989013671875",
+        "3244.136333465576",
+        "3169.989824295044",
+        "3100.3401279449463",
+        "3354.696035385132",
+        "3219.959020614624",
+        "2689.265251159668",
+        "2714.515209197998",
+        "3577.8098106384277",
+        "2925.9328842163086",
+        "4560.41693687439",
+        "3193.1822299957275",
+        "4689.631223678589",
+        "2849.2093086242676",
+        "5782.750368118286",
+        "3588.459014892578",
+        "3976.369857788086",
+        "3106.499195098877",
+        "2851.5138626098633",
+        "3224.8661518096924",
+        "5244.502067565918",
+        "3458.047389984131",
+        "3184.5879554748535",
+        "3122.7810382843018",
+        "3803.112030029297",
+        "5032.145738601685",
+        "3701.2290954589844",
+        "4318.609952926636",
+        "3300.1351356506348",
+        "4395.493745803833",
+        "5858.876943588257",
+        "3957.598924636841",
+        "3998.1629848480225",
+        "3089.9577140808105"
+      ],
+      "audit": {
+        "ctrf_sha256": "4207031f2e4c8fa8f252a0da7a1e4e0a2c7e54645a008018ae856ac41c5081ee",
+        "reward_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "trajectory_sha256": "f3f0348ddfbd2bfeb6494bbfde985eb21d0767c48e39eede13147438d92f5de0",
+        "trial_config_sha256": "424edeac0eb62e168acd476f8787dff647436ff0c712a287918b5beb4d006891",
+        "trial_lock_sha256": "6ac6628b23fa67af00c8455329a5971f92983baea6e6aa7400c09c15ff484027",
+        "trial_result_sha256": "eb675f0f454718bd95937fe4eb72e5d7807474fd5067de1d883a8e8baf74b608",
+        "verifier_stdout_sha256": "aaaf1789428bb745d1d7de0dfe115d747df74b7264d02c8ec4bac19445b5aeef"
+      },
+      "ctrf": {
+        "failed": 2,
+        "other": 0,
+        "passed": 0,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 2,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "laguna-xs-2.1-nvfp4",
+      "parser_feedback_events": {
+        "errors": 25,
+        "warnings": 14
+      },
+      "quality_attributable_exception": null,
+      "reward": "0.0",
+      "task_checksum": "e89f54f2fc73ac576f976c1cd09758e4c9ccf152e53c2dcd91da0c178b89abc7",
+      "task_lock_digest": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+      "task_name": "terminal-bench/fix-git",
+      "timing_seconds": {
+        "agent_execution": "162.557159",
+        "agent_setup": "11.676392",
+        "environment_setup": "2.544411",
+        "verifier": "8.17159"
+      },
+      "tokens": {
+        "cache": 353792,
+        "input": 385377,
+        "output": 10043
+      },
+      "trial_id": "f742751f-80d1-466d-b190-4d484a58bb8b",
+      "trial_name": "fix-git__DwHaYDc"
+    }
+  ]
+}

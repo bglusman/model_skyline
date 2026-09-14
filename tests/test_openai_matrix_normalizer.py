@@ -108,13 +108,46 @@ def test_retrieval_prompt_calibrates_to_a_tokenizer_count_target() -> None:
     assert abs(prompt.index(expected) / len(prompt) - 0.5) < 0.01
 
 
-def test_retrieval_integrity_requires_an_exact_final_answer() -> None:
+def test_retrieval_integrity_separates_value_recovery_from_exact_answer() -> None:
     rows = [
-        {"expected_content_exact": True, "expected_content_sha256": "a" * 64},
-        {"expected_content_exact": False, "expected_content_sha256": "a" * 64},
+        {
+            "expected_content_present": True,
+            "expected_content_exact": True,
+            "expected_content_sha256": "a" * 64,
+        },
+        {
+            "expected_content_present": True,
+            "expected_content_exact": False,
+            "expected_content_sha256": "a" * 64,
+        },
     ]
 
-    assert NORMALIZER._retrieval_integrity(rows)["retrieval"] == {"passed": 1, "total": 2}
+    integrity = NORMALIZER._retrieval_integrity(rows)
+
+    assert integrity["retrieval"] == {"passed": 1, "total": 2}
+    assert integrity["retrieval_value"] == {"passed": 2, "total": 2}
+
+
+def test_retrieval_integrity_accepts_legacy_exact_only_rows() -> None:
+    rows = [{"expected_content_exact": True, "expected_content_sha256": "a" * 64}]
+
+    integrity = NORMALIZER._retrieval_integrity(rows)
+
+    assert integrity["retrieval"] == {"passed": 1, "total": 1}
+    assert integrity["retrieval_value"] == {"passed": 1, "total": 1}
+
+
+def test_retrieval_integrity_rejects_impossible_exact_without_value() -> None:
+    rows = [
+        {
+            "expected_content_present": False,
+            "expected_content_exact": True,
+            "expected_content_sha256": "a" * 64,
+        }
+    ]
+
+    with pytest.raises(ValueError, match="must contain"):
+        NORMALIZER._retrieval_integrity(rows)
 
 
 def test_input_definition_hash_covers_system_prompt_and_tool_schema() -> None:

@@ -1,5 +1,9 @@
 # Local-model overnight handoff — 2026-09-14
 
+> Historical checkpoint: this handoff predates the completed Laguna XS 2.1
+> measurements. See [`current-model-frontiers.md`](current-model-frontiers.md)
+> for the live residents and coverage counts.
+
 This is the durable handoff after the overnight M5 Max/M1 Max local-model
 work. It distinguishes merged tooling and measured observations from the
 experiments that are still running. The detailed first-pass decision report is

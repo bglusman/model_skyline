@@ -18,8 +18,40 @@ raw-result digest so each headline result remains reproducible.
 
 The current artifacts are provisional. They now include cross-model
 throughput, warm and uncached tool operation, repeated 126K retrieval, and a
-validated-capacity/physical-footprint roll-up. They remain workload-specific,
-not a universal model ranking.
+strict plus value-found capacity/physical-footprint roll-up. They remain
+workload-specific, not a universal model ranking.
+
+The [Little Dorrit intake](dorrit-benchmark-intake.md) separately evaluates a
+promising document-vision benchmark. It is queued for vision-capable local
+artifacts and is intentionally not mixed into the current text/coding score.
+
+## Where custom fits belong
+
+A hardware-targeted quantization is a real candidate, not an approximation
+that must be hidden from the frontier. In this repository a
+[ShoeHorn](https://github.com/notactuallytreyanastasio/shoehorn) output is one
+exact **offering** of its parent model: source revision, importance-matrix
+digest, ShoeHorn commit and solved plan, output digest, context/KV budget, and
+runtime settings identify the bytes that were actually tested. The headline
+model view can therefore select a ShoeHorn fit as the best observed way to run
+that model on a particular machine.
+
+It does not inherit quality from either the source checkpoint or another
+quantization. The fitted bytes must pass the same tool, context, quality,
+latency, and memory measurements as a stock artifact. Two fits aimed at 32K
+Q8 KV and 128K Q4 KV are also different workload/configuration choices: the
+larger context spends more accelerator memory on KV and may force lower-fidelity
+weights. The exact offering frontier keeps that detail; the model-first table
+collapses it only after the comparison.
+
+This matters especially on discrete GPUs. The current RTX 5060 Ti host has
+16,311 MiB of reported VRAM and only 9.64 GiB of VM RAM. A stock artifact that
+fits a 64 GB unified-memory Mac may not be fully GPU-resident there, while a
+ShoeHorn fit can legitimately become the 5060 recommendation if its exact
+bytes win after the desired context and quality gates. The checked-in
+[`hardware profile`](hardware/inference-vm-rtx5060ti16.json) records that target;
+the first Laguna 128K fit remains an experiment until its plan, output, and
+measurements are complete.
 
 The dated [`overnight handoff`](overnight-handoff-2026-09-14.md) summarizes the
 published frontier residents, cross-Mac conclusions, runtime state, and pending
@@ -72,11 +104,11 @@ large per-second traces.
 The additive
 [`Qwen3.8 Flash Coder 160-expert screen`](qwen38-flash-coder-screen.md)
 evaluates one custom MoE slice without changing the frozen pilot digest. It
-earns the narrow uncached-tool frontier but fails the real-agent smoke and the
-retrieval ladder, so it is not a general local-agent recommendation.
+fails the real-agent smoke and retrieval ladder; Laguna now also dominates it
+on the narrow uncached-tool frontier it previously occupied.
 
-Four next candidates are pinned without treating external scores as local
-measurements. The
+Four additional candidates were pinned without treating external scores as
+local measurements. The
 [`North Mini Code local intake`](north-mini-code-intake.md) is the agent-quality
 challenger: it targets terminal work directly and has both oMLX and portable
 GGUF controls. The
@@ -87,9 +119,11 @@ external-DSpark profiles. The
 search/research hypothesis and motivates a separate evidence-grounded research
 frontier rather than importing research scores into Terminal-Bench. The
 [`Laguna XS 2.1 local intake`](laguna-xs-2.1-intake.md) adds a first-party
-local-focused coding challenger with MLX and GGUF controls. All four define
-correctness, cache, context, memory, and real-agent promotion gates; none is a
-measured frontier resident yet.
+local-focused coding challenger with MLX and GGUF controls. Laguna has now run
+seven intended positions and occupies the synthetic tool/cache and fast
+value-retrieval frontiers, but failed its real-agent smoke and strict retrieval
+gate. North, Nemotron, and Agents-A1 remain pinned rather than measured
+residents.
 
 The
 [`installed runtime-support audit`](runtime-support-audit-2026-09-14.md)
@@ -162,8 +196,14 @@ Every active frontier has exactly two decision axes:
   fixed-prefix operational ratio, not a general cache-hit probability.
 - `long-context-operational`: exact retrieval success (maximize) vs end-to-end
   latency (minimize), at a fixed long-context position.
-- `validated-capacity-memory`: largest fully passing retrieval position
+- `long-context-value-operational`: requested-value presence (maximize) vs
+  end-to-end latency (minimize) at the same fixed position. This isolates
+  information access from exact output-format obedience.
+- `validated-capacity-memory`: largest fully exact-answer retrieval position
   (maximize) vs peak physical footprint (minimize).
+- `retrieved-value-capacity-memory`: largest position where every response
+  contains the requested value (maximize) vs peak physical footprint
+  (minimize).
 - `local-agent-quality-latency`: exact five-task verifier success (maximize) vs
   p95 full task wall time, including attributable failures (minimize).
 - `local-agent-quality-memory`: the same exact success score (maximize) vs a
@@ -232,11 +272,13 @@ The current epsilon-aware coverage result is:
 | Position-specific frontier | Member(s) |
 | --- | --- |
 | Cross-model pp2048/tg512 throughput | Ornith 1.5 Q4 GGUF |
-| Warm 30-tool, 2K-prefix/1K-output operation | Ornith 1.5 oMLX; Qwen3.8 27B DFlash |
-| Warm 30-tool prefix reuse vs latency | Qwen3.8 27B DFlash; Ornith 1.5 oMLX is near-only under strict untoleranced comparison |
-| Uncached 30-tool, 2K-prefix/256-output operation | Qwen3.8 Flash Coder 160-expert Q4_K_M |
+| Warm 30-tool, 2K-prefix/1K-output operation | Laguna XS 2.1 NVFP4 oMLX |
+| Warm 30-tool prefix reuse vs latency | Laguna XS 2.1 NVFP4 oMLX; Qwen3.8 27B DFlash |
+| Uncached 30-tool, 2K-prefix/256-output operation | Laguna XS 2.1 NVFP4 oMLX |
 | Uncached 126K exact retrieval | Qwen3.8 Flash Next on DS4 |
-| Validated capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
+| Uncached 126K value-found retrieval | Laguna XS 2.1 NVFP4 oMLX |
+| Strict exact-answer capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
+| Value-found capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
 | Five-task local-agent quality vs latency | Qwen3.8 27B oMLX, low reasoning/4K thinking |
 | Five-task local-agent quality vs exact uncached input | Muse Glimmer |
 | Five-task local-agent quality vs process footprint | Qwen3.8 27B oMLX, low reasoning/4K thinking; Muse Glimmer |
@@ -288,12 +330,15 @@ snapshots.
 
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
-At model-family identity, dense Qwen3.8 covers four complementary frontiers;
-DS4 Flash Next, Muse Glimmer, and Ornith each cover two. The custom Flash Coder
-slice covers one narrow uncached-tool frontier. It is not promoted to a wider
-winner because it failed the matched real-agent smoke and every strict
-retrieval position. The coverage artifact keeps distinct harness, reasoning,
-and runtime offerings separate rather than manufacturing a synthetic score.
+At model-family identity, Laguna covers four exact frontiers—three related
+tool/cache views plus fast value retrieval—and is near the value-capacity
+frontier. Dense Qwen3.8 and DS4 Flash Next cover three exact frontiers each,
+Muse Glimmer covers two, and Ornith covers raw throughput. These are roles, not
+points in a hidden combined score. Laguna is not promoted to a general winner
+because it failed the matched real-agent smoke and every strict retrieval
+position. Flash Coder no longer covers an exact frontier. The
+coverage artifact keeps distinct harness, reasoning, and runtime offerings
+separate rather than manufacturing a synthetic score.
 Muse's matched warm tool probe remains rejected by the 100% correctness
 threshold even though its verifier-scored route remains valuable on the
 cache-demand and memory frontiers.
@@ -302,11 +347,10 @@ That resident count is not a population-completeness claim. The versioned
 [`candidate population`](candidate-population.yaml) nominates nine model
 families only for the positions where they are intended to compete. Coverage
 v3 reports each required model-family/frontier cell as eligible-evaluated,
-explicitly gate-rejected, or unattempted. The current evidence attempts 33 of
-74 nominated cells (44.59%): dense Qwen and DS4 have complete coverage for their
-declared roles, Muse is missing three positions, Ornith one, Flash Coder one,
-and the newly pinned North, Nemotron, Agents-A1, and Laguna challengers remain
-0/9. A rejected cell
+explicitly gate-rejected, or unattempted. The current evidence attempts 47 of
+92 nominated cells (51.09%): dense Qwen and DS4 have complete coverage for their
+declared roles, Muse is missing five positions, Ornith two, Flash Coder one,
+Laguna four, and North, Nemotron, and Agents-A1 remain 0/11. A rejected cell
 counts as an honest attempt but never as exact or near membership. This keeps a
 winner among measured offerings from being presented as a settled winner over
 promising models that have not run yet.
@@ -320,12 +364,14 @@ be dominated, calculated with the frontier's absolute tolerances and the core
 point/robust bound semantics. The report retains the exact half-open dominance
 intervals and witnesses; `--near-epsilon` merely labels distances at or below a
 chosen threshold. It does not alter membership or selection, and an absent or
-eligibility-rejected route never receives a distance. Ornith is now a near-only
-member of the warm-cache frontier: strict untoleranced Pareto comparison keeps
-its 0.835-second latency tradeoff, while the configured 5% latency equivalence
-lets Qwen DFlash's 99.87% reuse and 0.862-second latency dominate it. The closest
-other dominated points are Flash Coder on warm-cache reuse at 12.65%, DS4 on
-uncached tools at 14.09%, and Flash Coder on warm tools at 15.32%.
+eligibility-rejected route never receives a distance. No current dominated
+candidate is inside the configured 5% advisory band except Laguna on
+value-capacity. Laguna's 126,000-token calibrated position is only 36 tokens
+longer than DS4's, so it would be a frontier member with zero context tolerance;
+the declared 2% equivalence makes DS4's much lower physical footprint decisive.
+On warm cache, Laguna's
+0.692-second latency and Qwen DFlash's 99.87% reuse preserve both as exact
+members; Ornith now needs about 22.68% relative tolerance to escape dominance.
 
 A separate hardware-only slice compares the same Qwen3.8 27B UD-Q4_K_M bytes,
 llama.cpp/ggml binary, and command position on M1 Max and M5 Max. It is retained
@@ -432,6 +478,17 @@ usable context or dropping them from the candidate universe:
 ```console
 modelskyline build-local-capacity-catalog measurements/*retrieval*.json \
   --output generated/validated-capacity-catalog.json
+```
+
+The default above is strict. The value-found roll-up uses only records with an
+explicit `retrieval_value` result and changes both the workload and signal name,
+so downstream users cannot mistake it for exact-answer capacity:
+
+```console
+modelskyline build-local-capacity-catalog measurements/*retrieval*.json \
+  --integrity-check retrieval_value \
+  --workload-id retrieved-value-capacity-v1 \
+  --output generated/retrieved-value-capacity-catalog.json
 ```
 
 Quantization integrity uses a separate pinned-corpus capture. It hashes the
@@ -693,9 +750,16 @@ and the server reports neither value, the normalizer deliberately omits TTFT and
 decode rate while retaining semantic-event and end-to-end latency.
 
 Retrieval mode builds deterministic unique distractor records, inserts one
-passkey at a fixed character fraction, asks for that passkey alone, and counts
-only an exact stripped final answer as success. It never treats allocation or
-substring-bearing prose as a retrieval pass. The requested sizes are prompt
+passkey at a fixed character fraction, and asks for that passkey alone. It
+records two deliberately different checks: `retrieval` passes only when the
+complete stripped answer is the passkey, while `retrieval_value` records whether
+the passkey appeared anywhere in the answer. Only the strict first check grants
+`local_validated_context_tokens` and admission to the validated-capacity
+frontier. The second emits a separate retrieved-value capacity signal and can
+admit the model to the explicitly named value-found frontiers. It explains the
+common case where a model found the value but ignored the exact-output
+instruction; it never turns allocation or verbose substring-bearing prose into
+a strict pass. The requested sizes are prompt
 construction targets; the response API's usage count is the actual token count
 published in evidence. Run early, middle, and late needles as separate captures:
 

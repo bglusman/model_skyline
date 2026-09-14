@@ -60,6 +60,21 @@ workloads:
     assumptions:
       swap_allowed: false
 
+  retrieved-value-capacity-v1:
+    unit: context_position
+    version: "1"
+    harness: model-skyline/passkey-and-memory@v1
+    cohort: deterministic-byte-prompt-actual-token-count@v1
+    benchmark: recovered-value context capacity and peak memory
+    description: >-
+      Maximum position where every repetition contains the requested hidden value,
+      paired with measured peak physical footprint. This tests information access;
+      the separate validated-capacity workload additionally requires the entire
+      requested answer to be exact.
+    variables: {}
+    assumptions:
+      swap_allowed: false
+
   terminal-bench-2.1-local-pilot-5@7131e437:
     unit: task
     version: terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1
@@ -148,9 +163,25 @@ metrics:
       max_age_hours: 720
       minimum_samples: 3
 
+  retrieval_value_success:
+    kind: signal
+    signal: local_retrieval_value_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
   validated_context:
     kind: signal
     signal: local_validated_context_tokens
+    unit: token
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  retrieved_value_context:
+    kind: signal
+    signal: local_retrieved_value_context_tokens
     unit: token
     requirements:
       max_age_hours: 720
@@ -299,6 +330,23 @@ frontiers:
         retrieval_success: 100
     metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
 
+  long-context-value-operational:
+    workload: long-context-retrieval-v1
+    axes:
+      - metric: retrieval_value_success
+        goal: maximize
+      - metric: end_to_end
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: retrieval_value_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [long-context]
+      allow_unknown_age: false
+      minimum_axis_values:
+        retrieval_value_success: 100
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
   validated-capacity-memory:
     workload: validated-capacity-v1
     axes:
@@ -309,6 +357,22 @@ frontiers:
         goal: minimize
         epsilon_relative: 0.05
     order_by: validated_context
+    uncertainty: point
+    eligibility:
+      required_capabilities: [long-context]
+      allow_unknown_age: false
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+  retrieved-value-capacity-memory:
+    workload: retrieved-value-capacity-v1
+    axes:
+      - metric: retrieved_value_context
+        goal: maximize
+        epsilon_relative: 0.02
+      - metric: peak_physical_footprint
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: retrieved_value_context
     uncertainty: point
     eligibility:
       required_capabilities: [long-context]

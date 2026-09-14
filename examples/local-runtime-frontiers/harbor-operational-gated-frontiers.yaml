@@ -3,8 +3,8 @@ schema_version: model-skyline/v1alpha1
 workloads:
   terminal-bench-2.1-local-pilot-5-operational-gated@7131e437:
     unit: task
-    version: catalog-enrichment-sha256:c2e35b575683528497455f9be6b0956f8d4d004c997dcb1f8113ffad7addcfeb
-    harness: harbor/terminus-2@2.0.0+reviewed-operational-probes@c2e35b5756835284
+    version: catalog-enrichment-sha256:08208a0fda45bf8698545863e3cae8c02e5f56bdc0fee06ebea4b30f6ae103a8
+    harness: harbor/terminus-2@2.0.0+reviewed-operational-probes@08208a0fda45
     cohort: exact-five-task-local-agent-with-reviewed-operational-gates@v1
     benchmark: Terminal-Bench 2.1 five-task pilot with separate operational gates
     description: >-
@@ -16,7 +16,7 @@ workloads:
     variables: {}
     assumptions:
       attempts_per_task: 1
-      operational_gate_policy_sha256: c2e35b575683528497455f9be6b0956f8d4d004c997dcb1f8113ffad7addcfeb
+      operational_gate_policy_sha256: 08208a0fda45bf8698545863e3cae8c02e5f56bdc0fee06ebea4b30f6ae103a8
       validated_probe_input_tokens: 125964
       tool_gate_scope: three_exact_synthetic_uncached_calls
       swap_gate_scope: repeated_126k_retrieval_request_position

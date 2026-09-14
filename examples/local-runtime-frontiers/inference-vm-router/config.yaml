@@ -1,0 +1,43 @@
+# RTX 5060 Ti 16 GB inference VM: one LAN endpoint and one GPU-memory owner.
+healthCheckTimeout: 600
+unloadTimeout: 20
+globalTTL: 300
+startPort: 8180
+includeAliasesInList: true
+logLevel: info
+logToStdout: both
+sendLoadingState: false
+
+models:
+  qwen3.5:9b:
+    name: Qwen3.5 9B Q4_K_M (Ollama control)
+    cmd: /usr/local/libexec/model-skyline/llama-swap-ollama-hold
+    cmdStop: /usr/local/libexec/model-skyline/llama-swap-ollama-stop ${PID} qwen3.5:9b
+    proxy: http://127.0.0.1:11434
+    checkEndpoint: /api/tags
+    ttl: 300
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 16384
+
+  qwen3-embedding:0.6b:
+    name: Qwen3 Embedding 0.6B Q8_0 (Ollama)
+    cmd: /usr/local/libexec/model-skyline/llama-swap-ollama-hold
+    cmdStop: /usr/local/libexec/model-skyline/llama-swap-ollama-stop ${PID} qwen3-embedding:0.6b
+    proxy: http://127.0.0.1:11434
+    checkEndpoint: /api/tags
+    ttl: 300
+
+routing:
+  router:
+    use: group
+    settings:
+      groups:
+        local-memory:
+          swap: true
+          exclusive: true
+          members:
+            - qwen3.5:9b
+            - qwen3-embedding:0.6b

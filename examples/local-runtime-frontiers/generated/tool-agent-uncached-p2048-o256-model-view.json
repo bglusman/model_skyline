@@ -1,0 +1,123 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": null,
+  "policy_sha256": null,
+  "source_snapshot_id": "6419f2651d4d376726c706978d6ca279fe824969495651858d471268a37f7e07",
+  "frontier_id": "tool-agent-operational",
+  "workload": {
+    "id": "openai-agent-latency-v1",
+    "version": "1",
+    "unit": "request"
+  },
+  "order_by": "tool_call_success",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "tool_call_success",
+      "goal": "maximize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "end_to_end",
+      "goal": "minimize",
+      "unit": "s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "poolside/Laguna-XS-2.1",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/macbook-m5max-64/poolside/Laguna-XS-2.1@mlx-safetensors-NVFP4-group16-oMLX-d77b710dbd6c5187",
+              "model_id": "poolside/Laguna-XS-2.1",
+              "provider": "local:macbook-m5max-64",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "high-power-configured-pmset-2",
+              "quantization": "NVFP4-group16",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline/openai-matrix@v1",
+              "capabilities": [
+                "long-context",
+                "text",
+                "tools"
+              ]
+            },
+            "axes": {
+              "tool_call_success": {
+                "value": "100",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.local_tool_call_success_percent"
+                ],
+                "source_ids": [
+                  "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled",
+                    "version": "model-skyline/openai-matrix@v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                    "raw_sha256": "7b4c49870a4470cbc1146b76fa229226d212efa6bc0bdecb54836e365d645633",
+                    "retrieved_at": "2026-09-14T15:14:13.138647Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-14T15:14:13.138647Z",
+                "minimum_sample_count": 3
+              },
+              "end_to_end": {
+                "value": "1.815443542",
+                "unit": "s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "1.804217417",
+                "upper": "2.059652583",
+                "dependencies": [
+                  "signals.local_end_to_end_seconds"
+                ],
+                "source_ids": [
+                  "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled",
+                    "version": "model-skyline/openai-matrix@v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                    "raw_sha256": "7b4c49870a4470cbc1146b76fa229226d212efa6bc0bdecb54836e365d645633",
+                    "retrieved_at": "2026-09-14T15:14:13.138647Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-14T15:14:13.138647Z",
+                "minimum_sample_count": 3
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": null,
+  "view_id": "c169b61b74a01742e6ef21620f19e5fb609223691273df45f6562550fe911f54"
+}

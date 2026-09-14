@@ -163,17 +163,25 @@ def _tool_integrity(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def _retrieval_integrity(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    passed = 0
+    exact_passes = 0
+    value_passes = 0
     for row in rows:
-        success = row.get("expected_content_exact")
+        exact = row.get("expected_content_exact")
+        present = row.get("expected_content_present", exact)
         digest = row.get("expected_content_sha256")
-        if not isinstance(success, bool):
-            raise ValueError("retrieval rows must report exact expected-content presence")
+        if not isinstance(exact, bool):
+            raise ValueError("retrieval rows must report exact expected-content equality")
+        if not isinstance(present, bool):
+            raise ValueError("retrieval rows must report expected-content presence")
+        if exact and not present:
+            raise ValueError("an exact retrieval answer must contain the expected content")
         if not isinstance(digest, str) or len(digest) != 64:
             raise ValueError("retrieval rows must report the expected-content SHA-256")
-        passed += int(success)
+        exact_passes += int(exact)
+        value_passes += int(present)
     return {
-        "retrieval": {"passed": passed, "total": len(rows)},
+        "retrieval": {"passed": exact_passes, "total": len(rows)},
+        "retrieval_value": {"passed": value_passes, "total": len(rows)},
         "tool_calls": None,
         "tool_argument_parsing": None,
         "structured_output": None,

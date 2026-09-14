@@ -85,12 +85,13 @@ candidate consequently did not advance to the five-task quality pilot.
 ## Decision
 
 Keep this artifact as an optional llama.cpp specialist and regression target,
-not an OpenCode/OMP default. It earns one narrow uncached-tool frontier because
-that is what the measurements show. Its failed agent smoke and failed retrieval
-ladder prevent that point from being generalized into coding quality or usable
-128K context. A future promotion requires a clean Terminus JSON-action smoke
-and a repeated multi-position retrieval ladder after any chat-template,
-sampling, or expert-slice revision.
+not an OpenCode/OMP default. It previously earned one narrow uncached-tool
+frontier, but Laguna XS 2.1 now has the same 100% exact-call result at 1.815 s
+instead of 5.527 s and dominates it at that position. Its failed agent smoke
+and failed retrieval ladder prevent either result from being generalized into
+coding quality or usable 128K context. A future promotion requires a clean
+Terminus JSON-action smoke and a repeated multi-position retrieval ladder after
+any chat-template, sampling, or expert-slice revision.
 
 Prompt-free raw evidence is retained in [`raw/`](raw/), including the
 cache-disabled and warm tool matrices, the original four retrieval captures,

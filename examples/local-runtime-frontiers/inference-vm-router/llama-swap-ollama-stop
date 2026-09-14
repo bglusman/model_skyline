@@ -1,0 +1,28 @@
+#!/bin/sh
+set -u
+
+pid="${1:?holder pid required}"
+model="${2:?Ollama model required}"
+case "${model}" in
+  *[!A-Za-z0-9._:/-]*)
+    /usr/bin/logger -t llama-swap "refusing unsafe Ollama model id: ${model}"
+    exit 64
+    ;;
+esac
+/usr/bin/logger -t llama-swap "stopping Ollama model ${model} for holder ${pid}"
+/usr/bin/curl -fsS http://127.0.0.1:11434/api/generate \
+  -H 'Content-Type: application/json' \
+  --data-binary "{\"model\":\"${model}\",\"keep_alive\":0}" >/dev/null ||
+  /usr/bin/logger -t llama-swap "ollama stop failed for ${model}"
+
+attempt=0
+while /usr/local/bin/ollama ps | /usr/bin/awk 'NR > 1 {print $1}' | /usr/bin/grep -Fqx "${model}"; do
+  attempt=$((attempt + 1))
+  if [ "${attempt}" -ge 50 ]; then
+    /usr/bin/logger -t llama-swap "ollama model still resident after stop: ${model}"
+    break
+  fi
+  /usr/bin/sleep 0.1
+done
+/usr/bin/logger -t llama-swap "Ollama stop hook complete for ${model}"
+kill -TERM "${pid}" 2>/dev/null || true

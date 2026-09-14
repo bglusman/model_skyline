@@ -1,0 +1,53 @@
+{
+  "schema_version": "model-skyline/local-system-profile/v1",
+  "served_model": "laguna-xs-2.1-nvfp4",
+  "artifact": {
+    "model_id": "poolside/Laguna-XS-2.1",
+    "checkpoint": "Laguna-XS-2.1-NVFP4-mlx",
+    "revision": "841778bda563a36104dd521e37d99218e46f4f25",
+    "format": "mlx-safetensors",
+    "quantization": "NVFP4-group16",
+    "size_bytes": 21568898815,
+    "content_sha256": "61f1951f6ef2a5d22a59e7a8e89b2683c506be15bbd616928c7f59b5964ec45d",
+    "source_url": "https://huggingface.co/poolside/Laguna-XS-2.1-NVFP4-mlx",
+    "license": "OpenMDW-1.1",
+    "metadata": {
+      "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+      "manifest": "artifacts/laguna-xs-2.1-nvfp4-mlx-manifest.json",
+      "publisher_validation_status": "experimental-testing-only",
+      "publisher_production_validation": false
+    }
+  },
+  "runtime": {
+    "runtime_id": "oMLX",
+    "version": "0.6.4",
+    "commit": null,
+    "backend": "MLX/Metal",
+    "context_capacity_tokens": 262144,
+    "kv_cache": "f16",
+    "prefix_cache_enabled": false,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "mlx_version": "0.32.0",
+      "mlx_lm_version": "0.31.3",
+      "model_profile": "baseline-f16kv",
+      "max_concurrent_requests": 1,
+      "max_output_tokens": 16384,
+      "memory_guard": "balanced",
+      "prefix_cache": {
+        "backend": "disabled"
+      },
+      "turboquant_kv_enabled": false,
+      "dflash_enabled": false,
+      "mtp_enabled": false,
+      "ane_prefill_enabled": false,
+      "specprefill_enabled": false
+    }
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ]
+}
