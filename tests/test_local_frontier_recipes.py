@@ -81,6 +81,10 @@ def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
     assert harness["concurrency"] == 1
     assert harness["model_switching"] == "batch_all_tasks_for_one_route"
     assert "verifier_ctrf_artifact_present_and_parseable" in pilot["validity_gates"]
+    assert "memory_capture_job_lock_hash_matches_quality_summary" in pilot["validity_gates"]
+    assert (
+        "memory_frontier_uses_only_tasks_sampled_before_agent_execution" in pilot["validity_gates"]
+    )
     assert pilot["publication"]["full_benchmark_estimation_allowed"] is False
     assert pilot["publication"]["infrastructure_invalid_trials_count_as_failures"] is False
 

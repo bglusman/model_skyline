@@ -106,3 +106,26 @@ the summary retains both rather than treating them as interchangeable.
 Protocol mode also requires the pinned Harbor revision, Terminus identity,
 parser and sampling settings, context/output budget, summarization settings,
 concurrency, route, task set, and system-profile digest.
+
+## Agent-task memory capture
+
+The quality/memory frontier uses macOS's kernel-accounted physical footprint,
+sampled during the agent task—not model-file size, RSS alone, or a peak borrowed
+from a different runtime profile. Start
+[`capture_harbor_runner_memory.py`](capture_harbor_runner_memory.py) before the
+matching Harbor job. It waits for the job lock, verifies a serial single-model
+batch, samples only the literal-matched runner process, and binds its output to
+the job-lock hash. The prompt-free output records per-task peaks and whether
+sampling began before each task's agent-execution interval.
+
+```console
+python examples/local-runtime-frontiers/capture_harbor_runner_memory.py \
+  --job-directory /path/to/jobs/pilot5-v1-ornith15-baseline \
+  --expected-model ornith-1.5-35b-a3b-oq4e-mtp:baseline-f16kv \
+  --process-match omlx-server \
+  --output /path/to/jobs/pilot5-v1-ornith15-baseline/runner-memory.json
+```
+
+Only tasks with `capture_started_before_agent_execution: true` can contribute to
+the memory axis. This keeps a late-attached diagnostic capture useful without
+silently treating its partial first-task series as a measured peak.
