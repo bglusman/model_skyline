@@ -215,6 +215,10 @@ practical general-agent default; a fourth should cover a genuinely material
 dimension. More signals do not automatically improve validity. Substituting a
 domain-specific benchmark is usually better than growing a generic portfolio.
 
+The [small, realistic evaluation survey](small-realistic-evaluations.md)
+compares judge-free text, tool, vision, and SVG candidates before any of them
+becomes default portfolio policy.
+
 These sources do not expose one common RSS interface. Collectors poll pinned
 JSON, dataset, repository, or local-harness inputs. ModelSkyline publishes RSS
 only after evidence has been reviewed, reconciled, evaluated, and admitted to a

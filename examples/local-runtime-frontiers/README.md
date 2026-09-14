@@ -21,9 +21,11 @@ throughput, warm and uncached tool operation, repeated 126K retrieval, and a
 strict plus value-found capacity/physical-footprint roll-up. They remain
 workload-specific, not a universal model ranking.
 
-The [Little Dorrit intake](dorrit-benchmark-intake.md) separately evaluates a
-promising document-vision benchmark. It is queued for vision-capable local
-artifacts and is intentionally not mixed into the current text/coding score.
+The [small, realistic evaluation survey](../../docs/small-realistic-evaluations.md)
+compares several text, tool, vision, and SVG candidates before choosing a
+default. [Little Dorrit](dorrit-benchmark-intake.md) remains one intake in that
+survey; it is not yet a selected benchmark and is not mixed into the current
+text/coding score.
 
 ## Where custom fits belong
 
