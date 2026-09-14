@@ -15,9 +15,7 @@ EXAMPLE = ROOT / "examples" / "local-runtime-frontiers"
 RECIPES = EXAMPLE / "recommended-frontier-recipes.yaml"
 PILOT = EXAMPLE / "harbor-quality-pilot.yaml"
 FLASH_CODER_SCREEN = EXAMPLE / "harbor-quality-screen-qwen38-flash-coder.yaml"
-FROZEN_HARBOR_PILOT_SHA256 = (
-    "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41"
-)
+FROZEN_HARBOR_PILOT_SHA256 = "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41"
 TASK_MANIFEST = EXAMPLE / "terminal-bench-2.1-task-manifest.json"
 HARBOR_PILOT_SMOKE_SUMMARIES = sorted(
     path
@@ -231,9 +229,7 @@ def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
         LocalRuntimeIdentity.model_validate(profile["runtime"])
 
     generated = EXAMPLE / "generated"
-    uncached_catalog = load_catalog(
-        generated / "tool-agent-uncached-p2048-o256-catalog.json"
-    )
+    uncached_catalog = load_catalog(generated / "tool-agent-uncached-p2048-o256-catalog.json")
     uncached_candidate = [
         offering
         for offering in uncached_catalog.offerings
@@ -252,17 +248,13 @@ def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
         offering.offering.model_id == "Jab1718/qwen3.8-flash-coder-26gb-gguf"
         for offering in warm_catalog.offerings
     )
-    warm_frontier = load_frontier_snapshot(
-        generated / "tool-agent-warm-p2048-o1024-frontier.json"
-    )
+    warm_frontier = load_frontier_snapshot(generated / "tool-agent-warm-p2048-o1024-frontier.json")
     assert all(
         member.offering.model_id != "Jab1718/qwen3.8-flash-coder-26gb-gguf"
         for member in warm_frontier.members
     )
 
-    coverage = json.loads(
-        (generated / "cross-frontier-coverage.json").read_text(encoding="utf-8")
-    )
+    coverage = json.loads((generated / "cross-frontier-coverage.json").read_text(encoding="utf-8"))
     assert coverage["schema_version"] == "model-skyline/local-frontier-coverage/v1"
     flash_coder_family = next(
         family
