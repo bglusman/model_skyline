@@ -7,7 +7,7 @@
   },
   "contains_prompts_or_model_messages": false,
   "expected": {
-    "model": "ornith-1.5-35b-a3b-oq4e-mtp:baseline-f16kv",
+    "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv",
     "task_digests": {
       "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e"
     },
@@ -18,22 +18,22 @@
   "invalid": [],
   "job": {
     "concurrency": 1,
-    "finished_at": "2026-09-13T20:43:34.921237",
+    "finished_at": "2026-09-13T21:04:30.317427",
     "harbor": {
       "git_commit_hash": "88fdbc9d42e907c0414654f041ece5eaf798f538",
       "version": "0.23.0"
     },
-    "id": "d420acd8-ce56-40b3-a0c2-83162f1aeb6b",
-    "job_config_sha256": "24d59bfc4ff1ec154889f61d0d4298cfd8dde97eb0dbeaf3035fc0e4aec0492a",
-    "job_lock_sha256": "a9ba06ac9f6cf92db00727fba40ec75f0da71615515a80fb361c019eac7b8c19",
-    "job_result_sha256": "359e31eefee3198190b5da78e3b4f3fbff7a09587e20f176323f5d59a78189e4",
-    "started_at": "2026-09-13T20:42:04.620071"
+    "id": "368682b7-d152-434a-a286-5603e76a2cdf",
+    "job_config_sha256": "e8cf3cd25d9ea3b87ecbf00cc55d99759e76a78b8dba5d7922978ad903d2e3c5",
+    "job_lock_sha256": "5a998c943114812940fcfe721a6bb7104f881a6234b00db6061d77fb2b4f95b6",
+    "job_result_sha256": "c91095622caa80c6c068e1f29bcede791b1ec2fc0a7976326697b82c95d01b51",
+    "started_at": "2026-09-13T20:57:19.124180"
   },
   "protocol": {
-    "candidate": "ornith15_baseline",
+    "candidate": "qwen38_baseline",
     "protocol_sha256": "00694ee78b3fd7f3e04d44bfcb86360d2a1624c6031334e71cd498cda220fdd3",
-    "system_profile": "system-profiles/ornith-omlx-baseline-f16kv-cache-ssd.json",
-    "system_profile_sha256": "73f2f807f4f57f2417e24e00ce92f55e26d5b201c1d27d9b4b105941535b0afe",
+    "system_profile": "system-profiles/qwen38-omlx-baseline-f16kv-cache-ssd.json",
+    "system_profile_sha256": "2569e724dc866ac94f879eb24a24e7c8a877e8e5cb2ed61c4545a5b23ad2313d",
     "task_set": "smoke"
   },
   "schema_version": "model-skyline/harbor-local-job-summary/v1",
@@ -56,25 +56,25 @@
       },
       "agent_episodes": 10,
       "api_request_times_msec": [
-        "13211.750984191895",
-        "3087.462902069092",
-        "10243.819952011108",
-        "6817.867994308472",
-        "2615.8900260925293",
-        "9322.21007347107",
-        "3081.3231468200684",
-        "2081.5391540527344",
-        "3886.791229248047",
-        "3750.002145767212"
+        "16479.027032852173",
+        "55101.433992385864",
+        "30229.19487953186",
+        "29917.317867279053",
+        "15807.05189704895",
+        "77531.14700317383",
+        "18332.919120788574",
+        "112313.53807449341",
+        "16142.90714263916",
+        "11315.799236297607"
       ],
       "audit": {
-        "ctrf_sha256": "be8f20e558e0d6a469f6e323fd9dda7222a1ea0631114ee51122a6c9d15012fa",
+        "ctrf_sha256": "14b3a398e5384143717fada36b19f20d99709cf4d9dfcb0c3429248e28c9ab42",
         "reward_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-        "trajectory_sha256": "a0a4e619fedc4a7075e1afbb34efbe7ef338f01954ad8b11002fe68ab1d12e97",
-        "trial_config_sha256": "557ad6cc2b9182d27088ae9db412c4eace47a30dbb79eea266e1a03ce8dbdda3",
-        "trial_lock_sha256": "de77fa87f5addb2c2dade15c2809e0a39bb2d4ce60f1edf778c9d9882ad350f9",
-        "trial_result_sha256": "5277e0b8b831b59535a090c0c82fb5d8dfdee1744acd7d48716c551e365a19c5",
-        "verifier_stdout_sha256": "dfce1c1b2a7a16f9510d6df60566cc8a2a97e99db600dd083f15faa173ff1a55"
+        "trajectory_sha256": "b81582dfe480a48bd670795961736ec3bd9cb446ee28d502d660644ab1427d2c",
+        "trial_config_sha256": "6b2f8a49637b101cd8b2b0dc1b843403af7125f34305fe8a665e03364a2aecfd",
+        "trial_lock_sha256": "aa65e3242a29598ebc170fa2a0f6de54a5fe83ee1d55fce5c7c6ba647d78a01f",
+        "trial_result_sha256": "618811b99372a2ae6e13e6a68d3b6993d8c5c5c2ffda7788f31bc291a916395b",
+        "verifier_stdout_sha256": "4882620cc6726b67aeb1e7681f56648468fca284b91002b1d087e18df522f655"
       },
       "ctrf": {
         "failed": 0,
@@ -85,28 +85,28 @@
         "tests": 2,
         "tool_version": "8.4.1"
       },
-      "model": "ornith-1.5-35b-a3b-oq4e-mtp:baseline-f16kv",
+      "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv",
       "parser_feedback_events": {
         "errors": 0,
-        "warnings": 0
+        "warnings": 1
       },
       "reward": "1.0",
       "task_checksum": "e89f54f2fc73ac576f976c1cd09758e4c9ccf152e53c2dcd91da0c178b89abc7",
       "task_lock_digest": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
       "task_name": "terminal-bench/fix-git",
       "timing_seconds": {
-        "agent_execution": "66.474782",
-        "agent_setup": "10.957402",
-        "environment_setup": "0.947065",
-        "verifier": "7.365113"
+        "agent_execution": "407.208954",
+        "agent_setup": "10.852024",
+        "environment_setup": "1.02349",
+        "verifier": "7.624526"
       },
       "tokens": {
-        "cache": 18432,
-        "input": 33447,
-        "output": 5382
+        "cache": 43008,
+        "input": 62543,
+        "output": 10839
       },
-      "trial_id": "784f0021-8eaa-4cf2-84a5-53a8696f71cc",
-      "trial_name": "fix-git__5zMjYsL"
+      "trial_id": "cfca310f-58e1-4c74-9743-98f34cf5b8e0",
+      "trial_name": "fix-git__5NqpE9s"
     }
   ]
 }

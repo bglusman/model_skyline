@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -62,6 +63,10 @@ def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
         assert profile_path.is_relative_to(EXAMPLE.resolve())
         profile = json.loads(profile_path.read_text(encoding="utf-8"))
         assert profile["served_model"] == candidate["route"]
+        assert (
+            candidate["system_profile_sha256"]
+            == hashlib.sha256(profile_path.read_bytes()).hexdigest()
+        )
         LocalArtifactIdentity.model_validate(profile["artifact"])
         runtime = LocalRuntimeIdentity.model_validate(profile["runtime"])
         context_capacities.append(runtime.context_capacity_tokens)
@@ -87,10 +92,16 @@ def test_published_harbor_smoke_summaries_are_prompt_free_and_auditable() -> Non
         assert "/Users/" not in serialized
         assert "all_messages" not in serialized
         assert summary["aggregate"]["invalid_trials"] == 0
+        assert summary["protocol"] is not None
+        assert summary["job"]["harbor"] == {
+            "version": "0.23.0",
+            "git_commit_hash": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+        }
         assert summary["expected"]["task_digests"] == {"terminal-bench/fix-git": expected_digest}
         for trial in summary["trials"]:
             assert trial["task_lock_digest"] == expected_digest
             assert trial["reward"] == "1.0"
+            assert trial["agent_configuration"]["max_input_tokens"] == 114688
             assert all(
                 len(digest) == 64 and set(digest) <= set("0123456789abcdef")
                 for digest in trial["audit"].values()

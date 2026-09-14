@@ -20,6 +20,7 @@ harness:
   max_turns: 40
   max_input_tokens: 114688
   max_output_tokens: 16384
+  summarization_enabled: true
   proactive_summarization_free_tokens: 8192
   store_all_messages: true
   concurrency: 1
@@ -64,18 +65,22 @@ candidates:
   qwen38_baseline:
     route: qwen3.8-27b-oq4e-mtp:baseline-f16kv
     system_profile: system-profiles/qwen38-omlx-baseline-f16kv-cache-ssd.json
+    system_profile_sha256: 2569e724dc866ac94f879eb24a24e7c8a877e8e5cb2ed61c4545a5b23ad2313d
     role: stable_dense_baseline
   ornith15_baseline:
     route: ornith-1.5-35b-a3b-oq4e-mtp:baseline-f16kv
     system_profile: system-profiles/ornith-omlx-baseline-f16kv-cache-ssd.json
+    system_profile_sha256: 73f2f807f4f57f2417e24e00ce92f55e26d5b201c1d27d9b4b105941535b0afe
     role: fast_sparse_warm_agent_candidate
   qwen38_flash_ds4:
     route: qwen3.8-flash-next
     system_profile: system-profiles/qwen38-flash-next-ds4-q2-pleq41-ctx131k-plain.json
+    system_profile_sha256: 78746cf1827b4bcc65978b484fd6afb3fda645407cb64771b0ebc57a8f1e82aa
     role: memory_efficient_uncached_and_long_context_candidate
   muse_glimmer_target:
     route: muse-glimmer-30b-dynamic-target
     system_profile: system-profiles/muse-glimmer-dynamic-q4xl-target-ctx131k.json
+    system_profile_sha256: ff471eef2691e65aec02f87768086b911df9856d6e2499d7cb3df111470fff0e
     role: dense_local_agent_candidate
 
 implementation_equivalence_checks:

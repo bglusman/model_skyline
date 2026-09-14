@@ -64,20 +64,21 @@ paired-estimate contract.
 
 ## Auditable smoke evidence
 
-The first three verifier-valid `fix-git` summaries are retained without prompts or
-model messages:
+The protocol validator now accepts all four verifier-valid `fix-git` summaries
+without retaining prompts or model messages:
 
 | Route | Protocol status | Reward | Agent execution | Input / cache / output tokens | Parser feedback |
 | --- | --- | ---: | ---: | ---: | ---: |
 | Ornith 1.5 baseline/F16 KV | v1 common budget | 1 | 66.475 s | 33,447 / 18,432 / 5,382 | 0 |
+| Muse Glimmer target-only | v1 common budget | 1 | 203.477 s | 20,707 / 17,808 / 4,605 | 0 |
 | Qwen3.8 Flash Next DS4 | v1 common budget | 1 | 260.620 s | 83,266 / 75,827 / 9,783 | 0 |
-| Qwen3.8 baseline/F16 KV | pre-v1 infrastructure rerun | 1 | 506.313 s | 68,435 / 47,104 / 14,209 | 1 warning |
+| Qwen3.8 baseline/F16 KV | v1 common budget | 1 | 407.209 s | 62,543 / 43,008 / 10,839 | 1 warning |
 
-These are harness-validation observations, not a quality ranking. In particular,
-the Qwen rerun advertised a 180,000-token input budget before the common
-114,688-input/16,384-output envelope was frozen, so it must be rerun for the
-matched smoke cohort. Ornith and DS4 used the frozen budget. All three produced
-a 2/2 pytest CTRF result and reward 1.
+These are harness-validation observations, not a quality ranking. An older Qwen
+infrastructure rerun advertised a 180,000-token input budget before the common
+114,688-input/16,384-output envelope was frozen. The protocol validator rejects
+that run, and it is not published. Its replacement and the other three routes
+use the frozen budget; all produced a 2/2 pytest CTRF result and reward 1.
 
 [`summarize_harbor_local_job.py`](summarize_harbor_local_job.py) fails closed on
 missing or inconsistent verifier evidence, validates the durable task digest in
@@ -85,20 +86,23 @@ Harbor's trial lock, records the sanitized agent settings and hashes the job,
 trial, trajectory, CTRF, stdout, and reward artifacts. It intentionally omits
 prompts, terminal content, and model messages. The current summaries are
 [`raw/harbor-smoke-ornith15-baseline-f16kv-fix-git-summary.json`](raw/harbor-smoke-ornith15-baseline-f16kv-fix-git-summary.json),
+[`raw/harbor-smoke-muse-glimmer-target-fix-git-summary.json`](raw/harbor-smoke-muse-glimmer-target-fix-git-summary.json),
 [`raw/harbor-smoke-qwen38-flash-next-ds4-fix-git-summary.json`](raw/harbor-smoke-qwen38-flash-next-ds4-fix-git-summary.json),
 and
-[`raw/harbor-smoke-qwen38-baseline-f16kv-fix-git-infra-v2-summary.json`](raw/harbor-smoke-qwen38-baseline-f16kv-fix-git-infra-v2-summary.json).
+[`raw/harbor-smoke-qwen38-baseline-f16kv-fix-git-summary.json`](raw/harbor-smoke-qwen38-baseline-f16kv-fix-git-summary.json).
 
 ```console
 python examples/local-runtime-frontiers/summarize_harbor_local_job.py \
   --job-directory /path/to/harbor/job \
-  --expected-model exact-served-model-id \
-  --expected-task terminal-bench/fix-git \
-  --expected-task-digest \
-    terminal-bench/fix-git=sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e \
+  --protocol examples/local-runtime-frontiers/harbor-quality-pilot.yaml \
+  --candidate ornith15_baseline \
+  --task-set smoke \
   --output /path/to/prompt-free-summary.json
 ```
 
 The legacy `result.json` task checksum and the durable `lock.json` task digest
 are different Harbor hash schemes. The manifest pins and validates the latter;
 the summary retains both rather than treating them as interchangeable.
+Protocol mode also requires the pinned Harbor revision, Terminus identity,
+parser and sampling settings, context/output budget, summarization settings,
+concurrency, route, task set, and system-profile digest.

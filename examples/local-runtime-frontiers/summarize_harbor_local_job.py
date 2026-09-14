@@ -6,10 +6,13 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 SCHEMA_VERSION = "model-skyline/harbor-local-job-summary/v1"
 MAX_JSON_BYTES = 64_000_000
@@ -17,6 +20,17 @@ MAX_JSON_BYTES = 64_000_000
 
 class InvalidHarborTrial(ValueError):
     """A trial cannot contribute model-quality evidence."""
+
+
+@dataclass(frozen=True, slots=True)
+class PilotExpectation:
+    model: str
+    tasks: dict[str, str]
+    agent: dict[str, str]
+    agent_configuration: dict[str, Any]
+    harbor: dict[str, str]
+    concurrency: int
+    identity: dict[str, str]
 
 
 def _sha256(path: Path) -> str:
@@ -41,6 +55,20 @@ def _load_json(path: Path) -> dict[str, Any]:
     return value
 
 
+def _load_yaml(path: Path) -> dict[str, Any]:
+    if path.is_symlink() or not path.is_file():
+        raise InvalidHarborTrial(f"missing regular file: {path.name}")
+    if path.stat().st_size > MAX_JSON_BYTES:
+        raise InvalidHarborTrial(f"file exceeds {MAX_JSON_BYTES} bytes: {path.name}")
+    try:
+        value = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, yaml.YAMLError) as exc:
+        raise InvalidHarborTrial(f"invalid YAML: {path.name}") from exc
+    if not isinstance(value, dict):
+        raise InvalidHarborTrial(f"expected a YAML mapping: {path.name}")
+    return value
+
+
 def _is_sha256_digest(value: object, *, prefixed: bool) -> bool:
     if not isinstance(value, str):
         return False
@@ -59,9 +87,12 @@ def _integer(value: object, *, field: str) -> int:
 
 
 def _decimal(value: object, *, field: str) -> Decimal:
-    if isinstance(value, bool) or not isinstance(value, (Decimal, int)):
+    if isinstance(value, bool) or not isinstance(value, (Decimal, int, str)):
         raise InvalidHarborTrial(f"{field} must be a JSON number")
-    result = Decimal(value)
+    try:
+        result = Decimal(value)
+    except InvalidOperation as exc:
+        raise InvalidHarborTrial(f"{field} must be a JSON number") from exc
     if not result.is_finite() or result < 0:
         raise InvalidHarborTrial(f"{field} must be finite and non-negative")
     return result
@@ -116,6 +147,13 @@ def _ctrf_summary(path: Path) -> dict[str, int | str]:
         raise InvalidHarborTrial("CTRF summary counts do not add up")
     if len(tests) != counts["tests"]:
         raise InvalidHarborTrial("CTRF test array length does not match its summary")
+    observed = {name: 0 for name in ("passed", "failed", "skipped", "pending", "other")}
+    for test in tests:
+        if not isinstance(test, dict) or test.get("status") not in observed:
+            raise InvalidHarborTrial("CTRF test contains an unsupported status")
+        observed[test["status"]] += 1
+    if any(observed[name] != counts[name] for name in observed):
+        raise InvalidHarborTrial("CTRF per-test statuses disagree with summary counts")
     return {"tool_version": str(tool.get("version", "unknown")), **counts}
 
 
@@ -190,6 +228,106 @@ def _agent_configuration(lock_agent: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _protocol_expectation(
+    protocol_path: Path,
+    *,
+    candidate_name: str,
+    task_set_name: str,
+) -> PilotExpectation:
+    protocol = _load_yaml(protocol_path)
+    if protocol.get("schema_version") != "model-skyline/local-quality-pilot/v1":
+        raise InvalidHarborTrial("unsupported local quality pilot schema")
+    candidates = protocol.get("candidates")
+    task_sets = protocol.get("task_sets")
+    harness = protocol.get("harness")
+    if not isinstance(candidates, dict) or not isinstance(task_sets, dict):
+        raise InvalidHarborTrial("pilot candidates or task sets are missing")
+    if not isinstance(harness, dict):
+        raise InvalidHarborTrial("pilot harness configuration is missing")
+    candidate = candidates.get(candidate_name)
+    task_set = task_sets.get(task_set_name)
+    if not isinstance(candidate, dict):
+        raise InvalidHarborTrial(f"unknown pilot candidate: {candidate_name}")
+    if not isinstance(task_set, dict) or not isinstance(task_set.get("tasks"), list):
+        raise InvalidHarborTrial(f"unknown pilot task set: {task_set_name}")
+    model = candidate.get("route")
+    if not isinstance(model, str) or not model:
+        raise InvalidHarborTrial("pilot candidate route is missing")
+
+    task_digests: dict[str, str] = {}
+    for task in task_set["tasks"]:
+        if not isinstance(task, dict) or not isinstance(task.get("name"), str):
+            raise InvalidHarborTrial("pilot task name is missing")
+        digest = task.get("digest")
+        if not _is_sha256_digest(digest, prefixed=True):
+            raise InvalidHarborTrial("pilot task digest is invalid")
+        if task["name"] in task_digests:
+            raise InvalidHarborTrial("pilot task names must be unique")
+        task_digests[task["name"]] = digest
+
+    harness_name = harness.get("name")
+    harness_version = harness.get("version")
+    harbor_version = harness.get("harbor_version")
+    harbor_revision = harness.get("harbor_revision")
+    if not all(
+        isinstance(value, str) and value
+        for value in (harness_name, harness_version, harbor_version, harbor_revision)
+    ):
+        raise InvalidHarborTrial("pilot harness identity is incomplete")
+    assert isinstance(harness_name, str)
+    agent_name = harness_name.removeprefix("harbor/")
+    for field in ("summarization_enabled", "store_all_messages"):
+        if not isinstance(harness.get(field), bool):
+            raise InvalidHarborTrial(f"pilot harness {field} must be boolean")
+
+    profile_name = candidate.get("system_profile")
+    if not isinstance(profile_name, str) or not profile_name:
+        raise InvalidHarborTrial("pilot candidate system profile is missing")
+    protocol_root = protocol_path.resolve().parent
+    profile_path = (protocol_root / profile_name).resolve()
+    if not profile_path.is_relative_to(protocol_root):
+        raise InvalidHarborTrial("pilot system profile escapes the protocol directory")
+    profile = _load_json(profile_path)
+    if profile.get("served_model") != model:
+        raise InvalidHarborTrial("pilot system profile and candidate route disagree")
+    expected_profile_digest = candidate.get("system_profile_sha256")
+    if not _is_sha256_digest(expected_profile_digest, prefixed=False):
+        raise InvalidHarborTrial("pilot system profile digest is invalid")
+    if _sha256(profile_path) != expected_profile_digest:
+        raise InvalidHarborTrial("pilot system profile does not match its pinned digest")
+
+    return PilotExpectation(
+        model=model,
+        tasks=task_digests,
+        agent={"name": agent_name, "version": str(harness_version)},
+        agent_configuration={
+            "parser": harness.get("parser"),
+            "temperature": format(_decimal(harness.get("temperature"), field="temperature"), "f"),
+            "top_p": format(_decimal(harness.get("top_p"), field="top_p"), "f"),
+            "max_turns": _integer(harness.get("max_turns"), field="max_turns"),
+            "max_input_tokens": _integer(harness.get("max_input_tokens"), field="max_input_tokens"),
+            "max_output_tokens": _integer(
+                harness.get("max_output_tokens"), field="max_output_tokens"
+            ),
+            "summarization_enabled": harness.get("summarization_enabled"),
+            "proactive_summarization_free_tokens": _integer(
+                harness.get("proactive_summarization_free_tokens"),
+                field="proactive_summarization_free_tokens",
+            ),
+            "full_history_recorded": harness.get("store_all_messages"),
+        },
+        harbor={"version": str(harbor_version), "git_commit_hash": str(harbor_revision)},
+        concurrency=_integer(harness.get("concurrency"), field="concurrency"),
+        identity={
+            "protocol_sha256": _sha256(protocol_path),
+            "candidate": candidate_name,
+            "task_set": task_set_name,
+            "system_profile": profile_name,
+            "system_profile_sha256": expected_profile_digest,
+        },
+    )
+
+
 def summarize_trial(
     trial_dir: Path,
     *,
@@ -213,6 +351,9 @@ def summarize_trial(
     lock_agent = trial_lock.get("agent")
     if not isinstance(task_lock, dict) or not isinstance(lock_agent, dict):
         raise InvalidHarborTrial("trial lock task or agent is missing")
+    lock_task_name = task_lock.get("name")
+    if not isinstance(lock_task_name, str) or lock_task_name != task_name.rsplit("/", 1)[-1]:
+        raise InvalidHarborTrial("trial lock task name does not match result task name")
     task_digest = task_lock.get("digest")
     if not _is_sha256_digest(task_digest, prefixed=True):
         raise InvalidHarborTrial("trial lock task digest is not a prefixed SHA-256 digest")
@@ -310,6 +451,11 @@ def summarize_job(
     expected_model: str | None = None,
     expected_tasks: set[str] | None = None,
     expected_task_digests: dict[str, str] | None = None,
+    expected_agent: dict[str, str] | None = None,
+    expected_agent_configuration: dict[str, Any] | None = None,
+    expected_harbor: dict[str, str] | None = None,
+    expected_concurrency: int | None = None,
+    protocol_identity: dict[str, str] | None = None,
     allow_invalid: bool = False,
 ) -> dict[str, Any]:
     if expected_task_digests is not None:
@@ -345,6 +491,15 @@ def summarize_job(
     harbor = job_lock.get("harbor")
     if not isinstance(harbor, dict):
         raise InvalidHarborTrial("job lock Harbor identity is missing")
+    observed_harbor = {
+        "version": harbor.get("version"),
+        "git_commit_hash": harbor.get("git_commit_hash"),
+    }
+    if expected_harbor is not None and observed_harbor != expected_harbor:
+        raise InvalidHarborTrial("job Harbor version or revision does not match the protocol")
+    concurrency = _integer(job_lock.get("n_concurrent_trials"), field="n_concurrent_trials")
+    if expected_concurrency is not None and concurrency != expected_concurrency:
+        raise InvalidHarborTrial("job concurrency does not match the protocol")
 
     trial_dirs = sorted(
         child for child in job_dir.iterdir() if child.is_dir() and (child / "result.json").is_file()
@@ -362,6 +517,13 @@ def summarize_job(
             )
             if expected_tasks is not None and trial["task_name"] not in expected_tasks:
                 raise InvalidHarborTrial("trial task is outside the expected task set")
+            if expected_agent is not None and trial["agent"] != expected_agent:
+                raise InvalidHarborTrial("trial agent identity does not match the protocol")
+            if (
+                expected_agent_configuration is not None
+                and trial["agent_configuration"] != expected_agent_configuration
+            ):
+                raise InvalidHarborTrial("trial agent configuration does not match the protocol")
             valid.append(trial)
         except InvalidHarborTrial as exc:
             if not allow_invalid:
@@ -384,10 +546,8 @@ def summarize_job(
             "job_result_sha256": _sha256(job_result_path),
             "job_config_sha256": _sha256(job_config_path),
             "job_lock_sha256": _sha256(job_lock_path),
-            "harbor": {
-                "version": harbor.get("version"),
-                "git_commit_hash": harbor.get("git_commit_hash"),
-            },
+            "harbor": observed_harbor,
+            "concurrency": concurrency,
         },
         "expected": {
             "model": expected_model,
@@ -398,6 +558,7 @@ def summarize_job(
                 else None
             ),
         },
+        "protocol": protocol_identity,
         "aggregate": {
             "valid_trials": len(valid),
             "invalid_trials": len(invalid),
@@ -423,8 +584,29 @@ def main() -> None:
         metavar="TASK=sha256:HEX",
         help="Require a task's durable Harbor lock digest; repeat for each task.",
     )
+    parser.add_argument("--protocol", type=Path)
+    parser.add_argument("--candidate")
+    parser.add_argument("--task-set")
     parser.add_argument("--allow-invalid", action="store_true")
     args = parser.parse_args()
+    protocol_args = (args.protocol, args.candidate, args.task_set)
+    if any(protocol_args) and not all(protocol_args):
+        parser.error("--protocol, --candidate, and --task-set must be provided together")
+    if all(protocol_args) and (
+        args.expected_model or args.expected_tasks or args.expected_task_digest
+    ):
+        parser.error("protocol selection cannot be combined with manual expectations")
+
+    expectation: PilotExpectation | None = None
+    if args.protocol is not None:
+        try:
+            expectation = _protocol_expectation(
+                args.protocol,
+                candidate_name=args.candidate,
+                task_set_name=args.task_set,
+            )
+        except InvalidHarborTrial as exc:
+            parser.error(str(exc))
     expected_task_digests: dict[str, str] = {}
     for item in args.expected_task_digest:
         task, separator, digest = item.partition("=")
@@ -437,9 +619,16 @@ def main() -> None:
     try:
         summary = summarize_job(
             args.job_directory,
-            expected_model=args.expected_model,
-            expected_tasks=expected_tasks,
-            expected_task_digests=expected_task_digests or None,
+            expected_model=expectation.model if expectation else args.expected_model,
+            expected_tasks=set(expectation.tasks) if expectation else expected_tasks,
+            expected_task_digests=(
+                expectation.tasks if expectation else expected_task_digests or None
+            ),
+            expected_agent=expectation.agent if expectation else None,
+            expected_agent_configuration=(expectation.agent_configuration if expectation else None),
+            expected_harbor=expectation.harbor if expectation else None,
+            expected_concurrency=expectation.concurrency if expectation else None,
+            protocol_identity=expectation.identity if expectation else None,
             allow_invalid=args.allow_invalid,
         )
     except InvalidHarborTrial as exc:
