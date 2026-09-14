@@ -1,0 +1,191 @@
+{
+  "schema_version": "model-skyline/local-measurement/v1alpha1",
+  "measurement_id": "qwen38-flash-coder-q4km-tool30-auto-p2048-o256-miss",
+  "status": "provisional",
+  "started_at": "2026-09-14T06:32:54.962490Z",
+  "completed_at": "2026-09-14T06:33:03.586938Z",
+  "hardware": {
+    "hardware_id": "macbook-m5max-64",
+    "manufacturer": "Apple",
+    "machine_model": "Mac17,6",
+    "chip": "Apple M5 Max",
+    "architecture": "arm64",
+    "memory_bytes": 68719476736,
+    "cpu_cores": 18,
+    "cpu_core_groups": {
+      "super": 6,
+      "performance": 12
+    },
+    "gpu_cores": 40,
+    "os_name": "macOS",
+    "os_version": "26.6.2 (25G83)",
+    "power_source": "ac",
+    "power_mode": "high-power-configured-pmset-2",
+    "negotiated_adapter_watts": 140,
+    "metadata": {
+      "power_connection": "direct-usb-c",
+      "pmset_powermode": 2,
+      "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+      "power_mode_status": "configured-not-independently-verified",
+      "related_report": "https://developer.apple.com/forums/thread/835131"
+    }
+  },
+  "artifact": {
+    "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+    "checkpoint": "qwen3.8-flash-coder-85gb-bf16-160-expert-subnet",
+    "revision": "4d62a522f3c70b6e9579015602129a15fe161804",
+    "format": "gguf",
+    "quantization": "Q4_K_M",
+    "size_bytes": 28394087776,
+    "content_sha256": "11f6a81dba702bf9603d1a1249b01752e84e3e049d15ae366c2f80032670d121",
+    "source_url": "https://huggingface.co/Jab1718/qwen3.8-flash-coder-26gb-gguf/tree/4d62a522f3c70b6e9579015602129a15fe161804",
+    "license": "Apache-2.0",
+    "metadata": {
+      "filename": "qwen3.8-flash-coder-26gb-q4_k_m.gguf",
+      "base_model": "Jab1718/qwen3.8-flash-coder-85gb-bf16",
+      "upstream_family": "Qwen/Qwen3.8-Flash-Next",
+      "expert_count": 160,
+      "construction": "hardware-aligned coding subnet selected with Jab1718/Moe-slices"
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "0.4.0-build-10809",
+    "commit": "5266f24da",
+    "backend": "Metal4",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "q8_0/q8_0",
+    "prefix_cache_enabled": true,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "runtime_binary_sha256": "8939a1cf8a4e9a5cc18d6cd4d2d55440b48f8a44db00abe459a28d837ea051f7",
+      "native_context_tokens": 262144,
+      "allocated_context_tokens": 131072,
+      "parallel_slots": 1,
+      "batch_tokens": 2048,
+      "micro_batch_tokens": 512,
+      "max_output_tokens": 16384,
+      "n_gpu_layers": "all",
+      "flash_attention": true,
+      "fit": "off",
+      "jinja": true,
+      "cache_ram_bytes": 8589934592,
+      "cache_idle_slots": true,
+      "reasoning_effort": "low",
+      "thinking_budget_tokens": 4096,
+      "llama_swap_model_id": "qwen3.8-flash-coder-26gb-q4km-low-think4k",
+      "llama_swap_exclusive_group": "local-memory"
+    }
+  },
+  "workload": {
+    "reference": {
+      "id": "openai-tool-p2048-o256-miss",
+      "version": "model-skyline/openai-matrix@v1",
+      "unit": "request"
+    },
+    "kind": "agent_integration",
+    "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+    "requested_input_tokens": 2048,
+    "max_output_tokens": 256,
+    "repetitions": 1,
+    "warmup_repetitions": 1,
+    "concurrency": 1,
+    "runner_state": "warm",
+    "prefix_cache_state": "miss",
+    "position": {
+      "mode": "tool",
+      "prompt_bytes": 8293,
+      "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+      "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+      "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+      "tool_count": 30,
+      "tool_choice": "auto",
+      "thinking_mode": "disabled",
+      "sampling": {
+        "temperature": 0,
+        "seed": 90421
+      },
+      "time_to_first_token_source": "unavailable",
+      "decode_rate_source": "unavailable",
+      "token_count_url": null,
+      "construction_input_tokens": null,
+      "finish_reasons": {
+        "tool_calls": 1
+      },
+      "api": "openai-chat-completions-streaming"
+    }
+  },
+  "performance": {
+    "actual_input_tokens": 5260,
+    "output_token_counts": [
+      42
+    ],
+    "metrics": {
+      "time_to_first_semantic_event_seconds": {
+        "unit": "s",
+        "values": [
+          "4.850103667"
+        ]
+      },
+      "end_to_end_seconds": {
+        "unit": "s",
+        "values": [
+          "5.556549042"
+        ]
+      },
+      "peak_process_rss_bytes": {
+        "unit": "byte",
+        "values": [
+          "32178241536"
+        ]
+      },
+      "peak_process_physical_footprint_bytes": {
+        "unit": "byte",
+        "values": [
+          "3896106504"
+        ]
+      },
+      "swap_delta_bytes": {
+        "unit": "byte",
+        "values": [
+          "0"
+        ]
+      },
+      "prefix_cache_hit_tokens": {
+        "unit": "token",
+        "values": [
+          "0"
+        ]
+      }
+    }
+  },
+  "integrity": {
+    "retrieval": null,
+    "tool_calls": {
+      "passed": 1,
+      "total": 1
+    },
+    "tool_argument_parsing": {
+      "passed": 1,
+      "total": 1
+    },
+    "structured_output": null
+  },
+  "capabilities": [
+    "text",
+    "tools"
+  ],
+  "provenance": {
+    "tool": "model-skyline/openai-matrix",
+    "tool_version": "v1",
+    "command_sha256": "32faa69094ec9ed2148042dfca3f700c210d047487e23a83d880e3f4ee609d8f",
+    "raw_artifact_path": "examples/local-runtime-frontiers/raw/qwen38-flash-coder-q4km-tool30-auto-p2048-o256-r3.json",
+    "raw_sha256": "fca87ae4aca09252467484876074f1f02b56167c9a030e7b2c1fe7d9e70d1dbe",
+    "captured_at": "2026-09-14T06:33:03.586938Z",
+    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+    "source_url": null,
+    "license": "CC0-1.0"
+  },
+  "notes": "Provisional operational runtime evidence; no model-quality claim."
+}

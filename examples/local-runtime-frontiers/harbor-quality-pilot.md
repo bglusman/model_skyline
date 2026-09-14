@@ -6,6 +6,11 @@ chosen tasks estimate all 89 Terminal-Bench 2.1 tasks. The immutable protocol is
 and Harbor revisions, Terminus-2 settings, exact task digests, local routes and
 system profiles, validity gates, repetitions, and promotion rules.
 
+New candidates must not be appended to that digest-bound file after results
+are published. The Qwen3.8 Flash Coder experiment therefore uses the separate
+additive [`candidate screen`](harbor-quality-screen-qwen38-flash-coder.yaml);
+its failed smoke does not invalidate or join this five-task population.
+
 ## What the pilot can establish
 
 The five-task set spans Git recovery, build/dependency repair, schema-aware ETL,

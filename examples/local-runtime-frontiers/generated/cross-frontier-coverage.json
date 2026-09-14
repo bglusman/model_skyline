@@ -1,18 +1,6 @@
 {
   "exact_offerings": [
     {
-      "frontier_count": 3,
-      "frontiers": [
-        "long-context-126k",
-        "uncached-agent-tools",
-        "validated-capacity"
-      ],
-      "model_id": "Qwen/Qwen3.8-Flash-Next",
-      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
-      "provider": "local:macbook-m5max-64",
-      "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1"
-    },
-    {
       "frontier_count": 2,
       "frontiers": [
         "quality-latency",
@@ -26,6 +14,17 @@
     {
       "frontier_count": 2,
       "frontiers": [
+        "long-context-126k",
+        "validated-capacity"
+      ],
+      "model_id": "Qwen/Qwen3.8-Flash-Next",
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1"
+    },
+    {
+      "frontier_count": 2,
+      "frontiers": [
         "quality-cache-efficiency",
         "quality-process-footprint"
       ],
@@ -33,6 +32,16 @@
       "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
       "provider": "local:macbook-m5max-64",
       "quantization": "KQuant-Dynamic-Q4_K_XL"
+    },
+    {
+      "frontier_count": 1,
+      "frontiers": [
+        "uncached-agent-tools"
+      ],
+      "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+      "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "Q4_K_M"
     },
     {
       "frontier_count": 1,
@@ -92,19 +101,19 @@
         }
       ],
       "rejected_count": 1,
-      "snapshot_id": "12abb6613aa32fc30e444554dd770294a3465cc197e841ca0ace1f3679e88eb0"
+      "snapshot_id": "fa4f500495a12c157db5cb2a62147d4e4fcb61ec2bcb1822c9ecca7729b601b8"
     },
     {
       "definition": "tool-agent-operational",
       "label": "uncached-agent-tools",
       "members": [
         {
-          "model_id": "Qwen/Qwen3.8-Flash-Next",
-          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
+          "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+          "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0"
         }
       ],
       "rejected_count": 0,
-      "snapshot_id": "94fce596904b998259465e5669ceaaed16d9249e3ee63ad3206d38758bd91fc2"
+      "snapshot_id": "3624b3ff93baa13997b54168a72fa42af20a2f0994b85335bf872c4ab212f681"
     },
     {
       "definition": "long-context-operational",
@@ -183,10 +192,9 @@
       "model_id": "Qwen/Qwen3.8-27B"
     },
     {
-      "frontier_count": 3,
+      "frontier_count": 2,
       "frontiers": [
         "long-context-126k",
-        "uncached-agent-tools",
         "validated-capacity"
       ],
       "model_id": "Qwen/Qwen3.8-Flash-Next"
@@ -206,6 +214,13 @@
         "warm-agent-tools"
       ],
       "model_id": "ornith-ai/Ornith-1.5-35B-A3B"
+    },
+    {
+      "frontier_count": 1,
+      "frontiers": [
+        "uncached-agent-tools"
+      ],
+      "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf"
     }
   ],
   "schema_version": "model-skyline/local-frontier-coverage/v1"

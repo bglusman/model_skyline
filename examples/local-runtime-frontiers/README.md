@@ -40,6 +40,12 @@ The first verifier-scored local-agent population is specified in
 complete measurement of that named pilot only; it is not a calibrated estimate
 of the full 89-task Terminal-Bench 2.1 release.
 
+The additive
+[`Qwen3.8 Flash Coder 160-expert screen`](qwen38-flash-coder-screen.md)
+evaluates one custom MoE slice without changing the frozen pilot digest. It
+earns the narrow uncached-tool frontier but fails the real-agent smoke and the
+retrieval ladder, so it is not a general local-agent recommendation.
+
 ## Runtime choices on Apple Silicon
 
 - **MLX-LM** is the simplest native MLX baseline: direct safetensors models,
@@ -121,7 +127,7 @@ The current epsilon-aware coverage result is:
 | --- | --- |
 | Cross-model pp2048/tg512 throughput | Ornith 1.5 Q4 GGUF |
 | Warm 30-tool, 2K-prefix/1K-output operation | Ornith 1.5 oMLX; Qwen3.8 27B DFlash |
-| Uncached 30-tool, 2K-prefix/256-output operation | Qwen3.8 Flash Next on DS4 |
+| Uncached 30-tool, 2K-prefix/256-output operation | Qwen3.8 Flash Coder 160-expert Q4_K_M |
 | Uncached 126K exact retrieval | Qwen3.8 Flash Next on DS4 |
 | Validated capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
 | Five-task local-agent quality vs latency | Qwen3.8 27B oMLX, low reasoning/4K thinking |
@@ -130,13 +136,15 @@ The current epsilon-aware coverage result is:
 
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
-At model-family identity, dense Qwen3.8 and DS4 Flash Next are each represented
-on three complementary frontiers; Muse Glimmer and Ornith each cover two. The
-coverage artifact keeps distinct harness, reasoning, and runtime offerings
-separate rather than manufacturing a synthetic score. Muse's matched warm tool
-probe remains rejected by the 100% correctness threshold even though its
-verifier-scored route remains valuable on the cache-demand and memory
-frontiers.
+At model-family identity, dense Qwen3.8 covers three complementary frontiers;
+DS4 Flash Next, Muse Glimmer, and Ornith each cover two. The custom Flash Coder
+slice covers one narrow uncached-tool frontier. It is not promoted to a wider
+winner because it failed the matched real-agent smoke and every strict
+retrieval position. The coverage artifact keeps distinct harness, reasoning,
+and runtime offerings separate rather than manufacturing a synthetic score.
+Muse's matched warm tool probe remains rejected by the 100% correctness
+threshold even though its verifier-scored route remains valuable on the
+cache-demand and memory frontiers.
 
 A separate hardware-only slice compares the same Qwen3.8 27B UD-Q4_K_M bytes,
 llama.cpp/ggml binary, and command position on M1 Max and M5 Max. It is retained
@@ -342,6 +350,14 @@ its per-model llama-swap TTL is 300 seconds, matching Ollama's documented
 five-minute default keep-alive. Without that alignment the router could report
 the holder as warm for ten minutes after Ollama had silently released the
 weights, hiding a reload inside an allegedly steady-state request.
+
+In OMP, do not name a custom llama-swap-backed provider exactly `ollama`.
+That reserved provider enables Ollama discovery semantics; when its base URL
+was set to llama-swap, every router model was duplicated as an Ollama model and
+fuzzy selection preferred false 128K/8K/no-reasoning metadata. The local config
+uses `ollama-local` for the routed `gpt-oss` entry and keeps explicit
+`llama.cpp`, `mlx-local`, `omlx-local`, and `ds4-local` model identities. Verify
+changes with `omp --list-models <pattern>` before trusting a fuzzy selection.
 
 `prefix_cache_enabled` belongs to runtime identity. Cache warmth (`disabled`,
 `miss`, `warm`, or `mixed`) belongs to the workload position. Cold load, warm

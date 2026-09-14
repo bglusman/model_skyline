@@ -1,0 +1,92 @@
+{
+  "schema_version": "model-skyline/raw-openai-matrix/v1",
+  "started_at": "2026-09-14T06:34:05.089650Z",
+  "captured_at": "2026-09-14T06:40:45.565549Z",
+  "base_url": "http://127.0.0.1:8090/v1",
+  "model": "qwen3.8-flash-coder-26gb-q4km-low-think4k",
+  "mode": "retrieval",
+  "retrieval_position": "0.9",
+  "retrieval_characters": [
+    193527
+  ],
+  "repetitions": 1,
+  "warmup": false,
+  "runner_state": "warm",
+  "process_match": "qwen3.8-flash-coder-26gb-q4_k_m.gguf",
+  "runtime_stats_url": null,
+  "token_count_url": null,
+  "runtime_stats_auth": null,
+  "runner_status_url": "http://127.0.0.1:8090/running",
+  "runner_model_id": "qwen3.8-flash-coder-26gb-q4km-low-think4k",
+  "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+  "tool_schema_sha256": null,
+  "tool_count": 0,
+  "tool_choice": null,
+  "thinking_mode": "disabled",
+  "sampling": {
+    "temperature": 0,
+    "seed": 90421
+  },
+  "results": [
+    {
+      "approximate_prefix_tokens": 126000,
+      "prompt_bytes": 193527,
+      "prompt_sha256": "9de155e13c52608c7b2ec729f2f1c5eaed1db83395016ac4c0a9dbf56ba18e6c",
+      "input_definition_sha256": "a53802b7b014c1795053716ab2af23ccdeafd00850a71bd73ec89afce9b45f3a",
+      "expected_content_sha256": "3bc407830384d13200ce850874f2ab34a4a758640d6d0ed02d31be0668f282e9",
+      "construction_input_tokens": null,
+      "max_output_tokens": 64,
+      "repetition": 1,
+      "ttft_seconds": 399.603881042,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 400.302985083,
+      "decode_tokens_per_second": 25.74724067429621,
+      "usage": {
+        "completion_tokens": 19,
+        "prompt_tokens": 125963,
+        "total_tokens": 125982,
+        "prompt_tokens_details": {
+          "cached_tokens": 14
+        }
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "content_sha256": "9cdafbb5075217e9ee9724e46817dcb5b640426c8ef0d3a0ba1b7e0829d840a9",
+      "content_bytes": 36,
+      "expected_content_exact": false,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 33079885824,
+      "peak_process_physical_footprint_bytes": 4797931664,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 8567788666,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 43%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; charged; 0:00 remaining present: true"
+      },
+      "host_after": {
+        "swap_used_bytes": 8441959546,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 43%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; charged; 0:00 remaining present: true"
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [
+        {
+          "elapsed_seconds": 0.007954417,
+          "models": [
+            {
+              "model": "qwen3.8-flash-coder-26gb-q4km-low-think4k",
+              "state": "ready"
+            }
+          ]
+        }
+      ],
+      "runner_ready_seconds": 0.007954417
+    }
+  ]
+}
