@@ -51,6 +51,12 @@ instead of being converted to zero.
 Frontier axes may use direct observations, restricted Decimal formulas, or a
 host-registered oracle. Typical pairs include total cost per successful coding
 issue versus solve rate, or time to first token versus research quality.
+Additional measured requirements can remain non-axis eligibility gates. Declare
+their metric thresholds with `minimum_gate_values` or `maximum_gate_values`;
+they affect admission and rejection reasons without entering Pareto dominance.
+Under robust uncertainty, minimum gates use the lower bound and maximum gates
+use the upper bound; both bounds are required. A missing or ineligible gate
+observation rejects that offering.
 
 ## Quickstart
 

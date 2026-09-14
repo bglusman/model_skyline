@@ -706,15 +706,25 @@ class FrontierEngine:
             # the new behavior is unused; an explicit empty map is semantically
             # identical to an omitted map.
             eligibility.pop("max_source_age_hours")
+        gate_metric_ids = sorted(
+            set(frontier.eligibility.minimum_gate_values)
+            | set(frontier.eligibility.maximum_gate_values)
+        )
+        if not eligibility["minimum_gate_values"]:
+            eligibility.pop("minimum_gate_values")
+        if not eligibility["maximum_gate_values"]:
+            eligibility.pop("maximum_gate_values")
         metric_policies: dict[str, Any] = {}
-        for axis in frontier.axes:
-            metric_policy = config.metrics[axis.metric].model_dump(mode="json")
+        metric_ids = [axis.metric for axis in frontier.axes]
+        metric_ids.extend(gate_metric_ids)
+        for metric_id in metric_ids:
+            metric_policy = config.metrics[metric_id].model_dump(mode="json")
             requirements = metric_policy["requirements"]
             if requirements["accepted_evidence_tiers"] == [EvidenceTier.MEASURED.value]:
                 # The historical contract accepted only direct measurements.
                 # Keep that default identity-stable while binding every opt-in.
                 requirements.pop("accepted_evidence_tiers")
-            metric_policies[axis.metric] = metric_policy
+            metric_policies[metric_id] = metric_policy
         return {
             "schema_version": config.schema_version,
             "frontier_id": frontier_id,
@@ -743,16 +753,20 @@ class FrontierEngine:
             raise ValueError(f"unknown frontier {frontier_id!r}") from exc
         workload_id = frontier.workload
         workload = config.workloads[workload_id]
-        for axis in frontier.axes:
-            definition = config.metrics[axis.metric]
+        gate_metric_ids = sorted(
+            set(frontier.eligibility.minimum_gate_values)
+            | set(frontier.eligibility.maximum_gate_values)
+        )
+        metric_ids = [axis.metric for axis in frontier.axes]
+        metric_ids.extend(gate_metric_ids)
+        for metric_id in metric_ids:
+            definition = config.metrics[metric_id]
             if isinstance(definition, FormulaMetric):
                 try:
                     compile_formula(definition.expression)
                 except FormulaError as exc:
-                    raise ValueError(
-                        f"metric {axis.metric!r} has an invalid formula: {exc}"
-                    ) from exc
-                validate_formula_cost_basis(axis.metric, definition)
+                    raise ValueError(f"metric {metric_id!r} has an invalid formula: {exc}") from exc
+                validate_formula_cost_basis(metric_id, definition)
         expected_workload = WorkloadReference(
             id=workload_id,
             version=workload.version,
@@ -772,6 +786,7 @@ class FrontierEngine:
         for offering in catalog.offerings:
             reasons = self._eligibility_reasons(offering, frontier)
             estimates: dict[str, AxisEstimate] = {}
+            gate_estimates: dict[str, AxisEstimate] = {}
             if not reasons:
                 for axis in frontier.axes:
                     try:
@@ -792,6 +807,25 @@ class FrontierEngine:
                     except EvaluationError as exc:
                         reasons.append(f"{axis.metric}: {exc}")
             if not reasons:
+                for metric_id in gate_metric_ids:
+                    try:
+                        estimate = self._metric(
+                            metric_id,
+                            offering,
+                            config.metrics[metric_id],
+                            workload_id,
+                            workload,
+                            frontier,
+                            now,
+                        )
+                        if frontier.uncertainty is UncertaintyMode.ROBUST and (
+                            estimate.lower is None or estimate.upper is None
+                        ):
+                            raise EvaluationError("robust uncertainty requires confidence bounds")
+                        gate_estimates[metric_id] = estimate
+                    except EvaluationError as exc:
+                        reasons.append(f"eligibility gate {metric_id}: {exc}")
+            if not reasons:
                 for metric, minimum in frontier.eligibility.minimum_axis_values.items():
                     if estimates[metric].value < minimum:
                         reasons.append(
@@ -803,6 +837,42 @@ class FrontierEngine:
                         reasons.append(
                             f"{metric}: value {estimates[metric].value} exceeds eligible "
                             f"maximum {maximum}"
+                        )
+                for metric, minimum in frontier.eligibility.minimum_gate_values.items():
+                    estimate = gate_estimates[metric]
+                    value = (
+                        estimate.lower
+                        if frontier.uncertainty is UncertaintyMode.ROBUST
+                        else estimate.value
+                    )
+                    assert value is not None
+                    if value < minimum:
+                        description = (
+                            "lower bound"
+                            if frontier.uncertainty is UncertaintyMode.ROBUST
+                            else "value"
+                        )
+                        reasons.append(
+                            f"eligibility gate {metric}: {description} {value:f} is below "
+                            f"eligible minimum {minimum:f}"
+                        )
+                for metric, maximum in frontier.eligibility.maximum_gate_values.items():
+                    estimate = gate_estimates[metric]
+                    value = (
+                        estimate.upper
+                        if frontier.uncertainty is UncertaintyMode.ROBUST
+                        else estimate.value
+                    )
+                    assert value is not None
+                    if value > maximum:
+                        description = (
+                            "upper bound"
+                            if frontier.uncertainty is UncertaintyMode.ROBUST
+                            else "value"
+                        )
+                        reasons.append(
+                            f"eligibility gate {metric}: {description} {value:f} exceeds "
+                            f"eligible maximum {maximum:f}"
                         )
             axis_evidence_candidates.append(
                 AxisEvidenceCandidate(

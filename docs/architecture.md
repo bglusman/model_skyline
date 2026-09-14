@@ -111,6 +111,8 @@ advantage.
 `FrontierDefinition`
 : Workload, two metric/goal pairs, eligibility, freshness, minimum samples,
   uncertainty mode, epsilon tolerances, output order, and metadata projection.
+  Eligibility may threshold other declared metrics as non-axis gates, keeping
+  context, correctness, or operational constraints out of Pareto dominance.
 
 `FrontierSnapshot`
 : All evaluated offerings, Pareto membership, exclusions, source watermarks,

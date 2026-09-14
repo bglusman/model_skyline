@@ -72,7 +72,13 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
         "local-agent-memory-value": "measured_agent_quality",
         "fixed-128k-usefulness": "measured_long_context_quality",
     }.items():
-        assert config.frontiers[frontier_id].eligibility.minimum_axis_values[metric] == 60
+        eligibility = config.frontiers[frontier_id].eligibility
+        assert eligibility.minimum_axis_values[metric] == 60
+        assert eligibility.minimum_gate_values == {
+            "exact_tool_call_correctness": 100,
+            "validated_context_capacity": 128000,
+        }
+        assert eligibility.maximum_gate_values == {"runner_swap_growth": 0}
     estimated = config.metrics["estimated_quality_lcb"].requirements
     assert estimated.require_bounds is True
     assert estimated.accepted_evidence_tiers == (EvidenceTier.ESTIMATED,)
@@ -81,6 +87,10 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
         for frontier_id, frontier in config.frontiers.items()
         if frontier_id != "quantization-screening"
     )
+    for frontier_id in ("session-endurance", "warm-cache-operation"):
+        eligibility = config.frontiers[frontier_id].eligibility
+        assert eligibility.minimum_gate_values == {"exact_tool_call_correctness": 100}
+        assert eligibility.maximum_gate_values == {"runner_swap_growth": 0}
 
 
 def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
