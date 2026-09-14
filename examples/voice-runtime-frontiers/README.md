@@ -110,7 +110,63 @@ identifier (and checkpoint hash where the runtime exposed one), runtime
 version, hardware, settings, individual requests, and public-prompt digest.
 The generated catalog also records the two Qwen repository revisions found in
 the local caches after capture and labels that weaker provenance explicitly;
-future captures should bind those revisions at capture time.
+the capture helpers now accept immutable revisions so reruns bind them at
+capture time.
+
+### Pacing screen prompted by the HN discussion
+
+The same saved audio can answer a narrower question without a model judge:
+how quickly does it speak, and how much of each utterance is spent in internal
+pauses? `score_tts_pacing.py` divides normalized reference words by the span
+from first to last audible frame and counts continuous 150 ms below-threshold
+runs inside that span.
+
+| Exact offering | Corpus words/min | Utterance p50 | Utterance p95 | Median internal-pause share |
+|---|---:|---:|---:|---:|
+| Qwen3-TTS 1.7B 6-bit, MLX/M5 | 94.6 | 103.8 | 141.4 | 17.7% |
+| Qwen3-TTS 1.7B BF16, vLLM-Omni/5060 | 119.3 | 127.6 | 172.4 | 15.3% |
+| LoudKit turbo, M5 | 160.9 | 169.8 | 243.9 | 10.2% |
+| LoudKit turbo, 5060 | 160.1 | 169.7 | 241.9 | 10.0% |
+
+This does not turn “natural pacing” into a score. It shows that the two local
+Qwen runtimes produced materially different durations despite the same prompt
+panel, model family, voice, and requested seed, while LoudKit had a much faster
+tail. A matched set of human recordings is needed before declaring an
+acceptable range or adding a gate. The energy-based pause proxy also is not yet
+aligned to the prompt's punctuation.
+
+### Preliminary long-form consistency screen
+
+The HN report of a voice changing during a 33-second clip is testable, but not
+with short customer-service prompts. The separate
+[`speaker-consistency-v1.json`](prompts/speaker-consistency-v1.json) workload
+contains three authored 94–106 word passages. It is intentionally kept out of
+the CoVAL-derived frontier catalog: a different workload must not silently
+contribute observations to the existing frontier.
+
+| Exact offering | Scored audio range | Corpus WER | Unexpected-speaker cases | Corpus words/min |
+|---|---:|---:|---:|---:|
+| Qwen3-TTS 1.7B 6-bit, MLX/M5 | 47.2–77.6 s | 1.32% | 0/3 | 101.6 |
+| Qwen3-TTS 1.7B BF16, vLLM-Omni/5060 | 38.3–53.0 s | 1.32% | 0/3 | 128.0 |
+| LoudKit turbo, M5 | 32.4–35.7 s | 1.66% | 0/3 | 180.1 |
+| LoudKit turbo, 5060 | 31.1–36.6 s | 1.99% | 0/3 | 180.8 |
+
+The pinned 117M-parameter MLX
+[Streaming Sortformer](https://huggingface.co/nvidia/diar_streaming_sortformer_4spk-v2.1)
+reported one speaker, no label changes, and no secondary-speaker activity in
+all 12 generated passages. A local calibration smoke test also reported one
+speaker for same-voice concatenations and two for one deliberately mixed
+Qwen-Vivian/LoudKit-Joe control. The HN failure was therefore **not reproduced
+in this small panel**; that is not evidence that it cannot occur.
+
+These results are a quality screen, not a fourth frontier. There are only
+three passages and one seed per offering, the diarizer can make mistakes, and
+the controls are synthetic rather than matched human recordings. One Qwen/MLX
+passage lasted 77.6 seconds and its ASR hypothesis ended with repeated
+ellipsis-like output. Normalized WER charged only one insertion, illustrating
+why completion, repetition, pacing, and speaker stability need separate gates.
+The short-panel LoudKit/CUDA cap did not recur here, but three successful long
+passages do not erase the retained 1/30 short-panel failure.
 
 ## What the matched Macs tell us
 
@@ -167,15 +223,16 @@ good test hypotheses and one candidate source:
 
 1. [One listener](https://news.ycombinator.com/item?id=49701701) reported a
    voice change partway through a 33-second clip. The
-   suite will add a fixed-seed 30–60 second speaker-consistency test rather than
-   generalize from that one report.
+   long-form screen above tests that regime directly rather than generalizing
+   from the report; it did not reproduce the switch in this small panel.
 2. Multiple commenters asked for independent quality evaluation and demos.
    This reinforces the decision not to publish latency-only rows as frontier
    winners.
 3. [Another listener](https://news.ycombinator.com/item?id=49704759) thought
-   all the samples spoke too quickly. The next capture will record normalized
-   words or phonemes per second and punctuation-pause behavior. Speaking-rate
-   limits belong in a use-case gate; WER cannot detect unnatural pacing.
+   all the samples spoke too quickly. The deterministic screen above now
+   records normalized words per minute and an energy-based pause proxy.
+   Speaking-rate limits belong in a calibrated use-case gate; WER cannot detect
+   unnatural pacing.
 4. The thread surfaced [LoudKit](https://github.com/loudreader/loudkit), which
    is now measured on all three local hosts.
 
@@ -187,12 +244,12 @@ ASR serving engine is open or that leaderboard ranks transfer to this
 hardware. The local STT panel should therefore test Qwen3-ASR directly against
 Whisper and Parakeet rather than importing a rank.
 
-The proposed consistency gate synthesizes one fixed passage, checks overlapping
-windows with a pinned speaker embedding model, records p95 and worst cosine
-drift, and counts unexpected diarization speaker changes. Thresholds must be
-calibrated against real same-speaker and different-speaker controls before the
-gate can admit or reject models. A short listening audit remains diagnostic,
-not the numerical frontier axis.
+The preliminary consistency screen synthesizes three fixed passages and uses a
+pinned streaming diarizer to count unexpected speaker labels, label changes,
+and secondary-speaker activity. Its settings distinguished the deliberately
+mixed synthetic control, but thresholds still need real same-speaker and
+different-speaker controls before the screen can admit or reject models. A
+short listening audit remains diagnostic, not a numerical frontier axis.
 
 ## Nari engine and LoudKit tradeoffs
 
@@ -298,6 +355,18 @@ python examples/voice-runtime-frontiers/score_tts_wer.py \
   --latency-capture result.json \
   --output result-wer.json
 
+python examples/voice-runtime-frontiers/score_tts_pacing.py \
+  --audio-dir generated/qwen-mlx-audio \
+  --prompt-manifest examples/voice-runtime-frontiers/prompts/coval-tts-v1.json \
+  --output result-pacing.json
+
+python examples/voice-runtime-frontiers/score_tts_speaker_drift.py \
+  --audio-dir generated/qwen-mlx-long-audio \
+  --prompt-manifest \
+    examples/voice-runtime-frontiers/prompts/speaker-consistency-v1.json \
+  --latency-capture result-long.json \
+  --output result-long-diarization.json
+
 python examples/voice-runtime-frontiers/build_observations.py
 modelskyline validate \
   examples/voice-runtime-frontiers/frontier.yaml \
@@ -316,10 +385,10 @@ measurements, and transcriptions without adding unexpected audio playback.
 1. Repeat stochastic TTS over a frozen prompt-by-seed panel and attach
    uncertainty intervals rather than treating four word errors as a model
    difference.
-2. Run the calibrated long-form speaker-consistency gate, including the HN
-   report's 33-second regime.
-3. Add speaking-rate and punctuation-pause gates before calling a voice
-   natural enough for interactive use.
+2. Add matched human same-speaker and different-speaker controls, then turn the
+   preliminary long-form diarization screen into a calibrated admission gate.
+3. Record matched human controls, align pauses to punctuation, and only then
+   calibrate speaking-rate and pause gates.
 4. Capture whole-service peak memory with one definition across MLX, PyTorch,
    and multi-process CUDA servers.
 5. Measure Qwen3-ASR, Whisper, and Parakeet on a small conversational, noisy,

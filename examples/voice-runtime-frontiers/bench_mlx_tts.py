@@ -24,7 +24,7 @@ from typing import Any
 
 import mlx.core as mx
 import numpy as np
-from huggingface_hub import snapshot_download
+from huggingface_hub import try_to_load_from_cache
 from mlx_audio.tts.utils import load_model
 
 AUDIBLE_RMS_THRESHOLD = 0.01
@@ -227,14 +227,13 @@ def main() -> None:
     model_load_seconds = time.monotonic() - load_started
     resolved_revision: str | None = None
     if not Path(args.model).exists():
-        resolved_path = Path(
-            snapshot_download(
-                repo_id=args.model,
-                revision=args.model_revision,
-                local_files_only=True,
-            )
+        cached_config = try_to_load_from_cache(
+            repo_id=args.model,
+            filename="config.json",
+            revision=args.model_revision,
         )
-        resolved_revision = resolved_path.name
+        if isinstance(cached_config, str):
+            resolved_revision = Path(cached_config).parent.name
 
     manifest_payload: dict[str, Any] | None = None
     manifest_digest: str | None = None

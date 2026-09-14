@@ -90,6 +90,43 @@ metrics:
       minimum_samples: 30
       require_source: true
 
+  tts_speaking_rate:
+    kind: signal
+    signal: tts_corpus_words_per_minute
+    unit: words/minute
+    description: >-
+      Normalized reference words divided by the span from first to last audible
+      frame. This deterministic pacing proxy has no admission threshold until it
+      is calibrated against matched human speech.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 30
+      require_source: true
+
+  tts_speaking_rate_p95:
+    kind: signal
+    signal: tts_words_per_minute_p95
+    unit: words/minute
+    description: >-
+      95th-percentile utterance speaking-rate proxy. A fast tail can sound rushed
+      even when the corpus average is ordinary.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 30
+      require_source: true
+
+  tts_internal_pause_fraction_p50:
+    kind: signal
+    signal: tts_internal_pause_fraction_p50
+    unit: ratio
+    description: >-
+      Median share of the audible span occupied by continuous 150 ms
+      below-threshold runs. This is an energy-based proxy, not text alignment.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 30
+      require_source: true
+
 frontiers:
   tts-responsive-intelligibility:
     workload: coval-tts-v1-local-whisper-pilot
