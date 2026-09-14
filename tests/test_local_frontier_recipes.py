@@ -183,8 +183,9 @@ def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
         assert all(
             trial["quality_attributable_exception"] == "AgentTimeoutError" for trial in timeouts
         )
-        assert sum(trial["incomplete_api_requests"] for trial in summary["trials"]) == (
-            expected_incomplete_counts[name]
+        assert (
+            sum(trial["incomplete_api_requests"] for trial in summary["trials"])
+            == (expected_incomplete_counts[name])
         )
 
     catalog = load_catalog(EXAMPLE / "generated" / "harbor-pilot5-quality-catalog.json")
