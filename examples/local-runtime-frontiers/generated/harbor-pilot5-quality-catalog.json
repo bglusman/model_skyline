@@ -91,13 +91,13 @@
           "sample_count": 5,
           "observed_at": "2026-09-14T06:14:29.131065Z",
           "source": {
-            "id": "local-quality-memory:3ca209944718a7f04935ea6d",
-            "version": "model-skyline/harbor-runner-memory/v1",
+            "id": "local-quality-memory:90509e6fcf8b748eaf14e636",
+            "version": "model-skyline/harbor-runner-memory-summary/v1",
             "url": null,
             "terms_url": null,
             "license": "CC0-1.0",
-            "methodology": "Kernel-accounted macOS physical footprint sampled from the exact local runner during every task's complete agent-execution interval.",
-            "raw_sha256": "3ca209944718a7f04935ea6d3ac819313a31a378ccdb7280d8b09c10471711db",
+            "methodology": "Kernel-accounted macOS physical-footprint task peaks from the exact local runner during every task's complete agent-execution interval. Compact summaries replay their peaks from the source samples and retain that capture's SHA-256 digest.",
+            "raw_sha256": "90509e6fcf8b748eaf14e63649a13044e9ddd9da9740ce80a374654167b361a9",
             "retrieved_at": "2026-09-14T06:14:29.131065Z"
           }
         }
@@ -251,13 +251,17 @@
           "memory": {
             "eligible": true,
             "ineligibility_reasons": [],
-            "memory_capture_sha256": "3ca209944718a7f04935ea6d3ac819313a31a378ccdb7280d8b09c10471711db",
-            "memory_capture_file": "runner-memory.json",
+            "memory_capture_sha256": "90509e6fcf8b748eaf14e63649a13044e9ddd9da9740ce80a374654167b361a9",
+            "memory_capture_file": "harbor-pilot5-qwen38-low-think4k-runner-memory-summary.json",
+            "memory_evidence_schema_version": "model-skyline/harbor-runner-memory-summary/v1",
             "process_match": "omlx-server",
             "sample_interval_seconds": "1.0",
             "covered_task_count": 5,
             "sample_count": 1714,
-            "legacy_basename_task_peaks": false
+            "legacy_basename_task_peaks": false,
+            "source_capture_sha256": "3ca209944718a7f04935ea6d3ac819313a31a378ccdb7280d8b09c10471711db",
+            "source_capture_bytes": 398393,
+            "source_task_name_form": "completed_result_name"
           }
         }
       },
@@ -357,13 +361,13 @@
           "sample_count": 5,
           "observed_at": "2026-09-14T04:46:38.913361Z",
           "source": {
-            "id": "local-quality-memory:2086323a3a9f16fcd24562d4",
-            "version": "model-skyline/harbor-runner-memory/v1",
+            "id": "local-quality-memory:2ac9f2da3da232a4d2befb59",
+            "version": "model-skyline/harbor-runner-memory-summary/v1",
             "url": null,
             "terms_url": null,
             "license": "CC0-1.0",
-            "methodology": "Kernel-accounted macOS physical footprint sampled from the exact local runner during every task's complete agent-execution interval.",
-            "raw_sha256": "2086323a3a9f16fcd24562d46500e20861d2c300f6fda430d001a512de0d4cdf",
+            "methodology": "Kernel-accounted macOS physical-footprint task peaks from the exact local runner during every task's complete agent-execution interval. Compact summaries replay their peaks from the source samples and retain that capture's SHA-256 digest.",
+            "raw_sha256": "2ac9f2da3da232a4d2befb59810500e6aa7ed4c96d56058f11fb1d5d45bbcaf1",
             "retrieved_at": "2026-09-14T04:46:38.913361Z"
           }
         }
@@ -510,13 +514,17 @@
           "memory": {
             "eligible": true,
             "ineligibility_reasons": [],
-            "memory_capture_sha256": "2086323a3a9f16fcd24562d46500e20861d2c300f6fda430d001a512de0d4cdf",
-            "memory_capture_file": "runner-memory.json",
+            "memory_capture_sha256": "2ac9f2da3da232a4d2befb59810500e6aa7ed4c96d56058f11fb1d5d45bbcaf1",
+            "memory_capture_file": "harbor-pilot5-qwen38-baseline-f16kv-runner-memory-summary.json",
+            "memory_evidence_schema_version": "model-skyline/harbor-runner-memory-summary/v1",
             "process_match": "omlx-server",
             "sample_interval_seconds": "1.0",
             "covered_task_count": 5,
             "sample_count": 3507,
-            "legacy_basename_task_peaks": false
+            "legacy_basename_task_peaks": false,
+            "source_capture_sha256": "2086323a3a9f16fcd24562d46500e20861d2c300f6fda430d001a512de0d4cdf",
+            "source_capture_bytes": 818237,
+            "source_task_name_form": "completed_result_name"
           }
         }
       },
@@ -616,13 +624,13 @@
           "sample_count": 5,
           "observed_at": "2026-09-14T02:34:13.519976Z",
           "source": {
-            "id": "local-quality-memory:e7cc0c9cee698fd1068b6c8c",
-            "version": "model-skyline/harbor-runner-memory/v1",
+            "id": "local-quality-memory:3651ccebe8e34f7846c1a455",
+            "version": "model-skyline/harbor-runner-memory-summary/v1",
             "url": null,
             "terms_url": null,
             "license": "CC0-1.0",
-            "methodology": "Kernel-accounted macOS physical footprint sampled from the exact local runner during every task's complete agent-execution interval.",
-            "raw_sha256": "e7cc0c9cee698fd1068b6c8cc4d1eec72ebab5614a4d11383dfc22f9e7e6c195",
+            "methodology": "Kernel-accounted macOS physical-footprint task peaks from the exact local runner during every task's complete agent-execution interval. Compact summaries replay their peaks from the source samples and retain that capture's SHA-256 digest.",
+            "raw_sha256": "3651ccebe8e34f7846c1a4551e20666feda022c68a83cc0a6c5e2f4e8b0a84c4",
             "retrieved_at": "2026-09-14T02:34:13.519976Z"
           }
         }
@@ -771,13 +779,17 @@
           "memory": {
             "eligible": true,
             "ineligibility_reasons": [],
-            "memory_capture_sha256": "e7cc0c9cee698fd1068b6c8cc4d1eec72ebab5614a4d11383dfc22f9e7e6c195",
-            "memory_capture_file": "runner-memory.json",
+            "memory_capture_sha256": "3651ccebe8e34f7846c1a4551e20666feda022c68a83cc0a6c5e2f4e8b0a84c4",
+            "memory_capture_file": "harbor-pilot5-qwen38-flash-next-ds4-runner-memory-summary.json",
+            "memory_evidence_schema_version": "model-skyline/harbor-runner-memory-summary/v1",
             "process_match": "ds4-server",
             "sample_interval_seconds": "1.0",
             "covered_task_count": 5,
             "sample_count": 2359,
-            "legacy_basename_task_peaks": true
+            "legacy_basename_task_peaks": false,
+            "source_capture_sha256": "e7cc0c9cee698fd1068b6c8cc4d1eec72ebab5614a4d11383dfc22f9e7e6c195",
+            "source_capture_bytes": 508199,
+            "source_task_name_form": "legacy_trial_directory_basename"
           }
         }
       },
@@ -934,13 +946,13 @@
           "sample_count": 5,
           "observed_at": "2026-09-14T05:36:39.388640Z",
           "source": {
-            "id": "local-quality-memory:197d63561538ae53076b6d65",
-            "version": "model-skyline/harbor-runner-memory/v1",
+            "id": "local-quality-memory:310034e5468122aef790fdde",
+            "version": "model-skyline/harbor-runner-memory-summary/v1",
             "url": null,
             "terms_url": null,
             "license": "CC0-1.0",
-            "methodology": "Kernel-accounted macOS physical footprint sampled from the exact local runner during every task's complete agent-execution interval.",
-            "raw_sha256": "197d63561538ae53076b6d65bf3d44888ba34b3424cc0b85b5a503418488791d",
+            "methodology": "Kernel-accounted macOS physical-footprint task peaks from the exact local runner during every task's complete agent-execution interval. Compact summaries replay their peaks from the source samples and retain that capture's SHA-256 digest.",
+            "raw_sha256": "310034e5468122aef790fddeddd8f4790021fb6f4ea49e5ebbba2d33545a52e9",
             "retrieved_at": "2026-09-14T05:36:39.388640Z"
           }
         }
@@ -1080,13 +1092,17 @@
           "memory": {
             "eligible": true,
             "ineligibility_reasons": [],
-            "memory_capture_sha256": "197d63561538ae53076b6d65bf3d44888ba34b3424cc0b85b5a503418488791d",
-            "memory_capture_file": "runner-memory.json",
+            "memory_capture_sha256": "310034e5468122aef790fddeddd8f4790021fb6f4ea49e5ebbba2d33545a52e9",
+            "memory_capture_file": "harbor-pilot5-muse-glimmer-target-runner-memory-summary.json",
+            "memory_evidence_schema_version": "model-skyline/harbor-runner-memory-summary/v1",
             "process_match": "llama-server",
             "sample_interval_seconds": "1.0",
             "covered_task_count": 5,
             "sample_count": 2330,
-            "legacy_basename_task_peaks": false
+            "legacy_basename_task_peaks": false,
+            "source_capture_sha256": "197d63561538ae53076b6d65bf3d44888ba34b3424cc0b85b5a503418488791d",
+            "source_capture_bytes": 541839,
+            "source_task_name_form": "completed_result_name"
           }
         }
       },
