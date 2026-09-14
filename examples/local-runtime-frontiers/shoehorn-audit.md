@@ -1,8 +1,11 @@
 # ShoeHorn applicability audit
 
-Audit date: 2026-09-13. Source reviewed: ShoeHorn 0.3.0 at
-`107e710ef34a75eeea3f6d74cc00d46030f4980a` plus local fixes through
-`ca565f8`; runtime checked against llama.cpp build 10809 at `5266f24da`.
+Audit date: 2026-09-14. Source reviewed: ShoeHorn 0.3.0 at
+`107e710ef34a75eeea3f6d74cc00d46030f4980a` plus proposed fixes through
+`7a4b093`; runtime checked against llama.cpp build 10809 at `5266f24da`.
+Those fixes are published in upstream PR
+[#3](https://github.com/notactuallytreyanastasio/shoehorn/pull/3), which remains
+open and mergeable.
 
 ShoeHorn is a worthwhile fitter for dense BF16/F16 GGUFs and fully resident
 checkpoints whose memory model has been validated. Ornith 1.5 is a hybrid
@@ -16,42 +19,39 @@ rather than assuming the solver's error objective predicts agent quality.
 ## Confirmed implementation findings
 
 1. Hugging Face discovery queried only the top-level tree, so repositories with
-   BF16 shards or imatrices in subdirectories failed before planning. Local
-   commit `43908a1` requests a recursive tree, uses an explicit 1,000-entry
-   limit, safely flattens selected cache filenames, and adds regression tests.
-   The commit is intentionally local and unpushed.
-2. Pagination beyond 1,000 entries is still unimplemented. Revisions are also
-   resolved through mutable `main`, so a future fetch contract should record
-   and use the immutable repository revision in both API and download URLs.
-3. Common GGML types outside ShoeHorn's encoding ladder become `Other` with a
+   BF16 shards or imatrices in subdirectories failed before planning. PR #3 now
+   resolves `main` once to an immutable revision, traverses the recursive tree
+   with validated pagination, preserves safe nested cache paths under a
+   revision-specific directory, and uses the same revision for downloads.
+2. Common GGML types outside ShoeHorn's encoding ladder become `Other` with a
    zero-byte block layout and can later panic in decoding. A Q2_K model can
    contain Q3_K tensors and reproduce this path. Unsupported input tensor types
    should fail once, before parallel scoring, with tensor/type names. Current
    GGML has substantially more types than ShoeHorn recognizes; see the
    [authoritative enum](https://github.com/ggml-org/llama.cpp/blob/master/ggml/include/ggml.h).
-4. The solver respects its supplied tensor-byte ceiling, but “exact” does not
+3. The solver respects its supplied tensor-byte ceiling, but “exact” does not
    mean a globally optimal multiple-choice knapsack solution. Its Lagrangian
    threshold plus one-way greedy upgrades can leave slack or miss a better
    exchange. The default also samples 128 rows per tensor unless
    `--exact-errors` is used. The defensible guarantee is “does not exceed the
    modeled tensor budget”; stronger optimality or “every spare megabyte” claims
    need a swap/local-search phase or a bounded exact frontier solve.
-5. ShoeHorn invokes current llama.cpp with `-ngl 99` and leaves its independent
+4. ShoeHorn invokes current llama.cpp with `-ngl 99` and leaves its independent
    auto-fit enabled. Because ShoeHorn already owns the fit decision, generated
    calibration/run/eval commands should use `-ngl all -fit off`; otherwise a
    second fitter can change the tested placement. Models over 99 layers also do
    not literally mean “all” under the current argument.
-6. `--calibrate` parses classic KV and compute-buffer lines from a one-sequence
+5. `--calibrate` parses classic KV and compute-buffer lines from a one-sequence
    `llama-cli` run. It does not fully account for recurrent state, repacking or
    model buffers, lazy tensor residency, server slot/checkpoint scaling, or a
    child that printed recognizable allocation lines and then failed. Until
    those are modeled, server calibration should be explicit about parallelism
    and context checkpoints and fail closed on nonzero child status.
-7. Mixed plans previously derived GGUF `file_type` from the largest individual
+6. Mixed plans previously derived GGUF `file_type` from the largest individual
    solved tensor. Muse therefore displayed as F16 because its single output
    tensor is 2.50 GiB, even though Q6_K accounts for the largest aggregate byte
    assignment. Commit `ca565f8` aggregates bytes by quantization type and adds a
-   regression test. All 25 tests now pass. Existing artifacts created before
+   regression test. The PR's release test suite passes. Existing artifacts created before
    the fix retain a stale display label but unchanged tensor encodings.
 
 ## Ornith plan observed on this host
