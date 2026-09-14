@@ -189,7 +189,9 @@ used different fallback sources, the command materializes each source on its
 own signal instead of assigning one source to the combined row. Output remains
 private; composition does not change publication rights.
 
-This command combines candidates measured under the same benchmark cohort. It
-does not authorize cross-workload enrichment: validated context, swap, and
-session-endurance gates still require an explicit composition policy before
-they can be joined from separate probes.
+This command combines candidates measured under the same benchmark cohort.
+Validated context, swap, and session-endurance gates require the separate
+[`CatalogEnrichmentPolicy`](../../docs/catalog-enrichment.md). That policy pins
+every input catalog/workload, complete source and target `OfferingKey`, selected
+signal, and review note. Its output workload version binds the complete policy;
+no route mapping is inferred from a model name or partial identity.

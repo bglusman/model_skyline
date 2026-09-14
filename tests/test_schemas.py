@@ -31,6 +31,7 @@ QUALITY_SCHEMA_NAMES = (
     "quality-portfolio-policy.schema.json",
     "quality-portfolio-derivation.schema.json",
     "paired-quality-estimate.schema.json",
+    "catalog-enrichment-policy.schema.json",
 )
 LOCAL_SCHEMA_NAME = "local-measurement.schema.json"
 
@@ -178,6 +179,15 @@ def test_paired_quality_schema_warns_that_estimates_are_not_measurements() -> No
     )
 
 
+def test_catalog_enrichment_schema_requires_complete_reviewed_offerings() -> None:
+    generated = generated_schemas()["catalog-enrichment-policy.schema.json"]
+
+    assert "named signals" in generated["$comment"]
+    assert set(generated["$defs"]["OfferingKey"]["required"]) == set(
+        generated["$defs"]["OfferingKey"]["properties"]
+    )
+
+
 def test_evidence_tier_invariants_are_visible_in_json_schema() -> None:
     catalog_schema = generated_schemas()["observation-catalog.schema.json"]
     observation_schema = {
@@ -267,6 +277,7 @@ def test_quality_reconciliation_schema_requires_complete_offering_key() -> None:
         "quality-import-report.schema.json",
         "quality-portfolio-derivation.schema.json",
         "paired-quality-estimate.schema.json",
+        "catalog-enrichment-policy.schema.json",
     ),
 )
 def test_every_quality_route_artifact_requires_all_offering_fields(name: str) -> None:

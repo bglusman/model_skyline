@@ -84,7 +84,13 @@ from model_skyline.arc_feed_monitor import (
     ArcAgiFeedMonitorError,
     inspect_arc_agi_feed,
 )
-from model_skyline.catalog_composition import CatalogCompositionError, compose_catalogs
+from model_skyline.catalog_composition import (
+    CatalogCompositionError,
+    catalog_enrichment_policy_hash,
+    catalog_enrichment_workload,
+    compose_catalogs,
+    enrich_catalog_across_workloads,
+)
 from model_skyline.discovery import (
     DiscoveryError,
     build_provisional_evidence_catalog,
@@ -103,6 +109,7 @@ from model_skyline.io import (
     dump_json,
     generated_schemas,
     load_catalog,
+    load_catalog_enrichment_policy,
     load_config,
     load_frontier_snapshot,
     load_local_measurement,
@@ -461,6 +468,74 @@ def compose_catalog_artifacts(
         TypeError,
         ValueError,
     ) as exc:
+        _error(exc)
+
+
+@app.command("enrich-catalog-across-workloads", rich_help_panel=CORE_PANEL)
+def enrich_catalog_across_workloads_command(
+    policy: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    base_catalog: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    projection_catalogs: Annotated[
+        list[Path],
+        typer.Argument(
+            exists=True,
+            readable=True,
+            dir_okay=False,
+            help="catalogs whose hashes are pinned by the reviewed policy",
+        ),
+    ],
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace an existing private enriched catalog"),
+    ] = False,
+) -> None:
+    """Project allowlisted signals through reviewed cross-workload mappings."""
+
+    try:
+        enriched = enrich_catalog_across_workloads(
+            load_catalog_enrichment_policy(policy),
+            load_catalog(base_catalog),
+            (load_catalog(path) for path in projection_catalogs),
+        )
+        _emit_private(dump_json(enriched), output, overwrite=overwrite)
+    except (
+        CatalogCompositionError,
+        InputError,
+        PrivateOutputError,
+        OSError,
+        TypeError,
+        ValueError,
+    ) as exc:
+        _error(exc)
+
+
+@app.command("validate-catalog-enrichment-policy", rich_help_panel=CONTRACTS_PANEL)
+def validate_catalog_enrichment_policy_command(
+    policy: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+) -> None:
+    """Validate a reviewed cross-workload signal-projection policy."""
+
+    try:
+        loaded = load_catalog_enrichment_policy(policy)
+        workload = catalog_enrichment_workload(loaded)
+        typer.echo(
+            f"valid: {loaded.policy_id} sha256={catalog_enrichment_policy_hash(loaded)} "
+            f"-> {workload.id}@{workload.version}/{workload.unit}"
+        )
+    except (InputError, OSError, TypeError, ValueError) as exc:
         _error(exc)
 
 
