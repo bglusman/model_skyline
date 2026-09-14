@@ -1,0 +1,148 @@
+schema_version: model-skyline/v1alpha1
+
+workloads:
+  terminal-bench-2.1-local-pilot-5-operational-gated@7131e437:
+    unit: task
+    version: catalog-enrichment-sha256:c2e35b575683528497455f9be6b0956f8d4d004c997dcb1f8113ffad7addcfeb
+    harness: harbor/terminus-2@2.0.0+reviewed-operational-probes@c2e35b5756835284
+    cohort: exact-five-task-local-agent-with-reviewed-operational-gates@v1
+    benchmark: Terminal-Bench 2.1 five-task pilot with separate operational gates
+    description: >-
+      One verifier-scored attempt on each of five pinned Terminal-Bench tasks.
+      Exact synthetic tool emission and repeated 126K retrieval/swap probes are
+      projected only through the hash-pinned, full-OfferingKey mappings in the
+      reviewed enrichment policy. The quality and latency axes remain Harbor
+      measurements; the probes are eligibility gates rather than extra score.
+    variables: {}
+    assumptions:
+      attempts_per_task: 1
+      operational_gate_policy_sha256: c2e35b575683528497455f9be6b0956f8d4d004c997dcb1f8113ffad7addcfeb
+      validated_probe_input_tokens: 125964
+      tool_gate_scope: three_exact_synthetic_uncached_calls
+      swap_gate_scope: repeated_126k_retrieval_request_position
+      session_endurance_inferred: false
+      evidence_status: provisional
+
+metrics:
+  pilot_task_success:
+    kind: signal
+    signal: local_pilot_task_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 5
+
+  pilot_p95_task_wall:
+    kind: signal
+    signal: local_pilot_p95_task_wall_seconds
+    unit: s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 5
+
+  pilot_peak_physical_footprint:
+    kind: signal
+    signal: local_peak_process_physical_footprint_bytes
+    unit: byte
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 5
+
+  validated_context:
+    kind: signal
+    signal: local_validated_context_tokens
+    unit: token
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  exact_tool_emission:
+    kind: signal
+    signal: local_tool_call_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  probe_swap_growth:
+    kind: signal
+    signal: local_swap_delta_bytes
+    unit: byte
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+frontiers:
+  local-agent-quality-latency-validated-126k:
+    workload: terminal-bench-2.1-local-pilot-5-operational-gated@7131e437
+    axes:
+      - metric: pilot_task_success
+        goal: maximize
+      - metric: pilot_p95_task_wall
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: pilot_task_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text, tools, long-context]
+      allow_unknown_age: false
+      minimum_axis_values:
+        pilot_task_success: 60
+      minimum_gate_values:
+        exact_tool_emission: 100
+        validated_context: 125000
+      maximum_gate_values:
+        probe_swap_growth: 0
+    metadata_fields:
+      [hardware, artifact, runtime, workload, pilot, cross_workload_enrichment,
+       local_evidence_status]
+
+  local-agent-quality-memory-validated-126k:
+    workload: terminal-bench-2.1-local-pilot-5-operational-gated@7131e437
+    axes:
+      - metric: pilot_task_success
+        goal: maximize
+      - metric: pilot_peak_physical_footprint
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: pilot_task_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text, tools, long-context]
+      allow_unknown_age: false
+      minimum_axis_values:
+        pilot_task_success: 60
+      minimum_gate_values:
+        exact_tool_emission: 100
+        validated_context: 125000
+      maximum_gate_values:
+        probe_swap_growth: 0
+    metadata_fields:
+      [hardware, artifact, runtime, workload, pilot, cross_workload_enrichment,
+       local_evidence_status]
+
+  local-agent-quality-latency-strict-128k:
+    workload: terminal-bench-2.1-local-pilot-5-operational-gated@7131e437
+    axes:
+      - metric: pilot_task_success
+        goal: maximize
+      - metric: pilot_p95_task_wall
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: pilot_task_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text, tools, long-context]
+      allow_unknown_age: false
+      minimum_axis_values:
+        pilot_task_success: 60
+      minimum_gate_values:
+        exact_tool_emission: 100
+        validated_context: 128000
+      maximum_gate_values:
+        probe_swap_growth: 0
+    metadata_fields:
+      [hardware, artifact, runtime, workload, pilot, cross_workload_enrichment,
+       local_evidence_status]
+
+selections: {}

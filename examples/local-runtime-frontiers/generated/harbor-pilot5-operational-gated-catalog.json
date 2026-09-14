@@ -1,0 +1,1591 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "workload": {
+    "id": "terminal-bench-2.1-local-pilot-5-operational-gated@7131e437",
+    "version": "catalog-enrichment-sha256:c2e35b575683528497455f9be6b0956f8d4d004c997dcb1f8113ffad7addcfeb",
+    "unit": "task"
+  },
+  "offerings": [
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
+        "model_id": "Qwen/Qwen3.8-27B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "oQ4e",
+        "reasoning_effort": null,
+        "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "signals": {
+        "local_peak_process_physical_footprint_bytes": {
+          "value": "23782290440",
+          "unit": "byte",
+          "evidence_tier": "measured",
+          "lower": "20060189632",
+          "upper": "23782290440",
+          "sample_count": 5,
+          "observed_at": "2026-09-14T06:14:29.131065Z",
+          "source": {
+            "id": "local-quality-memory:90509e6fcf8b748eaf14e636",
+            "version": "model-skyline/harbor-runner-memory-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Kernel-accounted macOS physical-footprint task peaks from the exact local runner during every task's complete agent-execution interval. Compact summaries replay their peaks from the source samples and retain that capture's SHA-256 digest.",
+            "raw_sha256": "90509e6fcf8b748eaf14e63649a13044e9ddd9da9740ce80a374654167b361a9",
+            "retrieved_at": "2026-09-14T06:14:29.131065Z"
+          }
+        },
+        "local_pilot_p95_successful_task_wall_seconds": {
+          "value": "332.7606368",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": "171.722227",
+          "upper": "356.795018",
+          "sample_count": 4,
+          "observed_at": "2026-09-14T06:14:29.019142Z",
+          "source": {
+            "id": "local-quality-pilot:qwen38_low_think4k:d77a9b44-9a62-489d-9521-aa49b7021cc8",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "79d1f1464b52466e0c492914c2809a51f47d7abd93faf86597f67ca51e94f62b",
+            "retrieved_at": "2026-09-14T06:14:29.019142Z"
+          }
+        },
+        "local_pilot_p95_task_wall_seconds": {
+          "value": "804.2667604",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": "171.722227",
+          "upper": "916.134696",
+          "sample_count": 5,
+          "observed_at": "2026-09-14T06:14:29.019142Z",
+          "source": {
+            "id": "local-quality-pilot:qwen38_low_think4k:d77a9b44-9a62-489d-9521-aa49b7021cc8",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "79d1f1464b52466e0c492914c2809a51f47d7abd93faf86597f67ca51e94f62b",
+            "retrieved_at": "2026-09-14T06:14:29.019142Z"
+          }
+        },
+        "local_pilot_task_success_percent": {
+          "value": "80",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 5,
+          "observed_at": "2026-09-14T06:14:29.019142Z",
+          "source": {
+            "id": "local-quality-pilot:qwen38_low_think4k:d77a9b44-9a62-489d-9521-aa49b7021cc8",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "79d1f1464b52466e0c492914c2809a51f47d7abd93faf86597f67ca51e94f62b",
+            "retrieved_at": "2026-09-14T06:14:29.019142Z"
+          }
+        }
+      },
+      "metadata": {
+        "local_evidence_status": "provisional",
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "hardware_sha256": "25d27a7bef1582abffb3322723ef3b33a4f87cb223ef4f4cca3a4d5e9e986f19",
+        "artifact": {
+          "model_id": "Qwen/Qwen3.8-27B",
+          "checkpoint": "Qwen3.8-27B",
+          "revision": "1c0609b20321c1faff8294be5ea88c656cedaa59",
+          "format": "mlx-safetensors",
+          "quantization": "oQ4e",
+          "size_bytes": 16994894984,
+          "content_sha256": "6de9485449074319eb4ed22e027f73a66d6646e22fa2506f1422ce7b121b2e20",
+          "source_url": "https://huggingface.co/mlx-works/Qwen3.8-27B-oQ4e-mtp",
+          "license": "Apache-2.0",
+          "metadata": {
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/qwen3.8-27b-oq4e-mtp-manifest.json",
+            "chat_template": "froggeric/Qwen-Fixed-Chat-Templates",
+            "mtp_head_preserved": true
+          }
+        },
+        "runtime": {
+          "runtime_id": "oMLX",
+          "version": "0.6.4",
+          "commit": null,
+          "backend": "MLX/Metal",
+          "context_capacity_tokens": 262144,
+          "kv_cache": "f16",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "configuration": {
+            "mlx_version": "0.32.0",
+            "mlx_lm_version": "0.31.3",
+            "model_profile": "baseline-f16kv-low-think4k",
+            "max_concurrent_requests": 1,
+            "max_output_tokens": 16384,
+            "memory_guard": "balanced",
+            "prefix_cache": {
+              "backend": "paged-ssd",
+              "max_size_bytes": 100000000000,
+              "hot_cache_max_size_bytes": 0
+            },
+            "enable_thinking": true,
+            "reasoning_effort": "low",
+            "thinking_budget_tokens": 4096,
+            "forced_chat_template_kwargs": [
+              "enable_thinking",
+              "reasoning_effort"
+            ],
+            "turboquant_kv_enabled": false,
+            "dflash_enabled": false,
+            "mtp_enabled": false,
+            "ane_prefill_enabled": false,
+            "specprefill_enabled": false
+          }
+        },
+        "runtime_identity_sha256": "f06cf053ad0a68df362d0755a21e2e07be368f89d04f897887cb3cb3faa367cd",
+        "workload": {
+          "reference": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "task_set": "pilot_5",
+          "task_digests": {
+            "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+            "terminal-bench/build-cython-ext": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+            "terminal-bench/multi-source-data-merger": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49",
+            "terminal-bench/fix-code-vulnerability": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+            "terminal-bench/cancel-async-tasks": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1"
+          },
+          "attempts_per_task": 1,
+          "quantile_method": "Hyndman-Fan type 7 continuous",
+          "p95_includes_quality_attributable_failures": true,
+          "harness": {
+            "name": "harbor/terminus-2",
+            "version": "2.0.0",
+            "harbor_version": "0.23.0",
+            "harbor_revision": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+            "execution_timezone": "America/New_York",
+            "parser": "json",
+            "temperature": "1.0",
+            "top_p": "0.95",
+            "max_turns": 40,
+            "max_input_tokens": 114688,
+            "max_output_tokens": 16384,
+            "summarization_enabled": true,
+            "proactive_summarization_free_tokens": 8192,
+            "store_all_messages": true,
+            "concurrency": 1,
+            "quality_attributable_exceptions": [
+              "AgentTimeoutError",
+              "AgentSafetyRefusalError"
+            ],
+            "model_switching": "batch_all_tasks_for_one_route",
+            "loading_state_streaming": false
+          }
+        },
+        "pilot": {
+          "candidate": "qwen38_low_think4k",
+          "role": "bounded_reasoning_dense_candidate",
+          "protocol_sha256": "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41",
+          "system_profile_sha256": "ce43f4a37975455c303064d63b09cf1d044406dfcefd5e7c14c468d641b6fa3c",
+          "summary_sha256": "79d1f1464b52466e0c492914c2809a51f47d7abd93faf86597f67ca51e94f62b",
+          "summary_file": "harbor-pilot5-qwen38-low-think4k-summary.json",
+          "job_id": "d77a9b44-9a62-489d-9521-aa49b7021cc8",
+          "job_lock_sha256": "ed5bf3d4ebf7bc8ab45f70e0a5cca980987ff750010f1cf06905edfedc245ee5",
+          "successes": "4.0",
+          "task_count": 5,
+          "token_accounting": {
+            "eligible": false,
+            "ineligibility_reasons": [
+              "incomplete_api_requests:1"
+            ],
+            "incomplete_api_requests": 1,
+            "recorded_input_tokens_lower_bound": 454673,
+            "recorded_cache_tokens_lower_bound": 356352,
+            "recorded_uncached_input_tokens_lower_bound": 98321,
+            "recorded_output_tokens_lower_bound": 31942
+          },
+          "memory": {
+            "eligible": true,
+            "ineligibility_reasons": [],
+            "memory_capture_sha256": "90509e6fcf8b748eaf14e63649a13044e9ddd9da9740ce80a374654167b361a9",
+            "memory_capture_file": "harbor-pilot5-qwen38-low-think4k-runner-memory-summary.json",
+            "memory_evidence_schema_version": "model-skyline/harbor-runner-memory-summary/v1",
+            "process_match": "omlx-server",
+            "sample_interval_seconds": "1.0",
+            "covered_task_count": 5,
+            "sample_count": 1714,
+            "legacy_basename_task_peaks": false,
+            "source_capture_sha256": "3ca209944718a7f04935ea6d3ac819313a31a378ccdb7280d8b09c10471711db",
+            "source_capture_bytes": 398393,
+            "source_task_name_form": "completed_result_name"
+          }
+        },
+        "cross_workload_enrichment": {
+          "schema_version": "model-skyline/catalog-enrichment-audit/v1alpha1",
+          "policy_id": "harbor-pilot5-operational-gates",
+          "policy_sha256": "c2e35b575683528497455f9be6b0956f8d4d004c997dcb1f8113ffad7addcfeb",
+          "base_catalog_sha256": "f8c5ccd60969e55d58725aead032610389359bbd95d357c1400814996bbcce10",
+          "base_workload": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "applied_mappings": []
+        }
+      },
+      "default_source": {
+        "id": "local-quality-pilot:qwen38_low_think4k:d77a9b44-9a62-489d-9521-aa49b7021cc8",
+        "version": "model-skyline/harbor-local-job-summary/v1",
+        "url": null,
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+        "raw_sha256": "79d1f1464b52466e0c492914c2809a51f47d7abd93faf86597f67ca51e94f62b",
+        "retrieved_at": "2026-09-14T06:14:29.019142Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-b406f50b4f56659b",
+        "model_id": "Qwen/Qwen3.8-27B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "oQ4e",
+        "reasoning_effort": null,
+        "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "signals": {
+        "local_peak_process_physical_footprint_bytes": {
+          "value": "23198069456",
+          "unit": "byte",
+          "evidence_tier": "measured",
+          "lower": "20260156160",
+          "upper": "23198069456",
+          "sample_count": 5,
+          "observed_at": "2026-09-14T04:46:38.913361Z",
+          "source": {
+            "id": "local-quality-memory:2ac9f2da3da232a4d2befb59",
+            "version": "model-skyline/harbor-runner-memory-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Kernel-accounted macOS physical-footprint task peaks from the exact local runner during every task's complete agent-execution interval. Compact summaries replay their peaks from the source samples and retain that capture's SHA-256 digest.",
+            "raw_sha256": "2ac9f2da3da232a4d2befb59810500e6aa7ed4c96d56058f11fb1d5d45bbcaf1",
+            "retrieved_at": "2026-09-14T04:46:38.913361Z"
+          }
+        },
+        "local_pilot_p95_successful_task_wall_seconds": {
+          "value": "558.90798895",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": "411.316064",
+          "upper": "566.675985",
+          "sample_count": 2,
+          "observed_at": "2026-09-14T04:46:38.791743Z",
+          "source": {
+            "id": "local-quality-pilot:qwen38_baseline:de25985a-e986-4634-a3ba-108b15d42973",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "fb28f974c14fc3bf6244ae52d51c52bfabe5c32b958af68e0a4d80db6ac3c1aa",
+            "retrieved_at": "2026-09-14T04:46:38.791743Z"
+          }
+        },
+        "local_pilot_p95_task_wall_seconds": {
+          "value": "923.9792312",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": "411.316064",
+          "upper": "925.51808",
+          "sample_count": 5,
+          "observed_at": "2026-09-14T04:46:38.791743Z",
+          "source": {
+            "id": "local-quality-pilot:qwen38_baseline:de25985a-e986-4634-a3ba-108b15d42973",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "fb28f974c14fc3bf6244ae52d51c52bfabe5c32b958af68e0a4d80db6ac3c1aa",
+            "retrieved_at": "2026-09-14T04:46:38.791743Z"
+          }
+        },
+        "local_pilot_task_success_percent": {
+          "value": "40",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 5,
+          "observed_at": "2026-09-14T04:46:38.791743Z",
+          "source": {
+            "id": "local-quality-pilot:qwen38_baseline:de25985a-e986-4634-a3ba-108b15d42973",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "fb28f974c14fc3bf6244ae52d51c52bfabe5c32b958af68e0a4d80db6ac3c1aa",
+            "retrieved_at": "2026-09-14T04:46:38.791743Z"
+          }
+        },
+        "local_swap_delta_bytes": {
+          "value": "-25165824",
+          "unit": "byte",
+          "evidence_tier": "measured",
+          "lower": "-201326592",
+          "upper": "-8388608",
+          "sample_count": 3,
+          "observed_at": "2026-09-13T13:34:30.556320Z",
+          "source": {
+            "id": "local-measurement:qwen38-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5",
+            "version": "model-skyline/openai-matrix@v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+            "raw_sha256": "aff8d47ebc345646d62f084a7528a8ff110ec16f0bc22de42a3bf83ff8912a39",
+            "retrieved_at": "2026-09-13T13:34:30.556320Z"
+          }
+        },
+        "local_tool_call_success_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 3,
+          "observed_at": "2026-09-13T06:02:20.642886Z",
+          "source": {
+            "id": "local-measurement:qwen38-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled",
+            "version": "model-skyline/openai-matrix@v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+            "raw_sha256": "8e78214757aab1c37ea4f9ecc382c9e06373fbd8f80713410d7257f412664e90",
+            "retrieved_at": "2026-09-13T06:02:20.642886Z"
+          }
+        },
+        "local_validated_context_tokens": {
+          "value": "125964",
+          "unit": "token",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 3,
+          "observed_at": "2026-09-13T13:34:30.556320Z",
+          "source": {
+            "id": "local-measurement:qwen38-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5",
+            "version": "model-skyline/openai-matrix@v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+            "raw_sha256": "aff8d47ebc345646d62f084a7528a8ff110ec16f0bc22de42a3bf83ff8912a39",
+            "retrieved_at": "2026-09-13T13:34:30.556320Z"
+          }
+        }
+      },
+      "metadata": {
+        "local_evidence_status": "provisional",
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "hardware_sha256": "25d27a7bef1582abffb3322723ef3b33a4f87cb223ef4f4cca3a4d5e9e986f19",
+        "artifact": {
+          "model_id": "Qwen/Qwen3.8-27B",
+          "checkpoint": "Qwen3.8-27B",
+          "revision": "1c0609b20321c1faff8294be5ea88c656cedaa59",
+          "format": "mlx-safetensors",
+          "quantization": "oQ4e",
+          "size_bytes": 16994894984,
+          "content_sha256": "6de9485449074319eb4ed22e027f73a66d6646e22fa2506f1422ce7b121b2e20",
+          "source_url": "https://huggingface.co/mlx-works/Qwen3.8-27B-oQ4e-mtp",
+          "license": "Apache-2.0",
+          "metadata": {
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/qwen3.8-27b-oq4e-mtp-manifest.json",
+            "chat_template": "froggeric/Qwen-Fixed-Chat-Templates",
+            "mtp_head_preserved": true
+          }
+        },
+        "runtime": {
+          "runtime_id": "oMLX",
+          "version": "0.6.4",
+          "commit": null,
+          "backend": "MLX/Metal",
+          "context_capacity_tokens": 262144,
+          "kv_cache": "f16",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "configuration": {
+            "mlx_version": "0.32.0",
+            "mlx_lm_version": "0.31.3",
+            "model_profile": "baseline-f16kv",
+            "max_concurrent_requests": 1,
+            "max_output_tokens": 16384,
+            "memory_guard": "balanced",
+            "prefix_cache": {
+              "backend": "paged-ssd",
+              "max_size_bytes": 100000000000,
+              "hot_cache_max_size_bytes": 0
+            },
+            "turboquant_kv_enabled": false,
+            "dflash_enabled": false,
+            "mtp_enabled": false,
+            "ane_prefill_enabled": false,
+            "specprefill_enabled": false
+          }
+        },
+        "runtime_identity_sha256": "fb13c27e20430d63645a75d9974f8f98f563d8d0745993c54a4072f97d6f99d2",
+        "workload": {
+          "reference": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "task_set": "pilot_5",
+          "task_digests": {
+            "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+            "terminal-bench/build-cython-ext": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+            "terminal-bench/multi-source-data-merger": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49",
+            "terminal-bench/fix-code-vulnerability": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+            "terminal-bench/cancel-async-tasks": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1"
+          },
+          "attempts_per_task": 1,
+          "quantile_method": "Hyndman-Fan type 7 continuous",
+          "p95_includes_quality_attributable_failures": true,
+          "harness": {
+            "name": "harbor/terminus-2",
+            "version": "2.0.0",
+            "harbor_version": "0.23.0",
+            "harbor_revision": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+            "execution_timezone": "America/New_York",
+            "parser": "json",
+            "temperature": "1.0",
+            "top_p": "0.95",
+            "max_turns": 40,
+            "max_input_tokens": 114688,
+            "max_output_tokens": 16384,
+            "summarization_enabled": true,
+            "proactive_summarization_free_tokens": 8192,
+            "store_all_messages": true,
+            "concurrency": 1,
+            "quality_attributable_exceptions": [
+              "AgentTimeoutError",
+              "AgentSafetyRefusalError"
+            ],
+            "model_switching": "batch_all_tasks_for_one_route",
+            "loading_state_streaming": false
+          }
+        },
+        "pilot": {
+          "candidate": "qwen38_baseline",
+          "role": "stable_dense_baseline",
+          "protocol_sha256": "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41",
+          "system_profile_sha256": "2569e724dc866ac94f879eb24a24e7c8a877e8e5cb2ed61c4545a5b23ad2313d",
+          "summary_sha256": "fb28f974c14fc3bf6244ae52d51c52bfabe5c32b958af68e0a4d80db6ac3c1aa",
+          "summary_file": "harbor-pilot5-qwen38-baseline-f16kv-summary.json",
+          "job_id": "de25985a-e986-4634-a3ba-108b15d42973",
+          "job_lock_sha256": "1fe8a2b5a663c03afb1dc702239bd90373e2efd8c5da2bf4b15c76e822859f6e",
+          "successes": "2.0",
+          "task_count": 5,
+          "token_accounting": {
+            "eligible": false,
+            "ineligibility_reasons": [
+              "incomplete_api_requests:3"
+            ],
+            "incomplete_api_requests": 3,
+            "recorded_input_tokens_lower_bound": 287755,
+            "recorded_cache_tokens_lower_bound": 200704,
+            "recorded_uncached_input_tokens_lower_bound": 87051,
+            "recorded_output_tokens_lower_bound": 58939
+          },
+          "memory": {
+            "eligible": true,
+            "ineligibility_reasons": [],
+            "memory_capture_sha256": "2ac9f2da3da232a4d2befb59810500e6aa7ed4c96d56058f11fb1d5d45bbcaf1",
+            "memory_capture_file": "harbor-pilot5-qwen38-baseline-f16kv-runner-memory-summary.json",
+            "memory_evidence_schema_version": "model-skyline/harbor-runner-memory-summary/v1",
+            "process_match": "omlx-server",
+            "sample_interval_seconds": "1.0",
+            "covered_task_count": 5,
+            "sample_count": 3507,
+            "legacy_basename_task_peaks": false,
+            "source_capture_sha256": "2086323a3a9f16fcd24562d46500e20861d2c300f6fda430d001a512de0d4cdf",
+            "source_capture_bytes": 818237,
+            "source_task_name_form": "completed_result_name"
+          }
+        },
+        "cross_workload_enrichment": {
+          "schema_version": "model-skyline/catalog-enrichment-audit/v1alpha1",
+          "policy_id": "harbor-pilot5-operational-gates",
+          "policy_sha256": "c2e35b575683528497455f9be6b0956f8d4d004c997dcb1f8113ffad7addcfeb",
+          "base_catalog_sha256": "f8c5ccd60969e55d58725aead032610389359bbd95d357c1400814996bbcce10",
+          "base_workload": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "applied_mappings": [
+            {
+              "projection_id": "long-context-and-swap",
+              "source_catalog_sha256": "f3428a1b0ab99bdc68bbd8bd05209864fe5f4fdc09a7ec230a1b394a10168abd",
+              "source_workload": {
+                "id": "long-context-retrieval-v1",
+                "version": "1",
+                "unit": "retrieval_probe"
+              },
+              "source_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-19e9d74c4d6bd66f",
+              "signal_ids": [
+                "local_swap_delta_bytes",
+                "local_validated_context_tokens"
+              ],
+              "review_note": "The source and target use the same Qwen3.8-27B artifact bytes, oMLX 0.6.4 and MLX versions, F16 KV, 262144-token allocation, one-request concurrency, output ceiling, and memory guard. The source disables prefix caching while the target uses paged SSD cache with a zero-byte hot cache; the full 126K source prefill is therefore retained only as a conservative validated-capacity and request-position swap test, not as evidence for long-session cache endurance. The harness difference is explicit."
+            },
+            {
+              "projection_id": "uncached-tool-emission",
+              "source_catalog_sha256": "b82908b466696b1e3169fde052da9d08fc46e375d01b77ab390297617672cd8e",
+              "source_workload": {
+                "id": "openai-agent-latency-v1",
+                "version": "1",
+                "unit": "request"
+              },
+              "source_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-19e9d74c4d6bd66f",
+              "signal_ids": [
+                "local_tool_call_success_percent"
+              ],
+              "review_note": "The source and target use the same Qwen3.8-27B artifact, oMLX and MLX versions, F16 KV, context and output ceilings, one-request concurrency, and non-speculative baseline reasoning profile. Prefix cache state and harness differ. This projected 3/3 observation is only a minimum exact synthetic tool-emission gate; it is not a claim of general Harbor tool-task correctness."
+            }
+          ]
+        }
+      },
+      "default_source": {
+        "id": "local-quality-pilot:qwen38_baseline:de25985a-e986-4634-a3ba-108b15d42973",
+        "version": "model-skyline/harbor-local-job-summary/v1",
+        "url": null,
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+        "raw_sha256": "fb28f974c14fc3bf6244ae52d51c52bfabe5c32b958af68e0a4d80db6ac3c1aa",
+        "retrieved_at": "2026-09-14T04:46:38.791743Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99",
+        "model_id": "Qwen/Qwen3.8-Flash-Next",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+        "reasoning_effort": null,
+        "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "signals": {
+        "local_peak_process_physical_footprint_bytes": {
+          "value": "5461911280",
+          "unit": "byte",
+          "evidence_tier": "measured",
+          "lower": "5460567432",
+          "upper": "5461911280",
+          "sample_count": 5,
+          "observed_at": "2026-09-14T02:34:13.519976Z",
+          "source": {
+            "id": "local-quality-memory:3651ccebe8e34f7846c1a455",
+            "version": "model-skyline/harbor-runner-memory-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Kernel-accounted macOS physical-footprint task peaks from the exact local runner during every task's complete agent-execution interval. Compact summaries replay their peaks from the source samples and retain that capture's SHA-256 digest.",
+            "raw_sha256": "3651ccebe8e34f7846c1a4551e20666feda022c68a83cc0a6c5e2f4e8b0a84c4",
+            "retrieved_at": "2026-09-14T02:34:13.519976Z"
+          }
+        },
+        "local_pilot_p95_successful_task_wall_seconds": {
+          "value": "245.4546583",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": "149.429948",
+          "upper": "246.5267",
+          "sample_count": 3,
+          "observed_at": "2026-09-14T02:34:13.356364Z",
+          "source": {
+            "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "e08053ab79b2328adb088dc837fa76a84b4e8f091c16d192108be52da903aa4d",
+            "retrieved_at": "2026-09-14T02:34:13.356364Z"
+          }
+        },
+        "local_pilot_p95_task_wall_seconds": {
+          "value": "923.9732334",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": "149.429948",
+          "upper": "925.573898",
+          "sample_count": 5,
+          "observed_at": "2026-09-14T02:34:13.356364Z",
+          "source": {
+            "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "e08053ab79b2328adb088dc837fa76a84b4e8f091c16d192108be52da903aa4d",
+            "retrieved_at": "2026-09-14T02:34:13.356364Z"
+          }
+        },
+        "local_pilot_task_success_percent": {
+          "value": "60",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 5,
+          "observed_at": "2026-09-14T02:34:13.356364Z",
+          "source": {
+            "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "e08053ab79b2328adb088dc837fa76a84b4e8f091c16d192108be52da903aa4d",
+            "retrieved_at": "2026-09-14T02:34:13.356364Z"
+          }
+        },
+        "local_swap_delta_bytes": {
+          "value": "-16777216",
+          "unit": "byte",
+          "evidence_tier": "measured",
+          "lower": "-25165824",
+          "upper": "0",
+          "sample_count": 3,
+          "observed_at": "2026-09-13T13:18:54.971906Z",
+          "source": {
+            "id": "local-measurement:qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-r3-footprint-p126000-o64-miss-needle-0p5",
+            "version": "model-skyline/openai-matrix@v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+            "raw_sha256": "b329071ecfb000bcbe60a219769717a6b786c92347ff49b93215d2e24f7696e6",
+            "retrieved_at": "2026-09-13T13:18:54.971906Z"
+          }
+        },
+        "local_tool_call_success_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 3,
+          "observed_at": "2026-09-13T07:06:19.227668Z",
+          "source": {
+            "id": "local-measurement:qwen38-flash-next-ds4-q2-pleq41-tool30-auto-p2048-o256-miss",
+            "version": "model-skyline/openai-matrix@v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+            "raw_sha256": "7f8cbe32a5799f08b28f2b4221894cd3ed216b1c108c3d8d883d5b3c123fc03e",
+            "retrieved_at": "2026-09-13T07:06:19.227668Z"
+          }
+        },
+        "local_validated_context_tokens": {
+          "value": "125964",
+          "unit": "token",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 3,
+          "observed_at": "2026-09-13T13:18:54.971906Z",
+          "source": {
+            "id": "local-measurement:qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-r3-footprint-p126000-o64-miss-needle-0p5",
+            "version": "model-skyline/openai-matrix@v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+            "raw_sha256": "b329071ecfb000bcbe60a219769717a6b786c92347ff49b93215d2e24f7696e6",
+            "retrieved_at": "2026-09-13T13:18:54.971906Z"
+          }
+        }
+      },
+      "metadata": {
+        "local_evidence_status": "provisional",
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "hardware_sha256": "25d27a7bef1582abffb3322723ef3b33a4f87cb223ef4f4cca3a4d5e9e986f19",
+        "artifact": {
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "checkpoint": "Qwen3.8-Flash-Next",
+          "revision": "DS4-IQ2@b8b20398acfcc9d9a05defb408ab857cfa02a56a+PLE@59a55fb819c82be7b162948282b50bd1a1e290b7",
+          "format": "ds4-composite-gguf",
+          "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+          "size_bytes": 76806769632,
+          "content_sha256": "4cefeb2f73958172ce6e0baaba97b694c12504c4daa2944ef5e552ac33b5adeb",
+          "source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-IQ2",
+          "license": "Apache-2.0",
+          "metadata": {
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/qwen3.8-flash-next-ds4-q2-pleq41-manifest.json",
+            "base_includes_mtp": true,
+            "base_source_revision": "b8b20398acfcc9d9a05defb408ab857cfa02a56a",
+            "ple_source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-Q4",
+            "ple_source_revision": "59a55fb819c82be7b162948282b50bd1a1e290b7"
+          }
+        },
+        "runtime": {
+          "runtime_id": "DwarfStar/ds4",
+          "version": null,
+          "commit": "10830f4d6919a9820382f6934362683379f26d7b",
+          "backend": "Metal",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "Qwen-hybrid-raw-plus-compressed",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "configuration": {
+            "branch": "qwen3.8-flash-next",
+            "binary_sha256": "512223e80553502875a433068fba591b24dbc3b097f5fb2556fe9471752700e",
+            "native_context_tokens": 262144,
+            "allocated_context_tokens": 131072,
+            "prefill_chunk_tokens": 1024,
+            "max_output_tokens": 16384,
+            "resident_base_model": true,
+            "ple_access": "demand-paged-mmap",
+            "ple_eviction_interval_tokens": 1024,
+            "ssd_model_streaming": false,
+            "disk_kv_cache_enabled": false,
+            "live_prefix_reuse_enabled": true,
+            "mtp_present_in_artifact": true,
+            "mtp_enabled": false,
+            "planned_resident_gib_reported": "47.00",
+            "deployment_status": "aggressive-64gb-experiment"
+          }
+        },
+        "runtime_identity_sha256": "be1a29b6abeebd9ce1fa0e42b2052f0a20db38aab6888d73945b35a4c13bef7d",
+        "workload": {
+          "reference": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "task_set": "pilot_5",
+          "task_digests": {
+            "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+            "terminal-bench/build-cython-ext": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+            "terminal-bench/multi-source-data-merger": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49",
+            "terminal-bench/fix-code-vulnerability": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+            "terminal-bench/cancel-async-tasks": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1"
+          },
+          "attempts_per_task": 1,
+          "quantile_method": "Hyndman-Fan type 7 continuous",
+          "p95_includes_quality_attributable_failures": true,
+          "harness": {
+            "name": "harbor/terminus-2",
+            "version": "2.0.0",
+            "harbor_version": "0.23.0",
+            "harbor_revision": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+            "execution_timezone": "America/New_York",
+            "parser": "json",
+            "temperature": "1.0",
+            "top_p": "0.95",
+            "max_turns": 40,
+            "max_input_tokens": 114688,
+            "max_output_tokens": 16384,
+            "summarization_enabled": true,
+            "proactive_summarization_free_tokens": 8192,
+            "store_all_messages": true,
+            "concurrency": 1,
+            "quality_attributable_exceptions": [
+              "AgentTimeoutError",
+              "AgentSafetyRefusalError"
+            ],
+            "model_switching": "batch_all_tasks_for_one_route",
+            "loading_state_streaming": false
+          }
+        },
+        "pilot": {
+          "candidate": "qwen38_flash_ds4",
+          "role": "memory_efficient_uncached_and_long_context_candidate",
+          "protocol_sha256": "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41",
+          "system_profile_sha256": "78746cf1827b4bcc65978b484fd6afb3fda645407cb64771b0ebc57a8f1e82aa",
+          "summary_sha256": "e08053ab79b2328adb088dc837fa76a84b4e8f091c16d192108be52da903aa4d",
+          "summary_file": "harbor-pilot5-qwen38-flash-next-ds4-summary.json",
+          "job_id": "e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+          "job_lock_sha256": "9933ee7c6c14424302938c7d9ced82bd60a412936827b6f8faa7b85031cf0a27",
+          "successes": "3.0",
+          "task_count": 5,
+          "token_accounting": {
+            "eligible": false,
+            "ineligibility_reasons": [
+              "incomplete_api_requests:2"
+            ],
+            "incomplete_api_requests": 2,
+            "recorded_input_tokens_lower_bound": 700363,
+            "recorded_cache_tokens_lower_bound": 654475,
+            "recorded_uncached_input_tokens_lower_bound": 45888,
+            "recorded_output_tokens_lower_bound": 49492
+          },
+          "memory": {
+            "eligible": true,
+            "ineligibility_reasons": [],
+            "memory_capture_sha256": "3651ccebe8e34f7846c1a4551e20666feda022c68a83cc0a6c5e2f4e8b0a84c4",
+            "memory_capture_file": "harbor-pilot5-qwen38-flash-next-ds4-runner-memory-summary.json",
+            "memory_evidence_schema_version": "model-skyline/harbor-runner-memory-summary/v1",
+            "process_match": "ds4-server",
+            "sample_interval_seconds": "1.0",
+            "covered_task_count": 5,
+            "sample_count": 2359,
+            "legacy_basename_task_peaks": false,
+            "source_capture_sha256": "e7cc0c9cee698fd1068b6c8cc4d1eec72ebab5614a4d11383dfc22f9e7e6c195",
+            "source_capture_bytes": 508199,
+            "source_task_name_form": "legacy_trial_directory_basename"
+          }
+        },
+        "cross_workload_enrichment": {
+          "schema_version": "model-skyline/catalog-enrichment-audit/v1alpha1",
+          "policy_id": "harbor-pilot5-operational-gates",
+          "policy_sha256": "c2e35b575683528497455f9be6b0956f8d4d004c997dcb1f8113ffad7addcfeb",
+          "base_catalog_sha256": "f8c5ccd60969e55d58725aead032610389359bbd95d357c1400814996bbcce10",
+          "base_workload": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "applied_mappings": [
+            {
+              "projection_id": "long-context-and-swap",
+              "source_catalog_sha256": "f3428a1b0ab99bdc68bbd8bd05209864fe5f4fdc09a7ec230a1b394a10168abd",
+              "source_workload": {
+                "id": "long-context-retrieval-v1",
+                "version": "1",
+                "unit": "retrieval_probe"
+              },
+              "source_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+              "signal_ids": [
+                "local_swap_delta_bytes",
+                "local_validated_context_tokens"
+              ],
+              "review_note": "The source and target use byte-identical DS4 composite model artifacts and the same pinned DS4 binary, branch, 131072-token allocation, hybrid KV, prefill chunk, resident-base and demand-paged PLE policy, eviction interval, prefix reuse setting, MTP-disabled setting, and output ceiling. Only the measurement harness differs. The projected swap result describes the repeated 126K retrieval position and is not generalized to a longer multi-turn session."
+            },
+            {
+              "projection_id": "uncached-tool-emission",
+              "source_catalog_sha256": "b82908b466696b1e3169fde052da9d08fc46e375d01b77ab390297617672cd8e",
+              "source_workload": {
+                "id": "openai-agent-latency-v1",
+                "version": "1",
+                "unit": "request"
+              },
+              "source_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+              "signal_ids": [
+                "local_tool_call_success_percent"
+              ],
+              "review_note": "The source and target use byte-identical DS4 composite artifacts and the same pinned DS4 binary and complete inference configuration. Only the harness and prompt position differ. This projected 3/3 result is a minimum exact synthetic tool-emission gate and does not replace the Harbor verifier-scored quality axis."
+            }
+          ]
+        }
+      },
+      "default_source": {
+        "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+        "version": "model-skyline/harbor-local-job-summary/v1",
+        "url": null,
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+        "raw_sha256": "e08053ab79b2328adb088dc837fa76a84b4e8f091c16d192108be52da903aa4d",
+        "retrieved_at": "2026-09-14T02:34:13.356364Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "KQuant-Dynamic-Q4_K_XL",
+        "reasoning_effort": null,
+        "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "signals": {
+        "local_peak_process_physical_footprint_bytes": {
+          "value": "3484714192",
+          "unit": "byte",
+          "evidence_tier": "measured",
+          "lower": "2007892072",
+          "upper": "3484714192",
+          "sample_count": 5,
+          "observed_at": "2026-09-14T05:36:39.388640Z",
+          "source": {
+            "id": "local-quality-memory:310034e5468122aef790fdde",
+            "version": "model-skyline/harbor-runner-memory-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Kernel-accounted macOS physical-footprint task peaks from the exact local runner during every task's complete agent-execution interval. Compact summaries replay their peaks from the source samples and retain that capture's SHA-256 digest.",
+            "raw_sha256": "310034e5468122aef790fddeddd8f4790021fb6f4ea49e5ebbba2d33545a52e9",
+            "retrieved_at": "2026-09-14T05:36:39.388640Z"
+          }
+        },
+        "local_pilot_cache_reuse_percent": {
+          "value": "95.73841788432469702193110398048211",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 5,
+          "observed_at": "2026-09-14T05:36:39.275811Z",
+          "source": {
+            "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+            "retrieved_at": "2026-09-14T05:36:39.275811Z"
+          }
+        },
+        "local_pilot_p95_successful_task_wall_seconds": {
+          "value": "506.4747753",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": "222.929285",
+          "upper": "518.657334",
+          "sample_count": 3,
+          "observed_at": "2026-09-14T05:36:39.275811Z",
+          "source": {
+            "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+            "retrieved_at": "2026-09-14T05:36:39.275811Z"
+          }
+        },
+        "local_pilot_p95_task_wall_seconds": {
+          "value": "836.3430732",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": "222.929285",
+          "upper": "915.764508",
+          "sample_count": 5,
+          "observed_at": "2026-09-14T05:36:39.275811Z",
+          "source": {
+            "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+            "retrieved_at": "2026-09-14T05:36:39.275811Z"
+          }
+        },
+        "local_pilot_task_success_percent": {
+          "value": "60",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 5,
+          "observed_at": "2026-09-14T05:36:39.275811Z",
+          "source": {
+            "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+            "retrieved_at": "2026-09-14T05:36:39.275811Z"
+          }
+        },
+        "local_pilot_total_output_tokens": {
+          "value": "40157",
+          "unit": "token",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 5,
+          "observed_at": "2026-09-14T05:36:39.275811Z",
+          "source": {
+            "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+            "retrieved_at": "2026-09-14T05:36:39.275811Z"
+          }
+        },
+        "local_pilot_total_uncached_input_tokens": {
+          "value": "51424",
+          "unit": "token",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 5,
+          "observed_at": "2026-09-14T05:36:39.275811Z",
+          "source": {
+            "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+            "retrieved_at": "2026-09-14T05:36:39.275811Z"
+          }
+        }
+      },
+      "metadata": {
+        "local_evidence_status": "provisional",
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "hardware_sha256": "25d27a7bef1582abffb3322723ef3b33a4f87cb223ef4f4cca3a4d5e9e986f19",
+        "artifact": {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "checkpoint": "Muse-Glimmer-30B",
+          "revision": "70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+          "format": "gguf",
+          "quantization": "KQuant-Dynamic-Q4_K_XL",
+          "size_bytes": 19653960832,
+          "content_sha256": "ac7023d6a4c704eb9af54ab53e476a66b7f5b6c0ef2fc4a8dde5253c291a6c38",
+          "source_url": "https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/tree/70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+          "license": "Apache-2.0",
+          "metadata": {
+            "filename": "Muse-Glimmer-30B-KQuant-Dynamic-Q4_K_XL.gguf"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "build-10809",
+          "commit": "5266f24da",
+          "backend": "Metal",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "configuration": {
+            "runtime_binary_sha256": "30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9",
+            "allocated_context_tokens": 131072,
+            "parallel_slots": 1,
+            "batch_tokens": 2048,
+            "micro_batch_tokens": 512,
+            "max_output_tokens": 16384,
+            "n_gpu_layers": "all",
+            "flash_attention": true,
+            "fit": "off",
+            "jinja": true,
+            "cache_ram_bytes": 8589934592,
+            "cache_idle_slots": true,
+            "llama_swap_model_id": "muse-glimmer-30b-dynamic-target",
+            "llama_swap_exclusive_group": "local-memory"
+          }
+        },
+        "runtime_identity_sha256": "f88ba1bffb8a850d9cc7dda69148f0d51abd2b7dc7533e1ec2673f8060720cd4",
+        "workload": {
+          "reference": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "task_set": "pilot_5",
+          "task_digests": {
+            "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+            "terminal-bench/build-cython-ext": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+            "terminal-bench/multi-source-data-merger": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49",
+            "terminal-bench/fix-code-vulnerability": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+            "terminal-bench/cancel-async-tasks": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1"
+          },
+          "attempts_per_task": 1,
+          "quantile_method": "Hyndman-Fan type 7 continuous",
+          "p95_includes_quality_attributable_failures": true,
+          "harness": {
+            "name": "harbor/terminus-2",
+            "version": "2.0.0",
+            "harbor_version": "0.23.0",
+            "harbor_revision": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+            "execution_timezone": "America/New_York",
+            "parser": "json",
+            "temperature": "1.0",
+            "top_p": "0.95",
+            "max_turns": 40,
+            "max_input_tokens": 114688,
+            "max_output_tokens": 16384,
+            "summarization_enabled": true,
+            "proactive_summarization_free_tokens": 8192,
+            "store_all_messages": true,
+            "concurrency": 1,
+            "quality_attributable_exceptions": [
+              "AgentTimeoutError",
+              "AgentSafetyRefusalError"
+            ],
+            "model_switching": "batch_all_tasks_for_one_route",
+            "loading_state_streaming": false
+          }
+        },
+        "pilot": {
+          "candidate": "muse_glimmer_target",
+          "role": "dense_local_agent_candidate",
+          "protocol_sha256": "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41",
+          "system_profile_sha256": "ff471eef2691e65aec02f87768086b911df9856d6e2499d7cb3df111470fff0e",
+          "summary_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+          "summary_file": "harbor-pilot5-muse-glimmer-target-summary.json",
+          "job_id": "9002daa8-5e83-45c8-aa46-2511d588c5fb",
+          "job_lock_sha256": "a7a862a05ee61b35bf0de21f9ddee0c8f9c07a0c0fbd09c86e0d3f233a18815a",
+          "successes": "3.0",
+          "task_count": 5,
+          "token_accounting": {
+            "eligible": true,
+            "ineligibility_reasons": [],
+            "incomplete_api_requests": 0,
+            "recorded_input_tokens_lower_bound": 1206688,
+            "recorded_cache_tokens_lower_bound": 1155264,
+            "recorded_uncached_input_tokens_lower_bound": 51424,
+            "recorded_output_tokens_lower_bound": 40157
+          },
+          "memory": {
+            "eligible": true,
+            "ineligibility_reasons": [],
+            "memory_capture_sha256": "310034e5468122aef790fddeddd8f4790021fb6f4ea49e5ebbba2d33545a52e9",
+            "memory_capture_file": "harbor-pilot5-muse-glimmer-target-runner-memory-summary.json",
+            "memory_evidence_schema_version": "model-skyline/harbor-runner-memory-summary/v1",
+            "process_match": "llama-server",
+            "sample_interval_seconds": "1.0",
+            "covered_task_count": 5,
+            "sample_count": 2330,
+            "legacy_basename_task_peaks": false,
+            "source_capture_sha256": "197d63561538ae53076b6d65bf3d44888ba34b3424cc0b85b5a503418488791d",
+            "source_capture_bytes": 541839,
+            "source_task_name_form": "completed_result_name"
+          }
+        },
+        "cross_workload_enrichment": {
+          "schema_version": "model-skyline/catalog-enrichment-audit/v1alpha1",
+          "policy_id": "harbor-pilot5-operational-gates",
+          "policy_sha256": "c2e35b575683528497455f9be6b0956f8d4d004c997dcb1f8113ffad7addcfeb",
+          "base_catalog_sha256": "f8c5ccd60969e55d58725aead032610389359bbd95d357c1400814996bbcce10",
+          "base_workload": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "applied_mappings": []
+        }
+      },
+      "default_source": {
+        "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+        "version": "model-skyline/harbor-local-job-summary/v1",
+        "url": null,
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+        "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+        "retrieved_at": "2026-09-14T05:36:39.275811Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
+        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "oQ4e",
+        "reasoning_effort": null,
+        "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "signals": {
+        "local_pilot_p95_successful_task_wall_seconds": {
+          "value": "298.2213714",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": "143.833601",
+          "upper": "309.224287",
+          "sample_count": 3,
+          "observed_at": "2026-09-14T01:47:07.928815Z",
+          "source": {
+            "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "9b033234d224e7e8b53a2c95e1b36ce9e21e8239e082b9f9b89afc1534419bb4",
+            "retrieved_at": "2026-09-14T01:47:07.928815Z"
+          }
+        },
+        "local_pilot_p95_task_wall_seconds": {
+          "value": "857.6650064",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": "143.833601",
+          "upper": "949.079396",
+          "sample_count": 5,
+          "observed_at": "2026-09-14T01:47:07.928815Z",
+          "source": {
+            "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "9b033234d224e7e8b53a2c95e1b36ce9e21e8239e082b9f9b89afc1534419bb4",
+            "retrieved_at": "2026-09-14T01:47:07.928815Z"
+          }
+        },
+        "local_pilot_task_success_percent": {
+          "value": "60",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 5,
+          "observed_at": "2026-09-14T01:47:07.928815Z",
+          "source": {
+            "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
+            "version": "model-skyline/harbor-local-job-summary/v1",
+            "url": null,
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+            "raw_sha256": "9b033234d224e7e8b53a2c95e1b36ce9e21e8239e082b9f9b89afc1534419bb4",
+            "retrieved_at": "2026-09-14T01:47:07.928815Z"
+          }
+        }
+      },
+      "metadata": {
+        "local_evidence_status": "provisional",
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "hardware_sha256": "25d27a7bef1582abffb3322723ef3b33a4f87cb223ef4f4cca3a4d5e9e986f19",
+        "artifact": {
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "checkpoint": "Ornith-1.5-35B-A3B",
+          "revision": "fb9644b83ce290da1f2cb6139f04632c085fc1d5",
+          "format": "mlx-safetensors",
+          "quantization": "oQ4e",
+          "size_bytes": 20900464628,
+          "content_sha256": "ccd964246ed9c0cc2ef17b1d16c193bb4b4446937b0521061f53636f0979d1f4",
+          "source_url": "https://huggingface.co/mlx-works/Ornith-1.5-35B-A3B-oQ4e-mtp",
+          "license": "MIT",
+          "metadata": {
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/ornith-1.5-35b-a3b-oq4e-mtp-manifest.json",
+            "chat_template": "froggeric/Qwen-Fixed-Chat-Templates@v21.3",
+            "mtp_head_preserved": true,
+            "vision_tower_included": false
+          }
+        },
+        "runtime": {
+          "runtime_id": "oMLX",
+          "version": "0.6.4",
+          "commit": null,
+          "backend": "MLX/Metal",
+          "context_capacity_tokens": 262144,
+          "kv_cache": "f16",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "configuration": {
+            "mlx_version": "0.32.0",
+            "mlx_lm_version": "0.31.3",
+            "model_profile": "baseline-f16kv",
+            "max_concurrent_requests": 1,
+            "max_output_tokens": 16384,
+            "memory_guard": "balanced",
+            "turboquant_kv_enabled": false,
+            "dflash_enabled": false,
+            "mtp_enabled": false,
+            "ane_prefill_enabled": false,
+            "specprefill_enabled": false,
+            "prefix_cache": {
+              "backend": "paged-ssd",
+              "max_size_bytes": 100000000000,
+              "hot_cache_max_size_bytes": 0
+            }
+          }
+        },
+        "runtime_identity_sha256": "fb13c27e20430d63645a75d9974f8f98f563d8d0745993c54a4072f97d6f99d2",
+        "workload": {
+          "reference": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "task_set": "pilot_5",
+          "task_digests": {
+            "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+            "terminal-bench/build-cython-ext": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+            "terminal-bench/multi-source-data-merger": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49",
+            "terminal-bench/fix-code-vulnerability": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+            "terminal-bench/cancel-async-tasks": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1"
+          },
+          "attempts_per_task": 1,
+          "quantile_method": "Hyndman-Fan type 7 continuous",
+          "p95_includes_quality_attributable_failures": true,
+          "harness": {
+            "name": "harbor/terminus-2",
+            "version": "2.0.0",
+            "harbor_version": "0.23.0",
+            "harbor_revision": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+            "execution_timezone": "America/New_York",
+            "parser": "json",
+            "temperature": "1.0",
+            "top_p": "0.95",
+            "max_turns": 40,
+            "max_input_tokens": 114688,
+            "max_output_tokens": 16384,
+            "summarization_enabled": true,
+            "proactive_summarization_free_tokens": 8192,
+            "store_all_messages": true,
+            "concurrency": 1,
+            "quality_attributable_exceptions": [
+              "AgentTimeoutError",
+              "AgentSafetyRefusalError"
+            ],
+            "model_switching": "batch_all_tasks_for_one_route",
+            "loading_state_streaming": false
+          }
+        },
+        "pilot": {
+          "candidate": "ornith15_baseline",
+          "role": "fast_sparse_warm_agent_candidate",
+          "protocol_sha256": "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41",
+          "system_profile_sha256": "73f2f807f4f57f2417e24e00ce92f55e26d5b201c1d27d9b4b105941535b0afe",
+          "summary_sha256": "9b033234d224e7e8b53a2c95e1b36ce9e21e8239e082b9f9b89afc1534419bb4",
+          "summary_file": "harbor-pilot5-ornith15-baseline-summary.json",
+          "job_id": "ea41ee44-222c-40a1-8993-214bc4418151",
+          "job_lock_sha256": "026772904e3088ae6bdd83892c2b1062ecb422da6eb434e526e6045c252c634d",
+          "successes": "3.0",
+          "task_count": 5,
+          "token_accounting": {
+            "eligible": false,
+            "ineligibility_reasons": [
+              "incomplete_api_requests:1"
+            ],
+            "incomplete_api_requests": 1,
+            "recorded_input_tokens_lower_bound": 1177281,
+            "recorded_cache_tokens_lower_bound": 1015808,
+            "recorded_uncached_input_tokens_lower_bound": 161473,
+            "recorded_output_tokens_lower_bound": 160409
+          },
+          "memory": {
+            "eligible": false,
+            "ineligibility_reasons": [
+              "no_memory_capture"
+            ]
+          }
+        },
+        "cross_workload_enrichment": {
+          "schema_version": "model-skyline/catalog-enrichment-audit/v1alpha1",
+          "policy_id": "harbor-pilot5-operational-gates",
+          "policy_sha256": "c2e35b575683528497455f9be6b0956f8d4d004c997dcb1f8113ffad7addcfeb",
+          "base_catalog_sha256": "f8c5ccd60969e55d58725aead032610389359bbd95d357c1400814996bbcce10",
+          "base_workload": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "applied_mappings": []
+        }
+      },
+      "default_source": {
+        "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
+        "version": "model-skyline/harbor-local-job-summary/v1",
+        "url": null,
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+        "raw_sha256": "9b033234d224e7e8b53a2c95e1b36ce9e21e8239e082b9f9b89afc1534419bb4",
+        "retrieved_at": "2026-09-14T01:47:07.928815Z"
+      }
+    }
+  ]
+}
