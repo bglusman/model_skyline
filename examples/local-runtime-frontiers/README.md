@@ -219,7 +219,11 @@ The default profile has since completed its five repetitions at 13/25 (52%),
 still spanning 40–60% per run. Its standalone robust snapshots record explicit
 rejections: quality is below the 60% latency/memory gate, and incomplete request
 usage makes exact cache demand unavailable. The bounded-reasoning route is
-still running, so no paired five-repeat winner is published yet. See the
+10/15 (66.7%) after three repetitions, still spanning 60–80% per run. Its
+[`three-repeat catalog`](generated/harbor-pilot5-qwen38-low-think4k-repeat3-catalog.json)
+retains complete task-scoped memory coverage and marks token demand ineligible
+because two API requests were incomplete. The route is still running, so no
+paired five-repeat winner is published yet. See the
 [`five-repeat default catalog`](generated/harbor-pilot5-qwen38-baseline-five-repeat-catalog.json).
 
 The cross-frontier summary is in

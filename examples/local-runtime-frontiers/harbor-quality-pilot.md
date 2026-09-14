@@ -347,6 +347,15 @@ initial job contains one. Prompt-free second-run summaries are retained for the
 [`bounded-reasoning`](raw/harbor-pilot5-qwen38-low-think4k-repeat2-summary.json)
 profiles.
 
+The bounded-reasoning profile's third job also scored 3/5, again passing
+`fix-git`, `multi-source-data-merger`, and `fix-code-vulnerability`. Its
+[`three-repeat catalog`](generated/harbor-pilot5-qwen38-low-think4k-repeat3-catalog.json)
+pools 10/15 successes (66.7%), retains the 60–80% per-run range, records a
+916.926-second pooled all-task p95, and has complete memory coverage with a
+23,782,290,440-byte maximum process footprint. Two incomplete API requests
+across the three jobs keep exact cache demand ineligible. Repeats four and five
+remain required before comparison with the completed default profile.
+
 ## Completed default-profile repetitions
 
 The default reasoning profile has now completed all five jobs. Its
