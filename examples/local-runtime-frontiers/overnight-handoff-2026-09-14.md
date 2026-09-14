@@ -59,6 +59,19 @@ At model-family level, dense Qwen3.8 currently covers four complementary
 frontiers; DS4 Flash Next, Muse, and Ornith each cover two; Flash Coder covers
 one narrow frontier. This count is descriptive, not a weighted score.
 
+After this snapshot was written, the reviewed cross-workload enrichment path
+was used to materialize operationally gated versions of the two Harbor
+quality frontiers. The gate policy requires at least 60% pilot success, 3/3
+exact synthetic tool emission, nonpositive swap growth at the repeated 126K
+probe, and validated input of at least 125,000 tokens. DS4 Flash Next is the
+sole eligible resident on both quality/latency and quality/memory. A parallel
+strict 128,000-token snapshot has no resident because the strongest exact proof
+is 125,964 tokens. These overlays are not added to the family frontier count
+above because their axes repeat existing quality roles with stronger gates.
+See the
+[`operational-gate policy`](harbor-pilot5-operational-gates-policy.json) and
+[`gated configuration`](harbor-operational-gated-frontiers.yaml).
+
 The population is not complete. Coverage v3 records 33 of 74 nominated
 model-family/frontier cells as attempted (44.59%). North Mini Code, Nemotron,
 Agents-A1, and Laguna are pinned challengers but have not yet produced local
@@ -151,8 +164,12 @@ not continuous 140 W draw; adapter wattage is a ceiling rather than a target.
 - The M1 Studio at `192.168.1.175:8090` now uses the same version and exclusive
   one-runner policy. Qwen-to-Ornith switching and explicit unload passed.
 - OMP v14.6.6 and OpenCode v1.3.17 list managed Qwen, DS4, Muse, Ornith, and
-  Ollama routes. OMP compacts globally at 180,000 tokens; capable backends may
-  still advertise a 262,144 hard ceiling.
+  Ollama routes. OMP summarizes a conversation at 75% of the selected model's
+  declared window: 196,608 tokens on 262,144-token routes and 98,304 on
+  131,072-token routes. The remaining 25% is working room for responses, tools,
+  and summarization. A single 180,000-token setting was rejected because it is
+  larger than the smaller routes' entire window. This client setting is
+  separate from measured usable-context evidence.
 - `sendLoadingState` is disabled because operational messages were entering
   agent history.
 - oMLX paged prefix caching is on by default. Repeating an 18,099-token prefix

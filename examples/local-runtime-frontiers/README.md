@@ -1,10 +1,15 @@
 # Local runtime frontiers
 
-This example makes local inference measurements ordinary ModelSkyline evidence
-without pretending that a model name determines performance. Hardware, exact
-artifact bytes, runtime build and full configuration, physical context ceiling,
+The [current model-first summary](current-model-frontiers.md) gives the simple
+answer first: which models remain when “best” is defined by two measured
+priorities such as coding success and speed, or coding success and memory. It
+separates the best available implementation from a balanced average across
+machines; read that page first if you are choosing a model.
+
+This longer page is the evidence drill-down. It keeps hardware, exact artifact
+bytes, runtime build and configuration, physical context ceiling,
 KV/cache/speculation profile, harness, workload position, run conditions, and
-raw-result digest are all retained.
+raw-result digest so each headline result remains reproducible.
 
 The current artifacts are provisional. They now include cross-model
 throughput, warm and uncached tool operation, repeated 126K retrieval, and a
@@ -126,7 +131,14 @@ MLX is the tensor framework beneath MLX-LM and oMLX; llama.cpp does not “suppo
 MLX” as a model format. Comparing them therefore means comparing separate MLX
 safetensors and GGUF artifacts, not flipping an MLX flag on one set of weights.
 
-## Frontier definitions
+## Exact frontier definitions
+
+Every row below is still a two-dimensional tradeoff. Correctness, minimum
+context, no-swap, and evidence requirements are filters: they decide which
+models may compete, but they do not become hidden extra axes. The simpler
+[model-first table](current-model-frontiers.md#best-available-model-frontiers)
+collapses qualifying implementation details after these exact frontiers are
+calculated.
 
 Every active frontier has exactly two decision axes:
 
@@ -223,6 +235,32 @@ The current epsilon-aware coverage result is:
 | Five-task local-agent quality vs latency | Qwen3.8 27B oMLX, low reasoning/4K thinking |
 | Five-task local-agent quality vs exact uncached input | Muse Glimmer |
 | Five-task local-agent quality vs process footprint | Qwen3.8 27B oMLX, low reasoning/4K thinking; Muse Glimmer |
+
+The quality rows above deliberately report the Harbor axes before operational
+evidence from other workloads is applied. The reviewed
+[`Harbor operational-gate policy`](harbor-pilot5-operational-gates-policy.json)
+now pins the base catalog plus the exact long-context and uncached-tool source
+catalog hashes, and maps complete source and target `OfferingKey` values. Its
+[`gated configuration`](harbor-operational-gated-frontiers.yaml) produces three
+additional audit views without counting the same quality axes as new portfolio
+roles:
+
+| Operationally gated view | Result |
+| --- | --- |
+| Quality vs latency, validated input ≥125K | Qwen3.8 Flash Next on DS4 |
+| Quality vs process footprint, validated input ≥125K | Qwen3.8 Flash Next on DS4 |
+| Quality vs latency, strict validated input ≥128,000 | No eligible resident |
+
+All three require at least 60% pilot success, 3/3 exact synthetic tool-call
+emission, and nonpositive swap growth at the repeated long-context probe. DS4's
+measured 125,964-token position satisfies the first two but not the strict 128K
+view. The default Qwen route receives its separately reviewed probe signals but
+fails the 60% pilot-quality floor. The tuned Qwen route remains unmapped because
+its reasoning policy differs; Muse and Ornith remain unmapped because matching
+gate evidence is absent or failed. Missing evidence is therefore a visible
+rejection, not inferred success. The generated
+[`enriched catalog`](generated/harbor-pilot5-operational-gated-catalog.json) and
+all three snapshots retain the policy hash and applied mapping notes.
 
 The three five-task rows above are the initial one-attempt point frontiers, not
 stable defaults. Matched second Qwen jobs produced 5/10 pooled success for the
@@ -486,8 +524,22 @@ cache-free measurements set `QWEN38_OMLX_CACHE=0`. OpenCode and OMP both expose
 the non-speculative baseline/F16-KV and baseline/TQ4-KV controls, MTP/F16-KV,
 MTP/TQ4-KV, and DFlash/TQ4 aliases through the same router. The paired baseline
 profiles isolate KV compression from speculative decoding. OMP keeps the
-agreed 180,000-token global compaction trigger, while 262K-capable backends
-advertise a 262,144-token hard ceiling.
+OMP has to decide when to shorten a long conversation into a summary. It is set
+to do that after the conversation uses 75% of whichever model's declared
+context window is selected. This leaves the final 25% for the next response,
+tool results, and the summarization step itself.
+
+| Selected model's declared window | OMP starts compaction at | Remaining headroom |
+| ---: | ---: | ---: |
+| 262,144 tokens | 196,608 tokens | 65,536 tokens |
+| 131,072 tokens | 98,304 tokens | 32,768 tokens |
+
+There is no fixed global token limit. We initially discussed using 180,000
+tokens for every model, but that number is larger than the entire window of the
+131,072-token DS4 and Muse routes. The percentage setting therefore adapts to
+both model classes. These numbers describe when the OMP client summarizes a
+conversation; they do not prove that a model can use its advertised context
+well. Retrieval and memory tests supply that separate evidence.
 
 The Ollama-backed `gpt-oss:20b` route is the one deliberate TTL exception:
 its per-model llama-swap TTL is 300 seconds, matching Ollama's documented
