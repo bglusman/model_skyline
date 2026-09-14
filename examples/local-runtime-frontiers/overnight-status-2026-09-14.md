@@ -38,7 +38,11 @@ still running.
 - PR [#54](https://github.com/bglusman/model_skyline/pull/54) added a robust
   evidence-grounded research/search quality-versus-latency recipe and pinned
   exact Agents-A1 and Laguna XS 2.1 MLX/GGUF/DFlash intake controls.
-- Main is clean and synchronized at `92e793e`. The implementation progress is
+- PR [#55](https://github.com/bglusman/model_skyline/pull/55) separated that
+  broad hypothesis into non-interchangeable ResearchClawBench scientific
+  research, BrowseComp live-web browsing, and GAIA general-assistant frontier
+  recipes, with source revisions and publication rules pinned.
+- Main is clean and synchronized at `39426a1`. The implementation progress is
   also tracked on issue
   [#32](https://github.com/bglusman/model_skyline/issues/32#issuecomment-5662742682).
 
@@ -93,14 +97,21 @@ Completed evidence:
 
 | Exact profile | Completed jobs | Pooled result | Per-run success range |
 | --- | ---: | ---: | ---: |
-| Default reasoning, F16 KV | 4/5 | 11/20, 55% | 40–60% |
+| Default reasoning, F16 KV | 5/5 | 13/25, 52% | 40–60% |
 | Low reasoning / 4K thinking, F16 KV | 2/5 | 7/10, 70% | 60–80% |
 
 Default repeats 3 and 4 both scored 3/5, passing
 `fix-code-vulnerability`, `fix-git`, and `multi-source-data-merger`; both
 `build-cython-ext` and `cancel-async-tasks` timed out. Repeat 4 completed in
-54m46s. Its prompt-free result and compact memory summary replay cleanly through
-the normalizer. Default repeat 5 is running.
+54m46s. Repeat 5 scored 2/5, passing `fix-git` and
+`multi-source-data-merger`; `build-cython-ext` and `fix-code-vulnerability`
+timed out, while `cancel-async-tasks` completed with reward zero. Its
+prompt-free result and compact memory summary replay cleanly through the
+normalizer. The five-repeat default bundle is 52% quality with a 40–60% run
+range, 925.232 seconds pooled p95 wall time, and a 24,049,218,352-byte maximum
+covered process footprint. It is rejected from the robust latency and memory
+frontiers by the 60% quality gate, and from cache efficiency because at least
+one request has incomplete usage. Low-reasoning repeat 3 is running.
 
 The final catalog will contain 25 verifier-scored trials per profile. The three
 robust frontiers compare quality with p95 all-task wall time, fully covered peak

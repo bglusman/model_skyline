@@ -12,7 +12,7 @@ import pytest
 import yaml
 
 from model_skyline.engine import FrontierEngine
-from model_skyline.io import dump_json, load_config
+from model_skyline.io import dump_json, load_catalog, load_config
 from model_skyline.models import UncertaintyMode
 
 ROOT = Path(__file__).parents[1]
@@ -52,6 +52,26 @@ PUBLISHED_BASELINE_REPEAT_MEMORY = tuple(
     for filename in (
         "harbor-pilot5-qwen38-baseline-f16kv-runner-memory-summary.json",
         "harbor-pilot5-qwen38-baseline-f16kv-repeat2-runner-memory-summary.json",
+    )
+)
+PUBLISHED_BASELINE_FIVE_REPEATS = tuple(
+    EXAMPLE / "raw" / filename
+    for filename in (
+        "harbor-pilot5-qwen38-baseline-f16kv-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat2-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat3-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat4-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat5-summary.json",
+    )
+)
+PUBLISHED_BASELINE_FIVE_REPEAT_MEMORY = tuple(
+    EXAMPLE / "raw" / filename
+    for filename in (
+        "harbor-pilot5-qwen38-baseline-f16kv-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat2-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat3-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat4-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat5-runner-memory-summary.json",
     )
 )
 PUBLISHED_TUNED_REPEATS = tuple(
@@ -350,6 +370,11 @@ def test_published_compact_memory_evidence_rebuilds_one_run_catalog() -> None:
             PUBLISHED_BASELINE_REPEAT_MEMORY + PUBLISHED_TUNED_REPEAT_MEMORY,
             "harbor-pilot5-qwen38-paired-repeat2-catalog.json",
         ),
+        (
+            PUBLISHED_BASELINE_FIVE_REPEATS,
+            PUBLISHED_BASELINE_FIVE_REPEAT_MEMORY,
+            "harbor-pilot5-qwen38-baseline-five-repeat-catalog.json",
+        ),
     ),
 )
 def test_published_compact_memory_evidence_rebuilds_repeat_catalogs(
@@ -367,6 +392,40 @@ def test_published_compact_memory_evidence_rebuilds_repeat_catalogs(
 
     expected = (EXAMPLE / "generated" / generated_filename).read_text(encoding="utf-8")
     assert dump_json(catalog) == expected
+
+
+@pytest.mark.parametrize(
+    ("frontier_id", "generated_filename"),
+    (
+        (
+            "repeated-local-agent-quality-latency",
+            "harbor-pilot5-qwen38-baseline-five-repeat-quality-latency-frontier.json",
+        ),
+        (
+            "repeated-local-agent-quality-memory",
+            "harbor-pilot5-qwen38-baseline-five-repeat-quality-memory-frontier.json",
+        ),
+        (
+            "repeated-local-agent-quality-cache-efficiency",
+            "harbor-pilot5-qwen38-baseline-five-repeat-quality-cache-efficiency-frontier.json",
+        ),
+    ),
+)
+def test_published_baseline_five_repeat_frontiers_rebuild(
+    frontier_id: str, generated_filename: str
+) -> None:
+    catalog = load_catalog(
+        EXAMPLE / "generated" / "harbor-pilot5-qwen38-baseline-five-repeat-catalog.json"
+    )
+    snapshot = FrontierEngine().calculate(
+        load_config(EXAMPLE / "harbor-repeated-frontiers.yaml"),
+        catalog,
+        frontier_id,
+        generated_at=datetime(2026, 9, 14, 13, tzinfo=UTC),
+    )
+
+    expected = (EXAMPLE / "generated" / generated_filename).read_text(encoding="utf-8")
+    assert dump_json(snapshot) == expected
 
 
 def test_partial_memory_capture_is_retained_but_not_emitted_as_an_axis(tmp_path: Path) -> None:

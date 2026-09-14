@@ -346,3 +346,23 @@ initial job contains one. Prompt-free second-run summaries are retained for the
 [`default`](raw/harbor-pilot5-qwen38-baseline-f16kv-repeat2-summary.json) and
 [`bounded-reasoning`](raw/harbor-pilot5-qwen38-low-think4k-repeat2-summary.json)
 profiles.
+
+## Completed default-profile repetitions
+
+The default reasoning profile has now completed all five jobs. Its
+[`five-repeat catalog`](generated/harbor-pilot5-qwen38-baseline-five-repeat-catalog.json)
+pools 13/25 successes (52%), with a 40–60% per-run quality range, 925.232 seconds
+pooled all-task p95, and a 24,049,218,352-byte maximum fully covered process
+footprint. Repeat 5 scored 2/5, passing `fix-git` and
+`multi-source-data-merger`.
+
+This profile is deliberately not a robust resident: the published
+[`latency`](generated/harbor-pilot5-qwen38-baseline-five-repeat-quality-latency-frontier.json)
+and
+[`memory`](generated/harbor-pilot5-qwen38-baseline-five-repeat-quality-memory-frontier.json)
+snapshots reject its 52% pooled score below the 60% eligibility gate, while the
+[`cache-demand`](generated/harbor-pilot5-qwen38-baseline-five-repeat-quality-cache-efficiency-frontier.json)
+snapshot rejects missing exact token demand caused by incomplete API requests.
+These explicit rejections are evidence, not empty benchmark cells. A paired
+profile comparison remains unpublished until the bounded-reasoning route also
+has five repetitions.

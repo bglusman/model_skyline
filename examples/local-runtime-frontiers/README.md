@@ -215,6 +215,13 @@ packaged robust frontiers stay unpublished until every compared candidate has
 the protocol's five repetitions. The exact paired evidence is retained in the
 [`two-repeat catalog`](generated/harbor-pilot5-qwen38-paired-repeat2-catalog.json).
 
+The default profile has since completed its five repetitions at 13/25 (52%),
+still spanning 40–60% per run. Its standalone robust snapshots record explicit
+rejections: quality is below the 60% latency/memory gate, and incomplete request
+usage makes exact cache demand unavailable. The bounded-reasoning route is
+still running, so no paired five-repeat winner is published yet. See the
+[`five-repeat default catalog`](generated/harbor-pilot5-qwen38-baseline-five-repeat-catalog.json).
+
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
 At model-family identity, dense Qwen3.8 covers four complementary frontiers;
