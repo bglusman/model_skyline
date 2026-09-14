@@ -94,6 +94,12 @@ PUBLISHED_TUNED_THREE_REPEATS = PUBLISHED_TUNED_REPEATS + (
 PUBLISHED_TUNED_THREE_REPEAT_MEMORY = PUBLISHED_TUNED_REPEAT_MEMORY + (
     EXAMPLE / "raw" / "harbor-pilot5-qwen38-low-think4k-repeat3-runner-memory-summary.json",
 )
+PUBLISHED_TUNED_FOUR_REPEATS = PUBLISHED_TUNED_THREE_REPEATS + (
+    EXAMPLE / "raw" / "harbor-pilot5-qwen38-low-think4k-repeat4-summary.json",
+)
+PUBLISHED_TUNED_FOUR_REPEAT_MEMORY = PUBLISHED_TUNED_THREE_REPEAT_MEMORY + (
+    EXAMPLE / "raw" / "harbor-pilot5-qwen38-low-think4k-repeat4-runner-memory-summary.json",
+)
 SPEC = importlib.util.spec_from_file_location("normalize_harbor_pilot", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
 NORMALIZER = importlib.util.module_from_spec(SPEC)
@@ -367,9 +373,9 @@ def test_published_compact_memory_evidence_rebuilds_one_run_catalog() -> None:
     ("summaries", "memory", "generated_filename"),
     (
         (
-            PUBLISHED_TUNED_THREE_REPEATS,
-            PUBLISHED_TUNED_THREE_REPEAT_MEMORY,
-            "harbor-pilot5-qwen38-low-think4k-repeat3-catalog.json",
+            PUBLISHED_TUNED_FOUR_REPEATS,
+            PUBLISHED_TUNED_FOUR_REPEAT_MEMORY,
+            "harbor-pilot5-qwen38-low-think4k-repeat4-catalog.json",
         ),
         (
             PUBLISHED_BASELINE_REPEATS + PUBLISHED_TUNED_REPEATS,

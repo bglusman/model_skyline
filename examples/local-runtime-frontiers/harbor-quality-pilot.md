@@ -356,6 +356,14 @@ pools 10/15 successes (66.7%), retains the 60–80% per-run range, records a
 across the three jobs keep exact cache demand ineligible. Repeats four and five
 remain required before comparison with the completed default profile.
 
+The fourth bounded-reasoning job reproduced the same 3/5 task pattern. Its
+[`four-repeat catalog`](generated/harbor-pilot5-qwen38-low-think4k-repeat4-catalog.json)
+pools 13/20 successes (65%), retains the 60–80% per-run range, records a
+916.676-second pooled all-task p95, and preserves complete memory coverage at
+the same 23,782,290,440-byte maximum. Three incomplete API requests keep exact
+cache demand ineligible. Repeat five remains required before the paired robust
+comparison can be published.
+
 ## Completed default-profile repetitions
 
 The default reasoning profile has now completed all five jobs. Its
