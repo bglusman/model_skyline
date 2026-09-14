@@ -36,18 +36,51 @@ workloads:
     unit: benchmark_task
     version: "1"
     harness: operator-pinned-research-agent-harness
-    cohort: exact-task-tools-corpus-snapshot-context-budget-and-cache-state
-    benchmark: measured long-horizon search and research-agent quality
+    cohort: exact-task-workspace-tools-judge-context-budget-and-cache-state
+    benchmark: measured long-horizon scientific-workspace agent quality
     description: >-
-      Outcome-scored research, search, and heterogeneous tool-use tasks paired
-      with full task wall latency. Source corpora, search results, tool schemas,
-      citation checks, context policy, and network behavior are frozen for a
-      comparable cohort; a live-web cohort must use a different workload version.
+      Outcome-scored scientific research tasks paired with full task wall
+      latency. Workspaces, source corpora, tools, rubric, judge, context policy,
+      and network behavior are frozen for a comparable cohort.
     variables: {}
     assumptions:
       evidence_tier: measured
       source_snapshot: pinned
       network_access: controlled
+
+  measured-local-web-browsing-v1:
+    unit: benchmark_task
+    version: "1"
+    harness: operator-pinned-browser-agent-harness
+    cohort: exact-questions-search-provider-tool-budget-time-slice-and-context-policy
+    benchmark: measured live-web browsing answer accuracy
+    description: >-
+      Hard-to-find exact-answer web tasks paired with full task wall latency.
+      The encrypted question set, search/browser providers, tool budgets,
+      execution window, and compaction policy remain explicit because the live
+      web is mutable.
+    variables: {}
+    assumptions:
+      evidence_tier: measured
+      source_snapshot: encrypted_and_pinned
+      network_access: live
+
+  measured-local-general-assistant-v1:
+    unit: benchmark_task
+    version: "1"
+    harness: operator-pinned-general-assistant-harness
+    cohort: exact-questions-attachments-tools-context-budget-and-web-policy
+    benchmark: measured heterogeneous general-assistant exact-answer quality
+    description: >-
+      Exact-answer tasks requiring combinations of reasoning, file and media
+      handling, browsing, and other tools, paired with full task wall latency.
+      Gated task contents stay outside public artifacts; task IDs and digests
+      bind the cohort.
+    variables: {}
+    assumptions:
+      evidence_tier: measured
+      attachments: pinned
+      dataset_access: gated
 
   fixed-128k-agent-v1:
     unit: benchmark_task
@@ -125,6 +158,22 @@ metrics:
   measured_research_quality:
     kind: signal
     signal: measured_research_task_quality_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 20
+
+  measured_browsing_quality:
+    kind: signal
+    signal: measured_browsing_answer_accuracy_percent
+    unit: percent
+    requirements:
+      max_age_hours: 168
+      minimum_samples: 20
+
+  measured_general_assistant_quality:
+    kind: signal
+    signal: measured_general_assistant_exact_match_percent
     unit: percent
     requirements:
       max_age_hours: 720
@@ -282,7 +331,7 @@ frontiers:
       required_capabilities: [text, tools, long-context]
       allow_unknown_age: false
       minimum_axis_values:
-        measured_research_quality: 60
+        measured_research_quality: 50
       minimum_gate_values:
         exact_tool_call_correctness: 100
         research_evidence_grounding: 100
@@ -291,6 +340,50 @@ frontiers:
         runner_swap_growth: 0
     metadata_fields:
       [evidence_tier, artifact, runtime, hardware, source_snapshot, gate_policy]
+
+  web-browsing-value:
+    workload: measured-local-web-browsing-v1
+    axes:
+      - metric: measured_browsing_quality
+        goal: maximize
+      - metric: p95_agent_task_wall
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: measured_browsing_quality
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools, long-context]
+      allow_unknown_age: false
+      minimum_gate_values:
+        exact_tool_call_correctness: 100
+        validated_context_capacity: 128000
+      maximum_gate_values:
+        runner_swap_growth: 0
+    metadata_fields:
+      [evidence_tier, artifact, runtime, hardware, search_provider, grader,
+       execution_window, gate_policy]
+
+  general-assistant-value:
+    workload: measured-local-general-assistant-v1
+    axes:
+      - metric: measured_general_assistant_quality
+        goal: maximize
+      - metric: p95_agent_task_wall
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: measured_general_assistant_quality
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools, long-context]
+      allow_unknown_age: false
+      minimum_gate_values:
+        exact_tool_call_correctness: 100
+        validated_context_capacity: 128000
+      maximum_gate_values:
+        runner_swap_growth: 0
+    metadata_fields:
+      [evidence_tier, artifact, runtime, hardware, dataset_revision, attachment_policy,
+       gate_policy]
 
   local-agent-memory-value:
     workload: measured-local-agent-v1
@@ -440,6 +533,38 @@ selections:
 
   local-research-latency-first:
     frontier: long-horizon-research-value
+    strategy: lexicographic
+    count: 3
+    order_by: p95_agent_task_wall
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-web-browsing-quality-first:
+    frontier: web-browsing-value
+    strategy: lexicographic
+    count: 3
+    order_by: measured_browsing_quality
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-web-browsing-latency-first:
+    frontier: web-browsing-value
+    strategy: lexicographic
+    count: 3
+    order_by: p95_agent_task_wall
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-general-assistant-quality-first:
+    frontier: general-assistant-value
+    strategy: lexicographic
+    count: 3
+    order_by: measured_general_assistant_quality
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-general-assistant-latency-first:
+    frontier: general-assistant-value
     strategy: lexicographic
     count: 3
     order_by: p95_agent_task_wall
