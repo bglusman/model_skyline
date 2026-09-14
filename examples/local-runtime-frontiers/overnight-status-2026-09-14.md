@@ -32,12 +32,15 @@ still running.
 - PR [#52](https://github.com/bglusman/model_skyline/pull/52) added a versioned
   seven-family candidate population and coverage-v3 attempt audit. It makes
   unattempted frontier cells visible without treating them as dominated points.
-- Main is clean and synchronized at `8e254e9`. The implementation progress is
+- PR [#53](https://github.com/bglusman/model_skyline/pull/53) populated an
+  observed input-reuse/latency frontier with correctness and swap gates, and
+  fixed Decimal34 median handling exposed by the derived reuse percentages.
+- Main is clean and synchronized at `053da95`. The implementation progress is
   also tracked on issue
   [#32](https://github.com/bglusman/model_skyline/issues/32#issuecomment-5662742682).
 
 Each merged PR passed two CI matrices on Python 3.11–3.14 plus both package
-jobs. Local validation after PR #52 was 828 passed and 6 skipped; its touched
+jobs. Local validation after PR #53 passed the full suite with 6 skipped; its touched
 Python files also pass Ruff format and lint.
 
 ## Current broad local frontier residents
@@ -49,6 +52,7 @@ universal ranking:
 | --- | --- |
 | Cross-model pp2048/tg512 throughput | Ornith 1.5 Q4 GGUF |
 | Warm 30-tool, 2K-prefix/1K-output operation | Ornith 1.5 oMLX; dense Qwen3.8 DFlash |
+| Warm 30-tool observed input reuse vs latency | Dense Qwen3.8 DFlash; Ornith 1.5 oMLX is near-only |
 | Uncached 30-tool, 2K-prefix/256-output operation | Qwen3.8 Flash Coder Q4_K_M |
 | Uncached 126K exact retrieval | Qwen3.8 Flash Next on DS4 |
 | Validated context capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
@@ -56,16 +60,17 @@ universal ranking:
 | Five-task quality vs exact uncached-input demand, one-run historical cohort | Muse Glimmer |
 | Five-task quality vs process footprint, one-run historical cohort | Dense Qwen3.8 low-thinking; Muse Glimmer |
 
-At model-family identity, dense Qwen3.8 covers three complementary published
-frontiers; DS4 Flash Next, Muse Glimmer, and Ornith cover two each; Flash Coder
-covers one narrow frontier. At the packaged 5% near threshold there are no
-near-only residents. The closest dominated candidates are DS4 on the uncached
-tool frontier at 14.09% and Flash Coder on the warm-tool frontier at 15.32%.
+At model-family identity, dense Qwen3.8 covers four complementary published
+frontiers; DS4 Flash Next and Muse Glimmer cover two each; Ornith covers two
+exactly and is near the warm-cache frontier; Flash Coder covers one narrow
+frontier. The closest other dominated candidates are Flash Coder on warm-cache
+reuse at 12.65%, DS4 on uncached tools at 14.09%, and Flash Coder on warm tools
+at 15.32%.
 
-Those residents cover 29 of the 50 model-family/frontier cells nominated for
-their intended roles (58%). Dense Qwen and DS4 have complete attempt coverage
+Those residents cover 33 of the 56 model-family/frontier cells nominated for
+their intended roles (58.93%). Dense Qwen and DS4 have complete attempt coverage
 for their declared positions; Muse is missing three, Ornith one, Flash Coder
-one, and the newly pinned North and Nemotron candidates remain 0/8. An explicit
+one, and the newly pinned North and Nemotron candidates remain 0/9. An explicit
 eligibility rejection counts as an attempted cell but never as exact or near
 membership.
 
