@@ -1,10 +1,15 @@
 # Local runtime frontiers
 
-This example makes local inference measurements ordinary ModelSkyline evidence
-without pretending that a model name determines performance. Hardware, exact
-artifact bytes, runtime build and full configuration, physical context ceiling,
+The [current model-first summary](current-model-frontiers.md) gives the simple
+answer first: which models remain when “best” is defined by two measured
+priorities such as coding success and speed, or coding success and memory. It
+separates the best available implementation from a balanced average across
+machines; read that page first if you are choosing a model.
+
+This longer page is the evidence drill-down. It keeps hardware, exact artifact
+bytes, runtime build and configuration, physical context ceiling,
 KV/cache/speculation profile, harness, workload position, run conditions, and
-raw-result digest are all retained.
+raw-result digest so each headline result remains reproducible.
 
 The current artifacts are provisional. They now include cross-model
 throughput, warm and uncached tool operation, repeated 126K retrieval, and a
@@ -126,7 +131,14 @@ MLX is the tensor framework beneath MLX-LM and oMLX; llama.cpp does not “suppo
 MLX” as a model format. Comparing them therefore means comparing separate MLX
 safetensors and GGUF artifacts, not flipping an MLX flag on one set of weights.
 
-## Frontier definitions
+## Exact frontier definitions
+
+Every row below is still a two-dimensional tradeoff. Correctness, minimum
+context, no-swap, and evidence requirements are filters: they decide which
+models may compete, but they do not become hidden extra axes. The simpler
+[model-first table](current-model-frontiers.md#best-available-model-frontiers)
+collapses qualifying implementation details after these exact frontiers are
+calculated.
 
 Every active frontier has exactly two decision axes:
 

@@ -1,8 +1,18 @@
 # ModelSkyline
 
-ModelSkyline calculates workload-specific, two-objective Pareto frontiers over
-model offerings and turns a frontier into an ordered default-and-fallback
-selection for agents.
+ModelSkyline gives a numerical answer to a practical question: **which few
+models are best for this particular meaning of “best”?**
+
+Each frontier compares two things that matter, such as intelligence versus
+cost, intelligence versus speed, or speed versus cost. A model remains on the
+frontier when no tested alternative is better on both. The result is a small
+set of useful tradeoffs—not one universal leaderboard winner.
+
+The first-read result can be model-focused: “Qwen is the quality-first choice;
+Muse uses less memory; Ornith is faster.” The underlying evidence remains more
+specific because model performance and price depend on provider, hardware,
+quantization, runtime, and settings. ModelSkyline keeps those details available
+for audit without requiring every reader to understand them first.
 
 > **Status:** working alpha. The catalog → frontier → selection path is
 > implemented and tested, and an external v0.6 consumer used its CLI and JSON
@@ -27,6 +37,46 @@ better-defined, custom frontiers, and the framework exists to support exactly
 that: declare your own workload shape, offerings, and axes;
 `modelskyline evaluate` and `modelskyline select` do the rest.
 
+The current [plain-language local-model
+frontiers](examples/local-runtime-frontiers/current-model-frontiers.md) show
+this model-first view for the 64 GB Apple Silicon experiments. Their exact
+measurements and limitations remain linked from the same page.
+
+## What a frontier means
+
+1. Name the job, such as coding-agent tasks or long-context retrieval.
+2. Choose exactly two quantities to compare and whether higher or lower is
+   better.
+3. Reject candidates that fail must-haves such as correct tool calls or a
+   required context length.
+4. Keep the models that are not beaten on both quantities.
+
+For example, an intelligence-versus-speed frontier can retain a slower model
+that solves more tasks and a faster model that solves fewer. A model that is
+both slower *and* solves fewer tasks is not on that frontier.
+
+The model-focused publication can show two views of the same frontier:
+
+- **Best available:** a model appears when one real implementation is on the
+  exact frontier. This answers “what is the best this model can currently do?”
+  and the drill-down also identifies the provider, runtime, or hardware needed
+  to obtain it.
+- **Balanced average:** both quantities are aggregated across the same declared
+  provider or hardware panel for every model. This is a useful model-level
+  heuristic, especially when direct evidence for a reader's environment is
+  missing.
+
+For a reader locked to one provider or machine, ModelSkyline can filter to that
+environment first and calculate the same two-axis frontier. That is preferable
+to an average when enough direct measurements exist.
+
+Every view names its reduction rule. The best-available view keeps a real
+tested point; it never constructs a fictional point by borrowing quality from
+one implementation and speed or price from another. The average view requires
+a balanced comparison and publishes its aggregation rule. Otherwise “average”
+would reward whichever model happened to receive easier or newer test
+conditions.
+
 ## The core path
 
 ```text
@@ -42,11 +92,12 @@ versioned workload + offering observations
          default + ordered fallbacks
 ```
 
-An offering is narrower than a model name: provider, endpoint, region, service
-tier, quantization, reasoning configuration, and agent harness can all affect
-price or performance. A workload and its unit are also explicit. Missing,
-stale, non-finite, or unit-incompatible evidence is rejected with a reason
-instead of being converted to zero.
+An *offering* is the exact implementation behind a model result: provider,
+endpoint, hardware, quantization, runtime, service tier, reasoning settings,
+and agent harness where applicable. Readers can start with the model name;
+these details explain and reproduce its measured point. A workload and its
+unit are also explicit. Missing, stale, non-finite, or unit-incompatible
+evidence is rejected with a reason instead of being converted to zero.
 
 Frontier axes may use direct observations, restricted Decimal formulas, or a
 host-registered oracle. Typical pairs include total cost per successful coding
