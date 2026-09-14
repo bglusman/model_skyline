@@ -59,6 +59,12 @@ def _integer(value: object, *, field: str) -> int:
     return value
 
 
+def _boolean(value: object, *, field: str) -> bool:
+    if not isinstance(value, bool):
+        raise PilotConfigError(f"{field} must be a boolean")
+    return value
+
+
 def _decimal(value: object, *, field: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (str, int, float, Decimal)):
         raise PilotConfigError(f"{field} must be numeric")
@@ -75,8 +81,13 @@ def _task_names(protocol_root: Path, task_set: dict[str, Any]) -> list[str]:
     tasks = task_set.get("tasks")
     if not isinstance(tasks, list):
         manifest_name = _string(task_set.get("task_manifest"), field="task_set.task_manifest")
-        manifest_path = (protocol_root / manifest_name).resolve()
-        if not manifest_path.is_relative_to(protocol_root.resolve()):
+        manifest_input = protocol_root / manifest_name
+        manifest_path = manifest_input.resolve()
+        if (
+            not manifest_path.is_relative_to(protocol_root.resolve())
+            or manifest_input.is_symlink()
+            or not manifest_input.is_file()
+        ):
             raise PilotConfigError("task manifest escapes the protocol directory")
         if _sha256(manifest_path) != task_set.get("task_manifest_sha256"):
             raise PilotConfigError("task manifest does not match its pinned digest")
@@ -118,9 +129,13 @@ def render_config(
     task_sets = _mapping(protocol.get("task_sets"), field="task_sets")
     task_set = _mapping(task_sets.get(task_set_name), field=f"task_sets.{task_set_name}")
     profile_name = _string(candidate.get("system_profile"), field="candidate.system_profile")
-    profile_path = (root / profile_name).resolve()
-    if not profile_path.is_relative_to(root) or _sha256(profile_path) != candidate.get(
-        "system_profile_sha256"
+    profile_input = root / profile_name
+    profile_path = profile_input.resolve()
+    if (
+        not profile_path.is_relative_to(root)
+        or profile_input.is_symlink()
+        or not profile_input.is_file()
+        or _sha256(profile_path) != candidate.get("system_profile_sha256")
     ):
         raise PilotConfigError("candidate system profile does not match its pinned digest")
     profile = json.loads(profile_path.read_text(encoding="utf-8"))
@@ -147,7 +162,10 @@ def render_config(
                         harness.get("temperature"), field="harness.temperature"
                     ),
                     "max_turns": _integer(harness.get("max_turns"), field="harness.max_turns"),
-                    "enable_summarize": harness.get("summarization_enabled"),
+                    "enable_summarize": _boolean(
+                        harness.get("summarization_enabled"),
+                        field="harness.summarization_enabled",
+                    ),
                     "proactive_summarization_threshold": _integer(
                         harness.get("proactive_summarization_free_tokens"),
                         field="harness.proactive_summarization_free_tokens",
@@ -165,7 +183,9 @@ def render_config(
                     "llm_call_kwargs": {
                         "top_p": _decimal(harness.get("top_p"), field="harness.top_p")
                     },
-                    "store_all_messages": harness.get("store_all_messages"),
+                    "store_all_messages": _boolean(
+                        harness.get("store_all_messages"), field="harness.store_all_messages"
+                    ),
                 },
             }
         ],

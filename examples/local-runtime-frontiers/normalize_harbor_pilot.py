@@ -123,10 +123,22 @@ def _load_protocol(path: Path) -> dict[str, Any]:
     return protocol
 
 
-def _task_digests(task_set: dict[str, Any]) -> dict[str, str]:
+def _task_digests(protocol_root: Path, task_set: dict[str, Any]) -> dict[str, str]:
     if task_set.get("evidence_tier") != "measured":
         raise PilotCatalogError("quality catalogs require a measured task set")
-    tasks = _array(task_set.get("tasks"), field="task_set.tasks")
+    tasks = task_set.get("tasks")
+    if not isinstance(tasks, list):
+        manifest_name = _string(task_set.get("task_manifest"), field="task_set.task_manifest")
+        manifest_input = protocol_root / manifest_name
+        manifest_path = manifest_input.resolve()
+        if (
+            not manifest_path.is_relative_to(protocol_root.resolve())
+            or manifest_input.is_symlink()
+            or not manifest_input.is_file()
+            or _sha256(manifest_input) != task_set.get("task_manifest_sha256")
+        ):
+            raise PilotCatalogError("task manifest does not match its pinned identity")
+        tasks = _array(_load_json(manifest_input).get("tasks"), field="task_manifest.tasks")
     result: dict[str, str] = {}
     for index, value in enumerate(tasks):
         task = _mapping(value, field=f"task_set.tasks[{index}]")
@@ -183,15 +195,18 @@ def _load_profile(
     harness_identity: str,
 ) -> tuple[LocalArtifactIdentity, LocalRuntimeIdentity, tuple[str, ...], str]:
     profile_name = _string(candidate.get("system_profile"), field="candidate.system_profile")
-    profile_path = (protocol_root / profile_name).resolve()
+    profile_input = protocol_root / profile_name
+    profile_path = profile_input.resolve()
     if not profile_path.is_relative_to(protocol_root.resolve()):
         raise PilotCatalogError("system profile escapes the protocol directory")
     expected_digest = _string(
         candidate.get("system_profile_sha256"), field="candidate.system_profile_sha256"
     )
-    if _sha256(profile_path) != expected_digest:
+    if profile_input.is_symlink() or not profile_input.is_file():
+        raise PilotCatalogError("system profile must be a regular non-symlink file")
+    if _sha256(profile_input) != expected_digest:
         raise PilotCatalogError("system profile does not match its pinned digest")
-    profile = _load_json(profile_path)
+    profile = _load_json(profile_input)
     if profile.get("schema_version") != "model-skyline/local-system-profile/v1":
         raise PilotCatalogError("unsupported local system profile schema_version")
     route = _string(candidate.get("route"), field="candidate.route")
@@ -423,7 +438,7 @@ def build_catalog(
     timezone = ZoneInfo(timezone_name)
     task_sets = _mapping(protocol.get("task_sets"), field="protocol.task_sets")
     task_set = _mapping(task_sets.get(task_set_name), field=f"task_sets.{task_set_name}")
-    expected_tasks = _task_digests(task_set)
+    expected_tasks = _task_digests(root, task_set)
     workload = WorkloadReference(
         id=_string(task_set.get("measured_workload_name"), field="task_set.measured_workload_name"),
         version=_string(task_set.get("workload_version"), field="task_set.workload_version"),

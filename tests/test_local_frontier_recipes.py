@@ -63,6 +63,8 @@ def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
     assert full["full_dataset"] is True
     assert full["expected_task_count"] == pilot["benchmark"]["full_task_count"]
     assert full["source_revision"] == pilot["benchmark"]["revision"]
+    assert full["workload_unit"] == "task"
+    assert full["workload_version"].endswith("+full-v1")
     assert full["task_manifest_sha256"] == hashlib.sha256(TASK_MANIFEST.read_bytes()).hexdigest()
     manifest = json.loads(TASK_MANIFEST.read_text(encoding="utf-8"))
     assert manifest["schema_version"] == "model-skyline/harbor-task-manifest/v1"

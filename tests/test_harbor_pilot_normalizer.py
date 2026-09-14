@@ -189,6 +189,15 @@ def test_memory_capture_must_match_summary_job_lock(tmp_path: Path) -> None:
         )
 
 
+def test_full_task_manifest_is_available_to_normalization() -> None:
+    protocol = yaml.safe_load(PROTOCOL.read_text(encoding="utf-8"))
+
+    tasks = NORMALIZER._task_digests(EXAMPLE, protocol["task_sets"]["all_89"])
+
+    assert len(tasks) == 89
+    assert tasks["terminal-bench/fix-git"].startswith("sha256:")
+
+
 def test_legacy_basename_memory_peaks_map_to_unique_completed_tasks(tmp_path: Path) -> None:
     summary_path, summary = _pilot_summary(tmp_path)
     memory_path = _memory_capture(tmp_path, summary)
