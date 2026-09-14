@@ -374,3 +374,18 @@ def test_full_protocol_task_manifest_is_exact_and_loadable() -> None:
     assert len(expectation.tasks) == 89
     assert expectation.identity["task_manifest"] == "terminal-bench-2.1-task-manifest.json"
     assert expectation.tasks["terminal-bench/fix-git"].startswith("sha256:")
+
+
+def test_protocol_rejects_duplicate_task_digests(tmp_path: Path) -> None:
+    protocol_path = _protocol(tmp_path)
+    protocol = yaml.safe_load(protocol_path.read_text(encoding="utf-8"))
+    protocol["task_sets"]["smoke"]["tasks"].append(
+        {
+            "name": "terminal-bench/different-name",
+            "digest": "sha256:" + ("b" * 64),
+        }
+    )
+    protocol_path.write_text(yaml.safe_dump(protocol), encoding="utf-8")
+
+    with pytest.raises(SUMMARY.InvalidHarborTrial, match="digests must be unique"):
+        SUMMARY._protocol_expectation(protocol_path, candidate_name="local", task_set_name="smoke")

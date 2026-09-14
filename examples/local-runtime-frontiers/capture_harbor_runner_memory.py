@@ -102,7 +102,11 @@ def _active_tasks(job_dir: Path) -> list[str]:
     for child in job_dir.iterdir():
         if child.is_symlink():
             raise MemoryCaptureError(f"job contains a symlinked entry: {child.name}")
-        if not child.is_dir() or (child / "result.json").is_file():
+        if (
+            not child.is_dir()
+            or (child / "result.json").is_file()
+            or not (child / "lock.json").is_file()
+        ):
             continue
         lock = _load_json(child / "lock.json")
         task = lock.get("task")
@@ -163,7 +167,7 @@ def _task_coverage(job_dir: Path, *, capture_started_at: datetime) -> dict[str, 
         started_at = _timestamp(
             execution.get("started_at"), field=f"{task_name}.agent_execution.started_at"
         )
-        coverage[task_name.rsplit("/", 1)[-1]] = capture_started_at <= started_at
+        coverage[task_name] = capture_started_at <= started_at
     return dict(sorted(coverage.items()))
 
 

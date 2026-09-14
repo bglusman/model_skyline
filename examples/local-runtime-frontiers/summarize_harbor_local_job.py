@@ -288,6 +288,7 @@ def _protocol_expectation(
         }
 
     task_digests: dict[str, str] = {}
+    seen_task_digests: set[str] = set()
     for task in tasks:
         if not isinstance(task, dict) or not isinstance(task.get("name"), str):
             raise InvalidHarborTrial("pilot task name is missing")
@@ -296,7 +297,10 @@ def _protocol_expectation(
             raise InvalidHarborTrial("pilot task digest is invalid")
         if task["name"] in task_digests:
             raise InvalidHarborTrial("pilot task names must be unique")
+        if digest in seen_task_digests:
+            raise InvalidHarborTrial("pilot task digests must be unique")
         task_digests[task["name"]] = digest
+        seen_task_digests.add(digest)
 
     harness_name = harness.get("name")
     harness_version = harness.get("version")

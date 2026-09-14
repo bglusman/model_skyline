@@ -69,7 +69,7 @@ def test_finished_job_capture_is_prompt_free_and_marks_late_coverage(
 
     assert result["samples"][0]["rss_bytes"] == 1024
     assert result["samples"][0]["physical_footprint_bytes"] == 2048
-    assert result["capture_started_before_agent_execution"] == {"task": False}
+    assert result["capture_started_before_agent_execution"] == {"terminal-bench/task": False}
     assert result["contains_prompts_or_model_messages"] is False
     assert "terminal output" not in json.dumps(result).lower()
 
@@ -86,6 +86,14 @@ def test_active_task_detection_rejects_symlink(tmp_path: Path) -> None:
     (job / "linked").symlink_to(outside, target_is_directory=True)
     with pytest.raises(CAPTURE.MemoryCaptureError, match="symlinked entry"):
         CAPTURE._active_tasks(job)
+
+
+def test_active_task_detection_ignores_trial_until_lock_exists(tmp_path: Path) -> None:
+    job = tmp_path / "job"
+    job.mkdir()
+    (job / "initializing-trial").mkdir()
+
+    assert CAPTURE._active_tasks(job) == []
 
 
 def test_wait_for_job_accepts_an_existing_lock(tmp_path: Path) -> None:
