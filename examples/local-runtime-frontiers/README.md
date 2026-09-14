@@ -49,6 +49,12 @@ evaluates one custom MoE slice without changing the frozen pilot digest. It
 earns the narrow uncached-tool frontier but fails the real-agent smoke and the
 retrieval ladder, so it is not a general local-agent recommendation.
 
+The next candidate is pinned in the
+[`Nemotron 3.5 Lightning local intake`](nemotron-lightning-intake.md). That
+document separates plain oMLX, embedded-MTP, and external-DSpark profiles and
+defines correctness, cache, context, memory, and real-agent promotion gates.
+It is a test plan, not a measured frontier resident.
+
 ## Runtime choices on Apple Silicon
 
 - **MLX-LM** is the simplest native MLX baseline: direct safetensors models,
