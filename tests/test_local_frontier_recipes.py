@@ -6,7 +6,12 @@ from pathlib import Path
 
 import yaml
 
-from model_skyline.io import load_catalog, load_config, load_frontier_snapshot
+from model_skyline.io import (
+    load_catalog,
+    load_config,
+    load_frontier_snapshot,
+    load_local_measurement,
+)
 from model_skyline.local_measurements import LocalArtifactIdentity, LocalRuntimeIdentity
 from model_skyline.models import EvidenceTier, UncertaintyMode
 
@@ -15,6 +20,12 @@ EXAMPLE = ROOT / "examples" / "local-runtime-frontiers"
 RECIPES = EXAMPLE / "recommended-frontier-recipes.yaml"
 PILOT = EXAMPLE / "harbor-quality-pilot.yaml"
 FLASH_CODER_SCREEN = EXAMPLE / "harbor-quality-screen-qwen38-flash-coder.yaml"
+FLASH_CODER_CAPACITY_RAW = (
+    EXAMPLE / "raw" / "qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json"
+)
+FLASH_CODER_CAPACITY_MEASUREMENTS = sorted(
+    (EXAMPLE / "measurements").glob("qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-*.json")
+)
 FROZEN_HARBOR_PILOT_SHA256 = "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41"
 TASK_MANIFEST = EXAMPLE / "terminal-bench-2.1-task-manifest.json"
 HARBOR_PILOT_SMOKE_SUMMARIES = sorted(
@@ -267,6 +278,26 @@ def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
 
 def test_published_capacity_frontier_retains_failed_candidate_for_audit() -> None:
     generated = EXAMPLE / "generated"
+    raw_digest = hashlib.sha256(FLASH_CODER_CAPACITY_RAW.read_bytes()).hexdigest()
+    measurements = [load_local_measurement(path) for path in FLASH_CODER_CAPACITY_MEASUREMENTS]
+    assert len(measurements) == 4
+    assert {record.provenance.raw_sha256 for record in measurements} == {raw_digest}
+    assert {record.provenance.raw_artifact_path for record in measurements} == {
+        "raw/qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json"
+    }
+    assert {
+        record.performance.actual_input_tokens
+        for record in measurements
+        if record.performance is not None
+    } == {2012, 32732, 65500, 125964}
+    assert all(
+        record.integrity is not None
+        and record.integrity.retrieval is not None
+        and record.integrity.retrieval.passed == 0
+        and record.integrity.retrieval.total == 1
+        for record in measurements
+    )
+
     catalog = load_catalog(generated / "validated-capacity-catalog.json")
     offerings = {offering.offering.model_id: offering for offering in catalog.offerings}
 
