@@ -30,6 +30,7 @@ class PilotExpectation:
     agent_configuration: dict[str, Any]
     harbor: dict[str, str]
     concurrency: int
+    quality_attributable_exceptions: frozenset[str]
     identity: dict[str, str]
 
 
@@ -235,6 +236,7 @@ def _protocol_expectation(
     task_set_name: str,
 ) -> PilotExpectation:
     protocol = _load_yaml(protocol_path)
+    protocol_root = protocol_path.resolve().parent
     if protocol.get("schema_version") != "model-skyline/local-quality-pilot/v1":
         raise InvalidHarborTrial("unsupported local quality pilot schema")
     candidates = protocol.get("candidates")
@@ -248,14 +250,46 @@ def _protocol_expectation(
     task_set = task_sets.get(task_set_name)
     if not isinstance(candidate, dict):
         raise InvalidHarborTrial(f"unknown pilot candidate: {candidate_name}")
-    if not isinstance(task_set, dict) or not isinstance(task_set.get("tasks"), list):
+    if not isinstance(task_set, dict):
         raise InvalidHarborTrial(f"unknown pilot task set: {task_set_name}")
     model = candidate.get("route")
     if not isinstance(model, str) or not model:
         raise InvalidHarborTrial("pilot candidate route is missing")
 
+    tasks = task_set.get("tasks")
+    task_manifest_identity: dict[str, str] = {}
+    if not isinstance(tasks, list):
+        manifest_name = task_set.get("task_manifest")
+        manifest_digest = task_set.get("task_manifest_sha256")
+        if not isinstance(manifest_name, str) or not _is_sha256_digest(
+            manifest_digest, prefixed=False
+        ):
+            raise InvalidHarborTrial(f"pilot task set has no exact manifest: {task_set_name}")
+        manifest_path = (protocol_root / manifest_name).resolve()
+        if not manifest_path.is_relative_to(protocol_root):
+            raise InvalidHarborTrial("pilot task manifest escapes the protocol directory")
+        if _sha256(manifest_path) != manifest_digest:
+            raise InvalidHarborTrial("pilot task manifest does not match its pinned digest")
+        manifest = _load_json(manifest_path)
+        benchmark = protocol.get("benchmark")
+        if (
+            manifest.get("schema_version") != "model-skyline/harbor-task-manifest/v1"
+            or not isinstance(benchmark, dict)
+            or manifest.get("revision") != benchmark.get("revision")
+            or task_set.get("source_revision") != benchmark.get("revision")
+        ):
+            raise InvalidHarborTrial("pilot task manifest benchmark identity does not match")
+        tasks = manifest.get("tasks")
+        if not isinstance(tasks, list) or len(tasks) != task_set.get("expected_task_count"):
+            raise InvalidHarborTrial("pilot task manifest count does not match")
+        task_manifest_identity = {
+            "task_manifest": manifest_name,
+            "task_manifest_sha256": manifest_digest,
+        }
+
     task_digests: dict[str, str] = {}
-    for task in task_set["tasks"]:
+    seen_task_digests: set[str] = set()
+    for task in tasks:
         if not isinstance(task, dict) or not isinstance(task.get("name"), str):
             raise InvalidHarborTrial("pilot task name is missing")
         digest = task.get("digest")
@@ -263,7 +297,10 @@ def _protocol_expectation(
             raise InvalidHarborTrial("pilot task digest is invalid")
         if task["name"] in task_digests:
             raise InvalidHarborTrial("pilot task names must be unique")
+        if digest in seen_task_digests:
+            raise InvalidHarborTrial("pilot task digests must be unique")
         task_digests[task["name"]] = digest
+        seen_task_digests.add(digest)
 
     harness_name = harness.get("name")
     harness_version = harness.get("version")
@@ -279,11 +316,17 @@ def _protocol_expectation(
     for field in ("summarization_enabled", "store_all_messages"):
         if not isinstance(harness.get(field), bool):
             raise InvalidHarborTrial(f"pilot harness {field} must be boolean")
+    exceptions = harness.get("quality_attributable_exceptions")
+    if (
+        not isinstance(exceptions, list)
+        or any(not isinstance(exception, str) or not exception for exception in exceptions)
+        or len(set(exceptions)) != len(exceptions)
+    ):
+        raise InvalidHarborTrial("pilot quality-attributable exceptions are invalid")
 
     profile_name = candidate.get("system_profile")
     if not isinstance(profile_name, str) or not profile_name:
         raise InvalidHarborTrial("pilot candidate system profile is missing")
-    protocol_root = protocol_path.resolve().parent
     profile_path = (protocol_root / profile_name).resolve()
     if not profile_path.is_relative_to(protocol_root):
         raise InvalidHarborTrial("pilot system profile escapes the protocol directory")
@@ -318,12 +361,14 @@ def _protocol_expectation(
         },
         harbor={"version": str(harbor_version), "git_commit_hash": str(harbor_revision)},
         concurrency=_integer(harness.get("concurrency"), field="concurrency"),
+        quality_attributable_exceptions=frozenset(exceptions),
         identity={
             "protocol_sha256": _sha256(protocol_path),
             "candidate": candidate_name,
             "task_set": task_set_name,
             "system_profile": profile_name,
             "system_profile_sha256": expected_profile_digest,
+            **task_manifest_identity,
         },
     )
 
@@ -333,11 +378,20 @@ def summarize_trial(
     *,
     expected_model: str | None = None,
     expected_task_digests: dict[str, str] | None = None,
+    quality_attributable_exceptions: frozenset[str] = frozenset(),
 ) -> dict[str, Any]:
     result_path = trial_dir / "result.json"
     result = _load_json(result_path)
-    if result.get("exception_info") is not None:
-        raise InvalidHarborTrial("Harbor recorded a trial exception")
+    exception_info = result.get("exception_info")
+    exception_type: str | None = None
+    if exception_info is not None:
+        if not isinstance(exception_info, dict) or not isinstance(
+            exception_info.get("exception_type"), str
+        ):
+            raise InvalidHarborTrial("Harbor recorded a malformed trial exception")
+        exception_type = exception_info["exception_type"]
+        if exception_type not in quality_attributable_exceptions:
+            raise InvalidHarborTrial(f"infrastructure-invalid trial exception: {exception_type}")
     task_name = result.get("task_name")
     task_checksum = result.get("task_checksum")
     if not isinstance(task_name, str) or not task_name:
@@ -426,6 +480,7 @@ def summarize_trial(
         },
         "agent_configuration": _agent_configuration(lock_agent),
         "reward": format(reward, "f"),
+        "quality_attributable_exception": exception_type,
         "tokens": {
             "input": _integer(agent_result.get("n_input_tokens"), field="input tokens"),
             "cache": _integer(agent_result.get("n_cache_tokens"), field="cache tokens"),
@@ -455,6 +510,7 @@ def summarize_job(
     expected_agent_configuration: dict[str, Any] | None = None,
     expected_harbor: dict[str, str] | None = None,
     expected_concurrency: int | None = None,
+    quality_attributable_exceptions: frozenset[str] = frozenset(),
     protocol_identity: dict[str, str] | None = None,
     allow_invalid: bool = False,
 ) -> dict[str, Any]:
@@ -480,16 +536,12 @@ def summarize_job(
         raise InvalidHarborTrial("job stats are missing")
     if _integer(stats.get("n_completed_trials"), field="n_completed_trials") != total:
         raise InvalidHarborTrial("job does not have all trials completed")
+    errored_trials = _integer(stats.get("n_errored_trials"), field="n_errored_trials")
     if any(
         _integer(stats.get(field), field=field)
-        for field in (
-            "n_errored_trials",
-            "n_running_trials",
-            "n_pending_trials",
-            "n_cancelled_trials",
-        )
+        for field in ("n_running_trials", "n_pending_trials", "n_cancelled_trials")
     ):
-        raise InvalidHarborTrial("job contains non-completed trial states")
+        raise InvalidHarborTrial("job contains unfinished or cancelled trial states")
     harbor = job_lock.get("harbor")
     if not isinstance(harbor, dict):
         raise InvalidHarborTrial("job lock Harbor identity is missing")
@@ -520,6 +572,7 @@ def summarize_job(
                 trial_dir,
                 expected_model=expected_model,
                 expected_task_digests=expected_task_digests,
+                quality_attributable_exceptions=quality_attributable_exceptions,
             )
             if expected_tasks is not None and trial["task_name"] not in expected_tasks:
                 raise InvalidHarborTrial("trial task is outside the expected task set")
@@ -535,6 +588,11 @@ def summarize_job(
             if not allow_invalid:
                 raise
             invalid.append({"trial_directory": trial_dir.name, "reason": str(exc)})
+    observed_quality_exceptions = sum(
+        trial["quality_attributable_exception"] is not None for trial in valid
+    )
+    if observed_quality_exceptions != errored_trials and not allow_invalid:
+        raise InvalidHarborTrial("job error count does not match quality-attributable exceptions")
     if (
         expected_tasks is not None
         and {trial["task_name"] for trial in valid} != expected_tasks
@@ -563,6 +621,7 @@ def summarize_job(
                 if expected_task_digests is not None
                 else None
             ),
+            "quality_attributable_exceptions": sorted(quality_attributable_exceptions),
         },
         "protocol": protocol_identity,
         "aggregate": {
@@ -634,6 +693,9 @@ def main() -> None:
             expected_agent_configuration=(expectation.agent_configuration if expectation else None),
             expected_harbor=expectation.harbor if expectation else None,
             expected_concurrency=expectation.concurrency if expectation else None,
+            quality_attributable_exceptions=(
+                expectation.quality_attributable_exceptions if expectation else frozenset()
+            ),
             protocol_identity=expectation.identity if expectation else None,
             allow_invalid=args.allow_invalid,
         )

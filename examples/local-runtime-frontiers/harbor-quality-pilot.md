@@ -62,6 +62,13 @@ candidates. A subset-to-full estimate remains prohibited until held-out local
 quantization validation supplies an explicit error bound through ModelSkyline's
 paired-estimate contract.
 
+The future full phase is resolved by
+[`terminal-bench-2.1-task-manifest.json`](terminal-bench-2.1-task-manifest.json):
+all 89 task names and Harbor 0.23.0 content digests computed from the pinned
+benchmark revision. The protocol pins the manifest's own SHA-256, and protocol
+mode checks its revision, count, uniqueness, and task locks before accepting a
+full-run summary.
+
 ## Auditable smoke evidence
 
 The protocol validator now accepts all four verifier-valid `fix-git` summaries
@@ -106,3 +113,38 @@ the summary retains both rather than treating them as interchangeable.
 Protocol mode also requires the pinned Harbor revision, Terminus identity,
 parser and sampling settings, context/output budget, summarization settings,
 concurrency, route, task set, and system-profile digest.
+
+## Agent-task memory capture
+
+The quality/memory frontier uses macOS's kernel-accounted physical footprint,
+sampled during the agent task—not model-file size, RSS alone, or a peak borrowed
+from a different runtime profile. Start
+[`capture_harbor_runner_memory.py`](capture_harbor_runner_memory.py) before the
+matching Harbor job. It waits for the job lock, verifies a serial single-model
+batch, samples only the literal-matched runner process, and binds its output to
+the job-lock hash. The prompt-free output records per-task peaks and whether
+sampling began before each task's agent-execution interval.
+
+```console
+python examples/local-runtime-frontiers/capture_harbor_runner_memory.py \
+  --job-directory /path/to/jobs/pilot5-v1-ornith15-baseline \
+  --expected-model ornith-1.5-35b-a3b-oq4e-mtp:baseline-f16kv \
+  --process-match omlx-server \
+  --output /path/to/jobs/pilot5-v1-ornith15-baseline/runner-memory.json
+```
+
+Only tasks with `capture_started_before_agent_execution: true` can contribute to
+the memory axis. This keeps a late-attached diagnostic capture useful without
+silently treating its partial first-task series as a measured peak.
+
+## Timeout and exception policy
+
+An agent that consumes the task's fixed 900-second budget without finishing is
+a measured failure of that exact model/runtime/harness route, not an
+infrastructure exclusion. The protocol therefore permits only
+`AgentTimeoutError` and `AgentSafetyRefusalError` as quality-attributable trial
+exceptions, and only when the verifier still emits consistent CTRF and reward
+artifacts. Their exception type is retained without its path-bearing traceback.
+Verifier timeouts, missing rewards, authentication/model lookup failures, and
+all other exceptions remain infrastructure-invalid and fail closed. The job's
+errored-trial count must exactly match the accepted attributable exceptions.

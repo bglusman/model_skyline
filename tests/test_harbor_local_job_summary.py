@@ -169,6 +169,7 @@ def _protocol(tmp_path: Path) -> Path:
                     "proactive_summarization_free_tokens": 8192,
                     "store_all_messages": True,
                     "concurrency": 1,
+                    "quality_attributable_exceptions": ["AgentTimeoutError"],
                 },
                 "task_sets": {
                     "smoke": {
@@ -264,6 +265,29 @@ def test_rejects_task_lock_digest_mismatch(tmp_path: Path) -> None:
         )
 
 
+def test_counts_protocol_agent_timeout_as_a_measured_failure(tmp_path: Path) -> None:
+    job = _job(tmp_path, reward=0.0)
+    job_result_path = job / "result.json"
+    job_result = json.loads(job_result_path.read_text(encoding="utf-8"))
+    job_result["stats"]["n_errored_trials"] = 1
+    _write_json(job_result_path, job_result)
+    trial = next(child for child in job.iterdir() if child.is_dir())
+    result_path = trial / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    result["exception_info"] = {"exception_type": "AgentTimeoutError"}
+    _write_json(result_path, result)
+
+    with pytest.raises(SUMMARY.InvalidHarborTrial, match="infrastructure-invalid"):
+        SUMMARY.summarize_job(job)
+
+    summary = SUMMARY.summarize_job(
+        job, quality_attributable_exceptions=frozenset({"AgentTimeoutError"})
+    )
+    assert summary["aggregate"]["valid_trials"] == 1
+    assert summary["aggregate"]["success_percent"] == "0.0"
+    assert summary["trials"][0]["quality_attributable_exception"] == "AgentTimeoutError"
+
+
 def test_rejects_task_lock_name_mismatch(tmp_path: Path) -> None:
     job = _job(tmp_path)
     trial = next(child for child in job.iterdir() if child.is_dir())
@@ -338,3 +362,30 @@ def test_protocol_enforces_harness_and_harbor_identity(tmp_path: Path) -> None:
     _write_json(job_lock_path, job_lock)
     with pytest.raises(SUMMARY.InvalidHarborTrial, match="version or revision"):
         SUMMARY.summarize_job(job, **kwargs)
+
+
+def test_full_protocol_task_manifest_is_exact_and_loadable() -> None:
+    expectation = SUMMARY._protocol_expectation(
+        ROOT / "examples" / "local-runtime-frontiers" / "harbor-quality-pilot.yaml",
+        candidate_name="ornith15_baseline",
+        task_set_name="all_89",
+    )
+
+    assert len(expectation.tasks) == 89
+    assert expectation.identity["task_manifest"] == "terminal-bench-2.1-task-manifest.json"
+    assert expectation.tasks["terminal-bench/fix-git"].startswith("sha256:")
+
+
+def test_protocol_rejects_duplicate_task_digests(tmp_path: Path) -> None:
+    protocol_path = _protocol(tmp_path)
+    protocol = yaml.safe_load(protocol_path.read_text(encoding="utf-8"))
+    protocol["task_sets"]["smoke"]["tasks"].append(
+        {
+            "name": "terminal-bench/different-name",
+            "digest": "sha256:" + ("b" * 64),
+        }
+    )
+    protocol_path.write_text(yaml.safe_dump(protocol), encoding="utf-8")
+
+    with pytest.raises(SUMMARY.InvalidHarborTrial, match="digests must be unique"):
+        SUMMARY._protocol_expectation(protocol_path, candidate_name="local", task_set_name="smoke")

@@ -24,6 +24,9 @@ harness:
   proactive_summarization_free_tokens: 8192
   store_all_messages: true
   concurrency: 1
+  quality_attributable_exceptions:
+    - AgentTimeoutError
+    - AgentSafetyRefusalError
   model_switching: batch_all_tasks_for_one_route
   loading_state_streaming: false
 
@@ -69,10 +72,8 @@ task_sets:
     expected_task_count: 89
     source_revision: 7131e4375048a0e408a8fb404b5f499d726b695b
     task_selection: every task directory at the pinned benchmark revision
-    digest_policy: >-
-      Before this phase runs, materialize all 89 Harbor content digests into an
-      immutable task manifest and require every trial lock to match it. The
-      prompt-free summarizer rejects this task set until that manifest exists.
+    task_manifest: terminal-bench-2.1-task-manifest.json
+    task_manifest_sha256: 5d58d87bb1fb6dcdbc635996a41386119380fb9ef46061eb14b4da6d3c1b69ce
 
 candidates:
   qwen38_baseline:
@@ -129,12 +130,14 @@ phases:
 validity_gates:
   - exact_task_digest_matches_manifest
   - exact_model_artifact_and_runtime_profile_recorded
-  - harbor_trial_has_no_exception
+  - trial_exception_is_absent_or_protocol_quality_attributable
   - verifier_result_present
   - verifier_ctrf_artifact_present_and_parseable
   - reward_matches_ctrf_test_outcome
   - trajectory_and_result_raw_hashes_retained
   - no_llama_swap_loading_events_in_model_history
+  - memory_capture_job_lock_hash_matches_quality_summary
+  - memory_frontier_uses_only_tasks_sampled_before_agent_execution
 
 pilot_frontiers:
   agent_quality_latency:
