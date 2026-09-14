@@ -60,6 +60,29 @@ workloads:
     assumptions:
       swap_allowed: false
 
+  terminal-bench-2.1-local-pilot-5@7131e437:
+    unit: task
+    version: terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1
+    harness: harbor/terminus-2@2.0.0+harbor@0.23.0
+    cohort: exact-five-task-local-agent@v1
+    benchmark: Terminal-Bench 2.1 deliberately stratified five-task local pilot
+    description: >-
+      One serial verifier-scored attempt on each of five pinned tasks. Every
+      candidate uses the same 114,688-token input ceiling, 16,384-token output
+      ceiling, proactive compaction threshold, agent, parser, and sampling
+      settings. This is a complete measurement of the named pilot only, not an
+      estimate of the full Terminal-Bench 2.1 benchmark.
+    variables: {}
+    assumptions:
+      attempts_per_task: 1
+      max_input_tokens: 114688
+      max_output_tokens: 16384
+      proactive_summarization_free_tokens: 8192
+      concurrency: 1
+      model_switching: batch_all_tasks_for_one_route
+      cache_accounting: prompt_tokens_include_cached_tokens
+      evidence_status: provisional
+
 metrics:
   prompt_throughput:
     kind: signal
@@ -140,6 +163,38 @@ metrics:
     requirements:
       max_age_hours: 720
       minimum_samples: 3
+
+  pilot_task_success:
+    kind: signal
+    signal: local_pilot_task_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 5
+
+  pilot_p95_task_wall:
+    kind: signal
+    signal: local_pilot_p95_task_wall_seconds
+    unit: s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 5
+
+  pilot_peak_physical_footprint:
+    kind: signal
+    signal: local_peak_process_physical_footprint_bytes
+    unit: byte
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 5
+
+  pilot_uncached_input_tokens:
+    kind: signal
+    signal: local_pilot_total_uncached_input_tokens
+    unit: token
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 5
 
 frontiers:
   short-throughput-envelope:
@@ -223,5 +278,56 @@ frontiers:
       required_capabilities: [long-context]
       allow_unknown_age: false
     metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+  local-agent-quality-latency:
+    workload: terminal-bench-2.1-local-pilot-5@7131e437
+    axes:
+      - metric: pilot_task_success
+        goal: maximize
+      - metric: pilot_p95_task_wall
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: pilot_task_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+      minimum_axis_values:
+        pilot_task_success: 60
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status, pilot]
+
+  local-agent-quality-memory:
+    workload: terminal-bench-2.1-local-pilot-5@7131e437
+    axes:
+      - metric: pilot_task_success
+        goal: maximize
+      - metric: pilot_peak_physical_footprint
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: pilot_task_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+      minimum_axis_values:
+        pilot_task_success: 60
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status, pilot]
+
+  local-agent-quality-cache-efficiency:
+    workload: terminal-bench-2.1-local-pilot-5@7131e437
+    axes:
+      - metric: pilot_task_success
+        goal: maximize
+      - metric: pilot_uncached_input_tokens
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: pilot_task_success
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+      minimum_axis_values:
+        pilot_task_success: 60
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status, pilot]
 
 selections: {}

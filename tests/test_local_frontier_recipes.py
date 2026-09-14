@@ -6,7 +6,7 @@ from pathlib import Path
 
 import yaml
 
-from model_skyline.io import load_config
+from model_skyline.io import load_catalog, load_config, load_frontier_snapshot
 from model_skyline.local_measurements import LocalArtifactIdentity, LocalRuntimeIdentity
 from model_skyline.models import EvidenceTier, UncertaintyMode
 
@@ -16,6 +16,7 @@ RECIPES = EXAMPLE / "recommended-frontier-recipes.yaml"
 PILOT = EXAMPLE / "harbor-quality-pilot.yaml"
 TASK_MANIFEST = EXAMPLE / "terminal-bench-2.1-task-manifest.json"
 HARBOR_SMOKE_SUMMARIES = sorted((EXAMPLE / "raw").glob("harbor-smoke-*-summary.json"))
+HARBOR_PILOT_SUMMARY = EXAMPLE / "raw" / "harbor-pilot5-ornith15-baseline-summary.json"
 
 
 def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() -> None:
@@ -90,6 +91,7 @@ def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
     harness = pilot["harness"]
     assert harness["max_input_tokens"] + harness["max_output_tokens"] <= min(context_capacities)
     assert harness["concurrency"] == 1
+    assert harness["execution_timezone"] == "America/New_York"
     assert harness["model_switching"] == "batch_all_tasks_for_one_route"
     assert "verifier_ctrf_artifact_present_and_parseable" in pilot["validity_gates"]
     assert "trial_exception_is_absent_or_protocol_quality_attributable" in pilot["validity_gates"]
@@ -99,6 +101,8 @@ def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
     )
     assert pilot["publication"]["full_benchmark_estimation_allowed"] is False
     assert pilot["publication"]["infrastructure_invalid_trials_count_as_failures"] is False
+    assert selected["workload_unit"] == "task"
+    assert selected["workload_version"].startswith("terminal-bench@")
 
 
 def test_published_harbor_smoke_summaries_are_prompt_free_and_auditable() -> None:
@@ -127,3 +131,38 @@ def test_published_harbor_smoke_summaries_are_prompt_free_and_auditable() -> Non
                 len(digest) == 64 and set(digest) <= set("0123456789abcdef")
                 for digest in trial["audit"].values()
             )
+
+
+def test_published_ornith_pilot_and_quality_frontiers_are_exact() -> None:
+    summary = json.loads(HARBOR_PILOT_SUMMARY.read_text(encoding="utf-8"))
+    serialized = json.dumps(summary)
+    assert summary["contains_prompts_or_model_messages"] is False
+    assert "/Users/" not in serialized
+    assert "all_messages" not in serialized
+    assert summary["aggregate"] == {
+        "invalid_trials": 0,
+        "success_percent": "60.0",
+        "successes": "3.0",
+        "valid_trials": 5,
+    }
+    timeout = [trial for trial in summary["trials"] if trial["quality_attributable_exception"]]
+    assert len(timeout) == 1
+    assert timeout[0]["quality_attributable_exception"] == "AgentTimeoutError"
+    assert timeout[0]["incomplete_api_requests"] == 1
+
+    catalog = load_catalog(EXAMPLE / "generated" / "harbor-pilot5-quality-catalog.json")
+    assert len(catalog.offerings) == 1
+    offering = catalog.offerings[0]
+    assert offering.signals["local_pilot_task_success_percent"].value == 60
+    assert "local_peak_process_physical_footprint_bytes" not in offering.signals
+    assert offering.metadata["pilot"]["memory"]["eligible"] is False
+
+    for name in ("latency", "cache-efficiency"):
+        frontier = load_frontier_snapshot(
+            EXAMPLE / "generated" / f"harbor-pilot5-quality-{name}-frontier.json"
+        )
+        assert [member.offering for member in frontier.members] == [offering.offering]
+    memory = load_frontier_snapshot(
+        EXAMPLE / "generated" / "harbor-pilot5-quality-memory-frontier.json"
+    )
+    assert memory.members == ()

@@ -14,6 +14,7 @@ harness:
   version: 2.0.0
   harbor_version: 0.23.0
   harbor_revision: 88fdbc9d42e907c0414654f041ece5eaf798f538
+  execution_timezone: America/New_York
   parser: json
   temperature: "1.0"
   top_p: "0.95"
@@ -42,6 +43,8 @@ task_sets:
   pilot_5:
     evidence_tier: measured
     measured_workload_name: terminal-bench-2.1-local-pilot-5@7131e437
+    workload_version: terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1
+    workload_unit: task
     transferable_to_full_benchmark: false
     selection_method: deliberately-stratified-convenience-pilot-v1
     caveat: >-
@@ -144,7 +147,7 @@ pilot_frontiers:
     axes:
       - metric: pilot_task_success_percent
         goal: maximize
-      - metric: p95_successful_task_wall_seconds
+      - metric: p95_task_wall_seconds
         goal: minimize
         epsilon_relative: "0.05"
     eligibility:
@@ -155,6 +158,16 @@ pilot_frontiers:
       - metric: pilot_task_success_percent
         goal: maximize
       - metric: peak_process_physical_footprint_bytes
+        goal: minimize
+        epsilon_relative: "0.05"
+    eligibility:
+      minimum_success_percent: "60"
+      exact_task_set_required: true
+  agent_quality_cache_efficiency:
+    axes:
+      - metric: pilot_task_success_percent
+        goal: maximize
+      - metric: total_uncached_input_tokens
         goal: minimize
         epsilon_relative: "0.05"
     eligibility:

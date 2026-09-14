@@ -1,0 +1,143 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "kind": "frontier",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "snapshot_id": "8ef2ff0bcc69e8e8c694115227880f89ca4c23f34d24f361d865aa1a773da7ac",
+  "config_hash": "c191d381ce67e0162e68ef55b5913b6a3560903fddc4dc2d27076d79f81cd63f",
+  "catalog_hash": "b2a9b12279e514ec265004a8216bf7bf6ea0fefe5db644820b34363145352cc7",
+  "engine_version": "0.9.0",
+  "generated_at": "2026-09-14T02:00:00Z",
+  "frontier_id": "local-agent-quality-memory",
+  "workload": {
+    "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+    "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+    "unit": "task"
+  },
+  "order_by": "pilot_task_success",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "pilot_task_success",
+      "goal": "maximize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "pilot_peak_physical_footprint",
+      "goal": "minimize",
+      "unit": "byte",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "members": [],
+  "evaluated": [],
+  "rejected": [
+    {
+      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
+      "reasons": [
+        "pilot_peak_physical_footprint: signal 'local_peak_process_physical_footprint_bytes' is missing"
+      ]
+    }
+  ],
+  "axis_evidence": {
+    "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
+    "kind": "axis-evidence-inventory",
+    "hash_algorithm": "sha256-rfc8785-v1",
+    "config_hash": "c191d381ce67e0162e68ef55b5913b6a3560903fddc4dc2d27076d79f81cd63f",
+    "catalog_hash": "b2a9b12279e514ec265004a8216bf7bf6ea0fefe5db644820b34363145352cc7",
+    "generated_at": "2026-09-14T02:00:00Z",
+    "workload": {
+      "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+      "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+      "unit": "task"
+    },
+    "axes": [
+      {
+        "metric": "pilot_task_success",
+        "goal": "maximize",
+        "unit": "percent",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0"
+      },
+      {
+        "metric": "pilot_peak_physical_footprint",
+        "goal": "minimize",
+        "unit": "byte",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0.05"
+      }
+    ],
+    "candidate_universe_hash": "d2efb1a04b37151ecc22630336a1d6d82aa34e9a127a6983686cff82d4ae9e6c",
+    "candidates": [
+      {
+        "offering": {
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "oQ4e",
+          "reasoning_effort": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "pilot_task_success": {
+            "value": "60",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_pilot_task_success_percent"
+            ],
+            "source_ids": [
+              "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151"
+            ],
+            "sources": [
+              {
+                "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
+                "version": "model-skyline/harbor-local-job-summary/v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
+                "raw_sha256": "d502b44c174d6e0d5ce781c83af5038e41c3053c3292cb4c6cca9d896aafed09",
+                "retrieved_at": "2026-09-14T01:47:07.928815Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T01:47:07.928815Z",
+            "minimum_sample_count": 5
+          }
+        }
+      }
+    ],
+    "inventory_id": "c19454b86b2dd8b17d76d84e8fa00c1082c39a0cf10a2ef0656fce34d78da8c6"
+  },
+  "public_release_blocked": false,
+  "sources": [
+    {
+      "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
+      "version": "model-skyline/harbor-local-job-summary/v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
+      "raw_sha256": "d502b44c174d6e0d5ce781c83af5038e41c3053c3292cb4c6cca9d896aafed09",
+      "retrieved_at": "2026-09-14T01:47:07.928815Z"
+    }
+  ],
+  "source_watermarks": {
+    "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151": "2026-09-14T01:47:07.928815Z"
+  }
+}

@@ -448,7 +448,8 @@ def summarize_trial(
         raise InvalidHarborTrial("agent API request timings are missing")
     api_times = [format(_decimal(value, field="API request time"), "f") for value in request_times]
     n_episodes = _integer(metadata.get("n_episodes"), field="n_episodes")
-    if len(api_times) != n_episodes:
+    incomplete_api_requests = n_episodes - len(api_times)
+    if incomplete_api_requests not in ({0, 1} if exception_type is not None else {0}):
         raise InvalidHarborTrial("API request count does not match n_episodes")
 
     hashes: dict[str, str] = {
@@ -488,6 +489,7 @@ def summarize_trial(
         },
         "agent_episodes": n_episodes,
         "api_request_times_msec": api_times,
+        "incomplete_api_requests": incomplete_api_requests,
         "parser_feedback_events": _parser_events(metadata),
         "timing_seconds": {
             "environment_setup": _duration_seconds(result, field="environment_setup"),

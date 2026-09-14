@@ -15,15 +15,28 @@ not an `estimated` full score, and not a calibrated coreset. The smoke task is
 only `proxy` evidence that the model, agent parser, terminal, and verifier form a
 working loop.
 
-The pilot materializes two useful local frontiers after the validity gates pass:
+The pilot materializes three useful local frontiers after the validity gates pass:
 
-- measured pilot success versus p95 wall time of successful tasks; and
-- measured pilot success versus peak physical footprint.
+- measured pilot success versus p95 wall time across every valid task,
+  including quality-attributable timeouts; and
+- measured pilot success versus peak physical footprint; and
+- measured pilot success versus total uncached input tokens across all five
+  tasks, a cache-aware agent-compute measure that also penalizes excess turns.
 
 Both require at least 60% success on the exact task set. The threshold prevents a
 fast but mostly useless route from becoming a recommended resident. The existing
 128K, cache, session-endurance, and operational frontiers remain separate because
 these short repository tasks do not test those capabilities.
+
+Cache reuse percentage, total output tokens, and successful-task-only p95 are
+retained as diagnostics, but they are not recommendation axes. Cache reuse can
+be gamed by taking more turns, and successful-only latency hides the 900-second
+cost of a timed-out task. The decision latency therefore includes every valid
+task, including quality-attributable failures. Context is controlled as an
+eligibility/cohort property here: all routes receive the same 114,688-token
+input and 16,384-token output envelope with the same compaction policy. Validated
+maximum context remains a separate retrieval frontier rather than a configured
+capacity claim.
 
 ## Harness-validity lesson from the first smoke
 
@@ -130,12 +143,15 @@ python examples/local-runtime-frontiers/capture_harbor_runner_memory.py \
   --job-directory /path/to/jobs/pilot5-v1-ornith15-baseline \
   --expected-model ornith-1.5-35b-a3b-oq4e-mtp:baseline-f16kv \
   --process-match omlx-server \
+  --job-timezone America/New_York \
   --output /path/to/jobs/pilot5-v1-ornith15-baseline/runner-memory.json
 ```
 
 Only tasks with `capture_started_before_agent_execution: true` can contribute to
 the memory axis. This keeps a late-attached diagnostic capture useful without
 silently treating its partial first-task series as a measured peak.
+The timezone is required because Harbor 0.23 serializes local job timestamps
+without a UTC offset; the sampler records the IANA zone used to interpret them.
 
 ## Timeout and exception policy
 
@@ -148,3 +164,56 @@ artifacts. Their exception type is retained without its path-bearing traceback.
 Verifier timeouts, missing rewards, authentication/model lookup failures, and
 all other exceptions remain infrastructure-invalid and fail closed. The job's
 errored-trial count must exactly match the accepted attributable exceptions.
+For such an exception, the trajectory may retain exactly one final episode whose
+in-flight API request never produced a duration; the summary records that as one
+`incomplete_api_requests`. A normal trial still requires one completed API timing
+per episode.
+
+## Normalize and evaluate
+
+[`normalize_harbor_pilot.py`](normalize_harbor_pilot.py) accepts one prompt-free
+summary per exact candidate and optional job-matched memory captures. It emits
+an ordinary `ObservationCatalog`, with the Terminus/Harbor configuration hashed
+into `OfferingKey.agent_harness` so these results cannot be silently joined to
+the same inference server measured under the lightweight OpenAI matrix harness.
+
+```console
+python examples/local-runtime-frontiers/normalize_harbor_pilot.py \
+  --protocol examples/local-runtime-frontiers/harbor-quality-pilot.yaml \
+  --hardware examples/local-runtime-frontiers/hardware/macbook-m5max-64.json \
+  --task-set pilot_5 \
+  --summary /path/to/ornith-summary.json \
+  --summary /path/to/ds4-summary.json \
+  --memory-capture /path/to/ornith-runner-memory.json \
+  --memory-capture /path/to/ds4-runner-memory.json \
+  --output examples/local-runtime-frontiers/generated/harbor-pilot5-quality-catalog.json
+
+modelskyline evaluate examples/local-runtime-frontiers/frontiers.yaml \
+  examples/local-runtime-frontiers/generated/harbor-pilot5-quality-catalog.json \
+  local-agent-quality-latency --format json \
+  --output examples/local-runtime-frontiers/generated/harbor-pilot5-quality-latency-frontier.json \
+  --as-of 2026-09-14T02:00:00Z
+```
+
+The latency axis uses a deterministic Hyndman–Fan type-7 p95 over the five
+complete task wall times. The memory signal is omitted unless capture began
+before every task's agent execution and every task has a positive
+kernel-accounted physical-footprint peak. An incomplete capture therefore
+remains auditable metadata but is rejected from the memory frontier.
+
+## First five-task result
+
+Ornith 1.5 oQ4e/F16-KV completed the first exact pilot at 3/5 (60%). It passed
+`fix-git`, `multi-source-data-merger`, and `fix-code-vulnerability`; it failed
+`cancel-async-tasks`, and `build-cython-ext` reached the 900-second agent timeout.
+Across all five tasks its type-7 p95 wall time was 857.665 seconds. It consumed
+1,177,281 prompt tokens, of which 1,015,808 were reported cached, leaving
+161,473 uncached input tokens; cache reuse was 86.284%, and output totaled
+160,409 tokens. This makes Ornith a provisional resident of the quality/latency
+and quality/cache-efficiency frontiers only because it is currently the sole
+completed candidate. No comparative winner exists yet.
+
+The first Ornith memory capture began after the job and used an earlier sampler
+without per-task coverage flags. Its observed peaks remain a private diagnostic,
+but the normalizer intentionally emits no memory axis from it. A clean capture
+must accompany a rerun before Ornith can enter the quality/memory frontier.

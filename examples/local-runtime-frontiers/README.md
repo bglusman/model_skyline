@@ -93,6 +93,12 @@ Every active frontier has exactly two decision axes:
   latency (minimize), at a fixed long-context position.
 - `validated-capacity-memory`: largest fully passing retrieval position
   (maximize) vs peak physical footprint (minimize).
+- `local-agent-quality-latency`: exact five-task verifier success (maximize) vs
+  p95 full task wall time, including attributable failures (minimize).
+- `local-agent-quality-memory`: the same exact success score (maximize) vs a
+  same-job, fully covered physical-footprint peak (minimize).
+- `local-agent-quality-cache-efficiency`: the same exact success score
+  (maximize) vs total uncached input tokens across all tasks (minimize).
 
 Do not pool prompt lengths, cache-warmth states, prose/code/tool modes, or cold
 and warm runner states. Build a catalog per position. A separate same-model
@@ -116,6 +122,9 @@ The current epsilon-aware coverage result is:
 | Uncached 30-tool, 2K-prefix/256-output operation | Qwen3.8 Flash Next on DS4 |
 | Uncached 126K exact retrieval | Qwen3.8 Flash Next on DS4 |
 | Validated capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
+| Five-task local-agent quality vs latency | Ornith 1.5 oMLX (provisional; only completed candidate) |
+| Five-task local-agent quality vs uncached input | Ornith 1.5 oMLX (provisional; only completed candidate) |
+| Five-task local-agent quality vs memory | No eligible resident yet |
 
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
@@ -128,6 +137,14 @@ llama.cpp/ggml binary, and command position on M1 Max and M5 Max. It is retained
 in [`generated/qwen38-exact-cross-mac-short-throughput-frontier.json`](generated/qwen38-exact-cross-mac-short-throughput-frontier.json)
 but omitted from model-family coverage so a duplicate hardware offering cannot
 inflate Qwen's cross-workload count.
+
+The first quality population is retained in
+[`generated/harbor-pilot5-quality-catalog.json`](generated/harbor-pilot5-quality-catalog.json).
+Ornith scored 3/5 at an all-task p95 of 857.665 seconds and 161,473 uncached
+input tokens. Those two singleton memberships are pipeline checkpoints, not a
+comparative win; DS4 Flash Next, Qwen3.8 dense, and Muse Glimmer still need the
+same five tasks. Its initial memory capture was incomplete and is correctly
+rejected from the quality/memory snapshot.
 
 ## Reproduce an exact cross-Mac comparison
 
