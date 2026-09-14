@@ -60,11 +60,15 @@ evaluates one custom MoE slice without changing the frozen pilot digest. It
 earns the narrow uncached-tool frontier but fails the real-agent smoke and the
 retrieval ladder, so it is not a general local-agent recommendation.
 
-The next candidate is pinned in the
-[`Nemotron 3.5 Lightning local intake`](nemotron-lightning-intake.md). That
-document separates plain oMLX, embedded-MTP, and external-DSpark profiles and
-defines correctness, cache, context, memory, and real-agent promotion gates.
-It is a test plan, not a measured frontier resident.
+Two next candidates are pinned without treating external scores as local
+measurements. The
+[`North Mini Code local intake`](north-mini-code-intake.md) is the agent-quality
+challenger: it targets terminal work directly and has both oMLX and portable
+GGUF controls. The
+[`Nemotron 3.5 Lightning local intake`](nemotron-lightning-intake.md) is the
+architecture-efficiency challenger and separates plain oMLX, embedded-MTP, and
+external-DSpark profiles. Both define correctness, cache, context, memory, and
+real-agent promotion gates; neither is a measured frontier resident yet.
 
 ## Runtime choices on Apple Silicon
 
