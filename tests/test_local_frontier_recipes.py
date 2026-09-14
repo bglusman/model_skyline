@@ -6,7 +6,12 @@ from pathlib import Path
 
 import yaml
 
-from model_skyline.io import load_catalog, load_config, load_frontier_snapshot
+from model_skyline.io import (
+    load_catalog,
+    load_config,
+    load_frontier_snapshot,
+    load_local_measurement,
+)
 from model_skyline.local_measurements import LocalArtifactIdentity, LocalRuntimeIdentity
 from model_skyline.models import EvidenceTier, UncertaintyMode
 
@@ -15,6 +20,12 @@ EXAMPLE = ROOT / "examples" / "local-runtime-frontiers"
 RECIPES = EXAMPLE / "recommended-frontier-recipes.yaml"
 PILOT = EXAMPLE / "harbor-quality-pilot.yaml"
 FLASH_CODER_SCREEN = EXAMPLE / "harbor-quality-screen-qwen38-flash-coder.yaml"
+FLASH_CODER_CAPACITY_RAW = (
+    EXAMPLE / "raw" / "qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json"
+)
+FLASH_CODER_CAPACITY_MEASUREMENTS = sorted(
+    (EXAMPLE / "measurements").glob("qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-*.json")
+)
 FROZEN_HARBOR_PILOT_SHA256 = "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41"
 TASK_MANIFEST = EXAMPLE / "terminal-bench-2.1-task-manifest.json"
 HARBOR_PILOT_SMOKE_SUMMARIES = sorted(
@@ -267,15 +278,57 @@ def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
 
 def test_published_capacity_frontier_retains_failed_candidate_for_audit() -> None:
     generated = EXAMPLE / "generated"
+    raw_digest = hashlib.sha256(FLASH_CODER_CAPACITY_RAW.read_bytes()).hexdigest()
+    measurements = [load_local_measurement(path) for path in FLASH_CODER_CAPACITY_MEASUREMENTS]
+    assert len(measurements) == 4
+    assert {record.provenance.raw_sha256 for record in measurements} == {raw_digest}
+    assert {record.provenance.raw_artifact_path for record in measurements} == {
+        "raw/qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json"
+    }
+    assert {
+        record.performance.actual_input_tokens
+        for record in measurements
+        if record.performance is not None
+    } == {2012, 32732, 65500, 125964}
+    assert all(
+        record.integrity is not None
+        and record.integrity.retrieval is not None
+        and record.integrity.retrieval.passed == 0
+        and record.integrity.retrieval.total == 1
+        for record in measurements
+    )
+
     catalog = load_catalog(generated / "validated-capacity-catalog.json")
     offerings = {offering.offering.model_id: offering for offering in catalog.offerings}
 
     assert set(offerings) == {
+        "Jab1718/qwen3.8-flash-coder-26gb-gguf",
         "Qwen/Qwen3.8-27B",
         "Qwen/Qwen3.8-Flash-Next",
         "ornith-ai/Ornith-1.5-35B-A3B",
     }
+    flash_coder = offerings["Jab1718/qwen3.8-flash-coder-26gb-gguf"]
     ornith = offerings["ornith-ai/Ornith-1.5-35B-A3B"]
+    assert "long-context" not in flash_coder.offering.capabilities
+    assert "local_validated_context_tokens" not in flash_coder.signals
+    assert "local_peak_process_physical_footprint_bytes" not in flash_coder.signals
+    assert flash_coder.metadata["capacity_validation"] == {
+        "attempted_position_count": 4,
+        "configured_context_tokens": 131072,
+        "fully_passing_position_count": 0,
+        "largest_attempted_context_tokens": 125964,
+        "largest_validated_context_tokens": None,
+    }
+    flash_ladder = flash_coder.metadata["capacity_ladder"]
+    assert isinstance(flash_ladder, list)
+    assert [item["actual_input_tokens"] for item in flash_ladder] == [
+        2012,
+        32732,
+        65500,
+        125964,
+    ]
+    assert all(item["passed"] is False for item in flash_ladder)
+    assert len({item["raw_sha256"] for item in flash_ladder}) == 1
     assert "local_validated_context_tokens" not in ornith.signals
     assert "local_peak_process_physical_footprint_bytes" not in ornith.signals
     assert ornith.metadata["capacity_validation"] == {
@@ -288,12 +341,15 @@ def test_published_capacity_frontier_retains_failed_candidate_for_audit() -> Non
 
     frontier = load_frontier_snapshot(generated / "validated-capacity-frontier.json")
     assert [member.offering.model_id for member in frontier.members] == ["Qwen/Qwen3.8-Flash-Next"]
-    assert [rejected.offering_id for rejected in frontier.rejected] == [ornith.offering.offering_id]
+    assert {rejected.offering_id for rejected in frontier.rejected} == {
+        flash_coder.offering.offering_id,
+        ornith.offering.offering_id,
+    }
 
     coverage = json.loads((generated / "cross-frontier-coverage.json").read_text(encoding="utf-8"))
     capacity = next(item for item in coverage["frontiers"] if item["label"] == "validated-capacity")
     assert capacity["snapshot_id"] == frontier.snapshot_id
-    assert capacity["rejected_count"] == 1
+    assert capacity["rejected_count"] == 2
 
 
 def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:

@@ -8,6 +8,201 @@
   "offerings": [
     {
       "offering": {
+        "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
+        "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "Q4_K_M",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "text",
+          "tools"
+        ]
+      },
+      "signals": {},
+      "metadata": {
+        "local_measurement_id": "qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-p126000-o64-disabled-needle-0p5",
+        "local_evidence_status": "provisional",
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+          "checkpoint": "qwen3.8-flash-coder-85gb-bf16-160-expert-subnet",
+          "revision": "4d62a522f3c70b6e9579015602129a15fe161804",
+          "format": "gguf",
+          "quantization": "Q4_K_M",
+          "size_bytes": 28394087776,
+          "content_sha256": "11f6a81dba702bf9603d1a1249b01752e84e3e049d15ae366c2f80032670d121",
+          "source_url": "https://huggingface.co/Jab1718/qwen3.8-flash-coder-26gb-gguf/tree/4d62a522f3c70b6e9579015602129a15fe161804",
+          "license": "Apache-2.0",
+          "metadata": {
+            "filename": "qwen3.8-flash-coder-26gb-q4_k_m.gguf",
+            "base_model": "Jab1718/qwen3.8-flash-coder-85gb-bf16",
+            "upstream_family": "Qwen/Qwen3.8-Flash-Next",
+            "expert_count": 160,
+            "construction": "hardware-aligned coding subnet selected with Jab1718/Moe-slices"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "0.4.0-build-10809",
+          "commit": "5266f24da",
+          "backend": "Metal4",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "runtime_binary_sha256": "8939a1cf8a4e9a5cc18d6cd4d2d55440b48f8a44db00abe459a28d837ea051f7",
+            "native_context_tokens": 262144,
+            "allocated_context_tokens": 131072,
+            "parallel_slots": 1,
+            "batch_tokens": 2048,
+            "micro_batch_tokens": 512,
+            "max_output_tokens": 16384,
+            "n_gpu_layers": "all",
+            "flash_attention": true,
+            "fit": "off",
+            "jinja": true,
+            "cache_ram_bytes": 8589934592,
+            "cache_idle_slots": true,
+            "reasoning_effort": "low",
+            "thinking_budget_tokens": 4096,
+            "prompt_cache_enabled": false,
+            "llama_swap_model_id": "qwen3.8-flash-coder-26gb-q4km-no-prompt-cache",
+            "llama_swap_exclusive_group": "local-memory"
+          }
+        },
+        "runtime_identity_sha256": "3f5cfa4324b23c80b093e53d686e1803e41170fc1a43bc7352aece0c92fe8895",
+        "workload": {
+          "reference": {
+            "id": "openai-retrieval-p126000-o64-disabled-needle-0p5",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "long_context_retrieval",
+          "input_definition_sha256": "e9bfcc2a6a008959b6e0fada071424ef2ea55a65f5a4c4bff742aa0d2e8fd4a1",
+          "requested_input_tokens": 126000,
+          "max_output_tokens": 64,
+          "repetitions": 1,
+          "warmup_repetitions": 1,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "disabled",
+          "position": {
+            "mode": "retrieval",
+            "prompt_bytes": 193527,
+            "user_prompt_sha256": "055f6f5c8a61fa1c7aab17e58be7631726182504e283ebe5bd8c66c6f25f5876",
+            "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+            "tool_schema_sha256": null,
+            "tool_count": 0,
+            "tool_choice": null,
+            "thinking_mode": "disabled",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "client-first-streamed-text-event",
+            "decode_rate_source": "client-post-first-token-inter-token-rate",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "stop": 1
+            },
+            "api": "openai-chat-completions-streaming",
+            "retrieval_character_fraction": "0.5"
+          }
+        },
+        "raw_artifact_path": "raw/qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json",
+        "capacity_ladder": [
+          {
+            "actual_input_tokens": 2012,
+            "measurement_id": "qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-p2048-o64-disabled-needle-0p5",
+            "passed": false,
+            "passed_checks": 0,
+            "total_checks": 1,
+            "raw_artifact_path": "raw/qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json",
+            "raw_sha256": "b12358a199618848dad910b35f245a0336c174c849352028236013ba9ff7b63f"
+          },
+          {
+            "actual_input_tokens": 32732,
+            "measurement_id": "qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-p32768-o64-disabled-needle-0p5",
+            "passed": false,
+            "passed_checks": 0,
+            "total_checks": 1,
+            "raw_artifact_path": "raw/qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json",
+            "raw_sha256": "b12358a199618848dad910b35f245a0336c174c849352028236013ba9ff7b63f"
+          },
+          {
+            "actual_input_tokens": 65500,
+            "measurement_id": "qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-p65536-o64-disabled-needle-0p5",
+            "passed": false,
+            "passed_checks": 0,
+            "total_checks": 1,
+            "raw_artifact_path": "raw/qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json",
+            "raw_sha256": "b12358a199618848dad910b35f245a0336c174c849352028236013ba9ff7b63f"
+          },
+          {
+            "actual_input_tokens": 125964,
+            "measurement_id": "qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-p126000-o64-disabled-needle-0p5",
+            "passed": false,
+            "passed_checks": 0,
+            "total_checks": 1,
+            "raw_artifact_path": "raw/qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json",
+            "raw_sha256": "b12358a199618848dad910b35f245a0336c174c849352028236013ba9ff7b63f"
+          }
+        ],
+        "capacity_validation": {
+          "attempted_position_count": 4,
+          "configured_context_tokens": 131072,
+          "fully_passing_position_count": 0,
+          "largest_attempted_context_tokens": 125964,
+          "largest_validated_context_tokens": null
+        },
+        "local_cache_comparison_cohort": "uncached"
+      },
+      "default_source": {
+        "id": "local-measurement:qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-p126000-o64-disabled-needle-0p5",
+        "version": "model-skyline/openai-matrix@v1",
+        "url": null,
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+        "raw_sha256": "b12358a199618848dad910b35f245a0336c174c849352028236013ba9ff7b63f",
+        "retrieved_at": "2026-09-14T07:51:48.671654Z"
+      }
+    },
+    {
+      "offering": {
         "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-19e9d74c4d6bd66f",
         "model_id": "Qwen/Qwen3.8-27B",
         "provider": "local:macbook-m5max-64",
