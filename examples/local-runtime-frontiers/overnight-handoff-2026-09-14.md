@@ -59,6 +59,19 @@ At model-family level, dense Qwen3.8 currently covers four complementary
 frontiers; DS4 Flash Next, Muse, and Ornith each cover two; Flash Coder covers
 one narrow frontier. This count is descriptive, not a weighted score.
 
+After this snapshot was written, the reviewed cross-workload enrichment path
+was used to materialize operationally gated versions of the two Harbor
+quality frontiers. The gate policy requires at least 60% pilot success, 3/3
+exact synthetic tool emission, nonpositive swap growth at the repeated 126K
+probe, and validated input of at least 125,000 tokens. DS4 Flash Next is the
+sole eligible resident on both quality/latency and quality/memory. A parallel
+strict 128,000-token snapshot has no resident because the strongest exact proof
+is 125,964 tokens. These overlays are not added to the family frontier count
+above because their axes repeat existing quality roles with stronger gates.
+See the
+[`operational-gate policy`](harbor-pilot5-operational-gates-policy.json) and
+[`gated configuration`](harbor-operational-gated-frontiers.yaml).
+
 The population is not complete. Coverage v3 records 33 of 74 nominated
 model-family/frontier cells as attempted (44.59%). North Mini Code, Nemotron,
 Agents-A1, and Laguna are pinned challengers but have not yet produced local

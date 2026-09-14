@@ -1,0 +1,200 @@
+{
+  "schema_version": "model-skyline/catalog-enrichment-policy/v1alpha1",
+  "kind": "catalog-enrichment-policy",
+  "algorithm_version": "reviewed-exact-offering-signal-projection-v1",
+  "policy_id": "harbor-pilot5-operational-gates",
+  "base_catalog_sha256": "f8c5ccd60969e55d58725aead032610389359bbd95d357c1400814996bbcce10",
+  "base_workload": {
+    "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+    "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+    "unit": "task"
+  },
+  "output_workload_id": "terminal-bench-2.1-local-pilot-5-operational-gated@7131e437",
+  "output_workload_unit": "task",
+  "projections": [
+    {
+      "projection_id": "long-context-and-swap",
+      "catalog_sha256": "f3428a1b0ab99bdc68bbd8bd05209864fe5f4fdc09a7ec230a1b394a10168abd",
+      "workload": {
+        "id": "long-context-retrieval-v1",
+        "version": "1",
+        "unit": "retrieval_probe"
+      },
+      "mappings": [
+        {
+          "source_offering": {
+            "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-19e9d74c4d6bd66f",
+            "model_id": "Qwen/Qwen3.8-27B",
+            "provider": "local:macbook-m5max-64",
+            "endpoint": null,
+            "billing_mode": "owned_hardware",
+            "region": "local",
+            "service_tier": "high-power-configured-pmset-2",
+            "quantization": "oQ4e",
+            "reasoning_effort": null,
+            "agent_harness": "model-skyline/openai-matrix@v1",
+            "capabilities": [
+              "long-context",
+              "text",
+              "tools"
+            ]
+          },
+          "target_offering": {
+            "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-b406f50b4f56659b",
+            "model_id": "Qwen/Qwen3.8-27B",
+            "provider": "local:macbook-m5max-64",
+            "endpoint": null,
+            "billing_mode": "owned_hardware",
+            "region": "local",
+            "service_tier": "high-power-configured-pmset-2",
+            "quantization": "oQ4e",
+            "reasoning_effort": null,
+            "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+            "capabilities": [
+              "long-context",
+              "text",
+              "tools"
+            ]
+          },
+          "signal_ids": [
+            "local_swap_delta_bytes",
+            "local_validated_context_tokens"
+          ],
+          "review_note": "The source and target use the same Qwen3.8-27B artifact bytes, oMLX 0.6.4 and MLX versions, F16 KV, 262144-token allocation, one-request concurrency, output ceiling, and memory guard. The source disables prefix caching while the target uses paged SSD cache with a zero-byte hot cache; the full 126K source prefill is therefore retained only as a conservative validated-capacity and request-position swap test, not as evidence for long-session cache endurance. The harness difference is explicit."
+        },
+        {
+          "source_offering": {
+            "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+            "model_id": "Qwen/Qwen3.8-Flash-Next",
+            "provider": "local:macbook-m5max-64",
+            "endpoint": null,
+            "billing_mode": "owned_hardware",
+            "region": "local",
+            "service_tier": "high-power-configured-pmset-2",
+            "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+            "reasoning_effort": null,
+            "agent_harness": "model-skyline/openai-matrix@v1",
+            "capabilities": [
+              "long-context",
+              "text",
+              "tools"
+            ]
+          },
+          "target_offering": {
+            "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99",
+            "model_id": "Qwen/Qwen3.8-Flash-Next",
+            "provider": "local:macbook-m5max-64",
+            "endpoint": null,
+            "billing_mode": "owned_hardware",
+            "region": "local",
+            "service_tier": "high-power-configured-pmset-2",
+            "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+            "reasoning_effort": null,
+            "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+            "capabilities": [
+              "long-context",
+              "text",
+              "tools"
+            ]
+          },
+          "signal_ids": [
+            "local_swap_delta_bytes",
+            "local_validated_context_tokens"
+          ],
+          "review_note": "The source and target use byte-identical DS4 composite model artifacts and the same pinned DS4 binary, branch, 131072-token allocation, hybrid KV, prefill chunk, resident-base and demand-paged PLE policy, eviction interval, prefix reuse setting, MTP-disabled setting, and output ceiling. Only the measurement harness differs. The projected swap result describes the repeated 126K retrieval position and is not generalized to a longer multi-turn session."
+        }
+      ]
+    },
+    {
+      "projection_id": "uncached-tool-emission",
+      "catalog_sha256": "b82908b466696b1e3169fde052da9d08fc46e375d01b77ab390297617672cd8e",
+      "workload": {
+        "id": "openai-agent-latency-v1",
+        "version": "1",
+        "unit": "request"
+      },
+      "mappings": [
+        {
+          "source_offering": {
+            "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-19e9d74c4d6bd66f",
+            "model_id": "Qwen/Qwen3.8-27B",
+            "provider": "local:macbook-m5max-64",
+            "endpoint": null,
+            "billing_mode": "owned_hardware",
+            "region": "local",
+            "service_tier": "high-power-configured-pmset-2",
+            "quantization": "oQ4e",
+            "reasoning_effort": null,
+            "agent_harness": "model-skyline/openai-matrix@v1",
+            "capabilities": [
+              "long-context",
+              "text",
+              "tools"
+            ]
+          },
+          "target_offering": {
+            "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-b406f50b4f56659b",
+            "model_id": "Qwen/Qwen3.8-27B",
+            "provider": "local:macbook-m5max-64",
+            "endpoint": null,
+            "billing_mode": "owned_hardware",
+            "region": "local",
+            "service_tier": "high-power-configured-pmset-2",
+            "quantization": "oQ4e",
+            "reasoning_effort": null,
+            "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+            "capabilities": [
+              "long-context",
+              "text",
+              "tools"
+            ]
+          },
+          "signal_ids": [
+            "local_tool_call_success_percent"
+          ],
+          "review_note": "The source and target use the same Qwen3.8-27B artifact, oMLX and MLX versions, F16 KV, context and output ceilings, one-request concurrency, and non-speculative baseline reasoning profile. Prefix cache state and harness differ. This projected 3/3 observation is only a minimum exact synthetic tool-emission gate; it is not a claim of general Harbor tool-task correctness."
+        },
+        {
+          "source_offering": {
+            "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+            "model_id": "Qwen/Qwen3.8-Flash-Next",
+            "provider": "local:macbook-m5max-64",
+            "endpoint": null,
+            "billing_mode": "owned_hardware",
+            "region": "local",
+            "service_tier": "high-power-configured-pmset-2",
+            "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+            "reasoning_effort": null,
+            "agent_harness": "model-skyline/openai-matrix@v1",
+            "capabilities": [
+              "long-context",
+              "text",
+              "tools"
+            ]
+          },
+          "target_offering": {
+            "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99",
+            "model_id": "Qwen/Qwen3.8-Flash-Next",
+            "provider": "local:macbook-m5max-64",
+            "endpoint": null,
+            "billing_mode": "owned_hardware",
+            "region": "local",
+            "service_tier": "high-power-configured-pmset-2",
+            "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+            "reasoning_effort": null,
+            "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+            "capabilities": [
+              "long-context",
+              "text",
+              "tools"
+            ]
+          },
+          "signal_ids": [
+            "local_tool_call_success_percent"
+          ],
+          "review_note": "The source and target use byte-identical DS4 composite artifacts and the same pinned DS4 binary and complete inference configuration. Only the harness and prompt position differ. This projected 3/3 result is a minimum exact synthetic tool-emission gate and does not replace the Harbor verifier-scored quality axis."
+        }
+      ]
+    }
+  ]
+}

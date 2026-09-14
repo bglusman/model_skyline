@@ -215,6 +215,32 @@ The current epsilon-aware coverage result is:
 | Five-task local-agent quality vs exact uncached input | Muse Glimmer |
 | Five-task local-agent quality vs process footprint | Qwen3.8 27B oMLX, low reasoning/4K thinking; Muse Glimmer |
 
+The quality rows above deliberately report the Harbor axes before operational
+evidence from other workloads is applied. The reviewed
+[`Harbor operational-gate policy`](harbor-pilot5-operational-gates-policy.json)
+now pins the base catalog plus the exact long-context and uncached-tool source
+catalog hashes, and maps complete source and target `OfferingKey` values. Its
+[`gated configuration`](harbor-operational-gated-frontiers.yaml) produces three
+additional audit views without counting the same quality axes as new portfolio
+roles:
+
+| Operationally gated view | Result |
+| --- | --- |
+| Quality vs latency, validated input ≥125K | Qwen3.8 Flash Next on DS4 |
+| Quality vs process footprint, validated input ≥125K | Qwen3.8 Flash Next on DS4 |
+| Quality vs latency, strict validated input ≥128,000 | No eligible resident |
+
+All three require at least 60% pilot success, 3/3 exact synthetic tool-call
+emission, and nonpositive swap growth at the repeated long-context probe. DS4's
+measured 125,964-token position satisfies the first two but not the strict 128K
+view. The default Qwen route receives its separately reviewed probe signals but
+fails the 60% pilot-quality floor. The tuned Qwen route remains unmapped because
+its reasoning policy differs; Muse and Ornith remain unmapped because matching
+gate evidence is absent or failed. Missing evidence is therefore a visible
+rejection, not inferred success. The generated
+[`enriched catalog`](generated/harbor-pilot5-operational-gated-catalog.json) and
+all three snapshots retain the policy hash and applied mapping notes.
+
 The three five-task rows above are the initial one-attempt point frontiers, not
 stable defaults. Matched second Qwen jobs produced 5/10 pooled success for the
 default profile (40–60% observed run range) and 7/10 for bounded reasoning
