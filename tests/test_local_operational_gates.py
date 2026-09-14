@@ -107,9 +107,7 @@ def test_strict_128k_frontier_retains_the_measured_shortfall() -> None:
     ds4 = next(
         item
         for item in snapshot.rejected
-        if item.offering_id.startswith(
-            "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@"
-        )
+        if item.offering_id.startswith("local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@")
     )
     assert ds4.reasons == (
         "eligibility gate validated_context: value 125964 is below eligible minimum 128000",
