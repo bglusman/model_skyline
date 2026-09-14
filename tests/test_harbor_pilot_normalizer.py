@@ -12,7 +12,7 @@ import pytest
 import yaml
 
 from model_skyline.engine import FrontierEngine
-from model_skyline.io import load_config
+from model_skyline.io import dump_json, load_config
 from model_skyline.models import UncertaintyMode
 
 ROOT = Path(__file__).parents[1]
@@ -21,6 +21,53 @@ SCRIPT = EXAMPLE / "normalize_harbor_pilot.py"
 PROTOCOL = EXAMPLE / "harbor-quality-pilot.yaml"
 HARDWARE = EXAMPLE / "hardware" / "macbook-m5max-64.json"
 SMOKE = EXAMPLE / "raw" / "harbor-smoke-ornith15-baseline-f16kv-fix-git-summary.json"
+PUBLISHED_ONE_RUN_SUMMARIES = tuple(
+    EXAMPLE / "raw" / filename
+    for filename in (
+        "harbor-pilot5-ornith15-baseline-summary.json",
+        "harbor-pilot5-qwen38-flash-next-ds4-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-summary.json",
+        "harbor-pilot5-qwen38-low-think4k-summary.json",
+        "harbor-pilot5-muse-glimmer-target-summary.json",
+    )
+)
+PUBLISHED_ONE_RUN_MEMORY = tuple(
+    EXAMPLE / "raw" / filename
+    for filename in (
+        "harbor-pilot5-qwen38-flash-next-ds4-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-low-think4k-runner-memory-summary.json",
+        "harbor-pilot5-muse-glimmer-target-runner-memory-summary.json",
+    )
+)
+PUBLISHED_BASELINE_REPEATS = tuple(
+    EXAMPLE / "raw" / filename
+    for filename in (
+        "harbor-pilot5-qwen38-baseline-f16kv-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat2-summary.json",
+    )
+)
+PUBLISHED_BASELINE_REPEAT_MEMORY = tuple(
+    EXAMPLE / "raw" / filename
+    for filename in (
+        "harbor-pilot5-qwen38-baseline-f16kv-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-baseline-f16kv-repeat2-runner-memory-summary.json",
+    )
+)
+PUBLISHED_TUNED_REPEATS = tuple(
+    EXAMPLE / "raw" / filename
+    for filename in (
+        "harbor-pilot5-qwen38-low-think4k-summary.json",
+        "harbor-pilot5-qwen38-low-think4k-repeat2-summary.json",
+    )
+)
+PUBLISHED_TUNED_REPEAT_MEMORY = tuple(
+    EXAMPLE / "raw" / filename
+    for filename in (
+        "harbor-pilot5-qwen38-low-think4k-runner-memory-summary.json",
+        "harbor-pilot5-qwen38-low-think4k-repeat2-runner-memory-summary.json",
+    )
+)
 SPEC = importlib.util.spec_from_file_location("normalize_harbor_pilot", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
 NORMALIZER = importlib.util.module_from_spec(SPEC)
@@ -119,6 +166,7 @@ def _memory_capture(
         "job_timestamp_timezone": "America/New_York",
         "capture_started_after_job_start": False,
         "capture_started_before_agent_execution": dict.fromkeys(tasks, True),
+        "task_name_form": "completed_result_name",
         "task_peaks": {
             task: {
                 "rss_bytes": 10_000 + index,
@@ -131,6 +179,43 @@ def _memory_capture(
         "contains_prompts_or_model_messages": False,
     }
     path = tmp_path / filename
+    _write_json(path, value)
+    return path
+
+
+def _compact_memory_summary(tmp_path: Path, capture_path: Path) -> Path:
+    capture = json.loads(capture_path.read_text(encoding="utf-8"))
+    source_bytes = capture_path.read_bytes()
+    value = {
+        key: capture[key]
+        for key in (
+            "expected_model",
+            "process_match",
+            "job_lock_sha256",
+            "started_at",
+            "finished_at",
+            "sample_interval_seconds",
+            "job_timestamp_timezone",
+            "capture_started_after_job_start",
+            "capture_started_before_agent_execution",
+            "task_name_form",
+            "task_peaks",
+            "contains_prompts_or_model_messages",
+        )
+    }
+    value.update(
+        {
+            "schema_version": "model-skyline/harbor-runner-memory-summary/v1",
+            "sample_count": 50,
+            "source_task_name_form": "completed_result_name",
+            "source_capture": {
+                "schema_version": "model-skyline/harbor-runner-memory/v1",
+                "raw_sha256": hashlib.sha256(source_bytes).hexdigest(),
+                "raw_bytes": len(source_bytes),
+            },
+        }
+    )
+    path = tmp_path / "memory-summary.json"
     _write_json(path, value)
     return path
 
@@ -202,6 +287,86 @@ def test_builds_exact_quality_latency_cache_and_memory_catalog(tmp_path: Path) -
             config, catalog, frontier_id, generated_at=generated_at
         )
         assert [member.offering for member in snapshot.members] == [offering.offering]
+
+
+def test_compact_memory_summary_reproduces_memory_axis_with_source_digest(
+    tmp_path: Path,
+) -> None:
+    summary_path, summary = _pilot_summary(tmp_path)
+    capture_path = _memory_capture(tmp_path, summary)
+    memory_path = _compact_memory_summary(tmp_path, capture_path)
+
+    catalog = NORMALIZER.build_catalog(
+        protocol_path=PROTOCOL,
+        hardware_path=HARDWARE,
+        task_set_name="pilot_5",
+        summary_paths=[summary_path],
+        memory_paths=[memory_path],
+    )
+
+    offering = catalog.offerings[0]
+    assert offering.signals["local_peak_process_physical_footprint_bytes"].value == 24_000
+    metadata = offering.metadata["pilot"]["memory"]
+    assert metadata["memory_evidence_schema_version"].endswith("-summary/v1")
+    assert (
+        metadata["source_capture_sha256"] == hashlib.sha256(capture_path.read_bytes()).hexdigest()
+    )
+    assert metadata["source_capture_bytes"] == capture_path.stat().st_size
+    assert metadata["source_task_name_form"] == "completed_result_name"
+
+
+def test_published_compact_memory_evidence_rebuilds_one_run_catalog() -> None:
+    catalog = NORMALIZER.build_catalog(
+        protocol_path=PROTOCOL,
+        hardware_path=HARDWARE,
+        task_set_name="pilot_5",
+        summary_paths=list(PUBLISHED_ONE_RUN_SUMMARIES),
+        memory_paths=list(PUBLISHED_ONE_RUN_MEMORY),
+    )
+
+    expected = (EXAMPLE / "generated" / "harbor-pilot5-quality-catalog.json").read_text(
+        encoding="utf-8"
+    )
+    assert dump_json(catalog) == expected
+    for path in PUBLISHED_ONE_RUN_MEMORY:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        serialized = json.dumps(payload)
+        assert payload["schema_version"] == "model-skyline/harbor-runner-memory-summary/v1"
+        assert payload["contains_prompts_or_model_messages"] is False
+        assert "samples" not in payload
+        assert "/Users/" not in serialized
+
+
+@pytest.mark.parametrize(
+    ("summaries", "memory", "generated_filename"),
+    (
+        (
+            PUBLISHED_TUNED_REPEATS,
+            PUBLISHED_TUNED_REPEAT_MEMORY,
+            "harbor-pilot5-qwen38-low-think4k-repeat2-catalog.json",
+        ),
+        (
+            PUBLISHED_BASELINE_REPEATS + PUBLISHED_TUNED_REPEATS,
+            PUBLISHED_BASELINE_REPEAT_MEMORY + PUBLISHED_TUNED_REPEAT_MEMORY,
+            "harbor-pilot5-qwen38-paired-repeat2-catalog.json",
+        ),
+    ),
+)
+def test_published_compact_memory_evidence_rebuilds_repeat_catalogs(
+    summaries: tuple[Path, ...],
+    memory: tuple[Path, ...],
+    generated_filename: str,
+) -> None:
+    catalog = NORMALIZER.build_catalog(
+        protocol_path=PROTOCOL,
+        hardware_path=HARDWARE,
+        task_set_name="pilot_5",
+        summary_paths=list(summaries),
+        memory_paths=list(memory),
+    )
+
+    expected = (EXAMPLE / "generated" / generated_filename).read_text(encoding="utf-8")
+    assert dump_json(catalog) == expected
 
 
 def test_partial_memory_capture_is_retained_but_not_emitted_as_an_axis(tmp_path: Path) -> None:

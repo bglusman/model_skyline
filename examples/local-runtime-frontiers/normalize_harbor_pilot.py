@@ -33,6 +33,7 @@ from model_skyline.models import (
 
 SUMMARY_SCHEMA = "model-skyline/harbor-local-job-summary/v1"
 MEMORY_SCHEMA = "model-skyline/harbor-runner-memory/v1"
+MEMORY_SUMMARY_SCHEMA = "model-skyline/harbor-runner-memory-summary/v1"
 MAX_INPUT_BYTES = 64_000_000
 TIMING_PHASES = ("environment_setup", "agent_setup", "agent_execution", "verifier")
 
@@ -391,10 +392,38 @@ def _memory_signal(
     tasks: set[str],
     timezone: ZoneInfo,
 ) -> tuple[Observation | None, dict[str, Any]]:
-    if memory.get("schema_version") != MEMORY_SCHEMA:
+    memory_schema = memory.get("schema_version")
+    if memory_schema not in {MEMORY_SCHEMA, MEMORY_SUMMARY_SCHEMA}:
         raise PilotCatalogError("unsupported runner-memory schema_version")
     if memory.get("contains_prompts_or_model_messages") is not False:
         raise PilotCatalogError("runner-memory capture is not marked prompt-free")
+    source_capture: dict[str, Any] | None = None
+    source_task_name_form: str | None = None
+    if memory_schema == MEMORY_SUMMARY_SCHEMA:
+        source_capture = _mapping(memory.get("source_capture"), field="memory.source_capture")
+        if source_capture.get("schema_version") != MEMORY_SCHEMA:
+            raise PilotCatalogError("runner-memory summary has an unsupported source schema")
+        _sha256_string(source_capture.get("raw_sha256"), field="memory.source_capture.raw_sha256")
+        source_bytes = _integer(
+            source_capture.get("raw_bytes"), field="memory.source_capture.raw_bytes"
+        )
+        assert source_bytes is not None
+        if source_bytes <= 0:
+            raise PilotCatalogError("runner-memory summary source byte count must be positive")
+        summary_sample_count = _integer(memory.get("sample_count"), field="memory.sample_count")
+        assert summary_sample_count is not None
+        if summary_sample_count <= 0:
+            raise PilotCatalogError("runner-memory summary sample_count must be positive")
+        if memory.get("task_name_form") != "completed_result_name":
+            raise PilotCatalogError("runner-memory summary task names must be canonical")
+        source_task_name_form = _string(
+            memory.get("source_task_name_form"), field="memory.source_task_name_form"
+        )
+        if source_task_name_form not in {
+            "completed_result_name",
+            "legacy_trial_directory_basename",
+        }:
+            raise PilotCatalogError("runner-memory summary has an unsupported source name form")
     job = _mapping(summary.get("job"), field="summary.job")
     if (
         memory.get("expected_model") != route
@@ -442,12 +471,17 @@ def _memory_signal(
         "ineligibility_reasons": reasons,
         "memory_capture_sha256": _sha256(path),
         "memory_capture_file": path.name,
+        "memory_evidence_schema_version": memory_schema,
         "process_match": memory.get("process_match"),
         "sample_interval_seconds": memory.get("sample_interval_seconds"),
         "covered_task_count": len(values),
         "sample_count": sample_total,
         "legacy_basename_task_peaks": used_legacy_basename,
     }
+    if source_capture is not None:
+        metadata["source_capture_sha256"] = source_capture["raw_sha256"]
+        metadata["source_capture_bytes"] = source_capture["raw_bytes"]
+        metadata["source_task_name_form"] = source_task_name_form
     if reasons or len(values) != len(tasks):
         return None, metadata
     observed_at = _timestamp(
@@ -455,11 +489,12 @@ def _memory_signal(
     )
     source = SourceReference(
         id=f"local-quality-memory:{_sha256(path)[:24]}",
-        version=MEMORY_SCHEMA,
+        version=str(memory_schema),
         license="CC0-1.0",
         methodology=(
-            "Kernel-accounted macOS physical footprint sampled from the exact local runner "
-            "during every task's complete agent-execution interval."
+            "Kernel-accounted macOS physical-footprint task peaks from the exact local runner "
+            "during every task's complete agent-execution interval. Compact summaries replay "
+            "their peaks from the source samples and retain that capture's SHA-256 digest."
         ),
         raw_sha256=_sha256(path),
         retrieved_at=observed_at,

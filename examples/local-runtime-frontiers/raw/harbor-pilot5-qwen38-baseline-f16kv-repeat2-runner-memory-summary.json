@@ -1,0 +1,54 @@
+{
+  "capture_started_after_job_start": true,
+  "capture_started_before_agent_execution": {
+    "terminal-bench/build-cython-ext": true,
+    "terminal-bench/cancel-async-tasks": true,
+    "terminal-bench/fix-code-vulnerability": true,
+    "terminal-bench/fix-git": true,
+    "terminal-bench/multi-source-data-merger": true
+  },
+  "contains_prompts_or_model_messages": false,
+  "expected_model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv",
+  "finished_at": "2026-09-14T09:51:56.877144Z",
+  "job_lock_sha256": "e7d45663fc23c0e115f2f5c812b6996ffd9b326f9cb6c5279936cc1ef87ed897",
+  "job_timestamp_timezone": "America/New_York",
+  "process_match": "omlx-server",
+  "sample_count": 3740,
+  "sample_interval_seconds": "1.0",
+  "schema_version": "model-skyline/harbor-runner-memory-summary/v1",
+  "source_capture": {
+    "raw_bytes": 866004,
+    "raw_sha256": "044e1e38a527fb84f612fe209ec0a206ccbd87d8ff86c9ffbb4e480c90f6df51",
+    "schema_version": "model-skyline/harbor-runner-memory/v1"
+  },
+  "source_task_name_form": "completed_result_name",
+  "started_at": "2026-09-14T08:45:03.989063Z",
+  "task_name_form": "completed_result_name",
+  "task_peaks": {
+    "terminal-bench/build-cython-ext": {
+      "physical_footprint_bytes": 23533990632,
+      "rss_bytes": 17001086976,
+      "samples": 860
+    },
+    "terminal-bench/cancel-async-tasks": {
+      "physical_footprint_bytes": 22731256672,
+      "rss_bytes": 16801218560,
+      "samples": 866
+    },
+    "terminal-bench/fix-code-vulnerability": {
+      "physical_footprint_bytes": 22763729760,
+      "rss_bytes": 17035788288,
+      "samples": 848
+    },
+    "terminal-bench/fix-git": {
+      "physical_footprint_bytes": 21397468024,
+      "rss_bytes": 16814080000,
+      "samples": 860
+    },
+    "terminal-bench/multi-source-data-merger": {
+      "physical_footprint_bytes": 19925496672,
+      "rss_bytes": 16844177408,
+      "samples": 305
+    }
+  }
+}

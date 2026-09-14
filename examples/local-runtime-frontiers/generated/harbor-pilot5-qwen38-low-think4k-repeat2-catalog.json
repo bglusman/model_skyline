@@ -91,13 +91,13 @@
           "sample_count": 10,
           "observed_at": "2026-09-14T08:41:59.389318Z",
           "source": {
-            "id": "local-quality-memory:repeat-bundle:3d4a3c58296b0c3dbe3f56e4",
+            "id": "local-quality-memory:repeat-bundle:8525264440095f0c78af3561",
             "version": "model-skyline/harbor-runner-memory-bundle/v1",
             "url": null,
             "terms_url": null,
             "license": "CC0-1.0",
             "methodology": "Canonical manifest of job-matched macOS physical-footprint captures. The value is the maximum task peak across every fully covered repetition.",
-            "raw_sha256": "3d4a3c58296b0c3dbe3f56e48e2bceb3381fe5bda4bfc4a169c442f4ace27ebe",
+            "raw_sha256": "8525264440095f0c78af356137746dcef2da810863a25dc6f79f98cbccd40323",
             "retrieved_at": "2026-09-14T08:41:59.389318Z"
           }
         }
@@ -271,24 +271,32 @@
               {
                 "eligible": true,
                 "ineligibility_reasons": [],
-                "memory_capture_sha256": "3ca209944718a7f04935ea6d3ac819313a31a378ccdb7280d8b09c10471711db",
-                "memory_capture_file": "runner-memory.json",
+                "memory_capture_sha256": "90509e6fcf8b748eaf14e63649a13044e9ddd9da9740ce80a374654167b361a9",
+                "memory_capture_file": "harbor-pilot5-qwen38-low-think4k-runner-memory-summary.json",
+                "memory_evidence_schema_version": "model-skyline/harbor-runner-memory-summary/v1",
                 "process_match": "omlx-server",
                 "sample_interval_seconds": "1.0",
                 "covered_task_count": 5,
                 "sample_count": 1714,
-                "legacy_basename_task_peaks": false
+                "legacy_basename_task_peaks": false,
+                "source_capture_sha256": "3ca209944718a7f04935ea6d3ac819313a31a378ccdb7280d8b09c10471711db",
+                "source_capture_bytes": 398393,
+                "source_task_name_form": "completed_result_name"
               },
               {
                 "eligible": true,
                 "ineligibility_reasons": [],
-                "memory_capture_sha256": "8a2899658e841170f2c2b5fded941053e636961dc9ec8fc3bd036ccd68ca826d",
-                "memory_capture_file": "runner-memory.json",
+                "memory_capture_sha256": "5daae044619fb24bd262808f2f062012973e708376a3731b850d301df3fc603b",
+                "memory_capture_file": "harbor-pilot5-qwen38-low-think4k-repeat2-runner-memory-summary.json",
+                "memory_evidence_schema_version": "model-skyline/harbor-runner-memory-summary/v1",
                 "process_match": "omlx-server",
                 "sample_interval_seconds": "1.0",
                 "covered_task_count": 5,
                 "sample_count": 1885,
-                "legacy_basename_task_peaks": false
+                "legacy_basename_task_peaks": false,
+                "source_capture_sha256": "8a2899658e841170f2c2b5fded941053e636961dc9ec8fc3bd036ccd68ca826d",
+                "source_capture_bytes": 438688,
+                "source_task_name_form": "completed_result_name"
               }
             ]
           }

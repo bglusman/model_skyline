@@ -185,6 +185,20 @@ silently treating its partial first-task series as a measured peak.
 The timezone is required because Harbor 0.23 serializes local job timestamps
 without a UTC offset; the sampler records the IANA zone used to interpret them.
 
+Publish a compact evidence summary instead of the full one-second trace. The
+summarizer validates every source sample, deterministically replays the
+task-level RSS and physical-footprint peaks, canonicalizes collision-free task
+names from older captures, and retains the source trace's SHA-256 and byte
+count. It copies only an explicit prompt-free field allowlist. The compact file
+is sufficient input to `normalize_harbor_pilot.py`; keep the full trace for
+deeper diagnostics or independent digest verification.
+
+```console
+python examples/local-runtime-frontiers/summarize_harbor_runner_memory.py \
+  --capture /path/to/jobs/pilot5-v1-ornith15-baseline/runner-memory.json \
+  --output /path/to/prompt-free-runner-memory-summary.json
+```
+
 ## Timeout and exception policy
 
 An agent that consumes the task's fixed 900-second budget without finishing is
@@ -205,9 +219,9 @@ per episode.
 
 [`normalize_harbor_pilot.py`](normalize_harbor_pilot.py) accepts one or more
 prompt-free summaries per exact candidate and optional job-matched memory
-captures. Every candidate in one catalog must have the same repetition count.
-It emits an ordinary `ObservationCatalog`, with the Terminus/Harbor
-configuration hashed into `OfferingKey.agent_harness` so these results cannot
+captures or compact memory summaries. Every candidate in one catalog must have
+the same repetition count. It emits an ordinary `ObservationCatalog`, with the
+Terminus/Harbor configuration hashed into `OfferingKey.agent_harness` so these results cannot
 be silently joined to the same inference server measured under the lightweight
 OpenAI matrix harness.
 
