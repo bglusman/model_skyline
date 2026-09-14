@@ -162,6 +162,18 @@ Muse's matched warm tool probe remains rejected by the 100% correctness
 threshold even though its verifier-scored route remains valuable on the
 cache-demand and memory frontiers.
 
+Coverage v2 also reports advisory nearness for every *eligible evaluated*
+point. Distance is the smallest relative epsilon at which that point ceases to
+be dominated, calculated with the frontier's absolute tolerances and the core
+point/robust bound semantics. The report retains the exact half-open dominance
+intervals and witnesses; `--near-epsilon` merely labels distances at or below a
+chosen threshold. It does not alter membership or selection, and an absent or
+eligibility-rejected route never receives a distance. At the packaged 5%
+threshold there are currently no near-only residents. The closest dominated
+points are DS4 on the uncached-tool frontier at 14.09% and Flash Coder on the
+warm-tool frontier at 15.32%, so neither is honestly interchangeable with that
+frontier's exact residents.
+
 A separate hardware-only slice compares the same Qwen3.8 27B UD-Q4_K_M bytes,
 llama.cpp/ggml binary, and command position on M1 Max and M5 Max. It is retained
 in [`generated/qwen38-exact-cross-mac-short-throughput-frontier.json`](generated/qwen38-exact-cross-mac-short-throughput-frontier.json)

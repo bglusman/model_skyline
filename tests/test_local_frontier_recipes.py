@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import yaml
@@ -28,6 +30,16 @@ FLASH_CODER_CAPACITY_MEASUREMENTS = sorted(
 )
 FROZEN_HARBOR_PILOT_SHA256 = "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41"
 TASK_MANIFEST = EXAMPLE / "terminal-bench-2.1-task-manifest.json"
+COVERAGE_FRONTIERS = (
+    ("short-throughput", "cross-model-short-throughput-frontier.json"),
+    ("warm-agent-tools", "tool-agent-warm-p2048-o1024-frontier.json"),
+    ("uncached-agent-tools", "tool-agent-uncached-p2048-o256-frontier.json"),
+    ("long-context-126k", "long-context-uncached-p126k-frontier.json"),
+    ("validated-capacity", "validated-capacity-frontier.json"),
+    ("quality-latency", "harbor-pilot5-quality-latency-frontier.json"),
+    ("quality-cache-efficiency", "harbor-pilot5-quality-cache-efficiency-frontier.json"),
+    ("quality-process-footprint", "harbor-pilot5-quality-memory-frontier.json"),
+)
 HARBOR_PILOT_SMOKE_SUMMARIES = sorted(
     path
     for path in (EXAMPLE / "raw").glob("harbor-smoke-*-summary.json")
@@ -91,6 +103,32 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
         eligibility = config.frontiers[frontier_id].eligibility
         assert eligibility.minimum_gate_values == {"exact_tool_call_correctness": 100}
         assert eligibility.maximum_gate_values == {"runner_swap_growth": 0}
+
+
+def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) -> None:
+    generated = EXAMPLE / "generated"
+    output = tmp_path / "coverage.json"
+    command = [
+        sys.executable,
+        str(EXAMPLE / "summarize_frontier_coverage.py"),
+    ]
+    for label, filename in COVERAGE_FRONTIERS:
+        command.extend(("--frontier", f"{label}={generated / filename}"))
+    command.extend(("--near-epsilon", "0.05", "--output", str(output)))
+
+    result = subprocess.run(command, check=False, capture_output=True, text=True)
+
+    assert result.returncode == 0, result.stderr
+    assert output.read_bytes() == (generated / "cross-frontier-coverage.json").read_bytes()
+    coverage = json.loads(output.read_text(encoding="utf-8"))
+    assert coverage["schema_version"] == "model-skyline/local-frontier-coverage/v2"
+    assert coverage["near_epsilon"] == "0.05"
+    assert not any(frontier["near_members"] for frontier in coverage["frontiers"])
+    assert all(
+        item["membership"] in {"exact", "near", "dominated"}
+        for frontier in coverage["frontiers"]
+        for item in frontier["evaluated"]
+    )
 
 
 def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
@@ -276,7 +314,9 @@ def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
     )
 
     coverage = json.loads((generated / "cross-frontier-coverage.json").read_text(encoding="utf-8"))
-    assert coverage["schema_version"] == "model-skyline/local-frontier-coverage/v1"
+    assert coverage["schema_version"] == "model-skyline/local-frontier-coverage/v2"
+    assert coverage["near_epsilon"] == "0.05"
+    assert not any(frontier["near_members"] for frontier in coverage["frontiers"])
     flash_coder_family = next(
         family
         for family in coverage["model_families"]

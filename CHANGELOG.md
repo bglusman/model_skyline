@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add a bounded, report-only frontier-proximity calculation and extend the
+  local cross-frontier coverage artifact with every eligible point's exact
+  normalized distance, dominance intervals, and witnesses. Exact membership
+  remains authoritative; configurable near membership cannot admit rejected or
+  absent offerings and never changes a frontier or routing selection.
 - Add auditable non-axis metric gates to frontier eligibility. Context,
   correctness, memory-pressure, cache, or other measured requirements can now
   reject an offering without becoming a third Pareto objective. Gate metrics
