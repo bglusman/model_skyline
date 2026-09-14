@@ -227,7 +227,7 @@ before every task's agent execution and every task has a positive
 kernel-accounted physical-footprint peak. An incomplete capture therefore
 remains auditable metadata but is rejected from the memory frontier.
 
-## First three five-task results
+## First four five-task results
 
 Ornith 1.5 oQ4e/F16-KV and Qwen3.8 Flash Next on DS4 each scored 3/5 (60%),
 passing `fix-git`, `multi-source-data-merger`, and
@@ -239,6 +239,7 @@ passing `fix-git`, `multi-source-data-merger`, and
 | Ornith 1.5 oQ4e, oMLX F16 KV | 3/5 | 857.665 s | 161,473 | 86.284% | 160,409 | ineligible capture |
 | Qwen3.8 Flash Next, DS4 Q2/PLE-Q4_1 | 3/5 | 923.973 s | 45,888 | 93.448% | 49,492 | 5,461,911,280 B |
 | Qwen3.8 27B oQ4e, oMLX F16 KV | 2/5 | 923.979 s | 87,051 | 69.748% | 58,939 | 23,198,069,456 B |
+| Muse Glimmer 30B Dynamic Q4_K_XL | 3/5 | 836.343 s | 51,424 exact | 95.738% | 40,157 exact | 3,484,714,192 B |
 
 At equal measured success, Ornith is the latency resident and DS4 is the first
 eligible process-footprint resident. Neither is an exact cache-demand resident:
@@ -246,11 +247,16 @@ each has at least one incomplete API request on a timeout path. The footprint is
 macOS's kernel-accounted active process working set;
 it does not replace the separately retained 76.8 GB composite artifact size and
 does not count file-backed demand-paged storage as if it were anonymous memory.
+Muse passed `cancel-async-tasks`, `fix-git`, and `multi-source-data-merger`.
+Its one timeout occurred while the agent was waiting on the terminal rather
+than an API request, so all request token totals are complete. It is the first
+cache-demand resident, the process-footprint resident, and the raw latency
+leader; Ornith remains on the latency frontier under its configured epsilon.
 Dense Qwen3.8 passed `fix-git` and `multi-source-data-merger`, but its three
 timeouts leave it below the 60% quality gate and make its token subtotals lower
 bounds as well. Its full-run memory capture is valid, but the quality gate keeps
-it off the memory frontier. Muse Glimmer and the bounded-reasoning dense Qwen
-profile remain necessary before selecting a default from this pilot.
+it off the memory frontier. The bounded-reasoning dense Qwen profile remains
+necessary before selecting a default from this pilot.
 
 The first Ornith memory capture began after the job and used an earlier sampler
 without per-task coverage flags. Its observed peaks remain a private diagnostic,

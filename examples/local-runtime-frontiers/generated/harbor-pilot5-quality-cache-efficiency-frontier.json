@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "b61ede9a996f28255774e4e295a2838d2f0ca4e71e7661f099ee9cb35bb6f4cb",
+  "snapshot_id": "a49afe08fcc45c206f7355d1dcdd63bd7f1055fd4a335974efd2a1d538c53cd6",
   "config_hash": "8fb1da6bebb916e600e4e1ca3a2034c45adabf275837ca031e72c37a16dbeb3c",
-  "catalog_hash": "ce63fb3a2702c5a2a13cf131818163a9b007df1c303a1033be1c797917264d9e",
+  "catalog_hash": "22ae7da7fad1c6371c562ba3184415b57c573ce16fe0c0bd52e4b0224eb9bc97",
   "engine_version": "0.9.0",
-  "generated_at": "2026-09-14T04:47:00Z",
+  "generated_at": "2026-09-14T05:37:00Z",
   "frontier_id": "local-agent-quality-cache-efficiency",
   "workload": {
     "id": "terminal-bench-2.1-local-pilot-5@7131e437",
@@ -31,8 +31,456 @@
       "epsilon_relative": "0.05"
     }
   ],
-  "members": [],
-  "evaluated": [],
+  "members": [
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "KQuant-Dynamic-Q4_K_XL",
+        "reasoning_effort": null,
+        "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "pilot_task_success": {
+          "value": "60",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_pilot_task_success_percent"
+          ],
+          "source_ids": [
+            "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb"
+          ],
+          "sources": [
+            {
+              "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+              "version": "model-skyline/harbor-local-job-summary/v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+              "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+              "retrieved_at": "2026-09-14T05:36:39.275811Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T05:36:39.275811Z",
+          "minimum_sample_count": 5
+        },
+        "pilot_uncached_input_tokens": {
+          "value": "51424",
+          "unit": "token",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_pilot_total_uncached_input_tokens"
+          ],
+          "source_ids": [
+            "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb"
+          ],
+          "sources": [
+            {
+              "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+              "version": "model-skyline/harbor-local-job-summary/v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+              "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+              "retrieved_at": "2026-09-14T05:36:39.275811Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T05:36:39.275811Z",
+          "minimum_sample_count": 5
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "checkpoint": "Muse-Glimmer-30B",
+          "revision": "70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+          "format": "gguf",
+          "quantization": "KQuant-Dynamic-Q4_K_XL",
+          "size_bytes": 19653960832,
+          "content_sha256": "ac7023d6a4c704eb9af54ab53e476a66b7f5b6c0ef2fc4a8dde5253c291a6c38",
+          "source_url": "https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/tree/70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+          "license": "Apache-2.0",
+          "metadata": {
+            "filename": "Muse-Glimmer-30B-KQuant-Dynamic-Q4_K_XL.gguf"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "build-10809",
+          "commit": "5266f24da",
+          "backend": "Metal",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "configuration": {
+            "runtime_binary_sha256": "30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9",
+            "allocated_context_tokens": 131072,
+            "parallel_slots": 1,
+            "batch_tokens": 2048,
+            "micro_batch_tokens": 512,
+            "max_output_tokens": 16384,
+            "n_gpu_layers": "all",
+            "flash_attention": true,
+            "fit": "off",
+            "jinja": true,
+            "cache_ram_bytes": 8589934592,
+            "cache_idle_slots": true,
+            "llama_swap_model_id": "muse-glimmer-30b-dynamic-target",
+            "llama_swap_exclusive_group": "local-memory"
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "task_set": "pilot_5",
+          "task_digests": {
+            "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+            "terminal-bench/build-cython-ext": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+            "terminal-bench/multi-source-data-merger": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49",
+            "terminal-bench/fix-code-vulnerability": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+            "terminal-bench/cancel-async-tasks": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1"
+          },
+          "attempts_per_task": 1,
+          "quantile_method": "Hyndman-Fan type 7 continuous",
+          "p95_includes_quality_attributable_failures": true,
+          "harness": {
+            "name": "harbor/terminus-2",
+            "version": "2.0.0",
+            "harbor_version": "0.23.0",
+            "harbor_revision": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+            "execution_timezone": "America/New_York",
+            "parser": "json",
+            "temperature": "1.0",
+            "top_p": "0.95",
+            "max_turns": 40,
+            "max_input_tokens": 114688,
+            "max_output_tokens": 16384,
+            "summarization_enabled": true,
+            "proactive_summarization_free_tokens": 8192,
+            "store_all_messages": true,
+            "concurrency": 1,
+            "quality_attributable_exceptions": [
+              "AgentTimeoutError",
+              "AgentSafetyRefusalError"
+            ],
+            "model_switching": "batch_all_tasks_for_one_route",
+            "loading_state_streaming": false
+          }
+        },
+        "local_evidence_status": "provisional",
+        "pilot": {
+          "candidate": "muse_glimmer_target",
+          "role": "dense_local_agent_candidate",
+          "protocol_sha256": "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41",
+          "system_profile_sha256": "ff471eef2691e65aec02f87768086b911df9856d6e2499d7cb3df111470fff0e",
+          "summary_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+          "summary_file": "harbor-pilot5-muse-glimmer-target-summary.json",
+          "job_id": "9002daa8-5e83-45c8-aa46-2511d588c5fb",
+          "job_lock_sha256": "a7a862a05ee61b35bf0de21f9ddee0c8f9c07a0c0fbd09c86e0d3f233a18815a",
+          "successes": "3.0",
+          "task_count": 5,
+          "token_accounting": {
+            "eligible": true,
+            "ineligibility_reasons": [],
+            "incomplete_api_requests": 0,
+            "recorded_input_tokens_lower_bound": 1206688,
+            "recorded_cache_tokens_lower_bound": 1155264,
+            "recorded_uncached_input_tokens_lower_bound": 51424,
+            "recorded_output_tokens_lower_bound": 40157
+          },
+          "memory": {
+            "eligible": true,
+            "ineligibility_reasons": [],
+            "memory_capture_sha256": "197d63561538ae53076b6d65bf3d44888ba34b3424cc0b85b5a503418488791d",
+            "memory_capture_file": "runner-memory.json",
+            "process_match": "llama-server",
+            "sample_interval_seconds": "1.0",
+            "covered_task_count": 5,
+            "sample_count": 2330,
+            "legacy_basename_task_peaks": false
+          }
+        }
+      },
+      "dominated_by": []
+    }
+  ],
+  "evaluated": [
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "KQuant-Dynamic-Q4_K_XL",
+        "reasoning_effort": null,
+        "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "pilot_task_success": {
+          "value": "60",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_pilot_task_success_percent"
+          ],
+          "source_ids": [
+            "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb"
+          ],
+          "sources": [
+            {
+              "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+              "version": "model-skyline/harbor-local-job-summary/v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+              "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+              "retrieved_at": "2026-09-14T05:36:39.275811Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T05:36:39.275811Z",
+          "minimum_sample_count": 5
+        },
+        "pilot_uncached_input_tokens": {
+          "value": "51424",
+          "unit": "token",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_pilot_total_uncached_input_tokens"
+          ],
+          "source_ids": [
+            "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb"
+          ],
+          "sources": [
+            {
+              "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+              "version": "model-skyline/harbor-local-job-summary/v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+              "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+              "retrieved_at": "2026-09-14T05:36:39.275811Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T05:36:39.275811Z",
+          "minimum_sample_count": 5
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "checkpoint": "Muse-Glimmer-30B",
+          "revision": "70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+          "format": "gguf",
+          "quantization": "KQuant-Dynamic-Q4_K_XL",
+          "size_bytes": 19653960832,
+          "content_sha256": "ac7023d6a4c704eb9af54ab53e476a66b7f5b6c0ef2fc4a8dde5253c291a6c38",
+          "source_url": "https://huggingface.co/meta-models/Muse-Glimmer-30B-GGUF/tree/70bf1b61ac09f91b24d39038091b41c582bc5d7a",
+          "license": "Apache-2.0",
+          "metadata": {
+            "filename": "Muse-Glimmer-30B-KQuant-Dynamic-Q4_K_XL.gguf"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "build-10809",
+          "commit": "5266f24da",
+          "backend": "Metal",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "configuration": {
+            "runtime_binary_sha256": "30723a650e9e4a3d12bbe558c44e378d34707d14ebfd5d5e8535a8827eadceb9",
+            "allocated_context_tokens": 131072,
+            "parallel_slots": 1,
+            "batch_tokens": 2048,
+            "micro_batch_tokens": 512,
+            "max_output_tokens": 16384,
+            "n_gpu_layers": "all",
+            "flash_attention": true,
+            "fit": "off",
+            "jinja": true,
+            "cache_ram_bytes": 8589934592,
+            "cache_idle_slots": true,
+            "llama_swap_model_id": "muse-glimmer-30b-dynamic-target",
+            "llama_swap_exclusive_group": "local-memory"
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "task_set": "pilot_5",
+          "task_digests": {
+            "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+            "terminal-bench/build-cython-ext": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+            "terminal-bench/multi-source-data-merger": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49",
+            "terminal-bench/fix-code-vulnerability": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+            "terminal-bench/cancel-async-tasks": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1"
+          },
+          "attempts_per_task": 1,
+          "quantile_method": "Hyndman-Fan type 7 continuous",
+          "p95_includes_quality_attributable_failures": true,
+          "harness": {
+            "name": "harbor/terminus-2",
+            "version": "2.0.0",
+            "harbor_version": "0.23.0",
+            "harbor_revision": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+            "execution_timezone": "America/New_York",
+            "parser": "json",
+            "temperature": "1.0",
+            "top_p": "0.95",
+            "max_turns": 40,
+            "max_input_tokens": 114688,
+            "max_output_tokens": 16384,
+            "summarization_enabled": true,
+            "proactive_summarization_free_tokens": 8192,
+            "store_all_messages": true,
+            "concurrency": 1,
+            "quality_attributable_exceptions": [
+              "AgentTimeoutError",
+              "AgentSafetyRefusalError"
+            ],
+            "model_switching": "batch_all_tasks_for_one_route",
+            "loading_state_streaming": false
+          }
+        },
+        "local_evidence_status": "provisional",
+        "pilot": {
+          "candidate": "muse_glimmer_target",
+          "role": "dense_local_agent_candidate",
+          "protocol_sha256": "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41",
+          "system_profile_sha256": "ff471eef2691e65aec02f87768086b911df9856d6e2499d7cb3df111470fff0e",
+          "summary_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+          "summary_file": "harbor-pilot5-muse-glimmer-target-summary.json",
+          "job_id": "9002daa8-5e83-45c8-aa46-2511d588c5fb",
+          "job_lock_sha256": "a7a862a05ee61b35bf0de21f9ddee0c8f9c07a0c0fbd09c86e0d3f233a18815a",
+          "successes": "3.0",
+          "task_count": 5,
+          "token_accounting": {
+            "eligible": true,
+            "ineligibility_reasons": [],
+            "incomplete_api_requests": 0,
+            "recorded_input_tokens_lower_bound": 1206688,
+            "recorded_cache_tokens_lower_bound": 1155264,
+            "recorded_uncached_input_tokens_lower_bound": 51424,
+            "recorded_output_tokens_lower_bound": 40157
+          },
+          "memory": {
+            "eligible": true,
+            "ineligibility_reasons": [],
+            "memory_capture_sha256": "197d63561538ae53076b6d65bf3d44888ba34b3424cc0b85b5a503418488791d",
+            "memory_capture_file": "runner-memory.json",
+            "process_match": "llama-server",
+            "sample_interval_seconds": "1.0",
+            "covered_task_count": 5,
+            "sample_count": 2330,
+            "legacy_basename_task_peaks": false
+          }
+        }
+      },
+      "dominated_by": []
+    }
+  ],
   "rejected": [
     {
       "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-b406f50b4f56659b",
@@ -58,8 +506,8 @@
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
     "config_hash": "8fb1da6bebb916e600e4e1ca3a2034c45adabf275837ca031e72c37a16dbeb3c",
-    "catalog_hash": "ce63fb3a2702c5a2a13cf131818163a9b007df1c303a1033be1c797917264d9e",
-    "generated_at": "2026-09-14T04:47:00Z",
+    "catalog_hash": "22ae7da7fad1c6371c562ba3184415b57c573ce16fe0c0bd52e4b0224eb9bc97",
+    "generated_at": "2026-09-14T05:37:00Z",
     "workload": {
       "id": "terminal-bench-2.1-local-pilot-5@7131e437",
       "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
@@ -81,7 +529,7 @@
         "epsilon_relative": "0.05"
       }
     ],
-    "candidate_universe_hash": "753e3cc18b0a8b9f2ce9db2fad07575acd7c797cc59b6b5083add5a6b37a44cb",
+    "candidate_universe_hash": "182adc9a4d8f545c823cdb0b3434cc086e897a31fb3defdc67208c321f1c6457",
     "candidates": [
       {
         "offering": {
@@ -185,6 +633,85 @@
       },
       {
         "offering": {
+          "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "KQuant-Dynamic-Q4_K_XL",
+          "reasoning_effort": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "pilot_task_success": {
+            "value": "60",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_pilot_task_success_percent"
+            ],
+            "source_ids": [
+              "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb"
+            ],
+            "sources": [
+              {
+                "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+                "version": "model-skyline/harbor-local-job-summary/v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+                "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+                "retrieved_at": "2026-09-14T05:36:39.275811Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T05:36:39.275811Z",
+            "minimum_sample_count": 5
+          },
+          "pilot_uncached_input_tokens": {
+            "value": "51424",
+            "unit": "token",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_pilot_total_uncached_input_tokens"
+            ],
+            "source_ids": [
+              "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb"
+            ],
+            "sources": [
+              {
+                "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+                "version": "model-skyline/harbor-local-job-summary/v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+                "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+                "retrieved_at": "2026-09-14T05:36:39.275811Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T05:36:39.275811Z",
+            "minimum_sample_count": 5
+          }
+        }
+      },
+      {
+        "offering": {
           "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
           "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
           "provider": "local:macbook-m5max-64",
@@ -234,10 +761,30 @@
         }
       }
     ],
-    "inventory_id": "addf51bc954f07c1288c00985d68aad77cec2cef34c902df2fac9696c5099200"
+    "inventory_id": "cb7629c15aba9f8af743fbb48ac9ed5e67f157fe4db9d593fe7ece97f95e3d01"
   },
   "public_release_blocked": false,
   "sources": [
+    {
+      "id": "local-quality-memory:197d63561538ae53076b6d65",
+      "version": "model-skyline/harbor-runner-memory/v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Kernel-accounted macOS physical footprint sampled from the exact local runner during every task's complete agent-execution interval.",
+      "raw_sha256": "197d63561538ae53076b6d65bf3d44888ba34b3424cc0b85b5a503418488791d",
+      "retrieved_at": "2026-09-14T05:36:39.388640Z"
+    },
+    {
+      "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+      "version": "model-skyline/harbor-local-job-summary/v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+      "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+      "retrieved_at": "2026-09-14T05:36:39.275811Z"
+    },
     {
       "id": "local-quality-pilot:qwen38_baseline:de25985a-e986-4634-a3ba-108b15d42973",
       "version": "model-skyline/harbor-local-job-summary/v1",
@@ -294,6 +841,8 @@
     "local-quality-memory:2086323a3a9f16fcd24562d4": "2026-09-14T04:46:38.913361Z",
     "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07": "2026-09-14T02:34:13.356364Z",
     "local-quality-memory:e7cc0c9cee698fd1068b6c8c": "2026-09-14T02:34:13.519976Z",
+    "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb": "2026-09-14T05:36:39.275811Z",
+    "local-quality-memory:197d63561538ae53076b6d65": "2026-09-14T05:36:39.388640Z",
     "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151": "2026-09-14T01:47:07.928815Z"
   }
 }
