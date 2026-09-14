@@ -34,6 +34,12 @@ anchor; do not apply one quantization multiplier across tasks. The copyable
 local, cache, context, quant-screening, and remote recipes are in
 [`recommended-frontier-recipes.yaml`](recommended-frontier-recipes.yaml).
 
+The first verifier-scored local-agent population is specified in
+[`harbor-quality-pilot.yaml`](harbor-quality-pilot.yaml) and explained in
+[`harbor-quality-pilot.md`](harbor-quality-pilot.md). Its five-task score is a
+complete measurement of that named pilot only; it is not a calibrated estimate
+of the full 89-task Terminal-Bench 2.1 release.
+
 ## Runtime choices on Apple Silicon
 
 - **MLX-LM** is the simplest native MLX baseline: direct safetensors models,

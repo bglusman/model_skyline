@@ -1,0 +1,149 @@
+schema_version: model-skyline/local-quality-pilot/v1
+status: provisional
+
+benchmark:
+  name: terminal-bench/terminal-bench-2-1
+  source_url: https://github.com/harbor-framework/terminal-bench-2-1
+  revision: 7131e4375048a0e408a8fb404b5f499d726b695b
+  license: Apache-2.0
+  full_task_count: 89
+  leaderboard_attempts_per_task: 5
+
+harness:
+  name: harbor/terminus-2
+  version: 2.0.0
+  harbor_version: 0.23.0
+  harbor_revision: 88fdbc9d42e907c0414654f041ece5eaf798f538
+  parser: json
+  temperature: "1.0"
+  top_p: "0.95"
+  max_turns: 40
+  max_input_tokens: 114688
+  max_output_tokens: 16384
+  proactive_summarization_free_tokens: 8192
+  store_all_messages: true
+  concurrency: 1
+  model_switching: batch_all_tasks_for_one_route
+  loading_state_streaming: false
+
+task_sets:
+  smoke:
+    evidence_tier: proxy
+    transferable_to_full_benchmark: false
+    tasks:
+      - name: terminal-bench/fix-git
+        digest: sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e
+        stratum: software-engineering/git-recovery/easy
+
+  pilot_5:
+    evidence_tier: measured
+    measured_workload_name: terminal-bench-2.1-local-pilot-5@7131e437
+    transferable_to_full_benchmark: false
+    selection_method: deliberately-stratified-convenience-pilot-v1
+    caveat: >-
+      Complete measurement of this five-task workload only. It is not a
+      calibrated coreset and must not be reported as Terminal-Bench 2.1 quality.
+    tasks:
+      - name: terminal-bench/fix-git
+        digest: sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e
+        stratum: software-engineering/git-recovery/easy
+      - name: terminal-bench/build-cython-ext
+        digest: sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12
+        stratum: debugging/build-and-dependencies/medium
+      - name: terminal-bench/multi-source-data-merger
+        digest: sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49
+        stratum: data-processing/schema-and-etl/medium
+      - name: terminal-bench/fix-code-vulnerability
+        digest: sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71
+        stratum: security/code-patching/hard
+      - name: terminal-bench/cancel-async-tasks
+        digest: sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1
+        stratum: software-engineering/concurrency-debugging/hard
+
+candidates:
+  qwen38_baseline:
+    route: qwen3.8-27b-oq4e-mtp:baseline-f16kv
+    system_profile: system-profiles/qwen38-omlx-baseline-f16kv-cache-ssd.json
+    role: stable_dense_baseline
+  ornith15_baseline:
+    route: ornith-1.5-35b-a3b-oq4e-mtp:baseline-f16kv
+    system_profile: system-profiles/ornith-omlx-baseline-f16kv-cache-ssd.json
+    role: fast_sparse_warm_agent_candidate
+  qwen38_flash_ds4:
+    route: qwen3.8-flash-next
+    system_profile: system-profiles/qwen38-flash-next-ds4-q2-pleq41-ctx131k-plain.json
+    role: memory_efficient_uncached_and_long_context_candidate
+  muse_glimmer_target:
+    route: muse-glimmer-30b-dynamic-target
+    system_profile: system-profiles/muse-glimmer-dynamic-q4xl-target-ctx131k.json
+    role: dense_local_agent_candidate
+
+implementation_equivalence_checks:
+  - candidate_route: qwen3.8-27b-oq4e-mtp:dflash2-tq4
+    anchor_route: qwen3.8-27b-oq4e-mtp:baseline-f16kv
+    purpose: detect_semantic_regression_before_treating_speculation_as_equivalent
+  - candidate_route: muse-glimmer-30b-dynamic-dflash2
+    anchor_route: muse-glimmer-30b-dynamic-target
+    purpose: retain_as_experimental_until_cold_and_warm_task_results_agree
+
+phases:
+  - name: harness_smoke
+    task_set: smoke
+    attempts_per_task: 1
+    candidates: [qwen38_baseline, ornith15_baseline, qwen38_flash_ds4, muse_glimmer_target]
+    promotion: every_trial_has_valid_verifier_evidence
+  - name: stratified_pilot
+    task_set: pilot_5
+    attempts_per_task: 1
+    candidates: [qwen38_baseline, ornith15_baseline, qwen38_flash_ds4, muse_glimmer_target]
+    promotion: result_can_change_any_pilot_frontier_or_default_fallback_order
+  - name: repeated_pilot
+    task_set: pilot_5
+    attempts_per_task: 5
+    candidates: promoted_only
+    promotion: uncertainty_interval_can_change_frontier_membership
+  - name: complete_benchmark
+    task_set: all_89
+    attempts_per_task: 5
+    candidates: promoted_only
+    evidence_tier: measured
+
+validity_gates:
+  - exact_task_digest_matches_manifest
+  - exact_model_artifact_and_runtime_profile_recorded
+  - harbor_trial_has_no_exception
+  - verifier_result_present
+  - verifier_ctrf_artifact_present_and_parseable
+  - reward_matches_ctrf_test_outcome
+  - trajectory_and_result_raw_hashes_retained
+  - no_llama_swap_loading_events_in_model_history
+
+pilot_frontiers:
+  agent_quality_latency:
+    axes:
+      - metric: pilot_task_success_percent
+        goal: maximize
+      - metric: p95_successful_task_wall_seconds
+        goal: minimize
+        epsilon_relative: "0.05"
+    eligibility:
+      minimum_success_percent: "60"
+      exact_task_set_required: true
+  agent_quality_memory:
+    axes:
+      - metric: pilot_task_success_percent
+        goal: maximize
+      - metric: peak_process_physical_footprint_bytes
+        goal: minimize
+        epsilon_relative: "0.05"
+    eligibility:
+      minimum_success_percent: "60"
+      exact_task_set_required: true
+
+publication:
+  smoke_results_are_quality_scores: false
+  pilot_score_label: five-task measured workload, not Terminal-Bench 2.1
+  full_benchmark_estimation_allowed: false
+  estimator_unlock_condition: held-out quantized-artifact validation is attached
+  infrastructure_invalid_trials_count_as_failures: false
+  source_job_upload: private_until_trajectory_and_rights_review

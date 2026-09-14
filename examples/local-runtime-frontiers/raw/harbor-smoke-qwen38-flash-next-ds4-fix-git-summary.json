@@ -1,0 +1,103 @@
+{
+  "aggregate": {
+    "invalid_trials": 0,
+    "success_percent": "100.0",
+    "successes": "1.0",
+    "valid_trials": 1
+  },
+  "contains_prompts_or_model_messages": false,
+  "expected": {
+    "model": "qwen3.8-flash-next",
+    "task_digests": {
+      "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e"
+    },
+    "tasks": [
+      "terminal-bench/fix-git"
+    ]
+  },
+  "invalid": [],
+  "job": {
+    "finished_at": "2026-09-13T20:52:21.369694",
+    "harbor": {
+      "git_commit_hash": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+      "version": "0.23.0"
+    },
+    "id": "e97fe25e-a134-46e4-94a0-7ddd4e11b096",
+    "job_config_sha256": "1a8756b513a1b610317ed985c2d653882409c5bafcc09cafc996fbd880016bfc",
+    "job_lock_sha256": "860b0f28ad917377de1849ec1c6b8fb6e011769e996ecfa3c47c058bebe454c6",
+    "job_result_sha256": "aaa57911fbe899e09ff0f59fd93706ae63457a1631881e81b971cfad8b9749a0",
+    "started_at": "2026-09-13T20:47:36.758229"
+  },
+  "schema_version": "model-skyline/harbor-local-job-summary/v1",
+  "trials": [
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 9,
+      "api_request_times_msec": [
+        "17502.259016036987",
+        "43708.11200141907",
+        "7711.472988128662",
+        "38544.38495635986",
+        "14708.441257476807",
+        "57149.37520027161",
+        "39070.62220573425",
+        "12820.757865905762",
+        "10669.585227966309"
+      ],
+      "audit": {
+        "ctrf_sha256": "26d4ce48d484e3ec4b1290a5a861fa5d38675380771a97434055a409db53a8e0",
+        "reward_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "trajectory_sha256": "44235a9d934ee092fb8726bbd35793ed57be848f982c482fcd74396c7f89e83e",
+        "trial_config_sha256": "b4fbfb3b296fe7d87fc47b8352f362fea2c1d94452ecfd2c963ec6f36fe30e0e",
+        "trial_lock_sha256": "5f0256b97bed66b71bc714dd6708ae072bece4946ae22dae6695b9c4edfc21b7",
+        "trial_result_sha256": "d2d58f1c526489abbf2e65c67fc40931a0c8ca7244cf57a96f7dd001bc8af7c8",
+        "verifier_stdout_sha256": "1970754770580ce202283851a68236d3e182dde96fc61ff95497b57b7adae59f"
+      },
+      "ctrf": {
+        "failed": 0,
+        "other": 0,
+        "passed": 2,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 2,
+        "tool_version": "8.4.1"
+      },
+      "model": "qwen3.8-flash-next",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 0
+      },
+      "reward": "1.0",
+      "task_checksum": "e89f54f2fc73ac576f976c1cd09758e4c9ccf152e53c2dcd91da0c178b89abc7",
+      "task_lock_digest": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+      "task_name": "terminal-bench/fix-git",
+      "timing_seconds": {
+        "agent_execution": "260.620238",
+        "agent_setup": "10.971148",
+        "environment_setup": "0.999014",
+        "verifier": "7.400273"
+      },
+      "tokens": {
+        "cache": 75827,
+        "input": 83266,
+        "output": 9783
+      },
+      "trial_id": "b559016a-0d3d-42f9-87d4-49043e100ed2",
+      "trial_name": "fix-git__cSnizwG"
+    }
+  ]
+}
