@@ -27,6 +27,12 @@ default. [Little Dorrit](dorrit-benchmark-intake.md) remains one intake in that
 survey; it is not yet a selected benchmark and is not mixed into the current
 text/coding score.
 
+Speech and complete voice-agent workloads use different latency clocks and
+quality gates. Their definitions, first three-host measurements, and retained
+captures live in the separate [voice runtime frontier
+experiment](../voice-runtime-frontiers/README.md); voice results are not mixed
+into the coding frontiers on this page.
+
 ## Where custom fits belong
 
 A hardware-targeted quantization is a real candidate, not an approximation

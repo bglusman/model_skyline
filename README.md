@@ -42,6 +42,12 @@ frontiers](examples/local-runtime-frontiers/current-model-frontiers.md) show
 this model-first view for the 64 GB Apple Silicon experiments. Their exact
 measurements and limitations remain linked from the same page.
 
+The [voice runtime experiment](examples/voice-runtime-frontiers/README.md)
+extends the same rules to local speech and complete voice-agent pipelines. Its
+first matched M5/M1/RTX 5060 screen combines a common intelligibility measure
+with audible latency and throughput, while remaining provisional because it
+uses only one synthesis seed and does not yet score speaker stability.
+
 ## What a frontier means
 
 1. Name the job, such as coding-agent tasks or long-context retrieval.
@@ -265,6 +271,7 @@ explicit modules such as `model_skyline.quality_evidence`,
 - [Best-available, average, and environment-specific model views](docs/model-level-frontiers.md)
 - [Efficient subset estimation and quantization quality](docs/efficient-quality-estimation.md)
 - [Local runtime measurement and frontier example](examples/local-runtime-frontiers/README.md)
+- [Voice runtime and agent frontier experiment](examples/voice-runtime-frontiers/README.md)
 - [Runtime and gateway integration options](docs/gateway-integrations.md)
 - [Research, sources, and prior art](docs/research.md)
 - [Security policy](SECURITY.md)

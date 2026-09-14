@@ -1,0 +1,1044 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "kind": "frontier",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "snapshot_id": "2e453f47b7d923273d467938ef672aee9000c415ae71098937ad255495e1bfc7",
+  "config_hash": "cd7fc1d42379a8628aa7ab05c96c9281e78472152ed6ce2072440daacaf84077",
+  "catalog_hash": "0d5c6884025b1be0877eb50c56a887316c7fa9e8e85dd1c8d54bd35d39babbe2",
+  "engine_version": "0.9.0",
+  "generated_at": "2026-09-14T23:00:00Z",
+  "frontier_id": "tts-batch-intelligibility",
+  "workload": {
+    "id": "coval-tts-v1-local-whisper-pilot",
+    "version": "1.2.0+local-whisper-pilot.1",
+    "unit": "utterance"
+  },
+  "order_by": "tts_realtime_factor",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "tts_corpus_wer",
+      "goal": "minimize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "tts_realtime_factor",
+      "goal": "maximize",
+      "unit": "ratio",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    }
+  ],
+  "members": [
+    {
+      "offering": {
+        "offering_id": "self-hosted/loudr-1-turbo-loudkit@m5-max-64gb-joe-en-seed7",
+        "model_id": "loudr-1-turbo",
+        "provider": "self-hosted",
+        "endpoint": "in-process-loudkit",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "mixed-fp16-fp32",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-voice-pilot@1",
+        "capabilities": [
+          "audio",
+          "streaming",
+          "tts"
+        ]
+      },
+      "axes": {
+        "tts_corpus_wer": {
+          "value": "13.127413",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "4.96",
+          "upper": "25.586",
+          "dependencies": [
+            "signals.tts_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "voice-pilot-loudr-1-turbo-loudkit-m5-wer"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-loudr-1-turbo-loudkit-m5-wer",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+              "raw_sha256": "73b71cc174ea44ba0b3335a53174f4d4e0378fb3e0cf07a28315e42f3b71d029",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T21:54:46Z",
+          "minimum_sample_count": 30
+        },
+        "tts_realtime_factor": {
+          "value": "6.3",
+          "unit": "ratio",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.tts_realtime_factor_p50"
+          ],
+          "source_ids": [
+            "voice-pilot-loudr-1-turbo-loudkit-m5-latency"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-loudr-1-turbo-loudkit-m5-latency",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+              "raw_sha256": "c470b8c10c2659eb132ba4be90891604a5efc3c85298cc06f1da0977b8d4e5ce",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T21:43:17Z",
+          "minimum_sample_count": 30
+        }
+      },
+      "metadata": {
+        "hardware": "Apple M5 Max 64 GB",
+        "artifact": "loudreader/loudr-1-turbo",
+        "artifact_revision": "checkpoint-sha256:590dcf9e1dcec31c54650ee139f345b248bdd7ba11288def664c5f1508f33593",
+        "runtime": "loudkit 0.1.1 @ 7a17fa2351e59978b34d5aac07bae6349a7ca5d9",
+        "runtime_config": "generator=cpu; renderer=mps; deterministic",
+        "voice": "joe; English",
+        "synthesis_seed": 7,
+        "quality_scope": "local Whisper corpus WER; not naturalness or speaker identity",
+        "pilot": "one fixed seed per exact offering"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "self-hosted/qwen3-tts-1.7b-6bit-mlx@m5-max-64gb-vivian-en-seed1234",
+        "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "provider": "self-hosted",
+        "endpoint": "in-process-mlx",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "6bit",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-voice-pilot@1",
+        "capabilities": [
+          "audio",
+          "streaming",
+          "tts"
+        ]
+      },
+      "axes": {
+        "tts_corpus_wer": {
+          "value": "8.108108",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "4.126",
+          "upper": "12.5",
+          "dependencies": [
+            "signals.tts_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-wer"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-wer",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+              "raw_sha256": "7c3dd48dd19286db88019afd6d4754da8ed60c7f0e5d305ed571b7b1ecbf92e5",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T21:50:13Z",
+          "minimum_sample_count": 30
+        },
+        "tts_realtime_factor": {
+          "value": "5.671",
+          "unit": "ratio",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.tts_realtime_factor_p50"
+          ],
+          "source_ids": [
+            "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-latency"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-latency",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+              "raw_sha256": "cd64e856af871e67d211fa3a2aeda97e50cc89d432716782176c506cc4a2f191",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T21:42:05Z",
+          "minimum_sample_count": 30
+        }
+      },
+      "metadata": {
+        "hardware": "Apple M5 Max 64 GB",
+        "artifact": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-6bit",
+        "artifact_revision": "1c6c0ff58c43afa8df571facde2efa077efd85e2",
+        "runtime": "mlx-audio 0.5.4 / MLX 0.32.2",
+        "runtime_config": "streaming_interval=0.32s; guarded_1920_sample_bootstrap_suppression",
+        "voice": "Vivian; English",
+        "synthesis_seed": 1234,
+        "quality_scope": "local Whisper corpus WER; not naturalness or speaker identity",
+        "pilot": "one fixed seed per exact offering"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni@rtx5060ti-16gb-vivian-en-seed1234",
+        "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "provider": "self-hosted",
+        "endpoint": "openai-compatible-pcm-http",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "bf16",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-voice-pilot@1",
+        "capabilities": [
+          "audio",
+          "streaming",
+          "tts"
+        ]
+      },
+      "axes": {
+        "tts_corpus_wer": {
+          "value": "7.335907",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "2.74",
+          "upper": "13.178",
+          "dependencies": [
+            "signals.tts_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-wer"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-wer",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+              "raw_sha256": "aa4bc00e9cb2165bc41741bb7158f64db53c79a81d7b3835ef20c7e45dbdff17",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T22:05:59Z",
+          "minimum_sample_count": 30
+        },
+        "tts_realtime_factor": {
+          "value": "4.069",
+          "unit": "ratio",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.tts_realtime_factor_p50"
+          ],
+          "source_ids": [
+            "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+              "raw_sha256": "b525c8f5cb2f92d95ba88ed34fe87449026ef401588cf4cb63798bec6b52d710",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T22:05:43Z",
+          "minimum_sample_count": 30
+        }
+      },
+      "metadata": {
+        "hardware": "NVIDIA GeForce RTX 5060 Ti 16 GB",
+        "artifact": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "artifact_revision": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+        "runtime": "vLLM-Omni 0.26.0",
+        "runtime_config": "max_model_len=2048; VLLM_USE_FLASHINFER_SAMPLER=0; guarded_1920_sample_bootstrap_suppression",
+        "voice": "Vivian; English",
+        "synthesis_seed": 1234,
+        "quality_scope": "local Whisper corpus WER; not naturalness or speaker identity",
+        "pilot": "one fixed seed per exact offering"
+      },
+      "dominated_by": []
+    }
+  ],
+  "evaluated": [
+    {
+      "offering": {
+        "offering_id": "self-hosted/loudr-1-turbo-loudkit@m5-max-64gb-joe-en-seed7",
+        "model_id": "loudr-1-turbo",
+        "provider": "self-hosted",
+        "endpoint": "in-process-loudkit",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "mixed-fp16-fp32",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-voice-pilot@1",
+        "capabilities": [
+          "audio",
+          "streaming",
+          "tts"
+        ]
+      },
+      "axes": {
+        "tts_corpus_wer": {
+          "value": "13.127413",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "4.96",
+          "upper": "25.586",
+          "dependencies": [
+            "signals.tts_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "voice-pilot-loudr-1-turbo-loudkit-m5-wer"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-loudr-1-turbo-loudkit-m5-wer",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+              "raw_sha256": "73b71cc174ea44ba0b3335a53174f4d4e0378fb3e0cf07a28315e42f3b71d029",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T21:54:46Z",
+          "minimum_sample_count": 30
+        },
+        "tts_realtime_factor": {
+          "value": "6.3",
+          "unit": "ratio",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.tts_realtime_factor_p50"
+          ],
+          "source_ids": [
+            "voice-pilot-loudr-1-turbo-loudkit-m5-latency"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-loudr-1-turbo-loudkit-m5-latency",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+              "raw_sha256": "c470b8c10c2659eb132ba4be90891604a5efc3c85298cc06f1da0977b8d4e5ce",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T21:43:17Z",
+          "minimum_sample_count": 30
+        }
+      },
+      "metadata": {
+        "hardware": "Apple M5 Max 64 GB",
+        "artifact": "loudreader/loudr-1-turbo",
+        "artifact_revision": "checkpoint-sha256:590dcf9e1dcec31c54650ee139f345b248bdd7ba11288def664c5f1508f33593",
+        "runtime": "loudkit 0.1.1 @ 7a17fa2351e59978b34d5aac07bae6349a7ca5d9",
+        "runtime_config": "generator=cpu; renderer=mps; deterministic",
+        "voice": "joe; English",
+        "synthesis_seed": 7,
+        "quality_scope": "local Whisper corpus WER; not naturalness or speaker identity",
+        "pilot": "one fixed seed per exact offering"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "self-hosted/qwen3-tts-1.7b-6bit-mlx@m5-max-64gb-vivian-en-seed1234",
+        "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "provider": "self-hosted",
+        "endpoint": "in-process-mlx",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "6bit",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-voice-pilot@1",
+        "capabilities": [
+          "audio",
+          "streaming",
+          "tts"
+        ]
+      },
+      "axes": {
+        "tts_corpus_wer": {
+          "value": "8.108108",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "4.126",
+          "upper": "12.5",
+          "dependencies": [
+            "signals.tts_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-wer"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-wer",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+              "raw_sha256": "7c3dd48dd19286db88019afd6d4754da8ed60c7f0e5d305ed571b7b1ecbf92e5",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T21:50:13Z",
+          "minimum_sample_count": 30
+        },
+        "tts_realtime_factor": {
+          "value": "5.671",
+          "unit": "ratio",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.tts_realtime_factor_p50"
+          ],
+          "source_ids": [
+            "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-latency"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-latency",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+              "raw_sha256": "cd64e856af871e67d211fa3a2aeda97e50cc89d432716782176c506cc4a2f191",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T21:42:05Z",
+          "minimum_sample_count": 30
+        }
+      },
+      "metadata": {
+        "hardware": "Apple M5 Max 64 GB",
+        "artifact": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-6bit",
+        "artifact_revision": "1c6c0ff58c43afa8df571facde2efa077efd85e2",
+        "runtime": "mlx-audio 0.5.4 / MLX 0.32.2",
+        "runtime_config": "streaming_interval=0.32s; guarded_1920_sample_bootstrap_suppression",
+        "voice": "Vivian; English",
+        "synthesis_seed": 1234,
+        "quality_scope": "local Whisper corpus WER; not naturalness or speaker identity",
+        "pilot": "one fixed seed per exact offering"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni@rtx5060ti-16gb-vivian-en-seed1234",
+        "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "provider": "self-hosted",
+        "endpoint": "openai-compatible-pcm-http",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "bf16",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-voice-pilot@1",
+        "capabilities": [
+          "audio",
+          "streaming",
+          "tts"
+        ]
+      },
+      "axes": {
+        "tts_corpus_wer": {
+          "value": "7.335907",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "2.74",
+          "upper": "13.178",
+          "dependencies": [
+            "signals.tts_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-wer"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-wer",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+              "raw_sha256": "aa4bc00e9cb2165bc41741bb7158f64db53c79a81d7b3835ef20c7e45dbdff17",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T22:05:59Z",
+          "minimum_sample_count": 30
+        },
+        "tts_realtime_factor": {
+          "value": "4.069",
+          "unit": "ratio",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.tts_realtime_factor_p50"
+          ],
+          "source_ids": [
+            "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency"
+          ],
+          "sources": [
+            {
+              "id": "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+              "raw_sha256": "b525c8f5cb2f92d95ba88ed34fe87449026ef401588cf4cb63798bec6b52d710",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T22:05:43Z",
+          "minimum_sample_count": 30
+        }
+      },
+      "metadata": {
+        "hardware": "NVIDIA GeForce RTX 5060 Ti 16 GB",
+        "artifact": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "artifact_revision": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+        "runtime": "vLLM-Omni 0.26.0",
+        "runtime_config": "max_model_len=2048; VLLM_USE_FLASHINFER_SAMPLER=0; guarded_1920_sample_bootstrap_suppression",
+        "voice": "Vivian; English",
+        "synthesis_seed": 1234,
+        "quality_scope": "local Whisper corpus WER; not naturalness or speaker identity",
+        "pilot": "one fixed seed per exact offering"
+      },
+      "dominated_by": []
+    }
+  ],
+  "rejected": [
+    {
+      "offering_id": "self-hosted/loudr-1-turbo-loudkit@rtx5060ti-16gb-joe-en-seed7",
+      "reasons": [
+        "eligibility gate tts_invalid_case_rate: value 3.333333333333333333333333333 exceeds eligible maximum 0"
+      ]
+    }
+  ],
+  "axis_evidence": {
+    "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
+    "kind": "axis-evidence-inventory",
+    "hash_algorithm": "sha256-rfc8785-v1",
+    "config_hash": "cd7fc1d42379a8628aa7ab05c96c9281e78472152ed6ce2072440daacaf84077",
+    "catalog_hash": "0d5c6884025b1be0877eb50c56a887316c7fa9e8e85dd1c8d54bd35d39babbe2",
+    "generated_at": "2026-09-14T23:00:00Z",
+    "workload": {
+      "id": "coval-tts-v1-local-whisper-pilot",
+      "version": "1.2.0+local-whisper-pilot.1",
+      "unit": "utterance"
+    },
+    "axes": [
+      {
+        "metric": "tts_corpus_wer",
+        "goal": "minimize",
+        "unit": "percent",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0"
+      },
+      {
+        "metric": "tts_realtime_factor",
+        "goal": "maximize",
+        "unit": "ratio",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0"
+      }
+    ],
+    "candidate_universe_hash": "c9e9090f1b96ce4e9fd0c1297877ff91cfd7418abe0deee4b16b22e2a5f81c07",
+    "candidates": [
+      {
+        "offering": {
+          "offering_id": "self-hosted/loudr-1-turbo-loudkit@m5-max-64gb-joe-en-seed7",
+          "model_id": "loudr-1-turbo",
+          "provider": "self-hosted",
+          "endpoint": "in-process-loudkit",
+          "billing_mode": null,
+          "region": null,
+          "service_tier": "resident",
+          "quantization": "mixed-fp16-fp32",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline-voice-pilot@1",
+          "capabilities": [
+            "audio",
+            "streaming",
+            "tts"
+          ]
+        },
+        "axes": {
+          "tts_corpus_wer": {
+            "value": "13.127413",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "4.96",
+            "upper": "25.586",
+            "dependencies": [
+              "signals.tts_corpus_wer_percent"
+            ],
+            "source_ids": [
+              "voice-pilot-loudr-1-turbo-loudkit-m5-wer"
+            ],
+            "sources": [
+              {
+                "id": "voice-pilot-loudr-1-turbo-loudkit-m5-wer",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+                "raw_sha256": "73b71cc174ea44ba0b3335a53174f4d4e0378fb3e0cf07a28315e42f3b71d029",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T21:54:46Z",
+            "minimum_sample_count": 30
+          },
+          "tts_realtime_factor": {
+            "value": "6.3",
+            "unit": "ratio",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.tts_realtime_factor_p50"
+            ],
+            "source_ids": [
+              "voice-pilot-loudr-1-turbo-loudkit-m5-latency"
+            ],
+            "sources": [
+              {
+                "id": "voice-pilot-loudr-1-turbo-loudkit-m5-latency",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+                "raw_sha256": "c470b8c10c2659eb132ba4be90891604a5efc3c85298cc06f1da0977b8d4e5ce",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T21:43:17Z",
+            "minimum_sample_count": 30
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "self-hosted/loudr-1-turbo-loudkit@rtx5060ti-16gb-joe-en-seed7",
+          "model_id": "loudr-1-turbo",
+          "provider": "self-hosted",
+          "endpoint": "in-process-loudkit",
+          "billing_mode": null,
+          "region": null,
+          "service_tier": "resident",
+          "quantization": "mixed-fp16-fp32",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline-voice-pilot@1",
+          "capabilities": [
+            "audio",
+            "streaming",
+            "tts"
+          ]
+        },
+        "axes": {
+          "tts_corpus_wer": {
+            "value": "13.706564",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "4.382",
+            "upper": "28.493",
+            "dependencies": [
+              "signals.tts_corpus_wer_percent"
+            ],
+            "source_ids": [
+              "voice-pilot-loudr-1-turbo-loudkit-5060-wer"
+            ],
+            "sources": [
+              {
+                "id": "voice-pilot-loudr-1-turbo-loudkit-5060-wer",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+                "raw_sha256": "307e54ae8af49c6939f5336cc66c9073ab8bc9c23988a23a0d902fc07edf2edf",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T21:54:52Z",
+            "minimum_sample_count": 30
+          },
+          "tts_realtime_factor": {
+            "value": "14.544",
+            "unit": "ratio",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.tts_realtime_factor_p50"
+            ],
+            "source_ids": [
+              "voice-pilot-loudr-1-turbo-loudkit-5060-latency"
+            ],
+            "sources": [
+              {
+                "id": "voice-pilot-loudr-1-turbo-loudkit-5060-latency",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+                "raw_sha256": "73fcfbb93103687c4b0b8b71bb034608d9794b3c2c8e179f2ae726015b002541",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T21:45:48Z",
+            "minimum_sample_count": 30
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "self-hosted/qwen3-tts-1.7b-6bit-mlx@m5-max-64gb-vivian-en-seed1234",
+          "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
+          "provider": "self-hosted",
+          "endpoint": "in-process-mlx",
+          "billing_mode": null,
+          "region": null,
+          "service_tier": "resident",
+          "quantization": "6bit",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline-voice-pilot@1",
+          "capabilities": [
+            "audio",
+            "streaming",
+            "tts"
+          ]
+        },
+        "axes": {
+          "tts_corpus_wer": {
+            "value": "8.108108",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "4.126",
+            "upper": "12.5",
+            "dependencies": [
+              "signals.tts_corpus_wer_percent"
+            ],
+            "source_ids": [
+              "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-wer"
+            ],
+            "sources": [
+              {
+                "id": "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-wer",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+                "raw_sha256": "7c3dd48dd19286db88019afd6d4754da8ed60c7f0e5d305ed571b7b1ecbf92e5",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T21:50:13Z",
+            "minimum_sample_count": 30
+          },
+          "tts_realtime_factor": {
+            "value": "5.671",
+            "unit": "ratio",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.tts_realtime_factor_p50"
+            ],
+            "source_ids": [
+              "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-latency"
+            ],
+            "sources": [
+              {
+                "id": "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-latency",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+                "raw_sha256": "cd64e856af871e67d211fa3a2aeda97e50cc89d432716782176c506cc4a2f191",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T21:42:05Z",
+            "minimum_sample_count": 30
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni@rtx5060ti-16gb-vivian-en-seed1234",
+          "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
+          "provider": "self-hosted",
+          "endpoint": "openai-compatible-pcm-http",
+          "billing_mode": null,
+          "region": null,
+          "service_tier": "resident",
+          "quantization": "bf16",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline-voice-pilot@1",
+          "capabilities": [
+            "audio",
+            "streaming",
+            "tts"
+          ]
+        },
+        "axes": {
+          "tts_corpus_wer": {
+            "value": "7.335907",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "2.74",
+            "upper": "13.178",
+            "dependencies": [
+              "signals.tts_corpus_wer_percent"
+            ],
+            "source_ids": [
+              "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-wer"
+            ],
+            "sources": [
+              {
+                "id": "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-wer",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+                "raw_sha256": "aa4bc00e9cb2165bc41741bb7158f64db53c79a81d7b3835ef20c7e45dbdff17",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T22:05:59Z",
+            "minimum_sample_count": 30
+          },
+          "tts_realtime_factor": {
+            "value": "4.069",
+            "unit": "ratio",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.tts_realtime_factor_p50"
+            ],
+            "source_ids": [
+              "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency"
+            ],
+            "sources": [
+              {
+                "id": "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+                "raw_sha256": "b525c8f5cb2f92d95ba88ed34fe87449026ef401588cf4cb63798bec6b52d710",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T22:05:43Z",
+            "minimum_sample_count": 30
+          }
+        }
+      }
+    ],
+    "inventory_id": "c4db016eebab99b9318dc53441a9776e205b0ea4e415c3d751f554525360f975"
+  },
+  "public_release_blocked": false,
+  "sources": [
+    {
+      "id": "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-latency",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+      "raw_sha256": "cd64e856af871e67d211fa3a2aeda97e50cc89d432716782176c506cc4a2f191",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-pilot-loudr-1-turbo-loudkit-5060-wer",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+      "raw_sha256": "307e54ae8af49c6939f5336cc66c9073ab8bc9c23988a23a0d902fc07edf2edf",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-pilot-loudr-1-turbo-loudkit-m5-latency",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+      "raw_sha256": "c470b8c10c2659eb132ba4be90891604a5efc3c85298cc06f1da0977b8d4e5ce",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-pilot-loudr-1-turbo-loudkit-5060-latency",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+      "raw_sha256": "73fcfbb93103687c4b0b8b71bb034608d9794b3c2c8e179f2ae726015b002541",
+      "retrieved_at": null
+    },
+    {
+      "id": "coval-tts-v1-prompts",
+      "version": "1.2.0@c9786d181776ba393e85718e26e6b9f67fe19f7c",
+      "url": "https://github.com/coval-ai/benchmarks/blob/c9786d181776ba393e85718e26e6b9f67fe19f7c/runner/src/coval_bench/evals/tts/tts-v1.json",
+      "terms_url": null,
+      "license": "Apache-2.0",
+      "methodology": "Public prompt text copied byte-for-byte into prompts/coval-tts-v1.json; the local latency extension accounts for a client playback underrun.",
+      "raw_sha256": "e30909112f5fd886157008ca960c00d4f68f29de69b29d5913a5bf3383ad71ec",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-wer",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+      "raw_sha256": "aa4bc00e9cb2165bc41741bb7158f64db53c79a81d7b3835ef20c7e45dbdff17",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-wer",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+      "raw_sha256": "7c3dd48dd19286db88019afd6d4754da8ed60c7f0e5d305ed571b7b1ecbf92e5",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+      "raw_sha256": "b525c8f5cb2f92d95ba88ed34fe87449026ef401588cf4cb63798bec6b52d710",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-pilot-loudr-1-turbo-loudkit-m5-wer",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+      "raw_sha256": "73b71cc174ea44ba0b3335a53174f4d4e0378fb3e0cf07a28315e42f3b71d029",
+      "retrieved_at": null
+    }
+  ],
+  "source_watermarks": {
+    "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-wer": "2026-09-14T21:50:13Z",
+    "voice-pilot-qwen3-tts-1.7b-6bit-mlx-m5-latency": "2026-09-14T21:42:05Z",
+    "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-wer": "2026-09-14T22:05:59Z",
+    "voice-pilot-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency": "2026-09-14T22:05:43Z",
+    "voice-pilot-loudr-1-turbo-loudkit-m5-wer": "2026-09-14T21:54:46Z",
+    "voice-pilot-loudr-1-turbo-loudkit-m5-latency": "2026-09-14T21:43:17Z",
+    "voice-pilot-loudr-1-turbo-loudkit-5060-wer": "2026-09-14T21:54:52Z",
+    "voice-pilot-loudr-1-turbo-loudkit-5060-latency": "2026-09-14T21:45:48Z"
+  }
+}
