@@ -19,7 +19,17 @@ still running.
   summaries replay their task peaks from full one-second traces while retaining
   the source SHA-256 and byte count. Existing catalogs and snapshots rebuild
   byte-for-byte; all decision values, members, and rejections are unchanged.
-- Main is clean and synchronized at `95c8d67`. The implementation progress is
+- PR [#49](https://github.com/bglusman/model_skyline/pull/49) pinned the exact
+  Nemotron 3.5 Lightning MLX candidate and its plain/MTP/DSpark evaluation
+  contract without importing external scores.
+- PR [#50](https://github.com/bglusman/model_skyline/pull/50) made the reusable
+  local recipes executable: ten fail-closed selectors now cover quality,
+  latency, memory, cache demand, fixed 128K, session endurance, warm cache, and
+  quant-screening priorities.
+- PR [#51](https://github.com/bglusman/model_skyline/pull/51) pinned North Mini
+  Code MLX and GGUF controls as the next agent-quality challenger, with explicit
+  parser, tool, context, Harbor, and cross-Mac gates.
+- Main is clean and synchronized at `e9ef48d`. The implementation progress is
   also tracked on issue
   [#32](https://github.com/bglusman/model_skyline/issues/32#issuecomment-5662742682).
 
@@ -64,14 +74,14 @@ Completed evidence:
 
 | Exact profile | Completed jobs | Pooled result | Per-run success range |
 | --- | ---: | ---: | ---: |
-| Default reasoning, F16 KV | 3/5 | 8/15, 53.33% | 40–60% |
+| Default reasoning, F16 KV | 4/5 | 11/20, 55% | 40–60% |
 | Low reasoning / 4K thinking, F16 KV | 2/5 | 7/10, 70% | 60–80% |
 
-Default repeat 3 scored 3/5, passing `fix-code-vulnerability`, `fix-git`, and
-`multi-source-data-merger`; `build-cython-ext` and `cancel-async-tasks` timed
-out. Its prompt-free result and compact memory summary are pushed. Default
-repeat 4 is currently running: task 1 completed as an attributable timeout and
-task 2 is active.
+Default repeats 3 and 4 both scored 3/5, passing
+`fix-code-vulnerability`, `fix-git`, and `multi-source-data-merger`; both
+`build-cython-ext` and `cancel-async-tasks` timed out. Repeat 4 completed in
+54m46s. Its prompt-free result and compact memory summary replay cleanly through
+the normalizer. Default repeat 5 is running.
 
 The final catalog will contain 25 verifier-scored trials per profile. The three
 robust frontiers compare quality with p95 all-task wall time, fully covered peak
@@ -121,17 +131,20 @@ pagination, cache-collision prevention, file/type filtering, imatrix matching,
 and dominant mixed-quantization reporting. It is mergeable but awaits upstream
 maintainer action; this account cannot merge that repository.
 
-The next controlled experiments after the Qwen queue are:
+The next controlled experiments after the Qwen queue have different purposes:
 
-1. Copy the exact 19,653,960,832-byte Muse Glimmer Dynamic Q4_K_XL artifact to
-   the M1 Studio, verify SHA-256
+1. **Agent-quality challenger:** screen North Mini Code 30B-A3B using the pinned
+   18.5 GB MLX 4-bit artifact, then its exact 18.744 GB Q4_K_M portable control.
+   It targets terminal/agentic coding directly, while parser correctness and
+   local quality remain unmeasured.
+2. **Architecture-efficiency challenger:** evaluate Nemotron 3.5 Lightning
+   30B-A3B. Its selected oQ4e/MTP artifact is about 21.8 GB; test plain oMLX,
+   verified embedded MTP, and external DSpark as separate profiles.
+3. **Hardware isolation:** copy the exact 19,653,960,832-byte Muse Glimmer
+   Dynamic Q4_K_XL artifact to the M1 Studio, verify SHA-256
    `ac7023d6a4c704eb9af54ab53e476a66b7f5b6c0ef2fc4a8dde5253c291a6c38`,
    and run the same llama.cpp pp2048/tg512 control on both Macs.
-2. Evaluate Nemotron 3.5 Lightning 30B-A3B as a likely speed/quality Pareto
-   candidate. The selected oQ4e/MTP artifact is about 21.8 GB and fits the M5;
-   oMLX 0.6.4 has native Nemotron-H MTP support. Runtime activation, tools,
-   retrieval, memory, and verifier quality still need measurement.
-3. Expand equal-repeat real-agent evidence to other model families before any
+4. Expand equal-repeat real-agent evidence to other model families before any
    robust Qwen profile result is promoted as a cross-model default.
 
 No additional model transfer or benchmark is running concurrently with the
