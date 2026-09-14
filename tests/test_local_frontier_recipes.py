@@ -16,7 +16,10 @@ RECIPES = EXAMPLE / "recommended-frontier-recipes.yaml"
 PILOT = EXAMPLE / "harbor-quality-pilot.yaml"
 TASK_MANIFEST = EXAMPLE / "terminal-bench-2.1-task-manifest.json"
 HARBOR_SMOKE_SUMMARIES = sorted((EXAMPLE / "raw").glob("harbor-smoke-*-summary.json"))
-HARBOR_PILOT_SUMMARY = EXAMPLE / "raw" / "harbor-pilot5-ornith15-baseline-summary.json"
+HARBOR_PILOT_SUMMARIES = {
+    "ornith": EXAMPLE / "raw" / "harbor-pilot5-ornith15-baseline-summary.json",
+    "ds4": EXAMPLE / "raw" / "harbor-pilot5-qwen38-flash-next-ds4-summary.json",
+}
 
 
 def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() -> None:
@@ -135,36 +138,51 @@ def test_published_harbor_smoke_summaries_are_prompt_free_and_auditable() -> Non
             )
 
 
-def test_published_ornith_pilot_and_quality_frontiers_are_exact() -> None:
-    summary = json.loads(HARBOR_PILOT_SUMMARY.read_text(encoding="utf-8"))
-    serialized = json.dumps(summary)
-    assert summary["contains_prompts_or_model_messages"] is False
-    assert "/Users/" not in serialized
-    assert "all_messages" not in serialized
-    assert summary["aggregate"] == {
-        "invalid_trials": 0,
-        "success_percent": "60.0",
-        "successes": "3.0",
-        "valid_trials": 5,
+def test_published_pilot_population_and_quality_frontiers_are_exact() -> None:
+    summaries = {
+        name: json.loads(path.read_text(encoding="utf-8"))
+        for name, path in HARBOR_PILOT_SUMMARIES.items()
     }
-    timeout = [trial for trial in summary["trials"] if trial["quality_attributable_exception"]]
-    assert len(timeout) == 1
-    assert timeout[0]["quality_attributable_exception"] == "AgentTimeoutError"
-    assert timeout[0]["incomplete_api_requests"] == 1
+    for summary in summaries.values():
+        serialized = json.dumps(summary)
+        assert summary["contains_prompts_or_model_messages"] is False
+        assert "/Users/" not in serialized
+        assert "all_messages" not in serialized
+        assert summary["aggregate"] == {
+            "invalid_trials": 0,
+            "success_percent": "60.0",
+            "successes": "3.0",
+            "valid_trials": 5,
+        }
+
+    expected_timeout_counts = {"ornith": 1, "ds4": 2}
+    for name, summary in summaries.items():
+        timeouts = [trial for trial in summary["trials"] if trial["quality_attributable_exception"]]
+        assert len(timeouts) == expected_timeout_counts[name]
+        assert all(
+            trial["quality_attributable_exception"] == "AgentTimeoutError" for trial in timeouts
+        )
+        assert all(trial["incomplete_api_requests"] == 1 for trial in timeouts)
 
     catalog = load_catalog(EXAMPLE / "generated" / "harbor-pilot5-quality-catalog.json")
-    assert len(catalog.offerings) == 1
-    offering = catalog.offerings[0]
-    assert offering.signals["local_pilot_task_success_percent"].value == 60
-    assert "local_peak_process_physical_footprint_bytes" not in offering.signals
-    assert offering.metadata["pilot"]["memory"]["eligible"] is False
+    assert len(catalog.offerings) == 2
+    offerings = {offering.offering.model_id: offering for offering in catalog.offerings}
+    ornith = offerings["ornith-ai/Ornith-1.5-35B-A3B"]
+    ds4 = offerings["Qwen/Qwen3.8-Flash-Next"]
+    assert ornith.signals["local_pilot_task_success_percent"].value == 60
+    assert ds4.signals["local_pilot_task_success_percent"].value == 60
+    assert "local_peak_process_physical_footprint_bytes" not in ornith.signals
+    assert ornith.metadata["pilot"]["memory"]["eligible"] is False
+    assert ds4.signals["local_peak_process_physical_footprint_bytes"].value == 5_461_911_280
+    assert ds4.metadata["pilot"]["memory"]["eligible"] is True
 
-    for name in ("latency", "cache-efficiency"):
+    expected_member = {
+        "latency": ornith,
+        "cache-efficiency": ds4,
+        "memory": ds4,
+    }
+    for name, offering in expected_member.items():
         frontier = load_frontier_snapshot(
             EXAMPLE / "generated" / f"harbor-pilot5-quality-{name}-frontier.json"
         )
         assert [member.offering for member in frontier.members] == [offering.offering]
-    memory = load_frontier_snapshot(
-        EXAMPLE / "generated" / "harbor-pilot5-quality-memory-frontier.json"
-    )
-    assert memory.members == ()

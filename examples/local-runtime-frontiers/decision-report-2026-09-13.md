@@ -9,18 +9,18 @@ local quant.
 
 | Candidate | Best current role | Evidence-backed advantage | Important limitation |
 | --- | --- | --- | --- |
-| Qwen3.8 Flash Next on DS4 target-only | Best uncached and 126K route | Sole member of three position-specific frontiers: exact tools 3/3 at 6.433 s; 126K retrieval 3/3 at 197.929 s; 5.461 GB sampled physical footprint | No matched M1 implementation; quality beyond these deterministic integrity probes is not established |
-| Ornith 1.5 oMLX baseline/F16 KV | Warm iterative tool sessions | Exact tools 3/3 at 0.835 s warm, co-frontier with Qwen3.8 DFlash under the 5% latency epsilon | Fast 126K execution failed the exact retrieval check 0/3, so it is ineligible for the long-context frontier |
+| Qwen3.8 Flash Next on DS4 target-only | Best uncached and 126K route | Member of five model-family frontiers; scored 3/5 on the verifier-scored pilot and used only 45,888 uncached input tokens | Its two 900 s timeouts make it slower than Ornith at the pilot p95; no matched M1 implementation |
+| Ornith 1.5 oMLX baseline/F16 KV | Warm iterative and latency-sensitive agent work | Exact tools 3/3 at 0.835 s warm; scored 3/5 on the pilot and owns its quality/latency frontier | Fast 126K execution failed exact retrieval 0/3, and its first pilot memory capture was ineligible |
 | Qwen3.8 27B oMLX DFlash2 | Warm iterative tool sessions | Exact tools 3/3 at 0.862 s warm, co-frontier with Ornith; earlier 256-token warm run was 0.812 s | The matched 126K baseline is much slower than DS4, and DFlash's earlier 126K prefill was slower still |
 | Qwen3.8 27B oMLX baseline/F16 KV | Stable uncached control | Exact tools 3/3 and 126K retrieval 3/3 | 126K median was 299.638 s with 47.855 GB physical footprint, dominated by DS4 on both active axes |
 | Ornith 1.5 Q4_K_M | Raw throughput / cross-Mac control | Sole cross-model pp2048/tg512 frontier member: 3,022.92 prompt and 113.748 decode token/s; byte-identical M1 evidence exists | The GGUF throughput result cannot inherit the oMLX route's tool evidence or any base-model quality score |
 | Muse Glimmer official Dynamic Q4_K_XL, target-only | Experimental dense alternative | Official quant beats the custom ShoeHorn fit | Matched warm tool probes were 0/4 at 256 tokens and only 3/4 at 1,024; it fails the 100% correctness eligibility gate |
 
 The practical default remains workload-dependent. DS4 Flash Next is the clear
-uncached/long-context operational winner. Ornith and Qwen3.8 DFlash are both
-near-optimal warm tool routes, with Ornith slightly faster in this sample.
-Ornith GGUF is the throughput leader. Muse stays available for investigation,
-but does not pass the current promotion gate.
+uncached/long-context and cache-aware-compute winner. Ornith is the faster of
+the first two verifier-scored routes and remains near-optimal for warm tool
+work. Ornith GGUF is the throughput leader. Dense Qwen3.8 and Muse still need
+the same five-task workload before the default/fallback order is final.
 
 Muse DFlash2 remains selectable but is labeled experimental in both OMP and
 OpenCode. Two cold/cache-miss runs returned the same wrong non-tool answer;
@@ -32,7 +32,7 @@ load-state artifact.
 
 ## Local Pareto frontiers
 
-Four complementary frontier definitions are now materialized as six
+Seven complementary frontier definitions are now materialized as nine
 position-specific snapshots. They use Model Skyline's ordinary two-axis Pareto
 engine and a strict local offering identity: hardware, exact artifact bytes,
 quantization, runtime build/profile, KV/cache/speculation configuration,
@@ -46,13 +46,17 @@ physical context capacity, and harness remain distinct.
 | `uncached-agent-tools` | Same definition at a proven zero-hit position | DS4 Qwen3.8 Flash Next | DS4 6.433 s vs Qwen baseline 7.536 s, both 3/3 |
 | `long-context-126k` | 100% exact retrieval gate, min end-to-end, 5% epsilon | DS4 Qwen3.8 Flash Next | DS4 197.929 s; Qwen baseline 299.638 s; Ornith rejected at 0/3 despite 88.474 s median |
 | `validated-capacity` | Max repeatedly validated tokens, min sampled physical footprint | DS4 Qwen3.8 Flash Next | Both DS4 and Qwen validated 125,964 tokens 3/3; DS4 used 5.461 GB vs Qwen 47.855 GB |
+| `quality-latency` | Max exact five-task success, min all-task p95 wall time, 60% gate | Ornith oMLX | Both scored 3/5; Ornith p95 was 857.665 s vs DS4's 923.973 s |
+| `quality-cache-efficiency` | Max exact five-task success, min total uncached input tokens, 60% gate | DS4 Qwen3.8 Flash Next | Both scored 3/5; DS4 used 45,888 uncached tokens vs Ornith's 161,473 |
+| `quality-process-footprint` | Max exact five-task success, min fully covered process footprint, 60% gate | DS4 Qwen3.8 Flash Next | DS4 peaked at 5,461,911,280 B; Ornith's late capture is ineligible |
 
-The result now has the intended cross-frontier shape. At exact-route identity,
-DS4 Flash Next is on three frontiers. At model-family identity, DS4 Flash Next
-covers three and Ornith covers two (GGUF throughput plus oMLX warm tools).
-Qwen3.8 27B covers one warm frontier. Muse covers none. Epsilon-aware membership
-is used directly; there is no extra weighted score that could hide a weak axis.
-The coverage summary intentionally omits the duplicate hardware-only Qwen slice;
+The result now has the intended cross-frontier shape. At model-family identity,
+DS4 Flash Next covers five frontiers and Ornith covers three. Their distinct
+GGUF, MLX, DS4, lightweight-probe, and Harbor offerings are not collapsed at
+exact-offering identity. Qwen3.8 27B currently covers one warm frontier, with
+its verifier-scored run in progress; Muse covers none. Epsilon-aware membership
+is used directly, with no extra weighted score that could hide a weak axis. The
+coverage summary intentionally omits the duplicate hardware-only Qwen slice;
 that snapshot answers a machine-comparison question rather than adding a model
 candidate.
 
@@ -68,15 +72,17 @@ physical footprint. This replaces the invalid RSS comparison that reported
 only a small wrapper/process view for Metal allocations. Clean demand-paged
 file mappings remain distinct from charged footprint and artifact size.
 
-These differ from Model Skyline's existing provider-facing frontiers, which
+The three Harbor frontiers add verifier-scored quality without transferring a
+publisher score to a local quant: success is paired separately with all-task
+p95 latency, uncached-input demand, and fully covered process footprint. These
+differ from Model Skyline's existing provider-facing frontiers, which
 typically compare intelligence or task success against API cost, subscription
 cap consumption, or p95 latency. The local frontiers focus on deployment
-mechanics—throughput, TTFT, retrieval, context, and memory—and deliberately omit
-quality until a benchmark is reconciled to the exact local artifact. A local
-IQ2, Dynamic Q4, MLX, or ShoeHorn artifact never inherits its base model's
-publisher score automatically. Cache and runner warmth are workload positions,
-not noise, and no automatic local selection policy exists yet: these are
-diagnostic frontiers rather than a one-number “best local model” leaderboard.
+mechanics—throughput, TTFT, retrieval, context, memory, and exact local task
+quality. A local IQ2, Dynamic Q4, MLX, or ShoeHorn artifact never inherits its
+base model's publisher score automatically. Cache and runner warmth are workload
+positions, not noise, and no automatic local selection policy exists yet: these
+are diagnostic frontiers rather than a one-number “best local model” leaderboard.
 
 Definitions and generated artifacts:
 
@@ -87,7 +93,11 @@ Definitions and generated artifacts:
 - [`generated/tool-agent-uncached-p2048-o256-frontier.json`](generated/tool-agent-uncached-p2048-o256-frontier.json)
 - [`generated/long-context-uncached-p126k-frontier.json`](generated/long-context-uncached-p126k-frontier.json)
 - [`generated/validated-capacity-frontier.json`](generated/validated-capacity-frontier.json)
+- [`generated/harbor-pilot5-quality-latency-frontier.json`](generated/harbor-pilot5-quality-latency-frontier.json)
+- [`generated/harbor-pilot5-quality-cache-efficiency-frontier.json`](generated/harbor-pilot5-quality-cache-efficiency-frontier.json)
+- [`generated/harbor-pilot5-quality-memory-frontier.json`](generated/harbor-pilot5-quality-memory-frontier.json)
 - [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json)
+- [`harbor-quality-pilot.md`](harbor-quality-pilot.md)
 - [`README.md`](README.md)
 
 ## Hardware result

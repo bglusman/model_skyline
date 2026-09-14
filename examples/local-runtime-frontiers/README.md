@@ -122,15 +122,16 @@ The current epsilon-aware coverage result is:
 | Uncached 30-tool, 2K-prefix/256-output operation | Qwen3.8 Flash Next on DS4 |
 | Uncached 126K exact retrieval | Qwen3.8 Flash Next on DS4 |
 | Validated capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
-| Five-task local-agent quality vs latency | Ornith 1.5 oMLX (provisional; only completed candidate) |
-| Five-task local-agent quality vs uncached input | Ornith 1.5 oMLX (provisional; only completed candidate) |
-| Five-task local-agent quality vs memory | No eligible resident yet |
+| Five-task local-agent quality vs latency | Ornith 1.5 oMLX |
+| Five-task local-agent quality vs uncached input | Qwen3.8 Flash Next on DS4 |
+| Five-task local-agent quality vs process footprint | Qwen3.8 Flash Next on DS4 |
 
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
-DS4 Flash Next is the only exact route on three frontiers; Ornith is the only
-other model family represented on two. Muse's matched warm tool run is retained
-but rejected by the 100% correctness threshold.
+At model-family identity, DS4 Flash Next is represented on five frontiers and
+Ornith on three; the coverage artifact keeps their distinct harness and runtime
+offerings separate rather than manufacturing a synthetic score. Muse's matched
+warm tool run is retained but rejected by the 100% correctness threshold.
 
 A separate hardware-only slice compares the same Qwen3.8 27B UD-Q4_K_M bytes,
 llama.cpp/ggml binary, and command position on M1 Max and M5 Max. It is retained
@@ -140,11 +141,15 @@ inflate Qwen's cross-workload count.
 
 The first quality population is retained in
 [`generated/harbor-pilot5-quality-catalog.json`](generated/harbor-pilot5-quality-catalog.json).
-Ornith scored 3/5 at an all-task p95 of 857.665 seconds and 161,473 uncached
-input tokens. Those two singleton memberships are pipeline checkpoints, not a
-comparative win; DS4 Flash Next, Qwen3.8 dense, and Muse Glimmer still need the
-same five tasks. Its initial memory capture was incomplete and is correctly
-rejected from the quality/memory snapshot.
+Ornith and DS4 Flash Next each scored 3/5, passing the same three tasks. Ornith
+owns the latency frontier at an all-task p95 of 857.665 seconds versus DS4's
+923.973 seconds. DS4 owns the uncached-input frontier at 45,888 versus 161,473
+tokens and is the first memory-eligible resident, with a 5,461,911,280-byte
+kernel-reported process-footprint peak. That footprint is the active process
+working set, not DS4's 76.8 GB composite artifact size or a claim that
+file-backed demand-paged weights occupy no system cache. Qwen3.8 dense and Muse
+Glimmer still need the same five tasks before this is a complete candidate
+comparison. Ornith's initial memory capture remains correctly rejected.
 
 ## Reproduce an exact cross-Mac comparison
 

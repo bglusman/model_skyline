@@ -221,17 +221,25 @@ before every task's agent execution and every task has a positive
 kernel-accounted physical-footprint peak. An incomplete capture therefore
 remains auditable metadata but is rejected from the memory frontier.
 
-## First five-task result
+## First two five-task results
 
-Ornith 1.5 oQ4e/F16-KV completed the first exact pilot at 3/5 (60%). It passed
-`fix-git`, `multi-source-data-merger`, and `fix-code-vulnerability`; it failed
-`cancel-async-tasks`, and `build-cython-ext` reached the 900-second agent timeout.
-Across all five tasks its type-7 p95 wall time was 857.665 seconds. It consumed
-1,177,281 prompt tokens, of which 1,015,808 were reported cached, leaving
-161,473 uncached input tokens; cache reuse was 86.284%, and output totaled
-160,409 tokens. This makes Ornith a provisional resident of the quality/latency
-and quality/cache-efficiency frontiers only because it is currently the sole
-completed candidate. No comparative winner exists yet.
+Ornith 1.5 oQ4e/F16-KV and Qwen3.8 Flash Next on DS4 each scored 3/5 (60%),
+passing `fix-git`, `multi-source-data-merger`, and
+`fix-code-vulnerability`. Both failed `build-cython-ext`; DS4 also timed out on
+`cancel-async-tasks`, while Ornith completed that trial with reward zero.
+
+| Exact route | Success | All-task p95 wall | Uncached input | Cache reuse | Output | Peak process footprint |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Ornith 1.5 oQ4e, oMLX F16 KV | 3/5 | 857.665 s | 161,473 | 86.284% | 160,409 | ineligible capture |
+| Qwen3.8 Flash Next, DS4 Q2/PLE-Q4_1 | 3/5 | 923.973 s | 45,888 | 93.448% | 49,492 | 5,461,911,280 B |
+
+At equal measured success, Ornith is the latency resident and DS4 is the
+uncached-input resident. DS4 is also the first eligible process-footprint
+resident. The footprint is macOS's kernel-accounted active process working set;
+it does not replace the separately retained 76.8 GB composite artifact size and
+does not count file-backed demand-paged storage as if it were anonymous memory.
+The dense Qwen3.8 and Muse Glimmer runs remain necessary before selecting a
+default from this pilot.
 
 The first Ornith memory capture began after the job and used an earlier sampler
 without per-task coverage flags. Its observed peaks remain a private diagnostic,

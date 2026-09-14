@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "184bc889c61169baa4d5a543d9b1253d6b070b0ea6ee5bf880af8cc0457d8ff0",
+  "snapshot_id": "a3e1fd0f1d58cb680d914a1aeada2524e409e91761d0085041dd421ff34a1e4d",
   "config_hash": "8fb1da6bebb916e600e4e1ca3a2034c45adabf275837ca031e72c37a16dbeb3c",
-  "catalog_hash": "563ea993bb87be2eb80d56e760e2a51dd81be0d72e014843f80effb55dd69f9a",
+  "catalog_hash": "f12b300a36034548c99d75286bf0019ddda6dba1f38f99fe4f0d5cf707bb051c",
   "engine_version": "0.9.0",
-  "generated_at": "2026-09-14T02:00:00Z",
+  "generated_at": "2026-09-14T03:42:25Z",
   "frontier_id": "local-agent-quality-cache-efficiency",
   "workload": {
     "id": "terminal-bench-2.1-local-pilot-5@7131e437",
@@ -34,14 +34,14 @@
   "members": [
     {
       "offering": {
-        "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
-        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99",
+        "model_id": "Qwen/Qwen3.8-Flash-Next",
         "provider": "local:macbook-m5max-64",
         "endpoint": null,
         "billing_mode": "owned_hardware",
         "region": "local",
         "service_tier": "high-power-configured-pmset-2",
-        "quantization": "oQ4e",
+        "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
         "reasoning_effort": null,
         "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
         "capabilities": [
@@ -63,25 +63,25 @@
             "signals.local_pilot_task_success_percent"
           ],
           "source_ids": [
-            "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151"
+            "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07"
           ],
           "sources": [
             {
-              "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
+              "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
               "version": "model-skyline/harbor-local-job-summary/v1",
               "url": null,
               "terms_url": null,
               "license": "CC0-1.0",
               "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-              "raw_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
-              "retrieved_at": "2026-09-14T01:47:07.928815Z"
+              "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+              "retrieved_at": "2026-09-14T02:34:13.356364Z"
             }
           ],
-          "oldest_observed_at": "2026-09-14T01:47:07.928815Z",
+          "oldest_observed_at": "2026-09-14T02:34:13.356364Z",
           "minimum_sample_count": 5
         },
         "pilot_uncached_input_tokens": {
-          "value": "161473",
+          "value": "45888",
           "unit": "token",
           "evidence_tiers": [
             "measured"
@@ -92,21 +92,21 @@
             "signals.local_pilot_total_uncached_input_tokens"
           ],
           "source_ids": [
-            "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151"
+            "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07"
           ],
           "sources": [
             {
-              "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
+              "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
               "version": "model-skyline/harbor-local-job-summary/v1",
               "url": null,
               "terms_url": null,
               "license": "CC0-1.0",
               "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
-              "raw_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
-              "retrieved_at": "2026-09-14T01:47:07.928815Z"
+              "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+              "retrieved_at": "2026-09-14T02:34:13.356364Z"
             }
           ],
-          "oldest_observed_at": "2026-09-14T01:47:07.928815Z",
+          "oldest_observed_at": "2026-09-14T02:34:13.356364Z",
           "minimum_sample_count": 5
         }
       },
@@ -138,50 +138,51 @@
           }
         },
         "artifact": {
-          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
-          "checkpoint": "Ornith-1.5-35B-A3B",
-          "revision": "fb9644b83ce290da1f2cb6139f04632c085fc1d5",
-          "format": "mlx-safetensors",
-          "quantization": "oQ4e",
-          "size_bytes": 20900464628,
-          "content_sha256": "ccd964246ed9c0cc2ef17b1d16c193bb4b4446937b0521061f53636f0979d1f4",
-          "source_url": "https://huggingface.co/mlx-works/Ornith-1.5-35B-A3B-oQ4e-mtp",
-          "license": "MIT",
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "checkpoint": "Qwen3.8-Flash-Next",
+          "revision": "DS4-IQ2@b8b20398acfcc9d9a05defb408ab857cfa02a56a+PLE@59a55fb819c82be7b162948282b50bd1a1e290b7",
+          "format": "ds4-composite-gguf",
+          "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+          "size_bytes": 76806769632,
+          "content_sha256": "4cefeb2f73958172ce6e0baaba97b694c12504c4daa2944ef5e552ac33b5adeb",
+          "source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-IQ2",
+          "license": "Apache-2.0",
           "metadata": {
             "digest_scheme": "sha256-rfc8785-file-manifest-v1",
-            "manifest": "artifacts/ornith-1.5-35b-a3b-oq4e-mtp-manifest.json",
-            "chat_template": "froggeric/Qwen-Fixed-Chat-Templates@v21.3",
-            "mtp_head_preserved": true,
-            "vision_tower_included": false
+            "manifest": "artifacts/qwen3.8-flash-next-ds4-q2-pleq41-manifest.json",
+            "base_includes_mtp": true,
+            "base_source_revision": "b8b20398acfcc9d9a05defb408ab857cfa02a56a",
+            "ple_source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-Q4",
+            "ple_source_revision": "59a55fb819c82be7b162948282b50bd1a1e290b7"
           }
         },
         "runtime": {
-          "runtime_id": "oMLX",
-          "version": "0.6.4",
-          "commit": null,
-          "backend": "MLX/Metal",
-          "context_capacity_tokens": 262144,
-          "kv_cache": "f16",
+          "runtime_id": "DwarfStar/ds4",
+          "version": null,
+          "commit": "10830f4d6919a9820382f6934362683379f26d7b",
+          "backend": "Metal",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "Qwen-hybrid-raw-plus-compressed",
           "prefix_cache_enabled": true,
           "speculative_method": null,
           "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
           "configuration": {
-            "mlx_version": "0.32.0",
-            "mlx_lm_version": "0.31.3",
-            "model_profile": "baseline-f16kv",
-            "max_concurrent_requests": 1,
+            "branch": "qwen3.8-flash-next",
+            "binary_sha256": "512223e80553502875a433068fba591b24dbc3b097f5fb2556fe9471752700e",
+            "native_context_tokens": 262144,
+            "allocated_context_tokens": 131072,
+            "prefill_chunk_tokens": 1024,
             "max_output_tokens": 16384,
-            "memory_guard": "balanced",
-            "turboquant_kv_enabled": false,
-            "dflash_enabled": false,
+            "resident_base_model": true,
+            "ple_access": "demand-paged-mmap",
+            "ple_eviction_interval_tokens": 1024,
+            "ssd_model_streaming": false,
+            "disk_kv_cache_enabled": false,
+            "live_prefix_reuse_enabled": true,
+            "mtp_present_in_artifact": true,
             "mtp_enabled": false,
-            "ane_prefill_enabled": false,
-            "specprefill_enabled": false,
-            "prefix_cache": {
-              "backend": "paged-ssd",
-              "max_size_bytes": 100000000000,
-              "hot_cache_max_size_bytes": 0
-            }
+            "planned_resident_gib_reported": "47.00",
+            "deployment_status": "aggressive-64gb-experiment"
           }
         },
         "workload": {
@@ -227,21 +228,26 @@
         },
         "local_evidence_status": "provisional",
         "pilot": {
-          "candidate": "ornith15_baseline",
-          "role": "fast_sparse_warm_agent_candidate",
+          "candidate": "qwen38_flash_ds4",
+          "role": "memory_efficient_uncached_and_long_context_candidate",
           "protocol_sha256": "ba4961e108ecbfe9e443d58c37dabe15bef311600e62009b1ec80371c4af80cd",
-          "system_profile_sha256": "73f2f807f4f57f2417e24e00ce92f55e26d5b201c1d27d9b4b105941535b0afe",
-          "summary_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
-          "summary_file": "harbor-pilot5-ornith15-baseline-summary.json",
-          "job_id": "ea41ee44-222c-40a1-8993-214bc4418151",
-          "job_lock_sha256": "026772904e3088ae6bdd83892c2b1062ecb422da6eb434e526e6045c252c634d",
+          "system_profile_sha256": "78746cf1827b4bcc65978b484fd6afb3fda645407cb64771b0ebc57a8f1e82aa",
+          "summary_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+          "summary_file": "harbor-pilot5-qwen38-flash-next-ds4-summary.json",
+          "job_id": "e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+          "job_lock_sha256": "9933ee7c6c14424302938c7d9ced82bd60a412936827b6f8faa7b85031cf0a27",
           "successes": "3.0",
           "task_count": 5,
           "memory": {
-            "eligible": false,
-            "ineligibility_reasons": [
-              "no_memory_capture"
-            ]
+            "eligible": true,
+            "ineligibility_reasons": [],
+            "memory_capture_sha256": "e7cc0c9cee698fd1068b6c8cc4d1eec72ebab5614a4d11383dfc22f9e7e6c195",
+            "memory_capture_file": "runner-memory.json",
+            "process_match": "ds4-server",
+            "sample_interval_seconds": "1.0",
+            "covered_task_count": 5,
+            "sample_count": 2359,
+            "legacy_basename_task_peaks": true
           }
         }
       },
@@ -249,6 +255,227 @@
     }
   ],
   "evaluated": [
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99",
+        "model_id": "Qwen/Qwen3.8-Flash-Next",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+        "reasoning_effort": null,
+        "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "pilot_task_success": {
+          "value": "60",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_pilot_task_success_percent"
+          ],
+          "source_ids": [
+            "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07"
+          ],
+          "sources": [
+            {
+              "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+              "version": "model-skyline/harbor-local-job-summary/v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
+              "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+              "retrieved_at": "2026-09-14T02:34:13.356364Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T02:34:13.356364Z",
+          "minimum_sample_count": 5
+        },
+        "pilot_uncached_input_tokens": {
+          "value": "45888",
+          "unit": "token",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_pilot_total_uncached_input_tokens"
+          ],
+          "source_ids": [
+            "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07"
+          ],
+          "sources": [
+            {
+              "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+              "version": "model-skyline/harbor-local-job-summary/v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
+              "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+              "retrieved_at": "2026-09-14T02:34:13.356364Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T02:34:13.356364Z",
+          "minimum_sample_count": 5
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "checkpoint": "Qwen3.8-Flash-Next",
+          "revision": "DS4-IQ2@b8b20398acfcc9d9a05defb408ab857cfa02a56a+PLE@59a55fb819c82be7b162948282b50bd1a1e290b7",
+          "format": "ds4-composite-gguf",
+          "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+          "size_bytes": 76806769632,
+          "content_sha256": "4cefeb2f73958172ce6e0baaba97b694c12504c4daa2944ef5e552ac33b5adeb",
+          "source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-IQ2",
+          "license": "Apache-2.0",
+          "metadata": {
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/qwen3.8-flash-next-ds4-q2-pleq41-manifest.json",
+            "base_includes_mtp": true,
+            "base_source_revision": "b8b20398acfcc9d9a05defb408ab857cfa02a56a",
+            "ple_source_url": "https://huggingface.co/ivanfioravanti/Qwen3.8-Flash-Next-DS4-Q4",
+            "ple_source_revision": "59a55fb819c82be7b162948282b50bd1a1e290b7"
+          }
+        },
+        "runtime": {
+          "runtime_id": "DwarfStar/ds4",
+          "version": null,
+          "commit": "10830f4d6919a9820382f6934362683379f26d7b",
+          "backend": "Metal",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "Qwen-hybrid-raw-plus-compressed",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "configuration": {
+            "branch": "qwen3.8-flash-next",
+            "binary_sha256": "512223e80553502875a433068fba591b24dbc3b097f5fb2556fe9471752700e",
+            "native_context_tokens": 262144,
+            "allocated_context_tokens": 131072,
+            "prefill_chunk_tokens": 1024,
+            "max_output_tokens": 16384,
+            "resident_base_model": true,
+            "ple_access": "demand-paged-mmap",
+            "ple_eviction_interval_tokens": 1024,
+            "ssd_model_streaming": false,
+            "disk_kv_cache_enabled": false,
+            "live_prefix_reuse_enabled": true,
+            "mtp_present_in_artifact": true,
+            "mtp_enabled": false,
+            "planned_resident_gib_reported": "47.00",
+            "deployment_status": "aggressive-64gb-experiment"
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+            "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+            "unit": "task"
+          },
+          "task_set": "pilot_5",
+          "task_digests": {
+            "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+            "terminal-bench/build-cython-ext": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+            "terminal-bench/multi-source-data-merger": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49",
+            "terminal-bench/fix-code-vulnerability": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+            "terminal-bench/cancel-async-tasks": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1"
+          },
+          "attempts_per_task": 1,
+          "quantile_method": "Hyndman-Fan type 7 continuous",
+          "p95_includes_quality_attributable_failures": true,
+          "harness": {
+            "name": "harbor/terminus-2",
+            "version": "2.0.0",
+            "harbor_version": "0.23.0",
+            "harbor_revision": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+            "execution_timezone": "America/New_York",
+            "parser": "json",
+            "temperature": "1.0",
+            "top_p": "0.95",
+            "max_turns": 40,
+            "max_input_tokens": 114688,
+            "max_output_tokens": 16384,
+            "summarization_enabled": true,
+            "proactive_summarization_free_tokens": 8192,
+            "store_all_messages": true,
+            "concurrency": 1,
+            "quality_attributable_exceptions": [
+              "AgentTimeoutError",
+              "AgentSafetyRefusalError"
+            ],
+            "model_switching": "batch_all_tasks_for_one_route",
+            "loading_state_streaming": false
+          }
+        },
+        "local_evidence_status": "provisional",
+        "pilot": {
+          "candidate": "qwen38_flash_ds4",
+          "role": "memory_efficient_uncached_and_long_context_candidate",
+          "protocol_sha256": "ba4961e108ecbfe9e443d58c37dabe15bef311600e62009b1ec80371c4af80cd",
+          "system_profile_sha256": "78746cf1827b4bcc65978b484fd6afb3fda645407cb64771b0ebc57a8f1e82aa",
+          "summary_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+          "summary_file": "harbor-pilot5-qwen38-flash-next-ds4-summary.json",
+          "job_id": "e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+          "job_lock_sha256": "9933ee7c6c14424302938c7d9ced82bd60a412936827b6f8faa7b85031cf0a27",
+          "successes": "3.0",
+          "task_count": 5,
+          "memory": {
+            "eligible": true,
+            "ineligibility_reasons": [],
+            "memory_capture_sha256": "e7cc0c9cee698fd1068b6c8cc4d1eec72ebab5614a4d11383dfc22f9e7e6c195",
+            "memory_capture_file": "runner-memory.json",
+            "process_match": "ds4-server",
+            "sample_interval_seconds": "1.0",
+            "covered_task_count": 5,
+            "sample_count": 2359,
+            "legacy_basename_task_peaks": true
+          }
+        }
+      },
+      "dominated_by": []
+    },
     {
       "offering": {
         "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
@@ -462,7 +689,9 @@
           }
         }
       },
-      "dominated_by": []
+      "dominated_by": [
+        "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99"
+      ]
     }
   ],
   "rejected": [],
@@ -471,8 +700,8 @@
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
     "config_hash": "8fb1da6bebb916e600e4e1ca3a2034c45adabf275837ca031e72c37a16dbeb3c",
-    "catalog_hash": "563ea993bb87be2eb80d56e760e2a51dd81be0d72e014843f80effb55dd69f9a",
-    "generated_at": "2026-09-14T02:00:00Z",
+    "catalog_hash": "f12b300a36034548c99d75286bf0019ddda6dba1f38f99fe4f0d5cf707bb051c",
+    "generated_at": "2026-09-14T03:42:25Z",
     "workload": {
       "id": "terminal-bench-2.1-local-pilot-5@7131e437",
       "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
@@ -494,8 +723,87 @@
         "epsilon_relative": "0.05"
       }
     ],
-    "candidate_universe_hash": "d2efb1a04b37151ecc22630336a1d6d82aa34e9a127a6983686cff82d4ae9e6c",
+    "candidate_universe_hash": "ed1e248dfd0e6735697306438dd115aa498ec67b261c7520e8bfb65c0c6dbacb",
     "candidates": [
+      {
+        "offering": {
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99",
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+          "reasoning_effort": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "pilot_task_success": {
+            "value": "60",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_pilot_task_success_percent"
+            ],
+            "source_ids": [
+              "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07"
+            ],
+            "sources": [
+              {
+                "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+                "version": "model-skyline/harbor-local-job-summary/v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
+                "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+                "retrieved_at": "2026-09-14T02:34:13.356364Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T02:34:13.356364Z",
+            "minimum_sample_count": 5
+          },
+          "pilot_uncached_input_tokens": {
+            "value": "45888",
+            "unit": "token",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_pilot_total_uncached_input_tokens"
+            ],
+            "source_ids": [
+              "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07"
+            ],
+            "sources": [
+              {
+                "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+                "version": "model-skyline/harbor-local-job-summary/v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
+                "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+                "retrieved_at": "2026-09-14T02:34:13.356364Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T02:34:13.356364Z",
+            "minimum_sample_count": 5
+          }
+        }
+      },
       {
         "offering": {
           "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
@@ -576,10 +884,20 @@
         }
       }
     ],
-    "inventory_id": "e031a7b099ffa7e9de59d8049151a10fa471fa462b231ce43c2d8f72842f861f"
+    "inventory_id": "7cf9335acb417b82b2960cb90a6c3b375a96ddf8a12b8854b0c4d4a1bfe5a91c"
   },
   "public_release_blocked": false,
   "sources": [
+    {
+      "id": "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07",
+      "version": "model-skyline/harbor-local-job-summary/v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
+      "raw_sha256": "59967c7bffa2e8fdde3de6ee88fc1d5e7ca3359399ce034cdf11d8d59b7e2fc3",
+      "retrieved_at": "2026-09-14T02:34:13.356364Z"
+    },
     {
       "id": "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151",
       "version": "model-skyline/harbor-local-job-summary/v1",
@@ -589,9 +907,21 @@
       "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and token accounting were normalized from the prompt-free summary.",
       "raw_sha256": "853c6ddfc0c05b25c828f3a986f2574d7917b9f55ee46fbadcec71ad4aae3fdf",
       "retrieved_at": "2026-09-14T01:47:07.928815Z"
+    },
+    {
+      "id": "local-quality-memory:e7cc0c9cee698fd1068b6c8c",
+      "version": "model-skyline/harbor-runner-memory/v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Kernel-accounted macOS physical footprint sampled from the exact local runner during every task's complete agent-execution interval.",
+      "raw_sha256": "e7cc0c9cee698fd1068b6c8cc4d1eec72ebab5614a4d11383dfc22f9e7e6c195",
+      "retrieved_at": "2026-09-14T02:34:13.519976Z"
     }
   ],
   "source_watermarks": {
+    "local-quality-pilot:qwen38_flash_ds4:e676bf85-a0f3-48a5-a00e-c1d9b6896e07": "2026-09-14T02:34:13.356364Z",
+    "local-quality-memory:e7cc0c9cee698fd1068b6c8c": "2026-09-14T02:34:13.519976Z",
     "local-quality-pilot:ornith15_baseline:ea41ee44-222c-40a1-8993-214bc4418151": "2026-09-14T01:47:07.928815Z"
   }
 }
