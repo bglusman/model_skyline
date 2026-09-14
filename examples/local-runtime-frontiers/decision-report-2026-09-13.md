@@ -9,7 +9,7 @@ local quant.
 
 | Candidate | Best current role | Evidence-backed advantage | Important limitation |
 | --- | --- | --- | --- |
-| Qwen3.8 27B oQ4e, oMLX F16 KV, low reasoning/4K thinking | Best measured pilot quality/latency | Scored 4/5 and owns quality/latency at 804.267 s p95; the same artifact/runtime with default reasoning scored 2/5 | One in-flight timeout makes token demand inexact; 23.782 GB footprint; one attempt on five tasks |
+| Qwen3.8 27B oQ4e, oMLX F16 KV, low reasoning/4K thinking | Best replicated dense-Qwen candidate; historical point-frontier resident | Scored 7/10 across two matched runs versus 5/10 for default reasoning; its initial 4/5 point owns the historical quality/latency snapshot | Quality ranges touch at 60% and latency ranges overlap; cache demand is inexact; robust five-run frontier is pending |
 | Muse Glimmer official Dynamic Q4_K_XL, target-only | Compact verifier-scored agent route | Scored 3/5; owns exact cache demand and supplies the 3.485 GB endpoint of the quality/memory frontier | Its lightweight warm tool probe was only 3/4, it exhausted 40 turns without fixing one vulnerability, and this is one pilot attempt |
 | Qwen3.8 Flash Next on DS4 target-only | Best validated 126K route | Member of the long-context and validated-capacity frontiers and scored 3/5 on the verifier-scored pilot | Its two 900 s timeouts make 45,888 uncached input tokens only a recorded lower bound; no matched M1 implementation |
 | Qwen3.8 Flash Coder 160-expert Q4_K_M | Narrow uncached tool-call specialist | Exact cache-disabled 30-tool call 3/3 at 5.527 s median, the current uncached-tool frontier | Failed strict retrieval at 2K–126K and failed both low and xhigh verifier-scored agent smokes; not a default |
@@ -19,16 +19,18 @@ local quant.
 | Ornith 1.5 Q4_K_M | Raw throughput / cross-Mac control | Sole cross-model pp2048/tg512 frontier member: 3,022.92 prompt and 113.748 decode token/s; byte-identical M1 evidence exists | The GGUF throughput result cannot inherit the oMLX route's tool evidence or any base-model quality score |
 
 The practical default remains workload-dependent. Bounded-reasoning Qwen is the
-strongest first choice for the measured five-task agent workload: it owns the
-quality/latency frontier and pairs its 80% score with Muse's 60%/3.485 GB point
-on the quality/memory frontier. Muse remains the exact cache-demand and compact
+strongest provisional first choice for the measured five-task agent workload:
+it leads default reasoning 7/10 to 5/10 in the matched two-run catalog, while
+its initial 80% point owns the historical quality/latency frontier and pairs
+with Muse's 60%/3.485 GB point on the quality/memory frontier. The observed
+two-run quality ranges touch and the latency ranges overlap, so the profile is
+not yet a robust default. Muse remains the exact cache-demand and compact
 memory choice. DS4 Flash Next is the clear long-context and validated-capacity
 winner. The custom Flash Coder slice wins one cache-disabled tool microposition,
 but its agent and retrieval failures keep it out of the default set. Ornith
-remains near-optimal for warm tool work and leads raw GGUF throughput. The 2/5
-versus 4/5 paired configuration result makes reasoning policy part of the
-default/fallback identity, but repeated runs are still needed before treating
-the observed 40-point gap as stable.
+remains near-optimal for warm tool work and leads raw GGUF throughput. The
+paired configuration result makes reasoning policy part of the default/fallback
+identity; five matched runs are still required for robust frontier membership.
 
 ### Screened custom expert-slice candidate
 
@@ -46,7 +48,7 @@ so the reported tasks are not a clean held-out estimate. A separate public
 engineering-task experiment does provide useful family-level prior evidence:
 [Qwen3.8 Flash Next Q3_K_XL scored 35.38/40 across four runs](https://github.com/sandst1/qwen3.8-27b-bench#results),
 ahead of the tested dense Qwen3.8 and Ornith variants on that one workload. The
-The subnet did not pass the broader gates. Strict late-position retrieval failed
+subnet did not pass the broader gates. Strict late-position retrieval failed
 at 2K, 32K, 65K, and 126K; the 126K request took 400.303 seconds end-to-end.
 The low/4K and xhigh/8K Terminus profiles both scored zero on the verifier-valid
 `fix-git` smoke after exhausting 40 turns. It therefore did not advance to the

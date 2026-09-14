@@ -142,10 +142,13 @@ The current epsilon-aware coverage result is:
 | Five-task local-agent quality vs process footprint | Qwen3.8 27B oMLX, low reasoning/4K thinking; Muse Glimmer |
 
 The three five-task rows above are the initial one-attempt point frontiers, not
-stable defaults. A matched second bounded-reasoning Qwen job scored 3/5 rather
-than 4/5, producing 70% pooled success with a 60–80% observed run range. The
+stable defaults. Matched second Qwen jobs produced 5/10 pooled success for the
+default profile (40–60% observed run range) and 7/10 for bounded reasoning
+(60–80%). Their quality ranges touch at 60% and their latency ranges overlap,
+so this is directional configuration evidence rather than a robust winner. The
 packaged robust frontiers stay unpublished until every compared candidate has
-the protocol's five repetitions.
+the protocol's five repetitions. The exact paired evidence is retained in the
+[`two-repeat catalog`](generated/harbor-pilot5-qwen38-paired-repeat2-catalog.json).
 
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
@@ -170,8 +173,9 @@ The first five-candidate quality population is retained in
 The low-reasoning/4K-thinking Qwen3.8 profile scored 4/5 and has the lowest
 all-task p95 at 804.267 seconds, making it the sole quality/latency resident.
 The otherwise identical default-reasoning route scored only 2/5. This is strong
-configuration-specific evidence, not a claim that the 40-point difference will
-transfer beyond one attempt on these five tasks.
+one-run configuration-specific evidence, not a stable 40-point difference: the
+matched two-run bundles narrow the pooled gap to 70% versus 50%, with touching
+quality ranges and overlapping latency ranges.
 The recorded uncached-input totals (45,888 for DS4 and
 161,473 for Ornith) are lower bounds because their timeout paths contain
 incomplete API requests. Muse's terminal-wait timeout had no in-flight model
