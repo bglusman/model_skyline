@@ -110,10 +110,10 @@ whose CI is green.
 - The default-reasoning profile has completed all five runs: 13/25 tasks =
   52%, with per-run success ranging from 40% to 60% and all-task p95 wall time
   of 925.232 s.
-- The low-reasoning/4K-thinking profile had completed two full runs before the
-  current job: 7/10 = 70%, with run results of 60% and 80%.
-- Tuned repeat 3 is in progress at this snapshot. It must finish, followed by
-  repeats 4 and 5, before the robust winner can be published.
+- The low-reasoning/4K-thinking profile has completed three full runs: 10/15 =
+  66.7%, with run results of 80%, 60%, and 60%.
+- Tuned repeat 4 is in progress at this snapshot. It and repeat 5 must finish
+  before the robust winner can be published.
 - The existing 70% versus 50% two-repeat comparison is directional: the
   observed quality ranges touch at 60%, and latency ranges overlap.
 
