@@ -34,6 +34,10 @@ QUALITY_SCHEMA_NAMES = (
     "catalog-enrichment-policy.schema.json",
 )
 LOCAL_SCHEMA_NAME = "local-measurement.schema.json"
+MODEL_VIEW_SCHEMA_NAMES = (
+    "model-frontier-view-policy.schema.json",
+    "model-frontier-view-snapshot.schema.json",
+)
 
 
 def _valid(schema: dict, payload: object) -> None:
@@ -168,6 +172,32 @@ def test_committed_local_measurement_schema_matches_generator() -> None:
     Draft202012Validator.check_schema(generated)
     assert public_schemas()[LOCAL_SCHEMA_NAME] == generated
     assert "Model-quality claims are intentionally outside" in generated["$comment"]
+
+
+@pytest.mark.parametrize("name", MODEL_VIEW_SCHEMA_NAMES)
+def test_committed_model_view_schemas_match_generator(name: str) -> None:
+    generated = generated_schemas()[name]
+
+    Draft202012Validator.check_schema(generated)
+    assert public_schemas()[name] == generated
+
+
+def test_model_view_schemas_validate_the_published_two_mac_example() -> None:
+    schemas = public_schemas()
+    local = SCHEMA_ROOT.parent / "examples" / "local-runtime-frontiers"
+
+    _valid(
+        schemas["model-frontier-view-policy.schema.json"],
+        json.loads((local / "cross-mac-short-throughput-model-view-policy.json").read_text()),
+    )
+    _valid(
+        schemas["model-frontier-view-snapshot.schema.json"],
+        json.loads(
+            (
+                local / "generated" / "cross-mac-two-model-short-throughput-model-view.json"
+            ).read_text()
+        ),
+    )
 
 
 def test_paired_quality_schema_warns_that_estimates_are_not_measurements() -> None:

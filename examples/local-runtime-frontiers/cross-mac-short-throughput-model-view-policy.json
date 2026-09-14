@@ -1,0 +1,44 @@
+{
+  "schema_version": "model-skyline/model-frontier-view-policy/v1alpha1",
+  "policy_id": "apple-64gb-two-mac-short-throughput",
+  "source_snapshot_id": "758cea05896b5c00791b86d1754ca64286481b788805e7cb775be955884d43c6",
+  "aggregation": "arithmetic_mean",
+  "environments": [
+    {
+      "environment_id": "m1-max-64",
+      "provider": "local:studio-m1max-64"
+    },
+    {
+      "environment_id": "m5-max-64",
+      "provider": "local:macbook-m5max-64"
+    }
+  ],
+  "models": [
+    {
+      "model_id": "Qwen/Qwen3.8-27B",
+      "offerings": [
+        {
+          "environment_id": "m1-max-64",
+          "offering_id": "local/studio-m1max-64/Qwen/Qwen3.8-27B@gguf-UD-Q4_K_M-llama.cpp-0f09df251f618af1"
+        },
+        {
+          "environment_id": "m5-max-64",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@gguf-UD-Q4_K_M-llama.cpp-adef1a458df2315e"
+        }
+      ]
+    },
+    {
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "offerings": [
+        {
+          "environment_id": "m1-max-64",
+          "offering_id": "local/studio-m1max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-c2863deb426069be"
+        },
+        {
+          "environment_id": "m5-max-64",
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
+        }
+      ]
+    }
+  ]
+}

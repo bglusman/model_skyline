@@ -6,6 +6,11 @@ priorities such as coding success and speed, or coding success and memory. It
 separates the best available implementation from a balanced average across
 machines; read that page first if you are choosing a model.
 
+The generic [`model-frontier-view` contract](../../docs/model-level-frontiers.md)
+now generates both views from one exact frontier. The checked-in two-Mac speed
+example proves that the public model table can be replayed rather than being a
+hand-maintained interpretation.
+
 This longer page is the evidence drill-down. It keeps hardware, exact artifact
 bytes, runtime build and configuration, physical context ceiling,
 KV/cache/speculation profile, harness, workload position, run conditions, and
@@ -386,6 +391,21 @@ modelskyline evaluate frontiers.yaml generated/short-throughput-catalog.json \
   --output generated/short-throughput-frontier.json \
   --as-of 2026-09-13T03:15:00Z
 ```
+
+Once one exact snapshot contains the provider or host panel, generate its two
+model-focused views with an explicit balanced matrix:
+
+```console
+modelskyline model-frontier-view \
+  cross-mac-short-throughput-model-view-policy.json \
+  generated/cross-mac-two-model-short-throughput-frontier.json \
+  --format json \
+  --output generated/cross-mac-two-model-short-throughput-model-view.json
+```
+
+This keeps the fastest real implementation as the best-available view and
+separately averages the matched M1/M5 values. It fails if either model is
+missing a declared machine.
 
 OpenAI-compatible captures retain a position-specific record reference. To
 evaluate several exact offerings under one declared workload, provide the

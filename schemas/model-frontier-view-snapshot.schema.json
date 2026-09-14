@@ -1,0 +1,840 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:model-frontier-view-snapshot",
+  "$defs": {
+    "AxisDescriptor": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "goal": {
+          "$ref": "#/$defs/Goal"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "epsilon_absolute": {
+          "default": "0",
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Epsilon Absolute",
+          "type": "string"
+        },
+        "epsilon_relative": {
+          "default": "0",
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Epsilon Relative",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "goal",
+        "unit"
+      ],
+      "title": "AxisDescriptor",
+      "type": "object"
+    },
+    "AxisEstimate": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Value",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "evidence_tiers": {
+          "default": [
+            "measured"
+          ],
+          "items": {
+            "$ref": "#/$defs/EvidenceTier"
+          },
+          "title": "Evidence Tiers",
+          "type": "array"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "dependencies": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "source_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "sources": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SourceReference"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "oldest_observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oldest Observed At"
+        },
+        "minimum_sample_count": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum Sample Count"
+        }
+      },
+      "required": [
+        "value",
+        "unit"
+      ],
+      "title": "AxisEstimate",
+      "type": "object",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_tiers": {
+                "contains": {
+                  "const": "estimated"
+                }
+              }
+            },
+            "required": [
+              "evidence_tiers"
+            ]
+          },
+          "then": {
+            "properties": {
+              "lower": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "upper": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "lower",
+              "upper"
+            ]
+          }
+        }
+      ]
+    },
+    "BalancedAverageModelFrontier": {
+      "additionalProperties": false,
+      "description": "A two-axis frontier over equally covered model-family averages.",
+      "properties": {
+        "aggregation": {
+          "const": "arithmetic_mean",
+          "default": "arithmetic_mean",
+          "title": "Aggregation",
+          "type": "string"
+        },
+        "panel_rule": {
+          "const": "same_environments_equal_weight",
+          "default": "same_environments_equal_weight",
+          "title": "Panel Rule",
+          "type": "string"
+        },
+        "environments": {
+          "items": {
+            "$ref": "#/$defs/ModelViewEnvironment"
+          },
+          "title": "Environments",
+          "type": "array"
+        },
+        "members": {
+          "items": {
+            "$ref": "#/$defs/BalancedModelPoint"
+          },
+          "title": "Members",
+          "type": "array"
+        },
+        "evaluated": {
+          "items": {
+            "$ref": "#/$defs/BalancedModelPoint"
+          },
+          "title": "Evaluated",
+          "type": "array"
+        }
+      },
+      "required": [
+        "environments",
+        "members",
+        "evaluated"
+      ],
+      "title": "BalancedAverageModelFrontier",
+      "type": "object"
+    },
+    "BalancedAxisValue": {
+      "additionalProperties": false,
+      "description": "One equally weighted arithmetic mean with every input value retained.",
+      "properties": {
+        "value": {
+          "maxLength": 1024,
+          "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+          "title": "Value",
+          "type": "string"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper"
+        },
+        "environment_values": {
+          "minProperties": 2,
+          "patternProperties": {
+            "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$": {
+              "maxLength": 1024,
+              "pattern": "^[+-]?\\d+(?:\\.\\d+)?$",
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 128,
+            "minLength": 1
+          },
+          "title": "Environment Values",
+          "type": "object"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "environment_values"
+      ],
+      "title": "BalancedAxisValue",
+      "type": "object"
+    },
+    "BalancedModelPoint": {
+      "additionalProperties": false,
+      "description": "One model-family point averaged from the declared complete panel.",
+      "properties": {
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "axes": {
+          "additionalProperties": {
+            "$ref": "#/$defs/BalancedAxisValue"
+          },
+          "title": "Axes",
+          "type": "object"
+        },
+        "offerings": {
+          "items": {
+            "$ref": "#/$defs/ModelEnvironmentOffering"
+          },
+          "title": "Offerings",
+          "type": "array"
+        },
+        "dominated_by": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Dominated By",
+          "type": "array"
+        }
+      },
+      "required": [
+        "model_id",
+        "axes",
+        "offerings"
+      ],
+      "title": "BalancedModelPoint",
+      "type": "object"
+    },
+    "BestAvailableModel": {
+      "additionalProperties": false,
+      "description": "A model family with one or more real best-available frontier points.",
+      "properties": {
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "offerings": {
+          "items": {
+            "$ref": "#/$defs/BestAvailableOffering"
+          },
+          "minItems": 1,
+          "title": "Offerings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "model_id",
+        "offerings"
+      ],
+      "title": "BestAvailableModel",
+      "type": "object"
+    },
+    "BestAvailableModelFrontier": {
+      "additionalProperties": false,
+      "description": "Model labels projected from the unchanged exact offering frontier.",
+      "properties": {
+        "reduction": {
+          "const": "any_exact_member",
+          "default": "any_exact_member",
+          "title": "Reduction",
+          "type": "string"
+        },
+        "members": {
+          "items": {
+            "$ref": "#/$defs/BestAvailableModel"
+          },
+          "title": "Members",
+          "type": "array"
+        }
+      },
+      "required": [
+        "members"
+      ],
+      "title": "BestAvailableModelFrontier",
+      "type": "object"
+    },
+    "BestAvailableOffering": {
+      "additionalProperties": false,
+      "description": "One real implementation that survives the exact offering frontier.",
+      "properties": {
+        "offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "axes": {
+          "additionalProperties": {
+            "$ref": "#/$defs/AxisEstimate"
+          },
+          "title": "Axes",
+          "type": "object"
+        }
+      },
+      "required": [
+        "offering",
+        "axes"
+      ],
+      "title": "BestAvailableOffering",
+      "type": "object"
+    },
+    "EvidenceTier": {
+      "description": "How directly an observation represents the declared metric.",
+      "enum": [
+        "proxy",
+        "estimated",
+        "measured"
+      ],
+      "title": "EvidenceTier",
+      "type": "string"
+    },
+    "Goal": {
+      "enum": [
+        "minimize",
+        "maximize"
+      ],
+      "title": "Goal",
+      "type": "string"
+    },
+    "ModelEnvironmentOffering": {
+      "additionalProperties": false,
+      "description": "The one real offering selected for a model in one environment.",
+      "properties": {
+        "environment_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Environment Id",
+          "type": "string"
+        },
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "environment_id",
+        "offering_id"
+      ],
+      "title": "ModelEnvironmentOffering",
+      "type": "object"
+    },
+    "ModelViewEnvironment": {
+      "additionalProperties": false,
+      "description": "One equally weighted provider or local-host slot in a balanced panel.",
+      "properties": {
+        "environment_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Environment Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        }
+      },
+      "required": [
+        "environment_id",
+        "provider"
+      ],
+      "title": "ModelViewEnvironment",
+      "type": "object"
+    },
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "billing_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Billing Mode"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    },
+    "SourceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "terms_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terms Url"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        },
+        "methodology": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Methodology"
+        },
+        "raw_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Sha256"
+        },
+        "retrieved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrieved At"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "SourceReference",
+      "type": "object"
+    },
+    "UncertaintyMode": {
+      "enum": [
+        "point",
+        "robust"
+      ],
+      "title": "UncertaintyMode",
+      "type": "string"
+    },
+    "WorkloadReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "unit": {
+          "minLength": 1,
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "unit"
+      ],
+      "title": "WorkloadReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Self-hashed model-level presentation derived from one exact snapshot.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/model-frontier-view/v1alpha1",
+      "default": "model-skyline/model-frontier-view/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "model-frontier-view",
+      "default": "model-frontier-view",
+      "title": "Kind",
+      "type": "string"
+    },
+    "hash_algorithm": {
+      "const": "sha256-rfc8785-v1",
+      "default": "sha256-rfc8785-v1",
+      "title": "Hash Algorithm",
+      "type": "string"
+    },
+    "policy_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "policy_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Policy Sha256",
+      "type": "string"
+    },
+    "source_snapshot_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Snapshot Id",
+      "type": "string"
+    },
+    "frontier_id": {
+      "minLength": 1,
+      "title": "Frontier Id",
+      "type": "string"
+    },
+    "workload": {
+      "$ref": "#/$defs/WorkloadReference"
+    },
+    "order_by": {
+      "minLength": 1,
+      "title": "Order By",
+      "type": "string"
+    },
+    "uncertainty": {
+      "$ref": "#/$defs/UncertaintyMode"
+    },
+    "axes": {
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/AxisDescriptor"
+        },
+        {
+          "$ref": "#/$defs/AxisDescriptor"
+        }
+      ],
+      "title": "Axes",
+      "type": "array"
+    },
+    "best_available": {
+      "$ref": "#/$defs/BestAvailableModelFrontier"
+    },
+    "balanced_average": {
+      "$ref": "#/$defs/BalancedAverageModelFrontier"
+    },
+    "view_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "View Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "policy_id",
+    "policy_sha256",
+    "source_snapshot_id",
+    "frontier_id",
+    "workload",
+    "order_by",
+    "uncertainty",
+    "axes",
+    "best_available",
+    "balanced_average",
+    "view_id"
+  ],
+  "title": "ModelFrontierViewSnapshot",
+  "type": "object",
+  "$comment": "This is a presentation view over an exact offering frontier, not a routable offering catalog. Best-available points retain their real OfferingKeys; balanced points retain every contributing offering and environment value."
+}

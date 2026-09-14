@@ -1,0 +1,248 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": "apple-64gb-two-mac-short-throughput",
+  "policy_sha256": "a0df796066ea803f36e2633fe13e18e46d6dad67dbcf86ca43552a0d530f2d88",
+  "source_snapshot_id": "758cea05896b5c00791b86d1754ca64286481b788805e7cb775be955884d43c6",
+  "frontier_id": "short-throughput-envelope",
+  "workload": {
+    "id": "llama-bench-pp2048-tg512",
+    "version": "llama.cpp@5266f24da/model-skyline@v1",
+    "unit": "benchmark_run"
+  },
+  "order_by": "decode_throughput",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "prompt_throughput",
+      "goal": "maximize",
+      "unit": "token/s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.03"
+    },
+    {
+      "metric": "decode_throughput",
+      "goal": "maximize",
+      "unit": "token/s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.03"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
+              "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+              "provider": "local:macbook-m5max-64",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "high-power-configured-pmset-2",
+              "quantization": "Q4_K_M",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline/llama-bench@v1",
+              "capabilities": [
+                "text"
+              ]
+            },
+            "axes": {
+              "prompt_throughput": {
+                "value": "3022.92",
+                "unit": "token/s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "3014",
+                "upper": "3035.59",
+                "dependencies": [
+                  "signals.local_prompt_tokens_per_second"
+                ],
+                "source_ids": [
+                  "local-measurement:ornith-q4km-m5max64-pp2048-tg512-20260913"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:ornith-q4km-m5max64-pp2048-tg512-20260913",
+                    "version": "llama-bench@build-10809",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                    "raw_sha256": "64664539e443c0033e79ac814c7bd10a3786ee1df4bb26e2b6a18374275b7f14",
+                    "retrieved_at": "2026-09-13T03:07:12.269496Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-13T03:07:12.269496Z",
+                "minimum_sample_count": 5
+              },
+              "decode_throughput": {
+                "value": "113.748",
+                "unit": "token/s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "113.59",
+                "upper": "114.129",
+                "dependencies": [
+                  "signals.local_decode_tokens_per_second"
+                ],
+                "source_ids": [
+                  "local-measurement:ornith-q4km-m5max64-pp2048-tg512-20260913"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:ornith-q4km-m5max64-pp2048-tg512-20260913",
+                    "version": "llama-bench@build-10809",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                    "raw_sha256": "64664539e443c0033e79ac814c7bd10a3786ee1df4bb26e2b6a18374275b7f14",
+                    "retrieved_at": "2026-09-13T03:07:12.269496Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-13T03:07:12.269496Z",
+                "minimum_sample_count": 5
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": {
+    "aggregation": "arithmetic_mean",
+    "panel_rule": "same_environments_equal_weight",
+    "environments": [
+      {
+        "environment_id": "m1-max-64",
+        "provider": "local:studio-m1max-64"
+      },
+      {
+        "environment_id": "m5-max-64",
+        "provider": "local:macbook-m5max-64"
+      }
+    ],
+    "members": [
+      {
+        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "axes": {
+          "prompt_throughput": {
+            "value": "1900.506",
+            "unit": "token/s",
+            "lower": "1894.7245",
+            "upper": "1909.005",
+            "environment_values": {
+              "m1-max-64": "778.092",
+              "m5-max-64": "3022.92"
+            }
+          },
+          "decode_throughput": {
+            "value": "85.24035",
+            "unit": "token/s",
+            "lower": "85.15135",
+            "upper": "85.4641",
+            "environment_values": {
+              "m1-max-64": "56.7327",
+              "m5-max-64": "113.748"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64",
+            "offering_id": "local/studio-m1max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-c2863deb426069be"
+          },
+          {
+            "environment_id": "m5-max-64",
+            "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
+          }
+        ],
+        "dominated_by": []
+      }
+    ],
+    "evaluated": [
+      {
+        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "axes": {
+          "prompt_throughput": {
+            "value": "1900.506",
+            "unit": "token/s",
+            "lower": "1894.7245",
+            "upper": "1909.005",
+            "environment_values": {
+              "m1-max-64": "778.092",
+              "m5-max-64": "3022.92"
+            }
+          },
+          "decode_throughput": {
+            "value": "85.24035",
+            "unit": "token/s",
+            "lower": "85.15135",
+            "upper": "85.4641",
+            "environment_values": {
+              "m1-max-64": "56.7327",
+              "m5-max-64": "113.748"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64",
+            "offering_id": "local/studio-m1max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-c2863deb426069be"
+          },
+          {
+            "environment_id": "m5-max-64",
+            "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
+          }
+        ],
+        "dominated_by": []
+      },
+      {
+        "model_id": "Qwen/Qwen3.8-27B",
+        "axes": {
+          "prompt_throughput": {
+            "value": "404.4205",
+            "unit": "token/s",
+            "lower": "391.137",
+            "upper": "421.0735",
+            "environment_values": {
+              "m1-max-64": "128.356",
+              "m5-max-64": "680.485"
+            }
+          },
+          "decode_throughput": {
+            "value": "19.09895",
+            "unit": "token/s",
+            "lower": "18.97465",
+            "upper": "19.2693",
+            "environment_values": {
+              "m1-max-64": "11.5657",
+              "m5-max-64": "26.6322"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64",
+            "offering_id": "local/studio-m1max-64/Qwen/Qwen3.8-27B@gguf-UD-Q4_K_M-llama.cpp-0f09df251f618af1"
+          },
+          {
+            "environment_id": "m5-max-64",
+            "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@gguf-UD-Q4_K_M-llama.cpp-adef1a458df2315e"
+          }
+        ],
+        "dominated_by": [
+          "ornith-ai/Ornith-1.5-35B-A3B"
+        ]
+      }
+    ]
+  },
+  "view_id": "a9c5c8ef4059f4486bf4b54aa6026da46b226c0ddf2159d0fd1311d2f2ad7b6d"
+}
