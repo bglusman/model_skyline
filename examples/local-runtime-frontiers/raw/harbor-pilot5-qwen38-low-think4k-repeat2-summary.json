@@ -1,0 +1,417 @@
+{
+  "aggregate": {
+    "invalid_trials": 0,
+    "success_percent": "60.0",
+    "successes": "3.0",
+    "valid_trials": 5
+  },
+  "contains_prompts_or_model_messages": false,
+  "expected": {
+    "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv-low-think4k",
+    "quality_attributable_exceptions": [
+      "AgentSafetyRefusalError",
+      "AgentTimeoutError"
+    ],
+    "task_digests": {
+      "terminal-bench/build-cython-ext": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+      "terminal-bench/cancel-async-tasks": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1",
+      "terminal-bench/fix-code-vulnerability": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+      "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+      "terminal-bench/multi-source-data-merger": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49"
+    },
+    "tasks": [
+      "terminal-bench/build-cython-ext",
+      "terminal-bench/cancel-async-tasks",
+      "terminal-bench/fix-code-vulnerability",
+      "terminal-bench/fix-git",
+      "terminal-bench/multi-source-data-merger"
+    ]
+  },
+  "invalid": [],
+  "job": {
+    "concurrency": 1,
+    "finished_at": "2026-09-14T04:41:58.509794",
+    "harbor": {
+      "git_commit_hash": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+      "version": "0.23.0"
+    },
+    "id": "3825acd8-adf5-481a-97ff-0345c524c66f",
+    "job_config_sha256": "adb7bda2bedeab2701153acaaba54c84ca1c3be46978177a47611bb45522ae35",
+    "job_lock_sha256": "dcf3f1f4b324b4af5b2128eaca201f8c3829674e58eac19c147afe390d563db1",
+    "job_result_sha256": "ba1e741471ec345d1925f6b6c174c5838b9661234d36a547bb80318c98480dfe",
+    "started_at": "2026-09-14T04:08:14.222982"
+  },
+  "protocol": {
+    "candidate": "qwen38_low_think4k",
+    "protocol_sha256": "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41",
+    "system_profile": "system-profiles/qwen38-omlx-baseline-f16kv-low-think4k-cache-ssd.json",
+    "system_profile_sha256": "ce43f4a37975455c303064d63b09cf1d044406dfcefd5e7c14c468d641b6fa3c",
+    "task_set": "pilot_5"
+  },
+  "schema_version": "model-skyline/harbor-local-job-summary/v1",
+  "trials": [
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 19,
+      "api_request_times_msec": [
+        "15110.260963439941",
+        "13415.249109268188",
+        "23122.259855270386",
+        "16141.611814498901",
+        "53188.348054885864",
+        "25626.573085784912",
+        "22917.36602783203",
+        "5853.888988494873",
+        "13934.929847717285",
+        "20556.52403831482",
+        "16722.269296646118",
+        "14219.396829605103",
+        "11961.020946502686",
+        "18190.34504890442",
+        "41115.166902542114",
+        "31719.108819961548",
+        "13484.551191329956",
+        "11049.302577972412",
+        "8382.127046585083"
+      ],
+      "audit": {
+        "ctrf_sha256": "a0ac44ddaadadfac6856b851d5fd0402705812064fbab1d956453d6b623d71a4",
+        "reward_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "trajectory_sha256": "73264d7cf50834a3daa46b7c59c26976939434cac3e5a9b8da1f2ce70b590e5c",
+        "trial_config_sha256": "bfcee85af1dc5d9dec547f9f95a1a9dda1f154e25be3fe6406b48b171472d45c",
+        "trial_lock_sha256": "3fea86bbdfac5d2e7b987c1d72a984db5be59f1be1dd2cc90bc77d0ad0f9ec3c",
+        "trial_result_sha256": "ecb021c5ebf144d38fad1422af4125458611ee3deefda7dff20c14be3c80f5d7",
+        "verifier_stdout_sha256": "de46f334e0fa2bf214cfa119d175a28965c411fb342f36181a4e39c956c72b98"
+      },
+      "ctrf": {
+        "failed": 1,
+        "other": 0,
+        "passed": 10,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 11,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv-low-think4k",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 0
+      },
+      "quality_attributable_exception": "AgentTimeoutError",
+      "reward": "0.0",
+      "task_checksum": "73d894b2d49e5f9f8feb08488f0d52d4818372c775039cc3e1b1815b77256065",
+      "task_lock_digest": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+      "task_name": "terminal-bench/build-cython-ext",
+      "timing_seconds": {
+        "agent_execution": "900.009504",
+        "agent_setup": "10.731392",
+        "environment_setup": "2.412689",
+        "verifier": "4.472273"
+      },
+      "tokens": {
+        "cache": 231424,
+        "input": 273728,
+        "output": 9087
+      },
+      "trial_id": "308ddea8-81f3-4468-9259-5f8d6e30024f",
+      "trial_name": "build-cython-ext__mJijVuh"
+    },
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 4,
+      "api_request_times_msec": [
+        "81653.86915206909",
+        "53056.60390853882",
+        "11054.427146911621",
+        "31930.39608001709"
+      ],
+      "audit": {
+        "ctrf_sha256": "bd5193eacc4a59d3a0f78649af884bd35311dd1f13d28bbdaac142a11001f4d8",
+        "reward_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "trajectory_sha256": "0c55fb7e98e309a7357173e3e0395f2694072807f9f92dae7188483ff97362e5",
+        "trial_config_sha256": "07f0407b9bfd92c154352bd4316980c70d8fb116be1feae9e94a6c7f5dc141ad",
+        "trial_lock_sha256": "b7063651381056544cbe046dc7c239475a1e56082d8cf67f0caf7f144b9ff750",
+        "trial_result_sha256": "80d471c6ecf038f99a0b2d09ebecc1b731170afe1839ccc6eb58c3e1663a428c",
+        "verifier_stdout_sha256": "077886e987d3bfa3503a9ddde119c9314ec054269b4460496c377aa582c9ea25"
+      },
+      "ctrf": {
+        "failed": 1,
+        "other": 0,
+        "passed": 5,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 6,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv-low-think4k",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 1
+      },
+      "quality_attributable_exception": null,
+      "reward": "0.0",
+      "task_checksum": "1566331f6913b8a4f9af6779e90cabbb79edf1b15c126b6bc544912df3f14de5",
+      "task_lock_digest": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1",
+      "task_name": "terminal-bench/cancel-async-tasks",
+      "timing_seconds": {
+        "agent_execution": "183.16257",
+        "agent_setup": "12.189233",
+        "environment_setup": "1.025397",
+        "verifier": "21.736208"
+      },
+      "tokens": {
+        "cache": 2048,
+        "input": 8958,
+        "output": 5170
+      },
+      "trial_id": "f99cf91d-d933-43b1-a5b7-f275cfe57358",
+      "trial_name": "cancel-async-tasks__TreVFTy"
+    },
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 13,
+      "api_request_times_msec": [
+        "8700.884819030762",
+        "10348.106145858765",
+        "13162.868022918701",
+        "10320.744037628174",
+        "8257.417917251587",
+        "83461.20309829712",
+        "41912.66703605652",
+        "48428.18999290466",
+        "74568.56298446655",
+        "18219.91491317749",
+        "9506.5758228302",
+        "12528.950691223145",
+        "11892.02880859375"
+      ],
+      "audit": {
+        "ctrf_sha256": "800a131a274adcd1440e299a4831f7b4f9cbd391e8c1200e3a615584d8f44484",
+        "reward_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "trajectory_sha256": "045bdb9a6e0c0b9a0561ef99520caecaf6a2da629b1338c3ecde6322ee53acec",
+        "trial_config_sha256": "cded8cc92a8a4d2812ecfb9015d4aeb1fbd54c9e9612d49737a7d8ad2c051a00",
+        "trial_lock_sha256": "0efcb27e0b73614749bddb1fdb35358eb4c33e90bd1825953140006fa67d02ca",
+        "trial_result_sha256": "7fd563ea1715c4a151dc0c3763153e340338dd5ffbf526e2531dfde9fe97f67c",
+        "verifier_stdout_sha256": "0f7ebda363dcc3fbd758e95bc704e39e24ced62c1097c4a2e1ee7435b90d6c64"
+      },
+      "ctrf": {
+        "failed": 0,
+        "other": 0,
+        "passed": 6,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 6,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv-low-think4k",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 0
+      },
+      "quality_attributable_exception": null,
+      "reward": "1.0",
+      "task_checksum": "352f6f6321f82b6437fe2ddd664fa359f1263c0a85289c4fb5c81777c44faa79",
+      "task_lock_digest": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+      "task_name": "terminal-bench/fix-code-vulnerability",
+      "timing_seconds": {
+        "agent_execution": "425.346942",
+        "agent_setup": "1.91723",
+        "environment_setup": "1.059972",
+        "verifier": "2.524395"
+      },
+      "tokens": {
+        "cache": 67584,
+        "input": 87949,
+        "output": 9800
+      },
+      "trial_id": "ef1fbc78-54ed-4ab8-9237-59220c397395",
+      "trial_name": "fix-code-vulnerability__EUEY7DM"
+    },
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 11,
+      "api_request_times_msec": [
+        "12126.666069030762",
+        "15881.057024002075",
+        "22808.944940567017",
+        "16010.839223861694",
+        "9195.90711593628",
+        "12182.032108306885",
+        "11831.578969955444",
+        "16868.158102035522",
+        "30172.82772064209",
+        "11204.46801185608",
+        "15245.670080184937"
+      ],
+      "audit": {
+        "ctrf_sha256": "5e3e774809b2b72df8965bb61d50a26234c8852651a893ec09958ee8ea5c9c57",
+        "reward_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "trajectory_sha256": "fb4cc2c6293085bf5d508347cd50fa71bcd780ec12bc61dbf1668a4cf863c483",
+        "trial_config_sha256": "695bb2d414fc286dc0f4cafc31c898d977140ce3c9a4be0417b015f841898f42",
+        "trial_lock_sha256": "ba755dad180a1d993d37cde5b4b3190c3f85abfd3b855056b65709fdef512d92",
+        "trial_result_sha256": "eff8e7da3b512d9b846e1955083ce74354c8b42603850513d24a5a28ae596cb7",
+        "verifier_stdout_sha256": "46b1990eb228c9e113461a55ad06a185a36dc97287cf0c5346305c1a758f05f0"
+      },
+      "ctrf": {
+        "failed": 0,
+        "other": 0,
+        "passed": 2,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 2,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv-low-think4k",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 2
+      },
+      "quality_attributable_exception": null,
+      "reward": "1.0",
+      "task_checksum": "e89f54f2fc73ac576f976c1cd09758e4c9ccf152e53c2dcd91da0c178b89abc7",
+      "task_lock_digest": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+      "task_name": "terminal-bench/fix-git",
+      "timing_seconds": {
+        "agent_execution": "194.871466",
+        "agent_setup": "11.063504",
+        "environment_setup": "1.014283",
+        "verifier": "7.101617"
+      },
+      "tokens": {
+        "cache": 61440,
+        "input": 84000,
+        "output": 4362
+      },
+      "trial_id": "fb4fd371-f048-43f3-9025-0dd134b5717a",
+      "trial_name": "fix-git__dif2y6F"
+    },
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 6,
+      "api_request_times_msec": [
+        "8662.416219711304",
+        "6200.464248657227",
+        "122606.37617111206",
+        "18192.014932632446",
+        "21788.250207901",
+        "16234.385013580322"
+      ],
+      "audit": {
+        "ctrf_sha256": "d766923563ce7113543b883b25d484a945810c0365cb9c71865d3ba338218e57",
+        "reward_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "trajectory_sha256": "576f1232f98fdfaa10a30b36e56beb47968aad0ef81fc7255fe0637d0b3fa5e1",
+        "trial_config_sha256": "fb777869c50ff2112a6c302a68f32c55179047101b31edcdcb4a17b5c0d8d524",
+        "trial_lock_sha256": "1d8045f52d40c5d786511a00274fc085a1b1b582f2ebbf431ad1a8e60a7338ad",
+        "trial_result_sha256": "0784d7949731fa1af80efc46399ce17ec1e6f0e096bd5b35d6df33de12745bce",
+        "verifier_stdout_sha256": "ed0b4eedd5b2c466addf3e061eb1cbbfdc0f7c7705b6b691d4bf0b4d9265b37d"
+      },
+      "ctrf": {
+        "failed": 0,
+        "other": 0,
+        "passed": 3,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 3,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv-low-think4k",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 0
+      },
+      "quality_attributable_exception": null,
+      "reward": "1.0",
+      "task_checksum": "519d4eb971998ab2800b8a42457249550716cd158f7850d482a30fa60c2e7504",
+      "task_lock_digest": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49",
+      "task_name": "terminal-bench/multi-source-data-merger",
+      "timing_seconds": {
+        "agent_execution": "204.717848",
+        "agent_setup": "1.876096",
+        "environment_setup": "1.041708",
+        "verifier": "15.223221"
+      },
+      "tokens": {
+        "cache": 10240,
+        "input": 24520,
+        "output": 5400
+      },
+      "trial_id": "b7f2a68a-4ad6-4276-94d1-2db5b015744c",
+      "trial_name": "multi-source-data-merger__cEYEBBt"
+    }
+  ]
+}

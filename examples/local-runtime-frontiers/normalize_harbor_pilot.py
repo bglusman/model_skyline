@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import ROUND_FLOOR, Decimal, localcontext
 from pathlib import Path
@@ -38,6 +39,17 @@ TIMING_PHASES = ("environment_setup", "agent_setup", "agent_execution", "verifie
 
 class PilotCatalogError(ValueError):
     """The supplied pilot evidence cannot produce a trustworthy catalog."""
+
+
+@dataclass(frozen=True)
+class PilotRun:
+    path: Path
+    summary: dict[str, Any]
+    trials: list[dict[str, Any]]
+    finished_at: datetime
+    job_id: str
+    job_lock_sha256: str
+    raw_sha256: str
 
 
 def _sha256(path: Path) -> str:
@@ -78,6 +90,13 @@ def _string(value: object, *, field: str) -> str:
     if not isinstance(value, str) or not value:
         raise PilotCatalogError(f"{field} must be a non-empty string")
     return value
+
+
+def _sha256_string(value: object, *, field: str) -> str:
+    digest = _string(value, field=field)
+    if len(digest) != 64 or any(character not in "0123456789abcdef" for character in digest):
+        raise PilotCatalogError(f"{field} must be a lowercase SHA-256 digest")
+    return digest
 
 
 def _integer(value: object, *, field: str) -> int:
@@ -242,6 +261,40 @@ def _quality_source(
         ),
         raw_sha256=_sha256(path),
         retrieved_at=observed_at,
+    )
+
+
+def _quality_bundle_source(candidate_name: str, runs: list[PilotRun]) -> SourceReference:
+    if len(runs) == 1:
+        run = runs[0]
+        return _quality_source(run.summary, run.path, observed_at=run.finished_at)
+    manifest = {
+        "schema_version": "model-skyline/harbor-local-summary-bundle/v1",
+        "candidate": candidate_name,
+        "runs": [
+            {
+                "job_id": run.job_id,
+                "job_lock_sha256": run.job_lock_sha256,
+                "raw_sha256": run.raw_sha256,
+            }
+            for run in runs
+        ],
+    }
+    digest = content_hash(manifest)
+    return SourceReference(
+        id=f"local-quality-pilot:{candidate_name}:repeat-bundle:{digest[:24]}",
+        version="model-skyline/harbor-local-summary-bundle/v1",
+        license="CC0-1.0",
+        methodology=(
+            f"Canonical manifest of {len(runs)} prompt-free, serial Harbor Terminus-2 jobs "
+            "over the same pinned task set and exact offering. Verifier rewards and latency "
+            "are pooled across equal attempts per task; quality bounds retain the per-run range, "
+            "and p95-latency bounds enclose both that range and the pooled p95. Token totals are "
+            "means per complete task-set run so candidates remain comparable as repetition "
+            "count grows."
+        ),
+        raw_sha256=digest,
+        retrieved_at=max(run.finished_at for run in runs),
     )
 
 
@@ -425,6 +478,71 @@ def _memory_signal(
     )
 
 
+def _aggregate_memory_signals(
+    entries: list[tuple[Observation | None, dict[str, Any]]],
+) -> tuple[Observation | None, dict[str, Any]]:
+    eligible = [signal for signal, _ in entries if signal is not None]
+    captures = [metadata for _, metadata in entries]
+    reasons = [
+        reason for metadata in captures for reason in metadata.get("ineligibility_reasons", [])
+    ]
+    metadata = {
+        "eligible": len(eligible) == len(entries) and bool(entries),
+        "ineligibility_reasons": reasons,
+        "run_count": len(entries),
+        "eligible_run_count": len(eligible),
+        "captures": captures,
+    }
+    if not metadata["eligible"]:
+        return None, metadata
+    if len(eligible) == 1:
+        return eligible[0], captures[0]
+
+    sources = [signal.source for signal in eligible]
+    if any(source is None or source.raw_sha256 is None for source in sources):
+        raise PilotCatalogError("eligible memory observations must have content-addressed sources")
+    manifest = {
+        "schema_version": "model-skyline/harbor-runner-memory-bundle/v1",
+        "captures": [
+            {
+                "id": source.id,
+                "raw_sha256": source.raw_sha256,
+            }
+            for source in sources
+            if source is not None
+        ],
+    }
+    digest = content_hash(manifest)
+    observed_at_values = [signal.observed_at for signal in eligible]
+    if any(value is None for value in observed_at_values):
+        raise PilotCatalogError("eligible memory observations must have timestamps")
+    observed_at = max(value for value in observed_at_values if value is not None)
+    source = SourceReference(
+        id=f"local-quality-memory:repeat-bundle:{digest[:24]}",
+        version="model-skyline/harbor-runner-memory-bundle/v1",
+        license="CC0-1.0",
+        methodology=(
+            "Canonical manifest of job-matched macOS physical-footprint captures. The value is "
+            "the maximum task peak across every fully covered repetition."
+        ),
+        raw_sha256=digest,
+        retrieved_at=observed_at,
+    )
+    peak_values = [signal.value for signal in eligible]
+    return (
+        Observation(
+            value=max(peak_values),
+            lower=min(peak_values),
+            upper=max(peak_values),
+            unit="byte",
+            sample_count=sum(signal.sample_count or 0 for signal in eligible),
+            observed_at=observed_at,
+            source=source,
+        ),
+        metadata,
+    )
+
+
 def build_catalog(
     *,
     protocol_path: Path,
@@ -444,44 +562,91 @@ def build_catalog(
     task_sets = _mapping(protocol.get("task_sets"), field="protocol.task_sets")
     task_set = _mapping(task_sets.get(task_set_name), field=f"task_sets.{task_set_name}")
     expected_tasks = _task_digests(root, task_set)
-    workload = WorkloadReference(
-        id=_string(task_set.get("measured_workload_name"), field="task_set.measured_workload_name"),
-        version=_string(task_set.get("workload_version"), field="task_set.workload_version"),
-        unit=_string(task_set.get("workload_unit"), field="task_set.workload_unit"),
-    )
     hardware = LocalHardwareIdentity.model_validate(_load_json(hardware_path))
     hardware_sha256 = _sha256(hardware_path)
     harness_identity = _harness_identity(harness)
     candidates = _mapping(protocol.get("candidates"), field="protocol.candidates")
 
-    memory_by_model: dict[str, tuple[dict[str, Any], Path]] = {}
+    memory_by_job: dict[str, tuple[dict[str, Any], Path]] = {}
     for path in memory_paths:
         memory = _load_json(path)
-        model = _string(memory.get("expected_model"), field="memory.expected_model")
-        if model in memory_by_model:
-            raise PilotCatalogError(f"duplicate runner-memory capture for model {model!r}")
-        memory_by_model[model] = (memory, path)
+        job_lock = _sha256_string(memory.get("job_lock_sha256"), field="memory.job_lock_sha256")
+        if job_lock in memory_by_job:
+            raise PilotCatalogError(f"duplicate runner-memory capture for job {job_lock!r}")
+        memory_by_job[job_lock] = (memory, path)
 
-    offerings: list[OfferingObservation] = []
-    seen_candidates: set[str] = set()
-    seen_offerings: set[str] = set()
+    summaries_by_candidate: dict[str, list[tuple[Path, dict[str, Any]]]] = {}
+    seen_summary_hashes: set[str] = set()
+    seen_job_ids: set[str] = set()
+    seen_job_locks: set[str] = set()
     for path in summary_paths:
         summary = _load_json(path)
         summary_protocol = _mapping(summary.get("protocol"), field="summary.protocol")
         candidate_name = _string(summary_protocol.get("candidate"), field="protocol.candidate")
-        if candidate_name in seen_candidates:
-            raise PilotCatalogError(f"duplicate summary for candidate {candidate_name!r}")
-        seen_candidates.add(candidate_name)
+        summary_hash = _sha256(path)
+        job = _mapping(summary.get("job"), field="summary.job")
+        job_id = _string(job.get("id"), field="summary.job.id")
+        job_lock = _sha256_string(job.get("job_lock_sha256"), field="summary.job.job_lock_sha256")
+        if summary_hash in seen_summary_hashes:
+            raise PilotCatalogError("summary inputs must have unique content digests")
+        if job_id in seen_job_ids or job_lock in seen_job_locks:
+            raise PilotCatalogError("summary inputs must describe distinct Harbor jobs")
+        seen_summary_hashes.add(summary_hash)
+        seen_job_ids.add(job_id)
+        seen_job_locks.add(job_lock)
+        summaries_by_candidate.setdefault(candidate_name, []).append((path, summary))
+
+    repetition_counts = {len(values) for values in summaries_by_candidate.values()}
+    if len(repetition_counts) != 1:
+        raise PilotCatalogError("every candidate must have the same number of task-set repetitions")
+    attempts_per_task = repetition_counts.pop()
+    base_workload_version = _string(
+        task_set.get("workload_version"), field="task_set.workload_version"
+    )
+    workload = WorkloadReference(
+        id=_string(task_set.get("measured_workload_name"), field="task_set.measured_workload_name"),
+        version=(
+            base_workload_version
+            if attempts_per_task == 1
+            else f"{base_workload_version}+attempts-{attempts_per_task}"
+        ),
+        unit=_string(task_set.get("workload_unit"), field="task_set.workload_unit"),
+    )
+
+    offerings: list[OfferingObservation] = []
+    seen_offerings: set[str] = set()
+    for candidate_name in sorted(summaries_by_candidate):
         candidate = _mapping(candidates.get(candidate_name), field=f"candidates.{candidate_name}")
-        trials = _validate_summary(
-            summary,
-            protocol_sha256=protocol_sha256,
-            candidate_name=candidate_name,
-            candidate=candidate,
-            task_set_name=task_set_name,
-            expected_tasks=expected_tasks,
-            harness=harness,
-        )
+        runs: list[PilotRun] = []
+        for path, summary in summaries_by_candidate[candidate_name]:
+            trials = _validate_summary(
+                summary,
+                protocol_sha256=protocol_sha256,
+                candidate_name=candidate_name,
+                candidate=candidate,
+                task_set_name=task_set_name,
+                expected_tasks=expected_tasks,
+                harness=harness,
+            )
+            job = _mapping(summary.get("job"), field="summary.job")
+            runs.append(
+                PilotRun(
+                    path=path,
+                    summary=summary,
+                    trials=trials,
+                    finished_at=_timestamp(
+                        job.get("finished_at"),
+                        field="summary.job.finished_at",
+                        naive_timezone=timezone,
+                    ),
+                    job_id=_string(job.get("id"), field="summary.job.id"),
+                    job_lock_sha256=_sha256_string(
+                        job.get("job_lock_sha256"), field="summary.job.job_lock_sha256"
+                    ),
+                    raw_sha256=_sha256(path),
+                )
+            )
+        runs.sort(key=lambda run: (run.finished_at, run.job_id, run.raw_sha256))
         artifact, runtime, capabilities, profile_sha256 = _load_profile(
             root, candidate, harness_identity=harness_identity
         )
@@ -495,45 +660,59 @@ def build_catalog(
             raise PilotCatalogError("summaries map to a duplicate exact local offering")
         seen_offerings.add(offering.offering_id)
 
-        finished_at = _timestamp(
-            _mapping(summary.get("job"), field="summary.job").get("finished_at"),
-            field="summary.job.finished_at",
-            naive_timezone=timezone,
-        )
-        source = _quality_source(summary, path, observed_at=finished_at)
+        finished_at = max(run.finished_at for run in runs)
+        source = _quality_bundle_source(candidate_name, runs)
+        run_wall_seconds = [[_trial_wall_seconds(trial) for trial in run.trials] for run in runs]
+        trials = [trial for run in runs for trial in run.trials]
         rewards = [_decimal(trial.get("reward"), field="trial.reward") for trial in trials]
-        wall_seconds = [_trial_wall_seconds(trial) for trial in trials]
+        wall_seconds = [duration for values in run_wall_seconds for duration in values]
         successful_wall = [
             duration for duration, reward in zip(wall_seconds, rewards, strict=True) if reward == 1
         ]
-        total_input = sum(
-            _integer(
-                _mapping(trial.get("tokens"), field="trial.tokens").get("input"),
-                field="tokens.input",
+        run_token_totals: list[tuple[int, int, int, int]] = []
+        run_success_percents: list[Decimal] = []
+        for run in runs:
+            run_rewards = [
+                _decimal(trial.get("reward"), field="trial.reward") for trial in run.trials
+            ]
+            run_successes = sum(run_rewards, start=Decimal(0))
+            with localcontext(POLICY_DECIMAL_CONTEXT):
+                run_success_percents.append(run_successes / Decimal(len(run.trials)) * Decimal(100))
+            run_input = sum(
+                _integer(
+                    _mapping(trial.get("tokens"), field="trial.tokens").get("input"),
+                    field="tokens.input",
+                )
+                for trial in run.trials
             )
-            for trial in trials
-        )
-        total_cache = sum(
-            _integer(
-                _mapping(trial.get("tokens"), field="trial.tokens").get("cache"),
-                field="tokens.cache",
+            run_cache = sum(
+                _integer(
+                    _mapping(trial.get("tokens"), field="trial.tokens").get("cache"),
+                    field="tokens.cache",
+                )
+                for trial in run.trials
             )
-            for trial in trials
-        )
-        total_output = sum(
-            _integer(
-                _mapping(trial.get("tokens"), field="trial.tokens").get("output"),
-                field="tokens.output",
+            run_output = sum(
+                _integer(
+                    _mapping(trial.get("tokens"), field="trial.tokens").get("output"),
+                    field="tokens.output",
+                )
+                for trial in run.trials
             )
-            for trial in trials
-        )
-        incomplete_api_requests = sum(
-            _integer(
-                trial.get("incomplete_api_requests"),
-                field="trial.incomplete_api_requests",
+            run_incomplete = sum(
+                _integer(
+                    trial.get("incomplete_api_requests"),
+                    field="trial.incomplete_api_requests",
+                )
+                for trial in run.trials
             )
-            for trial in trials
-        )
+            if run_cache > run_input:
+                raise PilotCatalogError("cached input tokens exceed total input tokens")
+            run_token_totals.append((run_input, run_cache, run_output, run_incomplete))
+        total_input = sum(value[0] for value in run_token_totals)
+        total_cache = sum(value[1] for value in run_token_totals)
+        total_output = sum(value[2] for value in run_token_totals)
+        incomplete_api_requests = sum(value[3] for value in run_token_totals)
         if total_cache > total_input:
             raise PilotCatalogError("cached input tokens exceed total input tokens")
         successes = sum(rewards, start=Decimal(0))
@@ -544,6 +723,30 @@ def build_catalog(
                 if total_input
                 else Decimal(0)
             )
+            mean_uncached_input = Decimal(total_input - total_cache) / Decimal(len(runs))
+            mean_output = Decimal(total_output) / Decimal(len(runs))
+            cache_percent_by_run = [
+                Decimal(cache) / Decimal(input_tokens) * Decimal(100)
+                if input_tokens
+                else Decimal(0)
+                for input_tokens, cache, _, _ in run_token_totals
+            ]
+        quality_bounds = (
+            {
+                "lower": min(run_success_percents),
+                "upper": max(run_success_percents),
+            }
+            if len(runs) > 1
+            else {}
+        )
+        pooled_p95_wall = _quantile_cont(wall_seconds, Decimal("0.95"))
+        if len(runs) > 1:
+            run_p95_walls = [_quantile_cont(values, Decimal("0.95")) for values in run_wall_seconds]
+            wall_lower = min([pooled_p95_wall, *run_p95_walls])
+            wall_upper = max([pooled_p95_wall, *run_p95_walls])
+        else:
+            wall_lower = min(wall_seconds)
+            wall_upper = max(wall_seconds)
         signals = {
             "local_pilot_task_success_percent": Observation(
                 value=success_percent,
@@ -551,11 +754,12 @@ def build_catalog(
                 sample_count=len(trials),
                 observed_at=finished_at,
                 source=source,
+                **quality_bounds,
             ),
             "local_pilot_p95_task_wall_seconds": Observation(
-                value=_quantile_cont(wall_seconds, Decimal("0.95")),
-                lower=min(wall_seconds),
-                upper=max(wall_seconds),
+                value=pooled_p95_wall,
+                lower=wall_lower,
+                upper=wall_upper,
                 unit="s",
                 sample_count=len(wall_seconds),
                 observed_at=finished_at,
@@ -563,12 +767,28 @@ def build_catalog(
             ),
         }
         if incomplete_api_requests == 0:
+            uncached_by_run = [value[0] - value[1] for value in run_token_totals]
+            output_by_run = [value[2] for value in run_token_totals]
+            uncached_bounds = (
+                {"lower": min(uncached_by_run), "upper": max(uncached_by_run)}
+                if len(runs) > 1
+                else {}
+            )
+            cache_bounds = (
+                {"lower": min(cache_percent_by_run), "upper": max(cache_percent_by_run)}
+                if len(runs) > 1
+                else {}
+            )
+            output_bounds = (
+                {"lower": min(output_by_run), "upper": max(output_by_run)} if len(runs) > 1 else {}
+            )
             signals["local_pilot_total_uncached_input_tokens"] = Observation(
-                value=total_input - total_cache,
+                value=mean_uncached_input,
                 unit="token",
                 sample_count=len(trials),
                 observed_at=finished_at,
                 source=source,
+                **uncached_bounds,
             )
             signals["local_pilot_cache_reuse_percent"] = Observation(
                 value=cache_reuse_percent,
@@ -576,13 +796,15 @@ def build_catalog(
                 sample_count=len(trials),
                 observed_at=finished_at,
                 source=source,
+                **cache_bounds,
             )
             signals["local_pilot_total_output_tokens"] = Observation(
-                value=total_output,
+                value=mean_output,
                 unit="token",
                 sample_count=len(trials),
                 observed_at=finished_at,
                 source=source,
+                **output_bounds,
             )
         if successful_wall:
             signals["local_pilot_p95_successful_task_wall_seconds"] = Observation(
@@ -600,19 +822,88 @@ def build_catalog(
             "eligible": False,
             "ineligibility_reasons": ["no_memory_capture"],
         }
-        memory_entry = memory_by_model.pop(route, None)
-        if memory_entry is not None:
-            memory_signal, memory_metadata = _memory_signal(
-                memory_entry[0],
-                memory_entry[1],
-                summary=summary,
-                route=route,
-                tasks=set(expected_tasks),
-                timezone=timezone,
-            )
+        if any(run.job_lock_sha256 in memory_by_job for run in runs):
+            memory_entries: list[tuple[Observation | None, dict[str, Any]]] = []
+            for run in runs:
+                memory_entry = memory_by_job.pop(run.job_lock_sha256, None)
+                if memory_entry is None:
+                    memory_entries.append(
+                        (
+                            None,
+                            {
+                                "eligible": False,
+                                "ineligibility_reasons": [
+                                    f"no_memory_capture_for_job:{run.job_lock_sha256}"
+                                ],
+                            },
+                        )
+                    )
+                    continue
+                memory_entries.append(
+                    _memory_signal(
+                        memory_entry[0],
+                        memory_entry[1],
+                        summary=run.summary,
+                        route=route,
+                        tasks=set(expected_tasks),
+                        timezone=timezone,
+                    )
+                )
+            memory_signal, memory_metadata = _aggregate_memory_signals(memory_entries)
             if memory_signal is not None:
                 signals["local_peak_process_physical_footprint_bytes"] = memory_signal
 
+        summary_hashes = [run.raw_sha256 for run in runs]
+        summary_files = [run.path.name for run in runs]
+        job_ids = [run.job_id for run in runs]
+        job_locks = [run.job_lock_sha256 for run in runs]
+        token_accounting = {
+            "eligible": incomplete_api_requests == 0,
+            "ineligibility_reasons": (
+                []
+                if incomplete_api_requests == 0
+                else [f"incomplete_api_requests:{incomplete_api_requests}"]
+            ),
+            "incomplete_api_requests": incomplete_api_requests,
+            "recorded_input_tokens_lower_bound": total_input,
+            "recorded_cache_tokens_lower_bound": total_cache,
+            "recorded_uncached_input_tokens_lower_bound": total_input - total_cache,
+            "recorded_output_tokens_lower_bound": total_output,
+        }
+        pilot_metadata = {
+            "candidate": candidate_name,
+            "role": candidate.get("role"),
+            "protocol_sha256": protocol_sha256,
+            "system_profile_sha256": profile_sha256,
+        }
+        if len(runs) == 1:
+            pilot_metadata.update(
+                {
+                    "summary_sha256": summary_hashes[0],
+                    "summary_file": summary_files[0],
+                    "job_id": job_ids[0],
+                    "job_lock_sha256": job_locks[0],
+                }
+            )
+        else:
+            token_accounting["axis_aggregation"] = "mean_per_task_set_run"
+            pilot_metadata.update(
+                {
+                    "run_count": len(runs),
+                    "summary_sha256s": summary_hashes,
+                    "summary_files": summary_files,
+                    "job_ids": job_ids,
+                    "job_lock_sha256s": job_locks,
+                }
+            )
+        pilot_metadata.update(
+            {
+                "successes": str(successes),
+                "task_count": len(trials),
+                "token_accounting": token_accounting,
+                "memory": memory_metadata,
+            }
+        )
         metadata = {
             "local_evidence_status": "provisional",
             "hardware": hardware.model_dump(mode="json"),
@@ -624,39 +915,12 @@ def build_catalog(
                 "reference": workload.model_dump(mode="json"),
                 "task_set": task_set_name,
                 "task_digests": expected_tasks,
-                "attempts_per_task": 1,
+                "attempts_per_task": attempts_per_task,
                 "quantile_method": "Hyndman-Fan type 7 continuous",
                 "p95_includes_quality_attributable_failures": True,
                 "harness": harness,
             },
-            "pilot": {
-                "candidate": candidate_name,
-                "role": candidate.get("role"),
-                "protocol_sha256": protocol_sha256,
-                "system_profile_sha256": profile_sha256,
-                "summary_sha256": _sha256(path),
-                "summary_file": path.name,
-                "job_id": _mapping(summary.get("job"), field="summary.job").get("id"),
-                "job_lock_sha256": _mapping(summary.get("job"), field="summary.job").get(
-                    "job_lock_sha256"
-                ),
-                "successes": str(successes),
-                "task_count": len(trials),
-                "token_accounting": {
-                    "eligible": incomplete_api_requests == 0,
-                    "ineligibility_reasons": (
-                        []
-                        if incomplete_api_requests == 0
-                        else [f"incomplete_api_requests:{incomplete_api_requests}"]
-                    ),
-                    "incomplete_api_requests": incomplete_api_requests,
-                    "recorded_input_tokens_lower_bound": total_input,
-                    "recorded_cache_tokens_lower_bound": total_cache,
-                    "recorded_uncached_input_tokens_lower_bound": total_input - total_cache,
-                    "recorded_output_tokens_lower_bound": total_output,
-                },
-                "memory": memory_metadata,
-            },
+            "pilot": pilot_metadata,
         }
         offerings.append(
             OfferingObservation(
@@ -666,9 +930,10 @@ def build_catalog(
                 default_source=source,
             )
         )
-    if memory_by_model:
+    if memory_by_job:
         raise PilotCatalogError(
-            "runner-memory capture has no matching summary: " + ", ".join(sorted(memory_by_model))
+            "runner-memory capture does not match the summary jobs: "
+            + ", ".join(sorted(memory_by_job))
         )
     return ObservationCatalog(
         schema_version="model-skyline/v1alpha1",

@@ -104,9 +104,16 @@ Every active frontier has exactly two decision axes:
 - `local-agent-quality-memory`: the same exact success score (maximize) vs a
   same-job, fully covered physical-footprint peak (minimize).
 - `local-agent-quality-cache-efficiency`: the same exact success score
-  (maximize) vs total uncached input tokens across all tasks (minimize), only
-  when every API request has complete usage accounting. Recorded tokens from a
-  timed-out or truncated final request are a lower bound, not an eligible axis.
+  (maximize) vs mean uncached input tokens per complete task-set repetition
+  (minimize), only when every API request has complete usage accounting.
+  Recorded tokens from a timed-out or truncated final request are a lower
+  bound, not an eligible axis.
+
+[`harbor-repeated-frontiers.yaml`](harbor-repeated-frontiers.yaml) packages
+robust versions of the three quality frontiers. They require the protocol's
+five equal-count repetitions per candidate and compare per-run repeatability
+bounds; the initial one-run snapshots remain in `frontiers.yaml` as point
+evidence.
 
 Do not pool prompt lengths, cache-warmth states, prose/code/tool modes, or cold
 and warm runner states. Build a catalog per position. A separate same-model
@@ -133,6 +140,12 @@ The current epsilon-aware coverage result is:
 | Five-task local-agent quality vs latency | Qwen3.8 27B oMLX, low reasoning/4K thinking |
 | Five-task local-agent quality vs exact uncached input | Muse Glimmer |
 | Five-task local-agent quality vs process footprint | Qwen3.8 27B oMLX, low reasoning/4K thinking; Muse Glimmer |
+
+The three five-task rows above are the initial one-attempt point frontiers, not
+stable defaults. A matched second bounded-reasoning Qwen job scored 3/5 rather
+than 4/5, producing 70% pooled success with a 60–80% observed run range. The
+packaged robust frontiers stay unpublished until every compared candidate has
+the protocol's five repetitions.
 
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
