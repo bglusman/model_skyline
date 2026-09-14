@@ -45,6 +45,12 @@ shipped contracts in v0.9. Quality composition now enriches an ordinary catalog
 through one portfolio abstraction, and runtime integration consumes an ordinary
 `SelectionSnapshot` over a trusted channel.
 
+The local examples do use the core dominance comparison to calculate a bounded,
+descriptive distance for every eligible point in an already-published frontier.
+That advisory report is not the removed multi-frontier selector: it cannot alter
+membership, combine missing evidence, rank routes, or become a gateway input.
+Rejected candidates remain unmeasured for proximity.
+
 ## Why Python, and where interoperability lives
 
 The control plane is Python because the differentiating work is evidence and

@@ -1,74 +1,145 @@
 {
   "exact_offerings": [
     {
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "quality-latency",
+        "quality-process-footprint"
+      ],
+      "evaluated_frontiers": [
+        "quality-latency",
+        "quality-process-footprint"
+      ],
       "frontier_count": 2,
       "frontiers": [
         "quality-latency",
         "quality-process-footprint"
       ],
       "model_id": "Qwen/Qwen3.8-27B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
       "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
       "provider": "local:macbook-m5max-64",
       "quantization": "oQ4e"
     },
     {
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "long-context-126k",
+        "validated-capacity"
+      ],
+      "evaluated_frontiers": [
+        "long-context-126k",
+        "uncached-agent-tools",
+        "validated-capacity"
+      ],
       "frontier_count": 2,
       "frontiers": [
         "long-context-126k",
         "validated-capacity"
       ],
       "model_id": "Qwen/Qwen3.8-Flash-Next",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
       "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
       "provider": "local:macbook-m5max-64",
       "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1"
     },
     {
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "quality-cache-efficiency",
+        "quality-process-footprint"
+      ],
+      "evaluated_frontiers": [
+        "quality-cache-efficiency",
+        "quality-latency",
+        "quality-process-footprint"
+      ],
       "frontier_count": 2,
       "frontiers": [
         "quality-cache-efficiency",
         "quality-process-footprint"
       ],
       "model_id": "meta-models/Muse-Glimmer-30B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
       "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
       "provider": "local:macbook-m5max-64",
       "quantization": "KQuant-Dynamic-Q4_K_XL"
     },
     {
+      "coverage_count": 1,
+      "covered_frontiers": [
+        "uncached-agent-tools"
+      ],
+      "evaluated_frontiers": [
+        "uncached-agent-tools"
+      ],
       "frontier_count": 1,
       "frontiers": [
         "uncached-agent-tools"
       ],
       "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
       "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
       "provider": "local:macbook-m5max-64",
       "quantization": "Q4_K_M"
     },
     {
+      "coverage_count": 1,
+      "covered_frontiers": [
+        "warm-agent-tools"
+      ],
+      "evaluated_frontiers": [
+        "warm-agent-tools"
+      ],
       "frontier_count": 1,
       "frontiers": [
         "warm-agent-tools"
       ],
       "model_id": "Qwen/Qwen3.8-27B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
       "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
       "provider": "local:macbook-m5max-64",
       "quantization": "oQ4e"
     },
     {
+      "coverage_count": 1,
+      "covered_frontiers": [
+        "short-throughput"
+      ],
+      "evaluated_frontiers": [
+        "short-throughput"
+      ],
       "frontier_count": 1,
       "frontiers": [
         "short-throughput"
       ],
       "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
       "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
       "provider": "local:macbook-m5max-64",
       "quantization": "Q4_K_M"
     },
     {
+      "coverage_count": 1,
+      "covered_frontiers": [
+        "warm-agent-tools"
+      ],
+      "evaluated_frontiers": [
+        "warm-agent-tools"
+      ],
       "frontier_count": 1,
       "frontiers": [
         "warm-agent-tools"
       ],
       "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
       "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
       "provider": "local:macbook-m5max-64",
       "quantization": "oQ4e"
@@ -77,6 +148,85 @@
   "frontiers": [
     {
       "definition": "short-throughput-envelope",
+      "evaluated": [
+        {
+          "axis_slacks": {
+            "decode_throughput": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "prompt_throughput": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "exact",
+          "minimal_relative_epsilon": "0",
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
+        },
+        {
+          "axis_slacks": {
+            "decode_throughput": {
+              "normalized_dominance_slack": "0.7658666526004852832577276083975099",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
+              ]
+            },
+            "prompt_throughput": {
+              "normalized_dominance_slack": "0.7748914956399772405488732748468367",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
+              ]
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.7748914956399772405488732748468367"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.7748914956399772405488732748468367",
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@gguf-UD-Q4_K_M-llama.cpp-adef1a458df2315e"
+        },
+        {
+          "axis_slacks": {
+            "decode_throughput": {
+              "normalized_dominance_slack": "0.7809860393149769666279846678622917",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
+              ]
+            },
+            "prompt_throughput": {
+              "normalized_dominance_slack": "0.7626159474944755402061582840432428",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
+              ]
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.7809860393149769666279846678622917"
+            },
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@gguf-UD-Q4_K_M-llama.cpp-adef1a458df2315e",
+              "enters_at_epsilon": "0.0517117641894500085703177149163941",
+              "exits_at_epsilon": "0.0645759644340309850481747658849061"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.7809860393149769666279846678622917",
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-c4ab620b322920a4"
+        }
+      ],
+      "evaluated_count": 3,
       "label": "short-throughput",
       "members": [
         {
@@ -84,11 +234,88 @@
           "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652"
         }
       ],
+      "near_members": [],
+      "rejected": [],
       "rejected_count": 0,
       "snapshot_id": "68df2eaace3e13d530cc80be952aacbd35f94ea31c44fa8367202e1711b18434"
     },
     {
       "definition": "tool-agent-operational",
+      "evaluated": [
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "tool_call_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "exact",
+          "minimal_relative_epsilon": "0",
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3"
+        },
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0.0305248597291447459459177199491396",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3"
+              ]
+            },
+            "tool_call_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.0305248597291447459459177199491396"
+            }
+          ],
+          "membership": "exact",
+          "minimal_relative_epsilon": "0.0305248597291447459459177199491396",
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa"
+        },
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0.1531608810948290717897521121140229",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3"
+              ]
+            },
+            "tool_call_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.1264973347655122524325453835852648"
+            },
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.1531608810948290717897521121140229"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.1531608810948290717897521121140229",
+          "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+          "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-0351d7a84b7d1c33"
+        }
+      ],
+      "evaluated_count": 3,
       "label": "warm-agent-tools",
       "members": [
         {
@@ -100,11 +327,95 @@
           "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa"
         }
       ],
+      "near_members": [],
+      "rejected": [
+        {
+          "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-12bcc817a4f190a7",
+          "reasons": [
+            "tool_call_success: value 75 is below eligible minimum 1E+2"
+          ]
+        }
+      ],
       "rejected_count": 1,
       "snapshot_id": "fa4f500495a12c157db5cb2a62147d4e4fcb61ec2bcb1822c9ecca7729b601b8"
     },
     {
       "definition": "tool-agent-operational",
+      "evaluated": [
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "tool_call_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "exact",
+          "minimal_relative_epsilon": "0",
+          "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+          "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0"
+        },
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0.1409115188152482115852474946066303",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0"
+              ]
+            },
+            "tool_call_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.1409115188152482115852474946066303"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.1409115188152482115852474946066303",
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
+        },
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0.2666430882640743051745360483759423",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0"
+              ]
+            },
+            "tool_call_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.1463546214418242392137806369608760"
+            },
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.2666430882640743051745360483759423"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.2666430882640743051745360483759423",
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-19e9d74c4d6bd66f"
+        }
+      ],
+      "evaluated_count": 3,
       "label": "uncached-agent-tools",
       "members": [
         {
@@ -112,11 +423,58 @@
           "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0"
         }
       ],
+      "near_members": [],
+      "rejected": [],
       "rejected_count": 0,
       "snapshot_id": "3624b3ff93baa13997b54168a72fa42af20a2f0994b85335bf872c4ab212f681"
     },
     {
       "definition": "long-context-operational",
+      "evaluated": [
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "retrieval_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "exact",
+          "minimal_relative_epsilon": "0",
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
+        },
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0.3394396749102397519114379023574545",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
+              ]
+            },
+            "retrieval_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.3394396749102397519114379023574545"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.3394396749102397519114379023574545",
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-19e9d74c4d6bd66f"
+        }
+      ],
+      "evaluated_count": 2,
       "label": "long-context-126k",
       "members": [
         {
@@ -124,11 +482,65 @@
           "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
         }
       ],
+      "near_members": [],
+      "rejected": [
+        {
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-559214e903b9bf5b",
+          "reasons": [
+            "retrieval_success: value 0 is below eligible minimum 1E+2"
+          ]
+        }
+      ],
       "rejected_count": 1,
       "snapshot_id": "4c33a8c0d690c04e43d3416f2b9ff3158c006c7a6f8a1c0f9fa26010ba11f77a"
     },
     {
       "definition": "validated-capacity-memory",
+      "evaluated": [
+        {
+          "axis_slacks": {
+            "peak_physical_footprint": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "validated_context": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "exact",
+          "minimal_relative_epsilon": "0",
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
+        },
+        {
+          "axis_slacks": {
+            "peak_physical_footprint": {
+              "normalized_dominance_slack": "0.8858881266112609907589927588960858",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
+              ]
+            },
+            "validated_context": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.8858881266112609907589927588960858"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.8858881266112609907589927588960858",
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-19e9d74c4d6bd66f"
+        }
+      ],
+      "evaluated_count": 2,
       "label": "validated-capacity",
       "members": [
         {
@@ -136,11 +548,143 @@
           "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
         }
       ],
+      "near_members": [],
+      "rejected": [
+        {
+          "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
+          "reasons": [
+            "required capabilities are missing: long-context"
+          ]
+        },
+        {
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-559214e903b9bf5b",
+          "reasons": [
+            "validated_context: signal 'local_validated_context_tokens' is missing",
+            "peak_physical_footprint: signal 'local_peak_process_physical_footprint_bytes' is missing"
+          ]
+        }
+      ],
       "rejected_count": 2,
       "snapshot_id": "2b7751ee7ee0bcf459b37bf2a52330ada1392036fc47eccb3ad7fa33fe1be624"
     },
     {
       "definition": "local-agent-quality-latency",
+      "evaluated": [
+        {
+          "axis_slacks": {
+            "pilot_p95_task_wall": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "pilot_task_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "exact",
+          "minimal_relative_epsilon": "0",
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
+        },
+        {
+          "axis_slacks": {
+            "pilot_p95_task_wall": {
+              "normalized_dominance_slack": "0.1295562129646427915668233252524001",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
+              ]
+            },
+            "pilot_task_success": {
+              "normalized_dominance_slack": "0.2500000000000000000000000000000000",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
+              ]
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.0717642293121431887574417694165208"
+            },
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.0948405830735399309674418107445579"
+            },
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.2500000000000000000000000000000000"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.2500000000000000000000000000000000",
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99"
+        },
+        {
+          "axis_slacks": {
+            "pilot_p95_task_wall": {
+              "normalized_dominance_slack": "0.0383530560936796194176932892663073",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
+              ]
+            },
+            "pilot_task_success": {
+              "normalized_dominance_slack": "0.2500000000000000000000000000000000",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
+              ]
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.2500000000000000000000000000000000"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.2500000000000000000000000000000000",
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816"
+        },
+        {
+          "axis_slacks": {
+            "pilot_p95_task_wall": {
+              "normalized_dominance_slack": "0.0622600264690011025265027065700275",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
+              ]
+            },
+            "pilot_task_success": {
+              "normalized_dominance_slack": "0.2500000000000000000000000000000000",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
+              ]
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.0248604443936655406021471555283918"
+            },
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.2500000000000000000000000000000000"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.2500000000000000000000000000000000",
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20"
+        }
+      ],
+      "evaluated_count": 4,
       "label": "quality-latency",
       "members": [
         {
@@ -148,11 +692,40 @@
           "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
         }
       ],
+      "near_members": [],
+      "rejected": [
+        {
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-b406f50b4f56659b",
+          "reasons": [
+            "pilot_task_success: value 4E+1 is below eligible minimum 6E+1"
+          ]
+        }
+      ],
       "rejected_count": 1,
       "snapshot_id": "597a98a7b9684d7f971336cd3a9e3880caa48640f610bb54f4c5f19e5f8bb6ab"
     },
     {
       "definition": "local-agent-quality-cache-efficiency",
+      "evaluated": [
+        {
+          "axis_slacks": {
+            "pilot_task_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "pilot_uncached_input_tokens": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "exact",
+          "minimal_relative_epsilon": "0",
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816"
+        }
+      ],
+      "evaluated_count": 1,
       "label": "quality-cache-efficiency",
       "members": [
         {
@@ -160,11 +733,100 @@
           "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816"
         }
       ],
+      "near_members": [],
+      "rejected": [
+        {
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
+          "reasons": [
+            "pilot_uncached_input_tokens: signal 'local_pilot_total_uncached_input_tokens' is missing"
+          ]
+        },
+        {
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-b406f50b4f56659b",
+          "reasons": [
+            "pilot_uncached_input_tokens: signal 'local_pilot_total_uncached_input_tokens' is missing"
+          ]
+        },
+        {
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99",
+          "reasons": [
+            "pilot_uncached_input_tokens: signal 'local_pilot_total_uncached_input_tokens' is missing"
+          ]
+        },
+        {
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
+          "reasons": [
+            "pilot_uncached_input_tokens: signal 'local_pilot_total_uncached_input_tokens' is missing"
+          ]
+        }
+      ],
       "rejected_count": 4,
       "snapshot_id": "9f98eeb5181b95c7ddd13f9b568c0044c1bb8b3a85f135fdb1232b35e3cebba2"
     },
     {
       "definition": "local-agent-quality-memory",
+      "evaluated": [
+        {
+          "axis_slacks": {
+            "pilot_peak_physical_footprint": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "pilot_task_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "exact",
+          "minimal_relative_epsilon": "0",
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
+        },
+        {
+          "axis_slacks": {
+            "pilot_peak_physical_footprint": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "pilot_task_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "exact",
+          "minimal_relative_epsilon": "0",
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816"
+        },
+        {
+          "axis_slacks": {
+            "pilot_peak_physical_footprint": {
+              "normalized_dominance_slack": "0.3619972911753337743706448487021195",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816"
+              ]
+            },
+            "pilot_task_success": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.3619972911753337743706448487021195"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.3619972911753337743706448487021195",
+          "model_id": "Qwen/Qwen3.8-Flash-Next",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99"
+        }
+      ],
+      "evaluated_count": 3,
       "label": "quality-process-footprint",
       "members": [
         {
@@ -176,52 +838,373 @@
           "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816"
         }
       ],
+      "near_members": [],
+      "rejected": [
+        {
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-b406f50b4f56659b",
+          "reasons": [
+            "pilot_task_success: value 4E+1 is below eligible minimum 6E+1"
+          ]
+        },
+        {
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
+          "reasons": [
+            "pilot_peak_physical_footprint: signal 'local_peak_process_physical_footprint_bytes' is missing"
+          ]
+        }
+      ],
       "rejected_count": 2,
       "snapshot_id": "9c11774ea69989d6cb93ba76d59954547eb0fe8f644bbed0c35693c473b846de"
     }
   ],
-  "membership_semantics": "Membership already incorporates each frontier axis's configured epsilon; this report does not add a second synthetic score.",
+  "membership_semantics": "Membership already incorporates each frontier axis's configured epsilon; advisory near membership is the smallest relative epsilon at which an eligible point ceases to be dominated under the core point/robust comparison. Rejected or absent offerings are unmeasured, never near. This report does not alter a frontier, rank routes, or add a synthetic score.",
   "model_families": [
     {
+      "coverage_count": 3,
+      "covered_frontiers": [
+        "quality-latency",
+        "quality-process-footprint",
+        "warm-agent-tools"
+      ],
+      "evaluated_frontiers": [
+        "long-context-126k",
+        "quality-latency",
+        "quality-process-footprint",
+        "short-throughput",
+        "uncached-agent-tools",
+        "validated-capacity",
+        "warm-agent-tools"
+      ],
       "frontier_count": 3,
       "frontiers": [
         "quality-latency",
         "quality-process-footprint",
         "warm-agent-tools"
       ],
-      "model_id": "Qwen/Qwen3.8-27B"
+      "model_id": "Qwen/Qwen3.8-27B",
+      "near_frontier_count": 0,
+      "near_frontiers": []
     },
     {
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "long-context-126k",
+        "validated-capacity"
+      ],
+      "evaluated_frontiers": [
+        "long-context-126k",
+        "quality-latency",
+        "quality-process-footprint",
+        "uncached-agent-tools",
+        "validated-capacity"
+      ],
       "frontier_count": 2,
       "frontiers": [
         "long-context-126k",
         "validated-capacity"
       ],
-      "model_id": "Qwen/Qwen3.8-Flash-Next"
+      "model_id": "Qwen/Qwen3.8-Flash-Next",
+      "near_frontier_count": 0,
+      "near_frontiers": []
     },
     {
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "quality-cache-efficiency",
+        "quality-process-footprint"
+      ],
+      "evaluated_frontiers": [
+        "quality-cache-efficiency",
+        "quality-latency",
+        "quality-process-footprint",
+        "short-throughput"
+      ],
       "frontier_count": 2,
       "frontiers": [
         "quality-cache-efficiency",
         "quality-process-footprint"
       ],
-      "model_id": "meta-models/Muse-Glimmer-30B"
+      "model_id": "meta-models/Muse-Glimmer-30B",
+      "near_frontier_count": 0,
+      "near_frontiers": []
     },
     {
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "short-throughput",
+        "warm-agent-tools"
+      ],
+      "evaluated_frontiers": [
+        "quality-latency",
+        "short-throughput",
+        "warm-agent-tools"
+      ],
       "frontier_count": 2,
       "frontiers": [
         "short-throughput",
         "warm-agent-tools"
       ],
-      "model_id": "ornith-ai/Ornith-1.5-35B-A3B"
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "near_frontier_count": 0,
+      "near_frontiers": []
     },
     {
+      "coverage_count": 1,
+      "covered_frontiers": [
+        "uncached-agent-tools"
+      ],
+      "evaluated_frontiers": [
+        "uncached-agent-tools",
+        "warm-agent-tools"
+      ],
       "frontier_count": 1,
       "frontiers": [
         "uncached-agent-tools"
       ],
-      "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf"
+      "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+      "near_frontier_count": 0,
+      "near_frontiers": []
     }
   ],
-  "schema_version": "model-skyline/local-frontier-coverage/v1"
+  "near_epsilon": "0.05",
+  "offering_coverage": [
+    {
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "quality-latency",
+        "quality-process-footprint"
+      ],
+      "evaluated_frontiers": [
+        "quality-latency",
+        "quality-process-footprint"
+      ],
+      "frontier_count": 2,
+      "frontiers": [
+        "quality-latency",
+        "quality-process-footprint"
+      ],
+      "model_id": "Qwen/Qwen3.8-27B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e"
+    },
+    {
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "long-context-126k",
+        "validated-capacity"
+      ],
+      "evaluated_frontiers": [
+        "long-context-126k",
+        "uncached-agent-tools",
+        "validated-capacity"
+      ],
+      "frontier_count": 2,
+      "frontiers": [
+        "long-context-126k",
+        "validated-capacity"
+      ],
+      "model_id": "Qwen/Qwen3.8-Flash-Next",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1"
+    },
+    {
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "quality-cache-efficiency",
+        "quality-process-footprint"
+      ],
+      "evaluated_frontiers": [
+        "quality-cache-efficiency",
+        "quality-latency",
+        "quality-process-footprint"
+      ],
+      "frontier_count": 2,
+      "frontiers": [
+        "quality-cache-efficiency",
+        "quality-process-footprint"
+      ],
+      "model_id": "meta-models/Muse-Glimmer-30B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "KQuant-Dynamic-Q4_K_XL"
+    },
+    {
+      "coverage_count": 1,
+      "covered_frontiers": [
+        "uncached-agent-tools"
+      ],
+      "evaluated_frontiers": [
+        "uncached-agent-tools"
+      ],
+      "frontier_count": 1,
+      "frontiers": [
+        "uncached-agent-tools"
+      ],
+      "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "Q4_K_M"
+    },
+    {
+      "coverage_count": 1,
+      "covered_frontiers": [
+        "warm-agent-tools"
+      ],
+      "evaluated_frontiers": [
+        "warm-agent-tools"
+      ],
+      "frontier_count": 1,
+      "frontiers": [
+        "warm-agent-tools"
+      ],
+      "model_id": "Qwen/Qwen3.8-27B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e"
+    },
+    {
+      "coverage_count": 1,
+      "covered_frontiers": [
+        "short-throughput"
+      ],
+      "evaluated_frontiers": [
+        "short-throughput"
+      ],
+      "frontier_count": 1,
+      "frontiers": [
+        "short-throughput"
+      ],
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "Q4_K_M"
+    },
+    {
+      "coverage_count": 1,
+      "covered_frontiers": [
+        "warm-agent-tools"
+      ],
+      "evaluated_frontiers": [
+        "warm-agent-tools"
+      ],
+      "frontier_count": 1,
+      "frontiers": [
+        "warm-agent-tools"
+      ],
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e"
+    },
+    {
+      "coverage_count": 0,
+      "covered_frontiers": [],
+      "evaluated_frontiers": [
+        "warm-agent-tools"
+      ],
+      "frontier_count": 0,
+      "frontiers": [],
+      "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-0351d7a84b7d1c33",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "Q4_K_M"
+    },
+    {
+      "coverage_count": 0,
+      "covered_frontiers": [],
+      "evaluated_frontiers": [
+        "short-throughput"
+      ],
+      "frontier_count": 0,
+      "frontiers": [],
+      "model_id": "Qwen/Qwen3.8-27B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@gguf-UD-Q4_K_M-llama.cpp-adef1a458df2315e",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "UD-Q4_K_M"
+    },
+    {
+      "coverage_count": 0,
+      "covered_frontiers": [],
+      "evaluated_frontiers": [
+        "long-context-126k",
+        "uncached-agent-tools",
+        "validated-capacity"
+      ],
+      "frontier_count": 0,
+      "frontiers": [],
+      "model_id": "Qwen/Qwen3.8-27B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-19e9d74c4d6bd66f",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e"
+    },
+    {
+      "coverage_count": 0,
+      "covered_frontiers": [],
+      "evaluated_frontiers": [
+        "quality-latency",
+        "quality-process-footprint"
+      ],
+      "frontier_count": 0,
+      "frontiers": [],
+      "model_id": "Qwen/Qwen3.8-Flash-Next",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-d330c38f959c5c99",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1"
+    },
+    {
+      "coverage_count": 0,
+      "covered_frontiers": [],
+      "evaluated_frontiers": [
+        "short-throughput"
+      ],
+      "frontier_count": 0,
+      "frontiers": [],
+      "model_id": "meta-models/Muse-Glimmer-30B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-c4ab620b322920a4",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "KQuant-Dynamic-Q4_K_XL"
+    },
+    {
+      "coverage_count": 0,
+      "covered_frontiers": [],
+      "evaluated_frontiers": [
+        "quality-latency"
+      ],
+      "frontier_count": 0,
+      "frontiers": [],
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-c95c6c5dd8aeda20",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e"
+    }
+  ],
+  "schema_version": "model-skyline/local-frontier-coverage/v2"
 }
