@@ -157,6 +157,23 @@ advantage.
   reviewed quality evidence still joins separately through the exact offering
   reconciliation path.
 
+`compose_catalogs`
+: A strict same-workload union for independently produced catalogs. Distinct
+  candidates are sorted into one evaluation universe; duplicate offering rows
+  require the same complete `OfferingKey`, disjoint or byte-equivalent signals,
+  and non-conflicting metadata. Fallback provenance is materialized per signal
+  before rows with different sources are joined. It does not merge different
+  workload references or imply a cross-workload gate policy.
+
+`CatalogEnrichmentPolicy`
+: A data-only, hash-pinned authorization for projecting named gate signals from
+  another workload. Every mapping contains complete source and target
+  `OfferingKey` values plus a review note. The base catalog defines the
+  candidate universe, and the derived output workload version binds the policy
+  hash. This permits a reviewed capacity or endurance probe to inform a quality
+  frontier without treating its harness as the same measurement or fuzzy
+  matching the two routes.
+
 ## Metric evaluation and invalidation
 
 Signal metrics copy an observation after unit, freshness, sample-count, and

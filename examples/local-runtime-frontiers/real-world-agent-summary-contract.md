@@ -169,8 +169,29 @@ modelskyline project-quality-catalog \
   --workload-id measured-local-research-agent-v1 \
   --workload-unit benchmark_task \
   --output research-quality-catalog.json
+
+modelskyline compose-catalogs \
+  qwen-research-quality-catalog.json \
+  laguna-research-quality-catalog.json \
+  agents-a1-research-quality-catalog.json \
+  --output research-quality-candidates.json
 ```
 
 The first command writes private evidence by default. Use the derived
 publication path only after the benchmark-specific rights review and after
 confirming that no gated content appears in downstream artifacts.
+
+Composition requires the complete `WorkloadReference` to match exactly. It
+sorts distinct candidate rows deterministically and may join rows for the same
+offering only when their complete `OfferingKey` values match. Conflicting
+signals, metadata leaves, or source descriptors fail closed. When joined rows
+used different fallback sources, the command materializes each source on its
+own signal instead of assigning one source to the combined row. Output remains
+private; composition does not change publication rights.
+
+This command combines candidates measured under the same benchmark cohort.
+Validated context, swap, and session-endurance gates require the separate
+[`CatalogEnrichmentPolicy`](../../docs/catalog-enrichment.md). That policy pins
+every input catalog/workload, complete source and target `OfferingKey`, selected
+signal, and review note. Its output workload version binds the complete policy;
+no route mapping is inferred from a model name or partial identity.
