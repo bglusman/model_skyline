@@ -202,6 +202,21 @@ def test_system_components_build_the_same_exact_offering_key() -> None:
         capabilities=record.capabilities,
     ) == local_offering_key(record)
 
+    assert local_system_offering_key(
+        hardware=record.hardware,
+        artifact=record.artifact,
+        runtime=record.runtime,
+        capabilities=tuple(reversed(record.capabilities)),
+    ) == local_offering_key(record)
+
+    with pytest.raises(ValueError, match="duplicates"):
+        local_system_offering_key(
+            hardware=record.hardware,
+            artifact=record.artifact,
+            runtime=record.runtime,
+            capabilities=("text", "text"),
+        )
+
 
 def test_catalog_projection_retains_samples_integrity_and_exact_metadata() -> None:
     record = LocalMeasurementRecord.model_validate(local_measurement_payload())

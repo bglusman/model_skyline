@@ -319,6 +319,9 @@ def local_system_offering_key(
 ) -> OfferingKey:
     """Build the complete route key for exact local hardware, artifact, and runtime."""
 
+    if len(capabilities) != len(set(capabilities)):
+        raise ValueError("capabilities must not contain duplicates")
+    canonical_capabilities = tuple(sorted(capabilities))
     identity = content_hash(
         {
             "hardware": hardware.model_dump(mode="json", exclude={"metadata"}),
@@ -326,7 +329,7 @@ def local_system_offering_key(
                 mode="json", exclude={"source_url", "license", "metadata"}
             ),
             "runtime": runtime.model_dump(mode="json"),
-            "capabilities": list(capabilities),
+            "capabilities": list(canonical_capabilities),
         }
     )
     readable = (
@@ -344,7 +347,7 @@ def local_system_offering_key(
         quantization=artifact.quantization,
         reasoning_effort=None,
         agent_harness=runtime.agent_harness,
-        capabilities=capabilities,
+        capabilities=canonical_capabilities,
     )
 
 
