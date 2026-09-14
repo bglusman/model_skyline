@@ -86,6 +86,7 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
     assert set(config.frontiers) == {
         "fixed-128k-usefulness",
         "interactive-local-value",
+        "long-horizon-research-value",
         "local-agent-cache-demand",
         "local-agent-memory-value",
         "quantization-screening",
@@ -95,6 +96,7 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
     }
     assert config.frontiers["quantization-screening"].uncertainty is UncertaintyMode.POINT
     assert config.workloads["measured-local-agent-v1"].unit == "benchmark_task"
+    assert config.workloads["measured-local-research-agent-v1"].unit == "benchmark_task"
     assert config.frontiers["interactive-local-value"].axes[1].metric == "p95_agent_task_wall"
     for frontier_id, metric in {
         "interactive-local-value": "measured_agent_quality",
@@ -109,6 +111,14 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
             "validated_context_capacity": 128000,
         }
         assert eligibility.maximum_gate_values == {"runner_swap_growth": 0}
+    research = config.frontiers["long-horizon-research-value"].eligibility
+    assert research.minimum_axis_values == {"measured_research_quality": 60}
+    assert research.minimum_gate_values == {
+        "exact_tool_call_correctness": 100,
+        "research_evidence_grounding": 100,
+        "validated_context_capacity": 128000,
+    }
+    assert research.maximum_gate_values == {"runner_swap_growth": 0}
     estimated = config.metrics["estimated_quality_lcb"].requirements
     assert estimated.require_bounds is True
     assert estimated.accepted_evidence_tiers == (EvidenceTier.ESTIMATED,)
@@ -126,6 +136,14 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
     expected_selections = {
         "local-agent-quality-first": ("interactive-local-value", "measured_agent_quality"),
         "local-agent-latency-first": ("interactive-local-value", "p95_agent_task_wall"),
+        "local-research-quality-first": (
+            "long-horizon-research-value",
+            "measured_research_quality",
+        ),
+        "local-research-latency-first": (
+            "long-horizon-research-value",
+            "p95_agent_task_wall",
+        ),
         "local-agent-memory-first": ("local-agent-memory-value", "peak_physical_footprint"),
         "local-agent-cache-demand-first": (
             "local-agent-cache-demand",
@@ -215,12 +233,12 @@ def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) ->
             "attempted_percent",
         )
     } == {
-        "candidate_count": 7,
-        "required_cell_count": 56,
+        "candidate_count": 9,
+        "required_cell_count": 74,
         "attempted_cell_count": 33,
         "eligible_cell_count": 24,
         "exact_member_cell_count": 11,
-        "attempted_percent": "58.93",
+        "attempted_percent": "44.59",
     }
     candidates = {candidate["model_id"]: candidate for candidate in population["candidates"]}
     assert candidates["Qwen/Qwen3.8-27B"]["attempted_percent"] == "100.00"
@@ -233,6 +251,8 @@ def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) ->
     for model_id in (
         "CohereLabs/North-Mini-Code-1.0",
         "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
+        "InternScience/Agents-A1",
+        "poolside/Laguna-XS-2.1",
     ):
         assert candidates[model_id]["attempted_frontier_count"] == 0
         assert candidates[model_id]["attempted_percent"] == "0.00"

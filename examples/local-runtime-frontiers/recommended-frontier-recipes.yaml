@@ -32,6 +32,23 @@ workloads:
     assumptions:
       evidence_tier: measured
 
+  measured-local-research-agent-v1:
+    unit: benchmark_task
+    version: "1"
+    harness: operator-pinned-research-agent-harness
+    cohort: exact-task-tools-corpus-snapshot-context-budget-and-cache-state
+    benchmark: measured long-horizon search and research-agent quality
+    description: >-
+      Outcome-scored research, search, and heterogeneous tool-use tasks paired
+      with full task wall latency. Source corpora, search results, tool schemas,
+      citation checks, context policy, and network behavior are frozen for a
+      comparable cohort; a live-web cohort must use a different workload version.
+    variables: {}
+    assumptions:
+      evidence_tier: measured
+      source_snapshot: pinned
+      network_access: controlled
+
   fixed-128k-agent-v1:
     unit: benchmark_task
     version: "1"
@@ -104,6 +121,23 @@ metrics:
     requirements:
       max_age_hours: 720
       minimum_samples: 20
+
+  measured_research_quality:
+    kind: signal
+    signal: measured_research_task_quality_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 20
+
+  research_evidence_grounding:
+    kind: signal
+    signal: research_evidence_grounding_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 20
+      require_bounds: true
 
   measured_long_context_quality:
     kind: signal
@@ -233,6 +267,30 @@ frontiers:
       maximum_gate_values:
         runner_swap_growth: 0
     metadata_fields: [evidence_tier, artifact, runtime, hardware, gate_policy]
+
+  long-horizon-research-value:
+    workload: measured-local-research-agent-v1
+    axes:
+      - metric: measured_research_quality
+        goal: maximize
+      - metric: p95_agent_task_wall
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: measured_research_quality
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools, long-context]
+      allow_unknown_age: false
+      minimum_axis_values:
+        measured_research_quality: 60
+      minimum_gate_values:
+        exact_tool_call_correctness: 100
+        research_evidence_grounding: 100
+        validated_context_capacity: 128000
+      maximum_gate_values:
+        runner_swap_growth: 0
+    metadata_fields:
+      [evidence_tier, artifact, runtime, hardware, source_snapshot, gate_policy]
 
   local-agent-memory-value:
     workload: measured-local-agent-v1
@@ -366,6 +424,22 @@ selections:
 
   local-agent-latency-first:
     frontier: interactive-local-value
+    strategy: lexicographic
+    count: 3
+    order_by: p95_agent_task_wall
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-research-quality-first:
+    frontier: long-horizon-research-value
+    strategy: lexicographic
+    count: 3
+    order_by: measured_research_quality
+    snapshot_ttl_seconds: 3600
+    on_insufficient: return_available
+
+  local-research-latency-first:
+    frontier: long-horizon-research-value
     strategy: lexicographic
     count: 3
     order_by: p95_agent_task_wall

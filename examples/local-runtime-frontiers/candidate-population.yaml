@@ -8,8 +8,8 @@ scope:
   hardware_profile: hardware/macbook-m5max-64.json
   purpose: >-
     Candidate families selected for interactive coding, terminal work, tool
-    use, long-context retrieval, and memory/runtime efficiency on 64 GB Apple
-    Silicon.
+    use, long-context retrieval, research/search agents, and memory/runtime
+    efficiency on 64 GB Apple Silicon.
   selection_cutoff: "2026-09-14"
 
 candidates:
@@ -111,3 +111,37 @@ candidates:
       - quality-process-footprint
     sources:
       - https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16
+
+  - model_id: InternScience/Agents-A1
+    role: long-horizon search, research, and heterogeneous-tool challenger
+    required_frontiers:
+      - short-throughput
+      - warm-agent-tools
+      - warm-cache-reuse
+      - uncached-agent-tools
+      - long-context-126k
+      - validated-capacity
+      - quality-latency
+      - quality-cache-efficiency
+      - quality-process-footprint
+    sources:
+      - https://huggingface.co/InternScience/Agents-A1/tree/addff08f1653ee72765c5cf458fe84556bb34f8e
+      - https://huggingface.co/InternScience/Agents-A1-Q4_K_M-GGUF/tree/b1109cc937623d0679fdde708cf4885edeb0ae82
+      - https://huggingface.co/mlx-community/Agents-A1-4bit/tree/dafc52a5e3d7b2a9fba6d0bd1370bcbffb127624
+
+  - model_id: poolside/Laguna-XS-2.1
+    role: local-first long-horizon coding and terminal-agent challenger
+    required_frontiers:
+      - short-throughput
+      - warm-agent-tools
+      - warm-cache-reuse
+      - uncached-agent-tools
+      - long-context-126k
+      - validated-capacity
+      - quality-latency
+      - quality-cache-efficiency
+      - quality-process-footprint
+    sources:
+      - https://huggingface.co/poolside/Laguna-XS-2.1/tree/c5f36269bbdbd3f27fddc9a9f9dbae0cf2cf57db
+      - https://huggingface.co/poolside/Laguna-XS-2.1-NVFP4-mlx/tree/841778bda563a36104dd521e37d99218e46f4f25
+      - https://huggingface.co/poolside/Laguna-XS-2.1-GGUF/tree/1a37c0a5fb8c7a18e6106decb6be6327d1b63fa6
