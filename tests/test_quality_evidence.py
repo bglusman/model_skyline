@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import stat
+from copy import deepcopy
 from datetime import UTC, datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -282,6 +283,11 @@ def test_content_hashes_are_canonical_domain_separated_and_exact_raw_bytes() -> 
 
 def test_quality_result_tier_is_explicit_without_changing_legacy_measured_identity() -> None:
     measured = _result()
+    mutable_payload = measured.model_dump(mode="json")
+    before_digest = deepcopy(mutable_payload)
+    quality_content_sha256(QualityDigestDomain.RESULT, mutable_payload)
+    assert mutable_payload == before_digest
+
     legacy_payload = measured.model_dump(mode="json")
     for measurement in legacy_payload["measurements"]:
         measurement.pop("evidence_tier")

@@ -26,6 +26,7 @@ from __future__ import annotations
 import hashlib
 from collections import Counter, defaultdict
 from collections.abc import Iterator, Mapping
+from copy import deepcopy
 from datetime import UTC, datetime
 from enum import StrEnum
 from types import MappingProxyType
@@ -190,7 +191,7 @@ def _aware_utc(value: datetime) -> datetime:
 def _model_json(value: BaseModel | Mapping[str, Any]) -> Any:
     if isinstance(value, BaseModel):
         return value.model_dump(mode="json")
-    return dict(value)
+    return deepcopy(dict(value))
 
 
 class QualityDigestDomain(StrEnum):
