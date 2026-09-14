@@ -22,6 +22,43 @@ the first two verifier-scored routes and remains near-optimal for warm tool
 work. Ornith GGUF is the throughput leader. Dense Qwen3.8 and Muse still need
 the same five-task workload before the default/fallback order is final.
 
+### Newly queued candidate
+
+The next candidate after the controlled four is
+[`Jab1718/qwen3.8-flash-coder-26gb-gguf`](https://huggingface.co/Jab1718/qwen3.8-flash-coder-26gb-gguf),
+a 160-expert coding subnet sliced from Qwen3.8 Flash Next. Its Q4_K_M artifact
+is 26.43 GB; the author reports a 64K-context load near 33 GB wired memory and
+about 32 decode token/s on an M5 Pro 64 GB with current llama.cpp. That creates
+a materially different operating point from the 76.8 GB demand-paged DS4
+composite and should plausibly fit a controlled 128K experiment here.
+
+Its published sandbox percentage is not imported as quality evidence. The
+project describes a DoRA recovery loop trained against earlier failure cases,
+so the reported tasks are not a clean held-out estimate. A separate public
+engineering-task experiment does provide useful family-level prior evidence:
+[Qwen3.8 Flash Next Q3_K_XL scored 35.38/40 across four runs](https://github.com/sandst1/qwen3.8-27b-bench#results),
+ahead of the tested dense Qwen3.8 and Ornith variants on that one workload. The
+subnet must still pass this repository's exact tool/parser smoke, 128K retrieval,
+and fresh Harbor pilot before becoming a recommendation.
+
+### “Flash”, DFlash, and DS4 are different things
+
+`Flash` in Qwen3.8 Flash Next is a Qwen product/model-family label, not a generic
+synonym for MoE. The official architecture is sparse—125B language-model
+parameters with 6B activated per token—but its efficiency also comes from the
+Gated DeltaNet/Qwen Sparse Attention hybrid and a 51B n-gram embedding table
+designed to be cheaper to compute and easier to offload. The
+[official model card](https://huggingface.co/Qwen/Qwen3.8-Flash-Next) calls
+Flash Next an experimental architecture preview; `Qwen3.8-Flash` is the later
+production API product with additional serving features.
+
+`DFlash2` in oMLX is instead a speculative-decoding implementation that uses a
+separate draft to accelerate a target model. It does not turn a dense model such
+as Muse Glimmer into an MoE. `DS4`/DwarfStar is the specialized Metal runtime we
+ported to Flash Next. Those three names describe model family, decoding method,
+and runtime respectively, so Model Skyline retains them in separate identity
+fields.
+
 Muse DFlash2 remains selectable but is labeled experimental in both OMP and
 OpenCode. Two cold/cache-miss runs returned the same wrong non-tool answer;
 cache-warm runs returned the exact tool call in 6/6 trials. With prompt reuse

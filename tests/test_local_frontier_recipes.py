@@ -28,12 +28,23 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
     assert set(config.frontiers) == {
         "fixed-128k-usefulness",
         "interactive-local-value",
+        "local-agent-cache-demand",
+        "local-agent-memory-value",
         "quantization-screening",
         "remote-agent-value",
         "session-endurance",
         "warm-cache-operation",
     }
     assert config.frontiers["quantization-screening"].uncertainty is UncertaintyMode.POINT
+    assert config.workloads["measured-local-agent-v1"].unit == "benchmark_task"
+    assert config.frontiers["interactive-local-value"].axes[1].metric == "p95_agent_task_wall"
+    for frontier_id, metric in {
+        "interactive-local-value": "measured_agent_quality",
+        "local-agent-cache-demand": "measured_agent_quality",
+        "local-agent-memory-value": "measured_agent_quality",
+        "fixed-128k-usefulness": "measured_long_context_quality",
+    }.items():
+        assert config.frontiers[frontier_id].eligibility.minimum_axis_values[metric] == 60
     estimated = config.metrics["estimated_quality_lcb"].requirements
     assert estimated.require_bounds is True
     assert estimated.accepted_evidence_tiers == (EvidenceTier.ESTIMATED,)
