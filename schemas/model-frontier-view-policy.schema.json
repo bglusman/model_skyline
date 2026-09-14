@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:model-frontier-view-policy",
+  "$defs": {
+    "BalancedModelSelection": {
+      "additionalProperties": false,
+      "description": "A complete environment panel for one model family.",
+      "properties": {
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "offerings": {
+          "items": {
+            "$ref": "#/$defs/ModelEnvironmentOffering"
+          },
+          "minItems": 1,
+          "title": "Offerings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "model_id",
+        "offerings"
+      ],
+      "title": "BalancedModelSelection",
+      "type": "object"
+    },
+    "ModelEnvironmentOffering": {
+      "additionalProperties": false,
+      "description": "The one real offering selected for a model in one environment.",
+      "properties": {
+        "environment_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Environment Id",
+          "type": "string"
+        },
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "environment_id",
+        "offering_id"
+      ],
+      "title": "ModelEnvironmentOffering",
+      "type": "object"
+    },
+    "ModelViewEnvironment": {
+      "additionalProperties": false,
+      "description": "One equally weighted provider or local-host slot in a balanced panel.",
+      "properties": {
+        "environment_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "title": "Environment Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        }
+      },
+      "required": [
+        "environment_id",
+        "provider"
+      ],
+      "title": "ModelViewEnvironment",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Data-only policy for best-available and balanced-average model views.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/model-frontier-view-policy/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "policy_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "source_snapshot_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Source Snapshot Id",
+      "type": "string"
+    },
+    "aggregation": {
+      "const": "arithmetic_mean",
+      "default": "arithmetic_mean",
+      "title": "Aggregation",
+      "type": "string"
+    },
+    "environments": {
+      "items": {
+        "$ref": "#/$defs/ModelViewEnvironment"
+      },
+      "minItems": 2,
+      "title": "Environments",
+      "type": "array"
+    },
+    "models": {
+      "items": {
+        "$ref": "#/$defs/BalancedModelSelection"
+      },
+      "minItems": 2,
+      "title": "Models",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "policy_id",
+    "source_snapshot_id",
+    "environments",
+    "models"
+  ],
+  "title": "ModelFrontierViewPolicy",
+  "type": "object",
+  "$comment": "A balanced-average policy must select one eligible real offering for every model in every declared provider environment. Runtime validation binds those rows to the source snapshot and rejects missing or mismatched providers."
+}

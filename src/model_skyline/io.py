@@ -17,6 +17,7 @@ from yaml.nodes import ScalarNode
 from model_skyline.catalog_composition import CatalogEnrichmentPolicy
 from model_skyline.discovery import ProvisionalEvidenceCatalog, PublishedBenchmarkSignal
 from model_skyline.local_measurements import LocalMeasurementRecord
+from model_skyline.model_views import ModelFrontierViewPolicy, ModelFrontierViewSnapshot
 from model_skyline.models import (
     MAX_DECIMAL_INPUT_LENGTH,
     FrontierHistory,
@@ -282,6 +283,22 @@ def load_frontier_snapshot(path: str | Path) -> FrontierSnapshot:
     return _validate(FrontierSnapshot, value, path)
 
 
+def load_model_frontier_view_policy(path: str | Path) -> ModelFrontierViewPolicy:
+    try:
+        value = json.loads(_read(path), parse_float=Decimal, parse_constant=Decimal)
+    except json.JSONDecodeError as exc:
+        raise InputError(f"cannot parse JSON {path}: {exc}") from exc
+    return _validate(ModelFrontierViewPolicy, value, path)
+
+
+def load_model_frontier_view_snapshot(path: str | Path) -> ModelFrontierViewSnapshot:
+    try:
+        value = json.loads(_read(path), parse_float=Decimal, parse_constant=Decimal)
+    except json.JSONDecodeError as exc:
+        raise InputError(f"cannot parse JSON {path}: {exc}") from exc
+    return _validate(ModelFrontierViewSnapshot, value, path)
+
+
 def load_selection_snapshot(path: str | Path) -> SelectionSnapshot:
     try:
         value = json.loads(_read(path), parse_float=Decimal, parse_constant=Decimal)
@@ -378,6 +395,12 @@ SCHEMA_IDS = {
     ),
     "observation-catalog.schema.json": ("urn:model-skyline:schema:v1alpha1:observation-catalog"),
     "frontier-snapshot.schema.json": ("urn:model-skyline:schema:v1alpha1:frontier-snapshot"),
+    "model-frontier-view-policy.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:model-frontier-view-policy"
+    ),
+    "model-frontier-view-snapshot.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:model-frontier-view-snapshot"
+    ),
     "selection-snapshot.schema.json": ("urn:model-skyline:schema:v1alpha1:selection-snapshot"),
     "publication-manifest.schema.json": ("urn:model-skyline:schema:v1alpha1:publication-manifest"),
     "frontier-history.schema.json": "urn:model-skyline:schema:v1alpha1:frontier-history",
@@ -905,6 +928,12 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         ),
         "observation-catalog.schema.json": ObservationCatalog.model_json_schema(mode="validation"),
         "frontier-snapshot.schema.json": FrontierSnapshot.model_json_schema(mode="serialization"),
+        "model-frontier-view-policy.schema.json": ModelFrontierViewPolicy.model_json_schema(
+            mode="validation"
+        ),
+        "model-frontier-view-snapshot.schema.json": ModelFrontierViewSnapshot.model_json_schema(
+            mode="serialization"
+        ),
         "selection-snapshot.schema.json": SelectionSnapshot.model_json_schema(mode="serialization"),
         "publication-manifest.schema.json": PublicationManifest.model_json_schema(
             mode="serialization"
@@ -1035,6 +1064,18 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
                 "reviewed complete OfferingKeys and exact catalog/workload hashes. JSON Schema "
                 "does not verify input hashes, unique target-signal mappings, canonical order, "
                 "or the policy byte limit; run ModelSkyline semantic validation and replay."
+            )
+        if name == "model-frontier-view-policy.schema.json":
+            generated_schema["$comment"] = (
+                "A balanced-average policy must select one eligible real offering for every "
+                "model in every declared provider environment. Runtime validation binds those "
+                "rows to the source snapshot and rejects missing or mismatched providers."
+            )
+        if name == "model-frontier-view-snapshot.schema.json":
+            generated_schema["$comment"] = (
+                "This is a presentation view over an exact offering frontier, not a routable "
+                "offering catalog. Best-available points retain their real OfferingKeys; "
+                "balanced points retain every contributing offering and environment value."
             )
         result[name] = generated_schema
     return result

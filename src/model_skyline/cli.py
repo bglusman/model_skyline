@@ -113,6 +113,7 @@ from model_skyline.io import (
     load_config,
     load_frontier_snapshot,
     load_local_measurement,
+    load_model_frontier_view_policy,
     load_paired_quality_estimate,
     load_portfolio_derivation,
     load_portfolio_policy,
@@ -123,6 +124,11 @@ from model_skyline.io import (
     public_schemas,
 )
 from model_skyline.local_measurements import build_local_capacity_catalog, build_local_catalog
+from model_skyline.model_views import (
+    ModelFrontierViewError,
+    build_model_frontier_view,
+    render_model_frontier_table,
+)
 from model_skyline.models import OfferingKey, WorkloadReference
 from model_skyline.private_output import PrivateOutputError, write_private_text
 from model_skyline.publisher import PublicationError, publish_project
@@ -159,6 +165,11 @@ class OutputFormat(StrEnum):
     JSON = "json"
     CSV = "csv"
     RSS = "rss"
+
+
+class ModelViewOutputFormat(StrEnum):
+    TABLE = "table"
+    JSON = "json"
 
 
 _MAX_CLI_ERROR_CHARACTERS = 4_096
@@ -661,6 +672,32 @@ def evaluate(
             rendered = render_table(snapshot)
         _emit(rendered, output)
     except (InputError, OSError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("model-frontier-view", rich_help_panel=CORE_PANEL)
+def model_frontier_view_command(
+    policy: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    snapshot: Annotated[Path, typer.Argument(exists=True, readable=True)],
+    output_format: Annotated[
+        ModelViewOutputFormat, typer.Option("--format", "-f")
+    ] = ModelViewOutputFormat.TABLE,
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """Show best-available and balanced-average model views of one exact frontier."""
+
+    try:
+        view = build_model_frontier_view(
+            load_model_frontier_view_policy(policy),
+            load_frontier_snapshot(snapshot),
+        )
+        rendered = (
+            dump_json(view)
+            if output_format is ModelViewOutputFormat.JSON
+            else render_model_frontier_table(view)
+        )
+        _emit(rendered, output)
+    except (InputError, ModelFrontierViewError, OSError, ValueError) as exc:
         _error(exc)
 
 

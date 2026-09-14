@@ -91,6 +91,7 @@ def test_cli_help_groups_commands_without_renaming_them() -> None:
         assert panel in result.output
     for command in (
         "evaluate",
+        "model-frontier-view",
         "aggregate-traces",
         "import-codex-exec",
         "import-hermes-session",
@@ -318,6 +319,8 @@ def test_cli_exports_contract_schemas(tmp_path) -> None:
 
     assert result.exit_code == 0, result.output
     assert (output / "project-config.schema.json").is_file()
+    assert (output / "model-frontier-view-policy.schema.json").is_file()
+    assert (output / "model-frontier-view-snapshot.schema.json").is_file()
     assert (output / "selection-snapshot.schema.json").is_file()
     assert (output / "publication-manifest.schema.json").is_file()
     assert (output / "frontier-history.schema.json").is_file()

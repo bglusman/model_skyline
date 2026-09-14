@@ -65,7 +65,9 @@ Only the raw-speed frontier currently has even a small balanced panel: the same
 Ornith and Qwen GGUF implementations were run on both the M1 Max and M5 Max.
 Ornith remains the prompt-speed × generation-speed resident when each model's
 two machine results are given equal weight and their arithmetic means are
-compared:
+compared. The checked-in [policy](cross-mac-short-throughput-model-view-policy.json)
+and [generated view](generated/cross-mac-two-model-short-throughput-model-view.json)
+make this table reproducible:
 
 | Two-Mac balanced average | Prompt tokens/s | Generation tokens/s | Frontier member? |
 | --- | ---: | ---: | --- |
