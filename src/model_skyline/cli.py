@@ -46,6 +46,10 @@ from model_skyline.adapters.hermes import (
     import_hermes_session,
     load_hermes_session_mapping,
 )
+from model_skyline.adapters.local_agent_benchmark import (
+    LocalAgentBenchmarkAdapterError,
+    normalize_local_agent_benchmark_file,
+)
 from model_skyline.adapters.mcpmark import (
     MCPMARK_DEFAULT_ALLOWED_HOSTS,
     MCPMARK_VERIFIED_SHA256,
@@ -1316,6 +1320,46 @@ def inspect_harbor_terminal_bench_command(
             overwrite=overwrite,
         )
     except (HarborAdapterError, PrivateOutputError, OSError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("normalize-local-agent-benchmark", rich_help_panel=LOCAL_EVIDENCE_PANEL)
+def normalize_local_agent_benchmark_command(
+    summary: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    retrieved_at: Annotated[
+        str,
+        typer.Option(
+            "--retrieved-at",
+            help="timezone-aware timestamp when the prompt-free summary was acquired",
+        ),
+    ],
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace an existing private evidence file"),
+    ] = False,
+) -> None:
+    """Normalize local ResearchClawBench, BrowseComp, or GAIA task evidence."""
+
+    try:
+        timestamp = _retrieved_at(retrieved_at)
+        if timestamp is None:  # pragma: no cover - Typer requires the option
+            raise ValueError("--retrieved-at is required")
+        evidence = normalize_local_agent_benchmark_file(summary, retrieved_at=timestamp)
+        _emit_private(dump_json(evidence), output, overwrite=overwrite)
+    except (
+        LocalAgentBenchmarkAdapterError,
+        PrivateOutputError,
+        OSError,
+        TypeError,
+        ValueError,
+    ) as exc:
         _error(exc)
 
 

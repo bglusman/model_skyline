@@ -37,7 +37,14 @@ different, so those figures are screening evidence only.
 Runtime support is concrete but still requires local admission:
 
 - llama.cpp Laguna support merged in PR 25165 on 2026-07-22, and the Q4_K_M is
-  first-party. The installed build must postdate that merge.
+  first-party. The installed build `5266f24da` contains the merge commit, with
+  GitHub reporting it 722 commits ahead and zero behind.
+- oMLX 0.6.4 successfully registers its vendored Laguna model and tool parser
+  from MLX-LM PR 1223 head `0857ee1cf1f4ba7c43e73b836309d9c884529ca8`.
+  It also contains Laguna-specific NVFP4 normalization, tokenizer handling, and
+  DFlash dispatch. This clears a static runtime gate, not the exact artifact
+  load or correctness gates; see
+  [`runtime-support-audit-2026-09-14.md`](runtime-support-audit-2026-09-14.md).
 - Poolside documents a Metal f16 overflow that can yield empty output in a MoE
   down-projection. The proposed fix PR was closed without merge, so ordinary,
   long-output, and tool probes must reject any empty/NaN behavior rather than

@@ -11,6 +11,10 @@ throughput, warm and uncached tool operation, repeated 126K retrieval, and a
 validated-capacity/physical-footprint roll-up. They remain workload-specific,
 not a universal model ranking.
 
+The dated [`overnight handoff`](overnight-handoff-2026-09-14.md) summarizes the
+published frontier residents, cross-Mac conclusions, runtime state, and pending
+benchmark queue in one durable document.
+
 ## Evidence levels
 
 1. **Capacity smoke:** the runtime allocates and answers. This is not retrieval
@@ -76,6 +80,13 @@ frontier rather than importing research scores into Terminal-Bench. The
 local-focused coding challenger with MLX and GGUF controls. All four define
 correctness, cache, context, memory, and real-agent promotion gates; none is a
 measured frontier resident yet.
+
+The
+[`installed runtime-support audit`](runtime-support-audit-2026-09-14.md)
+records a narrower admission fact: oMLX 0.6.4 has importable, artifact-matching
+Laguna and Qwen3.5-MoE paths, and installed llama.cpp includes the merged Laguna
+and Qwen3.8 Flash Next architecture support. Exact weights still have to pass
+load, output, parser, memory, context, and workload gates.
 
 ## Runtime choices on Apple Silicon
 
@@ -163,6 +174,13 @@ A coding/terminal score cannot stand in for any of these, and they cannot stand
 in for one another. Their upstream benchmark mapping and publication rules are
 documented in
 [`research frontier benchmark map`](research-frontier-benchmark-map.md).
+The
+[`prompt-free real-world summary contract`](real-world-agent-summary-contract.md)
+makes those recipes executable: it normalizes task digests, scores, timings,
+tool checks, and research grounding through the existing reviewed quality
+reconciliation path while rejecting task contents and overbroad BrowseComp or
+GAIA publication claims. Context retrieval and swap remain separate exact-route
+gates rather than being inferred from a benchmark run.
 
 [`harbor-repeated-frontiers.yaml`](harbor-repeated-frontiers.yaml) packages
 robust versions of the three quality frontiers. They require the protocol's
