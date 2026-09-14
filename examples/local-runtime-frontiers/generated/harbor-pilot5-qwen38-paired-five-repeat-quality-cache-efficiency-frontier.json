@@ -1,0 +1,232 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "kind": "frontier",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "snapshot_id": "571369b1838a752215b7e9b7723e98f6e6ba6225ce352cfa69eaef8d39be9b50",
+  "config_hash": "143329bb95d7c486c042da3eb1b721e160a6d7e91754bfaf4e65b17a2f1be13f",
+  "catalog_hash": "7f95d52f4921058c2707b0a3d1c8bdd3a43adfe37b3b7ee6c43aa6282ad249a4",
+  "engine_version": "0.9.0",
+  "generated_at": "2026-09-14T15:00:00Z",
+  "frontier_id": "repeated-local-agent-quality-cache-efficiency",
+  "workload": {
+    "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+    "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1+attempts-5",
+    "unit": "task"
+  },
+  "order_by": "repeated_pilot_task_success",
+  "uncertainty": "robust",
+  "axes": [
+    {
+      "metric": "repeated_pilot_task_success",
+      "goal": "maximize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "repeated_pilot_uncached_input_tokens",
+      "goal": "minimize",
+      "unit": "token",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "members": [],
+  "evaluated": [],
+  "rejected": [
+    {
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
+      "reasons": [
+        "repeated_pilot_uncached_input_tokens: signal 'local_pilot_total_uncached_input_tokens' is missing"
+      ]
+    },
+    {
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-b406f50b4f56659b",
+      "reasons": [
+        "repeated_pilot_uncached_input_tokens: signal 'local_pilot_total_uncached_input_tokens' is missing"
+      ]
+    }
+  ],
+  "axis_evidence": {
+    "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
+    "kind": "axis-evidence-inventory",
+    "hash_algorithm": "sha256-rfc8785-v1",
+    "config_hash": "143329bb95d7c486c042da3eb1b721e160a6d7e91754bfaf4e65b17a2f1be13f",
+    "catalog_hash": "7f95d52f4921058c2707b0a3d1c8bdd3a43adfe37b3b7ee6c43aa6282ad249a4",
+    "generated_at": "2026-09-14T15:00:00Z",
+    "workload": {
+      "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+      "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1+attempts-5",
+      "unit": "task"
+    },
+    "axes": [
+      {
+        "metric": "repeated_pilot_task_success",
+        "goal": "maximize",
+        "unit": "percent",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0"
+      },
+      {
+        "metric": "repeated_pilot_uncached_input_tokens",
+        "goal": "minimize",
+        "unit": "token",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0.05"
+      }
+    ],
+    "candidate_universe_hash": "fd9208faae5c1cd524d766620c8e2c9717b6074dd480e38fe75499b8cdcce609",
+    "candidates": [
+      {
+        "offering": {
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
+          "model_id": "Qwen/Qwen3.8-27B",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "oQ4e",
+          "reasoning_effort": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "repeated_pilot_task_success": {
+            "value": "68",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "60",
+            "upper": "80",
+            "dependencies": [
+              "signals.local_pilot_task_success_percent"
+            ],
+            "source_ids": [
+              "local-quality-pilot:qwen38_low_think4k:repeat-bundle:18f87302cf3e04b7a1e27cb3"
+            ],
+            "sources": [
+              {
+                "id": "local-quality-pilot:qwen38_low_think4k:repeat-bundle:18f87302cf3e04b7a1e27cb3",
+                "version": "model-skyline/harbor-local-summary-bundle/v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Canonical manifest of 5 prompt-free, serial Harbor Terminus-2 jobs over the same pinned task set and exact offering. Verifier rewards and latency are pooled across equal attempts per task; quality bounds retain the per-run range, and p95-latency bounds enclose both that range and the pooled p95. Token totals are means per complete task-set run so candidates remain comparable as repetition count grows.",
+                "raw_sha256": "18f87302cf3e04b7a1e27cb36a7b297b4cf26e4f162fdd9bb527ff7492061961",
+                "retrieved_at": "2026-09-14T14:28:32.574095Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T14:28:32.574095Z",
+            "minimum_sample_count": 25
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-b406f50b4f56659b",
+          "model_id": "Qwen/Qwen3.8-27B",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "oQ4e",
+          "reasoning_effort": null,
+          "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "repeated_pilot_task_success": {
+            "value": "52",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "40",
+            "upper": "60",
+            "dependencies": [
+              "signals.local_pilot_task_success_percent"
+            ],
+            "source_ids": [
+              "local-quality-pilot:qwen38_baseline:repeat-bundle:03cc190023475a8b1e3bfbf5"
+            ],
+            "sources": [
+              {
+                "id": "local-quality-pilot:qwen38_baseline:repeat-bundle:03cc190023475a8b1e3bfbf5",
+                "version": "model-skyline/harbor-local-summary-bundle/v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Canonical manifest of 5 prompt-free, serial Harbor Terminus-2 jobs over the same pinned task set and exact offering. Verifier rewards and latency are pooled across equal attempts per task; quality bounds retain the per-run range, and p95-latency bounds enclose both that range and the pooled p95. Token totals are means per complete task-set run so candidates remain comparable as repetition count grows.",
+                "raw_sha256": "03cc190023475a8b1e3bfbf5ab1b4f54e85505ec3f53ac403e99a418d14019d2",
+                "retrieved_at": "2026-09-14T12:46:29.852164Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T12:46:29.852164Z",
+            "minimum_sample_count": 25
+          }
+        }
+      }
+    ],
+    "inventory_id": "e52072c1670e8a4726bd6ce9ee7b0590987d1e9acb632e7e9850f6311b742cf5"
+  },
+  "public_release_blocked": false,
+  "sources": [
+    {
+      "id": "local-quality-memory:repeat-bundle:14827f2bc3509090bf94b334",
+      "version": "model-skyline/harbor-runner-memory-bundle/v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Canonical manifest of job-matched macOS physical-footprint captures. The value is the maximum task peak across every fully covered repetition.",
+      "raw_sha256": "14827f2bc3509090bf94b33427e8686312cdfa7082128294fa9af9eb64b30249",
+      "retrieved_at": "2026-09-14T14:28:33.163201Z"
+    },
+    {
+      "id": "local-quality-pilot:qwen38_low_think4k:repeat-bundle:18f87302cf3e04b7a1e27cb3",
+      "version": "model-skyline/harbor-local-summary-bundle/v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Canonical manifest of 5 prompt-free, serial Harbor Terminus-2 jobs over the same pinned task set and exact offering. Verifier rewards and latency are pooled across equal attempts per task; quality bounds retain the per-run range, and p95-latency bounds enclose both that range and the pooled p95. Token totals are means per complete task-set run so candidates remain comparable as repetition count grows.",
+      "raw_sha256": "18f87302cf3e04b7a1e27cb36a7b297b4cf26e4f162fdd9bb527ff7492061961",
+      "retrieved_at": "2026-09-14T14:28:32.574095Z"
+    },
+    {
+      "id": "local-quality-memory:repeat-bundle:0f6437cb53ef14178ba24884",
+      "version": "model-skyline/harbor-runner-memory-bundle/v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Canonical manifest of job-matched macOS physical-footprint captures. The value is the maximum task peak across every fully covered repetition.",
+      "raw_sha256": "0f6437cb53ef14178ba248848d1c2c35835d925a5bebb589bdee72d2a4bb2bde",
+      "retrieved_at": "2026-09-14T12:46:30.753578Z"
+    },
+    {
+      "id": "local-quality-pilot:qwen38_baseline:repeat-bundle:03cc190023475a8b1e3bfbf5",
+      "version": "model-skyline/harbor-local-summary-bundle/v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Canonical manifest of 5 prompt-free, serial Harbor Terminus-2 jobs over the same pinned task set and exact offering. Verifier rewards and latency are pooled across equal attempts per task; quality bounds retain the per-run range, and p95-latency bounds enclose both that range and the pooled p95. Token totals are means per complete task-set run so candidates remain comparable as repetition count grows.",
+      "raw_sha256": "03cc190023475a8b1e3bfbf5ab1b4f54e85505ec3f53ac403e99a418d14019d2",
+      "retrieved_at": "2026-09-14T12:46:29.852164Z"
+    }
+  ],
+  "source_watermarks": {
+    "local-quality-pilot:qwen38_low_think4k:repeat-bundle:18f87302cf3e04b7a1e27cb3": "2026-09-14T14:28:32.574095Z",
+    "local-quality-memory:repeat-bundle:14827f2bc3509090bf94b334": "2026-09-14T14:28:33.163201Z",
+    "local-quality-pilot:qwen38_baseline:repeat-bundle:03cc190023475a8b1e3bfbf5": "2026-09-14T12:46:29.852164Z",
+    "local-quality-memory:repeat-bundle:0f6437cb53ef14178ba24884": "2026-09-14T12:46:30.753578Z"
+  }
+}

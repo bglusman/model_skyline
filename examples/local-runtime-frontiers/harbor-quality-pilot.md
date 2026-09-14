@@ -347,22 +347,20 @@ initial job contains one. Prompt-free second-run summaries are retained for the
 [`bounded-reasoning`](raw/harbor-pilot5-qwen38-low-think4k-repeat2-summary.json)
 profiles.
 
-The bounded-reasoning profile's third job also scored 3/5, again passing
+The bounded-reasoning profile's third job scored 3/5, again passing
 `fix-git`, `multi-source-data-merger`, and `fix-code-vulnerability`. Its
 [`three-repeat catalog`](generated/harbor-pilot5-qwen38-low-think4k-repeat3-catalog.json)
 pools 10/15 successes (66.7%), retains the 60–80% per-run range, records a
 916.926-second pooled all-task p95, and has complete memory coverage with a
 23,782,290,440-byte maximum process footprint. Two incomplete API requests
-across the three jobs keep exact cache demand ineligible. Repeats four and five
-remain required before comparison with the completed default profile.
+across the three jobs keep exact cache demand ineligible.
 
 The fourth bounded-reasoning job reproduced the same 3/5 task pattern. Its
 [`four-repeat catalog`](generated/harbor-pilot5-qwen38-low-think4k-repeat4-catalog.json)
 pools 13/20 successes (65%), retains the 60–80% per-run range, records a
 916.676-second pooled all-task p95, and preserves complete memory coverage at
 the same 23,782,290,440-byte maximum. Three incomplete API requests keep exact
-cache demand ineligible. Repeat five remains required before the paired robust
-comparison can be published.
+cache demand ineligible.
 
 ## Completed default-profile repetitions
 
@@ -380,6 +378,26 @@ and
 snapshots reject its 52% pooled score below the 60% eligibility gate, while the
 [`cache-demand`](generated/harbor-pilot5-qwen38-baseline-five-repeat-quality-cache-efficiency-frontier.json)
 snapshot rejects missing exact token demand caused by incomplete API requests.
-These explicit rejections are evidence, not empty benchmark cells. A paired
-profile comparison remains unpublished until the bounded-reasoning route also
-has five repetitions.
+These explicit rejections are evidence, not empty benchmark cells.
+
+## Completed paired five-run comparison
+
+The bounded-reasoning profile's fifth job scored 4/5, passing every task except
+`build-cython-ext`. Across all five runs it solved 17/25 tasks (68%), with a
+60–80% per-run range and 917.424 seconds pooled all-task p95. Its maximum fully
+covered process footprint was 25,084,113,760 bytes. Three incomplete API
+requests keep its uncached-input total a lower bound.
+
+The exact
+[`paired catalog`](generated/harbor-pilot5-qwen38-paired-five-repeat-catalog.json)
+therefore produces a simple result:
+
+| Two quantities compared | Result |
+| --- | --- |
+| coding success × task time | bounded reasoning is the only member; default reasoning fails the 60% quality floor |
+| coding success × process memory | bounded reasoning is the only member; default reasoning fails the 60% quality floor |
+| coding success × exact uncached input | no member; both profiles have incomplete request accounting |
+
+The first two rows establish the preferred configuration among these two exact
+Qwen profiles. They do not establish Qwen as a robust cross-model winner: the
+other model families have only one run in this pilot.

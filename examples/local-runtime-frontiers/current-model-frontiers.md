@@ -32,7 +32,7 @@ attributable failures.
 
 | Meaning of “best” | Two quantities compared | Current model(s) on the frontier | Plain-English reading |
 | --- | --- | --- | --- |
-| Capable and fast coding agent | coding success ↑ × task time ↓ | **Qwen3.8 27B**† | Best measured quality-first balance. Its initial result was 4/5; across the first four repeats it solved 13/20, with the fifth repeat pending. |
+| Capable and fast coding agent | coding success ↑ × task time ↓ | **Qwen3.8 27B**† | Best measured quality-first balance. Its low-reasoning/4K profile solved 17/25 tasks across five runs versus 13/25 for default reasoning. |
 | Capable coding agent under memory pressure | coding success ↑ × process memory ↓ | **Qwen3.8 27B** and **Muse Glimmer**† | Qwen solved more; Muse used much less memory, so neither beats the other on both. |
 | Capable coding agent with less repeated input work | coding success ↑ × uncached input tokens ↓ | **Muse Glimmer**† | Muse is the only current member with complete accounting for this small pilot. |
 | Fast prompt processing and generation | prompt speed ↑ × generation speed ↑ | **Ornith 1.5** | Ornith led both speed measurements in the comparable M5 llama.cpp test. |
@@ -48,10 +48,10 @@ growth, and at least 125,000 validated input tokens. **Qwen3.8 Flash Next** is
 currently their only eligible member. The same view at a strict 128,000 tokens
 has no eligible model.
 
-† These coding-quality results use a small five-task pilot. The point
-frontiers show what was measured; they are not stable defaults. The repeated
-Qwen experiment is still in progress, and several promising models have not
-yet been run.
+† These coding-quality results use a small five-task pilot. The completed
+five-run comparison strengthens the low-reasoning/4K choice *within Qwen3.8*;
+it does not replace the broader one-run, cross-model comparison. Several
+promising models have not yet been run five times.
 
 ## The second view: balanced averages
 
