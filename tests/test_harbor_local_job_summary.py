@@ -275,6 +275,7 @@ def test_counts_protocol_agent_timeout_as_a_measured_failure(tmp_path: Path) -> 
     result_path = trial / "result.json"
     result = json.loads(result_path.read_text(encoding="utf-8"))
     result["exception_info"] = {"exception_type": "AgentTimeoutError"}
+    result["agent_result"]["metadata"]["api_request_times_msec"].pop()
     _write_json(result_path, result)
 
     with pytest.raises(SUMMARY.InvalidHarborTrial, match="infrastructure-invalid"):
@@ -286,6 +287,19 @@ def test_counts_protocol_agent_timeout_as_a_measured_failure(tmp_path: Path) -> 
     assert summary["aggregate"]["valid_trials"] == 1
     assert summary["aggregate"]["success_percent"] == "0.0"
     assert summary["trials"][0]["quality_attributable_exception"] == "AgentTimeoutError"
+    assert summary["trials"][0]["incomplete_api_requests"] == 1
+
+
+def test_rejects_unfinished_api_request_without_attributable_exception(tmp_path: Path) -> None:
+    job = _job(tmp_path)
+    trial = next(child for child in job.iterdir() if child.is_dir())
+    result_path = trial / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    result["agent_result"]["metadata"]["api_request_times_msec"].pop()
+    _write_json(result_path, result)
+
+    with pytest.raises(SUMMARY.InvalidHarborTrial, match="request count"):
+        SUMMARY.summarize_job(job)
 
 
 def test_rejects_task_lock_name_mismatch(tmp_path: Path) -> None:

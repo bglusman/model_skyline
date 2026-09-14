@@ -310,35 +310,54 @@ class LocalMeasurementRecord(FrozenModel):
         return self
 
 
-def local_offering_key(record: LocalMeasurementRecord) -> OfferingKey:
-    """Build the complete route key for one exact local system profile."""
+def local_system_offering_key(
+    *,
+    hardware: LocalHardwareIdentity,
+    artifact: LocalArtifactIdentity,
+    runtime: LocalRuntimeIdentity,
+    capabilities: tuple[CapabilityName, ...],
+) -> OfferingKey:
+    """Build the complete route key for exact local hardware, artifact, and runtime."""
 
+    if len(capabilities) != len(set(capabilities)):
+        raise ValueError("capabilities must not contain duplicates")
+    canonical_capabilities = tuple(sorted(capabilities))
     identity = content_hash(
         {
-            "hardware": record.hardware.model_dump(mode="json", exclude={"metadata"}),
-            "artifact": record.artifact.model_dump(
+            "hardware": hardware.model_dump(mode="json", exclude={"metadata"}),
+            "artifact": artifact.model_dump(
                 mode="json", exclude={"source_url", "license", "metadata"}
             ),
-            "runtime": record.runtime.model_dump(mode="json"),
-            "capabilities": list(record.capabilities),
+            "runtime": runtime.model_dump(mode="json"),
+            "capabilities": list(canonical_capabilities),
         }
     )
     readable = (
-        f"local/{record.hardware.hardware_id}/{record.artifact.model_id}"
-        f"@{record.artifact.format}-{record.artifact.quantization}-"
-        f"{record.runtime.runtime_id}-{identity[:16]}"
+        f"local/{hardware.hardware_id}/{artifact.model_id}"
+        f"@{artifact.format}-{artifact.quantization}-{runtime.runtime_id}-{identity[:16]}"
     )
     return OfferingKey(
         offering_id=readable,
-        model_id=record.artifact.model_id,
-        provider=f"local:{record.hardware.hardware_id}",
+        model_id=artifact.model_id,
+        provider=f"local:{hardware.hardware_id}",
         endpoint=None,
         billing_mode="owned_hardware",
         region="local",
-        service_tier=record.hardware.power_mode,
-        quantization=record.artifact.quantization,
+        service_tier=hardware.power_mode,
+        quantization=artifact.quantization,
         reasoning_effort=None,
-        agent_harness=record.runtime.agent_harness,
+        agent_harness=runtime.agent_harness,
+        capabilities=canonical_capabilities,
+    )
+
+
+def local_offering_key(record: LocalMeasurementRecord) -> OfferingKey:
+    """Build the complete route key for one exact local measurement record."""
+
+    return local_system_offering_key(
+        hardware=record.hardware,
+        artifact=record.artifact,
+        runtime=record.runtime,
         capabilities=record.capabilities,
     )
 

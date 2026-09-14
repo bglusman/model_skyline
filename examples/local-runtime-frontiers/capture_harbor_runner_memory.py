@@ -14,6 +14,7 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 SCHEMA_VERSION = "model-skyline/harbor-runner-memory/v1"
 MAX_JSON_BYTES = 64_000_000
@@ -141,7 +142,7 @@ def _wait_for_job(job_dir: Path, *, timeout_seconds: float) -> None:
         time.sleep(0.1)
 
 
-def _timestamp(value: object, *, field: str) -> datetime:
+def _timestamp(value: object, *, field: str, naive_timezone: ZoneInfo | None = None) -> datetime:
     if not isinstance(value, str):
         raise MemoryCaptureError(f"{field} must be an ISO 8601 timestamp")
     normalized = value[:-1] + "+00:00" if value.endswith("Z") else value
@@ -150,11 +151,18 @@ def _timestamp(value: object, *, field: str) -> datetime:
     except ValueError as exc:
         raise MemoryCaptureError(f"{field} must be an ISO 8601 timestamp") from exc
     if result.tzinfo is None:
-        raise MemoryCaptureError(f"{field} must include a timezone")
+        if naive_timezone is None:
+            raise MemoryCaptureError(f"{field} must include a timezone")
+        result = result.replace(tzinfo=naive_timezone)
     return result
 
 
-def _task_coverage(job_dir: Path, *, capture_started_at: datetime) -> dict[str, bool]:
+def _task_coverage(
+    job_dir: Path,
+    *,
+    capture_started_at: datetime,
+    job_timezone: ZoneInfo,
+) -> dict[str, bool]:
     coverage: dict[str, bool] = {}
     for child in job_dir.iterdir():
         if not child.is_dir() or child.is_symlink():
@@ -165,10 +173,35 @@ def _task_coverage(job_dir: Path, *, capture_started_at: datetime) -> dict[str, 
         if not isinstance(task_name, str) or not isinstance(execution, dict):
             raise MemoryCaptureError("completed trial task or timing is missing")
         started_at = _timestamp(
-            execution.get("started_at"), field=f"{task_name}.agent_execution.started_at"
+            execution.get("started_at"),
+            field=f"{task_name}.agent_execution.started_at",
+            naive_timezone=job_timezone,
         )
         coverage[task_name] = capture_started_at <= started_at
     return dict(sorted(coverage.items()))
+
+
+def _canonicalize_active_task_names(
+    samples: list[dict[str, Any]], *, completed_task_names: set[str]
+) -> None:
+    by_basename: dict[str, str] = {}
+    for task_name in completed_task_names:
+        basename = task_name.rsplit("/", 1)[-1]
+        if basename in by_basename:
+            raise MemoryCaptureError("completed task basenames are not unique")
+        by_basename[basename] = task_name
+    for sample in samples:
+        active = sample["active_tasks"]
+        canonical: list[str] = []
+        for task_name in active:
+            if task_name in completed_task_names:
+                canonical.append(task_name)
+                continue
+            mapped = by_basename.get(task_name)
+            if mapped is None:
+                raise MemoryCaptureError(f"active task has no completed result: {task_name}")
+            canonical.append(mapped)
+        sample["active_tasks"] = sorted(canonical)
 
 
 def capture(
@@ -178,6 +211,7 @@ def capture(
     process_match: str,
     interval_seconds: float,
     timeout_seconds: float,
+    job_timezone: ZoneInfo,
 ) -> dict[str, Any]:
     job_lock_sha256 = _validate_job(job_dir, expected_model=expected_model)
     started_at = datetime.now(UTC)
@@ -203,6 +237,12 @@ def capture(
             raise MemoryCaptureError("capture timed out before the Harbor job finished")
         time.sleep(interval_seconds)
 
+    coverage = _task_coverage(
+        job_dir,
+        capture_started_at=started_at,
+        job_timezone=job_timezone,
+    )
+    _canonicalize_active_task_names(samples, completed_task_names=set(coverage))
     task_peaks: dict[str, dict[str, int | None]] = {}
     for sample in samples:
         for task in sample["active_tasks"]:
@@ -219,7 +259,11 @@ def capture(
                 )
 
     job_result = _load_json(job_dir / "result.json")
-    job_started_at = _timestamp(job_result.get("started_at"), field="job.started_at")
+    job_started_at = _timestamp(
+        job_result.get("started_at"),
+        field="job.started_at",
+        naive_timezone=job_timezone,
+    )
     return {
         "schema_version": SCHEMA_VERSION,
         "expected_model": expected_model,
@@ -228,10 +272,10 @@ def capture(
         "started_at": started_at.isoformat().replace("+00:00", "Z"),
         "finished_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "sample_interval_seconds": str(interval_seconds),
+        "job_timestamp_timezone": job_timezone.key,
         "capture_started_after_job_start": started_at > job_started_at,
-        "capture_started_before_agent_execution": _task_coverage(
-            job_dir, capture_started_at=started_at
-        ),
+        "capture_started_before_agent_execution": coverage,
+        "task_name_form": "completed_result_name",
         "task_peaks": task_peaks,
         "samples": samples,
         "contains_prompts_or_model_messages": False,
@@ -246,6 +290,11 @@ def main() -> None:
     parser.add_argument("--interval-seconds", type=float, default=1.0)
     parser.add_argument("--timeout-seconds", type=float, default=21_600.0)
     parser.add_argument("--wait-for-job-seconds", type=float, default=300.0)
+    parser.add_argument(
+        "--job-timezone",
+        required=True,
+        help="IANA timezone for Harbor 0.23's timezone-naive job timestamps",
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.interval_seconds < 0.1 or args.interval_seconds > 60:
@@ -255,6 +304,7 @@ def main() -> None:
     if args.wait_for_job_seconds < 0:
         parser.error("--wait-for-job-seconds must be non-negative")
     try:
+        job_timezone = ZoneInfo(args.job_timezone)
         _wait_for_job(args.job_directory, timeout_seconds=args.wait_for_job_seconds)
         result = capture(
             args.job_directory,
@@ -262,8 +312,9 @@ def main() -> None:
             process_match=args.process_match,
             interval_seconds=args.interval_seconds,
             timeout_seconds=args.timeout_seconds,
+            job_timezone=job_timezone,
         )
-    except MemoryCaptureError as exc:
+    except (MemoryCaptureError, ZoneInfoNotFoundError) as exc:
         parser.error(str(exc))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")

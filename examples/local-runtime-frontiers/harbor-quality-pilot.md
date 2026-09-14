@@ -15,15 +15,34 @@ not an `estimated` full score, and not a calibrated coreset. The smoke task is
 only `proxy` evidence that the model, agent parser, terminal, and verifier form a
 working loop.
 
-The pilot materializes two useful local frontiers after the validity gates pass:
+The pilot materializes three useful local frontiers after the validity gates pass:
 
-- measured pilot success versus p95 wall time of successful tasks; and
-- measured pilot success versus peak physical footprint.
+- measured pilot success versus p95 wall time across every valid task,
+  including quality-attributable timeouts; and
+- measured pilot success versus peak physical footprint; and
+- measured pilot success versus total uncached input tokens across all five
+  tasks, a cache-aware agent-compute measure that also penalizes excess turns,
+  provided every API request has complete usage accounting.
 
-Both require at least 60% success on the exact task set. The threshold prevents a
-fast but mostly useless route from becoming a recommended resident. The existing
+All three require at least 60% success on the exact task set. The cache-demand
+frontier additionally requires zero incomplete API requests: a timeout can hide
+the final request's usage, and treating the recorded subtotal as exact would
+reward failure. The quality threshold prevents a fast but mostly useless route
+from becoming a recommended resident. The existing
 128K, cache, session-endurance, and operational frontiers remain separate because
 these short repository tasks do not test those capabilities.
+
+Exact cache reuse percentage, total output tokens, and successful-task-only p95
+are retained as diagnostics, but they are not recommendation axes. When a run
+has an incomplete API request, only explicitly labeled recorded-token lower
+bounds remain in metadata. Cache reuse can be gamed by taking more turns, and
+successful-only latency hides the 900-second cost of a timed-out task. The
+decision latency therefore includes every valid task, including
+quality-attributable failures. Context is controlled as an
+eligibility/cohort property here: all routes receive the same 114,688-token
+input and 16,384-token output envelope with the same compaction policy. Validated
+maximum context remains a separate retrieval frontier rather than a configured
+capacity claim.
 
 ## Harness-validity lesson from the first smoke
 
@@ -98,6 +117,26 @@ prompts, terminal content, and model messages. The current summaries are
 and
 [`raw/harbor-smoke-qwen38-baseline-f16kv-fix-git-summary.json`](raw/harbor-smoke-qwen38-baseline-f16kv-fix-git-summary.json).
 
+Render Harbor's machine-local `JobConfig` directly from the pinned protocol so
+candidate route, task order, context/output budget, parser, sampling, compaction,
+and concurrency do not drift between runs. Absolute task/job/overlay paths remain
+in the private rendered config and are not publication artifacts.
+
+```console
+python examples/local-runtime-frontiers/render_harbor_pilot_config.py \
+  --protocol examples/local-runtime-frontiers/harbor-quality-pilot.yaml \
+  --candidate qwen38_flash_ds4 \
+  --task-set pilot_5 \
+  --tasks-directory /path/to/terminal-bench-2-1/tasks \
+  --jobs-directory /path/to/harbor/jobs/local-quality-pilot \
+  --job-name pilot5-v1-qwen38-flash-next-ds4 \
+  --api-base http://127.0.0.1:8090/v1 \
+  --extra-docker-compose /path/to/private-docker-overlay.yaml \
+  --output /path/to/private-harbor-job-config.json
+
+harbor run --config /path/to/private-harbor-job-config.json --yes
+```
+
 ```console
 python examples/local-runtime-frontiers/summarize_harbor_local_job.py \
   --job-directory /path/to/harbor/job \
@@ -130,12 +169,15 @@ python examples/local-runtime-frontiers/capture_harbor_runner_memory.py \
   --job-directory /path/to/jobs/pilot5-v1-ornith15-baseline \
   --expected-model ornith-1.5-35b-a3b-oq4e-mtp:baseline-f16kv \
   --process-match omlx-server \
+  --job-timezone America/New_York \
   --output /path/to/jobs/pilot5-v1-ornith15-baseline/runner-memory.json
 ```
 
 Only tasks with `capture_started_before_agent_execution: true` can contribute to
 the memory axis. This keeps a late-attached diagnostic capture useful without
 silently treating its partial first-task series as a measured peak.
+The timezone is required because Harbor 0.23 serializes local job timestamps
+without a UTC offset; the sampler records the IANA zone used to interpret them.
 
 ## Timeout and exception policy
 
@@ -148,3 +190,82 @@ artifacts. Their exception type is retained without its path-bearing traceback.
 Verifier timeouts, missing rewards, authentication/model lookup failures, and
 all other exceptions remain infrastructure-invalid and fail closed. The job's
 errored-trial count must exactly match the accepted attributable exceptions.
+For such an exception, the trajectory may retain exactly one final episode whose
+in-flight API request never produced a duration; the summary records that as one
+`incomplete_api_requests`. A normal trial still requires one completed API timing
+per episode.
+
+## Normalize and evaluate
+
+[`normalize_harbor_pilot.py`](normalize_harbor_pilot.py) accepts one prompt-free
+summary per exact candidate and optional job-matched memory captures. It emits
+an ordinary `ObservationCatalog`, with the Terminus/Harbor configuration hashed
+into `OfferingKey.agent_harness` so these results cannot be silently joined to
+the same inference server measured under the lightweight OpenAI matrix harness.
+
+```console
+python examples/local-runtime-frontiers/normalize_harbor_pilot.py \
+  --protocol examples/local-runtime-frontiers/harbor-quality-pilot.yaml \
+  --hardware examples/local-runtime-frontiers/hardware/macbook-m5max-64.json \
+  --task-set pilot_5 \
+  --summary /path/to/ornith-summary.json \
+  --summary /path/to/ds4-summary.json \
+  --memory-capture /path/to/ornith-runner-memory.json \
+  --memory-capture /path/to/ds4-runner-memory.json \
+  --output examples/local-runtime-frontiers/generated/harbor-pilot5-quality-catalog.json
+
+modelskyline evaluate examples/local-runtime-frontiers/frontiers.yaml \
+  examples/local-runtime-frontiers/generated/harbor-pilot5-quality-catalog.json \
+  local-agent-quality-latency --format json \
+  --output examples/local-runtime-frontiers/generated/harbor-pilot5-quality-latency-frontier.json \
+  --as-of 2026-09-14T02:00:00Z
+```
+
+The latency axis uses a deterministic Hyndman–Fan type-7 p95 over the five
+complete task wall times. The memory signal is omitted unless capture began
+before every task's agent execution and every task has a positive
+kernel-accounted physical-footprint peak. An incomplete capture therefore
+remains auditable metadata but is rejected from the memory frontier.
+
+## First five five-task results
+
+Ornith 1.5 oQ4e/F16-KV and Qwen3.8 Flash Next on DS4 each scored 3/5 (60%),
+passing `fix-git`, `multi-source-data-merger`, and
+`fix-code-vulnerability`. Both failed `build-cython-ext`; DS4 also timed out on
+`cancel-async-tasks`, while Ornith completed that trial with reward zero.
+
+| Exact route | Success | All-task p95 wall | Recorded uncached input lower bound | Recorded cache reuse | Recorded output lower bound | Peak process footprint |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Ornith 1.5 oQ4e, oMLX F16 KV | 3/5 | 857.665 s | 161,473 | 86.284% | 160,409 | ineligible capture |
+| Qwen3.8 Flash Next, DS4 Q2/PLE-Q4_1 | 3/5 | 923.973 s | 45,888 | 93.448% | 49,492 | 5,461,911,280 B |
+| Qwen3.8 27B oQ4e, oMLX F16 KV | 2/5 | 923.979 s | 87,051 | 69.748% | 58,939 | 23,198,069,456 B |
+| Qwen3.8 27B oQ4e, oMLX F16 KV, low reasoning/4K thinking | 4/5 | 804.267 s | 98,321 | 78.375% | 31,942 | 23,782,290,440 B |
+| Muse Glimmer 30B Dynamic Q4_K_XL | 3/5 | 836.343 s | 51,424 exact | 95.738% | 40,157 exact | 3,484,714,192 B |
+
+The bounded-reasoning Qwen route passed every task except `build-cython-ext`,
+improving the identical artifact/runtime family from 2/5 to 4/5. It is the sole
+quality/latency resident at 80% and 804.267 seconds p95. Its 23.782 GB process
+footprint and higher quality form one end of the quality/memory frontier, while
+Muse's 3.485 GB footprint and 60% quality form the other. The tuned route's one
+timeout ended during an API request, so its 98,321 uncached-input and 31,942
+output-token subtotals remain lower bounds and are not cache-frontier evidence.
+
+The footprint is macOS's kernel-accounted active process working set;
+it does not replace the separately retained 76.8 GB composite artifact size and
+does not count file-backed demand-paged storage as if it were anonymous memory.
+Muse passed `cancel-async-tasks`, `fix-git`, and `multi-source-data-merger`.
+Its one timeout occurred while the agent was waiting on the terminal rather
+than an API request, so all request token totals are complete. It is the first
+and only cache-demand resident.
+Dense Qwen3.8 passed `fix-git` and `multi-source-data-merger`, but its three
+timeouts leave it below the 60% quality gate and make its token subtotals lower
+bounds as well. Its full-run memory capture is valid, but the quality gate keeps
+it off the memory frontier. The paired profile result shows that reasoning and
+agent configuration are decision-relevant offering identity, not harmless
+metadata; it does not establish a transferable gain outside this five-task,
+single-attempt pilot.
+
+The first Ornith memory capture began after the job and used an earlier sampler
+without per-task coverage flags. Its observed peaks remain a private diagnostic,
+but the normalizer intentionally emits no memory axis from it. A clean capture
+must accompany a rerun before Ornith can enter the quality/memory frontier.

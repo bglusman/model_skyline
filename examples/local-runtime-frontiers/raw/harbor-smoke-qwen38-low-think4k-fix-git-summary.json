@@ -7,7 +7,7 @@
   },
   "contains_prompts_or_model_messages": false,
   "expected": {
-    "model": "muse-glimmer-30b-dynamic-target",
+    "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv-low-think4k",
     "quality_attributable_exceptions": [
       "AgentSafetyRefusalError",
       "AgentTimeoutError"
@@ -22,22 +22,22 @@
   "invalid": [],
   "job": {
     "concurrency": 1,
-    "finished_at": "2026-09-13T20:56:58.789689",
+    "finished_at": "2026-09-14T01:43:12.405986",
     "harbor": {
       "git_commit_hash": "88fdbc9d42e907c0414654f041ece5eaf798f538",
       "version": "0.23.0"
     },
-    "id": "211d0a46-5ef0-4bbc-91e0-4b9878d2cf95",
-    "job_config_sha256": "064f63f7ba8e6f98f5289b20417cefd63834021148b6560699587cb3dcd73b72",
-    "job_lock_sha256": "19b39c512c1d39f98fcfc44fceb7e4d559315c6573622c0c7af8cf21cd5b8bc8",
-    "job_result_sha256": "f6e8b3a0ba8ffa1fdf7c31ce7e22dc8143522fc6d8914c0393aca867a7c970d3",
-    "started_at": "2026-09-13T20:53:11.446260"
+    "id": "4839b8e4-4438-477d-9a33-35b2ed2777f6",
+    "job_config_sha256": "8e3904eb47d209d8e174e00c819b6041007a8b4bf4ffcc96e68048add0fb5e66",
+    "job_lock_sha256": "e02fee38910d824c27e884376a620427f711ae402412956b3813d75b832e705e",
+    "job_result_sha256": "39e913dcd7e3946fe59f93d903581794de7a68c61d27ab5fb7088d2753541d9a",
+    "started_at": "2026-09-14T01:41:09.273300"
   },
   "protocol": {
-    "candidate": "muse_glimmer_target",
-    "protocol_sha256": "ba4961e108ecbfe9e443d58c37dabe15bef311600e62009b1ec80371c4af80cd",
-    "system_profile": "system-profiles/muse-glimmer-dynamic-q4xl-target-ctx131k.json",
-    "system_profile_sha256": "ff471eef2691e65aec02f87768086b911df9856d6e2499d7cb3df111470fff0e",
+    "candidate": "qwen38_low_think4k",
+    "protocol_sha256": "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41",
+    "system_profile": "system-profiles/qwen38-omlx-baseline-f16kv-low-think4k-cache-ssd.json",
+    "system_profile_sha256": "ce43f4a37975455c303064d63b09cf1d044406dfcefd5e7c14c468d641b6fa3c",
     "task_set": "smoke"
   },
   "schema_version": "model-skyline/harbor-local-job-summary/v1",
@@ -58,25 +58,23 @@
         "temperature": "1.0",
         "top_p": "0.95"
       },
-      "agent_episodes": 8,
+      "agent_episodes": 6,
       "api_request_times_msec": [
-        "32672.479152679443",
-        "115649.70111846924",
-        "9766.79015159607",
-        "10570.168018341064",
-        "5727.728843688965",
-        "6275.930881500244",
-        "3786.062002182007",
-        "10396.719217300415"
+        "16817.420959472656",
+        "19337.75782585144",
+        "11316.025018692017",
+        "9030.025243759155",
+        "17380.051136016846",
+        "14632.238149642944"
       ],
       "audit": {
-        "ctrf_sha256": "df7065b51845f569cc09de6e267338615688127ed9f5e50c914331fc1ae2b514",
+        "ctrf_sha256": "0e5c39e217b76023447f445564a119447df08971f22d8acbc8f30c324d67c743",
         "reward_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
-        "trajectory_sha256": "e24fa614a3b5226872fa0526a63dbb47ebddc9e9a55a4ccfe15d2d18d4152488",
-        "trial_config_sha256": "c7e14e13f1b3b16a90c0d724c84328b3218273295d75b94dc6815be7c826928e",
-        "trial_lock_sha256": "dcc7e083c52c9b46733cf2658c60ca588902227624f2b2458828ffbbe8213b33",
-        "trial_result_sha256": "cc525971bae9070085b277de4b7f5d1c03d19bab6432c0c8a8778c54e1698e45",
-        "verifier_stdout_sha256": "cd275e8dd35d964dffb6972a490bb4afc757653b1bd51382166a94db4c13c9dd"
+        "trajectory_sha256": "002453ceefc6736c8deedb255972e39ab5b3eb06628be3d2bb3c22d2be0ebb3b",
+        "trial_config_sha256": "4218e1d26503638ac078053204a61502ae2f69a068017cf83e20eddcd60adf85",
+        "trial_lock_sha256": "ba755dad180a1d993d37cde5b4b3190c3f85abfd3b855056b65709fdef512d92",
+        "trial_result_sha256": "7f414089251d7fbb365960b30075d8534a4a15bea903461d4c1a7197e0bd45fa",
+        "verifier_stdout_sha256": "4d82faef2023c18dd903fed98a6afe3cbbfdbd5c3584656c686c2535a4fb2de2"
       },
       "ctrf": {
         "failed": 0,
@@ -88,10 +86,10 @@
         "tool_version": "8.4.1"
       },
       "incomplete_api_requests": 0,
-      "model": "muse-glimmer-30b-dynamic-target",
+      "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv-low-think4k",
       "parser_feedback_events": {
         "errors": 0,
-        "warnings": 0
+        "warnings": 1
       },
       "quality_attributable_exception": null,
       "reward": "1.0",
@@ -99,18 +97,18 @@
       "task_lock_digest": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
       "task_name": "terminal-bench/fix-git",
       "timing_seconds": {
-        "agent_execution": "203.476917",
-        "agent_setup": "11.268437",
-        "environment_setup": "1.01394",
-        "verifier": "7.025333"
+        "agent_execution": "99.530932",
+        "agent_setup": "10.878526",
+        "environment_setup": "0.97554",
+        "verifier": "7.28406"
       },
       "tokens": {
-        "cache": 17808,
-        "input": 20707,
-        "output": 4605
+        "cache": 12288,
+        "input": 23173,
+        "output": 2112
       },
-      "trial_id": "567ddd4d-1122-4f7f-b49e-506fd4f33198",
-      "trial_name": "fix-git__nc9VMxB"
+      "trial_id": "2702086c-0037-4f9d-9c51-25f920b1c303",
+      "trial_name": "fix-git__8Yq5CHf"
     }
   ]
 }

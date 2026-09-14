@@ -16,6 +16,7 @@ from model_skyline.local_measurements import (
     build_local_capacity_catalog,
     build_local_catalog,
     local_offering_key,
+    local_system_offering_key,
 )
 from model_skyline.models import WorkloadReference
 
@@ -189,6 +190,32 @@ def test_workload_and_raw_capture_do_not_change_system_identity() -> None:
     changed_key = local_offering_key(LocalMeasurementRecord.model_validate(changed))
 
     assert baseline_key == changed_key
+
+
+def test_system_components_build_the_same_exact_offering_key() -> None:
+    record = LocalMeasurementRecord.model_validate(local_measurement_payload())
+
+    assert local_system_offering_key(
+        hardware=record.hardware,
+        artifact=record.artifact,
+        runtime=record.runtime,
+        capabilities=record.capabilities,
+    ) == local_offering_key(record)
+
+    assert local_system_offering_key(
+        hardware=record.hardware,
+        artifact=record.artifact,
+        runtime=record.runtime,
+        capabilities=tuple(reversed(record.capabilities)),
+    ) == local_offering_key(record)
+
+    with pytest.raises(ValueError, match="duplicates"):
+        local_system_offering_key(
+            hardware=record.hardware,
+            artifact=record.artifact,
+            runtime=record.runtime,
+            capabilities=("text", "text"),
+        )
 
 
 def test_catalog_projection_retains_samples_integrity_and_exact_metadata() -> None:

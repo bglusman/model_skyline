@@ -13,6 +13,28 @@
       "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1"
     },
     {
+      "frontier_count": 2,
+      "frontiers": [
+        "quality-latency",
+        "quality-process-footprint"
+      ],
+      "model_id": "Qwen/Qwen3.8-27B",
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e"
+    },
+    {
+      "frontier_count": 2,
+      "frontiers": [
+        "quality-cache-efficiency",
+        "quality-process-footprint"
+      ],
+      "model_id": "meta-models/Muse-Glimmer-30B",
+      "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "KQuant-Dynamic-Q4_K_XL"
+    },
+    {
       "frontier_count": 1,
       "frontiers": [
         "warm-agent-tools"
@@ -107,10 +129,59 @@
       ],
       "rejected_count": 0,
       "snapshot_id": "89a7e8b6f91b4e59e87e96d5a744a12d380b9939f9d8e622601dbb34b4614464"
+    },
+    {
+      "definition": "local-agent-quality-latency",
+      "label": "quality-latency",
+      "members": [
+        {
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
+        }
+      ],
+      "rejected_count": 1,
+      "snapshot_id": "597a98a7b9684d7f971336cd3a9e3880caa48640f610bb54f4c5f19e5f8bb6ab"
+    },
+    {
+      "definition": "local-agent-quality-cache-efficiency",
+      "label": "quality-cache-efficiency",
+      "members": [
+        {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816"
+        }
+      ],
+      "rejected_count": 4,
+      "snapshot_id": "9f98eeb5181b95c7ddd13f9b568c0044c1bb8b3a85f135fdb1232b35e3cebba2"
+    },
+    {
+      "definition": "local-agent-quality-memory",
+      "label": "quality-process-footprint",
+      "members": [
+        {
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4"
+        },
+        {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816"
+        }
+      ],
+      "rejected_count": 2,
+      "snapshot_id": "9c11774ea69989d6cb93ba76d59954547eb0fe8f644bbed0c35693c473b846de"
     }
   ],
   "membership_semantics": "Membership already incorporates each frontier axis's configured epsilon; this report does not add a second synthetic score.",
   "model_families": [
+    {
+      "frontier_count": 3,
+      "frontiers": [
+        "quality-latency",
+        "quality-process-footprint",
+        "warm-agent-tools"
+      ],
+      "model_id": "Qwen/Qwen3.8-27B"
+    },
     {
       "frontier_count": 3,
       "frontiers": [
@@ -123,17 +194,18 @@
     {
       "frontier_count": 2,
       "frontiers": [
+        "quality-cache-efficiency",
+        "quality-process-footprint"
+      ],
+      "model_id": "meta-models/Muse-Glimmer-30B"
+    },
+    {
+      "frontier_count": 2,
+      "frontiers": [
         "short-throughput",
         "warm-agent-tools"
       ],
       "model_id": "ornith-ai/Ornith-1.5-35B-A3B"
-    },
-    {
-      "frontier_count": 1,
-      "frontiers": [
-        "warm-agent-tools"
-      ],
-      "model_id": "Qwen/Qwen3.8-27B"
     }
   ],
   "schema_version": "model-skyline/local-frontier-coverage/v1"

@@ -1,0 +1,467 @@
+{
+  "aggregate": {
+    "invalid_trials": 0,
+    "success_percent": "60.0",
+    "successes": "3.0",
+    "valid_trials": 5
+  },
+  "contains_prompts_or_model_messages": false,
+  "expected": {
+    "model": "muse-glimmer-30b-dynamic-target",
+    "quality_attributable_exceptions": [
+      "AgentSafetyRefusalError",
+      "AgentTimeoutError"
+    ],
+    "task_digests": {
+      "terminal-bench/build-cython-ext": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+      "terminal-bench/cancel-async-tasks": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1",
+      "terminal-bench/fix-code-vulnerability": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+      "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+      "terminal-bench/multi-source-data-merger": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49"
+    },
+    "tasks": [
+      "terminal-bench/build-cython-ext",
+      "terminal-bench/cancel-async-tasks",
+      "terminal-bench/fix-code-vulnerability",
+      "terminal-bench/fix-git",
+      "terminal-bench/multi-source-data-merger"
+    ]
+  },
+  "invalid": [],
+  "job": {
+    "concurrency": 1,
+    "finished_at": "2026-09-14T01:36:39.275811",
+    "harbor": {
+      "git_commit_hash": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+      "version": "0.23.0"
+    },
+    "id": "9002daa8-5e83-45c8-aa46-2511d588c5fb",
+    "job_config_sha256": "cec5aabce72c67dc34a234b990593d5782aded48dcd6b9e9bc6def9bb91e588f",
+    "job_lock_sha256": "a7a862a05ee61b35bf0de21f9ddee0c8f9c07a0c0fbd09c86e0d3f233a18815a",
+    "job_result_sha256": "b2b56eaa7d395fa6b0f61214924f5fa1c50195ca354c8ed28db26853c451cdf5",
+    "started_at": "2026-09-14T00:54:50.779690"
+  },
+  "protocol": {
+    "candidate": "muse_glimmer_target",
+    "protocol_sha256": "07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41",
+    "system_profile": "system-profiles/muse-glimmer-dynamic-q4xl-target-ctx131k.json",
+    "system_profile_sha256": "ff471eef2691e65aec02f87768086b911df9856d6e2499d7cb3df111470fff0e",
+    "task_set": "pilot_5"
+  },
+  "schema_version": "model-skyline/harbor-local-job-summary/v1",
+  "trials": [
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 33,
+      "api_request_times_msec": [
+        "52384.690046310425",
+        "19593.612909317017",
+        "15643.953084945679",
+        "13015.527963638306",
+        "26619.987964630127",
+        "10458.603620529175",
+        "11928.430795669556",
+        "6035.086870193481",
+        "5288.076877593994",
+        "10510.04409790039",
+        "6535.921096801758",
+        "9607.835292816162",
+        "8493.0739402771",
+        "6013.538122177124",
+        "6783.623933792114",
+        "5929.533004760742",
+        "3928.865909576416",
+        "5711.259841918945",
+        "6386.725187301636",
+        "10779.89411354065",
+        "18165.19284248352",
+        "7921.260118484497",
+        "8634.981870651245",
+        "5300.31681060791",
+        "12704.805850982666",
+        "7488.36088180542",
+        "7790.668249130249",
+        "3424.4420528411865",
+        "3703.808069229126",
+        "4370.954275131226",
+        "3176.877975463867",
+        "4750.8392333984375",
+        "5876.821756362915"
+      ],
+      "audit": {
+        "ctrf_sha256": "8023cb2c9ec14607e6bb3848eb82b02e9cfaa03aa3e7318166dbeaadccbbf034",
+        "reward_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "trajectory_sha256": "3207bbaa14cc5a49279d92e96564bf0e098d644bd5999882645f4ee0e3485d4d",
+        "trial_config_sha256": "19fd91cf11016df425bcf11bdf35489323d7ecb2045aef4a03215871aa227d8c",
+        "trial_lock_sha256": "c113fed7f47ee27231919febbad3eb82affea2c80668f403aa5dc69189aef4d4",
+        "trial_result_sha256": "cfa43ab63a0dc50b32875519e9a74e91c1b9ff8fcef3500589256dae912ec87e",
+        "verifier_stdout_sha256": "f2efb623bd798d5a77444795f5889b8fd96cc687853c0c515861adbdf721a3f8"
+      },
+      "ctrf": {
+        "failed": 9,
+        "other": 0,
+        "passed": 2,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 11,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "muse-glimmer-30b-dynamic-target",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 0
+      },
+      "quality_attributable_exception": "AgentTimeoutError",
+      "reward": "0.0",
+      "task_checksum": "73d894b2d49e5f9f8feb08488f0d52d4818372c775039cc3e1b1815b77256065",
+      "task_lock_digest": "sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12",
+      "task_name": "terminal-bench/build-cython-ext",
+      "timing_seconds": {
+        "agent_execution": "900.003812",
+        "agent_setup": "10.778412",
+        "environment_setup": "1.00308",
+        "verifier": "3.979204"
+      },
+      "tokens": {
+        "cache": 559511,
+        "input": 580962,
+        "output": 6837
+      },
+      "trial_id": "11d21f90-25ed-4fab-8cf3-ed6ec35067e5",
+      "trial_name": "build-cython-ext__G7w53gF"
+    },
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 2,
+      "api_request_times_msec": [
+        "181841.31002426147",
+        "176053.11703681946"
+      ],
+      "audit": {
+        "ctrf_sha256": "9b9af8991f97c200f4d94d441d97e8d4d12228bccc052028b7f94d207ff0e189",
+        "reward_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "trajectory_sha256": "1ecb95ceee2a719d5909a9b9016b660828d2a27700a57819d68ac58a5b589f10",
+        "trial_config_sha256": "62d44d8555d2cb4d2253ce9a20451e0aadafc5612b784dc43dd99873b75676e5",
+        "trial_lock_sha256": "c5624683e3ddecd05f3b1ecf762dc6aff58a12bae670771a19fa63889159edae",
+        "trial_result_sha256": "821eebb43e4b9d1fe46aa81f20df8802d716070e7cc23ed070ae932fa9edcc78",
+        "verifier_stdout_sha256": "a4b8f4878ed2b83855b8c9470585a6d3dd2cef224202040b50dd0647d5269239"
+      },
+      "ctrf": {
+        "failed": 0,
+        "other": 0,
+        "passed": 6,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 6,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "muse-glimmer-30b-dynamic-target",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 0
+      },
+      "quality_attributable_exception": null,
+      "reward": "1.0",
+      "task_checksum": "1566331f6913b8a4f9af6779e90cabbb79edf1b15c126b6bc544912df3f14de5",
+      "task_lock_digest": "sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1",
+      "task_name": "terminal-bench/cancel-async-tasks",
+      "timing_seconds": {
+        "agent_execution": "361.089612",
+        "agent_setup": "12.185463",
+        "environment_setup": "1.034845",
+        "verifier": "22.521827"
+      },
+      "tokens": {
+        "cache": 897,
+        "input": 2397,
+        "output": 8661
+      },
+      "trial_id": "c792fbd0-a63f-42cb-861f-ad8003c12404",
+      "trial_name": "cancel-async-tasks__WKqk22P"
+    },
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 40,
+      "api_request_times_msec": [
+        "16824.608087539673",
+        "15973.359823226929",
+        "4861.874103546143",
+        "10305.222034454346",
+        "20826.310873031616",
+        "3948.604106903076",
+        "6904.076099395752",
+        "3814.7096633911133",
+        "8806.70189857483",
+        "7111.665725708008",
+        "8786.47232055664",
+        "5490.631103515625",
+        "3480.3359508514404",
+        "24604.33602333069",
+        "8836.012840270996",
+        "10303.620100021362",
+        "3718.177080154419",
+        "5713.8049602508545",
+        "3467.313766479492",
+        "10321.244955062866",
+        "13942.642211914062",
+        "5151.079893112183",
+        "11227.893114089966",
+        "4736.151933670044",
+        "11046.929121017456",
+        "4013.2241249084473",
+        "19437.729835510254",
+        "3866.2869930267334",
+        "7089.906930923462",
+        "3576.6348838806152",
+        "48030.82013130188",
+        "8272.68385887146",
+        "5528.7511348724365",
+        "8740.668058395386",
+        "8953.070878982544",
+        "28415.940046310425",
+        "10019.048929214478",
+        "8280.480861663818",
+        "8597.82099723816",
+        "8325.178861618042"
+      ],
+      "audit": {
+        "ctrf_sha256": "78786fddcc02c12aff7335b34d8e5eee7772a82a11a7886c98e0d9ed05141ec7",
+        "reward_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "trajectory_sha256": "a40898a47bf8cb85b4e81d138dfd67a4deb838cf844df75d0f92695ad31932d7",
+        "trial_config_sha256": "44d1a12b6edaca1c4b65e4e84a2953fd790d8895d7a585676451f4ff5c2966f3",
+        "trial_lock_sha256": "c2a386a44268348ccf4aad6d56204b6c744e24780e8d534183ecdeb215b25b19",
+        "trial_result_sha256": "746076e4c90317a306b504e9e72bf10d8856d2db8a373c8eb614b8598725663a",
+        "verifier_stdout_sha256": "4ca0081531244dbbb2e5129af4d84edddf3f9cdee0c7c16040ea569ac1739fec"
+      },
+      "ctrf": {
+        "failed": 4,
+        "other": 0,
+        "passed": 2,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 6,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "muse-glimmer-30b-dynamic-target",
+      "parser_feedback_events": {
+        "errors": 5,
+        "warnings": 0
+      },
+      "quality_attributable_exception": null,
+      "reward": "0.0",
+      "task_checksum": "352f6f6321f82b6437fe2ddd664fa359f1263c0a85289c4fb5c81777c44faa79",
+      "task_lock_digest": "sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71",
+      "task_name": "terminal-bench/fix-code-vulnerability",
+      "timing_seconds": {
+        "agent_execution": "427.98355",
+        "agent_setup": "1.89167",
+        "environment_setup": "1.021133",
+        "verifier": "2.621478"
+      },
+      "tokens": {
+        "cache": 437592,
+        "input": 449058,
+        "output": 9167
+      },
+      "trial_id": "41f20424-18f3-4c6d-bc6c-dc00035b7c8d",
+      "trial_name": "fix-code-vulnerability__nEiXC2e"
+    },
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 16,
+      "api_request_times_msec": [
+        "29008.062839508057",
+        "18348.264932632446",
+        "15541.621923446655",
+        "12764.015913009644",
+        "7384.7410678863525",
+        "9671.077966690063",
+        "4794.803142547607",
+        "5429.119110107422",
+        "25868.184804916382",
+        "12014.816999435425",
+        "6865.09895324707",
+        "10684.737920761108",
+        "4523.863077163696",
+        "5843.343019485474",
+        "12436.261892318726",
+        "3525.9368419647217"
+      ],
+      "audit": {
+        "ctrf_sha256": "ff76538049e6a35bb39c6f3a4f2b14c53f20782a321f5dcea217a47d6ba00696",
+        "reward_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "trajectory_sha256": "021e4097526ca8d86cd44d37fe281114e9ef86f5de9e1dd4074bc2cde59dbc2c",
+        "trial_config_sha256": "756453f930971ddb87bffcfc45da47bb972e027ca1b8c40dfbbdd06aff066ee3",
+        "trial_lock_sha256": "a8b6f3816aa157123f62a45be70cc21ea09e929a97b6da623012f6872154aefe",
+        "trial_result_sha256": "b12f209e987cb88b8d21d34d0c74833a88117025a92dbc64c6ed47328dc7fb49",
+        "verifier_stdout_sha256": "9332e558692ac7c409a34e223971d1f824c792192ef23d0bd61b0c27502cdbf4"
+      },
+      "ctrf": {
+        "failed": 0,
+        "other": 0,
+        "passed": 2,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 2,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "muse-glimmer-30b-dynamic-target",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 0
+      },
+      "quality_attributable_exception": null,
+      "reward": "1.0",
+      "task_checksum": "e89f54f2fc73ac576f976c1cd09758e4c9ccf152e53c2dcd91da0c178b89abc7",
+      "task_lock_digest": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+      "task_name": "terminal-bench/fix-git",
+      "timing_seconds": {
+        "agent_execution": "203.733345",
+        "agent_setup": "11.100217",
+        "environment_setup": "1.003609",
+        "verifier": "7.092114"
+      },
+      "tokens": {
+        "cache": 100720,
+        "input": 109528,
+        "output": 4104
+      },
+      "trial_id": "9c801675-3d39-4a49-bbd2-1ff7baa72cf4",
+      "trial_name": "fix-git__oCipTBu"
+    },
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 12,
+      "api_request_times_msec": [
+        "23836.893796920776",
+        "11437.276124954224",
+        "6623.102903366089",
+        "18555.23991584778",
+        "4972.574949264526",
+        "24977.76508331299",
+        "108394.37890052795",
+        "13811.94806098938",
+        "5015.690803527832",
+        "110616.1379814148",
+        "96856.48703575134",
+        "63426.175117492676"
+      ],
+      "audit": {
+        "ctrf_sha256": "3f092c7043cd3619abe35670db734436f874253ca15374ba923b885b52a43883",
+        "reward_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "trajectory_sha256": "9b4cd44fa9a8125957ea8d454dd18636500f00b0d29225c9a27e2676e25c2993",
+        "trial_config_sha256": "c7ba8e29f53bf2eb391abd36f557d518f5b22d85b810dda9491d182de5fcbaf0",
+        "trial_lock_sha256": "e965fcfd53432940077536d10a7f7b5cceeef075ecbe7106aa0a15d06b7b0ac2",
+        "trial_result_sha256": "8320835d247ca46412b44f150f173def0b7d6b0982a2be57ea9dd962be5be746",
+        "verifier_stdout_sha256": "266caa61314f5b6adaf7fac744747322b62ea84b6f7a227ef608998e50cc39d4"
+      },
+      "ctrf": {
+        "failed": 0,
+        "other": 0,
+        "passed": 3,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 3,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "muse-glimmer-30b-dynamic-target",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 0
+      },
+      "quality_attributable_exception": null,
+      "reward": "1.0",
+      "task_checksum": "519d4eb971998ab2800b8a42457249550716cd158f7850d482a30fa60c2e7504",
+      "task_lock_digest": "sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49",
+      "task_name": "terminal-bench/multi-source-data-merger",
+      "timing_seconds": {
+        "agent_execution": "500.568134",
+        "agent_setup": "1.895267",
+        "environment_setup": "1.035574",
+        "verifier": "15.158359"
+      },
+      "tokens": {
+        "cache": 56544,
+        "input": 64743,
+        "output": 11388
+      },
+      "trial_id": "99252ec9-9804-4a58-9919-019d151eadc3",
+      "trial_name": "multi-source-data-merger__vJY8Uh9"
+    }
+  ]
+}

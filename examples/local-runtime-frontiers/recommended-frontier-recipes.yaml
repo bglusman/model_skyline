@@ -19,14 +19,15 @@ workloads:
       score_transfer: benchmark_specific_paired_delta
 
   measured-local-agent-v1:
-    unit: successful_agent_turn
+    unit: benchmark_task
     version: "1"
     harness: operator-pinned-agent-harness
     cohort: exact-tools-context-budget-and-cache-state
     benchmark: measured local agent quality and latency
     description: >-
-      Full task-quality measurement paired with successful-turn latency after
+      Full task-quality measurement paired with all-task wall latency after
       correctness, context, memory-pressure, and swap-growth cohort gates.
+      Quality-attributable failures retain their fixed timeout cost.
     variables: {}
     assumptions:
       evidence_tier: measured
@@ -128,6 +129,22 @@ metrics:
       max_age_hours: 720
       minimum_samples: 20
 
+  p95_agent_task_wall:
+    kind: signal
+    signal: p95_agent_task_wall_seconds
+    unit: s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 20
+
+  total_uncached_agent_input:
+    kind: signal
+    signal: total_uncached_agent_input_tokens
+    unit: token
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 20
+
   effective_session_context:
     kind: signal
     signal: effective_pre_compaction_session_tokens
@@ -173,7 +190,7 @@ frontiers:
     axes:
       - metric: measured_agent_quality
         goal: maximize
-      - metric: p95_successful_turn_latency
+      - metric: p95_agent_task_wall
         goal: minimize
         epsilon_relative: 0.05
     order_by: measured_agent_quality
@@ -181,7 +198,43 @@ frontiers:
     eligibility:
       required_capabilities: [text, tools, long-context]
       allow_unknown_age: false
+      minimum_axis_values:
+        measured_agent_quality: 60
     metadata_fields: [evidence_tier, artifact, runtime, hardware, gate_policy]
+
+  local-agent-memory-value:
+    workload: measured-local-agent-v1
+    axes:
+      - metric: measured_agent_quality
+        goal: maximize
+      - metric: peak_physical_footprint
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: measured_agent_quality
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools, long-context]
+      allow_unknown_age: false
+      minimum_axis_values:
+        measured_agent_quality: 60
+    metadata_fields: [evidence_tier, artifact, runtime, hardware, gate_policy]
+
+  local-agent-cache-demand:
+    workload: measured-local-agent-v1
+    axes:
+      - metric: measured_agent_quality
+        goal: maximize
+      - metric: total_uncached_agent_input
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: measured_agent_quality
+    uncertainty: robust
+    eligibility:
+      required_capabilities: [text, tools, long-context]
+      allow_unknown_age: false
+      minimum_axis_values:
+        measured_agent_quality: 60
+    metadata_fields: [evidence_tier, artifact, runtime, hardware, cache_lifecycle, gate_policy]
 
   fixed-128k-usefulness:
     workload: fixed-128k-agent-v1
@@ -196,6 +249,8 @@ frontiers:
     eligibility:
       required_capabilities: [text, tools, long-context]
       allow_unknown_age: false
+      minimum_axis_values:
+        measured_long_context_quality: 60
     metadata_fields: [evidence_tier, artifact, runtime, hardware, gate_policy]
 
   session-endurance:

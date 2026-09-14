@@ -93,6 +93,14 @@ Every active frontier has exactly two decision axes:
   latency (minimize), at a fixed long-context position.
 - `validated-capacity-memory`: largest fully passing retrieval position
   (maximize) vs peak physical footprint (minimize).
+- `local-agent-quality-latency`: exact five-task verifier success (maximize) vs
+  p95 full task wall time, including attributable failures (minimize).
+- `local-agent-quality-memory`: the same exact success score (maximize) vs a
+  same-job, fully covered physical-footprint peak (minimize).
+- `local-agent-quality-cache-efficiency`: the same exact success score
+  (maximize) vs total uncached input tokens across all tasks (minimize), only
+  when every API request has complete usage accounting. Recorded tokens from a
+  timed-out or truncated final request are a lower bound, not an eligible axis.
 
 Do not pool prompt lengths, cache-warmth states, prose/code/tool modes, or cold
 and warm runner states. Build a catalog per position. A separate same-model
@@ -116,18 +124,43 @@ The current epsilon-aware coverage result is:
 | Uncached 30-tool, 2K-prefix/256-output operation | Qwen3.8 Flash Next on DS4 |
 | Uncached 126K exact retrieval | Qwen3.8 Flash Next on DS4 |
 | Validated capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
+| Five-task local-agent quality vs latency | Qwen3.8 27B oMLX, low reasoning/4K thinking |
+| Five-task local-agent quality vs exact uncached input | Muse Glimmer |
+| Five-task local-agent quality vs process footprint | Qwen3.8 27B oMLX, low reasoning/4K thinking; Muse Glimmer |
 
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
-DS4 Flash Next is the only exact route on three frontiers; Ornith is the only
-other model family represented on two. Muse's matched warm tool run is retained
-but rejected by the 100% correctness threshold.
+At model-family identity, dense Qwen3.8 and DS4 Flash Next are each represented
+on three complementary frontiers; Muse Glimmer and Ornith each cover two. The
+coverage artifact keeps distinct harness, reasoning, and runtime offerings
+separate rather than manufacturing a synthetic score. Muse's matched warm tool
+probe remains rejected by the 100% correctness threshold even though its
+verifier-scored route remains valuable on the cache-demand and memory
+frontiers.
 
 A separate hardware-only slice compares the same Qwen3.8 27B UD-Q4_K_M bytes,
 llama.cpp/ggml binary, and command position on M1 Max and M5 Max. It is retained
 in [`generated/qwen38-exact-cross-mac-short-throughput-frontier.json`](generated/qwen38-exact-cross-mac-short-throughput-frontier.json)
 but omitted from model-family coverage so a duplicate hardware offering cannot
 inflate Qwen's cross-workload count.
+
+The first five-candidate quality population is retained in
+[`generated/harbor-pilot5-quality-catalog.json`](generated/harbor-pilot5-quality-catalog.json).
+The low-reasoning/4K-thinking Qwen3.8 profile scored 4/5 and has the lowest
+all-task p95 at 804.267 seconds, making it the sole quality/latency resident.
+The otherwise identical default-reasoning route scored only 2/5. This is strong
+configuration-specific evidence, not a claim that the 40-point difference will
+transfer beyond one attempt on these five tasks.
+The recorded uncached-input totals (45,888 for DS4 and
+161,473 for Ornith) are lower bounds because their timeout paths contain
+incomplete API requests. Muse's terminal-wait timeout had no in-flight model
+request, making its 51,424-token uncached total exact and the first cache-demand
+resident. Tuned Qwen and Muse form the quality/process-footprint frontier:
+80% at 23,782,290,440 bytes versus 60% at 3,484,714,192 bytes. These footprints
+are active process working sets, not artifact sizes or a claim that file-backed
+demand-paged weights occupy no system cache. The tuned route's one in-flight
+timeout makes its 98,321 uncached-input subtotal ineligible for exact cache
+comparison. Ornith's initial memory capture remains correctly rejected.
 
 ## Reproduce an exact cross-Mac comparison
 
