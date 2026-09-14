@@ -1,0 +1,148 @@
+schema_version: model-skyline/v1alpha1
+
+workloads:
+  coval-tts-v1-local-whisper-pilot:
+    unit: utterance
+    version: "1.2.0+local-whisper-pilot.1"
+    harness: model-skyline-voice-pilot@1
+    cohort: coval-tts-v1-30-prompts-one-fixed-seed-per-offering@1
+    benchmark: CoVAL TTS v1 prompt set with a pinned local Whisper scoring instrument
+    description: >-
+      Thirty public service-style prompts synthesized after one unscored warmup.
+      Playback-aware latency and generation speed come from the resident synthesis
+      process. Corpus word error rate comes from the saved audio transcribed by one
+      pinned local Whisper-large-v3-turbo FP16 instrument. This pilot measures
+      intelligibility, not naturalness or speaker stability.
+    budget:
+      prompt_count: 30
+      synthesis_seeds_per_offering: 1
+    variables: {}
+    assumptions:
+      audio_playback: false
+      latency_clock: client_observed_playback_aware_first_audible_audio
+      quality_instrument: mlx-community/whisper-large-v3-turbo-asr-fp16@624c19c9af5603fa73b83bce14d4aeea96156d18
+      quality_normalization: coval-normalization-v2
+      prompt_manifest_sha256: e30909112f5fd886157008ca960c00d4f68f29de69b29d5913a5bf3383ad71ec
+      stochastic_uncertainty: one_seed_pilot_only
+      evidence_status: provisional
+    sources:
+      - id: coval-tts-v1-prompts
+        version: "1.2.0@c9786d181776ba393e85718e26e6b9f67fe19f7c"
+        url: https://github.com/coval-ai/benchmarks/blob/c9786d181776ba393e85718e26e6b9f67fe19f7c/runner/src/coval_bench/evals/tts/tts-v1.json
+        license: Apache-2.0
+        methodology: >-
+          Public prompt text copied byte-for-byte into prompts/coval-tts-v1.json;
+          the local latency extension accounts for a client playback underrun.
+        raw_sha256: e30909112f5fd886157008ca960c00d4f68f29de69b29d5913a5bf3383ad71ec
+
+metrics:
+  tts_corpus_wer:
+    kind: signal
+    signal: tts_corpus_wer_percent
+    unit: percent
+    description: >-
+      Corpus word error rate after one pinned local ASR instrument and CoVAL
+      normalization. Lower is better; this is an intelligibility proxy only.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 30
+      require_source: true
+
+  tts_playback_ttfa_p50:
+    kind: signal
+    signal: tts_playback_ttfa_p50_ms
+    unit: milliseconds
+    description: Median client-observed time until the first audible sample can play.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 30
+      require_source: true
+
+  tts_playback_ttfa_p95:
+    kind: signal
+    signal: tts_playback_ttfa_p95_ms
+    unit: milliseconds
+    description: 95th-percentile client-observed time until audible playback.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 30
+      require_source: true
+
+  tts_realtime_factor:
+    kind: signal
+    signal: tts_realtime_factor_p50
+    unit: ratio
+    description: Median seconds of audio generated per wall-clock second.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 30
+      require_source: true
+
+  tts_invalid_case_rate:
+    kind: signal
+    signal: tts_invalid_case_percent
+    unit: percent
+    description: >-
+      Share of cases with an endpoint failure, empty audio, explicit token cap, or
+      another capture-time invalid/suspect flag. This is a pass/fail gate, not an axis.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 30
+      require_source: true
+
+frontiers:
+  tts-responsive-intelligibility:
+    workload: coval-tts-v1-local-whisper-pilot
+    axes:
+      - metric: tts_corpus_wer
+        goal: minimize
+      - metric: tts_playback_ttfa_p95
+        goal: minimize
+    order_by: tts_playback_ttfa_p95
+    uncertainty: point
+    eligibility:
+      required_capabilities: [tts, streaming]
+      allow_unknown_age: false
+      maximum_gate_values:
+        tts_invalid_case_rate: 0
+    metadata_fields:
+      [hardware, artifact, artifact_revision, runtime, runtime_config, voice,
+       synthesis_seed, quality_scope, pilot]
+
+  tts-typical-intelligibility:
+    workload: coval-tts-v1-local-whisper-pilot
+    axes:
+      - metric: tts_corpus_wer
+        goal: minimize
+      - metric: tts_playback_ttfa_p50
+        goal: minimize
+    order_by: tts_playback_ttfa_p50
+    uncertainty: point
+    eligibility:
+      required_capabilities: [tts, streaming]
+      allow_unknown_age: false
+      maximum_gate_values:
+        tts_invalid_case_rate: 0
+    metadata_fields:
+      [hardware, artifact, artifact_revision, runtime, runtime_config, voice,
+       synthesis_seed, quality_scope, pilot]
+
+  tts-batch-intelligibility:
+    workload: coval-tts-v1-local-whisper-pilot
+    axes:
+      - metric: tts_corpus_wer
+        goal: minimize
+      - metric: tts_realtime_factor
+        goal: maximize
+    order_by: tts_realtime_factor
+    uncertainty: point
+    eligibility:
+      required_capabilities: [tts]
+      allow_unknown_age: false
+      maximum_gate_values:
+        tts_invalid_case_rate: 0
+    metadata_fields:
+      [hardware, artifact, artifact_revision, runtime, runtime_config, voice,
+       synthesis_seed, quality_scope, pilot]
+
+selections: {}
