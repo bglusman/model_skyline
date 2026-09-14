@@ -52,6 +52,23 @@ returned content did not equal the passkey. The route therefore has a measured
 screen, and the system profiles intentionally omit the `long-context`
 capability.
 
+A matched midpoint rerun then disabled the llama.cpp prompt cache at the
+server, used the same deterministic prompt bytes as the capacity cohort, and
+confirmed zero cached tokens and zero swap growth at every position:
+
+| Actual input tokens | Needle position | Exact passes | TTFT | End-to-end | Physical footprint |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 2,012 | 50% | 0/1 | 1.875 s | 2.029 s | 3,531,562,240 B |
+| 32,732 | 50% | 0/1 | 42.158 s | 42.956 s | 4,110,147,248 B |
+| 65,500 | 50% | 0/1 | 124.816 s | 125.555 s | 5,249,196,512 B |
+| 125,964 | 50% | 0/1 | 388.905 s | 390.111 s | 7,050,454,744 B |
+
+This one-repetition ladder is negative screening evidence, not a positive
+capacity validation. All four positions normalize as failed records. The
+capacity catalog retains the exact route and raw hashes for audit but emits no
+validated-context or paired-footprint signal, so the standard frontier lists
+it as rejected and keeps DS4 as the sole resident.
+
 The verifier-valid Terminal-Bench `fix-git` smoke also failed under both
 reasoning profiles:
 
@@ -76,7 +93,8 @@ and a repeated multi-position retrieval ladder after any chat-template,
 sampling, or expert-slice revision.
 
 Prompt-free raw evidence is retained in [`raw/`](raw/), including the
-cache-disabled and warm tool matrices, four retrieval captures, and both Harbor
-summaries. [`harbor-quality-screen-qwen38-flash-coder.yaml`](harbor-quality-screen-qwen38-flash-coder.yaml)
+cache-disabled and warm tool matrices, the original four retrieval captures,
+the matched cache-disabled midpoint ladder, and both Harbor summaries.
+[`harbor-quality-screen-qwen38-flash-coder.yaml`](harbor-quality-screen-qwen38-flash-coder.yaml)
 is separate from `harbor-quality-pilot.yaml` so adding this candidate does not
 invalidate the digest-bound results already published from the frozen pilot.

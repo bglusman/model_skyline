@@ -94,7 +94,7 @@ physical context capacity, and harness remain distinct.
 | `warm-agent-tools` | Max exact-call success, min end-to-end, 100% gate, 5% latency epsilon | Ornith oMLX; Qwen3.8 DFlash | 0.835 s vs 0.862 s, both 3/3; Muse rejected at 3/4 and 30.65 s median among successful-cache-position rows |
 | `uncached-agent-tools` | Same definition at a proven zero-hit position | Qwen3.8 Flash Coder 160-expert Q4_K_M | Flash Coder 5.527 s vs DS4 6.433 s and Qwen baseline 7.536 s, all 3/3 |
 | `long-context-126k` | 100% exact retrieval gate, min end-to-end, 5% epsilon | DS4 Qwen3.8 Flash Next | DS4 197.929 s; Qwen baseline 299.638 s; Ornith rejected at 0/3 despite 88.474 s median |
-| `validated-capacity` | Max repeatedly validated tokens, min sampled physical footprint | DS4 Qwen3.8 Flash Next | Both DS4 and Qwen validated 125,964 tokens 3/3; DS4 used 5.461 GB vs Qwen 47.855 GB |
+| `validated-capacity` | Max repeatedly validated tokens, min sampled physical footprint | DS4 Qwen3.8 Flash Next | Both DS4 and Qwen validated 125,964 tokens 3/3; DS4 used 5.461 GB vs Qwen 47.855 GB. Ornith and Flash Coder remain visible rejected candidates; the latter failed a matched zero-cache midpoint ladder from 2K through 126K |
 | `quality-latency` | Max exact five-task success, min all-task p95 wall time, 60% gate | Qwen3.8 27B oMLX, low reasoning/4K thinking | Qwen scored 4/5 at 804.267 s p95, improving the same artifact/runtime's default-reasoning 2/5 result |
 | `quality-cache-efficiency` | Max exact five-task success, min total uncached input tokens, 60% gate, zero incomplete API requests | Muse | Muse used 51,424 exact uncached input tokens with 95.738% cache reuse; every other subtotal is incomplete or below quality gate |
 | `quality-process-footprint` | Max exact five-task success, min fully covered process footprint, 60% gate | Qwen3.8 27B oMLX, low reasoning/4K thinking; Muse | Qwen pairs 80% with 23,782,290,440 B; Muse pairs 60% with 3,484,714,192 B; neither dominates the other |
@@ -102,8 +102,10 @@ physical context capacity, and harness remain distinct.
 The result now has the intended cross-frontier shape. At model-family identity,
 dense Qwen3.8 covers three complementary frontiers; DS4 Flash Next, Muse, and
 Ornith each cover two. The custom Flash Coder slice covers one narrow frontier
-and remains screened out of general-agent and long-context use. Their distinct
-GGUF, MLX, DS4, reasoning, lightweight-probe, and Harbor offerings are not
+and remains screened out of general-agent and long-context use. Its exact
+cache-disabled route is now also retained in the capacity candidate universe
+with four failed positions and no synthetic validated-context signal. Their
+distinct GGUF, MLX, DS4, reasoning, lightweight-probe, and Harbor offerings are not
 collapsed at exact-offering identity. Epsilon-aware membership
 is used directly, with no extra weighted score that could hide a weak axis. The
 coverage summary intentionally omits the duplicate hardware-only Qwen slice;
