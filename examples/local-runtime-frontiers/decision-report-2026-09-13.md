@@ -83,7 +83,7 @@ load-state artifact.
 
 ## Local Pareto frontiers
 
-Eight complementary frontier definitions are now materialized as nine
+Nine complementary frontier definitions are now materialized as ten
 position-specific snapshots. They use Model Skyline's ordinary two-axis Pareto
 engine and a strict local offering identity: hardware, exact artifact bytes,
 quantization, runtime build/profile, KV/cache/speculation configuration,
@@ -94,6 +94,7 @@ physical context capacity, and harness remain distinct.
 | `short-throughput` | Max prompt and decode token/s, 3% epsilon | Ornith Q4 GGUF | Ornith 3022.92/113.748; Qwen3.8 680.485/26.632; Muse 717.593/24.912 |
 | `exact-Qwen-cross-Mac` | Same axes; byte-identical Qwen artifact and runtime | M5 Max | M5 680.485/26.632; M1 128.356/11.566 |
 | `warm-agent-tools` | Max exact-call success, min end-to-end, 100% gate, 5% latency epsilon | Ornith oMLX; Qwen3.8 DFlash | 0.835 s vs 0.862 s, both 3/3; Muse rejected at 3/4 and 30.65 s median among successful-cache-position rows |
+| `warm-cache-reuse` | Max exact prefix reuse, min end-to-end, 1 percentage-point reuse epsilon, 5% latency epsilon, exact-tool and zero-swap gates | Qwen3.8 DFlash | Qwen reused 99.870% at 0.862 s; Ornith reused 76.261% at 0.835 s and is near-only under strict untoleranced comparison; Flash Coder reused 99.924% but took 0.987 s; Muse failed the tool gate at 3/4 |
 | `uncached-agent-tools` | Same definition at a proven zero-hit position | Qwen3.8 Flash Coder 160-expert Q4_K_M | Flash Coder 5.527 s vs DS4 6.433 s and Qwen baseline 7.536 s, all 3/3 |
 | `long-context-126k` | 100% exact retrieval gate, min end-to-end, 5% epsilon | DS4 Qwen3.8 Flash Next | DS4 197.929 s; Qwen baseline 299.638 s; Ornith rejected at 0/3 despite 88.474 s median |
 | `validated-capacity` | Max repeatedly validated tokens, min sampled physical footprint | DS4 Qwen3.8 Flash Next | Both DS4 and Qwen validated 125,964 tokens 3/3; DS4 used 5.461 GB vs Qwen 47.855 GB. Ornith and Flash Coder remain visible rejected candidates; the latter failed a matched zero-cache midpoint ladder from 2K through 126K |
@@ -102,8 +103,9 @@ physical context capacity, and harness remain distinct.
 | `quality-process-footprint` | Max exact five-task success, min fully covered process footprint, 60% gate | Qwen3.8 27B oMLX, low reasoning/4K thinking; Muse | Qwen pairs 80% with 23,782,290,440 B; Muse pairs 60% with 3,484,714,192 B; neither dominates the other |
 
 The result now has the intended cross-frontier shape. At model-family identity,
-dense Qwen3.8 covers three complementary frontiers; DS4 Flash Next, Muse, and
-Ornith each cover two. The custom Flash Coder slice covers one narrow frontier
+dense Qwen3.8 covers four complementary frontiers; DS4 Flash Next and Muse each
+cover two. Ornith covers two exactly and is near a third. The custom Flash Coder
+slice covers one narrow frontier
 and remains screened out of general-agent and long-context use. Its exact
 cache-disabled route is now also retained in the capacity candidate universe
 with four failed positions and no synthetic validated-context signal. Their

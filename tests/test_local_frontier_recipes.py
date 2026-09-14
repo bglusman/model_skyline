@@ -4,17 +4,23 @@ import hashlib
 import json
 import subprocess
 import sys
+from decimal import Decimal
 from pathlib import Path
 
 import yaml
 
+from model_skyline.engine import FrontierEngine
 from model_skyline.io import (
     load_catalog,
     load_config,
     load_frontier_snapshot,
     load_local_measurement,
 )
-from model_skyline.local_measurements import LocalArtifactIdentity, LocalRuntimeIdentity
+from model_skyline.local_measurements import (
+    LocalArtifactIdentity,
+    LocalRuntimeIdentity,
+    build_local_catalog,
+)
 from model_skyline.models import EvidenceTier, UncertaintyMode
 
 ROOT = Path(__file__).parents[1]
@@ -34,6 +40,7 @@ TASK_MANIFEST = EXAMPLE / "terminal-bench-2.1-task-manifest.json"
 COVERAGE_FRONTIERS = (
     ("short-throughput", "cross-model-short-throughput-frontier.json"),
     ("warm-agent-tools", "tool-agent-warm-p2048-o1024-frontier.json"),
+    ("warm-cache-reuse", "warm-cache-operational-p2048-o1024-frontier.json"),
     ("uncached-agent-tools", "tool-agent-uncached-p2048-o256-frontier.json"),
     ("long-context-126k", "long-context-uncached-p126k-frontier.json"),
     ("validated-capacity", "validated-capacity-frontier.json"),
@@ -61,6 +68,16 @@ HARBOR_PILOT_SUMMARIES = {
     "qwen38_low_think4k": EXAMPLE / "raw" / "harbor-pilot5-qwen38-low-think4k-summary.json",
     "muse": EXAMPLE / "raw" / "harbor-pilot5-muse-glimmer-target-summary.json",
 }
+WARM_CACHE_MEASUREMENTS = (
+    EXAMPLE / "measurements" / "qwen38-flash-coder-q4km-tool30-auto-p2048-o1024-warm.json",
+    EXAMPLE
+    / "measurements"
+    / "qwen38-omlx-dflash2-tq4-tool30-disabled-matched-p2048-o1024-warm.json",
+    EXAMPLE / "measurements" / "muse-glimmer-target-tool30-disabled-matched-p2048-o1024-warm.json",
+    EXAMPLE
+    / "measurements"
+    / "ornith-omlx-baseline-f16kv-tool30-disabled-matched-p2048-o1024-warm.json",
+)
 
 
 def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() -> None:
@@ -104,6 +121,7 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
         eligibility = config.frontiers[frontier_id].eligibility
         assert eligibility.minimum_gate_values == {"exact_tool_call_correctness": 100}
         assert eligibility.maximum_gate_values == {"runner_swap_growth": 0}
+    assert config.frontiers["warm-cache-operation"].axes[0].epsilon_absolute == 1
 
     expected_selections = {
         "local-agent-quality-first": ("interactive-local-value", "measured_agent_quality"),
@@ -160,12 +178,31 @@ def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) ->
     coverage = json.loads(output.read_text(encoding="utf-8"))
     assert coverage["schema_version"] == "model-skyline/local-frontier-coverage/v3"
     assert coverage["near_epsilon"] == "0.05"
-    assert not any(frontier["near_members"] for frontier in coverage["frontiers"])
+    assert [
+        (
+            frontier["label"],
+            [member["model_id"] for member in frontier["near_members"]],
+        )
+        for frontier in coverage["frontiers"]
+        if frontier["near_members"]
+    ] == [("warm-cache-reuse", ["ornith-ai/Ornith-1.5-35B-A3B"])]
     assert all(
         item["membership"] in {"exact", "near", "dominated"}
         for frontier in coverage["frontiers"]
         for item in frontier["evaluated"]
     )
+    warm_cache = next(
+        frontier for frontier in coverage["frontiers"] if frontier["label"] == "warm-cache-reuse"
+    )
+    assert [member["model_id"] for member in warm_cache["members"]] == ["Qwen/Qwen3.8-27B"]
+    assert [member["model_id"] for member in warm_cache["near_members"]] == [
+        "ornith-ai/Ornith-1.5-35B-A3B"
+    ]
+    assert warm_cache["near_members"][0]["minimal_relative_epsilon"] == "0"
+    assert [item["offering_id"] for item in warm_cache["rejected"]] == [
+        "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@"
+        "gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-12bcc817a4f190a7"
+    ]
     population = coverage["candidate_population"]
     assert {
         key: population[key]
@@ -179,11 +216,11 @@ def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) ->
         )
     } == {
         "candidate_count": 7,
-        "required_cell_count": 50,
-        "attempted_cell_count": 29,
-        "eligible_cell_count": 21,
-        "exact_member_cell_count": 10,
-        "attempted_percent": "58.00",
+        "required_cell_count": 56,
+        "attempted_cell_count": 33,
+        "eligible_cell_count": 24,
+        "exact_member_cell_count": 11,
+        "attempted_percent": "58.93",
     }
     candidates = {candidate["model_id"]: candidate for candidate in population["candidates"]}
     assert candidates["Qwen/Qwen3.8-27B"]["attempted_percent"] == "100.00"
@@ -199,7 +236,7 @@ def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) ->
     ):
         assert candidates[model_id]["attempted_frontier_count"] == 0
         assert candidates[model_id]["attempted_percent"] == "0.00"
-        assert len(candidates[model_id]["unattempted_frontiers"]) == 8
+        assert len(candidates[model_id]["unattempted_frontiers"]) == 9
     families = {family["model_id"]: family for family in coverage["model_families"]}
     assert families["ornith-ai/Ornith-1.5-35B-A3B"]["rejected_only_frontiers"] == [
         "long-context-126k",
@@ -240,6 +277,42 @@ def test_cross_frontier_candidate_population_rejects_unknown_cells(tmp_path: Pat
     assert result.returncode == 2
     assert "unknown frontiers" in result.stderr
     assert not output.exists()
+
+
+def test_warm_cache_frontier_is_reproducible_and_gates_correctness() -> None:
+    generated = EXAMPLE / "generated"
+    config = load_config(EXAMPLE / "frontiers.yaml")
+    catalog = load_catalog(generated / "tool-agent-warm-p2048-o1024-catalog.json")
+    published = load_frontier_snapshot(
+        generated / "warm-cache-operational-p2048-o1024-frontier.json"
+    )
+
+    rebuilt_catalog = build_local_catalog(
+        [load_local_measurement(path) for path in WARM_CACHE_MEASUREMENTS],
+        workload=catalog.workload,
+    )
+    assert rebuilt_catalog == catalog
+
+    assert config.frontiers["warm-cache-operational"].axes[0].epsilon_absolute == 1
+    assert config.frontiers["warm-cache-operational"].eligibility.minimum_gate_values == {
+        "tool_call_success": 100
+    }
+    assert config.frontiers["warm-cache-operational"].eligibility.maximum_gate_values == {
+        "swap_growth": 0
+    }
+    rebuilt = FrontierEngine().calculate(
+        config,
+        catalog,
+        "warm-cache-operational",
+        generated_at=published.generated_at,
+    )
+
+    assert rebuilt == published
+    assert [member.offering.model_id for member in published.members] == ["Qwen/Qwen3.8-27B"]
+    by_model = {offering.offering.model_id: offering for offering in catalog.offerings}
+    assert by_model["Qwen/Qwen3.8-27B"].signals[
+        "local_prefix_cache_reuse_percent"
+    ].value == Decimal("99.86988847583643122676579925650558")
 
 
 def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
@@ -427,7 +500,9 @@ def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
     coverage = json.loads((generated / "cross-frontier-coverage.json").read_text(encoding="utf-8"))
     assert coverage["schema_version"] == "model-skyline/local-frontier-coverage/v3"
     assert coverage["near_epsilon"] == "0.05"
-    assert not any(frontier["near_members"] for frontier in coverage["frontiers"])
+    assert [
+        frontier["label"] for frontier in coverage["frontiers"] if frontier["near_members"]
+    ] == ["warm-cache-reuse"]
     flash_coder_family = next(
         family
         for family in coverage["model_families"]

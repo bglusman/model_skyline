@@ -164,6 +164,22 @@ metrics:
       max_age_hours: 720
       minimum_samples: 3
 
+  prefix_cache_reuse:
+    kind: signal
+    signal: local_prefix_cache_reuse_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
+  swap_growth:
+    kind: signal
+    signal: local_swap_delta_bytes
+    unit: byte
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+
   pilot_task_success:
     kind: signal
     signal: local_pilot_task_success_percent
@@ -244,6 +260,26 @@ frontiers:
       allow_unknown_age: false
       minimum_axis_values:
         tool_call_success: 100
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+  warm-cache-operational:
+    workload: openai-agent-latency-v1
+    axes:
+      - metric: prefix_cache_reuse
+        goal: maximize
+        epsilon_absolute: 1
+      - metric: end_to_end
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: end_to_end
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+      minimum_gate_values:
+        tool_call_success: 100
+      maximum_gate_values:
+        swap_growth: 0
     metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
 
   long-context-operational:
