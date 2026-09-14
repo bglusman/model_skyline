@@ -119,6 +119,12 @@ Every active frontier has exactly two decision axes:
   (maximize), at an exact prompt/output/mode/cache position.
 - `tool-agent-operational`: exact tool-call success (maximize) vs end-to-end
   latency (minimize). A 100% success threshold rejects fast broken routes.
+- `warm-cache-operational`: observed input reuse (reported cache-hit tokens
+  divided by actual input tokens per repetition, maximize) vs end-to-end latency
+  (minimize), with exact tool correctness and zero swap-growth gates. Reuse
+  differences within one percentage point are equivalent, preventing a
+  negligible cache-ratio change from preserving a much slower route. This is a
+  fixed-prefix operational ratio, not a general cache-hit probability.
 - `long-context-operational`: exact retrieval success (maximize) vs end-to-end
   latency (minimize), at a fixed long-context position.
 - `validated-capacity-memory`: largest fully passing retrieval position
@@ -158,6 +164,7 @@ The current epsilon-aware coverage result is:
 | --- | --- |
 | Cross-model pp2048/tg512 throughput | Ornith 1.5 Q4 GGUF |
 | Warm 30-tool, 2K-prefix/1K-output operation | Ornith 1.5 oMLX; Qwen3.8 27B DFlash |
+| Warm 30-tool prefix reuse vs latency | Qwen3.8 27B DFlash; Ornith 1.5 oMLX is near-only under strict untoleranced comparison |
 | Uncached 30-tool, 2K-prefix/256-output operation | Qwen3.8 Flash Coder 160-expert Q4_K_M |
 | Uncached 126K exact retrieval | Qwen3.8 Flash Next on DS4 |
 | Validated capacity vs physical footprint | Qwen3.8 Flash Next on DS4 |
@@ -176,7 +183,7 @@ the protocol's five repetitions. The exact paired evidence is retained in the
 
 The cross-frontier summary is in
 [`generated/cross-frontier-coverage.json`](generated/cross-frontier-coverage.json).
-At model-family identity, dense Qwen3.8 covers three complementary frontiers;
+At model-family identity, dense Qwen3.8 covers four complementary frontiers;
 DS4 Flash Next, Muse Glimmer, and Ornith each cover two. The custom Flash Coder
 slice covers one narrow uncached-tool frontier. It is not promoted to a wider
 winner because it failed the matched real-agent smoke and every strict
@@ -190,13 +197,16 @@ That resident count is not a population-completeness claim. The versioned
 [`candidate population`](candidate-population.yaml) nominates seven model
 families only for the positions where they are intended to compete. Coverage
 v3 reports each required model-family/frontier cell as eligible-evaluated,
-explicitly gate-rejected, or unattempted. The current evidence attempts 29 of
-50 nominated cells (58%): dense Qwen and DS4 have complete coverage for their
+explicitly gate-rejected, or unattempted. The current evidence attempts 33 of
+56 nominated cells (58.93%): dense Qwen and DS4 have complete coverage for their
 declared roles, Muse is missing three positions, Ornith one, Flash Coder one,
-and the newly pinned North and Nemotron challengers remain 0/8. A rejected cell
+and the newly pinned North and Nemotron challengers remain 0/9. A rejected cell
 counts as an honest attempt but never as exact or near membership. This keeps a
 winner among measured offerings from being presented as a settled winner over
 promising models that have not run yet.
+The cell count measures protocol coverage, not independent experiments; the
+warm-tool and warm-cache frontiers deliberately project different decisions
+from the same matched captures.
 
 Coverage v3 also reports advisory nearness for every *eligible evaluated*
 point. Distance is the smallest relative epsilon at which that point ceases to
@@ -204,11 +214,12 @@ be dominated, calculated with the frontier's absolute tolerances and the core
 point/robust bound semantics. The report retains the exact half-open dominance
 intervals and witnesses; `--near-epsilon` merely labels distances at or below a
 chosen threshold. It does not alter membership or selection, and an absent or
-eligibility-rejected route never receives a distance. At the packaged 5%
-threshold there are currently no near-only residents. The closest dominated
-points are DS4 on the uncached-tool frontier at 14.09% and Flash Coder on the
-warm-tool frontier at 15.32%, so neither is honestly interchangeable with that
-frontier's exact residents.
+eligibility-rejected route never receives a distance. Ornith is now a near-only
+member of the warm-cache frontier: strict untoleranced Pareto comparison keeps
+its 0.835-second latency tradeoff, while the configured 5% latency equivalence
+lets Qwen DFlash's 99.87% reuse and 0.862-second latency dominate it. The closest
+other dominated points are Flash Coder on warm-cache reuse at 12.65%, DS4 on
+uncached tools at 14.09%, and Flash Coder on warm tools at 15.32%.
 
 A separate hardware-only slice compares the same Qwen3.8 27B UD-Q4_K_M bytes,
 llama.cpp/ggml binary, and command position on M1 Max and M5 Max. It is retained

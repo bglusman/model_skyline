@@ -14,7 +14,6 @@ from collections.abc import Iterable
 from datetime import UTC, datetime
 from decimal import Decimal, localcontext
 from enum import StrEnum
-from statistics import median
 from typing import Annotated, Literal, Self
 
 from pydantic import Field, field_validator, model_validator
@@ -222,6 +221,10 @@ class LocalPerformanceEvidence(FrozenModel):
                 value > 100 for value in series.values
             ):
                 raise ValueError("speculative acceptance cannot exceed 100 percent")
+            if name is LocalMetricName.prefix_cache_hit_tokens and any(
+                value > self.actual_input_tokens for value in series.values
+            ):
+                raise ValueError("prefix cache hit tokens cannot exceed actual input tokens")
         return self
 
 
@@ -384,8 +387,18 @@ def _observation(
     record: LocalMeasurementRecord,
     source: SourceReference,
 ) -> Observation:
+    ordered = sorted(values)
+    middle = len(ordered) // 2
+    if len(ordered) % 2:
+        value = ordered[middle]
+    else:
+        lower_middle = ordered[middle - 1]
+        upper_middle = ordered[middle]
+        with localcontext(POLICY_DECIMAL_CONTEXT):
+            value = lower_middle + (upper_middle - lower_middle) / Decimal(2)
+        value = min(max(value, lower_middle), upper_middle)
     return Observation(
-        value=median(values),
+        value=value,
         lower=min(values),
         upper=max(values),
         unit=unit,
@@ -400,6 +413,11 @@ def _percent(checks: LocalCheckResult) -> Decimal:
     # projections use the same fixed arithmetic policy as frontier evaluation.
     with localcontext(POLICY_DECIMAL_CONTEXT):
         return Decimal(100) * Decimal(checks.passed) / Decimal(checks.total)
+
+
+def _cache_reuse_percent(cache_hit_tokens: Decimal, actual_input_tokens: int) -> Decimal:
+    with localcontext(POLICY_DECIMAL_CONTEXT):
+        return Decimal(100) * cache_hit_tokens / Decimal(actual_input_tokens)
 
 
 _NON_COMPARISON_POSITION_FIELDS = frozenset(
@@ -499,6 +517,20 @@ def build_local_catalog(
                 signals[f"local_{metric_name.value}"] = _observation(
                     series.values,
                     unit=series.unit,
+                    record=record,
+                    source=source,
+                )
+            cache_hits = record.performance.metrics.get(LocalMetricName.prefix_cache_hit_tokens)
+            if cache_hits is not None:
+                signals["local_prefix_cache_reuse_percent"] = _observation(
+                    tuple(
+                        _cache_reuse_percent(
+                            hit_tokens,
+                            record.performance.actual_input_tokens,
+                        )
+                        for hit_tokens in cache_hits.values
+                    ),
+                    unit="percent",
                     record=record,
                     source=source,
                 )

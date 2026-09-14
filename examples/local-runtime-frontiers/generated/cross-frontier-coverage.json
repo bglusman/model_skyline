@@ -1,11 +1,11 @@
 {
   "candidate_population": {
-    "attempted_cell_count": 29,
-    "attempted_percent": "58.00",
+    "attempted_cell_count": 33,
+    "attempted_percent": "58.93",
     "candidate_count": 7,
     "candidates": [
       {
-        "attempted_frontier_count": 8,
+        "attempted_frontier_count": 9,
         "attempted_frontiers": [
           "long-context-126k",
           "quality-cache-efficiency",
@@ -14,7 +14,8 @@
           "short-throughput",
           "uncached-agent-tools",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "attempted_percent": "100.00",
         "dominated_frontiers": [
@@ -30,12 +31,14 @@
           "short-throughput",
           "uncached-agent-tools",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "exact_frontiers": [
           "quality-latency",
           "quality-process-footprint",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "frontiers_with_rejected_offerings": [
           "quality-cache-efficiency",
@@ -47,7 +50,7 @@
         "rejected_only_frontiers": [
           "quality-cache-efficiency"
         ],
-        "required_frontier_count": 8,
+        "required_frontier_count": 9,
         "required_frontiers": [
           "long-context-126k",
           "quality-cache-efficiency",
@@ -56,7 +59,8 @@
           "short-throughput",
           "uncached-agent-tools",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "role": "dense quality and configuration baseline",
         "sources": [
@@ -116,15 +120,16 @@
         "unattempted_frontiers": []
       },
       {
-        "attempted_frontier_count": 5,
+        "attempted_frontier_count": 6,
         "attempted_frontiers": [
           "quality-cache-efficiency",
           "quality-latency",
           "quality-process-footprint",
           "short-throughput",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
-        "attempted_percent": "62.50",
+        "attempted_percent": "66.67",
         "dominated_frontiers": [
           "quality-latency",
           "short-throughput"
@@ -140,14 +145,16 @@
           "quality-process-footprint"
         ],
         "frontiers_with_rejected_offerings": [
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "model_id": "meta-models/Muse-Glimmer-30B",
         "near_frontiers": [],
         "rejected_only_frontiers": [
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
-        "required_frontier_count": 8,
+        "required_frontier_count": 9,
         "required_frontiers": [
           "long-context-126k",
           "quality-cache-efficiency",
@@ -156,7 +163,8 @@
           "short-throughput",
           "uncached-agent-tools",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "role": "compact dense agent and cache-efficiency candidate",
         "sources": [
@@ -169,7 +177,7 @@
         ]
       },
       {
-        "attempted_frontier_count": 7,
+        "attempted_frontier_count": 8,
         "attempted_frontiers": [
           "long-context-126k",
           "quality-cache-efficiency",
@@ -177,16 +185,18 @@
           "quality-process-footprint",
           "short-throughput",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
-        "attempted_percent": "87.50",
+        "attempted_percent": "88.89",
         "dominated_frontiers": [
           "quality-latency"
         ],
         "eligible_evaluated_frontiers": [
           "quality-latency",
           "short-throughput",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "exact_frontiers": [
           "short-throughput",
@@ -199,14 +209,16 @@
           "validated-capacity"
         ],
         "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
-        "near_frontiers": [],
+        "near_frontiers": [
+          "warm-cache-reuse"
+        ],
         "rejected_only_frontiers": [
           "long-context-126k",
           "quality-cache-efficiency",
           "quality-process-footprint",
           "validated-capacity"
         ],
-        "required_frontier_count": 8,
+        "required_frontier_count": 9,
         "required_frontiers": [
           "long-context-126k",
           "quality-cache-efficiency",
@@ -215,7 +227,8 @@
           "short-throughput",
           "uncached-agent-tools",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "role": "sparse low-latency and throughput candidate",
         "sources": [
@@ -226,19 +239,22 @@
         ]
       },
       {
-        "attempted_frontier_count": 3,
+        "attempted_frontier_count": 4,
         "attempted_frontiers": [
           "uncached-agent-tools",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
-        "attempted_percent": "75.00",
+        "attempted_percent": "80.00",
         "dominated_frontiers": [
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "eligible_evaluated_frontiers": [
           "uncached-agent-tools",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "exact_frontiers": [
           "uncached-agent-tools"
@@ -251,12 +267,13 @@
         "rejected_only_frontiers": [
           "validated-capacity"
         ],
-        "required_frontier_count": 4,
+        "required_frontier_count": 5,
         "required_frontiers": [
           "long-context-126k",
           "uncached-agent-tools",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "role": "custom-quantized uncached coding screen",
         "sources": [
@@ -277,7 +294,7 @@
         "model_id": "CohereLabs/North-Mini-Code-1.0",
         "near_frontiers": [],
         "rejected_only_frontiers": [],
-        "required_frontier_count": 8,
+        "required_frontier_count": 9,
         "required_frontiers": [
           "long-context-126k",
           "quality-cache-efficiency",
@@ -286,7 +303,8 @@
           "short-throughput",
           "uncached-agent-tools",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "role": "terminal and agentic-coding quality challenger",
         "sources": [
@@ -300,7 +318,8 @@
           "short-throughput",
           "uncached-agent-tools",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ]
       },
       {
@@ -314,7 +333,7 @@
         "model_id": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
         "near_frontiers": [],
         "rejected_only_frontiers": [],
-        "required_frontier_count": 8,
+        "required_frontier_count": 9,
         "required_frontiers": [
           "long-context-126k",
           "quality-cache-efficiency",
@@ -323,7 +342,8 @@
           "short-throughput",
           "uncached-agent-tools",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ],
         "role": "sparse MTP and speculative-efficiency challenger",
         "sources": [
@@ -337,14 +357,15 @@
           "short-throughput",
           "uncached-agent-tools",
           "validated-capacity",
-          "warm-agent-tools"
+          "warm-agent-tools",
+          "warm-cache-reuse"
         ]
       }
     ],
-    "eligible_cell_count": 21,
-    "exact_member_cell_count": 10,
+    "eligible_cell_count": 24,
+    "exact_member_cell_count": 11,
     "population_id": "m5max-64-local-agent-candidates-2026-09-14",
-    "required_cell_count": 50,
+    "required_cell_count": 56,
     "scope": {
       "hardware_profile": "hardware/macbook-m5max-64.json",
       "purpose": "Candidate families selected for interactive coding, terminal work, tool use, long-context retrieval, and memory/runtime efficiency on 64 GB Apple Silicon.",
@@ -382,6 +403,34 @@
       "rejected_frontiers": [
         "quality-cache-efficiency"
       ]
+    },
+    {
+      "attempted_frontier_count": 2,
+      "attempted_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "evaluated_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "frontier_count": 2,
+      "frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "model_id": "Qwen/Qwen3.8-27B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e",
+      "rejected_frontiers": []
     },
     {
       "attempted_frontier_count": 3,
@@ -446,6 +495,35 @@
     {
       "attempted_frontier_count": 2,
       "attempted_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "evaluated_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "frontier_count": 1,
+      "frontiers": [
+        "warm-agent-tools"
+      ],
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "near_frontier_count": 1,
+      "near_frontiers": [
+        "warm-cache-reuse"
+      ],
+      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e",
+      "rejected_frontiers": []
+    },
+    {
+      "attempted_frontier_count": 2,
+      "attempted_frontiers": [
         "uncached-agent-tools",
         "validated-capacity"
       ],
@@ -473,30 +551,6 @@
     {
       "attempted_frontier_count": 1,
       "attempted_frontiers": [
-        "warm-agent-tools"
-      ],
-      "coverage_count": 1,
-      "covered_frontiers": [
-        "warm-agent-tools"
-      ],
-      "evaluated_frontiers": [
-        "warm-agent-tools"
-      ],
-      "frontier_count": 1,
-      "frontiers": [
-        "warm-agent-tools"
-      ],
-      "model_id": "Qwen/Qwen3.8-27B",
-      "near_frontier_count": 0,
-      "near_frontiers": [],
-      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
-      "provider": "local:macbook-m5max-64",
-      "quantization": "oQ4e",
-      "rejected_frontiers": []
-    },
-    {
-      "attempted_frontier_count": 1,
-      "attempted_frontiers": [
         "short-throughput"
       ],
       "coverage_count": 1,
@@ -516,30 +570,6 @@
       "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
       "provider": "local:macbook-m5max-64",
       "quantization": "Q4_K_M",
-      "rejected_frontiers": []
-    },
-    {
-      "attempted_frontier_count": 1,
-      "attempted_frontiers": [
-        "warm-agent-tools"
-      ],
-      "coverage_count": 1,
-      "covered_frontiers": [
-        "warm-agent-tools"
-      ],
-      "evaluated_frontiers": [
-        "warm-agent-tools"
-      ],
-      "frontier_count": 1,
-      "frontiers": [
-        "warm-agent-tools"
-      ],
-      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
-      "near_frontier_count": 0,
-      "near_frontiers": [],
-      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
-      "provider": "local:macbook-m5max-64",
-      "quantization": "oQ4e",
       "rejected_frontiers": []
     }
   ],
@@ -736,6 +766,107 @@
       ],
       "rejected_count": 1,
       "snapshot_id": "fa4f500495a12c157db5cb2a62147d4e4fcb61ec2bcb1822c9ecca7729b601b8"
+    },
+    {
+      "definition": "warm-cache-operational",
+      "evaluated": [
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "prefix_cache_reuse": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "exact",
+          "minimal_relative_epsilon": "0",
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa"
+        },
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "prefix_cache_reuse": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "near",
+          "minimal_relative_epsilon": "0",
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3"
+        },
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0.1264973347655122524325453835852648",
+              "witness_offering_ids": [
+                "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa"
+              ]
+            },
+            "prefix_cache_reuse": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [
+            {
+              "dominator_offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
+              "enters_at_epsilon": "0",
+              "exits_at_epsilon": "0.1264973347655122524325453835852648"
+            }
+          ],
+          "membership": "dominated",
+          "minimal_relative_epsilon": "0.1264973347655122524325453835852648",
+          "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+          "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-0351d7a84b7d1c33"
+        }
+      ],
+      "evaluated_count": 3,
+      "label": "warm-cache-reuse",
+      "members": [
+        {
+          "model_id": "Qwen/Qwen3.8-27B",
+          "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa"
+        }
+      ],
+      "near_members": [
+        {
+          "axis_slacks": {
+            "end_to_end": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            },
+            "prefix_cache_reuse": {
+              "normalized_dominance_slack": "0",
+              "witness_offering_ids": []
+            }
+          },
+          "blocking_dominance_intervals": [],
+          "membership": "near",
+          "minimal_relative_epsilon": "0",
+          "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+          "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3"
+        }
+      ],
+      "rejected": [
+        {
+          "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-12bcc817a4f190a7",
+          "reasons": [
+            "eligibility gate tool_call_success: value 75 is below eligible minimum 100"
+          ]
+        }
+      ],
+      "rejected_count": 1,
+      "snapshot_id": "07d8b960078943bd43a2adc1761bdd6d3f6d40b00607acc6aa1476fa2e360639"
     },
     {
       "definition": "tool-agent-operational",
@@ -1258,7 +1389,7 @@
   "membership_semantics": "Membership already incorporates each frontier axis's configured epsilon; advisory near membership is the smallest relative epsilon at which an eligible point ceases to be dominated under the core point/robust comparison. Rejected offerings are ineligible and receive no proximity; absent offerings are unmeasured. Candidate-population attempt coverage counts an ordinary evaluation or explicit eligibility rejection, not a win. This report does not alter a frontier, rank routes, or add a synthetic score.",
   "model_families": [
     {
-      "attempted_frontier_count": 8,
+      "attempted_frontier_count": 9,
       "attempted_frontiers": [
         "long-context-126k",
         "quality-cache-efficiency",
@@ -1267,13 +1398,15 @@
         "short-throughput",
         "uncached-agent-tools",
         "validated-capacity",
-        "warm-agent-tools"
+        "warm-agent-tools",
+        "warm-cache-reuse"
       ],
-      "coverage_count": 3,
+      "coverage_count": 4,
       "covered_frontiers": [
         "quality-latency",
         "quality-process-footprint",
-        "warm-agent-tools"
+        "warm-agent-tools",
+        "warm-cache-reuse"
       ],
       "evaluated_frontiers": [
         "long-context-126k",
@@ -1282,13 +1415,15 @@
         "short-throughput",
         "uncached-agent-tools",
         "validated-capacity",
-        "warm-agent-tools"
+        "warm-agent-tools",
+        "warm-cache-reuse"
       ],
-      "frontier_count": 3,
+      "frontier_count": 4,
       "frontiers": [
         "quality-latency",
         "quality-process-footprint",
-        "warm-agent-tools"
+        "warm-agent-tools",
+        "warm-cache-reuse"
       ],
       "frontiers_with_rejected_offerings": [
         "quality-cache-efficiency",
@@ -1300,6 +1435,53 @@
       "near_frontiers": [],
       "rejected_only_frontiers": [
         "quality-cache-efficiency"
+      ]
+    },
+    {
+      "attempted_frontier_count": 8,
+      "attempted_frontiers": [
+        "long-context-126k",
+        "quality-cache-efficiency",
+        "quality-latency",
+        "quality-process-footprint",
+        "short-throughput",
+        "validated-capacity",
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "coverage_count": 3,
+      "covered_frontiers": [
+        "short-throughput",
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "evaluated_frontiers": [
+        "quality-latency",
+        "short-throughput",
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "frontier_count": 2,
+      "frontiers": [
+        "short-throughput",
+        "warm-agent-tools"
+      ],
+      "frontiers_with_rejected_offerings": [
+        "long-context-126k",
+        "quality-cache-efficiency",
+        "quality-process-footprint",
+        "validated-capacity"
+      ],
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "near_frontier_count": 1,
+      "near_frontiers": [
+        "warm-cache-reuse"
+      ],
+      "rejected_only_frontiers": [
+        "long-context-126k",
+        "quality-cache-efficiency",
+        "quality-process-footprint",
+        "validated-capacity"
       ]
     },
     {
@@ -1340,13 +1522,14 @@
       ]
     },
     {
-      "attempted_frontier_count": 5,
+      "attempted_frontier_count": 6,
       "attempted_frontiers": [
         "quality-cache-efficiency",
         "quality-latency",
         "quality-process-footprint",
         "short-throughput",
-        "warm-agent-tools"
+        "warm-agent-tools",
+        "warm-cache-reuse"
       ],
       "coverage_count": 2,
       "covered_frontiers": [
@@ -1365,63 +1548,24 @@
         "quality-process-footprint"
       ],
       "frontiers_with_rejected_offerings": [
-        "warm-agent-tools"
+        "warm-agent-tools",
+        "warm-cache-reuse"
       ],
       "model_id": "meta-models/Muse-Glimmer-30B",
       "near_frontier_count": 0,
       "near_frontiers": [],
       "rejected_only_frontiers": [
-        "warm-agent-tools"
+        "warm-agent-tools",
+        "warm-cache-reuse"
       ]
     },
     {
-      "attempted_frontier_count": 7,
-      "attempted_frontiers": [
-        "long-context-126k",
-        "quality-cache-efficiency",
-        "quality-latency",
-        "quality-process-footprint",
-        "short-throughput",
-        "validated-capacity",
-        "warm-agent-tools"
-      ],
-      "coverage_count": 2,
-      "covered_frontiers": [
-        "short-throughput",
-        "warm-agent-tools"
-      ],
-      "evaluated_frontiers": [
-        "quality-latency",
-        "short-throughput",
-        "warm-agent-tools"
-      ],
-      "frontier_count": 2,
-      "frontiers": [
-        "short-throughput",
-        "warm-agent-tools"
-      ],
-      "frontiers_with_rejected_offerings": [
-        "long-context-126k",
-        "quality-cache-efficiency",
-        "quality-process-footprint",
-        "validated-capacity"
-      ],
-      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
-      "near_frontier_count": 0,
-      "near_frontiers": [],
-      "rejected_only_frontiers": [
-        "long-context-126k",
-        "quality-cache-efficiency",
-        "quality-process-footprint",
-        "validated-capacity"
-      ]
-    },
-    {
-      "attempted_frontier_count": 3,
+      "attempted_frontier_count": 4,
       "attempted_frontiers": [
         "uncached-agent-tools",
         "validated-capacity",
-        "warm-agent-tools"
+        "warm-agent-tools",
+        "warm-cache-reuse"
       ],
       "coverage_count": 1,
       "covered_frontiers": [
@@ -1429,7 +1573,8 @@
       ],
       "evaluated_frontiers": [
         "uncached-agent-tools",
-        "warm-agent-tools"
+        "warm-agent-tools",
+        "warm-cache-reuse"
       ],
       "frontier_count": 1,
       "frontiers": [
@@ -1478,6 +1623,34 @@
       "rejected_frontiers": [
         "quality-cache-efficiency"
       ]
+    },
+    {
+      "attempted_frontier_count": 2,
+      "attempted_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "evaluated_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "frontier_count": 2,
+      "frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "model_id": "Qwen/Qwen3.8-27B",
+      "near_frontier_count": 0,
+      "near_frontiers": [],
+      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e",
+      "rejected_frontiers": []
     },
     {
       "attempted_frontier_count": 3,
@@ -1542,6 +1715,35 @@
     {
       "attempted_frontier_count": 2,
       "attempted_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "coverage_count": 2,
+      "covered_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "evaluated_frontiers": [
+        "warm-agent-tools",
+        "warm-cache-reuse"
+      ],
+      "frontier_count": 1,
+      "frontiers": [
+        "warm-agent-tools"
+      ],
+      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+      "near_frontier_count": 1,
+      "near_frontiers": [
+        "warm-cache-reuse"
+      ],
+      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
+      "provider": "local:macbook-m5max-64",
+      "quantization": "oQ4e",
+      "rejected_frontiers": []
+    },
+    {
+      "attempted_frontier_count": 2,
+      "attempted_frontiers": [
         "uncached-agent-tools",
         "validated-capacity"
       ],
@@ -1569,30 +1771,6 @@
     {
       "attempted_frontier_count": 1,
       "attempted_frontiers": [
-        "warm-agent-tools"
-      ],
-      "coverage_count": 1,
-      "covered_frontiers": [
-        "warm-agent-tools"
-      ],
-      "evaluated_frontiers": [
-        "warm-agent-tools"
-      ],
-      "frontier_count": 1,
-      "frontiers": [
-        "warm-agent-tools"
-      ],
-      "model_id": "Qwen/Qwen3.8-27B",
-      "near_frontier_count": 0,
-      "near_frontiers": [],
-      "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-e0bb25c998ead6aa",
-      "provider": "local:macbook-m5max-64",
-      "quantization": "oQ4e",
-      "rejected_frontiers": []
-    },
-    {
-      "attempted_frontier_count": 1,
-      "attempted_frontiers": [
         "short-throughput"
       ],
       "coverage_count": 1,
@@ -1615,38 +1793,16 @@
       "rejected_frontiers": []
     },
     {
-      "attempted_frontier_count": 1,
+      "attempted_frontier_count": 2,
       "attempted_frontiers": [
-        "warm-agent-tools"
-      ],
-      "coverage_count": 1,
-      "covered_frontiers": [
-        "warm-agent-tools"
-      ],
-      "evaluated_frontiers": [
-        "warm-agent-tools"
-      ],
-      "frontier_count": 1,
-      "frontiers": [
-        "warm-agent-tools"
-      ],
-      "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
-      "near_frontier_count": 0,
-      "near_frontiers": [],
-      "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-78a3177d4445aef3",
-      "provider": "local:macbook-m5max-64",
-      "quantization": "oQ4e",
-      "rejected_frontiers": []
-    },
-    {
-      "attempted_frontier_count": 1,
-      "attempted_frontiers": [
-        "warm-agent-tools"
+        "warm-agent-tools",
+        "warm-cache-reuse"
       ],
       "coverage_count": 0,
       "covered_frontiers": [],
       "evaluated_frontiers": [
-        "warm-agent-tools"
+        "warm-agent-tools",
+        "warm-cache-reuse"
       ],
       "frontier_count": 0,
       "frontiers": [],
