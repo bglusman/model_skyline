@@ -503,6 +503,8 @@ class EligibilityPolicy(StrictModel):
     max_source_age_hours: dict[SourceFreshnessId, PositiveSourceAge] = Field(default_factory=dict)
     minimum_axis_values: dict[str, CanonicalDecimal] = Field(default_factory=dict)
     maximum_axis_values: dict[str, CanonicalDecimal] = Field(default_factory=dict)
+    minimum_gate_values: dict[str, CanonicalDecimal] = Field(default_factory=dict)
+    maximum_gate_values: dict[str, CanonicalDecimal] = Field(default_factory=dict)
 
 
 class FrontierDefinition(StrictModel):
@@ -541,6 +543,28 @@ class FrontierDefinition(StrictModel):
             raise ValueError(
                 "eligibility axis minimum exceeds maximum: " + ", ".join(sorted(contradictory))
             )
+        gated = set(self.eligibility.minimum_gate_values) | set(
+            self.eligibility.maximum_gate_values
+        )
+        axis_gates = gated & set(metric_ids)
+        if axis_gates:
+            raise ValueError(
+                "eligibility gates must reference non-axis metrics: "
+                + ", ".join(sorted(axis_gates))
+            )
+        contradictory_gates = {
+            metric
+            for metric in gated
+            if metric in self.eligibility.minimum_gate_values
+            and metric in self.eligibility.maximum_gate_values
+            and self.eligibility.minimum_gate_values[metric]
+            > self.eligibility.maximum_gate_values[metric]
+        }
+        if contradictory_gates:
+            raise ValueError(
+                "eligibility gate minimum exceeds maximum: "
+                + ", ".join(sorted(contradictory_gates))
+            )
         return self
 
 
@@ -578,6 +602,15 @@ class ProjectConfig(StrictModel):
                     raise ValueError(
                         f"frontier {frontier_id!r} references unknown metric {axis.metric!r}"
                     )
+            gate_metrics = set(frontier.eligibility.minimum_gate_values) | set(
+                frontier.eligibility.maximum_gate_values
+            )
+            unknown_gates = sorted(gate_metrics - set(self.metrics))
+            if unknown_gates:
+                raise ValueError(
+                    f"frontier {frontier_id!r} references unknown eligibility gate metric(s): "
+                    + ", ".join(unknown_gates)
+                )
         for selection_id, selection in self.selections.items():
             if selection.frontier not in self.frontiers:
                 raise ValueError(

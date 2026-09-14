@@ -98,6 +98,38 @@
           },
           "title": "Maximum Axis Values",
           "type": "object"
+        },
+        "minimum_gate_values": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                "type": "string",
+                "maxLength": 1024
+              }
+            ]
+          },
+          "title": "Minimum Gate Values",
+          "type": "object"
+        },
+        "maximum_gate_values": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                "type": "string",
+                "maxLength": 1024
+              }
+            ]
+          },
+          "title": "Maximum Gate Values",
+          "type": "object"
         }
       },
       "title": "EligibilityPolicy",

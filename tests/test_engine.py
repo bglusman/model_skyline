@@ -25,7 +25,9 @@ from model_skyline.models import (
     ObservationRequirements,
     OracleMetric,
     ProjectConfig,
+    SignalMetric,
     SourceReference,
+    UncertaintyMode,
     WorkloadReference,
     build_axis_evidence_inventory,
 )
@@ -150,6 +152,149 @@ def test_axis_eligibility_threshold_must_reference_frontier_axis(
 
     with pytest.raises(ValidationError, match="must reference frontier metrics"):
         frontier.__class__.model_validate(payload)
+
+
+def test_non_axis_metric_gate_rejects_an_otherwise_eligible_candidate(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    frontier = example_config.frontiers["coding-value"]
+    eligibility = frontier.eligibility.model_copy(
+        update={"maximum_gate_values": {"ttft_p95": Decimal("500")}}
+    )
+    config = example_config.model_copy(
+        update={
+            "frontiers": {
+                **example_config.frontiers,
+                "coding-value": frontier.model_copy(update={"eligibility": eligibility}),
+            }
+        }
+    )
+
+    snapshot = FrontierEngine().calculate(
+        config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+    baseline = FrontierEngine().calculate(
+        example_config,
+        example_catalog,
+        "coding-value",
+        generated_at=NOW,
+    )
+
+    rejected = {item.offering_id: item.reasons for item in snapshot.rejected}
+    assert any(
+        "eligibility gate ttft_p95: value 900 exceeds eligible maximum 500" in reason
+        for reason in rejected["qualityworks/large-reasoner@us-priority"]
+    )
+    assert "balancedai/mid-agent@us-standard" in {
+        item.offering.offering_id for item in snapshot.evaluated
+    }
+    assert snapshot.config_hash != baseline.config_hash
+
+
+def test_metric_gate_must_not_duplicate_a_frontier_axis(
+    example_config: ProjectConfig,
+) -> None:
+    frontier = example_config.frontiers["coding-value"]
+    payload = frontier.model_dump(mode="python")
+    eligibility = payload["eligibility"]
+    assert isinstance(eligibility, dict)
+    eligibility["minimum_gate_values"] = {"coding_session_success": Decimal("0.6")}
+
+    with pytest.raises(ValidationError, match="must reference non-axis metrics"):
+        frontier.__class__.model_validate(payload)
+
+
+def test_project_rejects_unknown_metric_gate(example_config: ProjectConfig) -> None:
+    payload = example_config.model_dump(mode="python")
+    payload["frontiers"]["coding-value"]["eligibility"]["minimum_gate_values"] = {
+        "missing-context-gate": Decimal("128000")
+    }
+
+    with pytest.raises(ValidationError, match="unknown eligibility gate metric"):
+        ProjectConfig.model_validate(payload)
+
+
+def test_robust_metric_gate_uses_the_conservative_bound(
+    example_config: ProjectConfig,
+    example_catalog: ObservationCatalog,
+) -> None:
+    frontier = example_config.frontiers["coding-responsiveness"]
+    eligibility = frontier.eligibility.model_copy(
+        update={"minimum_gate_values": {"validated_context": Decimal("128000")}}
+    )
+    robust_frontier = frontier.model_copy(
+        update={"eligibility": eligibility, "uncertainty": UncertaintyMode.ROBUST}
+    )
+    context_metric = SignalMetric(
+        kind="signal",
+        signal="validated_context_tokens",
+        unit="token",
+    )
+    config = example_config.model_copy(
+        update={
+            "metrics": {**example_config.metrics, "validated_context": context_metric},
+            "frontiers": {
+                **example_config.frontiers,
+                "coding-responsiveness": robust_frontier,
+            },
+        }
+    )
+    first = example_catalog.offerings[0]
+    signals = dict(first.signals)
+    signals["success_rate"] = signals["success_rate"].model_copy(
+        update={"lower": Decimal("0.60"), "upper": Decimal("0.64")}
+    )
+    signals["ttft_p95_ms"] = signals["ttft_p95_ms"].model_copy(
+        update={"lower": Decimal("280"), "upper": Decimal("320")}
+    )
+    signals["validated_context_tokens"] = Observation(
+        value="128000",
+        lower="64000",
+        upper="128000",
+        unit="token",
+        sample_count=3,
+        observed_at=NOW,
+    )
+    catalog = example_catalog.model_copy(
+        update={"offerings": [first.model_copy(update={"signals": signals})]}
+    )
+
+    snapshot = FrontierEngine().calculate(
+        config,
+        catalog,
+        "coding-responsiveness",
+        generated_at=NOW,
+    )
+
+    assert not snapshot.evaluated
+    assert any(
+        "eligibility gate validated_context: lower bound 64000 is below eligible minimum 128000"
+        in reason
+        for reason in snapshot.rejected[0].reasons
+    )
+
+    signals["validated_context_tokens"] = signals["validated_context_tokens"].model_copy(
+        update={"lower": None, "upper": None}
+    )
+    unbounded_catalog = example_catalog.model_copy(
+        update={"offerings": [first.model_copy(update={"signals": signals})]}
+    )
+    unbounded = FrontierEngine().calculate(
+        config,
+        unbounded_catalog,
+        "coding-responsiveness",
+        generated_at=NOW,
+    )
+
+    assert any(
+        "eligibility gate validated_context: robust uncertainty requires confidence bounds"
+        in reason
+        for reason in unbounded.rejected[0].reasons
+    )
 
 
 def test_benchmark_harness_is_independent_of_production_route_harness(

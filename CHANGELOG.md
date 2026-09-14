@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add auditable non-axis metric gates to frontier eligibility. Context,
+  correctness, memory-pressure, cache, or other measured requirements can now
+  reject an offering without becoming a third Pareto objective. Gate metrics
+  retain their ordinary evidence and freshness policy; robust frontiers use
+  conservative interval bounds.
 - Distinguish `proxy`, `estimated`, and `measured` observations throughout
   catalogs, metric eligibility, and retained axis evidence. Metrics accept only
   measured evidence by default; estimated observations require bounds and an

@@ -169,6 +169,33 @@ metrics:
       max_age_hours: 24
       minimum_samples: 20
 
+  validated_context_capacity:
+    kind: signal
+    signal: local_validated_context_tokens
+    unit: token
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+      require_bounds: true
+
+  exact_tool_call_correctness:
+    kind: signal
+    signal: local_tool_call_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+      require_bounds: true
+
+  runner_swap_growth:
+    kind: signal
+    signal: local_swap_delta_bytes
+    unit: byte
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 3
+      require_bounds: true
+
 frontiers:
   quantization-screening:
     workload: paired-coreset-quantization-v1
@@ -200,6 +227,11 @@ frontiers:
       allow_unknown_age: false
       minimum_axis_values:
         measured_agent_quality: 60
+      minimum_gate_values:
+        exact_tool_call_correctness: 100
+        validated_context_capacity: 128000
+      maximum_gate_values:
+        runner_swap_growth: 0
     metadata_fields: [evidence_tier, artifact, runtime, hardware, gate_policy]
 
   local-agent-memory-value:
@@ -217,6 +249,11 @@ frontiers:
       allow_unknown_age: false
       minimum_axis_values:
         measured_agent_quality: 60
+      minimum_gate_values:
+        exact_tool_call_correctness: 100
+        validated_context_capacity: 128000
+      maximum_gate_values:
+        runner_swap_growth: 0
     metadata_fields: [evidence_tier, artifact, runtime, hardware, gate_policy]
 
   local-agent-cache-demand:
@@ -234,6 +271,11 @@ frontiers:
       allow_unknown_age: false
       minimum_axis_values:
         measured_agent_quality: 60
+      minimum_gate_values:
+        exact_tool_call_correctness: 100
+        validated_context_capacity: 128000
+      maximum_gate_values:
+        runner_swap_growth: 0
     metadata_fields: [evidence_tier, artifact, runtime, hardware, cache_lifecycle, gate_policy]
 
   fixed-128k-usefulness:
@@ -251,6 +293,11 @@ frontiers:
       allow_unknown_age: false
       minimum_axis_values:
         measured_long_context_quality: 60
+      minimum_gate_values:
+        exact_tool_call_correctness: 100
+        validated_context_capacity: 128000
+      maximum_gate_values:
+        runner_swap_growth: 0
     metadata_fields: [evidence_tier, artifact, runtime, hardware, gate_policy]
 
   session-endurance:
@@ -267,6 +314,10 @@ frontiers:
     eligibility:
       required_capabilities: [text, tools, long-context]
       allow_unknown_age: false
+      minimum_gate_values:
+        exact_tool_call_correctness: 100
+      maximum_gate_values:
+        runner_swap_growth: 0
     metadata_fields: [artifact, runtime, hardware, compaction_policy, gate_policy]
 
   warm-cache-operation:
@@ -282,6 +333,10 @@ frontiers:
     eligibility:
       required_capabilities: [text, tools]
       allow_unknown_age: false
+      minimum_gate_values:
+        exact_tool_call_correctness: 100
+      maximum_gate_values:
+        runner_swap_growth: 0
     metadata_fields: [artifact, runtime, hardware, cache_lifecycle, gate_policy]
 
   remote-agent-value:

@@ -172,10 +172,16 @@ Estimated and measured quality should normally produce separate snapshots:
 | Warm-cache operation | eligible-token reuse, maximize | p95 successful-turn latency, minimize | correctness equal to uncached control; fixed cache lifecycle |
 | Remote agent value | measured or conservative estimated quality, maximize | expected cost per successful work unit, minimize | exact route and price basis; same agent budget |
 
-When the core engine cannot express a third metric as an eligibility gate, the
-catalog builder must create a separately versioned, prefiltered cohort and
-retain the gate observations. Do not hide a correctness or context constraint
-in prose.
+Declare a measured third requirement with `minimum_gate_values` or
+`maximum_gate_values` under the frontier's `eligibility` policy. The referenced
+metric is evaluated with its ordinary freshness, source, sample-count, and
+evidence-tier requirements, but it does not become a Pareto axis. Robust
+frontiers require both bounds, apply minimum gates to the metric's lower bound,
+and apply maximum gates to its upper bound. Use a separately versioned,
+prefiltered cohort only when the constraint is not representable as a scalar
+metric, and retain its gate observations. Missing, stale, or otherwise
+ineligible gate evidence rejects the offering. Do not hide a correctness or
+context constraint in prose.
 
 For estimated quality, use robust uncertainty or materialize the conservative
 lower confidence bound as the explicit quality signal. Keep estimator error in

@@ -22,6 +22,8 @@ def _pre_v06_effective_policy(
     workload = config.workloads[workload_id]
     frontier_policy = frontier.model_dump(mode="json")
     assert frontier_policy["eligibility"].pop("max_source_age_hours") == {}
+    assert frontier_policy["eligibility"].pop("minimum_gate_values") == {}
+    assert frontier_policy["eligibility"].pop("maximum_gate_values") == {}
     metrics: dict[str, Any] = {}
     for axis in frontier.axes:
         metric = config.metrics[axis.metric].model_dump(mode="json")
