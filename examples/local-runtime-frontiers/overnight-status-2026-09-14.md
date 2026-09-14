@@ -29,13 +29,16 @@ still running.
 - PR [#51](https://github.com/bglusman/model_skyline/pull/51) pinned North Mini
   Code MLX and GGUF controls as the next agent-quality challenger, with explicit
   parser, tool, context, Harbor, and cross-Mac gates.
-- Main is clean and synchronized at `e9ef48d`. The implementation progress is
+- PR [#52](https://github.com/bglusman/model_skyline/pull/52) added a versioned
+  seven-family candidate population and coverage-v3 attempt audit. It makes
+  unattempted frontier cells visible without treating them as dominated points.
+- Main is clean and synchronized at `8e254e9`. The implementation progress is
   also tracked on issue
   [#32](https://github.com/bglusman/model_skyline/issues/32#issuecomment-5662742682).
 
-PR #48 passed two CI matrices on Python 3.11–3.14 plus both package jobs. Local
-validation after the final hardening was 827 passed and 6 skipped, with Ruff
-format/lint and mypy green.
+Each merged PR passed two CI matrices on Python 3.11–3.14 plus both package
+jobs. Local validation after PR #52 was 828 passed and 6 skipped; its touched
+Python files also pass Ruff format and lint.
 
 ## Current broad local frontier residents
 
@@ -58,6 +61,13 @@ frontiers; DS4 Flash Next, Muse Glimmer, and Ornith cover two each; Flash Coder
 covers one narrow frontier. At the packaged 5% near threshold there are no
 near-only residents. The closest dominated candidates are DS4 on the uncached
 tool frontier at 14.09% and Flash Coder on the warm-tool frontier at 15.32%.
+
+Those residents cover 29 of the 50 model-family/frontier cells nominated for
+their intended roles (58%). Dense Qwen and DS4 have complete attempt coverage
+for their declared positions; Muse is missing three, Ornith one, Flash Coder
+one, and the newly pinned North and Nemotron candidates remain 0/8. An explicit
+eligibility rejection counts as an attempted cell but never as exact or near
+membership.
 
 The three one-run quality rows remain historical point evidence. They are not
 stable defaults, and the paired Qwen repeat experiment must not inflate the
