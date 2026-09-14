@@ -325,6 +325,7 @@ frontiers:
     axes:
       - metric: eligible_prefix_reuse
         goal: maximize
+        epsilon_absolute: 1
       - metric: p95_successful_turn_latency
         goal: minimize
         epsilon_relative: 0.05

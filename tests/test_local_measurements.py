@@ -255,6 +255,74 @@ def test_catalog_percentage_does_not_inherit_ambient_decimal_context() -> None:
     assert value == Decimal("66.66666666666666666666666666666667")
 
 
+def test_catalog_projects_bounded_prefix_cache_reuse_percent() -> None:
+    payload = local_measurement_payload()
+    runtime = payload["runtime"]
+    workload = payload["workload"]
+    performance = payload["performance"]
+    assert isinstance(runtime, dict)
+    assert isinstance(workload, dict)
+    assert isinstance(performance, dict)
+    runtime["prefix_cache_enabled"] = True
+    workload["prefix_cache_state"] = "warm"
+    metrics = performance["metrics"]
+    assert isinstance(metrics, dict)
+    metrics["prefix_cache_hit_tokens"] = {
+        "unit": "token",
+        "values": ["2040", "1024", "2048"],
+    }
+
+    with localcontext(Context(prec=4)):
+        offering = build_local_catalog([LocalMeasurementRecord.model_validate(payload)]).offerings[
+            0
+        ]
+
+    reuse = offering.signals["local_prefix_cache_reuse_percent"]
+    assert reuse.value == Decimal("99.60937500")
+    assert reuse.lower == Decimal("50.0")
+    assert reuse.upper == Decimal("100")
+    assert reuse.sample_count == 3
+
+    metrics["prefix_cache_hit_tokens"] = {
+        "unit": "token",
+        "values": ["2040", "2049", "2048"],
+    }
+    with pytest.raises(ValidationError, match="cannot exceed actual input tokens"):
+        LocalMeasurementRecord.model_validate(payload)
+
+
+def test_catalog_even_sample_median_uses_fixed_decimal_policy() -> None:
+    payload = local_measurement_payload()
+    runtime = payload["runtime"]
+    workload = payload["workload"]
+    performance = payload["performance"]
+    assert isinstance(runtime, dict)
+    assert isinstance(workload, dict)
+    assert isinstance(performance, dict)
+    runtime["prefix_cache_enabled"] = True
+    workload["prefix_cache_state"] = "warm"
+    workload["repetitions"] = 2
+    performance["actual_input_tokens"] = 2047
+    performance["output_token_counts"] = [512, 512]
+    metrics = performance["metrics"]
+    assert isinstance(metrics, dict)
+    for series in metrics.values():
+        assert isinstance(series, dict)
+        values = series["values"]
+        assert isinstance(values, list)
+        series["values"] = values[:2]
+    metrics["prefix_cache_hit_tokens"] = {
+        "unit": "token",
+        "values": ["2046", "2046"],
+    }
+
+    offering = build_local_catalog([LocalMeasurementRecord.model_validate(payload)]).offerings[0]
+
+    reuse = offering.signals["local_prefix_cache_reuse_percent"]
+    assert reuse.value == reuse.lower == reuse.upper
+    assert reuse.value == Decimal("99.95114802149487054225696140693698")
+
+
 def test_catalog_requires_same_workload_position_and_unique_exact_offerings() -> None:
     first = LocalMeasurementRecord.model_validate(local_measurement_payload())
     payload = local_measurement_payload()
