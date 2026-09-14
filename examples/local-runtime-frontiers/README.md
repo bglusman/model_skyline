@@ -35,8 +35,9 @@ local, cache, context, quant-screening, and remote recipes are in
 [`recommended-frontier-recipes.yaml`](recommended-frontier-recipes.yaml).
 
 Those recipes also include named lexicographic selectors for quality-first,
-latency-first, memory-first, cache-demand, fixed-128K, long-horizon research,
-session-endurance, warm cache, and quantization-screening priorities. A selector ranks only eligible
+latency-first, memory-first, cache-demand, fixed-128K, scientific-workspace
+research, live-web browsing, general-assistant tasks, session-endurance, warm
+cache, and quantization-screening priorities. A selector ranks only eligible
 members of one Pareto frontier: its correctness, context, evidence, freshness,
 and no-swap gates have already been applied. `return_available` deliberately
 returns fewer than three choices when the evidence cannot support three; it
@@ -145,13 +146,23 @@ Every active frontier has exactly two decision axes:
   Recorded tokens from a timed-out or truncated final request are a lower
   bound, not an eligible axis.
 
-The reusable recipe catalog additionally defines `long-horizon-research-value`:
-outcome-scored research/search quality (maximize) versus p95 full-task wall time
-(minimize). It is a separate workload cohort because a coding/terminal score
-cannot stand in for multi-source search or scientific-research quality. Exact
-tool calls, evidence grounding, locally validated 128K capacity, and zero swap
-growth are eligibility gates. A reproducible cohort freezes its corpus/search
-snapshot and tool schemas; a live-web evaluation must use a distinct version.
+The reusable recipe catalog keeps three non-coding agent workloads separate:
+
+- `long-horizon-research-value`: scientific-workspace research quality versus
+  p95 task wall time, with pinned workspaces, rubric, and judge plus exact tool,
+  evidence-grounding, 128K, and no-swap gates.
+- `web-browsing-value`: hard-to-find live-web answer accuracy versus p95 task
+  wall time. The encrypted task revision, answer grader, search/browser
+  providers, tool budget, and execution window are cohort identity because the
+  web changes.
+- `general-assistant-value`: heterogeneous exact-answer quality versus p95 task
+  wall time for file, media, browsing, reasoning, and tool tasks. Gated task
+  contents remain private while IDs and digests bind the cohort.
+
+A coding/terminal score cannot stand in for any of these, and they cannot stand
+in for one another. Their upstream benchmark mapping and publication rules are
+documented in
+[`research frontier benchmark map`](research-frontier-benchmark-map.md).
 
 [`harbor-repeated-frontiers.yaml`](harbor-repeated-frontiers.yaml) packages
 robust versions of the three quality frontiers. They require the protocol's
