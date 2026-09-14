@@ -14,6 +14,7 @@ ROOT = Path(__file__).parents[1]
 EXAMPLE = ROOT / "examples" / "local-runtime-frontiers"
 RECIPES = EXAMPLE / "recommended-frontier-recipes.yaml"
 PILOT = EXAMPLE / "harbor-quality-pilot.yaml"
+TASK_MANIFEST = EXAMPLE / "terminal-bench-2.1-task-manifest.json"
 HARBOR_SMOKE_SUMMARIES = sorted((EXAMPLE / "raw").glob("harbor-smoke-*-summary.json"))
 
 
@@ -61,6 +62,16 @@ def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
     assert full["full_dataset"] is True
     assert full["expected_task_count"] == pilot["benchmark"]["full_task_count"]
     assert full["source_revision"] == pilot["benchmark"]["revision"]
+    assert full["task_manifest_sha256"] == hashlib.sha256(TASK_MANIFEST.read_bytes()).hexdigest()
+    manifest = json.loads(TASK_MANIFEST.read_text(encoding="utf-8"))
+    assert manifest["schema_version"] == "model-skyline/harbor-task-manifest/v1"
+    assert manifest["revision"] == pilot["benchmark"]["revision"]
+    assert len(manifest["tasks"]) == full["expected_task_count"]
+    manifest_names = {task["name"] for task in manifest["tasks"]}
+    manifest_digests = {task["digest"] for task in manifest["tasks"]}
+    assert len(manifest_names) == len(manifest_digests) == 89
+    assert {task["name"] for task in selected["tasks"]} <= manifest_names
+    assert {task["digest"] for task in selected["tasks"]} <= manifest_digests
 
     context_capacities = []
     for candidate in pilot["candidates"].values():
@@ -81,6 +92,7 @@ def test_harbor_quality_pilot_is_exact_bounded_and_not_transferable() -> None:
     assert harness["concurrency"] == 1
     assert harness["model_switching"] == "batch_all_tasks_for_one_route"
     assert "verifier_ctrf_artifact_present_and_parseable" in pilot["validity_gates"]
+    assert "trial_exception_is_absent_or_protocol_quality_attributable" in pilot["validity_gates"]
     assert "memory_capture_job_lock_hash_matches_quality_summary" in pilot["validity_gates"]
     assert (
         "memory_frontier_uses_only_tasks_sampled_before_agent_execution" in pilot["validity_gates"]
