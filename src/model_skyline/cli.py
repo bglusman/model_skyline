@@ -84,6 +84,7 @@ from model_skyline.arc_feed_monitor import (
     ArcAgiFeedMonitorError,
     inspect_arc_agi_feed,
 )
+from model_skyline.catalog_composition import CatalogCompositionError, compose_catalogs
 from model_skyline.discovery import (
     DiscoveryError,
     build_provisional_evidence_catalog,
@@ -424,6 +425,42 @@ def build_local_capacity_catalog_artifact(
         )
         _emit(dump_json(catalog), output)
     except (InputError, OSError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("compose-catalogs", rich_help_panel=CORE_PANEL)
+def compose_catalog_artifacts(
+    catalogs: Annotated[
+        list[Path],
+        typer.Argument(
+            exists=True,
+            readable=True,
+            dir_okay=False,
+            help="two or more catalogs for the same exact workload",
+        ),
+    ],
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace an existing private composed catalog"),
+    ] = False,
+) -> None:
+    """Compose exact-workload catalogs without widening identity or provenance."""
+
+    try:
+        composed = compose_catalogs(load_catalog(path) for path in catalogs)
+        _emit_private(dump_json(composed), output, overwrite=overwrite)
+    except (
+        CatalogCompositionError,
+        InputError,
+        PrivateOutputError,
+        OSError,
+        TypeError,
+        ValueError,
+    ) as exc:
         _error(exc)
 
 
