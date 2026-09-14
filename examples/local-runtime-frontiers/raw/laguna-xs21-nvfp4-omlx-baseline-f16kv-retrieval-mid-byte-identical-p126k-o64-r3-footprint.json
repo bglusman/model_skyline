@@ -1,0 +1,209 @@
+{
+  "schema_version": "model-skyline/raw-openai-matrix/v1",
+  "started_at": "2026-09-14T15:54:58.721156Z",
+  "captured_at": "2026-09-14T15:59:30.981531Z",
+  "base_url": "http://127.0.0.1:8284/v1",
+  "model": "laguna-xs-2.1-nvfp4",
+  "mode": "retrieval",
+  "retrieval_position": "0.5",
+  "retrieval_characters": [
+    193527
+  ],
+  "repetitions": 3,
+  "warmup": true,
+  "runner_state": "warm",
+  "process_match": "omlx-server",
+  "runtime_stats_url": null,
+  "token_count_url": null,
+  "runtime_stats_auth": null,
+  "runner_status_url": null,
+  "runner_model_id": null,
+  "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+  "tool_schema_sha256": null,
+  "tool_count": 0,
+  "tool_choice": null,
+  "thinking_mode": "disabled",
+  "sampling": {
+    "temperature": 0,
+    "seed": 90421
+  },
+  "results": [
+    {
+      "approximate_prefix_tokens": 126000,
+      "prompt_bytes": 193527,
+      "prompt_sha256": "055f6f5c8a61fa1c7aab17e58be7631726182504e283ebe5bd8c66c6f25f5876",
+      "input_definition_sha256": "e9bfcc2a6a008959b6e0fada071424ef2ea55a65f5a4c4bff742aa0d2e8fd4a1",
+      "expected_content_sha256": "a0f4a93f4579be3f5049a1716920d20a5644dd0b3f16aef713186e04bd033092",
+      "construction_input_tokens": null,
+      "max_output_tokens": 64,
+      "repetition": 1,
+      "ttft_seconds": 84.633202792,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 86.090119,
+      "decode_tokens_per_second": 43.89,
+      "usage": {
+        "prompt_tokens": 125428,
+        "completion_tokens": 64,
+        "total_tokens": 125492,
+        "input_tokens": 125428,
+        "output_tokens": 64,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "time_to_first_token": 84.42,
+        "total_time": 85.87,
+        "prompt_eval_duration": 84.42,
+        "generation_duration": 1.46,
+        "prompt_tokens_per_second": 1485.85,
+        "generation_tokens_per_second": 43.89
+      },
+      "finish_reasons": [
+        "length"
+      ],
+      "content_sha256": "58886c74d763e6a65eb65a90d677f6db71829da6d27abc104e6ab799beffe664",
+      "content_bytes": 165,
+      "expected_content_present": true,
+      "expected_content_exact": false,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 10166468608,
+      "peak_process_physical_footprint_bytes": 33584931648,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 4406315581,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 52%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; charged; 0:00 remaining present: true"
+      },
+      "host_after": {
+        "swap_used_bytes": 4406315581,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 36%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; charged; 0:00 remaining present: true"
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    },
+    {
+      "approximate_prefix_tokens": 126000,
+      "prompt_bytes": 193527,
+      "prompt_sha256": "055f6f5c8a61fa1c7aab17e58be7631726182504e283ebe5bd8c66c6f25f5876",
+      "input_definition_sha256": "e9bfcc2a6a008959b6e0fada071424ef2ea55a65f5a4c4bff742aa0d2e8fd4a1",
+      "expected_content_sha256": "a0f4a93f4579be3f5049a1716920d20a5644dd0b3f16aef713186e04bd033092",
+      "construction_input_tokens": null,
+      "max_output_tokens": 64,
+      "repetition": 2,
+      "ttft_seconds": 85.99756975,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 87.4551935,
+      "decode_tokens_per_second": 43.86,
+      "usage": {
+        "prompt_tokens": 125428,
+        "completion_tokens": 64,
+        "total_tokens": 125492,
+        "input_tokens": 125428,
+        "output_tokens": 64,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "time_to_first_token": 85.76,
+        "total_time": 87.22,
+        "prompt_eval_duration": 85.76,
+        "generation_duration": 1.46,
+        "prompt_tokens_per_second": 1462.56,
+        "generation_tokens_per_second": 43.86
+      },
+      "finish_reasons": [
+        "length"
+      ],
+      "content_sha256": "58886c74d763e6a65eb65a90d677f6db71829da6d27abc104e6ab799beffe664",
+      "content_bytes": 165,
+      "expected_content_present": true,
+      "expected_content_exact": false,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 10166419456,
+      "peak_process_physical_footprint_bytes": 33588355928,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 4406315581,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 36%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; charged; 0:00 remaining present: true"
+      },
+      "host_after": {
+        "swap_used_bytes": 4406315581,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 36%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; charged; 0:00 remaining present: true"
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    },
+    {
+      "approximate_prefix_tokens": 126000,
+      "prompt_bytes": 193527,
+      "prompt_sha256": "055f6f5c8a61fa1c7aab17e58be7631726182504e283ebe5bd8c66c6f25f5876",
+      "input_definition_sha256": "e9bfcc2a6a008959b6e0fada071424ef2ea55a65f5a4c4bff742aa0d2e8fd4a1",
+      "expected_content_sha256": "a0f4a93f4579be3f5049a1716920d20a5644dd0b3f16aef713186e04bd033092",
+      "construction_input_tokens": null,
+      "max_output_tokens": 64,
+      "repetition": 3,
+      "ttft_seconds": 93.553086459,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 95.097985167,
+      "decode_tokens_per_second": 41.39,
+      "usage": {
+        "prompt_tokens": 125428,
+        "completion_tokens": 64,
+        "total_tokens": 125492,
+        "input_tokens": 125428,
+        "output_tokens": 64,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "time_to_first_token": 93.33,
+        "total_time": 94.87,
+        "prompt_eval_duration": 93.33,
+        "generation_duration": 1.55,
+        "prompt_tokens_per_second": 1343.94,
+        "generation_tokens_per_second": 41.39
+      },
+      "finish_reasons": [
+        "length"
+      ],
+      "content_sha256": "58886c74d763e6a65eb65a90d677f6db71829da6d27abc104e6ab799beffe664",
+      "content_bytes": 165,
+      "expected_content_present": true,
+      "expected_content_exact": false,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 10166468608,
+      "peak_process_physical_footprint_bytes": 33420649304,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 4406315581,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 36%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; charged; 0:00 remaining present: true"
+      },
+      "host_after": {
+        "swap_used_bytes": 4406315581,
+        "memory_pressure": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 36%",
+        "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+        "power_source": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=40304739)\t100%; charged; 0:00 remaining present: true"
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    }
+  ]
+}

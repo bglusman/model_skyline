@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "3624b3ff93baa13997b54168a72fa42af20a2f0994b85335bf872c4ab212f681",
+  "snapshot_id": "6419f2651d4d376726c706978d6ca279fe824969495651858d471268a37f7e07",
   "config_hash": "91c2b96aa89d778800a82831c00eaf32f00f67e1cf9a8ea7e48f1412790fba8f",
-  "catalog_hash": "b82908b466696b1e3169fde052da9d08fc46e375d01b77ab390297617672cd8e",
+  "catalog_hash": "1cb0497e023d3b7bbef0172f5a64bc731111d2f4ecb070c542ce9e1db2bef562",
   "engine_version": "0.9.0",
-  "generated_at": "2026-09-14T07:20:00Z",
+  "generated_at": "2026-09-14T15:36:05Z",
   "frontier_id": "tool-agent-operational",
   "workload": {
     "id": "openai-agent-latency-v1",
@@ -34,17 +34,18 @@
   "members": [
     {
       "offering": {
-        "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
-        "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+        "offering_id": "local/macbook-m5max-64/poolside/Laguna-XS-2.1@mlx-safetensors-NVFP4-group16-oMLX-d77b710dbd6c5187",
+        "model_id": "poolside/Laguna-XS-2.1",
         "provider": "local:macbook-m5max-64",
         "endpoint": null,
         "billing_mode": "owned_hardware",
         "region": "local",
         "service_tier": "high-power-configured-pmset-2",
-        "quantization": "Q4_K_M",
+        "quantization": "NVFP4-group16",
         "reasoning_effort": null,
         "agent_harness": "model-skyline/openai-matrix@v1",
         "capabilities": [
+          "long-context",
           "text",
           "tools"
         ]
@@ -62,50 +63,50 @@
             "signals.local_tool_call_success_percent"
           ],
           "source_ids": [
-            "local-measurement:qwen38-flash-coder-q4km-no-prompt-cache-tool30-auto-p2048-o256-disabled"
+            "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled"
           ],
           "sources": [
             {
-              "id": "local-measurement:qwen38-flash-coder-q4km-no-prompt-cache-tool30-auto-p2048-o256-disabled",
+              "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled",
               "version": "model-skyline/openai-matrix@v1",
               "url": null,
               "terms_url": null,
               "license": "CC0-1.0",
               "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
-              "raw_sha256": "a4a1361c9b7716c587a26b28f4f98ee8e4e6a730fe776ce8a3591018140d4a2e",
-              "retrieved_at": "2026-09-14T07:01:43.254409Z"
+              "raw_sha256": "7b4c49870a4470cbc1146b76fa229226d212efa6bc0bdecb54836e365d645633",
+              "retrieved_at": "2026-09-14T15:14:13.138647Z"
             }
           ],
-          "oldest_observed_at": "2026-09-14T07:01:43.254409Z",
+          "oldest_observed_at": "2026-09-14T15:14:13.138647Z",
           "minimum_sample_count": 3
         },
         "end_to_end": {
-          "value": "5.52672775",
+          "value": "1.815443542",
           "unit": "s",
           "evidence_tiers": [
             "measured"
           ],
-          "lower": "5.52392125",
-          "upper": "5.552827583",
+          "lower": "1.804217417",
+          "upper": "2.059652583",
           "dependencies": [
             "signals.local_end_to_end_seconds"
           ],
           "source_ids": [
-            "local-measurement:qwen38-flash-coder-q4km-no-prompt-cache-tool30-auto-p2048-o256-disabled"
+            "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled"
           ],
           "sources": [
             {
-              "id": "local-measurement:qwen38-flash-coder-q4km-no-prompt-cache-tool30-auto-p2048-o256-disabled",
+              "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled",
               "version": "model-skyline/openai-matrix@v1",
               "url": null,
               "terms_url": null,
               "license": "CC0-1.0",
               "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
-              "raw_sha256": "a4a1361c9b7716c587a26b28f4f98ee8e4e6a730fe776ce8a3591018140d4a2e",
-              "retrieved_at": "2026-09-14T07:01:43.254409Z"
+              "raw_sha256": "7b4c49870a4470cbc1146b76fa229226d212efa6bc0bdecb54836e365d645633",
+              "retrieved_at": "2026-09-14T15:14:13.138647Z"
             }
           ],
-          "oldest_observed_at": "2026-09-14T07:01:43.254409Z",
+          "oldest_observed_at": "2026-09-14T15:14:13.138647Z",
           "minimum_sample_count": 3
         }
       },
@@ -137,52 +138,47 @@
           }
         },
         "artifact": {
-          "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
-          "checkpoint": "qwen3.8-flash-coder-85gb-bf16-160-expert-subnet",
-          "revision": "4d62a522f3c70b6e9579015602129a15fe161804",
-          "format": "gguf",
-          "quantization": "Q4_K_M",
-          "size_bytes": 28394087776,
-          "content_sha256": "11f6a81dba702bf9603d1a1249b01752e84e3e049d15ae366c2f80032670d121",
-          "source_url": "https://huggingface.co/Jab1718/qwen3.8-flash-coder-26gb-gguf/tree/4d62a522f3c70b6e9579015602129a15fe161804",
-          "license": "Apache-2.0",
+          "model_id": "poolside/Laguna-XS-2.1",
+          "checkpoint": "Laguna-XS-2.1-NVFP4-mlx",
+          "revision": "841778bda563a36104dd521e37d99218e46f4f25",
+          "format": "mlx-safetensors",
+          "quantization": "NVFP4-group16",
+          "size_bytes": 21568898815,
+          "content_sha256": "61f1951f6ef2a5d22a59e7a8e89b2683c506be15bbd616928c7f59b5964ec45d",
+          "source_url": "https://huggingface.co/poolside/Laguna-XS-2.1-NVFP4-mlx",
+          "license": "OpenMDW-1.1",
           "metadata": {
-            "filename": "qwen3.8-flash-coder-26gb-q4_k_m.gguf",
-            "base_model": "Jab1718/qwen3.8-flash-coder-85gb-bf16",
-            "upstream_family": "Qwen/Qwen3.8-Flash-Next",
-            "expert_count": 160,
-            "construction": "hardware-aligned coding subnet selected with Jab1718/Moe-slices"
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/laguna-xs-2.1-nvfp4-mlx-manifest.json",
+            "publisher_validation_status": "experimental-testing-only",
+            "publisher_production_validation": false
           }
         },
         "runtime": {
-          "runtime_id": "llama.cpp",
-          "version": "0.4.0-build-10809",
-          "commit": "5266f24da",
-          "backend": "Metal4",
-          "context_capacity_tokens": 131072,
-          "kv_cache": "q8_0/q8_0",
+          "runtime_id": "oMLX",
+          "version": "0.6.4",
+          "commit": null,
+          "backend": "MLX/Metal",
+          "context_capacity_tokens": 262144,
+          "kv_cache": "f16",
           "prefix_cache_enabled": false,
           "speculative_method": null,
           "agent_harness": "model-skyline/openai-matrix@v1",
           "configuration": {
-            "runtime_binary_sha256": "8939a1cf8a4e9a5cc18d6cd4d2d55440b48f8a44db00abe459a28d837ea051f7",
-            "native_context_tokens": 262144,
-            "allocated_context_tokens": 131072,
-            "parallel_slots": 1,
-            "batch_tokens": 2048,
-            "micro_batch_tokens": 512,
+            "mlx_version": "0.32.0",
+            "mlx_lm_version": "0.31.3",
+            "model_profile": "baseline-f16kv",
+            "max_concurrent_requests": 1,
             "max_output_tokens": 16384,
-            "n_gpu_layers": "all",
-            "flash_attention": true,
-            "fit": "off",
-            "jinja": true,
-            "cache_ram_bytes": 8589934592,
-            "cache_idle_slots": true,
-            "reasoning_effort": "low",
-            "thinking_budget_tokens": 4096,
-            "prompt_cache_enabled": false,
-            "llama_swap_model_id": "qwen3.8-flash-coder-26gb-q4km-no-prompt-cache",
-            "llama_swap_exclusive_group": "local-memory"
+            "memory_guard": "balanced",
+            "prefix_cache": {
+              "backend": "disabled"
+            },
+            "turboquant_kv_enabled": false,
+            "dflash_enabled": false,
+            "mtp_enabled": false,
+            "ane_prefill_enabled": false,
+            "specprefill_enabled": false
           }
         },
         "workload": {
@@ -213,8 +209,8 @@
               "temperature": 0,
               "seed": 90421
             },
-            "time_to_first_token_source": "unavailable",
-            "decode_rate_source": "unavailable",
+            "time_to_first_token_source": "server-reported",
+            "decode_rate_source": "server-reported",
             "token_count_url": null,
             "construction_input_tokens": null,
             "finish_reasons": {
@@ -229,6 +225,197 @@
     }
   ],
   "evaluated": [
+    {
+      "offering": {
+        "offering_id": "local/macbook-m5max-64/poolside/Laguna-XS-2.1@mlx-safetensors-NVFP4-group16-oMLX-d77b710dbd6c5187",
+        "model_id": "poolside/Laguna-XS-2.1",
+        "provider": "local:macbook-m5max-64",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "high-power-configured-pmset-2",
+        "quantization": "NVFP4-group16",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "tool_call_success": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_tool_call_success_percent"
+          ],
+          "source_ids": [
+            "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "7b4c49870a4470cbc1146b76fa229226d212efa6bc0bdecb54836e365d645633",
+              "retrieved_at": "2026-09-14T15:14:13.138647Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T15:14:13.138647Z",
+          "minimum_sample_count": 3
+        },
+        "end_to_end": {
+          "value": "1.815443542",
+          "unit": "s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "1.804217417",
+          "upper": "2.059652583",
+          "dependencies": [
+            "signals.local_end_to_end_seconds"
+          ],
+          "source_ids": [
+            "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "7b4c49870a4470cbc1146b76fa229226d212efa6bc0bdecb54836e365d645633",
+              "retrieved_at": "2026-09-14T15:14:13.138647Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-14T15:14:13.138647Z",
+          "minimum_sample_count": 3
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "macbook-m5max-64",
+          "manufacturer": "Apple",
+          "machine_model": "Mac17,6",
+          "chip": "Apple M5 Max",
+          "architecture": "arm64",
+          "memory_bytes": 68719476736,
+          "cpu_cores": 18,
+          "cpu_core_groups": {
+            "super": 6,
+            "performance": 12
+          },
+          "gpu_cores": 40,
+          "os_name": "macOS",
+          "os_version": "26.6.2 (25G83)",
+          "power_source": "ac",
+          "power_mode": "high-power-configured-pmset-2",
+          "negotiated_adapter_watts": 140,
+          "metadata": {
+            "power_connection": "direct-usb-c",
+            "pmset_powermode": 2,
+            "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+            "power_mode_status": "configured-not-independently-verified",
+            "related_report": "https://developer.apple.com/forums/thread/835131"
+          }
+        },
+        "artifact": {
+          "model_id": "poolside/Laguna-XS-2.1",
+          "checkpoint": "Laguna-XS-2.1-NVFP4-mlx",
+          "revision": "841778bda563a36104dd521e37d99218e46f4f25",
+          "format": "mlx-safetensors",
+          "quantization": "NVFP4-group16",
+          "size_bytes": 21568898815,
+          "content_sha256": "61f1951f6ef2a5d22a59e7a8e89b2683c506be15bbd616928c7f59b5964ec45d",
+          "source_url": "https://huggingface.co/poolside/Laguna-XS-2.1-NVFP4-mlx",
+          "license": "OpenMDW-1.1",
+          "metadata": {
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+            "manifest": "artifacts/laguna-xs-2.1-nvfp4-mlx-manifest.json",
+            "publisher_validation_status": "experimental-testing-only",
+            "publisher_production_validation": false
+          }
+        },
+        "runtime": {
+          "runtime_id": "oMLX",
+          "version": "0.6.4",
+          "commit": null,
+          "backend": "MLX/Metal",
+          "context_capacity_tokens": 262144,
+          "kv_cache": "f16",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "mlx_version": "0.32.0",
+            "mlx_lm_version": "0.31.3",
+            "model_profile": "baseline-f16kv",
+            "max_concurrent_requests": 1,
+            "max_output_tokens": 16384,
+            "memory_guard": "balanced",
+            "prefix_cache": {
+              "backend": "disabled"
+            },
+            "turboquant_kv_enabled": false,
+            "dflash_enabled": false,
+            "mtp_enabled": false,
+            "ane_prefill_enabled": false,
+            "specprefill_enabled": false
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "openai-tool-p2048-o256-disabled",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "agent_integration",
+          "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 256,
+          "repetitions": 3,
+          "warmup_repetitions": 1,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "disabled",
+          "position": {
+            "mode": "tool",
+            "prompt_bytes": 8293,
+            "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+            "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+            "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+            "tool_count": 30,
+            "tool_choice": "auto",
+            "thinking_mode": "disabled",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "server-reported",
+            "decode_rate_source": "server-reported",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "tool_calls": 3
+            },
+            "api": "openai-chat-completions-streaming"
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": []
+    },
     {
       "offering": {
         "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
@@ -422,7 +609,9 @@
         },
         "local_evidence_status": "provisional"
       },
-      "dominated_by": []
+      "dominated_by": [
+        "local/macbook-m5max-64/poolside/Laguna-XS-2.1@mlx-safetensors-NVFP4-group16-oMLX-d77b710dbd6c5187"
+      ]
     },
     {
       "offering": {
@@ -618,7 +807,8 @@
         "local_evidence_status": "provisional"
       },
       "dominated_by": [
-        "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0"
+        "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
+        "local/macbook-m5max-64/poolside/Laguna-XS-2.1@mlx-safetensors-NVFP4-group16-oMLX-d77b710dbd6c5187"
       ]
     },
     {
@@ -812,7 +1002,8 @@
       },
       "dominated_by": [
         "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
-        "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9"
+        "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+        "local/macbook-m5max-64/poolside/Laguna-XS-2.1@mlx-safetensors-NVFP4-group16-oMLX-d77b710dbd6c5187"
       ]
     }
   ],
@@ -822,8 +1013,8 @@
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
     "config_hash": "91c2b96aa89d778800a82831c00eaf32f00f67e1cf9a8ea7e48f1412790fba8f",
-    "catalog_hash": "b82908b466696b1e3169fde052da9d08fc46e375d01b77ab390297617672cd8e",
-    "generated_at": "2026-09-14T07:20:00Z",
+    "catalog_hash": "1cb0497e023d3b7bbef0172f5a64bc731111d2f4ecb070c542ce9e1db2bef562",
+    "generated_at": "2026-09-14T15:36:05Z",
     "workload": {
       "id": "openai-agent-latency-v1",
       "version": "1",
@@ -845,7 +1036,7 @@
         "epsilon_relative": "0.05"
       }
     ],
-    "candidate_universe_hash": "805f9814eb6c8f92375870fb6b162f6305931e689b3bff81b1352c69b123b422",
+    "candidate_universe_hash": "7fda1b1ce32da5bec5f8d19f445367d091d9ea4d9e2aca1acca06dddc2eddc9b",
     "candidates": [
       {
         "offering": {
@@ -1007,6 +1198,85 @@
       },
       {
         "offering": {
+          "offering_id": "local/macbook-m5max-64/poolside/Laguna-XS-2.1@mlx-safetensors-NVFP4-group16-oMLX-d77b710dbd6c5187",
+          "model_id": "poolside/Laguna-XS-2.1",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "NVFP4-group16",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "tool_call_success": {
+            "value": "100",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_tool_call_success_percent"
+            ],
+            "source_ids": [
+              "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "7b4c49870a4470cbc1146b76fa229226d212efa6bc0bdecb54836e365d645633",
+                "retrieved_at": "2026-09-14T15:14:13.138647Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T15:14:13.138647Z",
+            "minimum_sample_count": 3
+          },
+          "end_to_end": {
+            "value": "1.815443542",
+            "unit": "s",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "1.804217417",
+            "upper": "2.059652583",
+            "dependencies": [
+              "signals.local_end_to_end_seconds"
+            ],
+            "source_ids": [
+              "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "7b4c49870a4470cbc1146b76fa229226d212efa6bc0bdecb54836e365d645633",
+                "retrieved_at": "2026-09-14T15:14:13.138647Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T15:14:13.138647Z",
+            "minimum_sample_count": 3
+          }
+        }
+      },
+      {
+        "offering": {
           "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
           "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
           "provider": "local:macbook-m5max-64",
@@ -1084,10 +1354,20 @@
         }
       }
     ],
-    "inventory_id": "d3713b1b14d06afc48dfdf3480e01d03aa3914e4ae608658609c3df1d098b1ae"
+    "inventory_id": "c4cec639317fa0799536e6e4220c0da00b7295541c0c4a752812ca987c3ca6a8"
   },
   "public_release_blocked": false,
   "sources": [
+    {
+      "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "7b4c49870a4470cbc1146b76fa229226d212efa6bc0bdecb54836e365d645633",
+      "retrieved_at": "2026-09-14T15:14:13.138647Z"
+    },
     {
       "id": "local-measurement:qwen38-flash-next-ds4-q2-pleq41-tool30-auto-p2048-o256-miss",
       "version": "model-skyline/openai-matrix@v1",
@@ -1122,6 +1402,7 @@
   "source_watermarks": {
     "local-measurement:qwen38-flash-coder-q4km-no-prompt-cache-tool30-auto-p2048-o256-disabled": "2026-09-14T07:01:43.254409Z",
     "local-measurement:qwen38-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled": "2026-09-13T06:02:20.642886Z",
-    "local-measurement:qwen38-flash-next-ds4-q2-pleq41-tool30-auto-p2048-o256-miss": "2026-09-13T07:06:19.227668Z"
+    "local-measurement:qwen38-flash-next-ds4-q2-pleq41-tool30-auto-p2048-o256-miss": "2026-09-13T07:06:19.227668Z",
+    "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-tool30-auto-p2048-o256-disabled": "2026-09-14T15:14:13.138647Z"
   }
 }

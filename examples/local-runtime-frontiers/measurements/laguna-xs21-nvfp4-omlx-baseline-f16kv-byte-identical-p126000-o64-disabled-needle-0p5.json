@@ -1,0 +1,220 @@
+{
+  "schema_version": "model-skyline/local-measurement/v1alpha1",
+  "measurement_id": "laguna-xs21-nvfp4-omlx-baseline-f16kv-byte-identical-p126000-o64-disabled-needle-0p5",
+  "status": "provisional",
+  "started_at": "2026-09-14T15:54:58.721156Z",
+  "completed_at": "2026-09-14T15:59:30.981531Z",
+  "hardware": {
+    "hardware_id": "macbook-m5max-64",
+    "manufacturer": "Apple",
+    "machine_model": "Mac17,6",
+    "chip": "Apple M5 Max",
+    "architecture": "arm64",
+    "memory_bytes": 68719476736,
+    "cpu_cores": 18,
+    "cpu_core_groups": {
+      "super": 6,
+      "performance": 12
+    },
+    "gpu_cores": 40,
+    "os_name": "macOS",
+    "os_version": "26.6.2 (25G83)",
+    "power_source": "ac",
+    "power_mode": "high-power-configured-pmset-2",
+    "negotiated_adapter_watts": 140,
+    "metadata": {
+      "power_connection": "direct-usb-c",
+      "pmset_powermode": 2,
+      "power_mode_observation": "system_profiler concurrently reported HighPowerMode=No and LowPowerMode=Yes",
+      "power_mode_status": "configured-not-independently-verified",
+      "related_report": "https://developer.apple.com/forums/thread/835131"
+    }
+  },
+  "artifact": {
+    "model_id": "poolside/Laguna-XS-2.1",
+    "checkpoint": "Laguna-XS-2.1-NVFP4-mlx",
+    "revision": "841778bda563a36104dd521e37d99218e46f4f25",
+    "format": "mlx-safetensors",
+    "quantization": "NVFP4-group16",
+    "size_bytes": 21568898815,
+    "content_sha256": "61f1951f6ef2a5d22a59e7a8e89b2683c506be15bbd616928c7f59b5964ec45d",
+    "source_url": "https://huggingface.co/poolside/Laguna-XS-2.1-NVFP4-mlx",
+    "license": "OpenMDW-1.1",
+    "metadata": {
+      "digest_scheme": "sha256-rfc8785-file-manifest-v1",
+      "manifest": "artifacts/laguna-xs-2.1-nvfp4-mlx-manifest.json",
+      "publisher_validation_status": "experimental-testing-only",
+      "publisher_production_validation": false
+    }
+  },
+  "runtime": {
+    "runtime_id": "oMLX",
+    "version": "0.6.4",
+    "commit": null,
+    "backend": "MLX/Metal",
+    "context_capacity_tokens": 262144,
+    "kv_cache": "f16",
+    "prefix_cache_enabled": false,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "mlx_version": "0.32.0",
+      "mlx_lm_version": "0.31.3",
+      "model_profile": "baseline-f16kv",
+      "max_concurrent_requests": 1,
+      "max_output_tokens": 16384,
+      "memory_guard": "balanced",
+      "prefix_cache": {
+        "backend": "disabled"
+      },
+      "turboquant_kv_enabled": false,
+      "dflash_enabled": false,
+      "mtp_enabled": false,
+      "ane_prefill_enabled": false,
+      "specprefill_enabled": false
+    }
+  },
+  "workload": {
+    "reference": {
+      "id": "openai-retrieval-p126000-o64-disabled-needle-0p5",
+      "version": "model-skyline/openai-matrix@v1",
+      "unit": "request"
+    },
+    "kind": "long_context_retrieval",
+    "input_definition_sha256": "e9bfcc2a6a008959b6e0fada071424ef2ea55a65f5a4c4bff742aa0d2e8fd4a1",
+    "requested_input_tokens": 126000,
+    "max_output_tokens": 64,
+    "repetitions": 3,
+    "warmup_repetitions": 1,
+    "concurrency": 1,
+    "runner_state": "warm",
+    "prefix_cache_state": "disabled",
+    "position": {
+      "mode": "retrieval",
+      "prompt_bytes": 193527,
+      "user_prompt_sha256": "055f6f5c8a61fa1c7aab17e58be7631726182504e283ebe5bd8c66c6f25f5876",
+      "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+      "tool_schema_sha256": null,
+      "tool_count": 0,
+      "tool_choice": null,
+      "thinking_mode": "disabled",
+      "sampling": {
+        "temperature": 0,
+        "seed": 90421
+      },
+      "time_to_first_token_source": "server-reported",
+      "decode_rate_source": "server-reported",
+      "token_count_url": null,
+      "construction_input_tokens": null,
+      "finish_reasons": {
+        "length": 3
+      },
+      "api": "openai-chat-completions-streaming",
+      "retrieval_character_fraction": "0.5"
+    }
+  },
+  "performance": {
+    "actual_input_tokens": 125428,
+    "output_token_counts": [
+      64,
+      64,
+      64
+    ],
+    "metrics": {
+      "time_to_first_semantic_event_seconds": {
+        "unit": "s",
+        "values": [
+          "84.633202792",
+          "85.99756975",
+          "93.553086459"
+        ]
+      },
+      "end_to_end_seconds": {
+        "unit": "s",
+        "values": [
+          "86.090119",
+          "87.4551935",
+          "95.097985167"
+        ]
+      },
+      "time_to_first_token_seconds": {
+        "unit": "s",
+        "values": [
+          "84.42",
+          "85.76",
+          "93.33"
+        ]
+      },
+      "decode_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "43.89",
+          "43.86",
+          "41.39"
+        ]
+      },
+      "prompt_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "1485.85",
+          "1462.56",
+          "1343.94"
+        ]
+      },
+      "peak_process_rss_bytes": {
+        "unit": "byte",
+        "values": [
+          "10166468608",
+          "10166419456",
+          "10166468608"
+        ]
+      },
+      "peak_process_physical_footprint_bytes": {
+        "unit": "byte",
+        "values": [
+          "33584931648",
+          "33588355928",
+          "33420649304"
+        ]
+      },
+      "swap_delta_bytes": {
+        "unit": "byte",
+        "values": [
+          "0",
+          "0",
+          "0"
+        ]
+      }
+    }
+  },
+  "integrity": {
+    "retrieval": {
+      "passed": 0,
+      "total": 3
+    },
+    "retrieval_value": {
+      "passed": 3,
+      "total": 3
+    },
+    "tool_calls": null,
+    "tool_argument_parsing": null,
+    "structured_output": null
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ],
+  "provenance": {
+    "tool": "model-skyline/openai-matrix",
+    "tool_version": "v1",
+    "command_sha256": "38058ca3e56d488ca85d8b70a3ffd6e011e88c5dbad10bb76a402c66b97e8398",
+    "raw_artifact_path": "raw/laguna-xs21-nvfp4-omlx-baseline-f16kv-retrieval-mid-byte-identical-p126k-o64-r3-footprint.json",
+    "raw_sha256": "63c9d6b3b6c79f6d444522f268fd01ecb6cacfceedffa3125da6937d7ef70880",
+    "captured_at": "2026-09-14T15:59:30.981531Z",
+    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+    "source_url": null,
+    "license": "CC0-1.0"
+  },
+  "notes": "Provisional operational runtime evidence; no model-quality claim."
+}

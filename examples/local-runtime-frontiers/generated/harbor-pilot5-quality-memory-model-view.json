@@ -1,0 +1,207 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": null,
+  "policy_sha256": null,
+  "source_snapshot_id": "0778f69a49902bede01d5b34bb4e7d7ffa82967d57e2d787a9569c645c6eb5d0",
+  "frontier_id": "local-agent-quality-memory",
+  "workload": {
+    "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+    "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+    "unit": "task"
+  },
+  "order_by": "pilot_task_success",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "pilot_task_success",
+      "goal": "maximize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "pilot_peak_physical_footprint",
+      "goal": "minimize",
+      "unit": "byte",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "Qwen/Qwen3.8-27B",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-27B@mlx-safetensors-oQ4e-oMLX-77158a1dfe8f15d4",
+              "model_id": "Qwen/Qwen3.8-27B",
+              "provider": "local:macbook-m5max-64",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "high-power-configured-pmset-2",
+              "quantization": "oQ4e",
+              "reasoning_effort": null,
+              "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+              "capabilities": [
+                "long-context",
+                "text",
+                "tools"
+              ]
+            },
+            "axes": {
+              "pilot_task_success": {
+                "value": "80",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.local_pilot_task_success_percent"
+                ],
+                "source_ids": [
+                  "local-quality-pilot:qwen38_low_think4k:d77a9b44-9a62-489d-9521-aa49b7021cc8"
+                ],
+                "sources": [
+                  {
+                    "id": "local-quality-pilot:qwen38_low_think4k:d77a9b44-9a62-489d-9521-aa49b7021cc8",
+                    "version": "model-skyline/harbor-local-job-summary/v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+                    "raw_sha256": "79d1f1464b52466e0c492914c2809a51f47d7abd93faf86597f67ca51e94f62b",
+                    "retrieved_at": "2026-09-14T06:14:29.019142Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-14T06:14:29.019142Z",
+                "minimum_sample_count": 5
+              },
+              "pilot_peak_physical_footprint": {
+                "value": "23782290440",
+                "unit": "byte",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "20060189632",
+                "upper": "23782290440",
+                "dependencies": [
+                  "signals.local_peak_process_physical_footprint_bytes"
+                ],
+                "source_ids": [
+                  "local-quality-memory:90509e6fcf8b748eaf14e636"
+                ],
+                "sources": [
+                  {
+                    "id": "local-quality-memory:90509e6fcf8b748eaf14e636",
+                    "version": "model-skyline/harbor-runner-memory-summary/v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Kernel-accounted macOS physical-footprint task peaks from the exact local runner during every task's complete agent-execution interval. Compact summaries replay their peaks from the source samples and retain that capture's SHA-256 digest.",
+                    "raw_sha256": "90509e6fcf8b748eaf14e63649a13044e9ddd9da9740ce80a374654167b361a9",
+                    "retrieved_at": "2026-09-14T06:14:29.131065Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-14T06:14:29.131065Z",
+                "minimum_sample_count": 5
+              }
+            }
+          }
+        ]
+      },
+      {
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/macbook-m5max-64/meta-models/Muse-Glimmer-30B@gguf-KQuant-Dynamic-Q4_K_XL-llama.cpp-42eb41e9031a7816",
+              "model_id": "meta-models/Muse-Glimmer-30B",
+              "provider": "local:macbook-m5max-64",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "high-power-configured-pmset-2",
+              "quantization": "KQuant-Dynamic-Q4_K_XL",
+              "reasoning_effort": null,
+              "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+              "capabilities": [
+                "long-context",
+                "text",
+                "tools"
+              ]
+            },
+            "axes": {
+              "pilot_task_success": {
+                "value": "60",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.local_pilot_task_success_percent"
+                ],
+                "source_ids": [
+                  "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb"
+                ],
+                "sources": [
+                  {
+                    "id": "local-quality-pilot:muse_glimmer_target:9002daa8-5e83-45c8-aa46-2511d588c5fb",
+                    "version": "model-skyline/harbor-local-job-summary/v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+                    "raw_sha256": "77fb2b85cda5a86556ca11932093a04b4ad9f763f2a2d462f108ad4183513b9d",
+                    "retrieved_at": "2026-09-14T05:36:39.275811Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-14T05:36:39.275811Z",
+                "minimum_sample_count": 5
+              },
+              "pilot_peak_physical_footprint": {
+                "value": "3484714192",
+                "unit": "byte",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "2007892072",
+                "upper": "3484714192",
+                "dependencies": [
+                  "signals.local_peak_process_physical_footprint_bytes"
+                ],
+                "source_ids": [
+                  "local-quality-memory:310034e5468122aef790fdde"
+                ],
+                "sources": [
+                  {
+                    "id": "local-quality-memory:310034e5468122aef790fdde",
+                    "version": "model-skyline/harbor-runner-memory-summary/v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Kernel-accounted macOS physical-footprint task peaks from the exact local runner during every task's complete agent-execution interval. Compact summaries replay their peaks from the source samples and retain that capture's SHA-256 digest.",
+                    "raw_sha256": "310034e5468122aef790fddeddd8f4790021fb6f4ea49e5ebbba2d33545a52e9",
+                    "retrieved_at": "2026-09-14T05:36:39.388640Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-14T05:36:39.388640Z",
+                "minimum_sample_count": 5
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": null,
+  "view_id": "30634384e21966513e33147c87c39391eb74ab7d4b4ccd13ddc972f541740520"
+}

@@ -14,6 +14,7 @@ from model_skyline.cli import app
 from model_skyline.engine import FrontierEngine
 from model_skyline.io import load_catalog, load_config, load_local_measurement
 from model_skyline.local_measurements import (
+    LocalCapacityIntegrityCheck,
     LocalMeasurementRecord,
     build_local_capacity_catalog,
     build_local_catalog,
@@ -493,6 +494,7 @@ def test_capacity_catalog_selects_largest_passing_position() -> None:
     assert signals["local_validated_context_tokens"].value == Decimal("2048")
     assert signals["local_peak_process_physical_footprint_bytes"].value == Decimal("20500000000")
     assert offering.metadata["capacity_validation"] == {
+        "integrity_check": "retrieval",
         "attempted_position_count": 2,
         "configured_context_tokens": 262_144,
         "fully_passing_position_count": 1,
@@ -534,6 +536,7 @@ def test_capacity_catalog_retains_failed_candidate_without_validated_signal() ->
         "tools",
     )
     assert offering.metadata["capacity_validation"] == {
+        "integrity_check": "retrieval",
         "attempted_position_count": 1,
         "configured_context_tokens": 262_144,
         "fully_passing_position_count": 0,
@@ -568,6 +571,93 @@ def test_zero_pass_check_can_document_an_unclaimed_capability() -> None:
     integrity["retrieval"] = {"passed": 1, "total": 3}
     with pytest.raises(ValidationError, match="nonzero integrity evidence"):
         LocalMeasurementRecord.model_validate(payload)
+
+
+def test_retrieval_value_emits_a_separate_non_strict_signal() -> None:
+    payload = local_measurement_payload()
+    payload["integrity"] = {
+        "retrieval": {"passed": 0, "total": 3},
+        "retrieval_value": {"passed": 3, "total": 3},
+    }
+
+    catalog = build_local_catalog(
+        [LocalMeasurementRecord.model_validate(payload)],
+        workload=WorkloadReference(id="retrieval", version="1", unit="request"),
+    )
+
+    signals = catalog.offerings[0].signals
+    assert signals["local_retrieval_success_percent"].value == Decimal("0")
+    assert signals["local_retrieval_value_success_percent"].value == Decimal("100")
+    assert "local_validated_context_tokens" not in signals
+
+
+def test_capacity_catalog_can_select_largest_value_retrieval_position() -> None:
+    small_payload = _capacity_payload(2_048, "value-small")
+    small_integrity = small_payload["integrity"]
+    assert isinstance(small_integrity, dict)
+    small_integrity["retrieval_value"] = {"passed": 3, "total": 3}
+    large_payload = _capacity_payload(126_000, "value-large")
+    large_integrity = large_payload["integrity"]
+    assert isinstance(large_integrity, dict)
+    large_integrity["retrieval"] = {"passed": 0, "total": 3}
+    large_integrity["retrieval_value"] = {"passed": 3, "total": 3}
+
+    catalog = build_local_capacity_catalog(
+        [
+            LocalMeasurementRecord.model_validate(small_payload),
+            LocalMeasurementRecord.model_validate(large_payload),
+        ],
+        workload=WorkloadReference(
+            id="retrieved-value-capacity-v1",
+            version="1",
+            unit="context_position",
+        ),
+        integrity_check=LocalCapacityIntegrityCheck.retrieval_value,
+    )
+
+    offering = catalog.offerings[0]
+    assert offering.signals["local_retrieved_value_context_tokens"].value == Decimal("126000")
+    assert "local_validated_context_tokens" not in offering.signals
+    assert offering.metadata["capacity_validation"] == {
+        "integrity_check": "retrieval_value",
+        "attempted_position_count": 2,
+        "configured_context_tokens": 262_144,
+        "fully_passing_position_count": 2,
+        "largest_attempted_context_tokens": 126_000,
+        "largest_retrieved_value_context_tokens": 126_000,
+    }
+
+
+def test_capacity_catalog_cli_exposes_value_retrieval_mode(tmp_path: Path) -> None:
+    payload = _capacity_payload(126_000, "value-cli")
+    integrity = payload["integrity"]
+    assert isinstance(integrity, dict)
+    integrity["retrieval"] = {"passed": 0, "total": 3}
+    integrity["retrieval_value"] = {"passed": 3, "total": 3}
+    source = tmp_path / "value-retrieval.json"
+    source.write_text(json.dumps(payload), encoding="utf-8")
+    output = tmp_path / "value-capacity.json"
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "build-local-capacity-catalog",
+            str(source),
+            "--integrity-check",
+            "retrieval_value",
+            "--workload-id",
+            "retrieved-value-capacity-v1",
+            "--output",
+            str(output),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    catalog = load_catalog(output)
+    assert catalog.workload.id == "retrieved-value-capacity-v1"
+    assert catalog.offerings[0].signals["local_retrieved_value_context_tokens"].value == Decimal(
+        "126000"
+    )
 
 
 @pytest.mark.parametrize(

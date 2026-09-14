@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+exec /usr/local/libexec/model-skyline/local-model-exclusive /bin/sleep 2147483647

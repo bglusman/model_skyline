@@ -1,0 +1,14 @@
+[Unit]
+Description=llama-swap local inference router
+After=network-online.target ollama.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/llama-swap -config /etc/llama-swap/config.yaml -listen 192.168.1.125:8090 -watch-config
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

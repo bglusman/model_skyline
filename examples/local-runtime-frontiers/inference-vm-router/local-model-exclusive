@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+if [ "$#" -eq 0 ]; then
+  echo "usage: local-model-exclusive command [arguments ...]" >&2
+  exit 64
+fi
+
+exec 9>/run/lock/model-skyline-local-model.lock
+/usr/bin/flock -x 9
+exec "$@"

@@ -16,6 +16,14 @@ the provider, runtime, or machine that achieved it. If two implementations of
 one model occupy different useful tradeoffs, both real points are retained
 under the same model name.
 
+For local inference, an exact hardware-targeted fit is an offering of the same
+model family. For example, a
+[ShoeHorn](https://github.com/notactuallytreyanastasio/shoehorn) mixed-quant
+GGUF may win on a 16 GB GPU even when a stock Q4 artifact does not fit. The fit
+must retain its source revision, plan/tool revision, output hash, context/KV
+budget, runtime placement, and measurements; it cannot borrow quality from the
+source checkpoint or another quantization.
+
 ## Balanced average
 
 This view asks: **how does the model perform across the same environments?**

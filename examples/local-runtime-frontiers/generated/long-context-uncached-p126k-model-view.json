@@ -1,0 +1,123 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": null,
+  "policy_sha256": null,
+  "source_snapshot_id": "44fe4fedf1a787ffd8537803237b57064565ea9279e70223158a2e7a65bdb2dd",
+  "frontier_id": "long-context-operational",
+  "workload": {
+    "id": "long-context-retrieval-v1",
+    "version": "1",
+    "unit": "retrieval_probe"
+  },
+  "order_by": "retrieval_success",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "retrieval_success",
+      "goal": "maximize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "end_to_end",
+      "goal": "minimize",
+      "unit": "s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "Qwen/Qwen3.8-Flash-Next",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/macbook-m5max-64/Qwen/Qwen3.8-Flash-Next@ds4-composite-gguf-IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1-DwarfStar/ds4-c760f909e4b652f9",
+              "model_id": "Qwen/Qwen3.8-Flash-Next",
+              "provider": "local:macbook-m5max-64",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "high-power-configured-pmset-2",
+              "quantization": "IQ2_XXS-gate-up+Q2_K-down+PLE-Q4_1",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline/openai-matrix@v1",
+              "capabilities": [
+                "long-context",
+                "text",
+                "tools"
+              ]
+            },
+            "axes": {
+              "retrieval_success": {
+                "value": "100",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.local_retrieval_success_percent"
+                ],
+                "source_ids": [
+                  "local-measurement:qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-r3-footprint-p126000-o64-miss-needle-0p5"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-r3-footprint-p126000-o64-miss-needle-0p5",
+                    "version": "model-skyline/openai-matrix@v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                    "raw_sha256": "b329071ecfb000bcbe60a219769717a6b786c92347ff49b93215d2e24f7696e6",
+                    "retrieved_at": "2026-09-13T13:18:54.971906Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-13T13:18:54.971906Z",
+                "minimum_sample_count": 3
+              },
+              "end_to_end": {
+                "value": "197.92907925",
+                "unit": "s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "192.893199833",
+                "upper": "199.0955975",
+                "dependencies": [
+                  "signals.local_end_to_end_seconds"
+                ],
+                "source_ids": [
+                  "local-measurement:qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-r3-footprint-p126000-o64-miss-needle-0p5"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-r3-footprint-p126000-o64-miss-needle-0p5",
+                    "version": "model-skyline/openai-matrix@v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                    "raw_sha256": "b329071ecfb000bcbe60a219769717a6b786c92347ff49b93215d2e24f7696e6",
+                    "retrieved_at": "2026-09-13T13:18:54.971906Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-13T13:18:54.971906Z",
+                "minimum_sample_count": 3
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": null,
+  "view_id": "75b9caccd58b8bda3b4f86eafc38974e226e1d3698f8792f084d82d293c3f8a0"
+}

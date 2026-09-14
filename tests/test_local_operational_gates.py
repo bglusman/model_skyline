@@ -38,7 +38,7 @@ def test_published_operational_gate_catalog_rebuilds_from_pinned_inputs() -> Non
     )
 
     assert catalog_enrichment_policy_hash(policy) == (
-        "c2e35b575683528497455f9be6b0956f8d4d004c997dcb1f8113ffad7addcfeb"
+        "08208a0fda45bf8698545863e3cae8c02e5f56bdc0fee06ebea4b30f6ae103a8"
     )
     assert dump_json(catalog) == ENRICHED.read_text(encoding="utf-8")
     assert len(catalog.offerings) == 5

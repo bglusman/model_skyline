@@ -78,6 +78,13 @@ class LocalPrefixCacheState(StrEnum):
     mixed = "mixed"
 
 
+class LocalCapacityIntegrityCheck(StrEnum):
+    """Retrieval result used to validate an observed context position."""
+
+    retrieval = "retrieval"
+    retrieval_value = "retrieval_value"
+
+
 class LocalMetricName(StrEnum):
     prompt_tokens_per_second = "prompt_tokens_per_second"
     decode_tokens_per_second = "decode_tokens_per_second"
@@ -196,7 +203,11 @@ class LocalCheckResult(FrozenModel):
 
 
 class LocalIntegrityEvidence(FrozenModel):
+    # `retrieval` is the strict check: the complete stripped answer must equal
+    # the requested value. `retrieval_value` separately records whether the
+    # exact value appeared anywhere in the answer.
     retrieval: LocalCheckResult | None = None
+    retrieval_value: LocalCheckResult | None = None
     tool_calls: LocalCheckResult | None = None
     tool_argument_parsing: LocalCheckResult | None = None
     structured_output: LocalCheckResult | None = None
@@ -537,6 +548,7 @@ def build_local_catalog(
         if record.integrity is not None:
             check_signals = {
                 "local_retrieval_success_percent": record.integrity.retrieval,
+                "local_retrieval_value_success_percent": record.integrity.retrieval_value,
                 "local_tool_call_success_percent": record.integrity.tool_calls,
                 "local_tool_argument_parse_success_percent": (
                     record.integrity.tool_argument_parsing
@@ -609,10 +621,22 @@ def _capacity_protocol(record: LocalMeasurementRecord) -> tuple[object, ...]:
     )
 
 
+def _capacity_integrity_result(
+    record: LocalMeasurementRecord,
+    integrity_check: LocalCapacityIntegrityCheck,
+) -> LocalCheckResult | None:
+    if record.integrity is None:
+        return None
+    if integrity_check is LocalCapacityIntegrityCheck.retrieval:
+        return record.integrity.retrieval
+    return record.integrity.retrieval_value
+
+
 def build_local_capacity_catalog(
     records: Iterable[LocalMeasurementRecord],
     *,
     workload: WorkloadReference,
+    integrity_check: LocalCapacityIntegrityCheck = LocalCapacityIntegrityCheck.retrieval,
 ) -> ObservationCatalog:
     """Roll an uncached retrieval ladder up without hiding failed candidates."""
 
@@ -633,10 +657,10 @@ def build_local_capacity_catalog(
         )
     if any(record.performance is None for record in materialized):
         raise ValueError("capacity records require actual input-token performance evidence")
-    if any(
-        record.integrity is None or record.integrity.retrieval is None for record in materialized
-    ):
-        raise ValueError("capacity records require explicit retrieval integrity evidence")
+    if any(_capacity_integrity_result(record, integrity_check) is None for record in materialized):
+        raise ValueError(
+            f"capacity records require explicit {integrity_check.value} integrity evidence"
+        )
     protocol = _capacity_protocol(materialized[0])
     if any(_capacity_protocol(record) != protocol for record in materialized[1:]):
         raise ValueError("capacity records must use one retrieval protocol")
@@ -650,9 +674,8 @@ def build_local_capacity_catalog(
         passing = [
             record
             for record in candidates
-            if record.integrity is not None
-            and record.integrity.retrieval is not None
-            and record.integrity.retrieval.passed == record.integrity.retrieval.total
+            if (check := _capacity_integrity_result(record, integrity_check)) is not None
+            and check.passed == check.total
             and record.performance is not None
         ]
         selection_pool = passing or candidates
@@ -666,7 +689,8 @@ def build_local_capacity_catalog(
         )
         assert selected.performance is not None
         assert selected.integrity is not None
-        assert selected.integrity.retrieval is not None
+        selected_check = _capacity_integrity_result(selected, integrity_check)
+        assert selected_check is not None
         source = _source(selected)
         signals: dict[str, Observation] = {}
         if passing:
@@ -678,11 +702,16 @@ def build_local_capacity_catalog(
                     f"capacity record {selected.measurement_id!r} is missing sampled "
                     "physical footprint"
                 )
+            capacity_signal = (
+                "local_validated_context_tokens"
+                if integrity_check is LocalCapacityIntegrityCheck.retrieval
+                else "local_retrieved_value_context_tokens"
+            )
             signals = {
-                "local_validated_context_tokens": Observation(
+                capacity_signal: Observation(
                     value=selected.performance.actual_input_tokens,
                     unit="token",
-                    sample_count=selected.integrity.retrieval.total,
+                    sample_count=selected_check.total,
                     observed_at=selected.completed_at,
                     source=source,
                 ),
@@ -705,18 +734,19 @@ def build_local_capacity_catalog(
                     ),
                     "measurement_id": record.measurement_id,
                     "passed": (
-                        record.integrity is not None
-                        and record.integrity.retrieval is not None
-                        and record.integrity.retrieval.passed == record.integrity.retrieval.total
+                        (check := _capacity_integrity_result(record, integrity_check)) is not None
+                        and check.passed == check.total
                     ),
                     "passed_checks": (
-                        record.integrity.retrieval.passed
-                        if record.integrity is not None and record.integrity.retrieval is not None
+                        check.passed
+                        if (check := _capacity_integrity_result(record, integrity_check))
+                        is not None
                         else None
                     ),
                     "total_checks": (
-                        record.integrity.retrieval.total
-                        if record.integrity is not None and record.integrity.retrieval is not None
+                        check.total
+                        if (check := _capacity_integrity_result(record, integrity_check))
+                        is not None
                         else None
                     ),
                     "raw_artifact_path": record.provenance.raw_artifact_path,
@@ -741,6 +771,7 @@ def build_local_capacity_catalog(
                     "raw_artifact_path": selected.provenance.raw_artifact_path,
                     "capacity_ladder": attempted,
                     "capacity_validation": {
+                        "integrity_check": integrity_check.value,
                         "attempted_position_count": len(candidates),
                         "configured_context_tokens": selected.runtime.context_capacity_tokens,
                         "fully_passing_position_count": len(passing),
@@ -749,9 +780,11 @@ def build_local_capacity_catalog(
                             for record in candidates
                             if record.performance is not None
                         ),
-                        "largest_validated_context_tokens": (
-                            selected.performance.actual_input_tokens if passing else None
-                        ),
+                        (
+                            "largest_validated_context_tokens"
+                            if integrity_check is LocalCapacityIntegrityCheck.retrieval
+                            else "largest_retrieved_value_context_tokens"
+                        ): selected.performance.actual_input_tokens if passing else None,
                     },
                     "local_cache_comparison_cohort": "uncached",
                 },

@@ -123,7 +123,11 @@ from model_skyline.io import (
     load_quality_reconciliation,
     public_schemas,
 )
-from model_skyline.local_measurements import build_local_capacity_catalog, build_local_catalog
+from model_skyline.local_measurements import (
+    LocalCapacityIntegrityCheck,
+    build_local_capacity_catalog,
+    build_local_catalog,
+)
 from model_skyline.model_views import (
     ModelFrontierViewError,
     build_model_frontier_view,
@@ -429,6 +433,16 @@ def build_local_capacity_catalog_artifact(
     workload_id: Annotated[str, typer.Option("--workload-id")] = "validated-capacity-v1",
     workload_version: Annotated[str, typer.Option("--workload-version")] = "1",
     workload_unit: Annotated[str, typer.Option("--workload-unit")] = "context_position",
+    integrity_check: Annotated[
+        LocalCapacityIntegrityCheck,
+        typer.Option(
+            "--integrity-check",
+            help=(
+                "Use retrieval for an exact complete answer, or retrieval_value "
+                "when finding the requested value is sufficient."
+            ),
+        ),
+    ] = LocalCapacityIntegrityCheck.retrieval,
 ) -> None:
     """Roll retrieval ladders up while retaining failed candidates for audit."""
 
@@ -440,6 +454,7 @@ def build_local_capacity_catalog_artifact(
                 version=workload_version,
                 unit=workload_unit,
             ),
+            integrity_check=integrity_check,
         )
         _emit(dump_json(catalog), output)
     except (InputError, OSError, ValueError) as exc:

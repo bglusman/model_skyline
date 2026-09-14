@@ -15,6 +15,7 @@ from model_skyline.io import (
     dump_json,
     load_catalog,
     load_config,
+    load_frontier_snapshot,
     load_model_frontier_view_policy,
     load_model_frontier_view_snapshot,
 )
@@ -299,3 +300,27 @@ def test_published_two_mac_model_view_rebuilds_from_exact_catalogs() -> None:
     assert [item.model_id for item in view.balanced_average.members] == [
         "ornith-ai/Ornith-1.5-35B-A3B"
     ]
+
+
+def test_published_local_best_available_views_rebuild() -> None:
+    generated = LOCAL / "generated"
+    stems = (
+        "cross-model-short-throughput",
+        "tool-agent-warm-p2048-o1024",
+        "tool-agent-uncached-p2048-o256",
+        "warm-cache-operational-p2048-o1024",
+        "long-context-uncached-p126k",
+        "long-context-value-uncached-p126k",
+        "validated-capacity",
+        "retrieved-value-capacity",
+        "harbor-pilot5-quality-latency",
+        "harbor-pilot5-quality-cache-efficiency",
+        "harbor-pilot5-quality-memory",
+    )
+
+    for stem in stems:
+        snapshot = load_frontier_snapshot(generated / f"{stem}-frontier.json")
+        actual = build_model_frontier_view(snapshot)
+        expected = load_model_frontier_view_snapshot(generated / f"{stem}-model-view.json")
+        assert dump_json(actual) == dump_json(expected)
+        assert expected.balanced_average is None

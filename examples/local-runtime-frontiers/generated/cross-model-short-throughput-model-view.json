@@ -1,0 +1,121 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": null,
+  "policy_sha256": null,
+  "source_snapshot_id": "68df2eaace3e13d530cc80be952aacbd35f94ea31c44fa8367202e1711b18434",
+  "frontier_id": "short-throughput-envelope",
+  "workload": {
+    "id": "llama-bench-pp2048-tg512",
+    "version": "llama.cpp@5266f24da/model-skyline@v1",
+    "unit": "benchmark_run"
+  },
+  "order_by": "decode_throughput",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "prompt_throughput",
+      "goal": "maximize",
+      "unit": "token/s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.03"
+    },
+    {
+      "metric": "decode_throughput",
+      "goal": "maximize",
+      "unit": "token/s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.03"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@gguf-Q4_K_M-llama.cpp-f637631ab8feb652",
+              "model_id": "ornith-ai/Ornith-1.5-35B-A3B",
+              "provider": "local:macbook-m5max-64",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "high-power-configured-pmset-2",
+              "quantization": "Q4_K_M",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline/llama-bench@v1",
+              "capabilities": [
+                "text"
+              ]
+            },
+            "axes": {
+              "prompt_throughput": {
+                "value": "3022.92",
+                "unit": "token/s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "3014",
+                "upper": "3035.59",
+                "dependencies": [
+                  "signals.local_prompt_tokens_per_second"
+                ],
+                "source_ids": [
+                  "local-measurement:ornith-q4km-m5max64-pp2048-tg512-20260913"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:ornith-q4km-m5max64-pp2048-tg512-20260913",
+                    "version": "llama-bench@build-10809",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                    "raw_sha256": "64664539e443c0033e79ac814c7bd10a3786ee1df4bb26e2b6a18374275b7f14",
+                    "retrieved_at": "2026-09-13T03:07:12.269496Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-13T03:07:12.269496Z",
+                "minimum_sample_count": 5
+              },
+              "decode_throughput": {
+                "value": "113.748",
+                "unit": "token/s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "113.59",
+                "upper": "114.129",
+                "dependencies": [
+                  "signals.local_decode_tokens_per_second"
+                ],
+                "source_ids": [
+                  "local-measurement:ornith-q4km-m5max64-pp2048-tg512-20260913"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:ornith-q4km-m5max64-pp2048-tg512-20260913",
+                    "version": "llama-bench@build-10809",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                    "raw_sha256": "64664539e443c0033e79ac814c7bd10a3786ee1df4bb26e2b6a18374275b7f14",
+                    "retrieved_at": "2026-09-13T03:07:12.269496Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-13T03:07:12.269496Z",
+                "minimum_sample_count": 5
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": null,
+  "view_id": "95236a143e916b84509fe139dd3d4e8dd52868468d3c872be45d66b78ce2bfc2"
+}

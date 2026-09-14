@@ -359,6 +359,17 @@
           ],
           "default": null
         },
+        "retrieval_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LocalCheckResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "tool_calls": {
           "anyOf": [
             {

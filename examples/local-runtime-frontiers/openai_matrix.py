@@ -710,6 +710,7 @@ def _stream_request(
         else derived_decode_tokens_per_second
     )
     content = "".join(content_parts)
+    stripped_content = content.strip()
     return {
         "ttft_seconds": ttft_seconds,
         "ttft_semantics": "first_complete_semantic_stream_event",
@@ -719,7 +720,12 @@ def _stream_request(
         "finish_reasons": finish_reasons,
         "content_sha256": _sha256(content.encode()),
         "content_bytes": len(content.encode()),
-        "expected_content_exact": content.strip() == expected_content if expected_content else None,
+        "expected_content_present": (
+            expected_content in stripped_content if expected_content else None
+        ),
+        "expected_content_exact": (
+            stripped_content == expected_content if expected_content else None
+        ),
         "tool_calls": parsed_calls,
         "tool_correct": tool_correct,
         "loading_state_events": loading_state_events,

@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "4c33a8c0d690c04e43d3416f2b9ff3158c006c7a6f8a1c0f9fa26010ba11f77a",
+  "snapshot_id": "44fe4fedf1a787ffd8537803237b57064565ea9279e70223158a2e7a65bdb2dd",
   "config_hash": "a61ac0f2b09a89f2f8c4076657fc6dd5474ed130582e55230a4f1204e880ed4f",
-  "catalog_hash": "ca1c3acf772e5aff46399785f38664f349b03158f5a1866143c7617f88d3785f",
+  "catalog_hash": "409fa55dc0414afb74a2a29ab30a3b40f543dc360ea8c24083d827b99d561e62",
   "engine_version": "0.9.0",
-  "generated_at": "2026-09-13T23:00:00Z",
+  "generated_at": "2026-09-14T23:59:59-04:00",
   "frontier_id": "long-context-operational",
   "workload": {
     "id": "long-context-retrieval-v1",
@@ -54,6 +54,9 @@
         "retrieval_success": {
           "value": "100",
           "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": null,
           "upper": null,
           "dependencies": [
@@ -80,6 +83,9 @@
         "end_to_end": {
           "value": "197.92907925",
           "unit": "s",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": "192.893199833",
           "upper": "199.0955975",
           "dependencies": [
@@ -246,6 +252,9 @@
         "retrieval_success": {
           "value": "100",
           "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": null,
           "upper": null,
           "dependencies": [
@@ -272,6 +281,9 @@
         "end_to_end": {
           "value": "197.92907925",
           "unit": "s",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": "192.893199833",
           "upper": "199.0955975",
           "dependencies": [
@@ -436,6 +448,9 @@
         "retrieval_success": {
           "value": "100",
           "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": null,
           "upper": null,
           "dependencies": [
@@ -462,6 +477,9 @@
         "end_to_end": {
           "value": "299.638158291",
           "unit": "s",
+          "evidence_tiers": [
+            "measured"
+          ],
           "lower": "287.398531083",
           "upper": "306.561783959",
           "dependencies": [
@@ -605,7 +623,19 @@
   ],
   "rejected": [
     {
+      "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
+      "reasons": [
+        "required capabilities are missing: long-context"
+      ]
+    },
+    {
       "offering_id": "local/macbook-m5max-64/ornith-ai/Ornith-1.5-35B-A3B@mlx-safetensors-oQ4e-oMLX-559214e903b9bf5b",
+      "reasons": [
+        "retrieval_success: value 0 is below eligible minimum 1E+2"
+      ]
+    },
+    {
+      "offering_id": "local/macbook-m5max-64/poolside/Laguna-XS-2.1@mlx-safetensors-NVFP4-group16-oMLX-d77b710dbd6c5187",
       "reasons": [
         "retrieval_success: value 0 is below eligible minimum 1E+2"
       ]
@@ -616,8 +646,8 @@
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
     "config_hash": "a61ac0f2b09a89f2f8c4076657fc6dd5474ed130582e55230a4f1204e880ed4f",
-    "catalog_hash": "ca1c3acf772e5aff46399785f38664f349b03158f5a1866143c7617f88d3785f",
-    "generated_at": "2026-09-13T23:00:00Z",
+    "catalog_hash": "409fa55dc0414afb74a2a29ab30a3b40f543dc360ea8c24083d827b99d561e62",
+    "generated_at": "2026-09-14T23:59:59-04:00",
     "workload": {
       "id": "long-context-retrieval-v1",
       "version": "1",
@@ -639,7 +669,7 @@
         "epsilon_relative": "0.05"
       }
     ],
-    "candidate_universe_hash": "bfec40dd5d073fc3bf32653e2c7bb616be8a2e386b19bd3af4bd15a17aec17cd",
+    "candidate_universe_hash": "2af514f6f75295739f21a51f3a64a011819b53e8276e5427346d13c1f80d83a3",
     "candidates": [
       {
         "offering": {
@@ -663,6 +693,9 @@
           "retrieval_success": {
             "value": "100",
             "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
             "lower": null,
             "upper": null,
             "dependencies": [
@@ -689,6 +722,9 @@
           "end_to_end": {
             "value": "299.638158291",
             "unit": "s",
+            "evidence_tiers": [
+              "measured"
+            ],
             "lower": "287.398531083",
             "upper": "306.561783959",
             "dependencies": [
@@ -736,6 +772,9 @@
           "retrieval_success": {
             "value": "100",
             "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
             "lower": null,
             "upper": null,
             "dependencies": [
@@ -762,6 +801,9 @@
           "end_to_end": {
             "value": "197.92907925",
             "unit": "s",
+            "evidence_tiers": [
+              "measured"
+            ],
             "lower": "192.893199833",
             "upper": "199.0955975",
             "dependencies": [
@@ -809,6 +851,9 @@
           "retrieval_success": {
             "value": "0",
             "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
             "lower": null,
             "upper": null,
             "dependencies": [
@@ -835,6 +880,9 @@
           "end_to_end": {
             "value": "88.473737292",
             "unit": "s",
+            "evidence_tiers": [
+              "measured"
+            ],
             "lower": "84.332905625",
             "upper": "88.827361166",
             "dependencies": [
@@ -859,12 +907,120 @@
             "minimum_sample_count": 3
           }
         }
+      },
+      {
+        "offering": {
+          "offering_id": "local/macbook-m5max-64/poolside/Laguna-XS-2.1@mlx-safetensors-NVFP4-group16-oMLX-d77b710dbd6c5187",
+          "model_id": "poolside/Laguna-XS-2.1",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "NVFP4-group16",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "retrieval_success": {
+            "value": "0",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_retrieval_success_percent"
+            ],
+            "source_ids": [
+              "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-byte-identical-p126000-o64-disabled-needle-0p5"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-byte-identical-p126000-o64-disabled-needle-0p5",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "63c9d6b3b6c79f6d444522f268fd01ecb6cacfceedffa3125da6937d7ef70880",
+                "retrieved_at": "2026-09-14T15:59:30.981531Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T15:59:30.981531Z",
+            "minimum_sample_count": 3
+          },
+          "end_to_end": {
+            "value": "87.4551935",
+            "unit": "s",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "86.090119",
+            "upper": "95.097985167",
+            "dependencies": [
+              "signals.local_end_to_end_seconds"
+            ],
+            "source_ids": [
+              "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-byte-identical-p126000-o64-disabled-needle-0p5"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-byte-identical-p126000-o64-disabled-needle-0p5",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "63c9d6b3b6c79f6d444522f268fd01ecb6cacfceedffa3125da6937d7ef70880",
+                "retrieved_at": "2026-09-14T15:59:30.981531Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-14T15:59:30.981531Z",
+            "minimum_sample_count": 3
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "local/macbook-m5max-64/Jab1718/qwen3.8-flash-coder-26gb-gguf@gguf-Q4_K_M-llama.cpp-b39f5af9d7dac9b0",
+          "model_id": "Jab1718/qwen3.8-flash-coder-26gb-gguf",
+          "provider": "local:macbook-m5max-64",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "high-power-configured-pmset-2",
+          "quantization": "Q4_K_M",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {}
       }
     ],
-    "inventory_id": "83058cda1888d71987a98d27dc2a932b82df90b046e50d84e9f92c6830a1da7d"
+    "inventory_id": "5d61d7763237f752d1ad87c0e9f97edb7b36c3e63f5a95e03a02407e4799bdfa"
   },
   "public_release_blocked": false,
   "sources": [
+    {
+      "id": "local-measurement:qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-p126000-o64-disabled-needle-0p5",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "b12358a199618848dad910b35f245a0336c174c849352028236013ba9ff7b63f",
+      "retrieved_at": "2026-09-14T07:51:48.671654Z"
+    },
     {
       "id": "local-measurement:ornith-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5",
       "version": "model-skyline/openai-matrix@v1",
@@ -886,6 +1042,16 @@
       "retrieved_at": "2026-09-13T13:34:30.556320Z"
     },
     {
+      "id": "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-byte-identical-p126000-o64-disabled-needle-0p5",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "63c9d6b3b6c79f6d444522f268fd01ecb6cacfceedffa3125da6937d7ef70880",
+      "retrieved_at": "2026-09-14T15:59:30.981531Z"
+    },
+    {
       "id": "local-measurement:qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-r3-footprint-p126000-o64-miss-needle-0p5",
       "version": "model-skyline/openai-matrix@v1",
       "url": null,
@@ -897,8 +1063,10 @@
     }
   ],
   "source_watermarks": {
+    "local-measurement:qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-p126000-o64-disabled-needle-0p5": "2026-09-14T07:51:48.671654Z",
     "local-measurement:qwen38-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5": "2026-09-13T13:34:30.556320Z",
     "local-measurement:qwen38-flash-next-ds4-q2-pleq41-retrieval-mid-r3-footprint-p126000-o64-miss-needle-0p5": "2026-09-13T13:18:54.971906Z",
-    "local-measurement:ornith-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5": "2026-09-13T13:40:53.852342Z"
+    "local-measurement:ornith-omlx-baseline-f16kv-retrieval-mid-r3-footprint-p126000-o64-disabled-needle-0p5": "2026-09-13T13:40:53.852342Z",
+    "local-measurement:laguna-xs21-nvfp4-omlx-baseline-f16kv-byte-identical-p126000-o64-disabled-needle-0p5": "2026-09-14T15:59:30.981531Z"
   }
 }
