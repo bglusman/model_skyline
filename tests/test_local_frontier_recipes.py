@@ -85,6 +85,7 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
 
     assert set(config.frontiers) == {
         "fixed-128k-usefulness",
+        "general-assistant-value",
         "interactive-local-value",
         "long-horizon-research-value",
         "local-agent-cache-demand",
@@ -93,10 +94,13 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
         "remote-agent-value",
         "session-endurance",
         "warm-cache-operation",
+        "web-browsing-value",
     }
     assert config.frontiers["quantization-screening"].uncertainty is UncertaintyMode.POINT
     assert config.workloads["measured-local-agent-v1"].unit == "benchmark_task"
     assert config.workloads["measured-local-research-agent-v1"].unit == "benchmark_task"
+    assert config.workloads["measured-local-web-browsing-v1"].unit == "benchmark_task"
+    assert config.workloads["measured-local-general-assistant-v1"].unit == "benchmark_task"
     assert config.frontiers["interactive-local-value"].axes[1].metric == "p95_agent_task_wall"
     for frontier_id, metric in {
         "interactive-local-value": "measured_agent_quality",
@@ -112,13 +116,23 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
         }
         assert eligibility.maximum_gate_values == {"runner_swap_growth": 0}
     research = config.frontiers["long-horizon-research-value"].eligibility
-    assert research.minimum_axis_values == {"measured_research_quality": 60}
+    assert research.minimum_axis_values == {"measured_research_quality": 50}
     assert research.minimum_gate_values == {
         "exact_tool_call_correctness": 100,
         "research_evidence_grounding": 100,
         "validated_context_capacity": 128000,
     }
     assert research.maximum_gate_values == {"runner_swap_growth": 0}
+    assert config.metrics["measured_browsing_quality"].requirements.max_age_hours == 168
+    assert "grader" in config.frontiers["web-browsing-value"].metadata_fields
+    for frontier_id in ("web-browsing-value", "general-assistant-value"):
+        eligibility = config.frontiers[frontier_id].eligibility
+        assert eligibility.minimum_axis_values == {}
+        assert eligibility.minimum_gate_values == {
+            "exact_tool_call_correctness": 100,
+            "validated_context_capacity": 128000,
+        }
+        assert eligibility.maximum_gate_values == {"runner_swap_growth": 0}
     estimated = config.metrics["estimated_quality_lcb"].requirements
     assert estimated.require_bounds is True
     assert estimated.accepted_evidence_tiers == (EvidenceTier.ESTIMATED,)
@@ -142,6 +156,22 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
         ),
         "local-research-latency-first": (
             "long-horizon-research-value",
+            "p95_agent_task_wall",
+        ),
+        "local-web-browsing-quality-first": (
+            "web-browsing-value",
+            "measured_browsing_quality",
+        ),
+        "local-web-browsing-latency-first": (
+            "web-browsing-value",
+            "p95_agent_task_wall",
+        ),
+        "local-general-assistant-quality-first": (
+            "general-assistant-value",
+            "measured_general_assistant_quality",
+        ),
+        "local-general-assistant-latency-first": (
+            "general-assistant-value",
             "p95_agent_task_wall",
         ),
         "local-agent-memory-first": ("local-agent-memory-value", "peak_physical_footprint"),
