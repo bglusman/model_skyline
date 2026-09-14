@@ -77,6 +77,13 @@ local-focused coding challenger with MLX and GGUF controls. All four define
 correctness, cache, context, memory, and real-agent promotion gates; none is a
 measured frontier resident yet.
 
+The
+[`installed runtime-support audit`](runtime-support-audit-2026-09-14.md)
+records a narrower admission fact: oMLX 0.6.4 has importable, artifact-matching
+Laguna and Qwen3.5-MoE paths, and installed llama.cpp includes the merged Laguna
+and Qwen3.8 Flash Next architecture support. Exact weights still have to pass
+load, output, parser, memory, context, and workload gates.
+
 ## Runtime choices on Apple Silicon
 
 - **MLX-LM** is the simplest native MLX baseline: direct safetensors models,

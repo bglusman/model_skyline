@@ -36,6 +36,15 @@ The newer OptiQ and expert-pruned REAP variants are quantization experiments,
 not substitutes for a stable control; admit them only through the paired
 quantization-screening protocol.
 
+The installed-runtime audit now clears the static MLX architecture gate. oMLX
+0.6.4 embeds MLX-LM 0.31.3, whose `qwen3_5_moe` module imports successfully,
+and contains the matching VLM/text dispatch and MoE sanitization paths. The
+pinned artifact's exact config declares the same outer `qwen3_5_moe` type and
+`qwen3_5_moe_text` language component. This is stronger than generic
+Transformers recognition, but it is still not a weight-load or output-quality
+result. See
+[`runtime-support-audit-2026-09-14.md`](runtime-support-audit-2026-09-14.md).
+
 ## Why it is worth measuring
 
 The publisher reports results across BrowseComp, GAIA, HLE-with-tools,
