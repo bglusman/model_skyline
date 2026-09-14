@@ -34,6 +34,17 @@ anchor; do not apply one quantization multiplier across tasks. The copyable
 local, cache, context, quant-screening, and remote recipes are in
 [`recommended-frontier-recipes.yaml`](recommended-frontier-recipes.yaml).
 
+Those recipes also include named lexicographic selectors for quality-first,
+latency-first, memory-first, cache-demand, fixed-128K, session-endurance, warm
+cache, and quantization-screening priorities. A selector ranks only eligible
+members of one Pareto frontier: its correctness, context, evidence, freshness,
+and no-swap gates have already been applied. `return_available` deliberately
+returns fewer than three choices when the evidence cannot support three; it
+does not backfill an ineligible model. These are reusable policy templates, not
+a claim that the provisional example population is ready for unattended
+automatic routing. Cross-frontier coverage remains an advisory portfolio view,
+not a hidden weighted score or a selector that merges incompatible workloads.
+
 The first verifier-scored local-agent population is specified in
 [`harbor-quality-pilot.yaml`](harbor-quality-pilot.yaml) and explained in
 [`harbor-quality-pilot.md`](harbor-quality-pilot.md). Its five-task score is a

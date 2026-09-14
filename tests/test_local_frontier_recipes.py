@@ -104,6 +104,33 @@ def test_recommended_local_frontier_recipes_are_valid_and_uncertainty_aware() ->
         assert eligibility.minimum_gate_values == {"exact_tool_call_correctness": 100}
         assert eligibility.maximum_gate_values == {"runner_swap_growth": 0}
 
+    expected_selections = {
+        "local-agent-quality-first": ("interactive-local-value", "measured_agent_quality"),
+        "local-agent-latency-first": ("interactive-local-value", "p95_agent_task_wall"),
+        "local-agent-memory-first": ("local-agent-memory-value", "peak_physical_footprint"),
+        "local-agent-cache-demand-first": (
+            "local-agent-cache-demand",
+            "total_uncached_agent_input",
+        ),
+        "local-128k-quality-first": ("fixed-128k-usefulness", "measured_long_context_quality"),
+        "local-128k-latency-first": ("fixed-128k-usefulness", "p95_successful_turn_latency"),
+        "local-session-endurance-first": ("session-endurance", "effective_session_context"),
+        "local-warm-cache-latency-first": (
+            "warm-cache-operation",
+            "p95_successful_turn_latency",
+        ),
+        "local-warm-cache-reuse-first": ("warm-cache-operation", "eligible_prefix_reuse"),
+        "quantization-screening-candidates": ("quantization-screening", "estimated_quality_lcb"),
+    }
+    assert set(config.selections) == set(expected_selections)
+    for selection_id, (frontier_id, order_by) in expected_selections.items():
+        selection = config.selections[selection_id]
+        assert selection.frontier == frontier_id
+        assert selection.order_by == order_by
+        assert selection.count == 3
+        assert selection.max_per_provider is None
+        assert selection.on_insufficient.value == "return_available"
+
 
 def test_cross_frontier_coverage_is_reproducible_and_advisory(tmp_path: Path) -> None:
     generated = EXAMPLE / "generated"
