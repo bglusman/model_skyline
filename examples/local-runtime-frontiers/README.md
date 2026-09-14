@@ -195,7 +195,19 @@ Muse's matched warm tool probe remains rejected by the 100% correctness
 threshold even though its verifier-scored route remains valuable on the
 cache-demand and memory frontiers.
 
-Coverage v2 also reports advisory nearness for every *eligible evaluated*
+That resident count is not a population-completeness claim. The versioned
+[`candidate population`](candidate-population.yaml) nominates seven model
+families only for the positions where they are intended to compete. Coverage
+v3 reports each required model-family/frontier cell as eligible-evaluated,
+explicitly gate-rejected, or unattempted. The current evidence attempts 29 of
+50 nominated cells (58%): dense Qwen and DS4 have complete coverage for their
+declared roles, Muse is missing three positions, Ornith one, Flash Coder one,
+and the newly pinned North and Nemotron challengers remain 0/8. A rejected cell
+counts as an honest attempt but never as exact or near membership. This keeps a
+winner among measured offerings from being presented as a settled winner over
+promising models that have not run yet.
+
+Coverage v3 also reports advisory nearness for every *eligible evaluated*
 point. Distance is the smallest relative epsilon at which that point ceases to
 be dominated, calculated with the frontier's absolute tolerances and the core
 point/robust bound semantics. The report retains the exact half-open dominance
