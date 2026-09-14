@@ -763,16 +763,32 @@
       "type": "string"
     },
     "policy_id": {
-      "maxLength": 128,
-      "minLength": 1,
-      "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
-      "title": "Policy Id",
-      "type": "string"
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Policy Id"
     },
     "policy_sha256": {
-      "pattern": "^[0-9a-f]{64}$",
-      "title": "Policy Sha256",
-      "type": "string"
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Policy Sha256"
     },
     "source_snapshot_id": {
       "pattern": "^[0-9a-f]{64}$",
@@ -813,7 +829,15 @@
       "$ref": "#/$defs/BestAvailableModelFrontier"
     },
     "balanced_average": {
-      "$ref": "#/$defs/BalancedAverageModelFrontier"
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BalancedAverageModelFrontier"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "view_id": {
       "pattern": "^[0-9a-f]{64}$",
@@ -822,8 +846,6 @@
     }
   },
   "required": [
-    "policy_id",
-    "policy_sha256",
     "source_snapshot_id",
     "frontier_id",
     "workload",
@@ -831,10 +853,9 @@
     "uncertainty",
     "axes",
     "best_available",
-    "balanced_average",
     "view_id"
   ],
   "title": "ModelFrontierViewSnapshot",
   "type": "object",
-  "$comment": "This is a presentation view over an exact offering frontier, not a routable offering catalog. Best-available points retain their real OfferingKeys; balanced points retain every contributing offering and environment value."
+  "$comment": "This is a presentation view over an exact offering frontier, not a routable offering catalog. Best-available points retain their real OfferingKeys; balanced points retain every contributing offering and environment value. The balanced view and policy identity are null when no complete matched environment panel was declared."
 }

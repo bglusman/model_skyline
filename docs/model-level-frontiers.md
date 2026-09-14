@@ -1,8 +1,9 @@
 # Model-level frontier views
 
 ModelSkyline measures exact offerings, but most readers want model names first.
-The `model-frontier-view` command turns one exact two-axis frontier into two
-model-level answers without hiding how either answer was made.
+The `model-frontier-view` command turns one exact two-axis frontier into a
+model-level answer without hiding how it was made. Best available always works;
+add a balanced policy when the evidence supports an honest average.
 
 ## Best available
 
@@ -53,22 +54,30 @@ to create a point that no real setup achieved:
 
 ## Generate a view
 
-First calculate an exact frontier as usual. Then provide the balanced-panel
-policy and that snapshot:
+First calculate an exact frontier as usual. It can immediately produce the
+best-available model view:
 
 ```console
 modelskyline model-frontier-view \
-  model-view-policy.json \
   exact-frontier.json
 ```
 
-The default output is a short model-first table. Add `--format json` to create
-the replayable artifact:
+The output explicitly says that the balanced average is unavailable. When a
+complete matched panel exists, add its policy:
 
 ```console
 modelskyline model-frontier-view \
-  model-view-policy.json \
   exact-frontier.json \
+  --balanced-policy model-view-policy.json
+```
+
+The default output is a short model-first table. Add `--format json` to either
+form to create the replayable artifact:
+
+```console
+modelskyline model-frontier-view \
+  exact-frontier.json \
+  --balanced-policy model-view-policy.json \
   --format json \
   --output model-frontier-view.json
 ```

@@ -129,7 +129,7 @@ def _policy(snapshot_id: str) -> ModelFrontierViewPolicy:
 
 def test_best_available_and_balanced_average_are_distinct_honest_views() -> None:
     snapshot = _snapshot()
-    view = build_model_frontier_view(_policy(snapshot.snapshot_id), snapshot)
+    view = build_model_frontier_view(snapshot, balanced_policy=_policy(snapshot.snapshot_id))
 
     assert [item.model_id for item in view.best_available.members] == ["C", "B"]
     assert [item.offerings[0].offering.offering_id for item in view.best_available.members] == [
@@ -150,6 +150,35 @@ def test_best_available_and_balanced_average_are_distinct_honest_views() -> None
     assert model_frontier_view_hash(view) == view.view_id
 
 
+def test_best_available_does_not_require_a_balanced_panel() -> None:
+    snapshot = _snapshot()
+
+    view = build_model_frontier_view(snapshot)
+
+    assert [item.model_id for item in view.best_available.members] == ["C", "B"]
+    assert view.policy_id is None
+    assert view.policy_sha256 is None
+    assert view.balanced_average is None
+    assert model_frontier_view_hash(view) == view.view_id
+
+    incoherent = view.model_dump(mode="json")
+    incoherent["policy_id"] = "undeclared-policy"
+    with pytest.raises(ValidationError, match="policy id and hash"):
+        type(view).model_validate(incoherent)
+
+
+def test_balanced_policy_is_bound_to_the_exact_snapshot() -> None:
+    snapshot = _snapshot()
+    payload = _policy(snapshot.snapshot_id).model_dump(mode="json")
+    payload["source_snapshot_id"] = "0" * 64
+
+    with pytest.raises(ModelFrontierViewError, match="source snapshot id"):
+        build_model_frontier_view(
+            snapshot,
+            balanced_policy=ModelFrontierViewPolicy.model_validate(payload),
+        )
+
+
 def test_policy_requires_the_same_environment_panel_for_every_model() -> None:
     snapshot = _snapshot()
     payload = _policy(snapshot.snapshot_id).model_dump(mode="json")
@@ -165,7 +194,10 @@ def test_balanced_average_rejects_missing_or_wrong_provider_offerings() -> None:
     missing_payload["models"][0]["offerings"][0]["offering_id"] = "p1/missing"
 
     with pytest.raises(ModelFrontierViewError, match="not eligible and evaluated"):
-        build_model_frontier_view(ModelFrontierViewPolicy.model_validate(missing_payload), snapshot)
+        build_model_frontier_view(
+            snapshot,
+            balanced_policy=ModelFrontierViewPolicy.model_validate(missing_payload),
+        )
 
     provider_payload = _policy(snapshot.snapshot_id).model_dump(mode="json")
     provider_payload["models"][0]["offerings"][0]["offering_id"] = "p2/A"
@@ -173,7 +205,8 @@ def test_balanced_average_rejects_missing_or_wrong_provider_offerings() -> None:
 
     with pytest.raises(ModelFrontierViewError, match="provider does not match"):
         build_model_frontier_view(
-            ModelFrontierViewPolicy.model_validate(provider_payload), snapshot
+            snapshot,
+            balanced_policy=ModelFrontierViewPolicy.model_validate(provider_payload),
         )
 
 
@@ -190,8 +223,9 @@ def test_cli_writes_a_replayable_model_frontier_view(tmp_path) -> None:
         app,
         [
             "model-frontier-view",
-            str(policy_path),
             str(snapshot_path),
+            "--balanced-policy",
+            str(policy_path),
             "--format",
             "json",
             "--output",
@@ -206,12 +240,27 @@ def test_cli_writes_a_replayable_model_frontier_view(tmp_path) -> None:
 
     table = CliRunner().invoke(
         app,
-        ["model-frontier-view", str(policy_path), str(snapshot_path)],
+        [
+            "model-frontier-view",
+            str(snapshot_path),
+            "--balanced-policy",
+            str(policy_path),
+        ],
     )
     assert table.exit_code == 0, table.output
     assert "Best available (one real tested implementation)" in table.output
     assert "Balanced average (same environments, equal weight)" in table.output
     assert "p1" in table.output
+
+    best_only = CliRunner().invoke(
+        app,
+        ["model-frontier-view", str(snapshot_path)],
+    )
+    assert best_only.exit_code == 0, best_only.output
+    assert "Best available (one real tested implementation)" in best_only.output
+    assert "Not available: no complete matched environment panel was declared." in (
+        best_only.output
+    )
 
 
 def test_published_two_mac_model_view_rebuilds_from_exact_catalogs() -> None:
@@ -239,7 +288,7 @@ def test_published_two_mac_model_view_rebuilds_from_exact_catalogs() -> None:
     policy = load_model_frontier_view_policy(
         LOCAL / "cross-mac-short-throughput-model-view-policy.json"
     )
-    view = build_model_frontier_view(policy, snapshot)
+    view = build_model_frontier_view(snapshot, balanced_policy=policy)
     expected = load_model_frontier_view_snapshot(
         generated / "cross-mac-two-model-short-throughput-model-view.json"
     )

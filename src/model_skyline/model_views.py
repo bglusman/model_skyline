@@ -183,8 +183,8 @@ class _ModelFrontierViewContent(FrozenModel):
     )
     kind: Literal["model-frontier-view"] = "model-frontier-view"
     hash_algorithm: Literal["sha256-rfc8785-v1"] = "sha256-rfc8785-v1"
-    policy_id: PortablePublicationId
-    policy_sha256: Sha256Digest
+    policy_id: PortablePublicationId | None = None
+    policy_sha256: Sha256Digest | None = None
     source_snapshot_id: Sha256Digest
     frontier_id: str = Field(min_length=1)
     workload: WorkloadReference
@@ -192,7 +192,21 @@ class _ModelFrontierViewContent(FrozenModel):
     uncertainty: UncertaintyMode
     axes: tuple[AxisDescriptor, AxisDescriptor]
     best_available: BestAvailableModelFrontier
-    balanced_average: BalancedAverageModelFrontier
+    balanced_average: BalancedAverageModelFrontier | None = None
+
+    @model_validator(mode="after")
+    def balanced_policy_is_coherent(self) -> Self:
+        policy_fields_present = self.policy_id is not None and self.policy_sha256 is not None
+        if (self.policy_id is None) != (self.policy_sha256 is None):
+            raise ValueError(
+                "balanced policy id and hash must either both be present or both be null"
+            )
+        if policy_fields_present != (self.balanced_average is not None):
+            raise ValueError(
+                "balanced average and its policy identity must either both be present "
+                "or both be null"
+            )
+        return self
 
 
 class ModelFrontierViewSnapshot(_ModelFrontierViewContent):
@@ -291,12 +305,13 @@ def _sort_balanced_points(
 
 
 def build_model_frontier_view(
-    policy: ModelFrontierViewPolicy,
     snapshot: FrontierSnapshot,
+    *,
+    balanced_policy: ModelFrontierViewPolicy | None = None,
 ) -> ModelFrontierViewSnapshot:
-    """Build both model views while retaining every selected exact offering."""
+    """Build the best view and, when declared, a balanced view from exact offerings."""
 
-    if snapshot.snapshot_id != policy.source_snapshot_id:
+    if balanced_policy is not None and snapshot.snapshot_id != balanced_policy.source_snapshot_id:
         raise ModelFrontierViewError("source snapshot id does not match the policy")
 
     best_grouped: dict[str, list[BestAvailableOffering]] = defaultdict(list)
@@ -314,6 +329,37 @@ def build_model_frontier_view(
         )
     )
 
+    balanced_average = (
+        _build_balanced_average(balanced_policy, snapshot) if balanced_policy is not None else None
+    )
+
+    content = _ModelFrontierViewContent(
+        policy_id=balanced_policy.policy_id if balanced_policy is not None else None,
+        policy_sha256=(
+            model_frontier_view_policy_hash(balanced_policy)
+            if balanced_policy is not None
+            else None
+        ),
+        source_snapshot_id=snapshot.snapshot_id,
+        frontier_id=snapshot.frontier_id,
+        workload=snapshot.workload,
+        order_by=snapshot.order_by,
+        uncertainty=snapshot.uncertainty,
+        axes=snapshot.axes,
+        best_available=best_available,
+        balanced_average=balanced_average,
+    )
+    payload = content.model_dump()
+    return ModelFrontierViewSnapshot(
+        view_id=content_hash(content.model_dump(mode="json")),
+        **payload,
+    )
+
+
+def _build_balanced_average(
+    policy: ModelFrontierViewPolicy,
+    snapshot: FrontierSnapshot,
+) -> BalancedAverageModelFrontier:
     evaluated_by_id = {item.offering.offering_id: item for item in snapshot.evaluated}
     environment_by_id = {item.environment_id: item for item in policy.environments}
     balanced_points: list[BalancedModelPoint] = []
@@ -371,28 +417,10 @@ def build_model_frontier_view(
         evaluated_points.append(point.model_copy(update={"dominated_by": dominated_by}))
     evaluated = _sort_balanced_points(evaluated_points, snapshot.axes, snapshot.order_by)
     members = tuple(point for point in evaluated if not point.dominated_by)
-    balanced_average = BalancedAverageModelFrontier(
+    return BalancedAverageModelFrontier(
         environments=policy.environments,
         members=members,
         evaluated=evaluated,
-    )
-
-    content = _ModelFrontierViewContent(
-        policy_id=policy.policy_id,
-        policy_sha256=model_frontier_view_policy_hash(policy),
-        source_snapshot_id=snapshot.snapshot_id,
-        frontier_id=snapshot.frontier_id,
-        workload=snapshot.workload,
-        order_by=snapshot.order_by,
-        uncertainty=snapshot.uncertainty,
-        axes=snapshot.axes,
-        best_available=best_available,
-        balanced_average=balanced_average,
-    )
-    payload = content.model_dump()
-    return ModelFrontierViewSnapshot(
-        view_id=content_hash(content.model_dump(mode="json")),
-        **payload,
     )
 
 
@@ -426,6 +454,15 @@ def render_model_frontier_table(snapshot: ModelFrontierViewSnapshot) -> str:
         for member in snapshot.best_available.members
         for offering in member.offerings
     ]
+    result = "Best available (one real tested implementation)\n" + _plain_table(
+        ["model", *axis_headers, "provider / local host"], best_rows
+    )
+    if snapshot.balanced_average is None:
+        return (
+            result
+            + "\n\nBalanced average\n"
+            + "Not available: no complete matched environment panel was declared.\n"
+        )
     average_rows = [
         [
             member.model_id,
@@ -435,8 +472,7 @@ def render_model_frontier_table(snapshot: ModelFrontierViewSnapshot) -> str:
         for member in snapshot.balanced_average.members
     ]
     return (
-        "Best available (one real tested implementation)\n"
-        + _plain_table(["model", *axis_headers, "provider / local host"], best_rows)
+        result
         + "\n\nBalanced average (same environments, equal weight)\n"
         + _plain_table(["model", *axis_headers, "environments"], average_rows)
         + "\n"

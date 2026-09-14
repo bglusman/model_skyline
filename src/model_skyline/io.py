@@ -1075,7 +1075,9 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
             generated_schema["$comment"] = (
                 "This is a presentation view over an exact offering frontier, not a routable "
                 "offering catalog. Best-available points retain their real OfferingKeys; "
-                "balanced points retain every contributing offering and environment value."
+                "balanced points retain every contributing offering and environment value. "
+                "The balanced view and policy identity are null when no complete matched "
+                "environment panel was declared."
             )
         result[name] = generated_schema
     return result
