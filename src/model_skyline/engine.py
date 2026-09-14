@@ -18,6 +18,7 @@ from model_skyline.models import (
     AxisEvidenceCandidate,
     CostFormulaBasis,
     EvaluatedOffering,
+    EvidenceTier,
     FormulaMetric,
     FrontierAxis,
     FrontierDefinition,
@@ -130,10 +131,27 @@ def catalog_hash(catalog: ObservationCatalog) -> str:
     return _canonical_hash(payload)
 
 
+def _drop_default_axis_evidence_tiers(payload: dict[str, Any]) -> None:
+    """Preserve snapshot hashes for the historical measured-only default."""
+
+    for collection_name in ("members", "evaluated"):
+        for item in payload.get(collection_name, ()):
+            for estimate in item["axes"].values():
+                if estimate.get("evidence_tiers") == [EvidenceTier.MEASURED.value]:
+                    estimate.pop("evidence_tiers")
+    axis_evidence = payload.get("axis_evidence")
+    if axis_evidence is not None:
+        for candidate in axis_evidence["candidates"]:
+            for estimate in candidate["axes"].values():
+                if estimate.get("evidence_tiers") == [EvidenceTier.MEASURED.value]:
+                    estimate.pop("evidence_tiers")
+
+
 def frontier_hash(snapshot: FrontierSnapshot) -> str:
     """Recompute a frontier snapshot's content identity."""
 
     payload = snapshot.model_dump(mode="json", exclude={"snapshot_id"})
+    _drop_default_axis_evidence_tiers(payload)
     for collection_name in ("members", "evaluated"):
         collection = payload[collection_name]
         for item in collection:
@@ -163,6 +181,7 @@ def _explicit_null_billing_mode_frontier_hash(snapshot: FrontierSnapshot) -> str
     """
 
     payload = snapshot.model_dump(mode="json", exclude={"snapshot_id"})
+    _drop_default_axis_evidence_tiers(payload)
     if payload.get("axis_evidence") is None:
         payload.pop("axis_evidence", None)
     if payload.get("public_release_blocked") is False:
@@ -176,6 +195,19 @@ def _current_explicit_null_billing_mode_frontier_hash(snapshot: FrontierSnapshot
     return _canonical_hash(snapshot.model_dump(mode="json", exclude={"snapshot_id"}))
 
 
+def _current_defaults_legacy_optional_fields_frontier_hash(
+    snapshot: FrontierSnapshot,
+) -> str:
+    """Accept current nested defaults with the pre-v0.9 top-level omissions."""
+
+    payload = snapshot.model_dump(mode="json", exclude={"snapshot_id"})
+    if payload.get("axis_evidence") is None:
+        payload.pop("axis_evidence", None)
+    if payload.get("public_release_blocked") is False:
+        payload.pop("public_release_blocked", None)
+    return _canonical_hash(payload)
+
+
 def frontier_hash_matches(snapshot: FrontierSnapshot) -> bool:
     """Accept the stable absent/null hash or v0.4.0's explicit-null encoding."""
 
@@ -183,6 +215,7 @@ def frontier_hash_matches(snapshot: FrontierSnapshot) -> bool:
         frontier_hash(snapshot),
         _explicit_null_billing_mode_frontier_hash(snapshot),
         _current_explicit_null_billing_mode_frontier_hash(snapshot),
+        _current_defaults_legacy_optional_fields_frontier_hash(snapshot),
     }
 
 
@@ -201,6 +234,12 @@ def _observation_reason(
     allow_unknown_age: bool,
     source_max_age_hours: Decimal | None = None,
 ) -> str | None:
+    if observation.evidence_tier not in requirements.accepted_evidence_tiers:
+        accepted = ", ".join(tier.value for tier in requirements.accepted_evidence_tiers)
+        return (
+            f"observation evidence tier {observation.evidence_tier.value!r} is not accepted; "
+            f"accepted tiers: {accepted}"
+        )
     if requirements.require_source and source is None:
         return "observation source is required"
     if observation.observed_at is None and not allow_unknown_age:
@@ -406,6 +445,7 @@ class FrontierEngine:
         return AxisEstimate(
             value=observation.value,
             unit=definition.unit,
+            evidence_tiers=(observation.evidence_tier,),
             lower=observation.lower,
             upper=observation.upper,
             dependencies=(f"signals.{definition.signal}",),
@@ -457,6 +497,13 @@ class FrontierEngine:
             if reason:
                 raise EvaluationError(f"signal {signal_id!r}: {reason}")
             used_observations.append((path, observation, source))
+        if any(
+            observation.evidence_tier is EvidenceTier.ESTIMATED
+            for _, observation, _ in used_observations
+        ):
+            raise EvaluationError(
+                "formula metrics cannot consume estimated evidence without interval propagation"
+            )
         if frontier.uncertainty is UncertaintyMode.ROBUST:
             raise EvaluationError(
                 "robust uncertainty for formula metrics requires precomputed interval support"
@@ -489,9 +536,16 @@ class FrontierEngine:
 
         sources = tuple(sources_by_hash[key] for key in sorted(sources_by_hash))
         source_ids = tuple(sorted({source.id for source in sources}))
+        evidence_tiers = tuple(
+            sorted(
+                {observation.evidence_tier for _, observation, _ in used_observations},
+                key=lambda tier: tier.value,
+            )
+        ) or (EvidenceTier.MEASURED,)
         return AxisEstimate(
             value=result.value,
             unit=definition.unit,
+            evidence_tiers=evidence_tiers,
             dependencies=tuple(sorted(result.referenced_paths)),
             source_ids=source_ids,
             sources=sources,
@@ -532,6 +586,7 @@ class FrontierEngine:
         return AxisEstimate(
             value=observation.value,
             unit=definition.unit,
+            evidence_tiers=(observation.evidence_tier,),
             lower=observation.lower,
             upper=observation.upper,
             dependencies=(f"oracle.{definition.oracle}@{definition.oracle_version}",),
@@ -651,6 +706,15 @@ class FrontierEngine:
             # the new behavior is unused; an explicit empty map is semantically
             # identical to an omitted map.
             eligibility.pop("max_source_age_hours")
+        metric_policies: dict[str, Any] = {}
+        for axis in frontier.axes:
+            metric_policy = config.metrics[axis.metric].model_dump(mode="json")
+            requirements = metric_policy["requirements"]
+            if requirements["accepted_evidence_tiers"] == [EvidenceTier.MEASURED.value]:
+                # The historical contract accepted only direct measurements.
+                # Keep that default identity-stable while binding every opt-in.
+                requirements.pop("accepted_evidence_tiers")
+            metric_policies[axis.metric] = metric_policy
         return {
             "schema_version": config.schema_version,
             "frontier_id": frontier_id,
@@ -659,10 +723,7 @@ class FrontierEngine:
             # Acquisition time is volatile provenance, not an evaluation-policy input.
             # Source identity, version, digest, licensing, URLs, and methodology remain.
             "workload": workload_policy,
-            "metrics": {
-                axis.metric: config.metrics[axis.metric].model_dump(mode="json")
-                for axis in frontier.axes
-            },
+            "metrics": metric_policies,
         }
 
     def calculate(

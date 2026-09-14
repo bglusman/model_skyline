@@ -2,6 +2,16 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:model-skyline:schema:v1alpha1:observation-catalog",
   "$defs": {
+    "EvidenceTier": {
+      "description": "How directly an observation represents the declared metric.",
+      "enum": [
+        "proxy",
+        "estimated",
+        "measured"
+      ],
+      "title": "EvidenceTier",
+      "type": "string"
+    },
     "JsonValue": {},
     "Observation": {
       "additionalProperties": false,
@@ -24,6 +34,10 @@
           "minLength": 1,
           "title": "Unit",
           "type": "string"
+        },
+        "evidence_tier": {
+          "$ref": "#/$defs/EvidenceTier",
+          "default": "measured"
         },
         "lower": {
           "anyOf": [
@@ -103,7 +117,39 @@
         "unit"
       ],
       "title": "Observation",
-      "type": "object"
+      "type": "object",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_tier": {
+                "const": "estimated"
+              }
+            },
+            "required": [
+              "evidence_tier"
+            ]
+          },
+          "then": {
+            "properties": {
+              "lower": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "upper": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "lower",
+              "upper"
+            ]
+          }
+        }
+      ]
     },
     "OfferingKey": {
       "additionalProperties": false,

@@ -30,6 +30,7 @@ QUALITY_SCHEMA_NAMES = (
     "quality-import-report.schema.json",
     "quality-portfolio-policy.schema.json",
     "quality-portfolio-derivation.schema.json",
+    "paired-quality-estimate.schema.json",
 )
 LOCAL_SCHEMA_NAME = "local-measurement.schema.json"
 
@@ -168,6 +169,50 @@ def test_committed_local_measurement_schema_matches_generator() -> None:
     assert "Model-quality claims are intentionally outside" in generated["$comment"]
 
 
+def test_paired_quality_schema_warns_that_estimates_are_not_measurements() -> None:
+    generated = generated_schemas()["paired-quality-estimate.schema.json"]
+
+    assert "not a full benchmark measurement" in generated["$comment"]
+    assert set(generated["$defs"]["OfferingKey"]["required"]) == set(
+        generated["$defs"]["OfferingKey"]["properties"]
+    )
+
+
+def test_evidence_tier_invariants_are_visible_in_json_schema() -> None:
+    catalog_schema = generated_schemas()["observation-catalog.schema.json"]
+    observation_schema = {
+        "$defs": catalog_schema["$defs"],
+        **catalog_schema["$defs"]["Observation"],
+    }
+    with pytest.raises(JsonSchemaValidationError):
+        _valid(
+            observation_schema,
+            {
+                "value": "0.5",
+                "unit": "ratio",
+                "evidence_tier": "estimated",
+                "lower": None,
+                "upper": None,
+                "sample_count": None,
+                "observed_at": None,
+                "source": None,
+            },
+        )
+
+    config_schema = generated_schemas()["project-config.schema.json"]
+    requirements_schema = {
+        "$defs": config_schema["$defs"],
+        **config_schema["$defs"]["ObservationRequirements"],
+    }
+    with pytest.raises(JsonSchemaValidationError):
+        _valid(
+            requirements_schema,
+            {
+                "accepted_evidence_tiers": ["measured", "measured"],
+            },
+        )
+
+
 def test_quality_import_report_schema_is_explicitly_local_only() -> None:
     schema = generated_schemas()["quality-import-report.schema.json"]
 
@@ -221,6 +266,7 @@ def test_quality_reconciliation_schema_requires_complete_offering_key() -> None:
         "quality-reconciliation.schema.json",
         "quality-import-report.schema.json",
         "quality-portfolio-derivation.schema.json",
+        "paired-quality-estimate.schema.json",
     ),
 )
 def test_every_quality_route_artifact_requires_all_offering_fields(name: str) -> None:

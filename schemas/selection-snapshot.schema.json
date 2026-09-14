@@ -15,6 +15,16 @@
           "title": "Unit",
           "type": "string"
         },
+        "evidence_tiers": {
+          "default": [
+            "measured"
+          ],
+          "items": {
+            "$ref": "#/$defs/EvidenceTier"
+          },
+          "title": "Evidence Tiers",
+          "type": "array"
+        },
         "lower": {
           "anyOf": [
             {
@@ -100,7 +110,51 @@
         "unit"
       ],
       "title": "AxisEstimate",
-      "type": "object"
+      "type": "object",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_tiers": {
+                "contains": {
+                  "const": "estimated"
+                }
+              }
+            },
+            "required": [
+              "evidence_tiers"
+            ]
+          },
+          "then": {
+            "properties": {
+              "lower": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "upper": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "lower",
+              "upper"
+            ]
+          }
+        }
+      ]
+    },
+    "EvidenceTier": {
+      "description": "How directly an observation represents the declared metric.",
+      "enum": [
+        "proxy",
+        "estimated",
+        "measured"
+      ],
+      "title": "EvidenceTier",
+      "type": "string"
     },
     "InsufficientCandidates": {
       "enum": [

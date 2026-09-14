@@ -103,6 +103,16 @@
       "title": "EligibilityPolicy",
       "type": "object"
     },
+    "EvidenceTier": {
+      "description": "How directly an observation represents the declared metric.",
+      "enum": [
+        "proxy",
+        "estimated",
+        "measured"
+      ],
+      "title": "EvidenceTier",
+      "type": "string"
+    },
     "FormulaMetric": {
       "additionalProperties": false,
       "properties": {
@@ -365,6 +375,19 @@
           "default": false,
           "title": "Require Source",
           "type": "boolean"
+        },
+        "accepted_evidence_tiers": {
+          "default": [
+            "measured"
+          ],
+          "items": {
+            "$ref": "#/$defs/EvidenceTier"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Accepted Evidence Tiers",
+          "type": "array",
+          "uniqueItems": true
         }
       },
       "title": "ObservationRequirements",

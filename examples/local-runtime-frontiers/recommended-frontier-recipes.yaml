@@ -93,6 +93,8 @@ metrics:
     requirements:
       max_age_hours: 720
       minimum_samples: 20
+      require_bounds: true
+      accepted_evidence_tiers: [estimated]
 
   measured_agent_quality:
     kind: signal

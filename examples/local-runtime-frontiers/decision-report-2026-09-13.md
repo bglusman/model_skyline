@@ -144,7 +144,10 @@ drawn.”
   change.
 - ShoeHorn commit `43908a1` fixes recursive Hugging Face tree discovery.
   Commit `ca565f8` fixes mixed-quant `file_type` reporting by aggregating bytes
-  per type. All 25 tests pass. Both commits remain local and unpushed.
+  per type. All 25 tests pass. The branch is published on the `bglusman/shoehorn`
+  fork and proposed upstream as
+  [ShoeHorn PR #3](https://github.com/notactuallytreyanastasio/shoehorn/pull/3);
+  it is not merged upstream yet.
 - The main remaining ShoeHorn design opportunities are immutable HF revision
   handling, pagination, fail-fast unsupported GGML types, target/MTP residency
   classes, hybrid-state memory accounting, exact server calibration, and a
@@ -220,10 +223,11 @@ claim about network bytes downloaded. The data volume has about 583 GiB free.
 A deliberately untouched 817 MiB partial Muse DFlash BF16 file is included;
 no destructive cleanup was performed.
 
-Model Skyline work is committed locally on `feat/m5-local-benchmarks`, including
-Muse checkpoint `c5bd8a2`. ShoeHorn is committed locally through `ca565f8`.
-Nothing was pushed, no PR or public issue was created, and no system-wide power,
-security, or wired memory setting was changed.
+The Model Skyline local-runtime work was published in
+[PR #35](https://github.com/bglusman/model_skyline/pull/35) and squash-merged to
+`main` as `d0d6bff`. ShoeHorn is committed through `ca565f8`, pushed to the
+`bglusman/shoehorn` fork, and awaiting upstream review in PR #3. No system-wide
+power, security, or wired-memory setting was changed.
 
 ## Exact next experiments
 

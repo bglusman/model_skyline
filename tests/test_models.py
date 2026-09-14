@@ -13,6 +13,7 @@ from model_skyline.models import (
     MAX_SNAPSHOT_TTL_SECONDS,
     AxisEstimate,
     EligibilityPolicy,
+    EvidenceTier,
     FormulaMetric,
     Observation,
     ObservationRequirements,
@@ -32,6 +33,23 @@ def test_canonical_decimal_is_normalized_before_serialization() -> None:
     assert observation.model_dump(mode="json")["value"] == "0"
     assert priced.value == Decimal("1.23")
     assert priced.model_dump(mode="json")["value"] == "1.23"
+
+
+def test_estimated_observations_require_bounds_and_tier_sets_are_canonical() -> None:
+    with pytest.raises(ValidationError, match="estimated observations require"):
+        Observation(value="0.5", unit="ratio", evidence_tier=EvidenceTier.ESTIMATED)
+
+    requirements = ObservationRequirements(
+        accepted_evidence_tiers=(EvidenceTier.MEASURED, EvidenceTier.ESTIMATED)
+    )
+    assert requirements.accepted_evidence_tiers == (
+        EvidenceTier.ESTIMATED,
+        EvidenceTier.MEASURED,
+    )
+    with pytest.raises(ValidationError, match="must not contain duplicates"):
+        ObservationRequirements(
+            accepted_evidence_tiers=(EvidenceTier.MEASURED, EvidenceTier.MEASURED)
+        )
 
 
 @pytest.mark.parametrize(

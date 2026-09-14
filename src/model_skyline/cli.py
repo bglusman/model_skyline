@@ -95,6 +95,7 @@ from model_skyline.io import (
     load_config,
     load_frontier_snapshot,
     load_local_measurement,
+    load_paired_quality_estimate,
     load_portfolio_derivation,
     load_portfolio_policy,
     load_quality_evidence,
@@ -111,6 +112,7 @@ from model_skyline.quality_catalog import (
     quality_source_reference,
     quality_workload_reference,
 )
+from model_skyline.quality_estimation import apply_paired_quality_estimate
 from model_skyline.quality_evidence import QualityPublicationScope, reconcile_quality_evidence
 from model_skyline.quality_portfolio import build_portfolio, verify_portfolio
 from model_skyline.renderers import render_csv, render_rss, render_table
@@ -1265,6 +1267,50 @@ def reconcile_quality_evidence_command(
             publication_scope=publication_scope,
         )
         _emit_private(dump_json(report), output, overwrite=overwrite)
+    except (InputError, PrivateOutputError, OSError, TypeError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("validate-paired-quality-estimate", rich_help_panel=QUALITY_EVIDENCE_PANEL)
+def validate_paired_quality_estimate_command(
+    estimate: Annotated[Path, typer.Argument(exists=True, readable=True, dir_okay=False)],
+) -> None:
+    """Validate and replay one self-hashed paired quality estimate."""
+
+    try:
+        loaded = load_paired_quality_estimate(estimate)
+        typer.echo(
+            f"valid: {loaded.estimate_id} -> {loaded.candidate_offering.offering_id} "
+            f"{loaded.metric_id}={loaded.estimated_value} "
+            f"[{loaded.estimated_lower}, {loaded.estimated_upper}]"
+        )
+    except (InputError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("apply-paired-quality-estimate", rich_help_panel=QUALITY_EVIDENCE_PANEL)
+def apply_paired_quality_estimate_command(
+    catalog: Annotated[Path, typer.Argument(exists=True, readable=True, dir_okay=False)],
+    estimate: Annotated[Path, typer.Argument(exists=True, readable=True, dir_okay=False)],
+    signal_id: Annotated[str | None, typer.Option("--signal-id")] = None,
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        typer.Option("--overwrite", help="replace an existing private enriched catalog"),
+    ] = False,
+) -> None:
+    """Attach an estimate to the matching exact offering in a private catalog."""
+
+    try:
+        enriched = apply_paired_quality_estimate(
+            load_catalog(catalog),
+            load_paired_quality_estimate(estimate),
+            signal_id=signal_id,
+        )
+        _emit_private(dump_json(enriched), output, overwrite=overwrite)
     except (InputError, PrivateOutputError, OSError, TypeError, ValueError) as exc:
         _error(exc)
 

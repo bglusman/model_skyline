@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import stat
+from copy import deepcopy
 from datetime import UTC, datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -16,6 +17,7 @@ from typer.testing import CliRunner
 import model_skyline.quality_evidence as quality_evidence_module
 from model_skyline.canonical import canonical_bytes
 from model_skyline.cli import app
+from model_skyline.models import EvidenceTier
 from model_skyline.quality_evidence import (
     EVIDENCE_SCHEMA_VERSION,
     RECONCILIATION_SCHEMA_VERSION,
@@ -277,6 +279,46 @@ def test_content_hashes_are_canonical_domain_separated_and_exact_raw_bytes() -> 
     assert quality_raw_sha256(b'{ "x": 1 }') != quality_raw_sha256(b'{"x":1}')
     with pytest.raises(TypeError, match="must be bytes"):
         quality_raw_sha256("not bytes")  # type: ignore[arg-type]
+
+
+def test_quality_result_tier_is_explicit_without_changing_legacy_measured_identity() -> None:
+    measured = _result()
+    mutable_payload = measured.model_dump(mode="json")
+    before_digest = deepcopy(mutable_payload)
+    quality_content_sha256(QualityDigestDomain.RESULT, mutable_payload)
+    assert mutable_payload == before_digest
+
+    legacy_payload = measured.model_dump(mode="json")
+    for measurement in legacy_payload["measurements"]:
+        measurement.pop("evidence_tier")
+    restored = QualityResult.model_validate(legacy_payload)
+
+    assert restored.content_sha256 == measured.content_sha256
+    assert all(
+        measurement.evidence_tier is EvidenceTier.MEASURED for measurement in restored.measurements
+    )
+
+    primary = next(item for item in measured.measurements if item.id == measured.primary_metric)
+    estimated = measured.model_copy(
+        update={
+            "measurements": tuple(
+                item.model_copy(update={"evidence_tier": EvidenceTier.ESTIMATED})
+                if item.id == primary.id
+                else item
+                for item in measured.measurements
+            )
+        }
+    )
+    assert estimated.content_sha256 != measured.content_sha256
+
+    with pytest.raises(ValidationError, match="estimated quality measurements require"):
+        QualityMeasurement(
+            id="estimate-without-bounds",
+            role=QualityMeasurementRole.QUALITY,
+            value="0.5",
+            unit="ratio",
+            evidence_tier=EvidenceTier.ESTIMATED,
+        )
 
 
 def test_cli_reconciles_generic_normalized_quality_evidence(tmp_path) -> None:

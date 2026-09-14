@@ -15,13 +15,18 @@ def _pre_v06_effective_policy(
     config: ProjectConfig,
     frontier_id: str,
 ) -> dict[str, Any]:
-    """Reconstruct the policy payload emitted before source-age overrides existed."""
+    """Reconstruct the policy payload before source-age and evidence-tier defaults."""
 
     frontier = config.frontiers[frontier_id]
     workload_id = frontier.workload
     workload = config.workloads[workload_id]
     frontier_policy = frontier.model_dump(mode="json")
     assert frontier_policy["eligibility"].pop("max_source_age_hours") == {}
+    metrics: dict[str, Any] = {}
+    for axis in frontier.axes:
+        metric = config.metrics[axis.metric].model_dump(mode="json")
+        assert metric["requirements"].pop("accepted_evidence_tiers") == ["measured"]
+        metrics[axis.metric] = metric
     return {
         "schema_version": config.schema_version,
         "frontier_id": frontier_id,
@@ -31,10 +36,7 @@ def _pre_v06_effective_policy(
             mode="json",
             exclude={"sources": {"__all__": {"retrieved_at"}}},
         ),
-        "metrics": {
-            axis.metric: config.metrics[axis.metric].model_dump(mode="json")
-            for axis in frontier.axes
-        },
+        "metrics": metrics,
     }
 
 

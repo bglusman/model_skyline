@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Distinguish `proxy`, `estimated`, and `measured` observations throughout
+  catalogs, metric eligibility, and retained axis evidence. Metrics accept only
+  measured evidence by default; estimated observations require bounds and an
+  explicit policy opt-in. Add a self-hashed paired-delta quality-estimate
+  contract and CLI projection that binds exact anchor/candidate offerings,
+  paired items, full-anchor result, estimator validation, provenance, and
+  rights, then materializes the conservative lower bound for screening.
 - Add one deliberately narrow `import-codex-exec` CLI bridge from a private,
   single-turn `codex exec --json` stream to one canonical content-free JSONL
   trace. Route identity, timestamp, workload identity, local pseudonyms, and
