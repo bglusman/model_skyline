@@ -180,8 +180,8 @@ from model_skyline import (
 `model_skyline.__version__` is also public. Advanced APIs remain available from
 explicit modules such as `model_skyline.quality_evidence`,
 `model_skyline.quality_portfolio`, `model_skyline.traces`,
-`model_skyline.local_measurements`, `model_skyline.publisher`, and
-`model_skyline.resolver`.
+`model_skyline.local_measurements`, `model_skyline.catalog_composition`,
+`model_skyline.publisher`, and `model_skyline.resolver`.
 
 ## Current boundaries
 
