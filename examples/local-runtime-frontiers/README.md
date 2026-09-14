@@ -35,8 +35,8 @@ local, cache, context, quant-screening, and remote recipes are in
 [`recommended-frontier-recipes.yaml`](recommended-frontier-recipes.yaml).
 
 Those recipes also include named lexicographic selectors for quality-first,
-latency-first, memory-first, cache-demand, fixed-128K, session-endurance, warm
-cache, and quantization-screening priorities. A selector ranks only eligible
+latency-first, memory-first, cache-demand, fixed-128K, long-horizon research,
+session-endurance, warm cache, and quantization-screening priorities. A selector ranks only eligible
 members of one Pareto frontier: its correctness, context, evidence, freshness,
 and no-swap gates have already been applied. `return_available` deliberately
 returns fewer than three choices when the evidence cannot support three; it
@@ -60,15 +60,21 @@ evaluates one custom MoE slice without changing the frozen pilot digest. It
 earns the narrow uncached-tool frontier but fails the real-agent smoke and the
 retrieval ladder, so it is not a general local-agent recommendation.
 
-Two next candidates are pinned without treating external scores as local
+Four next candidates are pinned without treating external scores as local
 measurements. The
 [`North Mini Code local intake`](north-mini-code-intake.md) is the agent-quality
 challenger: it targets terminal work directly and has both oMLX and portable
 GGUF controls. The
 [`Nemotron 3.5 Lightning local intake`](nemotron-lightning-intake.md) is the
 architecture-efficiency challenger and separates plain oMLX, embedded-MTP, and
-external-DSpark profiles. Both define correctness, cache, context, memory, and
-real-agent promotion gates; neither is a measured frontier resident yet.
+external-DSpark profiles. The
+[`Agents-A1 local intake`](agents-a1-intake.md) adds a distinct long-horizon
+search/research hypothesis and motivates a separate evidence-grounded research
+frontier rather than importing research scores into Terminal-Bench. The
+[`Laguna XS 2.1 local intake`](laguna-xs-2.1-intake.md) adds a first-party
+local-focused coding challenger with MLX and GGUF controls. All four define
+correctness, cache, context, memory, and real-agent promotion gates; none is a
+measured frontier resident yet.
 
 ## Runtime choices on Apple Silicon
 
@@ -139,6 +145,14 @@ Every active frontier has exactly two decision axes:
   Recorded tokens from a timed-out or truncated final request are a lower
   bound, not an eligible axis.
 
+The reusable recipe catalog additionally defines `long-horizon-research-value`:
+outcome-scored research/search quality (maximize) versus p95 full-task wall time
+(minimize). It is a separate workload cohort because a coding/terminal score
+cannot stand in for multi-source search or scientific-research quality. Exact
+tool calls, evidence grounding, locally validated 128K capacity, and zero swap
+growth are eligibility gates. A reproducible cohort freezes its corpus/search
+snapshot and tool schemas; a live-web evaluation must use a distinct version.
+
 [`harbor-repeated-frontiers.yaml`](harbor-repeated-frontiers.yaml) packages
 robust versions of the three quality frontiers. They require the protocol's
 five equal-count repetitions per candidate and compare per-run repeatability
@@ -194,13 +208,14 @@ threshold even though its verifier-scored route remains valuable on the
 cache-demand and memory frontiers.
 
 That resident count is not a population-completeness claim. The versioned
-[`candidate population`](candidate-population.yaml) nominates seven model
+[`candidate population`](candidate-population.yaml) nominates nine model
 families only for the positions where they are intended to compete. Coverage
 v3 reports each required model-family/frontier cell as eligible-evaluated,
 explicitly gate-rejected, or unattempted. The current evidence attempts 33 of
-56 nominated cells (58.93%): dense Qwen and DS4 have complete coverage for their
+74 nominated cells (44.59%): dense Qwen and DS4 have complete coverage for their
 declared roles, Muse is missing three positions, Ornith one, Flash Coder one,
-and the newly pinned North and Nemotron challengers remain 0/9. A rejected cell
+and the newly pinned North, Nemotron, Agents-A1, and Laguna challengers remain
+0/9. A rejected cell
 counts as an honest attempt but never as exact or near membership. This keeps a
 winner among measured offerings from being presented as a settled winner over
 promising models that have not run yet.
