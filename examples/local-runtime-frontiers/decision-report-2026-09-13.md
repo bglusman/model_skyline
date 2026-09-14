@@ -268,10 +268,12 @@ frontier policies are in
   reduced post-request active memory by 3.35 GB but left peak memory nearly
   unchanged and decoded 16% slower than F16 KV.
 - OMP v14.6.6 and OpenCode v1.3.17 both list the managed Qwen, DS4, Muse,
-  Ornith, and Ollama routes. OMP now uses a 75% per-model compaction threshold:
-  196,608 tokens for 262,144-token routes and 98,304 for 131,072-token routes.
-  This supersedes the earlier fixed 180,000-token plan, which cannot safely
-  cover both context-window classes.
+  Ornith, and Ollama routes. OMP summarizes a conversation after it fills 75%
+  of the selected model's declared window. That means 196,608 tokens for a
+  262,144-token route and 98,304 for a 131,072-token route. We did not use the
+  earlier 180,000-token global plan because 180,000 is larger than the smaller
+  routes' entire window. This is a client safety setting, not proof of usable
+  model context.
 - The M1 Studio now runs the same llama-swap v0.2.55 pattern at
   `192.168.1.175:8090`: six configured routes in one exclusive group, child
   servers on loopback, and loading messages disabled. Qwen-to-Ornith switching

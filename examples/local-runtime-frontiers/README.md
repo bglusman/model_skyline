@@ -492,13 +492,22 @@ cache-free measurements set `QWEN38_OMLX_CACHE=0`. OpenCode and OMP both expose
 the non-speculative baseline/F16-KV and baseline/TQ4-KV controls, MTP/F16-KV,
 MTP/TQ4-KV, and DFlash/TQ4 aliases through the same router. The paired baseline
 profiles isolate KV compression from speculative decoding. OMP keeps the
-configured `thresholdPercent: 75` with `thresholdTokens: -1`. In installed OMP
-14.6.6, a positive fixed threshold would take precedence and otherwise the
-percentage is evaluated against the selected model's context window. The
-effective trigger is therefore 196,608 tokens for a 262,144-token route and
-98,304 for a 131,072-token route. This per-route policy supersedes the earlier
-180,000-token plan: a fixed 180K threshold cannot be safe for both classes and
-would be clamped to one token below the smaller route's ceiling.
+OMP has to decide when to shorten a long conversation into a summary. It is set
+to do that after the conversation uses 75% of whichever model's declared
+context window is selected. This leaves the final 25% for the next response,
+tool results, and the summarization step itself.
+
+| Selected model's declared window | OMP starts compaction at | Remaining headroom |
+| ---: | ---: | ---: |
+| 262,144 tokens | 196,608 tokens | 65,536 tokens |
+| 131,072 tokens | 98,304 tokens | 32,768 tokens |
+
+There is no fixed global token limit. We initially discussed using 180,000
+tokens for every model, but that number is larger than the entire window of the
+131,072-token DS4 and Muse routes. The percentage setting therefore adapts to
+both model classes. These numbers describe when the OMP client summarizes a
+conversation; they do not prove that a model can use its advertised context
+well. Retrieval and memory tests supply that separate evidence.
 
 The Ollama-backed `gpt-oss:20b` route is the one deliberate TTL exception:
 its per-model llama-swap TTL is 300 seconds, matching Ollama's documented
