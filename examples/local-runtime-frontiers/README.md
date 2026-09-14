@@ -11,6 +11,10 @@ throughput, warm and uncached tool operation, repeated 126K retrieval, and a
 validated-capacity/physical-footprint roll-up. They remain workload-specific,
 not a universal model ranking.
 
+The dated [`overnight handoff`](overnight-handoff-2026-09-14.md) summarizes the
+published frontier residents, cross-Mac conclusions, runtime state, and pending
+benchmark queue in one durable document.
+
 ## Evidence levels
 
 1. **Capacity smoke:** the runtime allocates and answers. This is not retrieval
