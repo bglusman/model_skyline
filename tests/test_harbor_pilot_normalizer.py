@@ -187,3 +187,25 @@ def test_memory_capture_must_match_summary_job_lock(tmp_path: Path) -> None:
             summary_paths=[summary_path],
             memory_paths=[memory_path],
         )
+
+
+def test_legacy_basename_memory_peaks_map_to_unique_completed_tasks(tmp_path: Path) -> None:
+    summary_path, summary = _pilot_summary(tmp_path)
+    memory_path = _memory_capture(tmp_path, summary)
+    memory = json.loads(memory_path.read_text(encoding="utf-8"))
+    memory["task_peaks"] = {
+        task.rsplit("/", 1)[-1]: peak for task, peak in memory["task_peaks"].items()
+    }
+    _write_json(memory_path, memory)
+
+    catalog = NORMALIZER.build_catalog(
+        protocol_path=PROTOCOL,
+        hardware_path=HARDWARE,
+        task_set_name="pilot_5",
+        summary_paths=[summary_path],
+        memory_paths=[memory_path],
+    )
+
+    offering = catalog.offerings[0]
+    assert offering.signals["local_peak_process_physical_footprint_bytes"].value == 24_000
+    assert offering.metadata["pilot"]["memory"]["legacy_basename_task_peaks"] is True

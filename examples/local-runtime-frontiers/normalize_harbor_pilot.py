@@ -336,14 +336,21 @@ def _memory_signal(
     if set(coverage) != tasks or any(not isinstance(value, bool) for value in coverage.values()):
         raise PilotCatalogError("runner-memory coverage does not match the exact task set")
     peaks = _mapping(memory.get("task_peaks"), field="memory.task_peaks")
+    expected_basenames = {task.rsplit("/", 1)[-1]: task for task in tasks}
+    if len(expected_basenames) != len(tasks):
+        raise PilotCatalogError("task basenames are not unique")
     reasons: list[str] = []
     values: list[Decimal] = []
     sample_total = 0
+    used_legacy_basename = False
     for task in sorted(tasks):
         if coverage[task] is not True:
             reasons.append(f"capture_started_after_agent_execution:{task}")
             continue
         peak = peaks.get(task)
+        if peak is None:
+            peak = peaks.get(task.rsplit("/", 1)[-1])
+            used_legacy_basename = peak is not None or used_legacy_basename
         if not isinstance(peak, dict):
             reasons.append(f"missing_task_peak:{task}")
             continue
@@ -366,6 +373,7 @@ def _memory_signal(
         "sample_interval_seconds": memory.get("sample_interval_seconds"),
         "covered_task_count": len(values),
         "sample_count": sample_total,
+        "legacy_basename_task_peaks": used_legacy_basename,
     }
     if reasons or len(values) != len(tasks):
         return None, metadata

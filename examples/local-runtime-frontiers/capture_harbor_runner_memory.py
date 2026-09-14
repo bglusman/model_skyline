@@ -181,6 +181,29 @@ def _task_coverage(
     return dict(sorted(coverage.items()))
 
 
+def _canonicalize_active_task_names(
+    samples: list[dict[str, Any]], *, completed_task_names: set[str]
+) -> None:
+    by_basename: dict[str, str] = {}
+    for task_name in completed_task_names:
+        basename = task_name.rsplit("/", 1)[-1]
+        if basename in by_basename:
+            raise MemoryCaptureError("completed task basenames are not unique")
+        by_basename[basename] = task_name
+    for sample in samples:
+        active = sample["active_tasks"]
+        canonical: list[str] = []
+        for task_name in active:
+            if task_name in completed_task_names:
+                canonical.append(task_name)
+                continue
+            mapped = by_basename.get(task_name)
+            if mapped is None:
+                raise MemoryCaptureError(f"active task has no completed result: {task_name}")
+            canonical.append(mapped)
+        sample["active_tasks"] = sorted(canonical)
+
+
 def capture(
     job_dir: Path,
     *,
@@ -214,6 +237,12 @@ def capture(
             raise MemoryCaptureError("capture timed out before the Harbor job finished")
         time.sleep(interval_seconds)
 
+    coverage = _task_coverage(
+        job_dir,
+        capture_started_at=started_at,
+        job_timezone=job_timezone,
+    )
+    _canonicalize_active_task_names(samples, completed_task_names=set(coverage))
     task_peaks: dict[str, dict[str, int | None]] = {}
     for sample in samples:
         for task in sample["active_tasks"]:
@@ -245,11 +274,8 @@ def capture(
         "sample_interval_seconds": str(interval_seconds),
         "job_timestamp_timezone": job_timezone.key,
         "capture_started_after_job_start": started_at > job_started_at,
-        "capture_started_before_agent_execution": _task_coverage(
-            job_dir,
-            capture_started_at=started_at,
-            job_timezone=job_timezone,
-        ),
+        "capture_started_before_agent_execution": coverage,
+        "task_name_form": "completed_result_name",
         "task_peaks": task_peaks,
         "samples": samples,
         "contains_prompts_or_model_messages": False,

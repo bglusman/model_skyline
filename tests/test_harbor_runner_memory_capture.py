@@ -99,6 +99,16 @@ def test_active_task_detection_ignores_trial_until_lock_exists(tmp_path: Path) -
     assert CAPTURE._active_tasks(job) == []
 
 
+def test_active_task_names_are_canonicalized_from_completed_results() -> None:
+    samples = [{"active_tasks": ["fix-git"]}]
+
+    CAPTURE._canonicalize_active_task_names(
+        samples, completed_task_names={"terminal-bench/fix-git"}
+    )
+
+    assert samples == [{"active_tasks": ["terminal-bench/fix-git"]}]
+
+
 def test_wait_for_job_accepts_an_existing_lock(tmp_path: Path) -> None:
     job = tmp_path / "job"
     _write_json(job / "lock.json", {})
