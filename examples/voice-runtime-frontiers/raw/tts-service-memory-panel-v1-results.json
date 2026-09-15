@@ -1,0 +1,300 @@
+{
+  "methodology": {
+    "apple_unified": "sum of macOS RUSAGE_INFO_V4 physical footprint for the selected process tree",
+    "axis_warning": "Combined split-memory capacity is an efficiency accounting value, not a fit guarantee; independent host and device peaks remain hard capacity checks.",
+    "capture_harness_binding": "post-capture content digest of the unchanged sampler used for every row",
+    "capture_scope": "cold model load plus three complete 30-prompt runs; generated audio was not played",
+    "linux_split_cuda": "host smaps_rollup PSS plus CUDA process memory for the same process tree and sample"
+  },
+  "offerings": [
+    {
+      "instrument": {
+        "combined_measure": "unified physical footprint",
+        "device_measure": null,
+        "explicit_root_pid_count": 0,
+        "host_measure": "sum of macOS RUSAGE_INFO_V4 physical footprint for the process tree",
+        "launched_command_sha256": null,
+        "memory_architecture": "apple_unified",
+        "process_selector_sha256": [
+          "d6f7baf477be18146d7edec4dd4ba187d595b55059f5a5f3b4af11d3a42dc572"
+        ],
+        "sample_interval_seconds": "0.1",
+        "warning": "For split memory, the combined value is an efficiency accounting metric, not a standalone fit guarantee; host and device peaks remain separate."
+      },
+      "isolation": "exclusive local-model lock; router reported no active model",
+      "memory_architecture": "apple_unified",
+      "memory_capture": {
+        "captured_at": "2026-09-15T15:14:53.000689Z",
+        "finished_at": "2026-09-15T15:19:01.036086Z",
+        "path": "raw/tts-service-memory-v1/qwen-mlx-memory.json",
+        "sha256": "dab61225d01047a7652ea6710a71e8347875579ddad18fcfafa3c20888e4e50f"
+      },
+      "offering_id": "self-hosted/qwen3-tts-1.7b-6bit-mlx@m5-max-64gb-vivian-en",
+      "slug": "qwen3-tts-1.7b-6bit-mlx-m5",
+      "summary": {
+        "complete_sample_count": 1490,
+        "device_bytes_at_combined_peak": null,
+        "host_bytes_at_combined_peak": 3951873624,
+        "peak_combined_capacity_bytes": 3951873624,
+        "peak_combined_elapsed_milliseconds": 235836,
+        "peak_device_memory_bytes": null,
+        "peak_host_physical_bytes": 3951873624,
+        "peak_rss_bytes": 3059433472,
+        "peak_selected_process_count": 4,
+        "sample_count": 1492
+      },
+      "workload_sources": [
+        {
+          "path": "raw/tts-service-memory-v1/qwen-mlx-seed7.json",
+          "seed": 7,
+          "sha256": "c1303504c03061f7f9733b923a6fa43fe30496e95e3a3dabc21b94f2bcda5e3c"
+        },
+        {
+          "path": "raw/tts-service-memory-v1/qwen-mlx-seed1234.json",
+          "seed": 1234,
+          "sha256": "d27ac937783ee4aab9571ac8b6d3ac09a535e4208d0478a0fd50df75cdd50bec"
+        },
+        {
+          "path": "raw/tts-service-memory-v1/qwen-mlx-seed2026.json",
+          "seed": 2026,
+          "sha256": "b94efb22048f6dc7935b0d21f3ce791bddae38a1387c921f2a32ea517b257120"
+        }
+      ]
+    },
+    {
+      "instrument": {
+        "combined_measure": "host PSS plus CUDA device memory in the same sample",
+        "device_measure": "sum of nvidia-smi used_memory for process-tree compute contexts",
+        "explicit_root_pid_count": 0,
+        "host_measure": "sum of Linux smaps_rollup PSS for the process tree",
+        "launched_command_sha256": null,
+        "memory_architecture": "linux_split_cuda",
+        "process_selector_sha256": [
+          "82b78c4e817c70ae6c23ff0b43603b5d20e39569e1a8eaebdcd4b13728a2bc6f"
+        ],
+        "sample_interval_seconds": "0.25",
+        "warning": "For split memory, the combined value is an efficiency accounting metric, not a standalone fit guarantee; host and device peaks remain separate."
+      },
+      "isolation": "llama-swap and Ollama stopped; GPU empty before load; exclusive lock held; services restored afterward",
+      "memory_architecture": "linux_split_cuda",
+      "memory_capture": {
+        "captured_at": "2026-09-15T15:53:55.392058Z",
+        "finished_at": "2026-09-15T15:59:52.418700Z",
+        "path": "raw/tts-service-memory-v1/vllm-clean-memory.json",
+        "sha256": "c7bd334d61d8fcbf0a4d68519635ab7eaec23a906952f5143f236bd0d6819fbc"
+      },
+      "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni@rtx5060ti-16gb-vivian-en",
+      "slug": "qwen3-tts-1.7b-bf16-vllm-omni-5060",
+      "summary": {
+        "complete_sample_count": 1092,
+        "device_bytes_at_combined_peak": 11532238848,
+        "host_bytes_at_combined_peak": 7312684032,
+        "peak_combined_capacity_bytes": 18844922880,
+        "peak_combined_elapsed_milliseconds": 347026,
+        "peak_device_memory_bytes": 12379488256,
+        "peak_host_physical_bytes": 7312684032,
+        "peak_rss_bytes": 8281337856,
+        "peak_selected_process_count": 6,
+        "sample_count": 1093
+      },
+      "workload_sources": [
+        {
+          "path": "raw/tts-service-memory-v1/vllm-clean-seed7.json",
+          "seed": 7,
+          "sha256": "d100c902a7c3872e8f7c1e2b8862c3a4244a26a3eda2217f46cf5c456944d32f"
+        },
+        {
+          "path": "raw/tts-service-memory-v1/vllm-clean-seed1234.json",
+          "seed": 1234,
+          "sha256": "12371b692fbf11ba0042f611c6de9cf8fd9b23dd071379a94037faf3f15b344a"
+        },
+        {
+          "path": "raw/tts-service-memory-v1/vllm-clean-seed2026.json",
+          "seed": 2026,
+          "sha256": "ea5c9856ac2e42fa4210c31aec8a4ee0f2bf16a3670c785ec91ca94af26bf2e1"
+        }
+      ]
+    },
+    {
+      "instrument": {
+        "combined_measure": "host PSS plus CUDA device memory in the same sample",
+        "device_measure": "sum of nvidia-smi used_memory for process-tree compute contexts",
+        "explicit_root_pid_count": 0,
+        "host_measure": "sum of Linux smaps_rollup PSS for the process tree",
+        "launched_command_sha256": null,
+        "memory_architecture": "linux_split_cuda",
+        "process_selector_sha256": [
+          "556a44352f4d9de0c0d7a3f58d4e641ed2ff3df050eb379876850e2058de4af5"
+        ],
+        "sample_interval_seconds": "0.25",
+        "warning": "For split memory, the combined value is an efficiency accounting metric, not a standalone fit guarantee; host and device peaks remain separate."
+      },
+      "isolation": "llama-swap exclusive group; GPU empty before load; route explicitly unloaded afterward",
+      "memory_architecture": "linux_split_cuda",
+      "memory_capture": {
+        "captured_at": "2026-09-15T15:37:05.406249Z",
+        "finished_at": "2026-09-15T15:41:16.398750Z",
+        "path": "raw/tts-service-memory-v1/nari-memory.json",
+        "sha256": "fc0bf08d0f6c1896f5826e107d471b8de1a2983c86a7e6f5c1be09e8c1a34302"
+      },
+      "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-nari-consumer@rtx5060ti-16gb-vivian-en",
+      "slug": "qwen3-tts-1.7b-bf16-nari-router-5060",
+      "summary": {
+        "complete_sample_count": 773,
+        "device_bytes_at_combined_peak": 6679429120,
+        "host_bytes_at_combined_peak": 3048662016,
+        "peak_combined_capacity_bytes": 9728091136,
+        "peak_combined_elapsed_milliseconds": 34106,
+        "peak_device_memory_bytes": 6905921536,
+        "peak_host_physical_bytes": 5508613120,
+        "peak_rss_bytes": 5487071232,
+        "peak_selected_process_count": 1,
+        "sample_count": 773
+      },
+      "workload_sources": [
+        {
+          "path": "raw/tts-service-memory-v1/nari-seed7.json",
+          "seed": 7,
+          "sha256": "343f9be95cf69741f4928f752f1c82f8800e909dfa87e763d4ff4552d1722b2b"
+        },
+        {
+          "path": "raw/tts-service-memory-v1/nari-seed1234.json",
+          "seed": 1234,
+          "sha256": "c99433b6bf382ea3251f19441cd25b0d784bce84e26143ac27e8014e51e84d22"
+        },
+        {
+          "path": "raw/tts-service-memory-v1/nari-seed2026.json",
+          "seed": 2026,
+          "sha256": "8f0bd273b1d9e705c7337ea1d3e42141e9b1754ceb76ecf87e2240e6caa6eb34"
+        }
+      ]
+    },
+    {
+      "instrument": {
+        "combined_measure": "unified physical footprint",
+        "device_measure": null,
+        "explicit_root_pid_count": 0,
+        "host_measure": "sum of macOS RUSAGE_INFO_V4 physical footprint for the process tree",
+        "launched_command_sha256": null,
+        "memory_architecture": "apple_unified",
+        "process_selector_sha256": [
+          "02ca3d8b6c6ee598257e25ec59267ceece25a6e8af1bcb79a84b5dea5c860f2b"
+        ],
+        "sample_interval_seconds": "0.1",
+        "warning": "For split memory, the combined value is an efficiency accounting metric, not a standalone fit guarantee; host and device peaks remain separate."
+      },
+      "isolation": "exclusive local-model lock; router reported no active model",
+      "memory_architecture": "apple_unified",
+      "memory_capture": {
+        "captured_at": "2026-09-15T15:31:59.975758Z",
+        "finished_at": "2026-09-15T15:35:06.515427Z",
+        "path": "raw/tts-service-memory-v1/loudkit-m5-memory.json",
+        "sha256": "8f1731b50d3667534405d8949b4878845282c629955185f6330f237933f4cea8"
+      },
+      "offering_id": "self-hosted/loudr-1-turbo-loudkit@m5-max-64gb-joe-en",
+      "slug": "loudr-1-turbo-loudkit-m5",
+      "summary": {
+        "complete_sample_count": 1156,
+        "device_bytes_at_combined_peak": null,
+        "host_bytes_at_combined_peak": 3372092296,
+        "peak_combined_capacity_bytes": 3372092296,
+        "peak_combined_elapsed_milliseconds": 19670,
+        "peak_device_memory_bytes": null,
+        "peak_host_physical_bytes": 3372092296,
+        "peak_rss_bytes": 1982234624,
+        "peak_selected_process_count": 3,
+        "sample_count": 1158
+      },
+      "workload_sources": [
+        {
+          "path": "raw/tts-service-memory-v1/loudkit-m5-seed7.json",
+          "seed": 7,
+          "sha256": "ee42badf4de0ae59c358079d9b912ae6827eab845c4e6a467c6840c41fd97137"
+        },
+        {
+          "path": "raw/tts-service-memory-v1/loudkit-m5-seed1234.json",
+          "seed": 1234,
+          "sha256": "a27d105d70b96fb0270af6bca74993ff3a6cdc621954c590dbe823de87732dc5"
+        },
+        {
+          "path": "raw/tts-service-memory-v1/loudkit-m5-seed2026.json",
+          "seed": 2026,
+          "sha256": "1fdd3284207deb4b300280ac617f97f907d6c0a839af6ee9407c0c7e779a87e3"
+        }
+      ]
+    },
+    {
+      "instrument": {
+        "combined_measure": "host PSS plus CUDA device memory in the same sample",
+        "device_measure": "sum of nvidia-smi used_memory for process-tree compute contexts",
+        "explicit_root_pid_count": 0,
+        "host_measure": "sum of Linux smaps_rollup PSS for the process tree",
+        "launched_command_sha256": null,
+        "memory_architecture": "linux_split_cuda",
+        "process_selector_sha256": [
+          "02ca3d8b6c6ee598257e25ec59267ceece25a6e8af1bcb79a84b5dea5c860f2b"
+        ],
+        "sample_interval_seconds": "0.25",
+        "warning": "For split memory, the combined value is an efficiency accounting metric, not a standalone fit guarantee; host and device peaks remain separate."
+      },
+      "isolation": "llama-swap and Ollama stopped; GPU empty before each load; exclusive lock held; services restored afterward",
+      "memory_architecture": "linux_split_cuda",
+      "memory_capture": {
+        "captured_at": "2026-09-15T16:01:20.773093Z",
+        "finished_at": "2026-09-15T16:03:14.795466Z",
+        "path": "raw/tts-service-memory-v1/loudkit-clean-memory.json",
+        "sha256": "7ed7003a66bba1764febcb1cc562b6f3a052fd2e5cb17dfaaf4916259a9f875a"
+      },
+      "offering_id": "self-hosted/loudr-1-turbo-loudkit@rtx5060ti-16gb-joe-en",
+      "slug": "loudr-1-turbo-loudkit-5060",
+      "summary": {
+        "complete_sample_count": 339,
+        "device_bytes_at_combined_peak": 1719664640,
+        "host_bytes_at_combined_peak": 2503633920,
+        "peak_combined_capacity_bytes": 4223298560,
+        "peak_combined_elapsed_milliseconds": 31516,
+        "peak_device_memory_bytes": 1719664640,
+        "peak_host_physical_bytes": 2503633920,
+        "peak_rss_bytes": 2505031680,
+        "peak_selected_process_count": 1,
+        "sample_count": 339
+      },
+      "workload_sources": [
+        {
+          "path": "raw/tts-service-memory-v1/loudkit-clean-seed7.json",
+          "seed": 7,
+          "sha256": "cf48af894cf72cf8be1076c56e28ac9b45cd0eaeccb8a224f0e8c1b03609d220"
+        },
+        {
+          "path": "raw/tts-service-memory-v1/loudkit-clean-seed1234.json",
+          "seed": 1234,
+          "sha256": "87f48bc964defc79c57127dab47d90b44c7ff641fd848aea48d9d56a46c3eba3"
+        },
+        {
+          "path": "raw/tts-service-memory-v1/loudkit-clean-seed2026.json",
+          "seed": 2026,
+          "sha256": "b6df126a2bbb5be9a2de76209bbe3bbc160a8f18a46c09fc3b947d28a9375ac0"
+        }
+      ]
+    }
+  ],
+  "panel": {
+    "capture_harness": {
+      "binding": "post-capture content digest of the unchanged sampler used for every row",
+      "path": "capture_service_memory.py",
+      "sha256": "0c180883cbfc1e0066607b71862076cf48e319eefe038e9686fd8f03db8e0f74"
+    },
+    "id": "coval-tts-v1-whole-service-memory-panel",
+    "prompt_manifest_sha256": "e30909112f5fd886157008ca960c00d4f68f29de69b29d5913a5bf3383ad71ec",
+    "prompts_per_seed": 30,
+    "quality_panel": "raw/tts-seed-panel-v1-results.json",
+    "quality_panel_sha256": "bfae3bda1b651451508a0c333c877214da48c4a6ce4a833d951171a8a90d566c",
+    "seeds": [
+      7,
+      1234,
+      2026
+    ],
+    "version": "1.0.0"
+  },
+  "schema": "model-skyline/experimental-service-memory-panel/v1alpha1"
+}

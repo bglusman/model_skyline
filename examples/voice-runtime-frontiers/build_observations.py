@@ -18,6 +18,7 @@ WORKLOAD = {
     "unit": "utterance",
 }
 SEED_PANEL = RAW / "tts-seed-panel-v1-results.json"
+SERVICE_MEMORY_PANEL = RAW / "tts-service-memory-panel-v1-results.json"
 
 SPECS: tuple[dict[str, Any], ...] = (
     {
@@ -192,6 +193,7 @@ def _observed_at(panel_offering: dict[str, Any], kind: str) -> str:
 def _offering(
     spec: dict[str, Any],
     panel_offering: dict[str, Any],
+    memory_offering: dict[str, Any],
 ) -> dict[str, Any]:
     if panel_offering.get("slug") != spec["slug"]:
         raise ValueError(f"seed-panel slug mismatch for {spec['slug']}")
@@ -232,6 +234,62 @@ def _offering(
     )
     capture_harness_sha256 = spec.get("capture_harness_sha256")
     seeds = [run["seed"] for run in panel_offering["source_runs"]]
+    if memory_offering.get("slug") != spec["slug"]:
+        raise ValueError(f"service-memory slug mismatch for {spec['slug']}")
+    if memory_offering.get("offering_id") != panel_offering["offering_id"]:
+        raise ValueError(f"service-memory offering ID mismatch for {spec['slug']}")
+    memory_summary = memory_offering["summary"]
+    memory_source = _source(
+        spec["slug"],
+        "service-memory",
+        SERVICE_MEMORY_PANEL,
+        (
+            "One continuous whole-service capture spanning cold load and three matched "
+            "30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows "
+            "use same-sample host PSS plus device allocation; component peaks remain separate."
+        ),
+    )
+    memory_observed_at = memory_offering["memory_capture"]["captured_at"]
+    memory_metadata = {
+        "memory_architecture": memory_offering["memory_architecture"],
+        "memory_accounting": memory_offering["instrument"]["combined_measure"],
+        "memory_axis_warning": (
+            "The combined split-memory value compares resource efficiency; fit still requires "
+            "checking the independent host and device peaks."
+        ),
+        "peak_host_physical_bytes": memory_summary["peak_host_physical_bytes"],
+        "peak_device_memory_bytes": memory_summary["peak_device_memory_bytes"],
+        "host_bytes_at_combined_peak": memory_summary["host_bytes_at_combined_peak"],
+        "device_bytes_at_combined_peak": memory_summary["device_bytes_at_combined_peak"],
+        "memory_capture_sample_count": memory_summary["sample_count"],
+        "memory_capture": memory_offering["memory_capture"]["path"],
+        "memory_capture_sha256": memory_offering["memory_capture"]["sha256"],
+        "memory_capture_isolation": memory_offering["isolation"],
+    }
+    memory_signals = {
+        "tts_peak_service_capacity_bytes": _observation(
+            memory_summary["peak_combined_capacity_bytes"],
+            "bytes",
+            memory_observed_at,
+            memory_source,
+            sample_count=1,
+        ),
+        "tts_peak_host_physical_bytes": _observation(
+            memory_summary["peak_host_physical_bytes"],
+            "bytes",
+            memory_observed_at,
+            memory_source,
+            sample_count=1,
+        ),
+    }
+    if memory_summary["peak_device_memory_bytes"] is not None:
+        memory_signals["tts_peak_device_memory_bytes"] = _observation(
+            memory_summary["peak_device_memory_bytes"],
+            "bytes",
+            memory_observed_at,
+            memory_source,
+            sample_count=1,
+        )
     return {
         "offering": {
             "offering_id": panel_offering["offering_id"],
@@ -263,6 +321,7 @@ def _offering(
             "seed_panel_capture": f"raw/{SEED_PANEL.name}",
             "source_run_count": len(panel_offering["source_runs"]),
             "audio_set_sha256s": [run["audio_set_sha256"] for run in panel_offering["source_runs"]],
+            **memory_metadata,
         },
         "signals": {
             "tts_corpus_wer_percent": _observation(
@@ -327,20 +386,36 @@ def _offering(
                 pacing_source,
                 sample_count=sample_count,
             ),
+            **memory_signals,
         },
     }
 
 
 def _render() -> str:
     panel = _load(SEED_PANEL)
+    memory_panel = _load(SERVICE_MEMORY_PANEL)
+    if memory_panel.get("panel", {}).get("quality_panel_sha256") != _sha256(SEED_PANEL):
+        raise ValueError("service-memory panel does not bind the current quality panel")
     panel_offerings = {offering["slug"]: offering for offering in panel.get("offerings", [])}
+    memory_offerings = {
+        offering["slug"]: offering for offering in memory_panel.get("offerings", [])
+    }
     expected_slugs = {spec["slug"] for spec in SPECS}
     if set(panel_offerings) != expected_slugs:
         raise ValueError("seed-panel offerings do not match catalog specifications")
+    if set(memory_offerings) != expected_slugs:
+        raise ValueError("service-memory offerings do not match catalog specifications")
     catalog = {
         "schema_version": "model-skyline/v1alpha1",
         "workload": WORKLOAD,
-        "offerings": [_offering(spec, panel_offerings[spec["slug"]]) for spec in SPECS],
+        "offerings": [
+            _offering(
+                spec,
+                panel_offerings[spec["slug"]],
+                memory_offerings[spec["slug"]],
+            )
+            for spec in SPECS
+        ],
     }
     return json.dumps(catalog, indent=2, ensure_ascii=False) + "\n"
 

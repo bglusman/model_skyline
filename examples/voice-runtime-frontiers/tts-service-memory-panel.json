@@ -1,0 +1,146 @@
+{
+  "schema": "model-skyline/tts-service-memory-panel-definition/v1alpha1",
+  "id": "coval-tts-v1-whole-service-memory-panel",
+  "version": "1.0.0",
+  "capture_harness": {
+    "path": "capture_service_memory.py",
+    "sha256": "0c180883cbfc1e0066607b71862076cf48e319eefe038e9686fd8f03db8e0f74",
+    "binding": "post-capture content digest of the unchanged sampler used for every row"
+  },
+  "quality_panel": "raw/tts-seed-panel-v1-results.json",
+  "prompt_manifest_sha256": "e30909112f5fd886157008ca960c00d4f68f29de69b29d5913a5bf3383ad71ec",
+  "seeds": [7, 1234, 2026],
+  "offerings": [
+    {
+      "slug": "qwen3-tts-1.7b-6bit-mlx-m5",
+      "offering_id": "self-hosted/qwen3-tts-1.7b-6bit-mlx@m5-max-64gb-vivian-en",
+      "memory_capture": "raw/tts-service-memory-v1/qwen-mlx-memory.json",
+      "source_filename": "qwen-mlx-memory.json",
+      "hardware": "apple-m5-max-64gb",
+      "process_label": "qwen3-tts-mlx-benchmark",
+      "memory_architecture": "apple_unified",
+      "identity_fields": [
+        "hardware",
+        "language",
+        "mlx",
+        "model",
+        "requested_revision",
+        "resolved_revision",
+        "runtime",
+        "speaker",
+        "streaming_interval_seconds",
+        "suppress_fixed_bootstrap"
+      ],
+      "isolation": "exclusive local-model lock; router reported no active model",
+      "workloads": [
+        {"seed": 7, "path": "raw/tts-service-memory-v1/qwen-mlx-seed7.json", "source_filename": "qwen-mlx-seed7.json"},
+        {"seed": 1234, "path": "raw/tts-service-memory-v1/qwen-mlx-seed1234.json", "source_filename": "qwen-mlx-seed1234.json"},
+        {"seed": 2026, "path": "raw/tts-service-memory-v1/qwen-mlx-seed2026.json", "source_filename": "qwen-mlx-seed2026.json"}
+      ]
+    },
+    {
+      "slug": "qwen3-tts-1.7b-bf16-vllm-omni-5060",
+      "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni@rtx5060ti-16gb-vivian-en",
+      "memory_capture": "raw/tts-service-memory-v1/vllm-clean-memory.json",
+      "source_filename": "vllm-clean-memory.json",
+      "hardware": "rtx-5060-ti-16gb",
+      "process_label": "vllm-omni-qwen3-tts-server",
+      "memory_architecture": "linux_split_cuda",
+      "identity_fields": [
+        "language",
+        "model",
+        "model_revision",
+        "request_non_streaming_mode",
+        "request_stream_format",
+        "runtime",
+        "server_hardware",
+        "suppress_fixed_bootstrap",
+        "voice"
+      ],
+      "isolation": "llama-swap and Ollama stopped; GPU empty before load; exclusive lock held; services restored afterward",
+      "workloads": [
+        {"seed": 7, "path": "raw/tts-service-memory-v1/vllm-clean-seed7.json", "source_filename": "vllm-clean-seed7.json"},
+        {"seed": 1234, "path": "raw/tts-service-memory-v1/vllm-clean-seed1234.json", "source_filename": "vllm-clean-seed1234.json"},
+        {"seed": 2026, "path": "raw/tts-service-memory-v1/vllm-clean-seed2026.json", "source_filename": "vllm-clean-seed2026.json"}
+      ]
+    },
+    {
+      "slug": "qwen3-tts-1.7b-bf16-nari-router-5060",
+      "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-nari-consumer@rtx5060ti-16gb-vivian-en",
+      "memory_capture": "raw/tts-service-memory-v1/nari-memory.json",
+      "source_filename": "nari-memory.json",
+      "hardware": "rtx-5060-ti-16gb",
+      "process_label": "nari-qwen3-tts-consumer-server",
+      "memory_architecture": "linux_split_cuda",
+      "identity_fields": [
+        "language",
+        "model",
+        "model_revision",
+        "request_non_streaming_mode",
+        "request_stream_format",
+        "runtime",
+        "server_hardware",
+        "suppress_fixed_bootstrap",
+        "voice"
+      ],
+      "isolation": "llama-swap exclusive group; GPU empty before load; route explicitly unloaded afterward",
+      "workloads": [
+        {"seed": 7, "path": "raw/tts-service-memory-v1/nari-seed7.json", "source_filename": "nari-seed7.json"},
+        {"seed": 1234, "path": "raw/tts-service-memory-v1/nari-seed1234.json", "source_filename": "nari-seed1234.json"},
+        {"seed": 2026, "path": "raw/tts-service-memory-v1/nari-seed2026.json", "source_filename": "nari-seed2026.json"}
+      ]
+    },
+    {
+      "slug": "loudr-1-turbo-loudkit-m5",
+      "offering_id": "self-hosted/loudr-1-turbo-loudkit@m5-max-64gb-joe-en",
+      "memory_capture": "raw/tts-service-memory-v1/loudkit-m5-memory.json",
+      "source_filename": "loudkit-m5-memory.json",
+      "hardware": "apple-m5-max-64gb",
+      "process_label": "loudkit-tts-benchmark",
+      "memory_architecture": "apple_unified",
+      "identity_fields": [
+        "backend",
+        "checkpoint_sha256",
+        "engine",
+        "hardware",
+        "language",
+        "model",
+        "runtime",
+        "source_revision",
+        "voice"
+      ],
+      "isolation": "exclusive local-model lock; router reported no active model",
+      "workloads": [
+        {"seed": 7, "path": "raw/tts-service-memory-v1/loudkit-m5-seed7.json", "source_filename": "loudkit-m5-seed7.json"},
+        {"seed": 1234, "path": "raw/tts-service-memory-v1/loudkit-m5-seed1234.json", "source_filename": "loudkit-m5-seed1234.json"},
+        {"seed": 2026, "path": "raw/tts-service-memory-v1/loudkit-m5-seed2026.json", "source_filename": "loudkit-m5-seed2026.json"}
+      ]
+    },
+    {
+      "slug": "loudr-1-turbo-loudkit-5060",
+      "offering_id": "self-hosted/loudr-1-turbo-loudkit@rtx5060ti-16gb-joe-en",
+      "memory_capture": "raw/tts-service-memory-v1/loudkit-clean-memory.json",
+      "source_filename": "loudkit-clean-memory.json",
+      "hardware": "rtx-5060-ti-16gb",
+      "process_label": "loudkit-direct-benchmark",
+      "memory_architecture": "linux_split_cuda",
+      "identity_fields": [
+        "backend",
+        "checkpoint_sha256",
+        "engine",
+        "hardware",
+        "language",
+        "model",
+        "runtime",
+        "source_revision",
+        "voice"
+      ],
+      "isolation": "llama-swap and Ollama stopped; GPU empty before each load; exclusive lock held; services restored afterward",
+      "workloads": [
+        {"seed": 7, "path": "raw/tts-service-memory-v1/loudkit-clean-seed7.json", "source_filename": "loudkit-clean-seed7.json"},
+        {"seed": 1234, "path": "raw/tts-service-memory-v1/loudkit-clean-seed1234.json", "source_filename": "loudkit-clean-seed1234.json"},
+        {"seed": 2026, "path": "raw/tts-service-memory-v1/loudkit-clean-seed2026.json", "source_filename": "loudkit-clean-seed2026.json"}
+      ]
+    }
+  ]
+}

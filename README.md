@@ -49,12 +49,15 @@ audible latency and throughput. An experimental consumer-GPU patch for Nari's
 Qwen3-TTS engine now reaches 47 ms median and 57 ms p95 first audible audio on
 the 5060 through the shared llama-swap endpoint. A matched three-seed,
 90-utterance panel leaves that Nari path and vLLM-Omni as the two exact
-quality/speed tradeoffs on all three TTS frontiers; both reduce to Qwen3-TTS in
-the simpler model view. MLX and LoudKit measurements remain visible but fail a
-strict zero-loop/zero-token-cap gate. A separate preliminary long-form screen
-records pacing and diarizer-detected speaker changes; naturalness and speaker
-identity still need matched human calibration controls. A paired replay of the
-two winners finds a clear 513–517 ms Nari latency advantage, while the measured
+quality/resource tradeoffs on all four TTS frontiers; both reduce to Qwen3-TTS
+in the simpler model view. The fourth frontier compares intelligibility with a
+whole-service memory measure spanning cold load and the matched workload: Nari
+uses 9.73 GB of combined host/GPU capacity accounting versus vLLM-Omni's 18.84
+GB. MLX and LoudKit measurements remain visible but fail a strict
+zero-loop/zero-token-cap gate. A separate preliminary long-form screen records
+pacing and diarizer-detected speaker changes; naturalness and speaker identity
+still need matched human calibration controls. A paired replay of the two
+winners finds a clear 513–517 ms Nari latency advantage, while the measured
 0.71-point WER difference remains unresolved.
 
 Its [local speech-recognition frontiers](examples/voice-runtime-frontiers/ASR.md)

@@ -129,6 +129,20 @@ metrics:
       minimum_samples: 90
       require_source: true
 
+  tts_peak_service_capacity:
+    kind: signal
+    signal: tts_peak_service_capacity_bytes
+    unit: bytes
+    description: >-
+      Peak whole-service physical-capacity accounting across cold load and the
+      matched prompt panel. Apple rows use unified physical footprint. CUDA rows
+      add host PSS and device allocation from the same sample; lower is more
+      resource-efficient, but fit still requires checking each component peak.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 1
+      require_source: true
+
 frontiers:
   tts-responsive-intelligibility:
     workload: coval-tts-v1-local-whisper-seed-panel
@@ -186,5 +200,27 @@ frontiers:
       [hardware, artifact, artifact_revision, runtime, runtime_config, voice,
        synthesis_seeds, quality_scope, evidence_status, capture_harness_sha256,
        seed_panel_capture]
+
+  tts-small-resident-intelligibility:
+    workload: coval-tts-v1-local-whisper-seed-panel
+    axes:
+      - metric: tts_corpus_wer
+        goal: minimize
+      - metric: tts_peak_service_capacity
+        goal: minimize
+    order_by: tts_peak_service_capacity
+    uncertainty: point
+    eligibility:
+      required_capabilities: [tts]
+      allow_unknown_age: false
+      maximum_gate_values:
+        tts_invalid_case_rate: 0
+    metadata_fields:
+      [hardware, artifact, artifact_revision, runtime, runtime_config, voice,
+       synthesis_seeds, quality_scope, evidence_status, memory_architecture,
+       memory_accounting, memory_axis_warning, peak_host_physical_bytes,
+       peak_device_memory_bytes, host_bytes_at_combined_peak,
+       device_bytes_at_combined_peak, memory_capture_sample_count, memory_capture,
+       memory_capture_sha256, memory_capture_isolation]
 
 selections: {}

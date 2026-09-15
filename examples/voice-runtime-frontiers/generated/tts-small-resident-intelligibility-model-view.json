@@ -4,14 +4,14 @@
   "hash_algorithm": "sha256-rfc8785-v1",
   "policy_id": null,
   "policy_sha256": null,
-  "source_snapshot_id": "ca779c6252fa5f91942d16ffbecd66dbb566edb9af4d604f0a19d8420918b5b0",
-  "frontier_id": "tts-typical-intelligibility",
+  "source_snapshot_id": "d13072852b982a43527eca286b0815dfe699ddad60c6c56b9d528b19701c62b3",
+  "frontier_id": "tts-small-resident-intelligibility",
   "workload": {
     "id": "coval-tts-v1-local-whisper-seed-panel",
     "version": "1.2.0+local-whisper-seed-panel.1",
     "unit": "utterance"
   },
-  "order_by": "tts_playback_ttfa_p50",
+  "order_by": "tts_peak_service_capacity",
   "uncertainty": "point",
   "axes": [
     {
@@ -22,9 +22,9 @@
       "epsilon_relative": "0"
     },
     {
-      "metric": "tts_playback_ttfa_p50",
+      "metric": "tts_peak_service_capacity",
       "goal": "minimize",
-      "unit": "milliseconds",
+      "unit": "bytes",
       "epsilon_absolute": "0",
       "epsilon_relative": "0"
     }
@@ -83,34 +83,34 @@
                 "oldest_observed_at": "2026-09-15T14:21:13Z",
                 "minimum_sample_count": 90
               },
-              "tts_playback_ttfa_p50": {
-                "value": "47.249",
-                "unit": "milliseconds",
+              "tts_peak_service_capacity": {
+                "value": "9728091136",
+                "unit": "bytes",
                 "evidence_tiers": [
                   "measured"
                 ],
                 "lower": null,
                 "upper": null,
                 "dependencies": [
-                  "signals.tts_playback_ttfa_p50_ms"
+                  "signals.tts_peak_service_capacity_bytes"
                 ],
                 "source_ids": [
-                  "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-latency"
+                  "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-service-memory"
                 ],
                 "sources": [
                   {
-                    "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-latency",
+                    "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-service-memory",
                     "version": "1",
                     "url": null,
                     "terms_url": null,
                     "license": null,
-                    "methodology": "Ninety resident synthesis measurements pooled from 30 matched prompts at each of three seeds; percentiles are calculated from utterances, not from per-seed medians.",
-                    "raw_sha256": "bfae3bda1b651451508a0c333c877214da48c4a6ce4a833d951171a8a90d566c",
+                    "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+                    "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2",
                     "retrieved_at": null
                   }
                 ],
-                "oldest_observed_at": "2026-09-15T14:17:55Z",
-                "minimum_sample_count": 90
+                "oldest_observed_at": "2026-09-15T15:37:05.406249Z",
+                "minimum_sample_count": 1
               }
             }
           },
@@ -162,34 +162,34 @@
                 "oldest_observed_at": "2026-09-15T14:35:47Z",
                 "minimum_sample_count": 90
               },
-              "tts_playback_ttfa_p50": {
-                "value": "560.493",
-                "unit": "milliseconds",
+              "tts_peak_service_capacity": {
+                "value": "18844922880",
+                "unit": "bytes",
                 "evidence_tiers": [
                   "measured"
                 ],
                 "lower": null,
                 "upper": null,
                 "dependencies": [
-                  "signals.tts_playback_ttfa_p50_ms"
+                  "signals.tts_peak_service_capacity_bytes"
                 ],
                 "source_ids": [
-                  "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency"
+                  "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-service-memory"
                 ],
                 "sources": [
                   {
-                    "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency",
+                    "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-service-memory",
                     "version": "1",
                     "url": null,
                     "terms_url": null,
                     "license": null,
-                    "methodology": "Ninety resident synthesis measurements pooled from 30 matched prompts at each of three seeds; percentiles are calculated from utterances, not from per-seed medians.",
-                    "raw_sha256": "bfae3bda1b651451508a0c333c877214da48c4a6ce4a833d951171a8a90d566c",
+                    "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+                    "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2",
                     "retrieved_at": null
                   }
                 ],
-                "oldest_observed_at": "2026-09-15T14:34:09Z",
-                "minimum_sample_count": 90
+                "oldest_observed_at": "2026-09-15T15:53:55.392058Z",
+                "minimum_sample_count": 1
               }
             }
           }
@@ -198,5 +198,5 @@
     ]
   },
   "balanced_average": null,
-  "view_id": "eb23efc83c3689f85065e0867f9acbf5054588bbac180663bd7c249029c49fc8"
+  "view_id": "35cd1348a6aad5fb4da1d2baddffeb1ea27f0764d9703edb6d65354af2989a4f"
 }
