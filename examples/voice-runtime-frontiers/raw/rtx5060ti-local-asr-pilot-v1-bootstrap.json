@@ -33,6 +33,32 @@
       },
       "runtime": "Transformers 5.17.0"
     },
+    "Qwen/Qwen3-ASR-0.6B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3": {
+      "capture": "examples/voice-runtime-frontiers/raw/qwen3-asr-06b-bf16-transformers-compile-dynamic-warm3-5060-local-asr-pilot-v1.json",
+      "capture_sha256": "914830f83c3a7e5b8590e00faa6104007fbc259d96443f8e9e8c979cc7b2564f",
+      "hardware": "NVIDIA GeForce RTX 5060 Ti",
+      "interval_95": {
+        "corpus_wer_percentage": [
+          4.538328,
+          13.823563
+        ],
+        "final_latency_p50_ms": [
+          161.685218,
+          202.619986
+        ],
+        "final_latency_p95_ms": [
+          216.019454,
+          586.513171
+        ]
+      },
+      "model": "Qwen/Qwen3-ASR-0.6B-hf",
+      "point": {
+        "corpus_wer_percentage": 8.852459,
+        "final_latency_p50_ms": 189.58313,
+        "final_latency_p95_ms": 273.210295
+      },
+      "runtime": "Transformers 5.17.0"
+    },
     "Qwen/Qwen3-ASR-1.7B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti": {
       "capture": "examples/voice-runtime-frontiers/raw/qwen3-asr-17b-bf16-transformers-5060-local-asr-pilot-v1.json",
       "capture_sha256": "fde120a628a5ec233619a73d6586a6e62097d32f478a590385c5f0278f2eda8d",
@@ -59,6 +85,32 @@
       },
       "runtime": "Transformers 5.17.0"
     },
+    "Qwen/Qwen3-ASR-1.7B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3": {
+      "capture": "examples/voice-runtime-frontiers/raw/qwen3-asr-17b-bf16-transformers-compile-dynamic-warm3-5060-local-asr-pilot-v1.json",
+      "capture_sha256": "783c4a9166b4445ccb4da14f77130fdbe2be22d9f2ffa75e84e8ab1a5100f0b3",
+      "hardware": "NVIDIA GeForce RTX 5060 Ti",
+      "interval_95": {
+        "corpus_wer_percentage": [
+          4.841335,
+          12.773109
+        ],
+        "final_latency_p50_ms": [
+          320.041103,
+          386.459549
+        ],
+        "final_latency_p95_ms": [
+          409.139221,
+          802.786468
+        ]
+      },
+      "model": "Qwen/Qwen3-ASR-1.7B-hf",
+      "point": {
+        "corpus_wer_percentage": 8.52459,
+        "final_latency_p50_ms": 357.394692,
+        "final_latency_p95_ms": 534.430021
+      },
+      "runtime": "Transformers 5.17.0"
+    },
     "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti": {
       "capture": "examples/voice-runtime-frontiers/raw/parakeet-tdt-06b-v3-bf16-transformers-5060-local-asr-pilot-v1.json",
       "capture_sha256": "cba7f4996e6f286ff1eebff18a11673b091103086fd6ea24343be6e0543c9620",
@@ -82,6 +134,32 @@
         "corpus_wer_percentage": 9.016393,
         "final_latency_p50_ms": 68.110079,
         "final_latency_p95_ms": 81.476741
+      },
+      "runtime": "Transformers 5.17.0"
+    },
+    "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=parakeet-static-encoder-compile|static_audio_seconds=16.0|warmup_runs=10": {
+      "capture": "examples/voice-runtime-frontiers/raw/parakeet-tdt-06b-v3-bf16-transformers-compile-static16-warm10-5060-local-asr-pilot-v1.json",
+      "capture_sha256": "fce5ba58f1f93dd07e7c68382b518e57f2a326f0f662c7b01806d874863456f1",
+      "hardware": "NVIDIA GeForce RTX 5060 Ti",
+      "interval_95": {
+        "corpus_wer_percentage": [
+          5.043408,
+          12.086179
+        ],
+        "final_latency_p50_ms": [
+          56.427799,
+          63.395584
+        ],
+        "final_latency_p95_ms": [
+          68.048286,
+          74.54874
+        ]
+      },
+      "model": "nvidia/parakeet-tdt-0.6b-v3",
+      "point": {
+        "corpus_wer_percentage": 8.360656,
+        "final_latency_p50_ms": 60.614202,
+        "final_latency_p95_ms": 74.101231
       },
       "runtime": "Transformers 5.17.0"
     },
@@ -174,6 +252,63 @@
       "definition": "left minus right; negative favors left",
       "interval_95": {
         "corpus_wer_percentage_points": [
+          0.0,
+          0.952419
+        ],
+        "final_latency_p50_ms": [
+          106.622057,
+          165.039776
+        ],
+        "final_latency_p95_ms": [
+          -173.205097,
+          233.461495
+        ]
+      },
+      "left": "Qwen/Qwen3-ASR-0.6B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "Qwen/Qwen3-ASR-0.6B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -1.155116,
+          2.515723
+        ],
+        "final_latency_p50_ms": [
+          -63.769292,
+          -0.689045
+        ],
+        "final_latency_p95_ms": [
+          -395.998287,
+          -16.42214
+        ]
+      },
+      "left": "Qwen/Qwen3-ASR-0.6B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "Qwen/Qwen3-ASR-1.7B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -2.181323,
+          3.633563
+        ],
+        "final_latency_p50_ms": [
+          216.344107,
+          296.145575
+        ],
+        "final_latency_p95_ms": [
+          301.045666,
+          435.37311
+        ]
+      },
+      "left": "Qwen/Qwen3-ASR-0.6B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=parakeet-static-encoder-compile|static_audio_seconds=16.0|warmup_runs=10"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
           -5.053641,
           0.770505
         ],
@@ -212,6 +347,63 @@
       "definition": "left minus right; negative favors left",
       "interval_95": {
         "corpus_wer_percentage_points": [
+          -1.938646,
+          1.250049
+        ],
+        "final_latency_p50_ms": [
+          183.717094,
+          244.092989
+        ],
+        "final_latency_p95_ms": [
+          -77.237392,
+          355.414561
+        ]
+      },
+      "left": "Qwen/Qwen3-ASR-1.7B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "Qwen/Qwen3-ASR-0.6B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          0.0,
+          0.0
+        ],
+        "final_latency_p50_ms": [
+          13.200932,
+          66.433231
+        ],
+        "final_latency_p95_ms": [
+          -292.871271,
+          95.675311
+        ]
+      },
+      "left": "Qwen/Qwen3-ASR-1.7B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "Qwen/Qwen3-ASR-1.7B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -2.24525,
+          2.044032
+        ],
+        "final_latency_p50_ms": [
+          295.737184,
+          378.988726
+        ],
+        "final_latency_p95_ms": [
+          400.667298,
+          557.326176
+        ]
+      },
+      "left": "Qwen/Qwen3-ASR-1.7B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=parakeet-static-encoder-compile|static_audio_seconds=16.0|warmup_runs=10"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
           -1.974917,
           5.141009
         ],
@@ -226,6 +418,177 @@
       },
       "left": "openai/whisper-large-v3-turbo|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
       "right": "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -0.536697,
+          4.1392
+        ],
+        "final_latency_p50_ms": [
+          -78.811501,
+          -41.458616
+        ],
+        "final_latency_p95_ms": [
+          -446.741448,
+          -83.419501
+        ]
+      },
+      "left": "openai/whisper-large-v3-turbo|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "Qwen/Qwen3-ASR-0.6B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -0.770505,
+          5.053641
+        ],
+        "final_latency_p50_ms": [
+          -263.28105,
+          -200.539892
+        ],
+        "final_latency_p95_ms": [
+          -663.014745,
+          -276.739273
+        ]
+      },
+      "left": "openai/whisper-large-v3-turbo|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "Qwen/Qwen3-ASR-1.7B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -0.544514,
+          5.504768
+        ],
+        "final_latency_p50_ms": [
+          59.491299,
+          65.785416
+        ],
+        "final_latency_p95_ms": [
+          56.804431,
+          80.23888
+        ]
+      },
+      "left": "openai/whisper-large-v3-turbo|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=parakeet-static-encoder-compile|static_audio_seconds=16.0|warmup_runs=10"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -2.959617,
+          4.259042
+        ],
+        "final_latency_p50_ms": [
+          -133.716264,
+          -95.02031
+        ],
+        "final_latency_p95_ms": [
+          -505.294803,
+          -138.29173
+        ]
+      },
+      "left": "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "Qwen/Qwen3-ASR-0.6B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -2.150582,
+          4.428278
+        ],
+        "final_latency_p50_ms": [
+          -318.460138,
+          -253.176704
+        ],
+        "final_latency_p95_ms": [
+          -721.5681,
+          -331.634622
+        ]
+      },
+      "left": "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "Qwen/Qwen3-ASR-1.7B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -0.357143,
+          2.434783
+        ],
+        "final_latency_p50_ms": [
+          5.419628,
+          10.561908
+        ],
+        "final_latency_p95_ms": [
+          5.247266,
+          10.22485
+        ]
+      },
+      "left": "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti",
+      "right": "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=parakeet-static-encoder-compile|static_audio_seconds=16.0|warmup_runs=10"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -1.250049,
+          1.938646
+        ],
+        "final_latency_p50_ms": [
+          -190.177254,
+          -151.852747
+        ],
+        "final_latency_p95_ms": [
+          -269.609089,
+          -192.85116
+        ]
+      },
+      "left": "Qwen/Qwen3-ASR-0.6B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3",
+      "right": "Qwen/Qwen3-ASR-1.7B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -2.254491,
+          2.960616
+        ],
+        "final_latency_p50_ms": [
+          103.201862,
+          141.02131
+        ],
+        "final_latency_p95_ms": [
+          145.568877,
+          512.914051
+        ]
+      },
+      "left": "Qwen/Qwen3-ASR-0.6B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3",
+      "right": "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=parakeet-static-encoder-compile|static_audio_seconds=16.0|warmup_runs=10"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -2.24525,
+          2.044032
+        ],
+        "final_latency_p50_ms": [
+          261.425628,
+          325.845348
+        ],
+        "final_latency_p95_ms": [
+          339.068103,
+          729.187348
+        ]
+      },
+      "left": "Qwen/Qwen3-ASR-1.7B-hf|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=qwen-forward-compile-dynamic|static_audio_seconds=None|warmup_runs=3",
+      "right": "nvidia/parakeet-tdt-0.6b-v3|Transformers 5.17.0|NVIDIA GeForce RTX 5060 Ti|optimization=parakeet-static-encoder-compile|static_audio_seconds=16.0|warmup_runs=10"
     }
   ],
   "schema": "model-skyline/experimental-local-asr-bootstrap/v1alpha1",

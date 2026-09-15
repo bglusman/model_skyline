@@ -29,6 +29,17 @@ ENVIRONMENTS = {
     },
 }
 MAC_ENVIRONMENTS = {"Apple M1 Max 64 GB", "Apple M5 Max 64 GB"}
+PREFERRED_OFFERINGS = {
+    ("Qwen3-ASR-0.6B", "rtx5060ti-16gb"): (
+        "self-hosted/qwen3-asr-06b-bf16-compile-dynamic-transformers@rtx5060ti-16gb-en"
+    ),
+    ("Qwen3-ASR-1.7B", "rtx5060ti-16gb"): (
+        "self-hosted/qwen3-asr-17b-bf16-compile-dynamic-transformers@rtx5060ti-16gb-en"
+    ),
+    ("parakeet-tdt-0.6b-v3", "rtx5060ti-16gb"): (
+        "self-hosted/parakeet-tdt-06b-v3-bf16-compile-static16-transformers@rtx5060ti-16gb-en"
+    ),
+}
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -53,7 +64,18 @@ def _render(snapshot_path: Path) -> str:
         if hardware not in included_hardware:
             continue
         environment = ENVIRONMENTS[hardware]["environment_id"]
-        by_model.setdefault(model, {})[environment] = item["offering"]["offering_id"]
+        offering_id = item["offering"]["offering_id"]
+        model_offerings = by_model.setdefault(model, {})
+        previous = model_offerings.get(environment)
+        if previous is None:
+            model_offerings[environment] = offering_id
+            continue
+        preferred = PREFERRED_OFFERINGS.get((model, environment))
+        if preferred is None or preferred not in {previous, offering_id}:
+            raise ValueError(
+                f"multiple {model} offerings for {environment} without an explicit preference"
+            )
+        model_offerings[environment] = preferred
     expected_environments = {
         ENVIRONMENTS[hardware]["environment_id"] for hardware in included_hardware
     }

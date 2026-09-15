@@ -15,8 +15,9 @@ quality/latency frontier.
 The speech-recognition side is now measured on both 64 GB Macs and the RTX
 5060 Ti. **Parakeet TDT 0.6B v3** is the sole combined point-estimate resident
 for WER versus median latency, p95 latency, and throughput. On the 5060 alone,
-Parakeet trades speed against Qwen3-ASR 1.7B's slightly lower point WER. The
-Mac small-resident frontier keeps Parakeet and **Qwen3-ASR 0.6B 8-bit**. See the concise
+an encoder-compiled Parakeet profile dominates every baseline and optimized
+candidate on those point estimates. The Mac small-resident frontier keeps
+Parakeet and **Qwen3-ASR 0.6B 8-bit**. See the concise
 [`local ASR report`](ASR.md) for definitions, exact points, uncertainty, and
 the controlled M1/M5 comparison. CUDA memory is withheld from that frontier
 until the experiment has one cross-platform whole-service measure.
