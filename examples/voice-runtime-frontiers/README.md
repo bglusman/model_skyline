@@ -9,7 +9,8 @@ choice: 57 ms p95 to audible speech and 4.97x real-time generation. vLLM-Omni
 is the measured-intelligibility tradeoff: 9.33% WER versus Nari's 10.04%, but
 roughly half a second slower to speak. Their WER intervals overlap, so this is
 not evidence that one runtime is truly more accurate. These two offerings sit
-on all three measured TTS frontiers.
+on all four measured TTS frontiers. On the new memory frontier, Nari uses 9.73
+GB of combined capacity accounting versus vLLM-Omni's 18.84 GB.
 
 The M5 MLX path is fast and had slightly lower pooled WER than Nari, but one of
 90 utterances contained a conspicuous repeated-word loop and fails the strict
@@ -29,9 +30,9 @@ fresh process through its first complete transcript: it keeps four tradeoffs
 on the 5060 because compilation helps resident requests but hurts activation.
 A ready-runner frontier removes Python/framework and accelerator setup from
 that clock while keeping the model cold; it has the same residents and is
-explicitly an approximation rather than a measured router swap.
-CUDA memory is withheld from the memory frontier until the experiment has one
-cross-platform whole-service measure.
+explicitly an approximation rather than a measured router swap. ASR memory
+remains narrower than TTS memory because the current ASR experiment does not
+yet have the same cross-platform whole-service instrument.
 
 The runnable TTS definitions are [`frontier.yaml`](frontier.yaml), and the five
 exact TTS offerings are in [`observations.json`](observations.json). The latter
@@ -56,7 +57,7 @@ a stable voice are pass/fail gates, not hidden extra dimensions.
 | TTS responsive | corpus word error rate, lower is better | p95 playback-aware time to first audible audio, lower is better | measured 90-utterance seed panel |
 | TTS typical response | corpus word error rate, lower is better | p50 playback-aware time to first audible audio, lower is better | measured 90-utterance seed panel |
 | TTS batch | corpus word error rate, lower is better | sustained real-time factor, higher is better | measured 90-utterance seed panel |
-| TTS small resident | corpus word error rate, lower is better | peak whole-service memory, lower is better | defined; awaiting comparable memory captures |
+| TTS small resident | corpus word error rate, lower is better | peak whole-service capacity accounting, lower is better | measured across cold load plus the 90-utterance panel |
 | STT responsive | corpus word error rate, lower is better | p95 resident complete-file-to-final latency, lower is better | measured 24-utterance pilot |
 | STT typical response | corpus word error rate, lower is better | p50 resident complete-file-to-final latency, lower is better | measured 24-utterance pilot |
 | STT batch | corpus word error rate, lower is better | corpus real-time factor, higher is better | measured 24-utterance pilot |
@@ -104,13 +105,45 @@ factor (seconds of audio produced per wall second) is better.
 | LoudKit `loudr-1-turbo`, PyTorch/CUDA, RTX 5060 Ti | 11.52% (6.40–18.62) | 501 ms | 595 ms | **14.40x** | 3/90 | excluded: token caps |
 | LoudKit `loudr-1-turbo`, CPU generator/MPS renderer, M5 Max | 11.33% (6.53–17.67) | 1,082 ms | 1,422 ms | 6.24x | 2/90 | excluded: token caps |
 
-All three exact frontiers now contain the same two offerings. Nari is much
+All four exact frontiers now contain the same two offerings. Nari is much
 faster on both latency axes and has higher sustained throughput; vLLM-Omni has
 the lower WER point estimate. Neither dominates the other, so both remain for
-responsive, typical-response, and batch use. Across 1,554 normalized reference
-words, Nari made 156 errors and vLLM-Omni made 145. Their descriptive intervals
-overlap substantially, so the evidence does not establish a real accuracy
-ordering.
+responsive, typical-response, batch, and memory-efficiency use. Across 1,554
+normalized reference words, Nari made 156 errors and vLLM-Omni made 145. Their
+descriptive intervals overlap substantially, so the evidence does not establish
+a real accuracy ordering.
+
+### Whole-service memory frontier
+
+The memory frontier compares the same corpus WER with peak capacity charged to
+the complete selected serving process tree. Each capture starts before model
+load and spans the same three 30-prompt seed runs. It therefore includes
+transient load costs as well as resident inference; it is not just model-file
+size or one idle RSS reading.
+
+| Exact offering | Peak combined accounting | Independent host peak | Independent GPU peak | Strict result |
+|---|---:|---:|---:|---|
+| LoudKit, M5 Max | **3.37 GB unified** | 3.37 GB | — | excluded: 2/90 token caps |
+| Qwen3-TTS 6-bit MLX, M5 Max | 3.95 GB unified | 3.95 GB | — | excluded: 1/90 repetition warning |
+| LoudKit, RTX 5060 Ti | 4.22 GB | 2.50 GB | 1.72 GB | excluded: 3/90 token caps |
+| Qwen3-TTS BF16, patched Nari, RTX 5060 Ti | **9.73 GB** | 5.51 GB | 6.91 GB | resident; smaller eligible point |
+| Qwen3-TTS BF16, vLLM-Omni, RTX 5060 Ti | 18.84 GB | 7.31 GB | 12.38 GB | resident; lower WER point estimate |
+
+For Apple, “combined” is the kernel-accounted unified physical footprint. For
+CUDA, it is host PSS plus GPU allocation measured in the same sample. That
+makes the second axis a useful resource-efficiency comparison, but not a claim
+that Apple and CUDA bytes are interchangeable. A split-memory system fits only
+when both its independent host peak and independent GPU peak fit their own
+pools. The combined CUDA number can be lower than the sum of those two peaks
+because the component maxima need not occur at the same instant.
+
+The strict frontier still retains Nari and vLLM-Omni: Nari is smaller, while
+vLLM-Omni has the lower WER point estimate. Among eligible rows, Nari reduces
+combined accounting by about 48% and the independent GPU peak by about 44%.
+The three smaller rows remain visible, but their deterministic failures are
+admission gates rather than a hidden third axis. The model-first view again
+reduces both eligible offerings to Qwen3-TTS; there is still no balanced
+cross-model environment panel from which to compute an honest average.
 
 ### What the matched winner comparison adds
 
@@ -153,10 +186,9 @@ The batch result changed materially from the one-seed screen. MLX's 5.43x RTF
 would otherwise be competitive, while CUDA LoudKit is the raw throughput
 leader at 14.40x; both fail the zero-warning gate. Nari and vLLM-Omni remain a
 quality/throughput tradeoff rather than collapsing to one winner.
-Peak-memory numbers are not mixed yet because MLX
-accelerator peaks, process RSS, and multi-process CUDA allocations are
-different measurements. The memory frontier will use one defined whole-service
-measure for every row.
+The separate memory frontier avoids mixing ordinary RSS, model-file sizes, and
+runtime-specific allocator counters by using one process-tree definition and
+retaining the unified-versus-split accounting distinction.
 
 ### Matched hardware-only controls
 
@@ -342,8 +374,9 @@ MiB of resident CUDA allocation after startup, produced byte-identical audio
 through direct and llama-swap endpoints, and delivered the pooled panel at
 47 ms median and 57 ms p95 first audible audio. A text-model → Nari → unload
 switch test left one runner and one lock holder at each step. The 6,586 MiB
-number is a resident observation, not yet the cross-runtime peak-memory
-measurement required by the memory frontier.
+number is a resident CUDA observation. The cross-runtime capture above is
+broader: it includes host PSS, model load, and all three seed runs, reaching a
+6.91 GB independent device peak and 9.73 GB same-sample combined peak.
 
 Nari suppresses Qwen's fixed bootstrap audio in the server. The independent
 MLX path uses a guarded client-side version: it drops the 1,920-sample frame
@@ -489,6 +522,8 @@ python examples/voice-runtime-frontiers/compare_tts_seed_panel.py \
   --aggregate examples/voice-runtime-frontiers/raw/tts-seed-panel-v1-results.json \
   --output \
     examples/voice-runtime-frontiers/raw/tts-seed-panel-v1-paired-comparisons.json
+python examples/voice-runtime-frontiers/build_tts_service_memory_panel.py \
+  --check
 python examples/voice-runtime-frontiers/build_observations.py
 modelskyline validate \
   examples/voice-runtime-frontiers/frontier.yaml \
@@ -510,8 +545,8 @@ measurements, and transcriptions without adding unexpected audio playback.
    preliminary long-form diarization screen into a calibrated admission gate.
 3. Record matched human controls, align pauses to punctuation, and only then
    calibrate speaking-rate and pause gates.
-4. Capture whole-service peak memory with one definition across MLX, PyTorch,
-   and multi-process CUDA servers.
+4. Repeat whole-service memory captures to quantify run-to-run peak variation,
+   then add comparable ASR and complete voice-pipeline memory panels.
 5. Measure Qwen3-ASR, Whisper, and Parakeet on a small conversational, noisy,
    technical-vocabulary, and accented panel, retaining
    both partial latency and final-transcript latency.

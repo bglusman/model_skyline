@@ -43,7 +43,18 @@
           "a9e93d793ff758e6ee94b1291a1b1a9bf4815eb9fe2b0b807d6a3b4b8103b39e",
           "2363c64f23131b7eee4c6c61110884c18b91e3b78718ef0b3997cd9754debd24",
           "ef43dc7a46333744a72af5026540cb130430d0877efd96967530eb8d755fd46c"
-        ]
+        ],
+        "memory_architecture": "apple_unified",
+        "memory_accounting": "unified physical footprint",
+        "memory_axis_warning": "The combined split-memory value compares resource efficiency; fit still requires checking the independent host and device peaks.",
+        "peak_host_physical_bytes": 3951873624,
+        "peak_device_memory_bytes": null,
+        "host_bytes_at_combined_peak": 3951873624,
+        "device_bytes_at_combined_peak": null,
+        "memory_capture_sample_count": 1492,
+        "memory_capture": "raw/tts-service-memory-v1/qwen-mlx-memory.json",
+        "memory_capture_sha256": "dab61225d01047a7652ea6710a71e8347875579ddad18fcfafa3c20888e4e50f",
+        "memory_capture_isolation": "exclusive local-model lock; router reported no active model"
       },
       "signals": {
         "tts_corpus_wer_percent": {
@@ -143,6 +154,30 @@
             "methodology": "Deterministic reference-word rate and energy-pause proxies from the same saved audio; no naturalness threshold is asserted.",
             "raw_sha256": "bfae3bda1b651451508a0c333c877214da48c4a6ce4a833d951171a8a90d566c"
           }
+        },
+        "tts_peak_service_capacity_bytes": {
+          "value": "3951873624",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T15:14:53.000689Z",
+          "source": {
+            "id": "voice-seed-panel-qwen3-tts-1.7b-6bit-mlx-m5-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
+        },
+        "tts_peak_host_physical_bytes": {
+          "value": "3951873624",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T15:14:53.000689Z",
+          "source": {
+            "id": "voice-seed-panel-qwen3-tts-1.7b-6bit-mlx-m5-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
         }
       }
     },
@@ -184,7 +219,18 @@
           "4e5a3831102928f22008f6bfb07d82682ffebc7b9e723a4ad1b182decce48ca1",
           "6ebcce76e4bab709555a0c2edcb161dda8de4ca104e84833b9de96d64ac0dd9d",
           "6e7b51c361c0429bc52b342d8aa929935d29bcb5bad7b032515680e5b32d044c"
-        ]
+        ],
+        "memory_architecture": "linux_split_cuda",
+        "memory_accounting": "host PSS plus CUDA device memory in the same sample",
+        "memory_axis_warning": "The combined split-memory value compares resource efficiency; fit still requires checking the independent host and device peaks.",
+        "peak_host_physical_bytes": 7312684032,
+        "peak_device_memory_bytes": 12379488256,
+        "host_bytes_at_combined_peak": 7312684032,
+        "device_bytes_at_combined_peak": 11532238848,
+        "memory_capture_sample_count": 1093,
+        "memory_capture": "raw/tts-service-memory-v1/vllm-clean-memory.json",
+        "memory_capture_sha256": "c7bd334d61d8fcbf0a4d68519635ab7eaec23a906952f5143f236bd0d6819fbc",
+        "memory_capture_isolation": "llama-swap and Ollama stopped; GPU empty before load; exclusive lock held; services restored afterward"
       },
       "signals": {
         "tts_corpus_wer_percent": {
@@ -284,6 +330,42 @@
             "methodology": "Deterministic reference-word rate and energy-pause proxies from the same saved audio; no naturalness threshold is asserted.",
             "raw_sha256": "bfae3bda1b651451508a0c333c877214da48c4a6ce4a833d951171a8a90d566c"
           }
+        },
+        "tts_peak_service_capacity_bytes": {
+          "value": "18844922880",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T15:53:55.392058Z",
+          "source": {
+            "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
+        },
+        "tts_peak_host_physical_bytes": {
+          "value": "7312684032",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T15:53:55.392058Z",
+          "source": {
+            "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
+        },
+        "tts_peak_device_memory_bytes": {
+          "value": "12379488256",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T15:53:55.392058Z",
+          "source": {
+            "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
         }
       }
     },
@@ -325,7 +407,18 @@
           "b1bb07f95d75df0691af11a88a9e8b90d112fc621fa95846467ab81b4df9d934",
           "8c268254bc93a8e311b95a2211a3c3699bcaf8e2a5ceadffc3bc8bd4a9c5a72e",
           "fd8235d92e33b0adc7b1974b557baccdd0e2b59c5c829a701048ad0201b62449"
-        ]
+        ],
+        "memory_architecture": "linux_split_cuda",
+        "memory_accounting": "host PSS plus CUDA device memory in the same sample",
+        "memory_axis_warning": "The combined split-memory value compares resource efficiency; fit still requires checking the independent host and device peaks.",
+        "peak_host_physical_bytes": 5508613120,
+        "peak_device_memory_bytes": 6905921536,
+        "host_bytes_at_combined_peak": 3048662016,
+        "device_bytes_at_combined_peak": 6679429120,
+        "memory_capture_sample_count": 773,
+        "memory_capture": "raw/tts-service-memory-v1/nari-memory.json",
+        "memory_capture_sha256": "fc0bf08d0f6c1896f5826e107d471b8de1a2983c86a7e6f5c1be09e8c1a34302",
+        "memory_capture_isolation": "llama-swap exclusive group; GPU empty before load; route explicitly unloaded afterward"
       },
       "signals": {
         "tts_corpus_wer_percent": {
@@ -425,6 +518,42 @@
             "methodology": "Deterministic reference-word rate and energy-pause proxies from the same saved audio; no naturalness threshold is asserted.",
             "raw_sha256": "bfae3bda1b651451508a0c333c877214da48c4a6ce4a833d951171a8a90d566c"
           }
+        },
+        "tts_peak_service_capacity_bytes": {
+          "value": "9728091136",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T15:37:05.406249Z",
+          "source": {
+            "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
+        },
+        "tts_peak_host_physical_bytes": {
+          "value": "5508613120",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T15:37:05.406249Z",
+          "source": {
+            "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
+        },
+        "tts_peak_device_memory_bytes": {
+          "value": "6905921536",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T15:37:05.406249Z",
+          "source": {
+            "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
         }
       }
     },
@@ -465,7 +594,18 @@
           "50e3c213d5dfac68b267a44d80c03d776f41d728ad1abe3b4227962162df6ead",
           "aba2552a405b3f050369207d2fc56c453368ee3a8c91fec78849b66448fa9a3e",
           "261171eaa33e4578f1c36d2179edd1e5b67a0d0af7c4cf4e8b431b2517e6a6b1"
-        ]
+        ],
+        "memory_architecture": "apple_unified",
+        "memory_accounting": "unified physical footprint",
+        "memory_axis_warning": "The combined split-memory value compares resource efficiency; fit still requires checking the independent host and device peaks.",
+        "peak_host_physical_bytes": 3372092296,
+        "peak_device_memory_bytes": null,
+        "host_bytes_at_combined_peak": 3372092296,
+        "device_bytes_at_combined_peak": null,
+        "memory_capture_sample_count": 1158,
+        "memory_capture": "raw/tts-service-memory-v1/loudkit-m5-memory.json",
+        "memory_capture_sha256": "8f1731b50d3667534405d8949b4878845282c629955185f6330f237933f4cea8",
+        "memory_capture_isolation": "exclusive local-model lock; router reported no active model"
       },
       "signals": {
         "tts_corpus_wer_percent": {
@@ -565,6 +705,30 @@
             "methodology": "Deterministic reference-word rate and energy-pause proxies from the same saved audio; no naturalness threshold is asserted.",
             "raw_sha256": "bfae3bda1b651451508a0c333c877214da48c4a6ce4a833d951171a8a90d566c"
           }
+        },
+        "tts_peak_service_capacity_bytes": {
+          "value": "3372092296",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T15:31:59.975758Z",
+          "source": {
+            "id": "voice-seed-panel-loudr-1-turbo-loudkit-m5-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
+        },
+        "tts_peak_host_physical_bytes": {
+          "value": "3372092296",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T15:31:59.975758Z",
+          "source": {
+            "id": "voice-seed-panel-loudr-1-turbo-loudkit-m5-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
         }
       }
     },
@@ -605,7 +769,18 @@
           "94347d1103b29c8e2542fa13b768b63216c42678132629a9478b9a456c9814c1",
           "d0e0df6de9508dbc6f7c6eea10216f6f5dead0152a913d9be5cd222d87b83fce",
           "60c01c29113095f3a03bdfb979f282e06f2f3ce7c5000a5862c5a7b7359c8207"
-        ]
+        ],
+        "memory_architecture": "linux_split_cuda",
+        "memory_accounting": "host PSS plus CUDA device memory in the same sample",
+        "memory_axis_warning": "The combined split-memory value compares resource efficiency; fit still requires checking the independent host and device peaks.",
+        "peak_host_physical_bytes": 2503633920,
+        "peak_device_memory_bytes": 1719664640,
+        "host_bytes_at_combined_peak": 2503633920,
+        "device_bytes_at_combined_peak": 1719664640,
+        "memory_capture_sample_count": 339,
+        "memory_capture": "raw/tts-service-memory-v1/loudkit-clean-memory.json",
+        "memory_capture_sha256": "7ed7003a66bba1764febcb1cc562b6f3a052fd2e5cb17dfaaf4916259a9f875a",
+        "memory_capture_isolation": "llama-swap and Ollama stopped; GPU empty before each load; exclusive lock held; services restored afterward"
       },
       "signals": {
         "tts_corpus_wer_percent": {
@@ -704,6 +879,42 @@
             "version": "1",
             "methodology": "Deterministic reference-word rate and energy-pause proxies from the same saved audio; no naturalness threshold is asserted.",
             "raw_sha256": "bfae3bda1b651451508a0c333c877214da48c4a6ce4a833d951171a8a90d566c"
+          }
+        },
+        "tts_peak_service_capacity_bytes": {
+          "value": "4223298560",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T16:01:20.773093Z",
+          "source": {
+            "id": "voice-seed-panel-loudr-1-turbo-loudkit-5060-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
+        },
+        "tts_peak_host_physical_bytes": {
+          "value": "2503633920",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T16:01:20.773093Z",
+          "source": {
+            "id": "voice-seed-panel-loudr-1-turbo-loudkit-5060-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
+          }
+        },
+        "tts_peak_device_memory_bytes": {
+          "value": "1719664640",
+          "unit": "bytes",
+          "sample_count": 1,
+          "observed_at": "2026-09-15T16:01:20.773093Z",
+          "source": {
+            "id": "voice-seed-panel-loudr-1-turbo-loudkit-5060-service-memory",
+            "version": "1",
+            "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+            "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2"
           }
         }
       }

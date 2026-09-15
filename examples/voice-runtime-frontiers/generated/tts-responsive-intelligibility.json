@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "0f345df4341ea8c817e0ea3713d9b8c1c48b124fcd80fb88ce83b19609ed6d5a",
+  "snapshot_id": "16b2bacf1d646304284642a50cbdf163e441ebb93e6bd53e478dbab29f149692",
   "config_hash": "8a2ca63045156d7dbd5c340b075032d87ae02772009b6e0763dc3ab1d24ddc75",
-  "catalog_hash": "6696b53e0540c41c4b4fe4fa8753fb0d4b718a302f0800ae14bd829878ecf062",
+  "catalog_hash": "aa9dd73546110fd860e446931d95e568a5dfd955e253043486e7ce9d4012855b",
   "engine_version": "0.9.0",
-  "generated_at": "2026-09-15T14:45:00Z",
+  "generated_at": "2026-09-15T16:10:00Z",
   "frontier_id": "tts-responsive-intelligibility",
   "workload": {
     "id": "coval-tts-v1-local-whisper-seed-panel",
@@ -448,8 +448,8 @@
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
     "config_hash": "8a2ca63045156d7dbd5c340b075032d87ae02772009b6e0763dc3ab1d24ddc75",
-    "catalog_hash": "6696b53e0540c41c4b4fe4fa8753fb0d4b718a302f0800ae14bd829878ecf062",
-    "generated_at": "2026-09-15T14:45:00Z",
+    "catalog_hash": "aa9dd73546110fd860e446931d95e568a5dfd955e253043486e7ce9d4012855b",
+    "generated_at": "2026-09-15T16:10:00Z",
     "workload": {
       "id": "coval-tts-v1-local-whisper-seed-panel",
       "version": "1.2.0+local-whisper-seed-panel.1",
@@ -869,10 +869,20 @@
         }
       }
     ],
-    "inventory_id": "d7a04fe98bef321020a84e50b9e681e37778d407db37cde43452e548f2f41985"
+    "inventory_id": "782c80b8558dc558bcf9c3f41492bb8c385ff0ccb630147e78bdc4727db4609d"
   },
   "public_release_blocked": false,
   "sources": [
+    {
+      "id": "voice-seed-panel-qwen3-tts-1.7b-6bit-mlx-m5-service-memory",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+      "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2",
+      "retrieved_at": null
+    },
     {
       "id": "voice-seed-panel-loudr-1-turbo-loudkit-5060-wer",
       "version": "1",
@@ -881,6 +891,16 @@
       "license": null,
       "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2; bounds are a descriptive two-stage bootstrap over seeds and prompts.",
       "raw_sha256": "bfae3bda1b651451508a0c333c877214da48c4a6ce4a833d951171a8a90d566c",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-service-memory",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+      "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2",
       "retrieved_at": null
     },
     {
@@ -934,6 +954,26 @@
       "retrieved_at": null
     },
     {
+      "id": "voice-seed-panel-loudr-1-turbo-loudkit-m5-service-memory",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+      "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-service-memory",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+      "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2",
+      "retrieved_at": null
+    },
+    {
       "id": "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-pacing",
       "version": "1",
       "url": null,
@@ -971,6 +1011,16 @@
       "license": null,
       "methodology": "Ninety resident synthesis measurements pooled from 30 matched prompts at each of three seeds; percentiles are calculated from utterances, not from per-seed medians.",
       "raw_sha256": "bfae3bda1b651451508a0c333c877214da48c4a6ce4a833d951171a8a90d566c",
+      "retrieved_at": null
+    },
+    {
+      "id": "voice-seed-panel-loudr-1-turbo-loudkit-5060-service-memory",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "One continuous whole-service capture spanning cold load and three matched 30-prompt runs. Apple rows use process-tree physical footprint. CUDA rows use same-sample host PSS plus device allocation; component peaks remain separate.",
+      "raw_sha256": "d4e3c7a5e92121c06583a00a9bffb23ef9778165179b5f870d98c2c80e74b5c2",
       "retrieved_at": null
     },
     {
@@ -1038,17 +1088,22 @@
     "voice-seed-panel-qwen3-tts-1.7b-6bit-mlx-m5-wer": "2026-09-15T14:30:41Z",
     "voice-seed-panel-qwen3-tts-1.7b-6bit-mlx-m5-latency": "2026-09-15T14:30:41Z",
     "voice-seed-panel-qwen3-tts-1.7b-6bit-mlx-m5-pacing": "2026-09-15T14:30:41Z",
+    "voice-seed-panel-qwen3-tts-1.7b-6bit-mlx-m5-service-memory": "2026-09-15T15:14:53.000689Z",
     "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-wer": "2026-09-15T14:35:47Z",
     "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-latency": "2026-09-15T14:38:02Z",
     "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-pacing": "2026-09-15T14:38:02Z",
+    "voice-seed-panel-qwen3-tts-1.7b-bf16-vllm-omni-5060-service-memory": "2026-09-15T15:53:55.392058Z",
     "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-wer": "2026-09-15T14:21:13Z",
     "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-latency": "2026-09-15T14:21:33Z",
     "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-pacing": "2026-09-15T14:21:33Z",
+    "voice-seed-panel-qwen3-tts-1.7b-bf16-nari-router-5060-service-memory": "2026-09-15T15:37:05.406249Z",
     "voice-seed-panel-loudr-1-turbo-loudkit-m5-wer": "2026-09-15T14:27:02Z",
     "voice-seed-panel-loudr-1-turbo-loudkit-m5-latency": "2026-09-15T14:30:42Z",
     "voice-seed-panel-loudr-1-turbo-loudkit-m5-pacing": "2026-09-15T14:30:42Z",
+    "voice-seed-panel-loudr-1-turbo-loudkit-m5-service-memory": "2026-09-15T15:31:59.975758Z",
     "voice-seed-panel-loudr-1-turbo-loudkit-5060-wer": "2026-09-15T14:27:13Z",
     "voice-seed-panel-loudr-1-turbo-loudkit-5060-latency": "2026-09-15T14:30:42Z",
-    "voice-seed-panel-loudr-1-turbo-loudkit-5060-pacing": "2026-09-15T14:30:42Z"
+    "voice-seed-panel-loudr-1-turbo-loudkit-5060-pacing": "2026-09-15T14:30:42Z",
+    "voice-seed-panel-loudr-1-turbo-loudkit-5060-service-memory": "2026-09-15T16:01:20.773093Z"
   }
 }

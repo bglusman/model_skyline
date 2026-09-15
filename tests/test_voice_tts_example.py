@@ -140,6 +140,7 @@ def test_nari_router_capture_is_exact_bound_and_on_the_latency_frontiers() -> No
         "tts-responsive-intelligibility",
         "tts-typical-intelligibility",
         "tts-batch-intelligibility",
+        "tts-small-resident-intelligibility",
     ):
         snapshot = json.loads(
             (EXAMPLE / "generated" / f"{frontier_id}.json").read_text(encoding="utf-8")
@@ -224,6 +225,7 @@ def test_tts_seed_panel_frontiers_have_two_exact_and_one_model_winner() -> None:
         "tts-responsive-intelligibility",
         "tts-typical-intelligibility",
         "tts-batch-intelligibility",
+        "tts-small-resident-intelligibility",
     ):
         snapshot = json.loads(
             (EXAMPLE / "generated" / f"{frontier_id}.json").read_text(encoding="utf-8")
