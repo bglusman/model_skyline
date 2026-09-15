@@ -33,6 +33,30 @@ models:
       tools: true
       context: 131072
 
+  muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none:
+    name: Muse Glimmer 30B AD-IQ3_XXS 128K Q4 KV (llama.cpp)
+    cmd: >-
+      /usr/local/libexec/model-skyline/local-model-exclusive
+      /opt/llama-cpp/build-5266f24/bin/llama-server
+      --model /opt/models/model-skyline/Muse-Glimmer-30B-AD-IQ3_XXS.gguf
+      --alias muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none
+      --host 127.0.0.1 --port ${PORT}
+      --ctx-size 131072 --parallel 1
+      --batch-size 2048 --ubatch-size 512
+      --threads 6 --threads-batch 6
+      --n-gpu-layers all --flash-attn on
+      --cache-type-k q4_0 --cache-type-v q4_0
+      --fit off --load-mode none --cache-ram 0
+      --jinja
+    proxy: http://127.0.0.1:${PORT}
+    checkEndpoint: /health
+    ttl: 900
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 131072
+
   qwen3.5:9b:
     name: Qwen3.5 9B Q4_K_M (Ollama control)
     cmd: /usr/local/libexec/model-skyline/llama-swap-ollama-hold
@@ -74,6 +98,7 @@ routing:
           exclusive: true
           members:
             - qwen35-9b-q6k-ctx128k-q8kv-load-none
+            - muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none
             - qwen3.5:9b
             - qwen3-embedding:0.6b
             - Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice

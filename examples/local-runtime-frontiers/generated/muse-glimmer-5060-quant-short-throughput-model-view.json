@@ -1,0 +1,121 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": null,
+  "policy_sha256": null,
+  "source_snapshot_id": "6cf04977f277598f5e87e869ccd40b8fbf37d9a8da46f7e6f384bb939cc2a4d5",
+  "frontier_id": "short-throughput-envelope",
+  "workload": {
+    "id": "llama-bench-pp2048-tg512",
+    "version": "llama.cpp@5266f24da/model-skyline@v1",
+    "unit": "benchmark_run"
+  },
+  "order_by": "decode_throughput",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "prompt_throughput",
+      "goal": "maximize",
+      "unit": "token/s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.03"
+    },
+    {
+      "metric": "decode_throughput",
+      "goal": "maximize",
+      "unit": "token/s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.03"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output-llama.cpp-e87ed9f09f31ff85",
+              "model_id": "meta-models/Muse-Glimmer-30B",
+              "provider": "local:inference-vm-rtx5060ti16",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "nvidia-default-180w-limit",
+              "quantization": "ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output",
+              "reasoning_effort": null,
+              "agent_harness": "none",
+              "capabilities": [
+                "text"
+              ]
+            },
+            "axes": {
+              "prompt_throughput": {
+                "value": "1109.02",
+                "unit": "token/s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "1096.8",
+                "upper": "1114.78",
+                "dependencies": [
+                  "signals.local_prompt_tokens_per_second"
+                ],
+                "source_ids": [
+                  "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv",
+                    "version": "llama-bench@build-2515",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                    "raw_sha256": "d23632b69481a504026555c53776bd7b291da3a1cd3ee183b77ee77ad663dbdb",
+                    "retrieved_at": "2026-09-15T22:23:26.747201Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T22:23:26.747201Z",
+                "minimum_sample_count": 5
+              },
+              "decode_throughput": {
+                "value": "30.6355",
+                "unit": "token/s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "30.634",
+                "upper": "30.6433",
+                "dependencies": [
+                  "signals.local_decode_tokens_per_second"
+                ],
+                "source_ids": [
+                  "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv",
+                    "version": "llama-bench@build-2515",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                    "raw_sha256": "d23632b69481a504026555c53776bd7b291da3a1cd3ee183b77ee77ad663dbdb",
+                    "retrieved_at": "2026-09-15T22:23:26.747201Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T22:23:26.747201Z",
+                "minimum_sample_count": 5
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": null,
+  "view_id": "3c9bf4f7b9d19b4f92ffb5edd922422103fb740652bb20e482163a34f3decc7a"
+}

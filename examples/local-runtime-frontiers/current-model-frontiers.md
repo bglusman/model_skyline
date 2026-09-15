@@ -33,6 +33,10 @@ beginning, middle, and end of three separate 126,002-token prompts. Its middle
 run peaked at 11.72 GB of combined host/GPU service capacity. It has not run
 the coding-quality pilot, so this is a long-context and runtime recommendation,
 not evidence that it is a stronger coding model than the 64 GB Mac choices.
+**Muse Glimmer 30B AD-IQ3_XXS** is now a second measured 128K-class route on
+that GPU. It also passes the three retrieval positions and 30-tool screen, but
+it is slower and has not run the coding-quality pilot; its reason to remain a
+candidate is potential model quality, not a current frontier win.
 
 ## Best-available model frontiers
 
@@ -222,6 +226,44 @@ The generated model views are [short speed](generated/qwen35-laguna-5060-short-t
 [uncached tools](generated/qwen35-laguna-5060-tool-miss-screen-model-view.json),
 [validated context versus service memory](generated/qwen35-laguna-5060-validated-capacity-service-memory-screen-model-view.json),
 and [validated context versus latency](generated/qwen35-laguna-5060-validated-capacity-latency-screen-model-view.json).
+
+## RTX 5060 Muse quantization frontier
+
+This same-checkpoint comparison keeps the base model, GPU, llama.cpp build,
+131,072-token allocation, Q4 KV, and benchmark positions fixed. AtomicChat's
+calibrated AD-IQ3_XXS is compared with a ShoeHorn 3.758-bpw fit that forces the
+embedding and output tensors to IQ4_XS.
+
+| Meaning of “best” | Two quantities compared | Frontier resident(s) | Plain-English reading |
+| --- | --- | --- | --- |
+| Raw short speed | prompt speed ↑ × generation speed ↑ | **ShoeHorn fit** | ShoeHorn leads prompt processing (1,109.02 vs 1,022.59 tok/s). The control's 2.4% generation lead (31.3664 vs 30.6355 tok/s) is inside this frontier's 3% practical-equivalence tolerance. |
+| Correct, fast warm tool use | exact tool success ↑ × turnaround time ↓ | **AD-IQ3_XXS** | Both pass 3/3, but the control's median is 4.929 s versus 8.799 s. |
+| Lower held-out loss in fewer bytes | perplexity ↓ × artifact bytes ↓ | **AD-IQ3_XXS** | The control is smaller and scores 5.2003 versus 5.7316. This is a quantization gate, not a general coding-quality frontier. |
+
+Both artifacts also return the exact hidden value with the needle near the
+beginning, middle, and end of roughly 126K input tokens. That prevents a false
+rejection of the custom file, but does not erase its worse held-out loss,
+slower decode, or much longer reasoning on some prompts. The deployed and
+recommended Muse route is therefore **AD-IQ3_XXS**. The ShoeHorn result remains
+publishable evidence that a custom fit can preserve checked semantics while
+still losing the overall deployment decision.
+
+The machine-readable narrow speed result is the
+[offering frontier](generated/muse-glimmer-5060-quant-short-throughput-frontier.json)
+with its [model view](generated/muse-glimmer-5060-quant-short-throughput-model-view.json).
+It deliberately does not hide the separate promotion gate: “frontier member
+for raw speed” and “recommended deployment” are different statements.
+The matched warm-tool [offering frontier](generated/muse-glimmer-5060-quant-tool-warm-p2048-o1024-frontier.json)
+and [model view](generated/muse-glimmer-5060-quant-tool-warm-p2048-o1024-model-view.json)
+select the calibrated control after both candidates clear the exact-call gate.
+
+In the broader 5060 raw-speed set, both Muse offerings are dominated by Qwen3.5
+9B Q6: Qwen processes and generates faster. Muse cannot enter a quality × speed
+or quality × memory frontier until the same local coding-quality workload is
+run. Publisher benchmark scores are not substituted for that missing local
+quant evidence. The expanded [offering frontier](generated/qwen35-laguna-muse-5060-short-throughput-frontier.json)
+and [model view](generated/qwen35-laguna-muse-5060-short-throughput-model-view.json)
+retain Qwen and Laguna and exclude Muse on this exact raw-speed definition.
 
 ## What the two Macs tell us
 

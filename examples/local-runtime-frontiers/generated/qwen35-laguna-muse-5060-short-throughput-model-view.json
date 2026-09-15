@@ -1,0 +1,203 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": null,
+  "policy_sha256": null,
+  "source_snapshot_id": "fb1f929676418ed1e42bd880112628117454562b1af52aff7db26b1342ae2e0a",
+  "frontier_id": "short-throughput-envelope",
+  "workload": {
+    "id": "llama-bench-pp2048-tg512",
+    "version": "llama.cpp@5266f24da/model-skyline@v1",
+    "unit": "benchmark_run"
+  },
+  "order_by": "decode_throughput",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "prompt_throughput",
+      "goal": "maximize",
+      "unit": "token/s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.03"
+    },
+    {
+      "metric": "decode_throughput",
+      "goal": "maximize",
+      "unit": "token/s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.03"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "poolside/Laguna-XS-2.1",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/inference-vm-rtx5060ti16/poolside/Laguna-XS-2.1@gguf-Q2_K_L-llama.cpp-1fbc02a5889e2445",
+              "model_id": "poolside/Laguna-XS-2.1",
+              "provider": "local:inference-vm-rtx5060ti16",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "nvidia-default-180w-limit",
+              "quantization": "Q2_K_L",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline/llama-bench@v1",
+              "capabilities": [
+                "text"
+              ]
+            },
+            "axes": {
+              "prompt_throughput": {
+                "value": "2070.5",
+                "unit": "token/s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "2035.94",
+                "upper": "2091.28",
+                "dependencies": [
+                  "signals.local_prompt_tokens_per_second"
+                ],
+                "source_ids": [
+                  "local-measurement:laguna-xs21-q2kl-5060-pp2048-tg512"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:laguna-xs21-q2kl-5060-pp2048-tg512",
+                    "version": "llama-bench@build-2515",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                    "raw_sha256": "22e2d1b711379aa88af868e6b23051c4e0f2d5a7e8e76c7961fc3d88d898b941",
+                    "retrieved_at": "2026-09-15T17:27:16.259531Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T17:27:16.259531Z",
+                "minimum_sample_count": 5
+              },
+              "decode_throughput": {
+                "value": "139.458",
+                "unit": "token/s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "139.408",
+                "upper": "139.503",
+                "dependencies": [
+                  "signals.local_decode_tokens_per_second"
+                ],
+                "source_ids": [
+                  "local-measurement:laguna-xs21-q2kl-5060-pp2048-tg512"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:laguna-xs21-q2kl-5060-pp2048-tg512",
+                    "version": "llama-bench@build-2515",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                    "raw_sha256": "22e2d1b711379aa88af868e6b23051c4e0f2d5a7e8e76c7961fc3d88d898b941",
+                    "retrieved_at": "2026-09-15T17:27:16.259531Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T17:27:16.259531Z",
+                "minimum_sample_count": 5
+              }
+            }
+          }
+        ]
+      },
+      {
+        "model_id": "Qwen/Qwen3.5-9B",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/inference-vm-rtx5060ti16/Qwen/Qwen3.5-9B@gguf-Q6_K-llama.cpp-bc5e9b3651a5df2b",
+              "model_id": "Qwen/Qwen3.5-9B",
+              "provider": "local:inference-vm-rtx5060ti16",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "nvidia-default-180w-limit",
+              "quantization": "Q6_K",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline/llama-bench@v1",
+              "capabilities": [
+                "text"
+              ]
+            },
+            "axes": {
+              "prompt_throughput": {
+                "value": "2664.44",
+                "unit": "token/s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "2660.46",
+                "upper": "2669.31",
+                "dependencies": [
+                  "signals.local_prompt_tokens_per_second"
+                ],
+                "source_ids": [
+                  "local-measurement:qwen35-9b-q6k-5060-pp2048-tg512"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:qwen35-9b-q6k-5060-pp2048-tg512",
+                    "version": "llama-bench@build-2515",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                    "raw_sha256": "99ece859e9d1dd0dc2e5c37d594c20310dd55898be10a0d82c47cdb2f1cb23c0",
+                    "retrieved_at": "2026-09-15T19:22:06.092419Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T19:22:06.092419Z",
+                "minimum_sample_count": 5
+              },
+              "decode_throughput": {
+                "value": "57.9247",
+                "unit": "token/s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "57.9194",
+                "upper": "57.9429",
+                "dependencies": [
+                  "signals.local_decode_tokens_per_second"
+                ],
+                "source_ids": [
+                  "local-measurement:qwen35-9b-q6k-5060-pp2048-tg512"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:qwen35-9b-q6k-5060-pp2048-tg512",
+                    "version": "llama-bench@build-2515",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                    "raw_sha256": "99ece859e9d1dd0dc2e5c37d594c20310dd55898be10a0d82c47cdb2f1cb23c0",
+                    "retrieved_at": "2026-09-15T19:22:06.092419Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T19:22:06.092419Z",
+                "minimum_sample_count": 5
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": null,
+  "view_id": "3a44399de899094a6013365a5559e8c15aa1cd14e3ed35b8be843f9da9159a56"
+}

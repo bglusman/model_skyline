@@ -1,8 +1,10 @@
 # Muse Glimmer local audit
 
-Audit date: 2026-09-13. All local results use the Apple M5 Max 40-core-GPU,
-64 GB hardware profile. Muse Glimmer is a dense 30B-class model; DFlash2 is a
-companion speculative decoder, not a mixture-of-experts designation. The
+Audit dates: 2026-09-13 through 2026-09-15. The first results use the Apple M5
+Max 40-core-GPU, 64 GB hardware profile; the later section is an explicitly
+separate RTX 5060 Ti 16 GB comparison. Muse Glimmer is a dense 30B-class model;
+DFlash2 is a companion speculative decoder, not a mixture-of-experts
+designation. The
 [official model card](https://huggingface.co/meta-models/Muse-Glimmer-30B)
 reports a 131,072-token context and strong agent/tool benchmarks. Those
 publisher scores motivate testing but are not assigned to either local quant in
@@ -94,6 +96,64 @@ dynamic quant on this checkpoint. Useful upstream improvements would include:
 - embedding the source revision, imatrix digest, complete plan, and solver mode
   into output metadata; and
 - retaining the new aggregate-byte `file_type` logic for mixed artifacts.
+
+## RTX 5060 Ti 16 GB result
+
+The 5060 comparison asks a different question: what is the best fully resident
+Muse offering when a 131,072-token service allocation and Q4 K/V cache must fit
+in 16 GB of VRAM? The control is AtomicChat's calibrated AD-IQ3_XXS file from
+revision `b26f8ce4a435571e24656d27efef978073809356`: 12,224,327,968 bytes,
+SHA-256 `392ee6a723541aaf79374c046ddc41464981698e807f5d600f41e294d4b7cec6`.
+The publisher reports 3.51 effective bpw and separate neutral/agentic KLD
+measurements; Model Skyline retains those as provenance rather than treating
+them as a local task score.
+
+ShoeHorn's default sampled solve spent 2.66 GiB on `token_embd.weight` and
+`output.weight`, even though AtomicChat's published calibration identified
+output as a poor low-bit investment relative to several attention/FFN groups.
+The general tensor-override implementation in upstream
+[ShoeHorn PR #6](https://github.com/notactuallytreyanastasio/shoehorn/pull/6)
+made the comparison testable without a Muse-specific code path. Forcing those
+two tensors to IQ4_XS reduced their combined charge to 1.34 GiB and let the
+solver redistribute the remaining budget. The complete request, assignments,
+source hashes, log hashes, and output digest are in the
+[5060 plan](artifacts/muse-glimmer-shoehorn-5060-ctx131k-q4kv-iq4embdout-plan.json).
+
+Both files used llama.cpp build 2515 at `5266f24d`, all layers on CUDA,
+auto-fit and mmap-style loading disabled, Q4 K/V, pp2048/tg512, six CPU
+threads, one built-in warmup, and five measured repetitions.
+
+| 5060 artifact | Bytes | Median prompt tok/s | Median decode tok/s | PPL ± reported SE |
+| --- | ---: | ---: | ---: | ---: |
+| AtomicChat AD-IQ3_XXS | 12,224,327,968 | 1,022.59 | 31.3664 | 5.2003 ± 0.11916 |
+| ShoeHorn sampled mixed 3.758 bpw | 13,096,573,440 | 1,109.02 | 30.6355 | 5.7316 ± 0.13457 |
+
+The custom file is 7.1% larger and 8.5% faster for short prompt processing,
+but 2.3% slower for decode and 10.2% worse on the identical pinned-corpus
+perplexity control. Its loaded service also occupied about 12.84 GiB of VRAM
+versus about 12.06 GiB for the control in one post-load snapshot. These VRAM
+snapshots are deployment observations, not sampled memory frontier records.
+
+Both artifacts passed the small semantic gates: 3/3 exact automatic calls from
+30 tool schemas and exact 126K retrieval with the needle near the beginning,
+middle, and end. However, the custom quant used 248 completion tokens for each
+warm tool call versus 142–143 for the control. Its long-context completions
+ranged from 285 to 941 tokens; the control's successful 1,024-token-allowance
+runs used 192–329. The late custom request therefore took 198.0 seconds despite
+faster prefill, versus 174.0 seconds for the control. A 256-token allowance is
+not sufficient for Muse at this workload: the control found no final answer
+before the length stop, then returned the exact answer with 1,024 allowed.
+The retained middle-position control was also repeated from a fully unloaded
+server: all 126,001 prompt tokens were uncached, health-ready took 11.34
+seconds, the first semantic event arrived at 167.54 seconds including load, and
+the exact answer completed at 181.46 seconds.
+
+The result is a useful success for *fit* and a rejection for *promotion*.
+ShoeHorn produced a loadable 128K-class offering that retained the checked
+tool/retrieval behavior, unlike the earlier Laguna fit, but the larger file and
+faster prefill do not compensate for worse held-out loss, slower decode, and
+less predictable reasoning length. The deployed 5060 route is therefore the
+AD-IQ3_XXS control; the custom route is retained only as reproducible evidence.
 
 ## Agent-facing target versus DFlash
 

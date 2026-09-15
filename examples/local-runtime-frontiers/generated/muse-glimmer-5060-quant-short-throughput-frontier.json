@@ -1,0 +1,750 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "kind": "frontier",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "snapshot_id": "6cf04977f277598f5e87e869ccd40b8fbf37d9a8da46f7e6f384bb939cc2a4d5",
+  "config_hash": "bd8bae51d73103f493138cedd86b6d1ee4b4213b393523bde17096feae37d810",
+  "catalog_hash": "350b391ac630adadcff8cff56a7bb7ce5a1952128081f1014708b5555572db27",
+  "engine_version": "0.9.0",
+  "generated_at": "2026-09-15T23:00:00Z",
+  "frontier_id": "short-throughput-envelope",
+  "workload": {
+    "id": "llama-bench-pp2048-tg512",
+    "version": "llama.cpp@5266f24da/model-skyline@v1",
+    "unit": "benchmark_run"
+  },
+  "order_by": "decode_throughput",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "prompt_throughput",
+      "goal": "maximize",
+      "unit": "token/s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.03"
+    },
+    {
+      "metric": "decode_throughput",
+      "goal": "maximize",
+      "unit": "token/s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.03"
+    }
+  ],
+  "members": [
+    {
+      "offering": {
+        "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output-llama.cpp-e87ed9f09f31ff85",
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "provider": "local:inference-vm-rtx5060ti16",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "nvidia-default-180w-limit",
+        "quantization": "ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output",
+        "reasoning_effort": null,
+        "agent_harness": "none",
+        "capabilities": [
+          "text"
+        ]
+      },
+      "axes": {
+        "prompt_throughput": {
+          "value": "1109.02",
+          "unit": "token/s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "1096.8",
+          "upper": "1114.78",
+          "dependencies": [
+            "signals.local_prompt_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv",
+              "version": "llama-bench@build-2515",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "d23632b69481a504026555c53776bd7b291da3a1cd3ee183b77ee77ad663dbdb",
+              "retrieved_at": "2026-09-15T22:23:26.747201Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T22:23:26.747201Z",
+          "minimum_sample_count": 5
+        },
+        "decode_throughput": {
+          "value": "30.6355",
+          "unit": "token/s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "30.634",
+          "upper": "30.6433",
+          "dependencies": [
+            "signals.local_decode_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv",
+              "version": "llama-bench@build-2515",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "d23632b69481a504026555c53776bd7b291da3a1cd3ee183b77ee77ad663dbdb",
+              "retrieved_at": "2026-09-15T22:23:26.747201Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T22:23:26.747201Z",
+          "minimum_sample_count": 5
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "inference-vm-rtx5060ti16",
+          "manufacturer": "custom",
+          "machine_model": "Proxmox-VM-125",
+          "chip": "Intel-i7-14700K-plus-RTX-5060-Ti-16GB",
+          "architecture": "x86_64",
+          "memory_bytes": 10350514176,
+          "cpu_cores": 16,
+          "cpu_core_groups": {
+            "kvm-passthrough-vcpu": 16
+          },
+          "gpu_cores": 4608,
+          "os_name": "Ubuntu",
+          "os_version": "22.04.5-LTS-kernel-5.15.0-190-generic",
+          "power_source": "unknown",
+          "power_mode": "nvidia-default-180w-limit",
+          "negotiated_adapter_watts": null,
+          "metadata": {
+            "accelerator": "NVIDIA GeForce RTX 5060 Ti",
+            "accelerator_architecture": "Blackwell",
+            "accelerator_core_unit": "CUDA-core",
+            "accelerator_memory_bytes_reported_by_nvidia_smi": 17103323136,
+            "accelerator_memory_mib_reported_by_nvidia_smi": 16311,
+            "accelerator_uuid": "GPU-029ff01b-22d2-691f-0848-5c84f28f9dfa",
+            "cuda_capability": "12.0",
+            "driver_version": "580.167.08",
+            "gpu_power_limit_watts": 180,
+            "hypervisor": "KVM",
+            "inventory_observed_at": "2026-09-14T15:55:27Z",
+            "nvidia_reference": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+          }
+        },
+        "artifact": {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "checkpoint": "Muse-Glimmer-30B-ShoeHorn-5060-ctx131k-q4kv-iq4embdout-sampled",
+          "revision": "b26f8ce4a435571e24656d27efef978073809356",
+          "format": "gguf",
+          "quantization": "ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output",
+          "size_bytes": 13096573440,
+          "content_sha256": "d0b3baa8b28a91bbb8ed2fc7ad076b3d30002cdfa85cc52578521f5d8f6e5220",
+          "source_url": "https://huggingface.co/AtomicChat/Muse-Glimmer-30B-GGUF/tree/b26f8ce4a435571e24656d27efef978073809356",
+          "license": "Apache-2.0",
+          "metadata": {
+            "filename": "Muse-Glimmer-30B-ShoeHorn-5060-ctx131k-q4kv-iq4embdout-sampled.gguf"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "build-2515",
+          "commit": "5266f24d",
+          "backend": "CUDA",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q4_0/q4_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "none",
+          "configuration": {
+            "runtime_binary_sha256": "db5121d39fd54eea7419d5d80ed94cba8acdd8b5fd5373e040575495b4198f59",
+            "n_batch": 2048,
+            "n_ubatch": 512,
+            "n_threads": 6,
+            "cpu_mask": "0x0",
+            "cpu_strict": false,
+            "poll": 50,
+            "type_k": "q4_0",
+            "type_v": "q4_0",
+            "n_gpu_layers": -1,
+            "n_cpu_moe": 0,
+            "split_mode": "layer",
+            "main_gpu": 0,
+            "no_kv_offload": false,
+            "flash_attn": 1,
+            "devices": "auto",
+            "tensor_split": "0.00",
+            "tensor_buft_overrides": "none",
+            "load_mode": "auto",
+            "lazy_mode": "auto",
+            "embeddings": false,
+            "no_op_offload": 0,
+            "no_host": false,
+            "fit_target": 0,
+            "fit_min_ctx": 0
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": []
+    }
+  ],
+  "evaluated": [
+    {
+      "offering": {
+        "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-AtomicChat AD-IQ3_XXS (3.51 bpw)-llama.cpp-117fc7c82d65e37a",
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "provider": "local:inference-vm-rtx5060ti16",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "nvidia-default-180w-limit",
+        "quantization": "AtomicChat AD-IQ3_XXS (3.51 bpw)",
+        "reasoning_effort": null,
+        "agent_harness": "none",
+        "capabilities": [
+          "text"
+        ]
+      },
+      "axes": {
+        "prompt_throughput": {
+          "value": "1022.59",
+          "unit": "token/s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "1021.75",
+          "upper": "1026.09",
+          "dependencies": [
+            "signals.local_prompt_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-ad-iq3xxs-5060-pp2048-tg512-q4kv"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-pp2048-tg512-q4kv",
+              "version": "llama-bench@build-2515",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "4ff64534d5b1cb80efe55e01b5abc5a7bace86a97f5cbd027be2330abeb9d643",
+              "retrieved_at": "2026-09-15T22:21:01.598222Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T22:21:01.598222Z",
+          "minimum_sample_count": 5
+        },
+        "decode_throughput": {
+          "value": "31.3664",
+          "unit": "token/s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "31.34",
+          "upper": "31.395",
+          "dependencies": [
+            "signals.local_decode_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-ad-iq3xxs-5060-pp2048-tg512-q4kv"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-pp2048-tg512-q4kv",
+              "version": "llama-bench@build-2515",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "4ff64534d5b1cb80efe55e01b5abc5a7bace86a97f5cbd027be2330abeb9d643",
+              "retrieved_at": "2026-09-15T22:21:01.598222Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T22:21:01.598222Z",
+          "minimum_sample_count": 5
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "inference-vm-rtx5060ti16",
+          "manufacturer": "custom",
+          "machine_model": "Proxmox-VM-125",
+          "chip": "Intel-i7-14700K-plus-RTX-5060-Ti-16GB",
+          "architecture": "x86_64",
+          "memory_bytes": 10350514176,
+          "cpu_cores": 16,
+          "cpu_core_groups": {
+            "kvm-passthrough-vcpu": 16
+          },
+          "gpu_cores": 4608,
+          "os_name": "Ubuntu",
+          "os_version": "22.04.5-LTS-kernel-5.15.0-190-generic",
+          "power_source": "unknown",
+          "power_mode": "nvidia-default-180w-limit",
+          "negotiated_adapter_watts": null,
+          "metadata": {
+            "accelerator": "NVIDIA GeForce RTX 5060 Ti",
+            "accelerator_architecture": "Blackwell",
+            "accelerator_core_unit": "CUDA-core",
+            "accelerator_memory_bytes_reported_by_nvidia_smi": 17103323136,
+            "accelerator_memory_mib_reported_by_nvidia_smi": 16311,
+            "accelerator_uuid": "GPU-029ff01b-22d2-691f-0848-5c84f28f9dfa",
+            "cuda_capability": "12.0",
+            "driver_version": "580.167.08",
+            "gpu_power_limit_watts": 180,
+            "hypervisor": "KVM",
+            "inventory_observed_at": "2026-09-14T15:55:27Z",
+            "nvidia_reference": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+          }
+        },
+        "artifact": {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "checkpoint": "Muse-Glimmer-30B-AD-IQ3_XXS",
+          "revision": "b26f8ce4a435571e24656d27efef978073809356",
+          "format": "gguf",
+          "quantization": "AtomicChat AD-IQ3_XXS (3.51 bpw)",
+          "size_bytes": 12224327968,
+          "content_sha256": "392ee6a723541aaf79374c046ddc41464981698e807f5d600f41e294d4b7cec6",
+          "source_url": "https://huggingface.co/AtomicChat/Muse-Glimmer-30B-GGUF/tree/b26f8ce4a435571e24656d27efef978073809356",
+          "license": "Apache-2.0",
+          "metadata": {
+            "filename": "Muse-Glimmer-30B-AD-IQ3_XXS.gguf"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "build-2515",
+          "commit": "5266f24d",
+          "backend": "CUDA",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q4_0/q4_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "none",
+          "configuration": {
+            "runtime_binary_sha256": "db5121d39fd54eea7419d5d80ed94cba8acdd8b5fd5373e040575495b4198f59",
+            "n_batch": 2048,
+            "n_ubatch": 512,
+            "n_threads": 6,
+            "cpu_mask": "0x0",
+            "cpu_strict": false,
+            "poll": 50,
+            "type_k": "q4_0",
+            "type_v": "q4_0",
+            "n_gpu_layers": -1,
+            "n_cpu_moe": 0,
+            "split_mode": "layer",
+            "main_gpu": 0,
+            "no_kv_offload": false,
+            "flash_attn": 1,
+            "devices": "auto",
+            "tensor_split": "0.00",
+            "tensor_buft_overrides": "none",
+            "load_mode": "auto",
+            "lazy_mode": "auto",
+            "embeddings": false,
+            "no_op_offload": 0,
+            "no_host": false,
+            "fit_target": 0,
+            "fit_min_ctx": 0
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": [
+        "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output-llama.cpp-e87ed9f09f31ff85"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output-llama.cpp-e87ed9f09f31ff85",
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "provider": "local:inference-vm-rtx5060ti16",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "nvidia-default-180w-limit",
+        "quantization": "ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output",
+        "reasoning_effort": null,
+        "agent_harness": "none",
+        "capabilities": [
+          "text"
+        ]
+      },
+      "axes": {
+        "prompt_throughput": {
+          "value": "1109.02",
+          "unit": "token/s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "1096.8",
+          "upper": "1114.78",
+          "dependencies": [
+            "signals.local_prompt_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv",
+              "version": "llama-bench@build-2515",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "d23632b69481a504026555c53776bd7b291da3a1cd3ee183b77ee77ad663dbdb",
+              "retrieved_at": "2026-09-15T22:23:26.747201Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T22:23:26.747201Z",
+          "minimum_sample_count": 5
+        },
+        "decode_throughput": {
+          "value": "30.6355",
+          "unit": "token/s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "30.634",
+          "upper": "30.6433",
+          "dependencies": [
+            "signals.local_decode_tokens_per_second"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv",
+              "version": "llama-bench@build-2515",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+              "raw_sha256": "d23632b69481a504026555c53776bd7b291da3a1cd3ee183b77ee77ad663dbdb",
+              "retrieved_at": "2026-09-15T22:23:26.747201Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T22:23:26.747201Z",
+          "minimum_sample_count": 5
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "inference-vm-rtx5060ti16",
+          "manufacturer": "custom",
+          "machine_model": "Proxmox-VM-125",
+          "chip": "Intel-i7-14700K-plus-RTX-5060-Ti-16GB",
+          "architecture": "x86_64",
+          "memory_bytes": 10350514176,
+          "cpu_cores": 16,
+          "cpu_core_groups": {
+            "kvm-passthrough-vcpu": 16
+          },
+          "gpu_cores": 4608,
+          "os_name": "Ubuntu",
+          "os_version": "22.04.5-LTS-kernel-5.15.0-190-generic",
+          "power_source": "unknown",
+          "power_mode": "nvidia-default-180w-limit",
+          "negotiated_adapter_watts": null,
+          "metadata": {
+            "accelerator": "NVIDIA GeForce RTX 5060 Ti",
+            "accelerator_architecture": "Blackwell",
+            "accelerator_core_unit": "CUDA-core",
+            "accelerator_memory_bytes_reported_by_nvidia_smi": 17103323136,
+            "accelerator_memory_mib_reported_by_nvidia_smi": 16311,
+            "accelerator_uuid": "GPU-029ff01b-22d2-691f-0848-5c84f28f9dfa",
+            "cuda_capability": "12.0",
+            "driver_version": "580.167.08",
+            "gpu_power_limit_watts": 180,
+            "hypervisor": "KVM",
+            "inventory_observed_at": "2026-09-14T15:55:27Z",
+            "nvidia_reference": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+          }
+        },
+        "artifact": {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "checkpoint": "Muse-Glimmer-30B-ShoeHorn-5060-ctx131k-q4kv-iq4embdout-sampled",
+          "revision": "b26f8ce4a435571e24656d27efef978073809356",
+          "format": "gguf",
+          "quantization": "ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output",
+          "size_bytes": 13096573440,
+          "content_sha256": "d0b3baa8b28a91bbb8ed2fc7ad076b3d30002cdfa85cc52578521f5d8f6e5220",
+          "source_url": "https://huggingface.co/AtomicChat/Muse-Glimmer-30B-GGUF/tree/b26f8ce4a435571e24656d27efef978073809356",
+          "license": "Apache-2.0",
+          "metadata": {
+            "filename": "Muse-Glimmer-30B-ShoeHorn-5060-ctx131k-q4kv-iq4embdout-sampled.gguf"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "build-2515",
+          "commit": "5266f24d",
+          "backend": "CUDA",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q4_0/q4_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "none",
+          "configuration": {
+            "runtime_binary_sha256": "db5121d39fd54eea7419d5d80ed94cba8acdd8b5fd5373e040575495b4198f59",
+            "n_batch": 2048,
+            "n_ubatch": 512,
+            "n_threads": 6,
+            "cpu_mask": "0x0",
+            "cpu_strict": false,
+            "poll": 50,
+            "type_k": "q4_0",
+            "type_v": "q4_0",
+            "n_gpu_layers": -1,
+            "n_cpu_moe": 0,
+            "split_mode": "layer",
+            "main_gpu": 0,
+            "no_kv_offload": false,
+            "flash_attn": 1,
+            "devices": "auto",
+            "tensor_split": "0.00",
+            "tensor_buft_overrides": "none",
+            "load_mode": "auto",
+            "lazy_mode": "auto",
+            "embeddings": false,
+            "no_op_offload": 0,
+            "no_host": false,
+            "fit_target": 0,
+            "fit_min_ctx": 0
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": []
+    }
+  ],
+  "rejected": [],
+  "axis_evidence": {
+    "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
+    "kind": "axis-evidence-inventory",
+    "hash_algorithm": "sha256-rfc8785-v1",
+    "config_hash": "bd8bae51d73103f493138cedd86b6d1ee4b4213b393523bde17096feae37d810",
+    "catalog_hash": "350b391ac630adadcff8cff56a7bb7ce5a1952128081f1014708b5555572db27",
+    "generated_at": "2026-09-15T23:00:00Z",
+    "workload": {
+      "id": "llama-bench-pp2048-tg512",
+      "version": "llama.cpp@5266f24da/model-skyline@v1",
+      "unit": "benchmark_run"
+    },
+    "axes": [
+      {
+        "metric": "prompt_throughput",
+        "goal": "maximize",
+        "unit": "token/s",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0.03"
+      },
+      {
+        "metric": "decode_throughput",
+        "goal": "maximize",
+        "unit": "token/s",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0.03"
+      }
+    ],
+    "candidate_universe_hash": "592c7b4e899c5f85f825ca7a7251a6d24104652738451b6449979ae7beacddf4",
+    "candidates": [
+      {
+        "offering": {
+          "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-AtomicChat AD-IQ3_XXS (3.51 bpw)-llama.cpp-117fc7c82d65e37a",
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "provider": "local:inference-vm-rtx5060ti16",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "nvidia-default-180w-limit",
+          "quantization": "AtomicChat AD-IQ3_XXS (3.51 bpw)",
+          "reasoning_effort": null,
+          "agent_harness": "none",
+          "capabilities": [
+            "text"
+          ]
+        },
+        "axes": {
+          "prompt_throughput": {
+            "value": "1022.59",
+            "unit": "token/s",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "1021.75",
+            "upper": "1026.09",
+            "dependencies": [
+              "signals.local_prompt_tokens_per_second"
+            ],
+            "source_ids": [
+              "local-measurement:muse-glimmer-ad-iq3xxs-5060-pp2048-tg512-q4kv"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-pp2048-tg512-q4kv",
+                "version": "llama-bench@build-2515",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                "raw_sha256": "4ff64534d5b1cb80efe55e01b5abc5a7bace86a97f5cbd027be2330abeb9d643",
+                "retrieved_at": "2026-09-15T22:21:01.598222Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T22:21:01.598222Z",
+            "minimum_sample_count": 5
+          },
+          "decode_throughput": {
+            "value": "31.3664",
+            "unit": "token/s",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "31.34",
+            "upper": "31.395",
+            "dependencies": [
+              "signals.local_decode_tokens_per_second"
+            ],
+            "source_ids": [
+              "local-measurement:muse-glimmer-ad-iq3xxs-5060-pp2048-tg512-q4kv"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-pp2048-tg512-q4kv",
+                "version": "llama-bench@build-2515",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                "raw_sha256": "4ff64534d5b1cb80efe55e01b5abc5a7bace86a97f5cbd027be2330abeb9d643",
+                "retrieved_at": "2026-09-15T22:21:01.598222Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T22:21:01.598222Z",
+            "minimum_sample_count": 5
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output-llama.cpp-e87ed9f09f31ff85",
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "provider": "local:inference-vm-rtx5060ti16",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "nvidia-default-180w-limit",
+          "quantization": "ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output",
+          "reasoning_effort": null,
+          "agent_harness": "none",
+          "capabilities": [
+            "text"
+          ]
+        },
+        "axes": {
+          "prompt_throughput": {
+            "value": "1109.02",
+            "unit": "token/s",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "1096.8",
+            "upper": "1114.78",
+            "dependencies": [
+              "signals.local_prompt_tokens_per_second"
+            ],
+            "source_ids": [
+              "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv",
+                "version": "llama-bench@build-2515",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                "raw_sha256": "d23632b69481a504026555c53776bd7b291da3a1cd3ee183b77ee77ad663dbdb",
+                "retrieved_at": "2026-09-15T22:23:26.747201Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T22:23:26.747201Z",
+            "minimum_sample_count": 5
+          },
+          "decode_throughput": {
+            "value": "30.6355",
+            "unit": "token/s",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "30.634",
+            "upper": "30.6433",
+            "dependencies": [
+              "signals.local_decode_tokens_per_second"
+            ],
+            "source_ids": [
+              "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv",
+                "version": "llama-bench@build-2515",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+                "raw_sha256": "d23632b69481a504026555c53776bd7b291da3a1cd3ee183b77ee77ad663dbdb",
+                "retrieved_at": "2026-09-15T22:23:26.747201Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T22:23:26.747201Z",
+            "minimum_sample_count": 5
+          }
+        }
+      }
+    ],
+    "inventory_id": "26dd50fe1b0003322f33ff338a8623b4493804eb97e5f25949c822cca252cdf3"
+  },
+  "public_release_blocked": false,
+  "sources": [
+    {
+      "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-pp2048-tg512-q4kv",
+      "version": "llama-bench@build-2515",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+      "raw_sha256": "4ff64534d5b1cb80efe55e01b5abc5a7bace86a97f5cbd027be2330abeb9d643",
+      "retrieved_at": "2026-09-15T22:21:01.598222Z"
+    },
+    {
+      "id": "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv",
+      "version": "llama-bench@build-2515",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+      "raw_sha256": "d23632b69481a504026555c53776bd7b291da3a1cd3ee183b77ee77ad663dbdb",
+      "retrieved_at": "2026-09-15T22:23:26.747201Z"
+    }
+  ],
+  "source_watermarks": {
+    "local-measurement:muse-glimmer-ad-iq3xxs-5060-pp2048-tg512-q4kv": "2026-09-15T22:21:01.598222Z",
+    "local-measurement:muse-glimmer-shoehorn-5060-pp2048-tg512-q4kv": "2026-09-15T22:23:26.747201Z"
+  }
+}

@@ -2,10 +2,17 @@
 
 Audit date: 2026-09-15. Source reviewed: ShoeHorn 0.3.0 at
 `107e710ef34a75eeea3f6d74cc00d46030f4980a` plus proposed fixes through
-`7a4b093`; runtime checked against llama.cpp build 10809 at `5266f24da`.
-Those fixes are published in upstream PR
-[#3](https://github.com/notactuallytreyanastasio/shoehorn/pull/3), which remains
-open and mergeable.
+`7a4b093`; the 5060 Muse experiment uses tensor-override commit
+`0b98620c01f4ca64640cc5604e2a16b05f15a19f`. Runtimes were checked against
+llama.cpp commit `5266f24da` on both platforms. The discovery, validation, and
+runtime fixes are published in upstream
+[#3](https://github.com/notactuallytreyanastasio/shoehorn/pull/3); general
+per-tensor type overrides are in
+[#6](https://github.com/notactuallytreyanastasio/shoehorn/pull/6). Both remain
+open and mergeable. Packaging
+[#5](https://github.com/notactuallytreyanastasio/shoehorn/pull/5) moves the
+Linux release build to Ubuntu 22.04 after the published v0.3.0 binary proved to
+require GLIBC 2.39 and would not run on this Ubuntu 22.04 VM with GLIBC 2.35.
 
 [ShoeHorn](https://github.com/notactuallytreyanastasio/shoehorn) is a worthwhile
 fitter for dense BF16/F16 GGUFs and fully resident checkpoints whose runtime
@@ -247,6 +254,46 @@ retrieval canary before publishing or spending more time on a fit, and expose
 enough per-tensor diagnostics to help separate solver/format defects from
 backend-kernel defects. It also demonstrates why a successful load or tool
 call alone is too weak a promotion gate for an aggressively mixed artifact.
+
+## Muse Glimmer 128K fit on the 5060
+
+Muse provides a more encouraging fit result and a second warning against using
+the solver objective as a deployment-quality score. The first default sampled
+15 GiB/Q4-KV plan used 2.66 GiB for the embedding and output tensors while
+pushing many imatrix-covered tensors into IQ2 types. ShoeHorn PR #6 adds a
+repeatable, validated `--tensor-type TENSOR=TYPE` option. Forcing only
+`token_embd.weight` and `output.weight` to IQ4_XS reduced that cohort to 1.34
+GiB and let the solver spend the freed budget across the other 416
+imatrix-covered tensors.
+
+The resulting 13,096,573,440-byte file averages 3.758 bpw and fits a
+131,072-token Q4-KV llama.cpp service on the 16 GB GPU. It passes 3/3 automatic
+30-tool calls and exact early/middle/late retrieval around 126K tokens. That is
+a real improvement over the invalid Laguna output: the file is loadable,
+finite under perplexity, and retains the checked semantic behaviors.
+
+It still loses the promotion comparison to AtomicChat's calibrated
+12,224,327,968-byte AD-IQ3_XXS control:
+
+| Same 5060, 128K allocation, Q4 KV | AD-IQ3_XXS | ShoeHorn 3.758 bpw | Better signal |
+| --- | ---: | ---: | ---: |
+| pp2048 median | 1,022.59 tok/s | 1,109.02 tok/s | ShoeHorn |
+| tg512 median | 31.3664 tok/s | 30.6355 tok/s | Control |
+| Pinned-corpus perplexity | 5.2003 ± 0.11916 | 5.7316 ± 0.13457 | Control |
+| Warm exact tool call | 3/3, 4.929 s median | 3/3, 8.799 s median | Control |
+| Exact early/middle/late 126K retrieval | 3/3 | 3/3 | Tie on correctness |
+
+The custom file is 7.1% larger, its perplexity point estimate is 10.2% worse,
+and its output lengths are substantially less stable. It is not registered in
+llama-swap. The exact source, override, solver assignments, logs, and output
+hash are retained in the
+[plan observation](artifacts/muse-glimmer-shoehorn-5060-ctx131k-q4kv-iq4embdout-plan.json).
+
+This experiment validates the usefulness of general tensor overrides while
+also suggesting a better default workflow: propose more than one allocation,
+then reject candidates against a calibrated ordinary quant using held-out
+loss, semantic canaries, artifact size, and end-to-end behavior. Reconstruction
+error alone selected a larger artifact with worse sequence loss.
 
 Recent upstream reports also show why runtime version and server configuration
 must remain evidence identity for hybrid models: recurrent checkpoint handling
