@@ -231,18 +231,15 @@ def main() -> None:
     completed = subprocess.run(run_command, text=True, capture_output=True, check=False)
     elapsed_ns = time.monotonic_ns() - start
     captured_at = _timestamp()
-    if completed.returncode != 0:
-        sys.stderr.write(completed.stderr)
-        raise SystemExit(completed.returncode)
+    parse_error: str | None = None
+    result: dict[str, Any] | None = None
     try:
         result = _parse_result(
             completed.stdout,
             f"{completed.stderr}\n{runtime_version_output}",
         )
     except ValueError as exc:
-        sys.stderr.write(completed.stdout)
-        sys.stderr.write(completed.stderr)
-        raise SystemExit(str(exc)) from exc
+        parse_error = str(exc)
 
     artifact = {
         "filename": model_argument.name,
@@ -256,6 +253,9 @@ def main() -> None:
     }
     payload = {
         "schema_version": "model-skyline/raw-llama-perplexity/v1",
+        "status": (
+            "complete" if completed.returncode == 0 and parse_error is None else "invalid"
+        ),
         "captured_at": captured_at,
         "started_at": started_at,
         "elapsed_ns": elapsed_ns,
@@ -289,12 +289,21 @@ def main() -> None:
             "numeric estimates serialized as decimal strings."
         ),
         "result": result,
+        "process_returncode": completed.returncode,
+        "parse_error": parse_error,
         "stdout": _portable(completed.stdout, replacements),
         "stderr": _portable(completed.stderr, replacements),
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(args.output)
+    if completed.returncode != 0:
+        sys.stderr.write(completed.stderr)
+        raise SystemExit(completed.returncode)
+    if parse_error is not None:
+        sys.stderr.write(completed.stdout)
+        sys.stderr.write(completed.stderr)
+        raise SystemExit(parse_error)
 
 
 if __name__ == "__main__":

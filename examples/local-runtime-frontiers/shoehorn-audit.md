@@ -1,6 +1,6 @@
 # ShoeHorn applicability audit
 
-Audit date: 2026-09-14. Source reviewed: ShoeHorn 0.3.0 at
+Audit date: 2026-09-15. Source reviewed: ShoeHorn 0.3.0 at
 `107e710ef34a75eeea3f6d74cc00d46030f4980a` plus proposed fixes through
 `7a4b093`; runtime checked against llama.cpp build 10809 at `5266f24da`.
 Those fixes are published in upstream PR
@@ -178,6 +178,75 @@ matrix digest, commit, solved tensor assignments, output SHA-256, llama.cpp
 build, actual placement, and measured peak VRAM. A plan that fits only by
 spilling heavily into the VM's limited RAM is not equivalent to a resident-GPU
 offering and must remain a separate placement profile.
+
+The first exact 32K output is now complete. ShoeHorn used exact row errors for
+all 476 tensors covered by the importance matrix and filled its modeled weight
+budget to within 512 bytes. The result is 12,481,779,328 bytes at 2.985 average
+bits per weight. Its plan assigns most routed-expert tensors between IQ2_XXS
+and IQ4_XS, while retaining two 512 MiB tensors at F16. The pinned plan and
+output hashes are in
+[`laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-plan.json`](artifacts/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-plan.json)
+and the one-file
+[`artifact manifest`](artifacts/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-manifest.json).
+
+The 128K plans make the context tradeoff concrete. With Q8 KV, 128K is not a
+fully resident option: KV leaves only 3.65 GiB for weights, below ShoeHorn's
+8.13 GiB minimum. Q4 KV is arithmetically feasible, but leaves only 8.65 GiB
+for weights and drives the sampled plan down to 2.222 average bits per weight.
+That is a severe enough compression step that it should not consume an exact
+solve until the 32K fit demonstrates usable quality.
+
+The fair stock control is Bartowski's pinned 12,358,537,600-byte Q2_K_L, only
+123,241,728 bytes smaller than the custom output. On the 5060 it passes 3/3
+exact automatic calls from a 30-tool schema and 3/3 exact retrieval attempts at
+30,000 input tokens. Its pp2048/tg512 medians are 2,070.5 prompt token/s and
+139.458 decode token/s; the pinned six-chunk WikiText slice reports
+12.8376 +/- 0.38260 perplexity.
+
+The stock control also exposed a host-side configuration trap. Default
+memory-mapped loading briefly charged 9.51 GB of PSS to a VM with only 9.64 GiB
+of RAM and grew host swap by as much as 130 MB. llama.cpp `--load-mode none`
+reduced the full tool/retrieval run's host peak below 0.94 GB with no loss of
+correctness or material latency change. All six measured requests then had
+zero swap delta; whole-run swap ended 3.4 MB below its starting value, although
+the host-wide sampler saw a transient 0.5 MB rise during load. The direct-load
+route is therefore the eligible operational control. The mmap capture remains
+diagnostic evidence rather than a recommended route.
+
+The matched custom result is a useful negative result rather than a new model
+recommendation:
+
+| Same 5060, 32K Q8 KV | Stock Q2_K_L | ShoeHorn 2.985 bpw | Winner |
+| --- | ---: | ---: | --- |
+| Prompt processing, pp2048 median | 2,070.5 token/s | 2,738.48 token/s | ShoeHorn |
+| Generation, tg512 median | 139.458 token/s | 153.091 token/s | ShoeHorn |
+| Exact automatic tool call | 3/3 | 3/3 | ShoeHorn on lower latency |
+| Exact 30K retrieval | 3/3 | 0/3 | Stock |
+| Six-chunk pinned-corpus perplexity | 12.8376 +/- 0.38260 | invalid: all chunks `nan` | Stock |
+
+The custom fit is 32.3% faster for prompt processing and 9.8% faster for
+generation, despite being about 1% larger. Its 2.307-second median synthetic
+tool call also beats stock's 2.732 seconds. Those wins do not override the
+retrieval and numerical failures. A second perplexity diagnostic with flash
+attention disabled and F16 KV still returned `nan` for all six chunks, so the
+failure is not specific to the tested flash-attention/Q8-KV combination.
+Cross-backend testing would be needed to distinguish a CUDA quantization-kernel
+problem from a generally damaged artifact.
+
+The machine-readable results intentionally preserve all three views. The
+[throughput frontier](generated/laguna-xs21-5060-quant-short-throughput-frontier.json)
+and [synthetic-tool frontier](generated/laguna-xs21-5060-quant-tool30-p2048-o256-frontier.json)
+select the custom fit for their narrow two-axis definitions. The
+[retrieval frontier](generated/laguna-xs21-5060-quant-retrieval-p30000-frontier.json)
+selects stock and explicitly rejects the custom fit. Perplexity is a promotion
+gate, not a hidden third frontier axis. Consequently the custom artifact is not
+registered in llama-swap and the 128K exact solve is stopped.
+
+This suggests two concrete ShoeHorn improvements: run a small numerical and
+retrieval canary before publishing or spending more time on a fit, and expose
+enough per-tensor diagnostics to help separate solver/format defects from
+backend-kernel defects. It also demonstrates why a successful load or tool
+call alone is too weak a promotion gate for an aggressively mixed artifact.
 
 Recent upstream reports also show why runtime version and server configuration
 must remain evidence identity for hybrid models: recurrent checkpoint handling

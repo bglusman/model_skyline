@@ -159,7 +159,10 @@ Future CUDA memory runs should use
 [`capture_service_memory_v2.py`](capture_service_memory_v2.py). It checks all
 CUDA compute allocations before launch and on every sample. If even one belongs
 to a process outside the selected service tree, the capture stops instead of
-quietly publishing an inflated result. The original
+quietly publishing an inflated result. It also records system-wide host swap
+before, during, and after the run. A zero-growth claim therefore comes from the
+capture itself, provided the host is otherwise isolated; swap is host-wide and
+cannot be attributed to the selected process tree on a busy machine. The original
 [`capture_service_memory.py`](capture_service_memory.py) remains unchanged
 because the published v1 panel records its exact file hash. In other words, v1
 reproduces the existing evidence; v2 is the safer default for new evidence.

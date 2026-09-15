@@ -1,0 +1,87 @@
+{
+  "schema_version": "model-skyline/raw-llama-perplexity/v1",
+  "captured_at": "2026-09-15T17:28:46.320885Z",
+  "started_at": "2026-09-15T17:28:16.942629Z",
+  "elapsed_ns": 29377494588,
+  "host": {
+    "host_id": "inference-vm-rtx5060ti16",
+    "machine": "x86_64",
+    "platform": "Linux-5.15.0-190-generic-x86_64-with-glibc2.35"
+  },
+  "artifact": {
+    "filename": "Laguna-XS-2.1-Q2_K_L.gguf",
+    "size_bytes": 12358537600,
+    "sha256": "d7bf188938336479d61e3cf60d071d6df6d723433c2eeec11f21e75fc6229e59"
+  },
+  "corpus": {
+    "filename": "wikitext-2-raw-v1-test-head512.txt",
+    "size_bytes": 101113,
+    "sha256": "10976b6e2d59a3a813e5825970a18dfdcc902302e5250bbb3052c6eaa9b23415"
+  },
+  "runtime": {
+    "filename": "llama-perplexity",
+    "sha256": "d0c5c66fd80913f3c30a5c0b0e59007f6cace9cd511dc365da581be49cd6a3bd",
+    "version_output": "version: 0.4.0-dev (build 2515, commit 5266f24d)\nbuilt with GNU 11.4.0 for Linux x86_64"
+  },
+  "configuration": {
+    "context_tokens": 4096,
+    "chunks_requested": 6,
+    "threads": 6,
+    "batch": 2048,
+    "micro_batch": 512,
+    "gpu_layers": -1,
+    "kv_cache": "q8_0/q8_0",
+    "flash_attention": "on",
+    "fit": "off"
+  },
+  "invocation": {
+    "command": [
+      "${LLAMA_PERPLEXITY}",
+      "-m",
+      "${MODEL_FILE}",
+      "-f",
+      "${CORPUS_FILE}",
+      "-c",
+      "4096",
+      "--chunks",
+      "6",
+      "-ngl",
+      "-1",
+      "-fit",
+      "off",
+      "-ctk",
+      "q8_0",
+      "-ctv",
+      "q8_0",
+      "-fa",
+      "on",
+      "-t",
+      "6",
+      "-tb",
+      "6",
+      "-b",
+      "2048",
+      "-ub",
+      "512"
+    ],
+    "command_sha256": "fff58390a79994f6bfdfcdc0ed0fd70c4eb55448399f1c70d4ae8eb98c6a234f"
+  },
+  "coordination": {
+    "method": "linux-flock",
+    "lock_file": "${LOCAL_MODEL_RUNNER_LOCK}",
+    "timeout_seconds": 0,
+    "scope": "complete benchmark child-process lifetime"
+  },
+  "normalization": "Absolute binary/model/corpus paths replaced with portable placeholders; numeric estimates serialized as decimal strings.",
+  "result": {
+    "perplexity": "12.8376",
+    "standard_error": "0.38260",
+    "chunks_evaluated": 6,
+    "runtime_build_number": 2515,
+    "runtime_commit": "5266f24d",
+    "unused_tensors": [],
+    "unused_tensor_bytes": 0
+  },
+  "stdout": "0.28 minutes\n[1]17.4173,[2]16.9776,[3]13.6235,[4]12.2951,[5]13.0429,[6]12.8376,\n\n",
+  "stderr": "0.00.319.638 W load: special_eos_id is not in special_eog_ids - the tokenizer config may be incorrect\n0.00.319.645 W load: special_eot_id is not in special_eog_ids - the tokenizer config may be incorrect\n0.14.543.547 I cmn          init: llama threadpool init, n_threads = 6\n0.14.592.660 I \n0.14.593.420 I system_info: n_threads = 6 (n_threads_batch = 6) / 16 | CUDA : ARCHS = 1200 | USE_GRAPHS = 1 | BLACKWELL_NATIVE_FP4 = 1 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | AVX2 = 1 | F16C = 1 | FMA = 1 | BMI2 = 1 | LLAMAFILE = 1 | OPENMP = 1 | REPACK = 1 | \n0.14.593.626 I perplexity: tokenizing the input ..\n0.14.620.519 I perplexity: tokenization took 26.888 ms\n0.14.620.570 I perplexity: calculating perplexity over 6 chunks, n_ctx=4096, batch_size=2048, n_seq=1\n0.17.597.684 I perplexity: 2.98 seconds per pass - ETA 0.29.006.470 I Final estimate: PPL = 12.8376 +/- 0.38260\n"
+}

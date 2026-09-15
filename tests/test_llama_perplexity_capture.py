@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import subprocess
 import sys
 from pathlib import Path
 from types import ModuleType
@@ -102,3 +104,58 @@ def test_parse_rejects_missing_duplicate_or_conflicting_evidence(stdout: str, st
 
     with pytest.raises(ValueError):
         capture._parse_result(stdout, stderr)
+
+
+def test_main_retains_invalid_native_result(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    capture = _load_capture()
+    binary = tmp_path / "llama-perplexity"
+    model = tmp_path / "model.gguf"
+    corpus = tmp_path / "corpus.txt"
+    output = tmp_path / "capture.json"
+    binary.write_bytes(b"binary")
+    binary.chmod(0o755)
+    model.write_bytes(b"model")
+    corpus.write_text("corpus", encoding="utf-8")
+    calls = iter(
+        [
+            subprocess.CompletedProcess([], 0, "build = 10809 (5266f24da)\n", ""),
+            subprocess.CompletedProcess(
+                [],
+                0,
+                "perplexity: calculating perplexity over 6 chunks, n_ctx=4096\n[1]nan\n",
+                "Unexpected negative standard deviation of log(prob)\n",
+            ),
+        ]
+    )
+    monkeypatch.setattr(capture.subprocess, "run", lambda *args, **kwargs: next(calls))
+    monkeypatch.setattr(capture.platform, "platform", lambda: "test-platform")
+    monkeypatch.setattr(capture.platform, "machine", lambda: "test-machine")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            str(SCRIPT),
+            "--binary",
+            str(binary),
+            "--model",
+            str(model),
+            "--corpus",
+            str(corpus),
+            "--output",
+            str(output),
+            "--host-id",
+            "test-host",
+        ],
+    )
+
+    with pytest.raises(SystemExit, match="expected one final perplexity estimate"):
+        capture.main()
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["status"] == "invalid"
+    assert payload["result"] is None
+    assert payload["process_returncode"] == 0
+    assert payload["parse_error"] == "expected one final perplexity estimate, found 0"
+    assert "[1]nan" in payload["stdout"]

@@ -1,9 +1,10 @@
 # Current local-model frontiers
 
-**Last updated: 2026-09-14.** These are provisional measurements on the 64 GB
-M5 Max test machine, with matched M1 Max measurements used only for the
-separate hardware comparison below. They are not an average across the two
-machines.
+**Last updated: 2026-09-15.** The main cross-model results are provisional
+measurements on the 64 GB M5 Max test machine, with matched M1 Max measurements
+used only for the separate hardware comparison below. A new, clearly separated
+RTX 5060 Ti section compares two quantizations of the same Laguna model. These
+results are not averaged across machines.
 
 ## The short answer
 
@@ -144,6 +145,32 @@ Macs. A 32K fit and a 128K fit answer different questions because KV memory
 grows with context and leaves a different budget for weight quality. The
 [ShoeHorn audit](shoehorn-audit.md) retains the exact plans and the limitations
 of the current memory estimator.
+
+## First RTX 5060 same-model frontiers
+
+The first 5060 comparison asks a smaller question than the headline table:
+which of two Laguna XS 2.1 files is better on the same GPU, runtime, 32K context,
+and Q8 KV settings? It compares Bartowski's stock Q2_K_L with an exact ShoeHorn
+2.985-bpw mixed fit. Because both are Laguna, this is a quantization/offering
+frontier, not yet a broad 5060 model-family frontier.
+
+| Meaning of “best” | Two quantities compared | Resident | What it means |
+| --- | --- | --- | --- |
+| Raw short speed | prompt speed ↑ × generation speed ↑ | **ShoeHorn fit** | It leads both: 2,738.48 prompt and 153.091 generation token/s. |
+| Correct, fast synthetic tool use | exact tool success ↑ × turnaround time ↓ | **ShoeHorn fit** | Both pass 3/3; ShoeHorn's median is 2.307 s versus stock's 2.732 s. |
+| Correct, fast 30K retrieval | exact retrieval success ↑ × turnaround time ↓ | **Stock Q2_K_L** | Stock passes 3/3. ShoeHorn fails 0/3 and is rejected before latency can help it. |
+
+The simple recommendation is **use stock if a 32K Laguna test is wanted; do
+not deploy the custom fit**. The custom artifact also yields `nan` for every
+chunk in two perplexity configurations. Perplexity is a must-pass quality gate,
+not a third axis, so this does not change the two-dimensional definitions above;
+it confirms the deployment rejection. Neither artifact satisfies a 128K route.
+
+The exact generated views are [speed](generated/laguna-xs21-5060-quant-short-throughput-model-view.json),
+[tools](generated/laguna-xs21-5060-quant-tool30-p2048-o256-model-view.json), and
+[retrieval](generated/laguna-xs21-5060-quant-retrieval-p30000-model-view.json).
+Each model-first view still displays Laguna only once while retaining the exact
+winning file underneath.
 
 ## What the two Macs tell us
 

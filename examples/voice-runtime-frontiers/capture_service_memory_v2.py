@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Capture service memory and reject samples contaminated by other CUDA jobs.
+"""Capture service memory, host swap, and strict CUDA-process isolation.
 
 This is the strict successor to ``capture_service_memory.py``.  The original
 sampler remains unchanged because published v1 results bind its exact digest.
-Version 2 reuses its platform measurement primitives, but queries every CUDA
-compute allocation at every sample and fails if any allocation belongs to a
-process outside the selected service tree.
+Version 2 reuses its platform measurement primitives, queries host swap and
+every CUDA compute allocation at every sample, and fails if any CUDA allocation
+belongs to a process outside the selected service tree.
 """
 
 from __future__ import annotations
@@ -16,11 +16,13 @@ import importlib.util
 import json
 import os
 import platform
+import re
 import signal
 import subprocess
 import sys
 import time
 from datetime import UTC, datetime
+from decimal import Decimal
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -42,6 +44,58 @@ def _load_v1() -> ModuleType:
 v1 = _load_v1()
 CaptureError = v1.CaptureError
 MAX_SAMPLES = v1.MAX_SAMPLES
+
+
+def _parse_linux_swap_used_bytes(meminfo: str) -> int:
+    values: dict[str, int] = {}
+    for line in meminfo.splitlines():
+        fields = line.split()
+        if len(fields) != 3 or fields[0] not in {"SwapTotal:", "SwapFree:"}:
+            continue
+        if fields[2] != "kB":
+            raise CaptureError("/proc/meminfo reported swap in an unexpected unit")
+        try:
+            values[fields[0]] = int(fields[1]) * 1024
+        except ValueError as exc:
+            raise CaptureError("/proc/meminfo reported non-numeric swap") from exc
+    if set(values) != {"SwapTotal:", "SwapFree:"}:
+        raise CaptureError("/proc/meminfo is missing swap totals")
+    used_bytes = values["SwapTotal:"] - values["SwapFree:"]
+    if used_bytes < 0:
+        raise CaptureError("/proc/meminfo reported more free swap than total swap")
+    return used_bytes
+
+
+def _parse_darwin_swap_used_bytes(output: str) -> int:
+    match = re.search(r"\bused\s*=\s*([0-9.]+)([KMG])\b", output)
+    if match is None:
+        raise CaptureError("vm.swapusage returned an unparseable used value")
+    scale = {"K": 1024, "M": 1024**2, "G": 1024**3}[match.group(2)]
+    return int(Decimal(match.group(1)) * scale)
+
+
+def _host_swap_used_bytes() -> int:
+    if sys.platform == "darwin":
+        try:
+            completed = subprocess.run(
+                ["sysctl", "-n", "vm.swapusage"],
+                capture_output=True,
+                check=False,
+                text=True,
+                timeout=5,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            raise CaptureError("could not query macOS host swap") from exc
+        if completed.returncode != 0:
+            raise CaptureError("vm.swapusage query failed")
+        return _parse_darwin_swap_used_bytes(completed.stdout)
+    if sys.platform.startswith("linux"):
+        try:
+            meminfo = Path("/proc/meminfo").read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            raise CaptureError("could not read Linux host swap") from exc
+        return _parse_linux_swap_used_bytes(meminfo)
+    raise CaptureError("host swap capture supports only macOS and Linux")
 
 
 def _parse_cuda_process_rows(output: str) -> list[tuple[int, int]]:
@@ -139,6 +193,7 @@ def _sample(
         "combined_capacity_bytes": combined_capacity_bytes,
         "unselected_cuda_process_count": unselected_cuda_process_count,
         "unselected_cuda_memory_bytes": unselected_cuda_memory_bytes,
+        "host_swap_used_bytes": _host_swap_used_bytes(),
     }
 
 
@@ -184,6 +239,8 @@ def capture(
         raise CaptureError("capture needs a command, process match, or root PID")
     if stop_file is not None and stop_file.exists():
         raise CaptureError("stop file must not exist when capture starts")
+
+    swap_used_bytes_before = _host_swap_used_bytes()
 
     # Reject a pre-existing CUDA owner before starting another command. Existing
     # selected services are allowed when attaching by PID or process match.
@@ -270,7 +327,24 @@ def capture(
     child_returncode = None if child is None else child.returncode
     command_exit_status = child_returncode if stop_reason == "launched command exited" else None
     finished_at = datetime.now(UTC)
+    swap_used_bytes_after = _host_swap_used_bytes()
     summary = v1._summarize(samples)
+    observed_swap = [swap_used_bytes_before]
+    for sample in samples:
+        sample_swap = sample["host_swap_used_bytes"]
+        if sample_swap is None:  # pragma: no cover - v2 samples always populate swap
+            raise CaptureError("capture has a sample without host swap telemetry")
+        observed_swap.append(sample_swap)
+    observed_swap.append(swap_used_bytes_after)
+    summary.update(
+        {
+            "host_swap_used_bytes_before": swap_used_bytes_before,
+            "host_swap_used_bytes_after": swap_used_bytes_after,
+            "host_swap_delta_bytes": swap_used_bytes_after - swap_used_bytes_before,
+            "peak_host_swap_used_bytes": max(observed_swap),
+            "peak_host_swap_growth_bytes": max(observed_swap) - swap_used_bytes_before,
+        }
+    )
     return (
         {
             "schema": SCHEMA,
@@ -315,6 +389,10 @@ def capture(
                     "unified physical footprint"
                     if architecture == "apple_unified"
                     else "host PSS plus CUDA device memory in the same sample"
+                ),
+                "swap_measure": (
+                    "system-wide host swap used before, during, and after capture; "
+                    "only attributable to the selected service on an otherwise isolated host"
                 ),
                 "warning": (
                     "For split memory, the combined value is an efficiency accounting metric, "

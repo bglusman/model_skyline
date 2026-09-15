@@ -58,8 +58,12 @@ fits a 64 GB unified-memory Mac may not be fully GPU-resident there, while a
 ShoeHorn fit can legitimately become the 5060 recommendation if its exact
 bytes win after the desired context and quality gates. The checked-in
 [`hardware profile`](hardware/inference-vm-rtx5060ti16.json) records that target;
-the first Laguna 128K fit remains an experiment until its plan, output, and
-measurements are complete.
+the exact 32K/Q8-KV Laguna fit is built and measured. It is faster than the
+stock Q2_K_L control, but it fails the matched 30K retrieval test and produces
+non-finite perplexity. It is therefore useful quantization evidence, not a
+route to deploy. A 128K/Q8-KV resident fit is arithmetically impossible at this
+budget, while the 128K/Q4-KV screen leaves only a severe 2.222-bpw weight plan.
+Neither 32K result is a substitute for the requested 128K agent route.
 
 The dated [`overnight handoff`](overnight-handoff-2026-09-14.md) summarizes the
 published frontier residents, cross-Mac conclusions, runtime state, and pending
@@ -517,7 +521,10 @@ python examples/local-runtime-frontiers/capture_llama_perplexity.py \
 PPL is compared only across captures with identical corpus bytes, tokenizer
 path, llama.cpp build, context/chunk settings, and KV/runtime configuration. It
 is a quantization-sensitive regression signal, not a general coding-quality
-score and not an axis of the throughput frontier.
+score and not an axis of the throughput frontier. A missing, malformed, or
+non-finite final estimate is still written as an `invalid` raw capture, with
+the process status and portable native output retained; it is never silently
+dropped or converted into a numeric score.
 
 ## Ornith exact-artifact result
 
@@ -723,8 +730,9 @@ workload and must not be mixed into the same position. For tool mode the
 normalizer publishes both exact-call success and argument-JSON parse success,
 so a faster speculative profile cannot hide broken tool syntax behind
 aggregate TPS.
-On macOS, each request also retains swap, memory-pressure, thermal-warning, and
-power snapshots; `--process-match` adds sampled peak RSS and macOS
+Each request retains host swap before and after on macOS and Linux. macOS also
+retains memory-pressure, thermal-warning, and power snapshots; `--process-match`
+adds sampled peak RSS and macOS
 kernel-accounted physical footprint for a literal command substring. Physical
 footprint captures Metal allocations that ordinary RSS misses. Clean mapped
 files, artifact byte size, and physical footprint remain distinct quantities.

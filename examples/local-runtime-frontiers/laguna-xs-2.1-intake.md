@@ -94,6 +94,30 @@ hardware-targeted GGUF offerings from BF16 plus an importance matrix. The
 different weight-fidelity budgets. Neither may inherit this MLX route's tool or
 retrieval results.
 
+The first 5060 control is now measured at 32K. The stock Q2_K_L fits wholly on
+the 16 GB GPU, produces 3/3 exact automatic tool calls, and returns the exact
+hidden value in 3/3 30,000-token prompts. It reaches 2,070.5 prompt token/s and
+139.458 decode token/s at pp2048/tg512. Direct model loading is important on
+this VM: `--load-mode none` keeps the full service under 0.94 GB host PSS and
+records zero swap change for every request, whereas default mmap loading grows
+swap while touching most of the 12.36 GB model file. The stock route remains a
+32K test/control, not the 128K agent default requested for the Macs.
+
+The exact-error ShoeHorn challenger is also built and hashed: 12,481,779,328
+bytes, 2.985 average bits per weight, with 11.62 GiB of modeled weights plus
+2.66 GiB Q8 KV inside the 15 GiB planning budget. Those exact bytes are faster
+than stock: 2,738.48 versus 2,070.5 prompt token/s, and 153.091 versus 139.458
+decode token/s. They also pass the narrow 30-tool test in 3/3 trials.
+
+They fail the quality gates. The custom fit misses the requested value in all
+three matched 30,000-token retrieval trials, while stock succeeds 3/3. Its
+six-chunk perplexity run produces `nan` for every chunk; disabling flash
+attention and changing KV from Q8 to F16 produces the same invalid result. The
+fit is therefore rejected as a deployable route even though it is the raw
+throughput winner. This also stops the more aggressive 128K/Q4 experiment. A
+128K/Q8 plan is impossible under the same resident budget, and 128K/Q4 is only
+a 2.222-bpw screen.
+
 ## Evaluation sequence and promotion gates
 
 Run admission, three exact structured calls, short throughput, warm-cache and
