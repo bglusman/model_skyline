@@ -34,6 +34,10 @@
         "activation_capture": "raw/qwen3-asr-06b-8bit-mlx-m1-asr-activation-v1.json",
         "activation_capture_sha256": "608523d32149ce91d62e591fdac8008f2b72ac934720e7872eeb19c9f592fbfc",
         "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
+        "framework_hot_runtime_config": "fresh_process_isolation=true; framework_and_device_ready=true; model_cold=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
+        "framework_hot_capture": "raw/qwen3-asr-06b-8bit-mlx-m1-asr-framework-hot-v1.json",
+        "framework_hot_capture_sha256": "4e38650b6101803d07a467e965af04994dc8e53ad6414d35060ded4447d134d5",
+        "framework_hot_scope": "framework-hot/model-cold approximation for one fixed 12.35-second meeting clip; clock begins only after Python/framework imports and accelerator initialization, then includes model resolution, model load, and synchronized first inference; fresh-process isolation prevents loaded-model reuse; not an observed in-process unload/reload cycle or complete serving-router measurement",
         "bootstrap": "raw/m1-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "d6c6f24003afe5ace874ca42fa5cb8ffa9ad3f1b1ac122b46925c5ab426caa73",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -114,7 +118,7 @@
           "source": {
             "id": "local-asr-activation-qwen3-asr-06b-8bit-m1",
             "version": "1",
-            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
             "raw_sha256": "608523d32149ce91d62e591fdac8008f2b72ac934720e7872eeb19c9f592fbfc"
           }
         },
@@ -126,8 +130,32 @@
           "source": {
             "id": "local-asr-activation-qwen3-asr-06b-8bit-m1",
             "version": "1",
-            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
             "raw_sha256": "608523d32149ce91d62e591fdac8008f2b72ac934720e7872eeb19c9f592fbfc"
+          }
+        },
+        "asr_framework_hot_activation_p50_seconds": {
+          "value": "1.208969",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T12:53:07Z",
+          "source": {
+            "id": "local-asr-framework-hot-qwen3-asr-06b-8bit-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+            "raw_sha256": "4e38650b6101803d07a467e965af04994dc8e53ad6414d35060ded4447d134d5"
+          }
+        },
+        "asr_framework_hot_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T12:53:07Z",
+          "source": {
+            "id": "local-asr-framework-hot-qwen3-asr-06b-8bit-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+            "raw_sha256": "4e38650b6101803d07a467e965af04994dc8e53ad6414d35060ded4447d134d5"
           }
         },
         "asr_process_rss_peak_mb": {
@@ -172,6 +200,10 @@
         "activation_capture": "raw/qwen3-asr-17b-8bit-mlx-m1-asr-activation-v1.json",
         "activation_capture_sha256": "2d0997e1a090aee19d8a0671c03f79cde744d3e1a44b61453b1d9bdeb46b6562",
         "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
+        "framework_hot_runtime_config": "fresh_process_isolation=true; framework_and_device_ready=true; model_cold=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
+        "framework_hot_capture": "raw/qwen3-asr-17b-8bit-mlx-m1-asr-framework-hot-v1.json",
+        "framework_hot_capture_sha256": "e97c88b29caa2d89dc4364544618a98b67bfd2cd6966347ea3942c11ac3d2d8e",
+        "framework_hot_scope": "framework-hot/model-cold approximation for one fixed 12.35-second meeting clip; clock begins only after Python/framework imports and accelerator initialization, then includes model resolution, model load, and synchronized first inference; fresh-process isolation prevents loaded-model reuse; not an observed in-process unload/reload cycle or complete serving-router measurement",
         "bootstrap": "raw/m1-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "d6c6f24003afe5ace874ca42fa5cb8ffa9ad3f1b1ac122b46925c5ab426caa73",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -252,7 +284,7 @@
           "source": {
             "id": "local-asr-activation-qwen3-asr-17b-8bit-m1",
             "version": "1",
-            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
             "raw_sha256": "2d0997e1a090aee19d8a0671c03f79cde744d3e1a44b61453b1d9bdeb46b6562"
           }
         },
@@ -264,8 +296,32 @@
           "source": {
             "id": "local-asr-activation-qwen3-asr-17b-8bit-m1",
             "version": "1",
-            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
             "raw_sha256": "2d0997e1a090aee19d8a0671c03f79cde744d3e1a44b61453b1d9bdeb46b6562"
+          }
+        },
+        "asr_framework_hot_activation_p50_seconds": {
+          "value": "1.460206",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T12:53:28Z",
+          "source": {
+            "id": "local-asr-framework-hot-qwen3-asr-17b-8bit-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+            "raw_sha256": "e97c88b29caa2d89dc4364544618a98b67bfd2cd6966347ea3942c11ac3d2d8e"
+          }
+        },
+        "asr_framework_hot_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T12:53:28Z",
+          "source": {
+            "id": "local-asr-framework-hot-qwen3-asr-17b-8bit-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+            "raw_sha256": "e97c88b29caa2d89dc4364544618a98b67bfd2cd6966347ea3942c11ac3d2d8e"
           }
         },
         "asr_process_rss_peak_mb": {
@@ -310,6 +366,10 @@
         "activation_capture": "raw/whisper-large-v3-turbo-fp16-mlx-m1-asr-activation-v1.json",
         "activation_capture_sha256": "cbdc124f0528e57711641d59ef511a0b4f5809dcb2990d8361aebe49b64ef948",
         "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
+        "framework_hot_runtime_config": "fresh_process_isolation=true; framework_and_device_ready=true; model_cold=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
+        "framework_hot_capture": "raw/whisper-large-v3-turbo-fp16-mlx-m1-asr-framework-hot-v1.json",
+        "framework_hot_capture_sha256": "2a5bf83d3cef347b371527384c0b2327f9197f5c6708a475d876568767b8f9e1",
+        "framework_hot_scope": "framework-hot/model-cold approximation for one fixed 12.35-second meeting clip; clock begins only after Python/framework imports and accelerator initialization, then includes model resolution, model load, and synchronized first inference; fresh-process isolation prevents loaded-model reuse; not an observed in-process unload/reload cycle or complete serving-router measurement",
         "bootstrap": "raw/m1-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "d6c6f24003afe5ace874ca42fa5cb8ffa9ad3f1b1ac122b46925c5ab426caa73",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -390,7 +450,7 @@
           "source": {
             "id": "local-asr-activation-whisper-large-v3-turbo-fp16-m1",
             "version": "1",
-            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
             "raw_sha256": "cbdc124f0528e57711641d59ef511a0b4f5809dcb2990d8361aebe49b64ef948"
           }
         },
@@ -402,8 +462,32 @@
           "source": {
             "id": "local-asr-activation-whisper-large-v3-turbo-fp16-m1",
             "version": "1",
-            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
             "raw_sha256": "cbdc124f0528e57711641d59ef511a0b4f5809dcb2990d8361aebe49b64ef948"
+          }
+        },
+        "asr_framework_hot_activation_p50_seconds": {
+          "value": "1.356475",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T12:53:47Z",
+          "source": {
+            "id": "local-asr-framework-hot-whisper-large-v3-turbo-fp16-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+            "raw_sha256": "2a5bf83d3cef347b371527384c0b2327f9197f5c6708a475d876568767b8f9e1"
+          }
+        },
+        "asr_framework_hot_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T12:53:47Z",
+          "source": {
+            "id": "local-asr-framework-hot-whisper-large-v3-turbo-fp16-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+            "raw_sha256": "2a5bf83d3cef347b371527384c0b2327f9197f5c6708a475d876568767b8f9e1"
           }
         },
         "asr_process_rss_peak_mb": {
@@ -448,6 +532,10 @@
         "activation_capture": "raw/parakeet-tdt-06b-v3-fp16-mlx-m1-asr-activation-v1.json",
         "activation_capture_sha256": "c6fc43f273d1a02b0352b3790416fa1916ddd647ead9eb0fa7ef0d4b186d38cf",
         "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
+        "framework_hot_runtime_config": "fresh_process_isolation=true; framework_and_device_ready=true; model_cold=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
+        "framework_hot_capture": "raw/parakeet-tdt-06b-v3-fp16-mlx-m1-asr-framework-hot-v1.json",
+        "framework_hot_capture_sha256": "e9ab112fff6102e0ecb187fc64d0b9820a4e988beb13112bc35a54e30b29473f",
+        "framework_hot_scope": "framework-hot/model-cold approximation for one fixed 12.35-second meeting clip; clock begins only after Python/framework imports and accelerator initialization, then includes model resolution, model load, and synchronized first inference; fresh-process isolation prevents loaded-model reuse; not an observed in-process unload/reload cycle or complete serving-router measurement",
         "bootstrap": "raw/m1-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "d6c6f24003afe5ace874ca42fa5cb8ffa9ad3f1b1ac122b46925c5ab426caa73",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -528,7 +616,7 @@
           "source": {
             "id": "local-asr-activation-parakeet-tdt-06b-v3-fp16-m1",
             "version": "1",
-            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
             "raw_sha256": "c6fc43f273d1a02b0352b3790416fa1916ddd647ead9eb0fa7ef0d4b186d38cf"
           }
         },
@@ -540,8 +628,32 @@
           "source": {
             "id": "local-asr-activation-parakeet-tdt-06b-v3-fp16-m1",
             "version": "1",
-            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
             "raw_sha256": "c6fc43f273d1a02b0352b3790416fa1916ddd647ead9eb0fa7ef0d4b186d38cf"
+          }
+        },
+        "asr_framework_hot_activation_p50_seconds": {
+          "value": "0.998946",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T12:52:50Z",
+          "source": {
+            "id": "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+            "raw_sha256": "e9ab112fff6102e0ecb187fc64d0b9820a4e988beb13112bc35a54e30b29473f"
+          }
+        },
+        "asr_framework_hot_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T12:52:50Z",
+          "source": {
+            "id": "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+            "raw_sha256": "e9ab112fff6102e0ecb187fc64d0b9820a4e988beb13112bc35a54e30b29473f"
           }
         },
         "asr_process_rss_peak_mb": {

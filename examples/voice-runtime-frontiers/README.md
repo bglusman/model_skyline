@@ -22,6 +22,9 @@ Parakeet and **Qwen3-ASR 0.6B 8-bit**. See the concise
 the controlled M1/M5 comparison. The additional restart frontier measures a
 fresh process through its first complete transcript: it keeps four tradeoffs
 on the 5060 because compilation helps resident requests but hurts activation.
+A ready-runner frontier removes Python/framework and accelerator setup from
+that clock while keeping the model cold; it has the same residents and is
+explicitly an approximation rather than a measured router swap.
 CUDA memory is withheld from the memory frontier until the experiment has one
 cross-platform whole-service measure.
 
@@ -51,6 +54,7 @@ a stable voice are pass/fail gates, not hidden extra dimensions.
 | STT batch | corpus word error rate, lower is better | corpus real-time factor, higher is better | measured 24-utterance pilot |
 | STT small resident | corpus word error rate, lower is better | peak in-process RSS, lower is better | measured for comparable MLX offerings |
 | STT restart | corpus word error rate, lower is better | median fresh-process launch to first complete transcript, lower is better | measured over ten restarts per offering |
+| STT ready runner | corpus word error rate, lower is better | median model-cold activation after framework/device readiness, lower is better | measured over ten isolated activations per offering |
 | Voice agent | deterministic task success, higher is better | p95 time from user stop to first audible response, lower is better | defined; not yet measured here |
 | Voice agent cost | deterministic task success, higher is better | marginal cost per completed session, lower is better | defined; not yet measured here |
 

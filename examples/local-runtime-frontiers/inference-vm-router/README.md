@@ -1,7 +1,7 @@
 # RTX 5060 Ti llama-swap deployment
 
-This is the deployment manifest for `inference-vm-rtx5060ti16`. It exposes one
-LAN endpoint at `192.168.1.125:8090`, keeps child runtimes on loopback, and puts
+This is the deployment manifest for the RTX 5060 Ti inference VM. It exposes one
+LAN llama-swap endpoint, keeps child runtimes on loopback, and puts
 every registered heavyweight model in one exclusive `local-memory` group.
 Loading progress is disabled so it cannot become assistant content.
 
@@ -24,6 +24,14 @@ runner. This detail matters: `flock FILE command` forks on this host, so killing
 the PID tracked by llama-swap can otherwise orphan the child and release the
 lock at the wrong time. The Ollama stop hook also waits until `ollama ps` no
 longer lists the model before releasing its holder.
+
+The mutex works only when every heavyweight launcher participates. A direct
+vLLM, TTS, benchmark, or ad-hoc Python process can still allocate the GPU behind
+llama-swap's back. Such launchers must acquire the same `local-model-exclusive`
+lock for their whole lifetime. Benchmark harnesses should also fail closed when
+the GPU is already occupied; the ASR activation probes do this before every
+child rather than assuming an empty llama-swap `/running` response proves that
+VRAM is free.
 
 The pinned router binary is llama-swap v255, release commit `7761aa1`. The
 official Linux AMD64 archive SHA-256 is

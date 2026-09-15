@@ -2,18 +2,18 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "cf3645e44b0760afa7be2625a97faf4c2e7655b6df6b6c390c324d1b6b60b8b9",
-  "config_hash": "31443bd96545f9821ed4299c13c8b98220df8e5363597b28adf031b789c96964",
+  "snapshot_id": "d738cc99215f027142ec0f5885ae81696b3ca5f36399e8a406dc506573499f7f",
+  "config_hash": "6151110932fec6c74569a1572ac879aeeb96c08e1388c9f49ff99a62f03e9784",
   "catalog_hash": "2f38823367859fcb271be9bb78e29d13c19d7e671fdc52ae38c398456bc9cfbb",
   "engine_version": "0.9.0",
   "generated_at": "2026-09-15T13:20:00Z",
-  "frontier_id": "asr-typical-intelligibility",
+  "frontier_id": "asr-framework-hot-intelligibility",
   "workload": {
     "id": "local-asr-pilot-v1",
     "version": "1.0.0",
     "unit": "utterance"
   },
-  "order_by": "asr_final_latency_p50",
+  "order_by": "asr_framework_hot_activation_p50",
   "uncertainty": "point",
   "axes": [
     {
@@ -24,9 +24,9 @@
       "epsilon_relative": "0"
     },
     {
-      "metric": "asr_final_latency_p50",
+      "metric": "asr_framework_hot_activation_p50",
       "goal": "minimize",
-      "unit": "milliseconds",
+      "unit": "seconds",
       "epsilon_absolute": "0",
       "epsilon_relative": "0"
     }
@@ -80,34 +80,34 @@
           "oldest_observed_at": "2026-09-15T00:18:06Z",
           "minimum_sample_count": 24
         },
-        "asr_final_latency_p50": {
-          "value": "79.951479",
-          "unit": "milliseconds",
+        "asr_framework_hot_activation_p50": {
+          "value": "0.998946",
+          "unit": "seconds",
           "evidence_tiers": [
             "measured"
           ],
-          "lower": "73.237396",
-          "upper": "84.756292",
+          "lower": null,
+          "upper": null,
           "dependencies": [
-            "signals.asr_final_latency_p50_ms"
+            "signals.asr_framework_hot_activation_p50_seconds"
           ],
           "source_ids": [
-            "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1"
+            "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m1"
           ],
           "sources": [
             {
-              "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+              "id": "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m1",
               "version": "1",
               "url": null,
               "terms_url": null,
               "license": null,
-              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
-              "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+              "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+              "raw_sha256": "e9ab112fff6102e0ecb187fc64d0b9820a4e988beb13112bc35a54e30b29473f",
               "retrieved_at": null
             }
           ],
-          "oldest_observed_at": "2026-09-15T00:18:06Z",
-          "minimum_sample_count": 24
+          "oldest_observed_at": "2026-09-15T12:52:50Z",
+          "minimum_sample_count": 10
         }
       },
       "metadata": {
@@ -115,9 +115,9 @@
         "artifact": "mlx-community/parakeet-tdt-0.6b-v3",
         "artifact_revision": "ed2b7e8c15f9aaa0b5772e2efb986255eaef7e15",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
-        "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument=None",
+        "framework_hot_runtime_config": "fresh_process_isolation=true; framework_and_device_ready=true; model_cold=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
-        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture"
+        "framework_hot_scope": "framework-hot/model-cold approximation for one fixed 12.35-second meeting clip; clock begins only after Python/framework imports and accelerator initialization, then includes model resolution, model load, and synchronized first inference; fresh-process isolation prevents loaded-model reuse; not an observed in-process unload/reload cycle or complete serving-router measurement"
       },
       "dominated_by": []
     }
@@ -171,34 +171,34 @@
           "oldest_observed_at": "2026-09-15T00:18:06Z",
           "minimum_sample_count": 24
         },
-        "asr_final_latency_p50": {
-          "value": "79.951479",
-          "unit": "milliseconds",
+        "asr_framework_hot_activation_p50": {
+          "value": "0.998946",
+          "unit": "seconds",
           "evidence_tiers": [
             "measured"
           ],
-          "lower": "73.237396",
-          "upper": "84.756292",
+          "lower": null,
+          "upper": null,
           "dependencies": [
-            "signals.asr_final_latency_p50_ms"
+            "signals.asr_framework_hot_activation_p50_seconds"
           ],
           "source_ids": [
-            "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1"
+            "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m1"
           ],
           "sources": [
             {
-              "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+              "id": "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m1",
               "version": "1",
               "url": null,
               "terms_url": null,
               "license": null,
-              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
-              "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+              "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+              "raw_sha256": "e9ab112fff6102e0ecb187fc64d0b9820a4e988beb13112bc35a54e30b29473f",
               "retrieved_at": null
             }
           ],
-          "oldest_observed_at": "2026-09-15T00:18:06Z",
-          "minimum_sample_count": 24
+          "oldest_observed_at": "2026-09-15T12:52:50Z",
+          "minimum_sample_count": 10
         }
       },
       "metadata": {
@@ -206,9 +206,9 @@
         "artifact": "mlx-community/parakeet-tdt-0.6b-v3",
         "artifact_revision": "ed2b7e8c15f9aaa0b5772e2efb986255eaef7e15",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
-        "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument=None",
+        "framework_hot_runtime_config": "fresh_process_isolation=true; framework_and_device_ready=true; model_cold=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
-        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture"
+        "framework_hot_scope": "framework-hot/model-cold approximation for one fixed 12.35-second meeting clip; clock begins only after Python/framework imports and accelerator initialization, then includes model resolution, model load, and synchronized first inference; fresh-process isolation prevents loaded-model reuse; not an observed in-process unload/reload cycle or complete serving-router measurement"
       },
       "dominated_by": []
     },
@@ -260,34 +260,34 @@
           "oldest_observed_at": "2026-09-15T00:17:39Z",
           "minimum_sample_count": 24
         },
-        "asr_final_latency_p50": {
-          "value": "212.605604",
-          "unit": "milliseconds",
+        "asr_framework_hot_activation_p50": {
+          "value": "1.208969",
+          "unit": "seconds",
           "evidence_tiers": [
             "measured"
           ],
-          "lower": "201.293084",
-          "upper": "234.89575",
+          "lower": null,
+          "upper": null,
           "dependencies": [
-            "signals.asr_final_latency_p50_ms"
+            "signals.asr_framework_hot_activation_p50_seconds"
           ],
           "source_ids": [
-            "local-asr-pilot-qwen3-asr-06b-8bit-m1"
+            "local-asr-framework-hot-qwen3-asr-06b-8bit-m1"
           ],
           "sources": [
             {
-              "id": "local-asr-pilot-qwen3-asr-06b-8bit-m1",
+              "id": "local-asr-framework-hot-qwen3-asr-06b-8bit-m1",
               "version": "1",
               "url": null,
               "terms_url": null,
               "license": null,
-              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
-              "raw_sha256": "a53ddede1ca53c54eeed2b5bb9c240119c5feebc5c34e26b5447d13feb3e8f71",
+              "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+              "raw_sha256": "4e38650b6101803d07a467e965af04994dc8e53ad6414d35060ded4447d134d5",
               "retrieved_at": null
             }
           ],
-          "oldest_observed_at": "2026-09-15T00:17:39Z",
-          "minimum_sample_count": 24
+          "oldest_observed_at": "2026-09-15T12:53:07Z",
+          "minimum_sample_count": 10
         }
       },
       "metadata": {
@@ -295,100 +295,9 @@
         "artifact": "mlx-community/Qwen3-ASR-0.6B-8bit",
         "artifact_revision": "89e96d92ba34aca20b3e29fb10cc284097d1219f",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
-        "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='English'",
+        "framework_hot_runtime_config": "fresh_process_isolation=true; framework_and_device_ready=true; model_cold=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
-        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture"
-      },
-      "dominated_by": [
-        "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en"
-      ]
-    },
-    {
-      "offering": {
-        "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m1-max-64gb-en",
-        "model_id": "Qwen3-ASR-1.7B",
-        "provider": "local:m1-max-64gb",
-        "endpoint": "in-process-mlx",
-        "billing_mode": null,
-        "region": null,
-        "service_tier": "resident",
-        "quantization": "8bit",
-        "reasoning_effort": null,
-        "agent_harness": "model-skyline-local-asr-pilot@1",
-        "capabilities": [
-          "asr",
-          "audio",
-          "stt"
-        ]
-      },
-      "axes": {
-        "asr_corpus_wer": {
-          "value": "8.52459",
-          "unit": "percent",
-          "evidence_tiers": [
-            "measured"
-          ],
-          "lower": "4.841335",
-          "upper": "12.773109",
-          "dependencies": [
-            "signals.asr_corpus_wer_percent"
-          ],
-          "source_ids": [
-            "local-asr-pilot-qwen3-asr-17b-8bit-m1"
-          ],
-          "sources": [
-            {
-              "id": "local-asr-pilot-qwen3-asr-17b-8bit-m1",
-              "version": "1",
-              "url": null,
-              "terms_url": null,
-              "license": null,
-              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
-              "raw_sha256": "6890b5b927b123061c7cb6de52aab8329a8af9dc9e16ab298b45935892df66c3",
-              "retrieved_at": null
-            }
-          ],
-          "oldest_observed_at": "2026-09-15T00:17:51Z",
-          "minimum_sample_count": 24
-        },
-        "asr_final_latency_p50": {
-          "value": "385.934854",
-          "unit": "milliseconds",
-          "evidence_tiers": [
-            "measured"
-          ],
-          "lower": "366.830042",
-          "upper": "420.65",
-          "dependencies": [
-            "signals.asr_final_latency_p50_ms"
-          ],
-          "source_ids": [
-            "local-asr-pilot-qwen3-asr-17b-8bit-m1"
-          ],
-          "sources": [
-            {
-              "id": "local-asr-pilot-qwen3-asr-17b-8bit-m1",
-              "version": "1",
-              "url": null,
-              "terms_url": null,
-              "license": null,
-              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
-              "raw_sha256": "6890b5b927b123061c7cb6de52aab8329a8af9dc9e16ab298b45935892df66c3",
-              "retrieved_at": null
-            }
-          ],
-          "oldest_observed_at": "2026-09-15T00:17:51Z",
-          "minimum_sample_count": 24
-        }
-      },
-      "metadata": {
-        "hardware": "Apple M1 Max 64 GB",
-        "artifact": "mlx-community/Qwen3-ASR-1.7B-8bit",
-        "artifact_revision": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
-        "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
-        "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='English'",
-        "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
-        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture"
+        "framework_hot_scope": "framework-hot/model-cold approximation for one fixed 12.35-second meeting clip; clock begins only after Python/framework imports and accelerator initialization, then includes model resolution, model load, and synchronized first inference; fresh-process isolation prevents loaded-model reuse; not an observed in-process unload/reload cycle or complete serving-router measurement"
       },
       "dominated_by": [
         "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en"
@@ -442,34 +351,34 @@
           "oldest_observed_at": "2026-09-15T00:18:03Z",
           "minimum_sample_count": 24
         },
-        "asr_final_latency_p50": {
-          "value": "413.525791",
-          "unit": "milliseconds",
+        "asr_framework_hot_activation_p50": {
+          "value": "1.356475",
+          "unit": "seconds",
           "evidence_tiers": [
             "measured"
           ],
-          "lower": "407.089583",
-          "upper": "425.583375",
+          "lower": null,
+          "upper": null,
           "dependencies": [
-            "signals.asr_final_latency_p50_ms"
+            "signals.asr_framework_hot_activation_p50_seconds"
           ],
           "source_ids": [
-            "local-asr-pilot-whisper-large-v3-turbo-fp16-m1"
+            "local-asr-framework-hot-whisper-large-v3-turbo-fp16-m1"
           ],
           "sources": [
             {
-              "id": "local-asr-pilot-whisper-large-v3-turbo-fp16-m1",
+              "id": "local-asr-framework-hot-whisper-large-v3-turbo-fp16-m1",
               "version": "1",
               "url": null,
               "terms_url": null,
               "license": null,
-              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
-              "raw_sha256": "e3ddf4e959565c44393ebcb0e9b19eba6efc71c8a36d0527ba8e374cadd05673",
+              "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+              "raw_sha256": "2a5bf83d3cef347b371527384c0b2327f9197f5c6708a475d876568767b8f9e1",
               "retrieved_at": null
             }
           ],
-          "oldest_observed_at": "2026-09-15T00:18:03Z",
-          "minimum_sample_count": 24
+          "oldest_observed_at": "2026-09-15T12:53:47Z",
+          "minimum_sample_count": 10
         }
       },
       "metadata": {
@@ -477,14 +386,104 @@
         "artifact": "mlx-community/whisper-large-v3-turbo-asr-fp16",
         "artifact_revision": "624c19c9af5603fa73b83bce14d4aeea96156d18",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
-        "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='en'",
+        "framework_hot_runtime_config": "fresh_process_isolation=true; framework_and_device_ready=true; model_cold=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
-        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture"
+        "framework_hot_scope": "framework-hot/model-cold approximation for one fixed 12.35-second meeting clip; clock begins only after Python/framework imports and accelerator initialization, then includes model resolution, model load, and synchronized first inference; fresh-process isolation prevents loaded-model reuse; not an observed in-process unload/reload cycle or complete serving-router measurement"
       },
       "dominated_by": [
         "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en",
-        "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en",
-        "self-hosted/qwen3-asr-17b-8bit-mlx@m1-max-64gb-en"
+        "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m1-max-64gb-en",
+        "model_id": "Qwen3-ASR-1.7B",
+        "provider": "local:m1-max-64gb",
+        "endpoint": "in-process-mlx",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "8bit",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-local-asr-pilot@1",
+        "capabilities": [
+          "asr",
+          "audio",
+          "stt"
+        ]
+      },
+      "axes": {
+        "asr_corpus_wer": {
+          "value": "8.52459",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "4.841335",
+          "upper": "12.773109",
+          "dependencies": [
+            "signals.asr_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "local-asr-pilot-qwen3-asr-17b-8bit-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-pilot-qwen3-asr-17b-8bit-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+              "raw_sha256": "6890b5b927b123061c7cb6de52aab8329a8af9dc9e16ab298b45935892df66c3",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T00:17:51Z",
+          "minimum_sample_count": 24
+        },
+        "asr_framework_hot_activation_p50": {
+          "value": "1.460206",
+          "unit": "seconds",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.asr_framework_hot_activation_p50_seconds"
+          ],
+          "source_ids": [
+            "local-asr-framework-hot-qwen3-asr-17b-8bit-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-framework-hot-qwen3-asr-17b-8bit-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+              "raw_sha256": "e97c88b29caa2d89dc4364544618a98b67bfd2cd6966347ea3942c11ac3d2d8e",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T12:53:28Z",
+          "minimum_sample_count": 10
+        }
+      },
+      "metadata": {
+        "hardware": "Apple M1 Max 64 GB",
+        "artifact": "mlx-community/Qwen3-ASR-1.7B-8bit",
+        "artifact_revision": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+        "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
+        "framework_hot_runtime_config": "fresh_process_isolation=true; framework_and_device_ready=true; model_cold=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
+        "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
+        "framework_hot_scope": "framework-hot/model-cold approximation for one fixed 12.35-second meeting clip; clock begins only after Python/framework imports and accelerator initialization, then includes model resolution, model load, and synchronized first inference; fresh-process isolation prevents loaded-model reuse; not an observed in-process unload/reload cycle or complete serving-router measurement"
+      },
+      "dominated_by": [
+        "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en"
       ]
     }
   ],
@@ -493,7 +492,7 @@
     "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
-    "config_hash": "31443bd96545f9821ed4299c13c8b98220df8e5363597b28adf031b789c96964",
+    "config_hash": "6151110932fec6c74569a1572ac879aeeb96c08e1388c9f49ff99a62f03e9784",
     "catalog_hash": "2f38823367859fcb271be9bb78e29d13c19d7e671fdc52ae38c398456bc9cfbb",
     "generated_at": "2026-09-15T13:20:00Z",
     "workload": {
@@ -510,9 +509,9 @@
         "epsilon_relative": "0"
       },
       {
-        "metric": "asr_final_latency_p50",
+        "metric": "asr_framework_hot_activation_p50",
         "goal": "minimize",
-        "unit": "milliseconds",
+        "unit": "seconds",
         "epsilon_absolute": "0",
         "epsilon_relative": "0"
       }
@@ -567,34 +566,34 @@
             "oldest_observed_at": "2026-09-15T00:17:39Z",
             "minimum_sample_count": 24
           },
-          "asr_final_latency_p50": {
-            "value": "212.605604",
-            "unit": "milliseconds",
+          "asr_framework_hot_activation_p50": {
+            "value": "1.208969",
+            "unit": "seconds",
             "evidence_tiers": [
               "measured"
             ],
-            "lower": "201.293084",
-            "upper": "234.89575",
+            "lower": null,
+            "upper": null,
             "dependencies": [
-              "signals.asr_final_latency_p50_ms"
+              "signals.asr_framework_hot_activation_p50_seconds"
             ],
             "source_ids": [
-              "local-asr-pilot-qwen3-asr-06b-8bit-m1"
+              "local-asr-framework-hot-qwen3-asr-06b-8bit-m1"
             ],
             "sources": [
               {
-                "id": "local-asr-pilot-qwen3-asr-06b-8bit-m1",
+                "id": "local-asr-framework-hot-qwen3-asr-06b-8bit-m1",
                 "version": "1",
                 "url": null,
                 "terms_url": null,
                 "license": null,
-                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
-                "raw_sha256": "a53ddede1ca53c54eeed2b5bb9c240119c5feebc5c34e26b5447d13feb3e8f71",
+                "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+                "raw_sha256": "4e38650b6101803d07a467e965af04994dc8e53ad6414d35060ded4447d134d5",
                 "retrieved_at": null
               }
             ],
-            "oldest_observed_at": "2026-09-15T00:17:39Z",
-            "minimum_sample_count": 24
+            "oldest_observed_at": "2026-09-15T12:53:07Z",
+            "minimum_sample_count": 10
           }
         }
       },
@@ -646,34 +645,34 @@
             "oldest_observed_at": "2026-09-15T00:17:51Z",
             "minimum_sample_count": 24
           },
-          "asr_final_latency_p50": {
-            "value": "385.934854",
-            "unit": "milliseconds",
+          "asr_framework_hot_activation_p50": {
+            "value": "1.460206",
+            "unit": "seconds",
             "evidence_tiers": [
               "measured"
             ],
-            "lower": "366.830042",
-            "upper": "420.65",
+            "lower": null,
+            "upper": null,
             "dependencies": [
-              "signals.asr_final_latency_p50_ms"
+              "signals.asr_framework_hot_activation_p50_seconds"
             ],
             "source_ids": [
-              "local-asr-pilot-qwen3-asr-17b-8bit-m1"
+              "local-asr-framework-hot-qwen3-asr-17b-8bit-m1"
             ],
             "sources": [
               {
-                "id": "local-asr-pilot-qwen3-asr-17b-8bit-m1",
+                "id": "local-asr-framework-hot-qwen3-asr-17b-8bit-m1",
                 "version": "1",
                 "url": null,
                 "terms_url": null,
                 "license": null,
-                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
-                "raw_sha256": "6890b5b927b123061c7cb6de52aab8329a8af9dc9e16ab298b45935892df66c3",
+                "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+                "raw_sha256": "e97c88b29caa2d89dc4364544618a98b67bfd2cd6966347ea3942c11ac3d2d8e",
                 "retrieved_at": null
               }
             ],
-            "oldest_observed_at": "2026-09-15T00:17:51Z",
-            "minimum_sample_count": 24
+            "oldest_observed_at": "2026-09-15T12:53:28Z",
+            "minimum_sample_count": 10
           }
         }
       },
@@ -725,34 +724,34 @@
             "oldest_observed_at": "2026-09-15T00:18:06Z",
             "minimum_sample_count": 24
           },
-          "asr_final_latency_p50": {
-            "value": "79.951479",
-            "unit": "milliseconds",
+          "asr_framework_hot_activation_p50": {
+            "value": "0.998946",
+            "unit": "seconds",
             "evidence_tiers": [
               "measured"
             ],
-            "lower": "73.237396",
-            "upper": "84.756292",
+            "lower": null,
+            "upper": null,
             "dependencies": [
-              "signals.asr_final_latency_p50_ms"
+              "signals.asr_framework_hot_activation_p50_seconds"
             ],
             "source_ids": [
-              "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1"
+              "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m1"
             ],
             "sources": [
               {
-                "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+                "id": "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m1",
                 "version": "1",
                 "url": null,
                 "terms_url": null,
                 "license": null,
-                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
-                "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+                "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+                "raw_sha256": "e9ab112fff6102e0ecb187fc64d0b9820a4e988beb13112bc35a54e30b29473f",
                 "retrieved_at": null
               }
             ],
-            "oldest_observed_at": "2026-09-15T00:18:06Z",
-            "minimum_sample_count": 24
+            "oldest_observed_at": "2026-09-15T12:52:50Z",
+            "minimum_sample_count": 10
           }
         }
       },
@@ -804,39 +803,39 @@
             "oldest_observed_at": "2026-09-15T00:18:03Z",
             "minimum_sample_count": 24
           },
-          "asr_final_latency_p50": {
-            "value": "413.525791",
-            "unit": "milliseconds",
+          "asr_framework_hot_activation_p50": {
+            "value": "1.356475",
+            "unit": "seconds",
             "evidence_tiers": [
               "measured"
             ],
-            "lower": "407.089583",
-            "upper": "425.583375",
+            "lower": null,
+            "upper": null,
             "dependencies": [
-              "signals.asr_final_latency_p50_ms"
+              "signals.asr_framework_hot_activation_p50_seconds"
             ],
             "source_ids": [
-              "local-asr-pilot-whisper-large-v3-turbo-fp16-m1"
+              "local-asr-framework-hot-whisper-large-v3-turbo-fp16-m1"
             ],
             "sources": [
               {
-                "id": "local-asr-pilot-whisper-large-v3-turbo-fp16-m1",
+                "id": "local-asr-framework-hot-whisper-large-v3-turbo-fp16-m1",
                 "version": "1",
                 "url": null,
                 "terms_url": null,
                 "license": null,
-                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
-                "raw_sha256": "e3ddf4e959565c44393ebcb0e9b19eba6efc71c8a36d0527ba8e374cadd05673",
+                "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+                "raw_sha256": "2a5bf83d3cef347b371527384c0b2327f9197f5c6708a475d876568767b8f9e1",
                 "retrieved_at": null
               }
             ],
-            "oldest_observed_at": "2026-09-15T00:18:03Z",
-            "minimum_sample_count": 24
+            "oldest_observed_at": "2026-09-15T12:53:47Z",
+            "minimum_sample_count": 10
           }
         }
       }
     ],
-    "inventory_id": "54c6da25ba21b941658b085ffd5129405535ecd8b3dcdae1d4e7a2792a6cfe4e"
+    "inventory_id": "ecdd5f38d85cb4d02f2a01a6e29841f11756af85fdeea36d8f11986fc0f2e526"
   },
   "public_release_blocked": false,
   "sources": [

@@ -1,0 +1,240 @@
+{
+  "captured_at": "2026-09-15T12:53:28Z",
+  "failures": [],
+  "harness": {
+    "activation_base": "probe_asr_activation.py",
+    "activation_base_sha256": "77a9ed8f5562ae6ccad57000b7cb280b11ef85600ad9674d63d6ff15a44495c0",
+    "backend": "mlx",
+    "benchmark_arguments": [
+      "--model",
+      "mlx-community/Qwen3-ASR-1.7B-8bit",
+      "--model-revision",
+      "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+      "--audio-dir",
+      "<audio-dir>",
+      "--prompt-manifest",
+      "<prompt-manifest>",
+      "--language",
+      "English",
+      "--max-tokens",
+      "512"
+    ],
+    "child_script": "bench_mlx_asr.py",
+    "child_script_sha256": "5b824749ef8ba4ccb042eec635315714fa974ee2b5c87f05e0c864fc52e19d1c",
+    "launcher": "asr_framework_hot_child.py",
+    "launcher_sha256": "104232dbc130d4eb91b68a8ccbd490b33578f7e18c3a33accce5b60c6af5b624",
+    "launcher_version": "1",
+    "python": "python",
+    "python_version": "Python 3.12.13",
+    "wrapper": "probe_asr_framework_hot.py",
+    "wrapper_sha256": "a2442d373247c8ea23eec5503dd92376e9c9161f3883565f46a7966b736e0c4f",
+    "wrapper_version": "1"
+  },
+  "host_state_after": {
+    "platform": "macOS-26.3.1-arm64-arm-64bit",
+    "power": {
+      "source": "AC Power"
+    },
+    "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded"
+  },
+  "host_state_before": {
+    "platform": "macOS-26.3.1-arm64-arm-64bit",
+    "power": {
+      "source": "AC Power"
+    },
+    "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded"
+  },
+  "measurements": [
+    {
+      "activation_command_to_first_transcript_seconds": 1.460738,
+      "audio_sha256": "f3e67d427c3cb1e6110d876921d3129ade6b26af036e317f1de08db4ea05f5f4",
+      "child_first_inference_seconds": 0.501019,
+      "child_model_load_seconds": 0.947988,
+      "errors": 1,
+      "framework_prepare_seconds": 0.233419,
+      "hypothesis": "I think that might appeal. I'm thinking, kind of Japan. I'm thinking, young office people, trendy kind of a thing.",
+      "normalized_hypothesis": "i think that might appeal i am thinking kind of japan i am thinking young office people trendy kind of a thing",
+      "other_process_seconds": 0.011731,
+      "reference_words": 21,
+      "run": 1,
+      "testcase_id": "ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075"
+    },
+    {
+      "activation_command_to_first_transcript_seconds": 1.456683,
+      "audio_sha256": "f3e67d427c3cb1e6110d876921d3129ade6b26af036e317f1de08db4ea05f5f4",
+      "child_first_inference_seconds": 0.498411,
+      "child_model_load_seconds": 0.945954,
+      "errors": 1,
+      "framework_prepare_seconds": 0.231692,
+      "hypothesis": "I think that might appeal. I'm thinking, kind of Japan. I'm thinking, young office people, trendy kind of a thing.",
+      "normalized_hypothesis": "i think that might appeal i am thinking kind of japan i am thinking young office people trendy kind of a thing",
+      "other_process_seconds": 0.012317,
+      "reference_words": 21,
+      "run": 2,
+      "testcase_id": "ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075"
+    },
+    {
+      "activation_command_to_first_transcript_seconds": 1.466836,
+      "audio_sha256": "f3e67d427c3cb1e6110d876921d3129ade6b26af036e317f1de08db4ea05f5f4",
+      "child_first_inference_seconds": 0.499076,
+      "child_model_load_seconds": 0.95581,
+      "errors": 1,
+      "framework_prepare_seconds": 0.232884,
+      "hypothesis": "I think that might appeal. I'm thinking, kind of Japan. I'm thinking, young office people, trendy kind of a thing.",
+      "normalized_hypothesis": "i think that might appeal i am thinking kind of japan i am thinking young office people trendy kind of a thing",
+      "other_process_seconds": 0.01195,
+      "reference_words": 21,
+      "run": 3,
+      "testcase_id": "ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075"
+    },
+    {
+      "activation_command_to_first_transcript_seconds": 1.456928,
+      "audio_sha256": "f3e67d427c3cb1e6110d876921d3129ade6b26af036e317f1de08db4ea05f5f4",
+      "child_first_inference_seconds": 0.498312,
+      "child_model_load_seconds": 0.947191,
+      "errors": 1,
+      "framework_prepare_seconds": 0.234139,
+      "hypothesis": "I think that might appeal. I'm thinking, kind of Japan. I'm thinking, young office people, trendy kind of a thing.",
+      "normalized_hypothesis": "i think that might appeal i am thinking kind of japan i am thinking young office people trendy kind of a thing",
+      "other_process_seconds": 0.011426,
+      "reference_words": 21,
+      "run": 4,
+      "testcase_id": "ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075"
+    },
+    {
+      "activation_command_to_first_transcript_seconds": 1.46103,
+      "audio_sha256": "f3e67d427c3cb1e6110d876921d3129ade6b26af036e317f1de08db4ea05f5f4",
+      "child_first_inference_seconds": 0.495297,
+      "child_model_load_seconds": 0.954185,
+      "errors": 1,
+      "framework_prepare_seconds": 0.235379,
+      "hypothesis": "I think that might appeal. I'm thinking, kind of Japan. I'm thinking, young office people, trendy kind of a thing.",
+      "normalized_hypothesis": "i think that might appeal i am thinking kind of japan i am thinking young office people trendy kind of a thing",
+      "other_process_seconds": 0.011549,
+      "reference_words": 21,
+      "run": 5,
+      "testcase_id": "ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075"
+    },
+    {
+      "activation_command_to_first_transcript_seconds": 1.466925,
+      "audio_sha256": "f3e67d427c3cb1e6110d876921d3129ade6b26af036e317f1de08db4ea05f5f4",
+      "child_first_inference_seconds": 0.503933,
+      "child_model_load_seconds": 0.951111,
+      "errors": 1,
+      "framework_prepare_seconds": 0.232354,
+      "hypothesis": "I think that might appeal. I'm thinking, kind of Japan. I'm thinking, young office people, trendy kind of a thing.",
+      "normalized_hypothesis": "i think that might appeal i am thinking kind of japan i am thinking young office people trendy kind of a thing",
+      "other_process_seconds": 0.011881,
+      "reference_words": 21,
+      "run": 6,
+      "testcase_id": "ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075"
+    },
+    {
+      "activation_command_to_first_transcript_seconds": 1.46005,
+      "audio_sha256": "f3e67d427c3cb1e6110d876921d3129ade6b26af036e317f1de08db4ea05f5f4",
+      "child_first_inference_seconds": 0.496003,
+      "child_model_load_seconds": 0.952068,
+      "errors": 1,
+      "framework_prepare_seconds": 0.232241,
+      "hypothesis": "I think that might appeal. I'm thinking, kind of Japan. I'm thinking, young office people, trendy kind of a thing.",
+      "normalized_hypothesis": "i think that might appeal i am thinking kind of japan i am thinking young office people trendy kind of a thing",
+      "other_process_seconds": 0.011979,
+      "reference_words": 21,
+      "run": 7,
+      "testcase_id": "ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075"
+    },
+    {
+      "activation_command_to_first_transcript_seconds": 1.459403,
+      "audio_sha256": "f3e67d427c3cb1e6110d876921d3129ade6b26af036e317f1de08db4ea05f5f4",
+      "child_first_inference_seconds": 0.499932,
+      "child_model_load_seconds": 0.947553,
+      "errors": 1,
+      "framework_prepare_seconds": 0.232277,
+      "hypothesis": "I think that might appeal. I'm thinking, kind of Japan. I'm thinking, young office people, trendy kind of a thing.",
+      "normalized_hypothesis": "i think that might appeal i am thinking kind of japan i am thinking young office people trendy kind of a thing",
+      "other_process_seconds": 0.011918,
+      "reference_words": 21,
+      "run": 8,
+      "testcase_id": "ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075"
+    },
+    {
+      "activation_command_to_first_transcript_seconds": 1.460361,
+      "audio_sha256": "f3e67d427c3cb1e6110d876921d3129ade6b26af036e317f1de08db4ea05f5f4",
+      "child_first_inference_seconds": 0.495602,
+      "child_model_load_seconds": 0.953139,
+      "errors": 1,
+      "framework_prepare_seconds": 0.232096,
+      "hypothesis": "I think that might appeal. I'm thinking, kind of Japan. I'm thinking, young office people, trendy kind of a thing.",
+      "normalized_hypothesis": "i think that might appeal i am thinking kind of japan i am thinking young office people trendy kind of a thing",
+      "other_process_seconds": 0.01162,
+      "reference_words": 21,
+      "run": 9,
+      "testcase_id": "ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075"
+    },
+    {
+      "activation_command_to_first_transcript_seconds": 1.456551,
+      "audio_sha256": "f3e67d427c3cb1e6110d876921d3129ade6b26af036e317f1de08db4ea05f5f4",
+      "child_first_inference_seconds": 0.496568,
+      "child_model_load_seconds": 0.948708,
+      "errors": 1,
+      "framework_prepare_seconds": 0.232114,
+      "hypothesis": "I think that might appeal. I'm thinking, kind of Japan. I'm thinking, young office people, trendy kind of a thing.",
+      "normalized_hypothesis": "i think that might appeal i am thinking kind of japan i am thinking young office people trendy kind of a thing",
+      "other_process_seconds": 0.011275,
+      "reference_words": 21,
+      "run": 10,
+      "testcase_id": "ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075"
+    }
+  ],
+  "methodology": {
+    "audio_playback": false,
+    "clock": "parent monotonic wall time immediately before sending a one-byte activation command to a model-cold child whose framework and accelerator context are ready, through receipt of every byte of the first fixed UTF-8 transcript",
+    "clock_excludes": "process launch, Python/framework imports, accelerator-context initialization, child WER post-processing, JSON writing, and process teardown",
+    "clock_includes": "activation-command delivery, manifest parsing, fixed-audio verification, local model resolution, model loading, and synchronized first inference",
+    "compiler_cache": "system-default",
+    "compiler_cache_detail": "system-managed Metal and MLX caches; not controlled by this harness",
+    "os_file_cache": "normal host state; not cleared",
+    "process_isolation": "every seed and scored sample uses a new process; the clock starts only after the framework and accelerator context report ready",
+    "require_idle_nvidia": false,
+    "runner_interpretation": "framework-hot/model-cold approximation; not an observed in-process model unload/reload cycle and not a complete serving-router measurement",
+    "seed_runs": 1,
+    "timeout_seconds": 300.0,
+    "weights": "already downloaded; Hugging Face and Transformers offline modes enabled"
+  },
+  "offering": {
+    "audio_set_sha256": "f22027da9378c59f39accce9193d809df20b43fbe31743896b1d6e3556bdcf9c",
+    "hardware": "Apple M1 Max",
+    "language_argument": "English",
+    "manifest_id": "local-asr-pilot-v1",
+    "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
+    "manifest_version": "1.0.0",
+    "max_tokens": 512,
+    "mlx": "0.32.2",
+    "mlx_audio": "0.5.4",
+    "model": "mlx-community/Qwen3-ASR-1.7B-8bit",
+    "os": "macOS-26.3.1-arm64-arm-64bit",
+    "panel_sample_count": 24,
+    "requested_language": "English",
+    "requested_revision": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+    "resolved_revision": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+    "runtime": "mlx-audio"
+  },
+  "schema": "model-skyline/experimental-asr-framework-hot-capture/v1alpha1",
+  "seed_activation_seconds": [
+    1.675122
+  ],
+  "seed_framework_prepare_seconds": [
+    0.229158
+  ],
+  "summary": {
+    "attempt_count": 10,
+    "failure_count": 0,
+    "failure_percent": 0.0,
+    "first_inference_p50_seconds": 0.498362,
+    "framework_hot_activation_p50_seconds": 1.460206,
+    "framework_prepare_p50_seconds": 0.232316,
+    "model_load_p50_seconds": 0.949909,
+    "sample_count": 10,
+    "transcript_variants": 1
+  }
+}

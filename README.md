@@ -59,10 +59,12 @@ frontier into one point-estimate resident. A separate quality-versus-restart
 frontier shows the opposite deployment tradeoff: compiled Qwen takes about 43
 seconds to return its first transcript from a fresh process even with seeded
 compiler artifacts, while uncompiled 5060 offerings take 3.4–4.6 seconds and
-M5 MLX offerings take 0.8–1.0 seconds. The file also records why this
-small-panel result is provisional, why compile warmup changes router policy,
-why M1-to-M5 speed has no universal multiplier, and why unlike memory
-statistics are not mixed.
+M5 MLX offerings take 0.8–1.0 seconds. A second quality-versus-ready-runner
+frontier times the narrower model-cold step after framework/device
+initialization; it is not relabeled as a measured router swap. The file also
+records why this small-panel result is provisional, why compile warmup changes
+router policy, why M1-to-M5 speed has no universal multiplier, and why unlike
+memory statistics are not mixed.
 
 ## What a frontier means
 
