@@ -1,0 +1,243 @@
+{
+  "methodology": {
+    "pairing": "the same sampled case indices are used for every offering",
+    "resamples": 10000,
+    "seed": 20260914,
+    "unit": "utterance, sampled with replacement within each source domain",
+    "warning": "Intervals describe this small frozen panel. They do not account for dataset selection, runtime-version, or hardware variation."
+  },
+  "offerings": {
+    "mlx-community/Qwen3-ASR-0.6B-8bit|mlx-audio 0.5.4|Apple M5 Max": {
+      "capture": "examples/voice-runtime-frontiers/raw/qwen3-asr-06b-8bit-mlx-m5-local-asr-pilot-v1.json",
+      "capture_sha256": "ffadb764e87dc2944d01e9b7d5a0d7db4e89cc567ef4a21eed314385f11b5a19",
+      "hardware": "Apple M5 Max",
+      "interval_95": {
+        "corpus_wer_percentage": [
+          4.538328,
+          13.823563
+        ],
+        "final_latency_p50_ms": [
+          98.728125,
+          116.128521
+        ],
+        "final_latency_p95_ms": [
+          123.279023,
+          156.287834
+        ]
+      },
+      "model": "mlx-community/Qwen3-ASR-0.6B-8bit",
+      "point": {
+        "corpus_wer_percentage": 8.852459,
+        "final_latency_p50_ms": 108.001291,
+        "final_latency_p95_ms": 138.346556
+      },
+      "runtime": "mlx-audio 0.5.4"
+    },
+    "mlx-community/Qwen3-ASR-1.7B-8bit|mlx-audio 0.5.4|Apple M5 Max": {
+      "capture": "examples/voice-runtime-frontiers/raw/qwen3-asr-17b-8bit-mlx-m5-local-asr-pilot-v1.json",
+      "capture_sha256": "c823570bf7e5dfd08a431be77ec25c01b78f9f5a7887e7c3ad5273de928096e9",
+      "hardware": "Apple M5 Max",
+      "interval_95": {
+        "corpus_wer_percentage": [
+          4.897314,
+          13.029316
+        ],
+        "final_latency_p50_ms": [
+          188.034,
+          212.933792
+        ],
+        "final_latency_p95_ms": [
+          219.901539,
+          282.503875
+        ]
+      },
+      "model": "mlx-community/Qwen3-ASR-1.7B-8bit",
+      "point": {
+        "corpus_wer_percentage": 8.688525,
+        "final_latency_p50_ms": 202.806062,
+        "final_latency_p95_ms": 263.784844
+      },
+      "runtime": "mlx-audio 0.5.4"
+    },
+    "mlx-community/parakeet-tdt-0.6b-v3|mlx-audio 0.5.4|Apple M5 Max": {
+      "capture": "examples/voice-runtime-frontiers/raw/parakeet-tdt-06b-v3-fp16-mlx-m5-local-asr-pilot-v1.json",
+      "capture_sha256": "748a42b8ab908b5ff0fb458172aa344c5e225bbc26d4c577be2ca7840b70af61",
+      "hardware": "Apple M5 Max",
+      "interval_95": {
+        "corpus_wer_percentage": [
+          4.942339,
+          11.926606
+        ],
+        "final_latency_p50_ms": [
+          35.519084,
+          39.528292
+        ],
+        "final_latency_p95_ms": [
+          44.224715,
+          61.693042
+        ]
+      },
+      "model": "mlx-community/parakeet-tdt-0.6b-v3",
+      "point": {
+        "corpus_wer_percentage": 8.196721,
+        "final_latency_p50_ms": 38.652917,
+        "final_latency_p95_ms": 59.248694
+      },
+      "runtime": "mlx-audio 0.5.4"
+    },
+    "mlx-community/whisper-large-v3-turbo-asr-fp16|mlx-audio 0.5.4|Apple M5 Max": {
+      "capture": "examples/voice-runtime-frontiers/raw/whisper-large-v3-turbo-fp16-mlx-m5-local-asr-pilot-v1.json",
+      "capture_sha256": "eb9f2f886c99f5d604c29a208ced0fc2191aab43718aeb8e8bdcc082e7069350",
+      "hardware": "Apple M5 Max",
+      "interval_95": {
+        "corpus_wer_percentage": [
+          5.510501,
+          16.774601
+        ],
+        "final_latency_p50_ms": [
+          126.166375,
+          138.557208
+        ],
+        "final_latency_p95_ms": [
+          141.441083,
+          160.89925
+        ]
+      },
+      "model": "mlx-community/whisper-large-v3-turbo-asr-fp16",
+      "point": {
+        "corpus_wer_percentage": 10.327869,
+        "final_latency_p50_ms": 134.990313,
+        "final_latency_p95_ms": 155.352442
+      },
+      "runtime": "mlx-audio 0.5.4"
+    }
+  },
+  "paired_comparisons": [
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -1.349073,
+          1.779935
+        ],
+        "final_latency_p50_ms": [
+          -98.329459,
+          -84.424917
+        ],
+        "final_latency_p95_ms": [
+          -129.965375,
+          -93.562821
+        ]
+      },
+      "left": "mlx-community/Qwen3-ASR-0.6B-8bit|mlx-audio 0.5.4|Apple M5 Max",
+      "right": "mlx-community/Qwen3-ASR-1.7B-8bit|mlx-audio 0.5.4|Apple M5 Max"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -4.028453,
+          0.958505
+        ],
+        "final_latency_p50_ms": [
+          -32.147875,
+          -19.021
+        ],
+        "final_latency_p95_ms": [
+          -21.486083,
+          -4.611416
+        ]
+      },
+      "left": "mlx-community/Qwen3-ASR-0.6B-8bit|mlx-audio 0.5.4|Apple M5 Max",
+      "right": "mlx-community/whisper-large-v3-turbo-asr-fp16|mlx-audio 0.5.4|Apple M5 Max"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -2.01241,
+          3.061381
+        ],
+        "final_latency_p50_ms": [
+          60.901709,
+          77.451417
+        ],
+        "final_latency_p95_ms": [
+          65.2833,
+          107.066999
+        ]
+      },
+      "left": "mlx-community/Qwen3-ASR-0.6B-8bit|mlx-audio 0.5.4|Apple M5 Max",
+      "right": "mlx-community/parakeet-tdt-0.6b-v3|mlx-audio 0.5.4|Apple M5 Max"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -4.632693,
+          0.964669
+        ],
+        "final_latency_p50_ms": [
+          55.425372,
+          75.104166
+        ],
+        "final_latency_p95_ms": [
+          74.779983,
+          121.604625
+        ]
+      },
+      "left": "mlx-community/Qwen3-ASR-1.7B-8bit|mlx-audio 0.5.4|Apple M5 Max",
+      "right": "mlx-community/whisper-large-v3-turbo-asr-fp16|mlx-audio 0.5.4|Apple M5 Max"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -1.95447,
+          2.411673
+        ],
+        "final_latency_p50_ms": [
+          149.025417,
+          173.457709
+        ],
+        "final_latency_p95_ms": [
+          160.933508,
+          233.84544
+        ]
+      },
+      "left": "mlx-community/Qwen3-ASR-1.7B-8bit|mlx-audio 0.5.4|Apple M5 Max",
+      "right": "mlx-community/parakeet-tdt-0.6b-v3|mlx-audio 0.5.4|Apple M5 Max"
+    },
+    {
+      "definition": "left minus right; negative favors left",
+      "interval_95": {
+        "corpus_wer_percentage_points": [
+          -0.176999,
+          5.271572
+        ],
+        "final_latency_p50_ms": [
+          89.296667,
+          101.046249
+        ],
+        "final_latency_p95_ms": [
+          83.289558,
+          113.717722
+        ]
+      },
+      "left": "mlx-community/whisper-large-v3-turbo-asr-fp16|mlx-audio 0.5.4|Apple M5 Max",
+      "right": "mlx-community/parakeet-tdt-0.6b-v3|mlx-audio 0.5.4|Apple M5 Max"
+    }
+  ],
+  "schema": "model-skyline/experimental-local-asr-bootstrap/v1alpha1",
+  "workload": {
+    "audio_set_sha256": "f22027da9378c59f39accce9193d809df20b43fbe31743896b1d6e3556bdcf9c",
+    "domains": {
+      "audiobook_other": 6,
+      "financial_call": 6,
+      "non_us_political_oratory": 6,
+      "spontaneous_meeting": 6
+    },
+    "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
+    "sample_count": 24
+  }
+}

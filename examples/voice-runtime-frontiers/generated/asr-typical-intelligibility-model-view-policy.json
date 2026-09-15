@@ -1,0 +1,90 @@
+{
+  "schema_version": "model-skyline/model-frontier-view-policy/v1alpha1",
+  "policy_id": "local-three-machine-asr-typical-intelligibility",
+  "source_snapshot_id": "67eb25217491af06c33a85f4cbaa5422be8e1b0678d4887f2107f8a61891b2ae",
+  "aggregation": "arithmetic_mean",
+  "environments": [
+    {
+      "environment_id": "m1-max-64gb",
+      "provider": "local:m1-max-64gb"
+    },
+    {
+      "environment_id": "m5-max-64gb",
+      "provider": "local:m5-max-64gb"
+    },
+    {
+      "environment_id": "rtx5060ti-16gb",
+      "provider": "local:rtx5060ti-16gb"
+    }
+  ],
+  "models": [
+    {
+      "model_id": "Qwen3-ASR-0.6B",
+      "offerings": [
+        {
+          "environment_id": "m1-max-64gb",
+          "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en"
+        },
+        {
+          "environment_id": "m5-max-64gb",
+          "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/qwen3-asr-06b-bf16-transformers@rtx5060ti-16gb-en"
+        }
+      ]
+    },
+    {
+      "model_id": "Qwen3-ASR-1.7B",
+      "offerings": [
+        {
+          "environment_id": "m1-max-64gb",
+          "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m1-max-64gb-en"
+        },
+        {
+          "environment_id": "m5-max-64gb",
+          "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/qwen3-asr-17b-bf16-transformers@rtx5060ti-16gb-en"
+        }
+      ]
+    },
+    {
+      "model_id": "parakeet-tdt-0.6b-v3",
+      "offerings": [
+        {
+          "environment_id": "m1-max-64gb",
+          "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en"
+        },
+        {
+          "environment_id": "m5-max-64gb",
+          "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/parakeet-tdt-06b-v3-bf16-transformers@rtx5060ti-16gb-en"
+        }
+      ]
+    },
+    {
+      "model_id": "whisper-large-v3-turbo",
+      "offerings": [
+        {
+          "environment_id": "m1-max-64gb",
+          "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m1-max-64gb-en"
+        },
+        {
+          "environment_id": "m5-max-64gb",
+          "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/whisper-large-v3-turbo-bf16-transformers@rtx5060ti-16gb-en"
+        }
+      ]
+    }
+  ]
+}

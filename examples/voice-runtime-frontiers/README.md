@@ -12,13 +12,24 @@ portability, footprint, sustained throughput, and barge-in behavior. Its M5
 offering reaches the batch frontier, but LoudKit is not on either
 quality/latency frontier.
 
-The runnable definitions are [`frontier.yaml`](frontier.yaml), and the four
-exact offerings are in [`observations.json`](observations.json). The latter is
-generated and cross-checked against the retained raw captures by
+The speech-recognition side is now measured on both 64 GB Macs and the RTX
+5060 Ti. **Parakeet TDT 0.6B v3** is the sole combined point-estimate resident
+for WER versus median latency, p95 latency, and throughput. On the 5060 alone,
+Parakeet trades speed against Qwen3-ASR 1.7B's slightly lower point WER. The
+Mac small-resident frontier keeps Parakeet and **Qwen3-ASR 0.6B 8-bit**. See the concise
+[`local ASR report`](ASR.md) for definitions, exact points, uncertainty, and
+the controlled M1/M5 comparison. CUDA memory is withheld from that frontier
+until the experiment has one cross-platform whole-service measure.
+
+The runnable TTS definitions are [`frontier.yaml`](frontier.yaml), and the four
+exact TTS offerings are in [`observations.json`](observations.json). The latter
+is generated and cross-checked against the retained raw captures by
 [`build_observations.py`](build_observations.py), so the table below is an
 explanation of an executable frontier rather than a hand-ranked list.
 Replayable exact snapshots and the simpler model-first projections are retained
-in [`generated/`](generated/).
+in [`generated/`](generated/). ASR has its own
+[`definitions`](asr-frontier.yaml) and [`catalog`](asr-observations.json) so
+speech synthesis and recognition cannot be accidentally mixed.
 
 ## The frontiers in plain language
 
@@ -31,8 +42,10 @@ a stable voice are pass/fail gates, not hidden extra dimensions.
 | TTS typical response | corpus word error rate, lower is better | p50 playback-aware time to first audible audio, lower is better | measured pilot |
 | TTS batch | corpus word error rate, lower is better | sustained real-time factor, higher is better | measured pilot |
 | TTS small resident | corpus word error rate, lower is better | peak whole-service memory, lower is better | defined; awaiting comparable memory captures |
-| STT responsive | conversational word error rate, lower is better | p95 time from end of speech to final transcript, lower is better | defined; not yet measured here |
-| STT small resident | conversational word error rate, lower is better | peak whole-service memory, lower is better | defined; not yet measured here |
+| STT responsive | corpus word error rate, lower is better | p95 resident complete-file-to-final latency, lower is better | measured 24-utterance pilot |
+| STT typical response | corpus word error rate, lower is better | p50 resident complete-file-to-final latency, lower is better | measured 24-utterance pilot |
+| STT batch | corpus word error rate, lower is better | corpus real-time factor, higher is better | measured 24-utterance pilot |
+| STT small resident | corpus word error rate, lower is better | peak in-process RSS, lower is better | measured for comparable MLX offerings |
 | Voice agent | deterministic task success, higher is better | p95 time from user stop to first audible response, lower is better | defined; not yet measured here |
 | Voice agent cost | deterministic task success, higher is better | marginal cost per completed session, lower is better | defined; not yet measured here |
 

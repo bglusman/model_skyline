@@ -4,6 +4,11 @@
 > measurements. See [`current-model-frontiers.md`](current-model-frontiers.md)
 > for the live residents and coverage counts.
 
+> Voice addendum: the later matched local ASR experiment is documented in the
+> [`local speech-recognition frontier report`](../voice-runtime-frontiers/ASR.md).
+> It adds four WER-versus-latency/throughput/memory frontiers on both Macs;
+> Parakeet TDT 0.6B v3 is the quality/speed point winner on each machine.
+
 This is the durable handoff after the overnight M5 Max/M1 Max local-model
 work. It distinguishes merged tooling and measured observations from the
 experiments that are still running. The detailed first-pass decision report is
