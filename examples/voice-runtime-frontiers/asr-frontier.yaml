@@ -1,0 +1,147 @@
+schema_version: model-skyline/v1alpha1
+
+workloads:
+  local-asr-pilot-v1:
+    unit: utterance
+    version: "1.0.0"
+    harness: model-skyline-local-asr-pilot@1
+    cohort: four-public-domains-six-utterances-each@1
+    benchmark: Deterministic 24-utterance local ASR pilot
+    description: >-
+      Six English clips each from AMI meetings, Earnings22 financial calls,
+      LibriSpeech test.other, and corrected VoxPopuli political speech. Every
+      offering receives the same normalized audio. This small panel is a local
+      decision aid, not an Open ASR Leaderboard submission.
+    budget:
+      utterance_count: 24
+      audio_seconds: 229.421436
+      reference_words: 610
+    variables: {}
+    assumptions:
+      audio_playback: false
+      request_shape: complete_file_batch_size_one
+      latency_clock: resident_invocation_to_final_transcript_return
+      quality_normalization: open-asr-leaderboard-compatible-whisper-english-v1
+      prompt_manifest_sha256: 3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063
+      evidence_status: provisional_small_panel
+    sources:
+      - id: hf-audio/open-asr-leaderboard
+        version: "b6bdcd0beb34f8975dc659796176d88f43aff502"
+        url: https://huggingface.co/datasets/hf-audio/open-asr-leaderboard
+        license: mixed-per-source
+        methodology: >-
+          Exact source rows are selected deterministically and retained in
+          prompts/local-asr-pilot-v1.json. The four included source licenses are
+          CC-BY-4.0, CC-BY-SA-4.0, and CC0-1.0. Common Voice is excluded because
+          the aggregate package requires separate terms acceptance.
+        raw_sha256: 3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063
+
+metrics:
+  asr_corpus_wer:
+    kind: signal
+    signal: asr_corpus_wer_percent
+    unit: percent
+    description: Corpus word error rate across all 610 normalized reference words.
+    requirements: &requirements
+      max_age_hours: 8760
+      minimum_samples: 24
+      require_source: true
+
+  asr_final_latency_p50:
+    kind: signal
+    signal: asr_final_latency_p50_ms
+    unit: milliseconds
+    description: >-
+      Median resident processing time after the complete audio file is available
+      until the final transcript returns.
+    requirements: *requirements
+
+  asr_final_latency_p95:
+    kind: signal
+    signal: asr_final_latency_p95_ms
+    unit: milliseconds
+    description: >-
+      95th-percentile resident processing time after the complete audio file is
+      available until the final transcript returns.
+    requirements: *requirements
+
+  asr_realtime_factor:
+    kind: signal
+    signal: asr_realtime_factor
+    unit: ratio
+    description: Total input-audio seconds divided by total inference wall seconds.
+    requirements: *requirements
+
+  asr_process_rss_peak:
+    kind: signal
+    signal: asr_process_rss_peak_mb
+    unit: megabytes
+    description: >-
+      Peak process RSS observed after a scored request. This is comparable for
+      these in-process MLX offerings, not automatically across CUDA servers.
+    requirements: *requirements
+
+  asr_empty_hypothesis_rate:
+    kind: signal
+    signal: asr_empty_hypothesis_percent
+    unit: percent
+    description: Empty normalized transcripts; used as an admission gate, not an axis.
+    requirements: *requirements
+
+frontiers:
+  asr-responsive-intelligibility:
+    workload: local-asr-pilot-v1
+    axes:
+      - metric: asr_corpus_wer
+        goal: minimize
+      - metric: asr_final_latency_p95
+        goal: minimize
+    order_by: asr_final_latency_p95
+    uncertainty: point
+    eligibility: &eligibility
+      required_capabilities: [asr]
+      allow_unknown_age: false
+      maximum_gate_values:
+        asr_empty_hypothesis_rate: 0
+    metadata_fields: &metadata
+      [hardware, artifact, artifact_revision, runtime, runtime_config,
+       quality_scope, latency_scope]
+
+  asr-typical-intelligibility:
+    workload: local-asr-pilot-v1
+    axes:
+      - metric: asr_corpus_wer
+        goal: minimize
+      - metric: asr_final_latency_p50
+        goal: minimize
+    order_by: asr_final_latency_p50
+    uncertainty: point
+    eligibility: *eligibility
+    metadata_fields: *metadata
+
+  asr-batch-intelligibility:
+    workload: local-asr-pilot-v1
+    axes:
+      - metric: asr_corpus_wer
+        goal: minimize
+      - metric: asr_realtime_factor
+        goal: maximize
+    order_by: asr_realtime_factor
+    uncertainty: point
+    eligibility: *eligibility
+    metadata_fields: *metadata
+
+  asr-small-resident:
+    workload: local-asr-pilot-v1
+    axes:
+      - metric: asr_corpus_wer
+        goal: minimize
+      - metric: asr_process_rss_peak
+        goal: minimize
+        epsilon_relative: "0.02"
+    order_by: asr_process_rss_peak
+    uncertainty: point
+    eligibility: *eligibility
+    metadata_fields: *metadata
+
+selections: {}

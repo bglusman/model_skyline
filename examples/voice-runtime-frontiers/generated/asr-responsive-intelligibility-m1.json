@@ -1,0 +1,899 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "kind": "frontier",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "snapshot_id": "a408b899ed365ed11fb3ba2c75e462a7e7e89916888bcf67158a4a288f5a2be9",
+  "config_hash": "67a19142abcbb0c1c1a94c20f72675c944cc23483dcc0fedcda15ff21de16882",
+  "catalog_hash": "aba6584a58d29f2e4c3eee0f3b8b1347adfe42b0101a08d6590f4e0d36a483d7",
+  "engine_version": "0.9.0",
+  "generated_at": "2026-09-15T02:52:05.651627Z",
+  "frontier_id": "asr-responsive-intelligibility",
+  "workload": {
+    "id": "local-asr-pilot-v1",
+    "version": "1.0.0",
+    "unit": "utterance"
+  },
+  "order_by": "asr_final_latency_p95",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "asr_corpus_wer",
+      "goal": "minimize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "asr_final_latency_p95",
+      "goal": "minimize",
+      "unit": "milliseconds",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    }
+  ],
+  "members": [
+    {
+      "offering": {
+        "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en",
+        "model_id": "parakeet-tdt-0.6b-v3",
+        "provider": "local:m1-max-64gb",
+        "endpoint": "in-process-mlx",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "fp16",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-local-asr-pilot@1",
+        "capabilities": [
+          "asr",
+          "audio",
+          "stt"
+        ]
+      },
+      "axes": {
+        "asr_corpus_wer": {
+          "value": "8.196721",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "4.942339",
+          "upper": "11.926606",
+          "dependencies": [
+            "signals.asr_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+              "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T00:18:06Z",
+          "minimum_sample_count": 24
+        },
+        "asr_final_latency_p95": {
+          "value": "109.111687",
+          "unit": "milliseconds",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "95.573138",
+          "upper": "116.745083",
+          "dependencies": [
+            "signals.asr_final_latency_p95_ms"
+          ],
+          "source_ids": [
+            "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+              "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T00:18:06Z",
+          "minimum_sample_count": 24
+        }
+      },
+      "metadata": {
+        "hardware": "Apple M1 Max 64 GB",
+        "artifact": "mlx-community/parakeet-tdt-0.6b-v3",
+        "artifact_revision": "ed2b7e8c15f9aaa0b5772e2efb986255eaef7e15",
+        "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
+        "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument=None",
+        "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
+        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture"
+      },
+      "dominated_by": []
+    }
+  ],
+  "evaluated": [
+    {
+      "offering": {
+        "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en",
+        "model_id": "parakeet-tdt-0.6b-v3",
+        "provider": "local:m1-max-64gb",
+        "endpoint": "in-process-mlx",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "fp16",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-local-asr-pilot@1",
+        "capabilities": [
+          "asr",
+          "audio",
+          "stt"
+        ]
+      },
+      "axes": {
+        "asr_corpus_wer": {
+          "value": "8.196721",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "4.942339",
+          "upper": "11.926606",
+          "dependencies": [
+            "signals.asr_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+              "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T00:18:06Z",
+          "minimum_sample_count": 24
+        },
+        "asr_final_latency_p95": {
+          "value": "109.111687",
+          "unit": "milliseconds",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "95.573138",
+          "upper": "116.745083",
+          "dependencies": [
+            "signals.asr_final_latency_p95_ms"
+          ],
+          "source_ids": [
+            "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+              "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T00:18:06Z",
+          "minimum_sample_count": 24
+        }
+      },
+      "metadata": {
+        "hardware": "Apple M1 Max 64 GB",
+        "artifact": "mlx-community/parakeet-tdt-0.6b-v3",
+        "artifact_revision": "ed2b7e8c15f9aaa0b5772e2efb986255eaef7e15",
+        "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
+        "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument=None",
+        "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
+        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en",
+        "model_id": "Qwen3-ASR-0.6B",
+        "provider": "local:m1-max-64gb",
+        "endpoint": "in-process-mlx",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "8bit",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-local-asr-pilot@1",
+        "capabilities": [
+          "asr",
+          "audio",
+          "stt"
+        ]
+      },
+      "axes": {
+        "asr_corpus_wer": {
+          "value": "9.016393",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "4.538328",
+          "upper": "14.263074",
+          "dependencies": [
+            "signals.asr_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "local-asr-pilot-qwen3-asr-06b-8bit-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-pilot-qwen3-asr-06b-8bit-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+              "raw_sha256": "a53ddede1ca53c54eeed2b5bb9c240119c5feebc5c34e26b5447d13feb3e8f71",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T00:17:39Z",
+          "minimum_sample_count": 24
+        },
+        "asr_final_latency_p95": {
+          "value": "280.050075",
+          "unit": "milliseconds",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "252.042356",
+          "upper": "312.092333",
+          "dependencies": [
+            "signals.asr_final_latency_p95_ms"
+          ],
+          "source_ids": [
+            "local-asr-pilot-qwen3-asr-06b-8bit-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-pilot-qwen3-asr-06b-8bit-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+              "raw_sha256": "a53ddede1ca53c54eeed2b5bb9c240119c5feebc5c34e26b5447d13feb3e8f71",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T00:17:39Z",
+          "minimum_sample_count": 24
+        }
+      },
+      "metadata": {
+        "hardware": "Apple M1 Max 64 GB",
+        "artifact": "mlx-community/Qwen3-ASR-0.6B-8bit",
+        "artifact_revision": "89e96d92ba34aca20b3e29fb10cc284097d1219f",
+        "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
+        "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='English'",
+        "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
+        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture"
+      },
+      "dominated_by": [
+        "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m1-max-64gb-en",
+        "model_id": "whisper-large-v3-turbo",
+        "provider": "local:m1-max-64gb",
+        "endpoint": "in-process-mlx",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "fp16",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-local-asr-pilot@1",
+        "capabilities": [
+          "asr",
+          "audio",
+          "stt"
+        ]
+      },
+      "axes": {
+        "asr_corpus_wer": {
+          "value": "10.327869",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "5.510501",
+          "upper": "16.774601",
+          "dependencies": [
+            "signals.asr_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "local-asr-pilot-whisper-large-v3-turbo-fp16-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-pilot-whisper-large-v3-turbo-fp16-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+              "raw_sha256": "e3ddf4e959565c44393ebcb0e9b19eba6efc71c8a36d0527ba8e374cadd05673",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T00:18:03Z",
+          "minimum_sample_count": 24
+        },
+        "asr_final_latency_p95": {
+          "value": "450.342923",
+          "unit": "milliseconds",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "431.682954",
+          "upper": "456.468708",
+          "dependencies": [
+            "signals.asr_final_latency_p95_ms"
+          ],
+          "source_ids": [
+            "local-asr-pilot-whisper-large-v3-turbo-fp16-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-pilot-whisper-large-v3-turbo-fp16-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+              "raw_sha256": "e3ddf4e959565c44393ebcb0e9b19eba6efc71c8a36d0527ba8e374cadd05673",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T00:18:03Z",
+          "minimum_sample_count": 24
+        }
+      },
+      "metadata": {
+        "hardware": "Apple M1 Max 64 GB",
+        "artifact": "mlx-community/whisper-large-v3-turbo-asr-fp16",
+        "artifact_revision": "624c19c9af5603fa73b83bce14d4aeea96156d18",
+        "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
+        "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='en'",
+        "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
+        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture"
+      },
+      "dominated_by": [
+        "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en",
+        "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en"
+      ]
+    },
+    {
+      "offering": {
+        "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m1-max-64gb-en",
+        "model_id": "Qwen3-ASR-1.7B",
+        "provider": "local:m1-max-64gb",
+        "endpoint": "in-process-mlx",
+        "billing_mode": null,
+        "region": null,
+        "service_tier": "resident",
+        "quantization": "8bit",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline-local-asr-pilot@1",
+        "capabilities": [
+          "asr",
+          "audio",
+          "stt"
+        ]
+      },
+      "axes": {
+        "asr_corpus_wer": {
+          "value": "8.52459",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "4.841335",
+          "upper": "12.773109",
+          "dependencies": [
+            "signals.asr_corpus_wer_percent"
+          ],
+          "source_ids": [
+            "local-asr-pilot-qwen3-asr-17b-8bit-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-pilot-qwen3-asr-17b-8bit-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+              "raw_sha256": "6890b5b927b123061c7cb6de52aab8329a8af9dc9e16ab298b45935892df66c3",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T00:17:51Z",
+          "minimum_sample_count": 24
+        },
+        "asr_final_latency_p95": {
+          "value": "529.873479",
+          "unit": "milliseconds",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "437.759412",
+          "upper": "577.783833",
+          "dependencies": [
+            "signals.asr_final_latency_p95_ms"
+          ],
+          "source_ids": [
+            "local-asr-pilot-qwen3-asr-17b-8bit-m1"
+          ],
+          "sources": [
+            {
+              "id": "local-asr-pilot-qwen3-asr-17b-8bit-m1",
+              "version": "1",
+              "url": null,
+              "terms_url": null,
+              "license": null,
+              "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+              "raw_sha256": "6890b5b927b123061c7cb6de52aab8329a8af9dc9e16ab298b45935892df66c3",
+              "retrieved_at": null
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T00:17:51Z",
+          "minimum_sample_count": 24
+        }
+      },
+      "metadata": {
+        "hardware": "Apple M1 Max 64 GB",
+        "artifact": "mlx-community/Qwen3-ASR-1.7B-8bit",
+        "artifact_revision": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+        "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
+        "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='English'",
+        "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
+        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture"
+      },
+      "dominated_by": [
+        "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en"
+      ]
+    }
+  ],
+  "rejected": [],
+  "axis_evidence": {
+    "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
+    "kind": "axis-evidence-inventory",
+    "hash_algorithm": "sha256-rfc8785-v1",
+    "config_hash": "67a19142abcbb0c1c1a94c20f72675c944cc23483dcc0fedcda15ff21de16882",
+    "catalog_hash": "aba6584a58d29f2e4c3eee0f3b8b1347adfe42b0101a08d6590f4e0d36a483d7",
+    "generated_at": "2026-09-15T02:52:05.651627Z",
+    "workload": {
+      "id": "local-asr-pilot-v1",
+      "version": "1.0.0",
+      "unit": "utterance"
+    },
+    "axes": [
+      {
+        "metric": "asr_corpus_wer",
+        "goal": "minimize",
+        "unit": "percent",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0"
+      },
+      {
+        "metric": "asr_final_latency_p95",
+        "goal": "minimize",
+        "unit": "milliseconds",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0"
+      }
+    ],
+    "candidate_universe_hash": "6ef6d0aabd68aee5e0d769ed00a40d549eab262c9a1bdfcf5a1d2f43f746885a",
+    "candidates": [
+      {
+        "offering": {
+          "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en",
+          "model_id": "Qwen3-ASR-0.6B",
+          "provider": "local:m1-max-64gb",
+          "endpoint": "in-process-mlx",
+          "billing_mode": null,
+          "region": null,
+          "service_tier": "resident",
+          "quantization": "8bit",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline-local-asr-pilot@1",
+          "capabilities": [
+            "asr",
+            "audio",
+            "stt"
+          ]
+        },
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "9.016393",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "4.538328",
+            "upper": "14.263074",
+            "dependencies": [
+              "signals.asr_corpus_wer_percent"
+            ],
+            "source_ids": [
+              "local-asr-pilot-qwen3-asr-06b-8bit-m1"
+            ],
+            "sources": [
+              {
+                "id": "local-asr-pilot-qwen3-asr-06b-8bit-m1",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                "raw_sha256": "a53ddede1ca53c54eeed2b5bb9c240119c5feebc5c34e26b5447d13feb3e8f71",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T00:17:39Z",
+            "minimum_sample_count": 24
+          },
+          "asr_final_latency_p95": {
+            "value": "280.050075",
+            "unit": "milliseconds",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "252.042356",
+            "upper": "312.092333",
+            "dependencies": [
+              "signals.asr_final_latency_p95_ms"
+            ],
+            "source_ids": [
+              "local-asr-pilot-qwen3-asr-06b-8bit-m1"
+            ],
+            "sources": [
+              {
+                "id": "local-asr-pilot-qwen3-asr-06b-8bit-m1",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                "raw_sha256": "a53ddede1ca53c54eeed2b5bb9c240119c5feebc5c34e26b5447d13feb3e8f71",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T00:17:39Z",
+            "minimum_sample_count": 24
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m1-max-64gb-en",
+          "model_id": "Qwen3-ASR-1.7B",
+          "provider": "local:m1-max-64gb",
+          "endpoint": "in-process-mlx",
+          "billing_mode": null,
+          "region": null,
+          "service_tier": "resident",
+          "quantization": "8bit",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline-local-asr-pilot@1",
+          "capabilities": [
+            "asr",
+            "audio",
+            "stt"
+          ]
+        },
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.52459",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "4.841335",
+            "upper": "12.773109",
+            "dependencies": [
+              "signals.asr_corpus_wer_percent"
+            ],
+            "source_ids": [
+              "local-asr-pilot-qwen3-asr-17b-8bit-m1"
+            ],
+            "sources": [
+              {
+                "id": "local-asr-pilot-qwen3-asr-17b-8bit-m1",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                "raw_sha256": "6890b5b927b123061c7cb6de52aab8329a8af9dc9e16ab298b45935892df66c3",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T00:17:51Z",
+            "minimum_sample_count": 24
+          },
+          "asr_final_latency_p95": {
+            "value": "529.873479",
+            "unit": "milliseconds",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "437.759412",
+            "upper": "577.783833",
+            "dependencies": [
+              "signals.asr_final_latency_p95_ms"
+            ],
+            "source_ids": [
+              "local-asr-pilot-qwen3-asr-17b-8bit-m1"
+            ],
+            "sources": [
+              {
+                "id": "local-asr-pilot-qwen3-asr-17b-8bit-m1",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                "raw_sha256": "6890b5b927b123061c7cb6de52aab8329a8af9dc9e16ab298b45935892df66c3",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T00:17:51Z",
+            "minimum_sample_count": 24
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en",
+          "model_id": "parakeet-tdt-0.6b-v3",
+          "provider": "local:m1-max-64gb",
+          "endpoint": "in-process-mlx",
+          "billing_mode": null,
+          "region": null,
+          "service_tier": "resident",
+          "quantization": "fp16",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline-local-asr-pilot@1",
+          "capabilities": [
+            "asr",
+            "audio",
+            "stt"
+          ]
+        },
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.196721",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "4.942339",
+            "upper": "11.926606",
+            "dependencies": [
+              "signals.asr_corpus_wer_percent"
+            ],
+            "source_ids": [
+              "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1"
+            ],
+            "sources": [
+              {
+                "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T00:18:06Z",
+            "minimum_sample_count": 24
+          },
+          "asr_final_latency_p95": {
+            "value": "109.111687",
+            "unit": "milliseconds",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "95.573138",
+            "upper": "116.745083",
+            "dependencies": [
+              "signals.asr_final_latency_p95_ms"
+            ],
+            "source_ids": [
+              "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1"
+            ],
+            "sources": [
+              {
+                "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T00:18:06Z",
+            "minimum_sample_count": 24
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m1-max-64gb-en",
+          "model_id": "whisper-large-v3-turbo",
+          "provider": "local:m1-max-64gb",
+          "endpoint": "in-process-mlx",
+          "billing_mode": null,
+          "region": null,
+          "service_tier": "resident",
+          "quantization": "fp16",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline-local-asr-pilot@1",
+          "capabilities": [
+            "asr",
+            "audio",
+            "stt"
+          ]
+        },
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "10.327869",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "5.510501",
+            "upper": "16.774601",
+            "dependencies": [
+              "signals.asr_corpus_wer_percent"
+            ],
+            "source_ids": [
+              "local-asr-pilot-whisper-large-v3-turbo-fp16-m1"
+            ],
+            "sources": [
+              {
+                "id": "local-asr-pilot-whisper-large-v3-turbo-fp16-m1",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                "raw_sha256": "e3ddf4e959565c44393ebcb0e9b19eba6efc71c8a36d0527ba8e374cadd05673",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T00:18:03Z",
+            "minimum_sample_count": 24
+          },
+          "asr_final_latency_p95": {
+            "value": "450.342923",
+            "unit": "milliseconds",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "431.682954",
+            "upper": "456.468708",
+            "dependencies": [
+              "signals.asr_final_latency_p95_ms"
+            ],
+            "source_ids": [
+              "local-asr-pilot-whisper-large-v3-turbo-fp16-m1"
+            ],
+            "sources": [
+              {
+                "id": "local-asr-pilot-whisper-large-v3-turbo-fp16-m1",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                "raw_sha256": "e3ddf4e959565c44393ebcb0e9b19eba6efc71c8a36d0527ba8e374cadd05673",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T00:18:03Z",
+            "minimum_sample_count": 24
+          }
+        }
+      }
+    ],
+    "inventory_id": "d0d3d307d4e7d305d5609d70c0eb7d3539310ef27beef71a61a5c09f0c5f6f5e"
+  },
+  "public_release_blocked": false,
+  "sources": [
+    {
+      "id": "local-asr-pilot-qwen3-asr-06b-8bit-m1",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+      "raw_sha256": "a53ddede1ca53c54eeed2b5bb9c240119c5feebc5c34e26b5447d13feb3e8f71",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-pilot-qwen3-asr-17b-8bit-m1",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+      "raw_sha256": "6890b5b927b123061c7cb6de52aab8329a8af9dc9e16ab298b45935892df66c3",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+      "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-pilot-whisper-large-v3-turbo-fp16-m1",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+      "raw_sha256": "e3ddf4e959565c44393ebcb0e9b19eba6efc71c8a36d0527ba8e374cadd05673",
+      "retrieved_at": null
+    },
+    {
+      "id": "hf-audio/open-asr-leaderboard",
+      "version": "b6bdcd0beb34f8975dc659796176d88f43aff502",
+      "url": "https://huggingface.co/datasets/hf-audio/open-asr-leaderboard",
+      "terms_url": null,
+      "license": "mixed-per-source",
+      "methodology": "Exact source rows are selected deterministically and retained in prompts/local-asr-pilot-v1.json. The four included source licenses are CC-BY-4.0, CC-BY-SA-4.0, and CC0-1.0. Common Voice is excluded because the aggregate package requires separate terms acceptance.",
+      "raw_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
+      "retrieved_at": null
+    }
+  ],
+  "source_watermarks": {
+    "local-asr-pilot-qwen3-asr-06b-8bit-m1": "2026-09-15T00:17:39Z",
+    "local-asr-pilot-qwen3-asr-17b-8bit-m1": "2026-09-15T00:17:51Z",
+    "local-asr-pilot-whisper-large-v3-turbo-fp16-m1": "2026-09-15T00:18:03Z",
+    "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1": "2026-09-15T00:18:06Z"
+  }
+}

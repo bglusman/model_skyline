@@ -50,6 +50,13 @@ now records pacing and diarizer-detected speaker changes, but the conclusions
 remain provisional because each offering uses only one synthesis seed and the
 new quality checks still need matched human calibration controls.
 
+Its [local speech-recognition frontiers](examples/voice-runtime-frontiers/ASR.md)
+now compare four exact MLX offerings on the same 24 public utterances. Parakeet
+TDT 0.6B v3 is the current quality/speed point winner on both 64 GB Macs;
+Qwen3-ASR 0.6B 8-bit joins it when memory is the second dimension. The file
+also records why this small-panel result is provisional and why M1-to-M5 speed
+cannot be represented by one universal multiplier.
+
 ## What a frontier means
 
 1. Name the job, such as coding-agent tasks or long-context retrieval.

@@ -1,0 +1,108 @@
+{
+  "methodology": {
+    "control": "same artifact revision, runtime versions, settings, normalized audio hashes, manifest order, and batch size; hardware and OS differ",
+    "quality_warning": "One-word transcript differences can arise from non-bitwise-identical Metal execution. The 24-case quality intervals, not these tiny point differences, determine whether quality is statistically resolved.",
+    "speedup": "M1 latency divided by M5 latency, or M5 realtime factor divided by M1 realtime factor; values above one favor M5"
+  },
+  "pairs": [
+    {
+      "artifact_revision": "89e96d92ba34aca20b3e29fb10cc284097d1219f",
+      "m1_capture": "examples/voice-runtime-frontiers/raw/qwen3-asr-06b-8bit-mlx-m1-local-asr-pilot-v1.json",
+      "m1_capture_sha256": "a53ddede1ca53c54eeed2b5bb9c240119c5feebc5c34e26b5447d13feb3e8f71",
+      "m5_capture": "examples/voice-runtime-frontiers/raw/qwen3-asr-06b-8bit-mlx-m5-local-asr-pilot-v1.json",
+      "m5_capture_sha256": "ffadb764e87dc2944d01e9b7d5a0d7db4e89cc567ef4a21eed314385f11b5a19",
+      "model": "mlx-community/Qwen3-ASR-0.6B-8bit",
+      "normalized_transcript_difference_count": 1,
+      "normalized_transcript_differences": [
+        {
+          "m1_normalized_hypothesis": "but i can just i can just repeat what i already said that next year is the year when we want to split teams and to work full scale",
+          "m5_normalized_hypothesis": "but i can just i can just repeat what i already said that next year is the year when we want to to split teams and to work full scale",
+          "testcase_id": "earnings22:4432298/186.wav"
+        }
+      ],
+      "point": {
+        "m1_corpus_wer_percentage": 9.016393,
+        "m5_corpus_wer_percentage": 8.852459,
+        "m5_minus_m1_wer_percentage_points": "-0.163934",
+        "m5_speedup_corpus_realtime_factor": "2.012943",
+        "m5_speedup_final_latency_p50": "1.968547",
+        "m5_speedup_final_latency_p95": "2.024265",
+        "m5_to_m1_process_rss_peak_ratio": "0.999038"
+      },
+      "runtime": "mlx-audio 0.5.4"
+    },
+    {
+      "artifact_revision": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
+      "m1_capture": "examples/voice-runtime-frontiers/raw/qwen3-asr-17b-8bit-mlx-m1-local-asr-pilot-v1.json",
+      "m1_capture_sha256": "6890b5b927b123061c7cb6de52aab8329a8af9dc9e16ab298b45935892df66c3",
+      "m5_capture": "examples/voice-runtime-frontiers/raw/qwen3-asr-17b-8bit-mlx-m5-local-asr-pilot-v1.json",
+      "m5_capture_sha256": "c823570bf7e5dfd08a431be77ec25c01b78f9f5a7887e7c3ad5273de928096e9",
+      "model": "mlx-community/Qwen3-ASR-1.7B-8bit",
+      "normalized_transcript_difference_count": 1,
+      "normalized_transcript_differences": [
+        {
+          "m1_normalized_hypothesis": "i enjoy a moonlit ramble as well as you i answered steadily fixing my eyes up on her and february happens to be one of my favorite resorts",
+          "m5_normalized_hypothesis": "i enjoy a melanchtramble as well as you i answered steadily fixing my eyes up on her and february happens to be one of my favorite resorts",
+          "testcase_id": "librispeech_test_other:533-131556-0012"
+        }
+      ],
+      "point": {
+        "m1_corpus_wer_percentage": 8.52459,
+        "m5_corpus_wer_percentage": 8.688525,
+        "m5_minus_m1_wer_percentage_points": "0.163935",
+        "m5_speedup_corpus_realtime_factor": "1.993202",
+        "m5_speedup_final_latency_p50": "1.902975",
+        "m5_speedup_final_latency_p95": "2.008734",
+        "m5_to_m1_process_rss_peak_ratio": "1.000485"
+      },
+      "runtime": "mlx-audio 0.5.4"
+    },
+    {
+      "artifact_revision": "ed2b7e8c15f9aaa0b5772e2efb986255eaef7e15",
+      "m1_capture": "examples/voice-runtime-frontiers/raw/parakeet-tdt-06b-v3-fp16-mlx-m1-local-asr-pilot-v1.json",
+      "m1_capture_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+      "m5_capture": "examples/voice-runtime-frontiers/raw/parakeet-tdt-06b-v3-fp16-mlx-m5-local-asr-pilot-v1.json",
+      "m5_capture_sha256": "748a42b8ab908b5ff0fb458172aa344c5e225bbc26d4c577be2ca7840b70af61",
+      "model": "mlx-community/parakeet-tdt-0.6b-v3",
+      "normalized_transcript_difference_count": 1,
+      "normalized_transcript_differences": [
+        {
+          "m1_normalized_hypothesis": "i enjoy your left ramble as well as you i answered steadily fixing my eyes upon her and frewbery happens to be one of my favorite resorts",
+          "m5_normalized_hypothesis": "i enjoy your left ramble as well as you i answered steadily fixing my eyes upon her and frewery happens to be one of my favorite resorts",
+          "testcase_id": "librispeech_test_other:533-131556-0012"
+        }
+      ],
+      "point": {
+        "m1_corpus_wer_percentage": 8.196721,
+        "m5_corpus_wer_percentage": 8.196721,
+        "m5_minus_m1_wer_percentage_points": "0.000000",
+        "m5_speedup_corpus_realtime_factor": "2.098022",
+        "m5_speedup_final_latency_p50": "2.068446",
+        "m5_speedup_final_latency_p95": "1.841588",
+        "m5_to_m1_process_rss_peak_ratio": "1.001662"
+      },
+      "runtime": "mlx-audio 0.5.4"
+    },
+    {
+      "artifact_revision": "624c19c9af5603fa73b83bce14d4aeea96156d18",
+      "m1_capture": "examples/voice-runtime-frontiers/raw/whisper-large-v3-turbo-fp16-mlx-m1-local-asr-pilot-v1.json",
+      "m1_capture_sha256": "e3ddf4e959565c44393ebcb0e9b19eba6efc71c8a36d0527ba8e374cadd05673",
+      "m5_capture": "examples/voice-runtime-frontiers/raw/whisper-large-v3-turbo-fp16-mlx-m5-local-asr-pilot-v1.json",
+      "m5_capture_sha256": "eb9f2f886c99f5d604c29a208ced0fc2191aab43718aeb8e8bdcc082e7069350",
+      "model": "mlx-community/whisper-large-v3-turbo-asr-fp16",
+      "normalized_transcript_difference_count": 0,
+      "normalized_transcript_differences": [],
+      "point": {
+        "m1_corpus_wer_percentage": 10.327869,
+        "m5_corpus_wer_percentage": 10.327869,
+        "m5_minus_m1_wer_percentage_points": "0.000000",
+        "m5_speedup_corpus_realtime_factor": "3.087640",
+        "m5_speedup_final_latency_p50": "3.063374",
+        "m5_speedup_final_latency_p95": "2.898847",
+        "m5_to_m1_process_rss_peak_ratio": "1.003814"
+      },
+      "runtime": "mlx-audio 0.5.4"
+    }
+  ],
+  "schema": "model-skyline/experimental-local-asr-hardware-comparison/v1alpha1"
+}

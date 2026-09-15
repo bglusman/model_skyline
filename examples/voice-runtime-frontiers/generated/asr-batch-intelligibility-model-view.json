@@ -1,0 +1,327 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": "apple-64gb-two-mac-asr-batch-intelligibility",
+  "policy_sha256": "d1a2645dcd84f53629e7c8788f63213b5072c8b8a1ccf83194326954170f2616",
+  "source_snapshot_id": "e761f6f2bf2f49b3d3237bfd707d9ab2598e453e786d9caf6694f02dba1b7a6c",
+  "frontier_id": "asr-batch-intelligibility",
+  "workload": {
+    "id": "local-asr-pilot-v1",
+    "version": "1.0.0",
+    "unit": "utterance"
+  },
+  "order_by": "asr_realtime_factor",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "asr_corpus_wer",
+      "goal": "minimize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "asr_realtime_factor",
+      "goal": "maximize",
+      "unit": "ratio",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "parakeet-tdt-0.6b-v3",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m5-max-64gb-en",
+              "model_id": "parakeet-tdt-0.6b-v3",
+              "provider": "local:m5-max-64gb",
+              "endpoint": "in-process-mlx",
+              "billing_mode": null,
+              "region": null,
+              "service_tier": "resident",
+              "quantization": "fp16",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline-local-asr-pilot@1",
+              "capabilities": [
+                "asr",
+                "audio",
+                "stt"
+              ]
+            },
+            "axes": {
+              "asr_corpus_wer": {
+                "value": "8.196721",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "4.942339",
+                "upper": "11.926606",
+                "dependencies": [
+                  "signals.asr_corpus_wer_percent"
+                ],
+                "source_ids": [
+                  "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5"
+                ],
+                "sources": [
+                  {
+                    "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5",
+                    "version": "1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": null,
+                    "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                    "raw_sha256": "748a42b8ab908b5ff0fb458172aa344c5e225bbc26d4c577be2ca7840b70af61",
+                    "retrieved_at": null
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T00:17:14Z",
+                "minimum_sample_count": 24
+              },
+              "asr_realtime_factor": {
+                "value": "242.118662",
+                "unit": "ratio",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.asr_realtime_factor"
+                ],
+                "source_ids": [
+                  "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5"
+                ],
+                "sources": [
+                  {
+                    "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5",
+                    "version": "1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": null,
+                    "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                    "raw_sha256": "748a42b8ab908b5ff0fb458172aa344c5e225bbc26d4c577be2ca7840b70af61",
+                    "retrieved_at": null
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T00:17:14Z",
+                "minimum_sample_count": 24
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": {
+    "aggregation": "arithmetic_mean",
+    "panel_rule": "same_environments_equal_weight",
+    "environments": [
+      {
+        "environment_id": "m1-max-64gb",
+        "provider": "local:m1-max-64gb"
+      },
+      {
+        "environment_id": "m5-max-64gb",
+        "provider": "local:m5-max-64gb"
+      }
+    ],
+    "members": [
+      {
+        "model_id": "parakeet-tdt-0.6b-v3",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.196721",
+            "unit": "percent",
+            "lower": "4.942339",
+            "upper": "11.926606",
+            "environment_values": {
+              "m1-max-64gb": "8.196721",
+              "m5-max-64gb": "8.196721"
+            }
+          },
+          "asr_realtime_factor": {
+            "value": "178.760983",
+            "unit": "ratio",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "115.403304",
+              "m5-max-64gb": "242.118662"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m5-max-64gb-en"
+          }
+        ],
+        "dominated_by": []
+      }
+    ],
+    "evaluated": [
+      {
+        "model_id": "parakeet-tdt-0.6b-v3",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.196721",
+            "unit": "percent",
+            "lower": "4.942339",
+            "upper": "11.926606",
+            "environment_values": {
+              "m1-max-64gb": "8.196721",
+              "m5-max-64gb": "8.196721"
+            }
+          },
+          "asr_realtime_factor": {
+            "value": "178.760983",
+            "unit": "ratio",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "115.403304",
+              "m5-max-64gb": "242.118662"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m5-max-64gb-en"
+          }
+        ],
+        "dominated_by": []
+      },
+      {
+        "model_id": "Qwen3-ASR-0.6B",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.934426",
+            "unit": "percent",
+            "lower": "4.538328",
+            "upper": "14.0433185",
+            "environment_values": {
+              "m1-max-64gb": "9.016393",
+              "m5-max-64gb": "8.852459"
+            }
+          },
+          "asr_realtime_factor": {
+            "value": "65.2413085",
+            "unit": "ratio",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "43.307369",
+              "m5-max-64gb": "87.175248"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m5-max-64gb-en"
+          }
+        ],
+        "dominated_by": [
+          "parakeet-tdt-0.6b-v3"
+        ]
+      },
+      {
+        "model_id": "whisper-large-v3-turbo",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "10.327869",
+            "unit": "percent",
+            "lower": "5.510501",
+            "upper": "16.774601",
+            "environment_values": {
+              "m1-max-64gb": "10.327869",
+              "m5-max-64gb": "10.327869"
+            }
+          },
+          "asr_realtime_factor": {
+            "value": "47.214683",
+            "unit": "ratio",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "23.101193",
+              "m5-max-64gb": "71.328173"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m5-max-64gb-en"
+          }
+        ],
+        "dominated_by": [
+          "Qwen3-ASR-0.6B",
+          "parakeet-tdt-0.6b-v3"
+        ]
+      },
+      {
+        "model_id": "Qwen3-ASR-1.7B",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.6065575",
+            "unit": "percent",
+            "lower": "4.8693245",
+            "upper": "12.9012125",
+            "environment_values": {
+              "m1-max-64gb": "8.52459",
+              "m5-max-64gb": "8.688525"
+            }
+          },
+          "asr_realtime_factor": {
+            "value": "35.825934",
+            "unit": "ratio",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "23.938201",
+              "m5-max-64gb": "47.713667"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m5-max-64gb-en"
+          }
+        ],
+        "dominated_by": [
+          "parakeet-tdt-0.6b-v3"
+        ]
+      }
+    ]
+  },
+  "view_id": "ead7e64b9b7fe96f35b605d3400d0ca9308c09084ac77dd449b81874c1c950d0"
+}

@@ -1,0 +1,70 @@
+{
+  "schema_version": "model-skyline/model-frontier-view-policy/v1alpha1",
+  "policy_id": "apple-64gb-two-mac-asr-responsive-intelligibility",
+  "source_snapshot_id": "1e3c972cbade87d15af4d3086effdcd128c0cd6dd7e190e925d64cadaf575a47",
+  "aggregation": "arithmetic_mean",
+  "environments": [
+    {
+      "environment_id": "m1-max-64gb",
+      "provider": "local:m1-max-64gb"
+    },
+    {
+      "environment_id": "m5-max-64gb",
+      "provider": "local:m5-max-64gb"
+    }
+  ],
+  "models": [
+    {
+      "model_id": "Qwen3-ASR-0.6B",
+      "offerings": [
+        {
+          "environment_id": "m1-max-64gb",
+          "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en"
+        },
+        {
+          "environment_id": "m5-max-64gb",
+          "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m5-max-64gb-en"
+        }
+      ]
+    },
+    {
+      "model_id": "Qwen3-ASR-1.7B",
+      "offerings": [
+        {
+          "environment_id": "m1-max-64gb",
+          "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m1-max-64gb-en"
+        },
+        {
+          "environment_id": "m5-max-64gb",
+          "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m5-max-64gb-en"
+        }
+      ]
+    },
+    {
+      "model_id": "parakeet-tdt-0.6b-v3",
+      "offerings": [
+        {
+          "environment_id": "m1-max-64gb",
+          "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en"
+        },
+        {
+          "environment_id": "m5-max-64gb",
+          "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m5-max-64gb-en"
+        }
+      ]
+    },
+    {
+      "model_id": "whisper-large-v3-turbo",
+      "offerings": [
+        {
+          "environment_id": "m1-max-64gb",
+          "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m1-max-64gb-en"
+        },
+        {
+          "environment_id": "m5-max-64gb",
+          "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m5-max-64gb-en"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,523 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": "apple-64gb-two-mac-asr-small-resident",
+  "policy_sha256": "c9346a2e963cf1bfaee6864dc1a27e46b5d763dd929b348df464223812144ae8",
+  "source_snapshot_id": "9544461094a87220ef121186cac0dd3b247f63496fd3aae19b5ceb2cee1c1c4a",
+  "frontier_id": "asr-small-resident",
+  "workload": {
+    "id": "local-asr-pilot-v1",
+    "version": "1.0.0",
+    "unit": "utterance"
+  },
+  "order_by": "asr_process_rss_peak",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "asr_corpus_wer",
+      "goal": "minimize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "asr_process_rss_peak",
+      "goal": "minimize",
+      "unit": "megabytes",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.02"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "Qwen3-ASR-0.6B",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m5-max-64gb-en",
+              "model_id": "Qwen3-ASR-0.6B",
+              "provider": "local:m5-max-64gb",
+              "endpoint": "in-process-mlx",
+              "billing_mode": null,
+              "region": null,
+              "service_tier": "resident",
+              "quantization": "8bit",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline-local-asr-pilot@1",
+              "capabilities": [
+                "asr",
+                "audio",
+                "stt"
+              ]
+            },
+            "axes": {
+              "asr_corpus_wer": {
+                "value": "8.852459",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "4.538328",
+                "upper": "13.823563",
+                "dependencies": [
+                  "signals.asr_corpus_wer_percent"
+                ],
+                "source_ids": [
+                  "local-asr-pilot-qwen3-asr-06b-8bit-m5"
+                ],
+                "sources": [
+                  {
+                    "id": "local-asr-pilot-qwen3-asr-06b-8bit-m5",
+                    "version": "1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": null,
+                    "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                    "raw_sha256": "ffadb764e87dc2944d01e9b7d5a0d7db4e89cc567ef4a21eed314385f11b5a19",
+                    "retrieved_at": null
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T00:17:01Z",
+                "minimum_sample_count": 24
+              },
+              "asr_process_rss_peak": {
+                "value": "1152.453125",
+                "unit": "megabytes",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.asr_process_rss_peak_mb"
+                ],
+                "source_ids": [
+                  "local-asr-pilot-qwen3-asr-06b-8bit-m5"
+                ],
+                "sources": [
+                  {
+                    "id": "local-asr-pilot-qwen3-asr-06b-8bit-m5",
+                    "version": "1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": null,
+                    "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                    "raw_sha256": "ffadb764e87dc2944d01e9b7d5a0d7db4e89cc567ef4a21eed314385f11b5a19",
+                    "retrieved_at": null
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T00:17:01Z",
+                "minimum_sample_count": 24
+              }
+            }
+          }
+        ]
+      },
+      {
+        "model_id": "parakeet-tdt-0.6b-v3",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en",
+              "model_id": "parakeet-tdt-0.6b-v3",
+              "provider": "local:m1-max-64gb",
+              "endpoint": "in-process-mlx",
+              "billing_mode": null,
+              "region": null,
+              "service_tier": "resident",
+              "quantization": "fp16",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline-local-asr-pilot@1",
+              "capabilities": [
+                "asr",
+                "audio",
+                "stt"
+              ]
+            },
+            "axes": {
+              "asr_corpus_wer": {
+                "value": "8.196721",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "4.942339",
+                "upper": "11.926606",
+                "dependencies": [
+                  "signals.asr_corpus_wer_percent"
+                ],
+                "source_ids": [
+                  "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1"
+                ],
+                "sources": [
+                  {
+                    "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+                    "version": "1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": null,
+                    "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                    "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+                    "retrieved_at": null
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T00:18:06Z",
+                "minimum_sample_count": 24
+              },
+              "asr_process_rss_peak": {
+                "value": "2519.75",
+                "unit": "megabytes",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.asr_process_rss_peak_mb"
+                ],
+                "source_ids": [
+                  "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1"
+                ],
+                "sources": [
+                  {
+                    "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
+                    "version": "1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": null,
+                    "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                    "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f",
+                    "retrieved_at": null
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T00:18:06Z",
+                "minimum_sample_count": 24
+              }
+            }
+          },
+          {
+            "offering": {
+              "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m5-max-64gb-en",
+              "model_id": "parakeet-tdt-0.6b-v3",
+              "provider": "local:m5-max-64gb",
+              "endpoint": "in-process-mlx",
+              "billing_mode": null,
+              "region": null,
+              "service_tier": "resident",
+              "quantization": "fp16",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline-local-asr-pilot@1",
+              "capabilities": [
+                "asr",
+                "audio",
+                "stt"
+              ]
+            },
+            "axes": {
+              "asr_corpus_wer": {
+                "value": "8.196721",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "4.942339",
+                "upper": "11.926606",
+                "dependencies": [
+                  "signals.asr_corpus_wer_percent"
+                ],
+                "source_ids": [
+                  "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5"
+                ],
+                "sources": [
+                  {
+                    "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5",
+                    "version": "1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": null,
+                    "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                    "raw_sha256": "748a42b8ab908b5ff0fb458172aa344c5e225bbc26d4c577be2ca7840b70af61",
+                    "retrieved_at": null
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T00:17:14Z",
+                "minimum_sample_count": 24
+              },
+              "asr_process_rss_peak": {
+                "value": "2523.9375",
+                "unit": "megabytes",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.asr_process_rss_peak_mb"
+                ],
+                "source_ids": [
+                  "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5"
+                ],
+                "sources": [
+                  {
+                    "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5",
+                    "version": "1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": null,
+                    "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
+                    "raw_sha256": "748a42b8ab908b5ff0fb458172aa344c5e225bbc26d4c577be2ca7840b70af61",
+                    "retrieved_at": null
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T00:17:14Z",
+                "minimum_sample_count": 24
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": {
+    "aggregation": "arithmetic_mean",
+    "panel_rule": "same_environments_equal_weight",
+    "environments": [
+      {
+        "environment_id": "m1-max-64gb",
+        "provider": "local:m1-max-64gb"
+      },
+      {
+        "environment_id": "m5-max-64gb",
+        "provider": "local:m5-max-64gb"
+      }
+    ],
+    "members": [
+      {
+        "model_id": "Qwen3-ASR-0.6B",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.934426",
+            "unit": "percent",
+            "lower": "4.538328",
+            "upper": "14.0433185",
+            "environment_values": {
+              "m1-max-64gb": "9.016393",
+              "m5-max-64gb": "8.852459"
+            }
+          },
+          "asr_process_rss_peak": {
+            "value": "1153.0078125",
+            "unit": "megabytes",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "1153.5625",
+              "m5-max-64gb": "1152.453125"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m5-max-64gb-en"
+          }
+        ],
+        "dominated_by": []
+      },
+      {
+        "model_id": "parakeet-tdt-0.6b-v3",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.196721",
+            "unit": "percent",
+            "lower": "4.942339",
+            "upper": "11.926606",
+            "environment_values": {
+              "m1-max-64gb": "8.196721",
+              "m5-max-64gb": "8.196721"
+            }
+          },
+          "asr_process_rss_peak": {
+            "value": "2521.84375",
+            "unit": "megabytes",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "2519.75",
+              "m5-max-64gb": "2523.9375"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m5-max-64gb-en"
+          }
+        ],
+        "dominated_by": []
+      }
+    ],
+    "evaluated": [
+      {
+        "model_id": "Qwen3-ASR-0.6B",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.934426",
+            "unit": "percent",
+            "lower": "4.538328",
+            "upper": "14.0433185",
+            "environment_values": {
+              "m1-max-64gb": "9.016393",
+              "m5-max-64gb": "8.852459"
+            }
+          },
+          "asr_process_rss_peak": {
+            "value": "1153.0078125",
+            "unit": "megabytes",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "1153.5625",
+              "m5-max-64gb": "1152.453125"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m5-max-64gb-en"
+          }
+        ],
+        "dominated_by": []
+      },
+      {
+        "model_id": "whisper-large-v3-turbo",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "10.327869",
+            "unit": "percent",
+            "lower": "5.510501",
+            "upper": "16.774601",
+            "environment_values": {
+              "m1-max-64gb": "10.327869",
+              "m5-max-64gb": "10.327869"
+            }
+          },
+          "asr_process_rss_peak": {
+            "value": "1699.21875",
+            "unit": "megabytes",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "1695.984375",
+              "m5-max-64gb": "1702.453125"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m5-max-64gb-en"
+          }
+        ],
+        "dominated_by": [
+          "Qwen3-ASR-0.6B"
+        ]
+      },
+      {
+        "model_id": "parakeet-tdt-0.6b-v3",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.196721",
+            "unit": "percent",
+            "lower": "4.942339",
+            "upper": "11.926606",
+            "environment_values": {
+              "m1-max-64gb": "8.196721",
+              "m5-max-64gb": "8.196721"
+            }
+          },
+          "asr_process_rss_peak": {
+            "value": "2521.84375",
+            "unit": "megabytes",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "2519.75",
+              "m5-max-64gb": "2523.9375"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m5-max-64gb-en"
+          }
+        ],
+        "dominated_by": []
+      },
+      {
+        "model_id": "Qwen3-ASR-1.7B",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.6065575",
+            "unit": "percent",
+            "lower": "4.8693245",
+            "upper": "12.9012125",
+            "environment_values": {
+              "m1-max-64gb": "8.52459",
+              "m5-max-64gb": "8.688525"
+            }
+          },
+          "asr_process_rss_peak": {
+            "value": "2543.6171875",
+            "unit": "megabytes",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "2543",
+              "m5-max-64gb": "2544.234375"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m5-max-64gb-en"
+          }
+        ],
+        "dominated_by": [
+          "parakeet-tdt-0.6b-v3"
+        ]
+      }
+    ]
+  },
+  "view_id": "6b5d52185716bfc50d41221b240baa0e2ecba53cdb8160f1a2485b47dd66310f"
+}
