@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "c3135b9821edcabcb276a5688d944606d1573962419258767e6b58b462e363e5",
-  "config_hash": "36860818d74cc6f945f53f8c4bc2ce01daa2ce52f0f20cfe7cf4fda6a025b58d",
-  "catalog_hash": "35d3a60811eedb88e0b0264b5d8434edf9265006f50c3521e40548ac22666fc1",
+  "snapshot_id": "53ae1fd844b580bdda6d4690c441a5afbc22779e6538ebd9f7731aaa639df55d",
+  "config_hash": "31443bd96545f9821ed4299c13c8b98220df8e5363597b28adf031b789c96964",
+  "catalog_hash": "a29059959f549767a07b54509555f613e916f71068baa7e11592b72b70f369c9",
   "engine_version": "0.9.0",
-  "generated_at": "2026-09-15T06:00:00Z",
+  "generated_at": "2026-09-15T13:20:00Z",
   "frontier_id": "asr-typical-intelligibility",
   "workload": {
     "id": "local-asr-pilot-v1",
@@ -1542,9 +1542,9 @@
     "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
-    "config_hash": "36860818d74cc6f945f53f8c4bc2ce01daa2ce52f0f20cfe7cf4fda6a025b58d",
-    "catalog_hash": "35d3a60811eedb88e0b0264b5d8434edf9265006f50c3521e40548ac22666fc1",
-    "generated_at": "2026-09-15T06:00:00Z",
+    "config_hash": "31443bd96545f9821ed4299c13c8b98220df8e5363597b28adf031b789c96964",
+    "catalog_hash": "a29059959f549767a07b54509555f613e916f71068baa7e11592b72b70f369c9",
+    "generated_at": "2026-09-15T13:20:00Z",
     "workload": {
       "id": "local-asr-pilot-v1",
       "version": "1.0.0",
@@ -2754,17 +2754,47 @@
         }
       }
     ],
-    "inventory_id": "521ee6cb28ba42ef512278b1e4dc1c701e7e5b397c14b0f16d263348f10bfcb0"
+    "inventory_id": "a55572d69b1a50afffa3da654c28869f468dfd69e4bfb728c8d7caffeebfcb81"
   },
   "public_release_blocked": false,
   "sources": [
+    {
+      "id": "local-asr-framework-hot-parakeet-tdt-06b-v3-bf16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "3109f3dec9e0e88ee38fb408e5f40fe5ed5ab3e592d223440029c11025b3dfd0",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-framework-hot-qwen3-asr-06b-bf16-compile-dynamic-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "422bfc7a26f63ff64ddf793c96040c9eae57c1ad1967e3e662ec3d795c4cbf18",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-whisper-large-v3-turbo-fp16-m1",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "cbdc124f0528e57711641d59ef511a0b4f5809dcb2990d8361aebe49b64ef948",
+      "retrieved_at": null
+    },
     {
       "id": "local-asr-activation-qwen3-asr-17b-bf16-compile-dynamic-5060",
       "version": "1",
       "url": null,
       "terms_url": null,
       "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
       "raw_sha256": "45fae4934e1c4c1f04d04ca679b9c98b5f808d36b9b5bf97caebb24e79563483",
       "retrieved_at": null
     },
@@ -2776,6 +2806,16 @@
       "license": null,
       "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
       "raw_sha256": "a53ddede1ca53c54eeed2b5bb9c240119c5feebc5c34e26b5447d13feb3e8f71",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-qwen3-asr-17b-8bit-m1",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "2d0997e1a090aee19d8a0671c03f79cde744d3e1a44b61453b1d9bdeb46b6562",
       "retrieved_at": null
     },
     {
@@ -2809,23 +2849,53 @@
       "retrieved_at": null
     },
     {
-      "id": "local-asr-activation-qwen3-asr-17b-bf16-5060",
+      "id": "local-asr-activation-qwen3-asr-06b-8bit-m1",
       "version": "1",
       "url": null,
       "terms_url": null,
       "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "ccc192293e99072a3f8fceaf9f053dffa0fef048764b223342447f0fd2bb73e7",
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "608523d32149ce91d62e591fdac8008f2b72ac934720e7872eeb19c9f592fbfc",
       "retrieved_at": null
     },
     {
-      "id": "local-asr-activation-qwen3-asr-17b-8bit-m5",
+      "id": "local-asr-activation-parakeet-tdt-06b-v3-fp16-m5",
       "version": "1",
       "url": null,
       "terms_url": null,
       "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "7f722265d2586d6817a53ffd85c1cd7a280e4741c1546374f862fa0061cda0e2",
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "c822981a47d387b3ff173e8c433735bc344254702ad3b3b091e3fd4156854714",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-whisper-large-v3-turbo-fp16-m5",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "373b40e1a39a7cf1f12e3e955cd3f99f1889586965ff8067927f0bbb71c82167",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m1",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "e9ab112fff6102e0ecb187fc64d0b9820a4e988beb13112bc35a54e30b29473f",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m5",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "d014c96bddaf603eb43e1b5a3dae1314c26a4ad5e17024754237fa9973896303",
       "retrieved_at": null
     },
     {
@@ -2839,13 +2909,13 @@
       "retrieved_at": null
     },
     {
-      "id": "local-asr-activation-parakeet-tdt-06b-v3-bf16-5060",
+      "id": "local-asr-framework-hot-whisper-large-v3-turbo-fp16-m1",
       "version": "1",
       "url": null,
       "terms_url": null,
       "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "b567a2376c1bdf3a1e2adc32af6e5d9e3494cfc5c91ce97ce52ee78b2ff6d4a2",
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "2a5bf83d3cef347b371527384c0b2327f9197f5c6708a475d876568767b8f9e1",
       "retrieved_at": null
     },
     {
@@ -2859,6 +2929,26 @@
       "retrieved_at": null
     },
     {
+      "id": "local-asr-framework-hot-qwen3-asr-17b-8bit-m1",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "e97c88b29caa2d89dc4364544618a98b67bfd2cd6966347ea3942c11ac3d2d8e",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-framework-hot-qwen3-asr-17b-bf16-compile-dynamic-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "5f293b942c710d25c175bae043075f24b8d58addc089c7d61ec7e4b98c77c239",
+      "retrieved_at": null
+    },
+    {
       "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1",
       "version": "1",
       "url": null,
@@ -2869,6 +2959,26 @@
       "retrieved_at": null
     },
     {
+      "id": "local-asr-framework-hot-qwen3-asr-17b-bf16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "166a230f8d2db9420c537c43ab19f6025fc8447c937b3b222a3d2cc94df31807",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-framework-hot-qwen3-asr-06b-8bit-m1",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "4e38650b6101803d07a467e965af04994dc8e53ad6414d35060ded4447d134d5",
+      "retrieved_at": null
+    },
+    {
       "id": "local-asr-pilot-whisper-large-v3-turbo-fp16-m1",
       "version": "1",
       "url": null,
@@ -2876,16 +2986,6 @@
       "license": null,
       "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
       "raw_sha256": "e3ddf4e959565c44393ebcb0e9b19eba6efc71c8a36d0527ba8e374cadd05673",
-      "retrieved_at": null
-    },
-    {
-      "id": "local-asr-activation-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
-      "version": "1",
-      "url": null,
-      "terms_url": null,
-      "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "bbc8526ea09311ee49cb4fd528407f9f15041b847431b70fd49fd1c9944ab110",
       "retrieved_at": null
     },
     {
@@ -2909,33 +3009,13 @@
       "retrieved_at": null
     },
     {
-      "id": "local-asr-activation-whisper-large-v3-turbo-fp16-m5",
+      "id": "local-asr-activation-qwen3-asr-06b-bf16-5060",
       "version": "1",
       "url": null,
       "terms_url": null,
       "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "373b40e1a39a7cf1f12e3e955cd3f99f1889586965ff8067927f0bbb71c82167",
-      "retrieved_at": null
-    },
-    {
-      "id": "local-asr-activation-qwen3-asr-06b-8bit-m1",
-      "version": "1",
-      "url": null,
-      "terms_url": null,
-      "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "608523d32149ce91d62e591fdac8008f2b72ac934720e7872eeb19c9f592fbfc",
-      "retrieved_at": null
-    },
-    {
-      "id": "local-asr-activation-whisper-large-v3-turbo-bf16-5060",
-      "version": "1",
-      "url": null,
-      "terms_url": null,
-      "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "99d1bd56d4630c944e2cb7806ec83b1e800184322148268061d3d91cf6dbcac0",
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "5c7b7c946df5927971396c9fdbb8f2cfbf304f10bb6f117d3472e536e4dfd128",
       "retrieved_at": null
     },
     {
@@ -2944,8 +3024,38 @@
       "url": null,
       "terms_url": null,
       "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
       "raw_sha256": "c6fc43f273d1a02b0352b3790416fa1916ddd647ead9eb0fa7ef0d4b186d38cf",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-parakeet-tdt-06b-v3-bf16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "b567a2376c1bdf3a1e2adc32af6e5d9e3494cfc5c91ce97ce52ee78b2ff6d4a2",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "bbc8526ea09311ee49cb4fd528407f9f15041b847431b70fd49fd1c9944ab110",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-whisper-large-v3-turbo-bf16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "99d1bd56d4630c944e2cb7806ec83b1e800184322148268061d3d91cf6dbcac0",
       "retrieved_at": null
     },
     {
@@ -2954,8 +3064,18 @@
       "url": null,
       "terms_url": null,
       "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
       "raw_sha256": "47e24836a8748ba07db95756c87c7137899beb125c59abcbbfd706324fcd8b1c",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-qwen3-asr-06b-bf16-compile-dynamic-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "6c3fae3e81f5a5c9b37145486f02e703a011eefbfd543d7e370497f937288dac",
       "retrieved_at": null
     },
     {
@@ -2969,6 +3089,36 @@
       "retrieved_at": null
     },
     {
+      "id": "local-asr-framework-hot-qwen3-asr-06b-8bit-m5",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "339d21360cb9a274269722df5d390f8a0745cbefade583580cc2ffdbbd52eef9",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-framework-hot-whisper-large-v3-turbo-bf16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "0500bef0cf6ec63e46dc3dc24a4d32abd906b6c3eb4232bdcc0fcb58f637b683",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-framework-hot-qwen3-asr-17b-8bit-m5",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "84a9ea077839032d3f012af9db8c9dfb7cb9ef3dd65db2f5bf465d2ffae0855c",
+      "retrieved_at": null
+    },
+    {
       "id": "local-asr-pilot-whisper-large-v3-turbo-fp16-m5",
       "version": "1",
       "url": null,
@@ -2979,13 +3129,13 @@
       "retrieved_at": null
     },
     {
-      "id": "local-asr-activation-whisper-large-v3-turbo-fp16-m1",
+      "id": "local-asr-activation-qwen3-asr-17b-bf16-5060",
       "version": "1",
       "url": null,
       "terms_url": null,
       "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "cbdc124f0528e57711641d59ef511a0b4f5809dcb2990d8361aebe49b64ef948",
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "ccc192293e99072a3f8fceaf9f053dffa0fef048764b223342447f0fd2bb73e7",
       "retrieved_at": null
     },
     {
@@ -2999,13 +3149,23 @@
       "retrieved_at": null
     },
     {
-      "id": "local-asr-activation-qwen3-asr-17b-8bit-m1",
+      "id": "local-asr-framework-hot-qwen3-asr-06b-bf16-5060",
       "version": "1",
       "url": null,
       "terms_url": null,
       "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "2d0997e1a090aee19d8a0671c03f79cde744d3e1a44b61453b1d9bdeb46b6562",
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "786dd2d9fa97d476eff9d40c7d60f8cbb343be1088208b74a9e8a12144185758",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-qwen3-asr-17b-8bit-m5",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after one seed activation; locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "7f722265d2586d6817a53ffd85c1cd7a280e4741c1546374f862fa0061cda0e2",
       "retrieved_at": null
     },
     {
@@ -3019,16 +3179,6 @@
       "retrieved_at": null
     },
     {
-      "id": "local-asr-activation-qwen3-asr-06b-bf16-compile-dynamic-5060",
-      "version": "1",
-      "url": null,
-      "terms_url": null,
-      "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "6c3fae3e81f5a5c9b37145486f02e703a011eefbfd543d7e370497f937288dac",
-      "retrieved_at": null
-    },
-    {
       "id": "local-asr-pilot-whisper-large-v3-turbo-bf16-5060",
       "version": "1",
       "url": null,
@@ -3039,23 +3189,23 @@
       "retrieved_at": null
     },
     {
-      "id": "local-asr-activation-qwen3-asr-06b-bf16-5060",
+      "id": "local-asr-framework-hot-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
       "version": "1",
       "url": null,
       "terms_url": null,
       "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "5c7b7c946df5927971396c9fdbb8f2cfbf304f10bb6f117d3472e536e4dfd128",
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "8b2b66492d748f3921b4daa0b0916f4171d0237a2f3189668f35f8a706a17d7f",
       "retrieved_at": null
     },
     {
-      "id": "local-asr-activation-parakeet-tdt-06b-v3-fp16-m5",
+      "id": "local-asr-framework-hot-whisper-large-v3-turbo-fp16-m5",
       "version": "1",
       "url": null,
       "terms_url": null,
       "license": null,
-      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
-      "raw_sha256": "c822981a47d387b3ff173e8c433735bc344254702ad3b3b091e3fd4156854714",
+      "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+      "raw_sha256": "ed9ad753f15863d7b7b52b6df62fec55407de3384599d43d9a217482ff7a2293",
       "retrieved_at": null
     },
     {
@@ -3072,33 +3222,48 @@
   "source_watermarks": {
     "local-asr-pilot-qwen3-asr-06b-8bit-m1": "2026-09-15T00:17:39Z",
     "local-asr-activation-qwen3-asr-06b-8bit-m1": "2026-09-15T05:04:39Z",
+    "local-asr-framework-hot-qwen3-asr-06b-8bit-m1": "2026-09-15T12:53:07Z",
     "local-asr-pilot-qwen3-asr-17b-8bit-m1": "2026-09-15T00:17:51Z",
     "local-asr-activation-qwen3-asr-17b-8bit-m1": "2026-09-15T05:05:00Z",
+    "local-asr-framework-hot-qwen3-asr-17b-8bit-m1": "2026-09-15T12:53:28Z",
     "local-asr-pilot-whisper-large-v3-turbo-fp16-m1": "2026-09-15T00:18:03Z",
     "local-asr-activation-whisper-large-v3-turbo-fp16-m1": "2026-09-15T05:05:19Z",
+    "local-asr-framework-hot-whisper-large-v3-turbo-fp16-m1": "2026-09-15T12:53:47Z",
     "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m1": "2026-09-15T00:18:06Z",
     "local-asr-activation-parakeet-tdt-06b-v3-fp16-m1": "2026-09-15T05:04:22Z",
+    "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m1": "2026-09-15T12:52:50Z",
     "local-asr-pilot-qwen3-asr-06b-8bit-m5": "2026-09-15T00:17:01Z",
     "local-asr-activation-qwen3-asr-06b-8bit-m5": "2026-09-15T05:04:43Z",
+    "local-asr-framework-hot-qwen3-asr-06b-8bit-m5": "2026-09-15T12:52:56Z",
     "local-asr-pilot-qwen3-asr-17b-8bit-m5": "2026-09-15T00:17:07Z",
     "local-asr-activation-qwen3-asr-17b-8bit-m5": "2026-09-15T05:04:56Z",
+    "local-asr-framework-hot-qwen3-asr-17b-8bit-m5": "2026-09-15T12:53:09Z",
     "local-asr-pilot-whisper-large-v3-turbo-fp16-m5": "2026-09-15T00:17:12Z",
     "local-asr-activation-whisper-large-v3-turbo-fp16-m5": "2026-09-15T05:05:07Z",
+    "local-asr-framework-hot-whisper-large-v3-turbo-fp16-m5": "2026-09-15T12:53:20Z",
     "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5": "2026-09-15T00:17:14Z",
     "local-asr-activation-parakeet-tdt-06b-v3-fp16-m5": "2026-09-15T05:04:32Z",
+    "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m5": "2026-09-15T12:52:44Z",
     "local-asr-pilot-qwen3-asr-06b-bf16-5060": "2026-09-15T03:03:39Z",
     "local-asr-activation-qwen3-asr-06b-bf16-5060": "2026-09-15T05:05:01Z",
+    "local-asr-framework-hot-qwen3-asr-06b-bf16-5060": "2026-09-15T12:53:32Z",
     "local-asr-pilot-qwen3-asr-17b-bf16-5060": "2026-09-15T03:04:38Z",
     "local-asr-activation-qwen3-asr-17b-bf16-5060": "2026-09-15T05:06:03Z",
+    "local-asr-framework-hot-qwen3-asr-17b-bf16-5060": "2026-09-15T12:54:35Z",
     "local-asr-pilot-whisper-large-v3-turbo-bf16-5060": "2026-09-15T03:05:36Z",
     "local-asr-activation-whisper-large-v3-turbo-bf16-5060": "2026-09-15T05:06:49Z",
+    "local-asr-framework-hot-whisper-large-v3-turbo-bf16-5060": "2026-09-15T12:55:20Z",
     "local-asr-pilot-parakeet-tdt-06b-v3-bf16-5060": "2026-09-15T03:02:59Z",
     "local-asr-activation-parakeet-tdt-06b-v3-bf16-5060": "2026-09-15T05:07:40Z",
+    "local-asr-framework-hot-parakeet-tdt-06b-v3-bf16-5060": "2026-09-15T12:56:12Z",
     "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060": "2026-09-15T03:32:39Z",
     "local-asr-activation-qwen3-asr-06b-bf16-compile-dynamic-5060": "2026-09-15T05:18:39Z",
+    "local-asr-framework-hot-qwen3-asr-06b-bf16-compile-dynamic-5060": "2026-09-15T13:07:10Z",
     "local-asr-pilot-qwen3-asr-17b-bf16-compile-dynamic-5060": "2026-09-15T03:36:13Z",
     "local-asr-activation-qwen3-asr-17b-bf16-compile-dynamic-5060": "2026-09-15T05:28:00Z",
+    "local-asr-framework-hot-qwen3-asr-17b-bf16-compile-dynamic-5060": "2026-09-15T13:16:36Z",
     "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060": "2026-09-15T03:27:42Z",
-    "local-asr-activation-parakeet-tdt-06b-v3-bf16-compile-static16-5060": "2026-09-15T05:09:26Z"
+    "local-asr-activation-parakeet-tdt-06b-v3-bf16-compile-static16-5060": "2026-09-15T05:09:26Z",
+    "local-asr-framework-hot-parakeet-tdt-06b-v3-bf16-compile-static16-5060": "2026-09-15T12:57:59Z"
   }
 }

@@ -16,6 +16,13 @@ again, and compiled Parakeet has the lowest point WER at the highest restart
 cost. Compiled Qwen is not a restart choice: it takes about 43 seconds even
 after its compiler cache has been seeded.
 
+A second activation frontier removes Python/framework startup from that clock.
+It asks what happens when a runner and accelerator context are ready but the
+model is not loaded. The residents do not change: M5 Parakeet wins the combined
+view, while the 5060 keeps the same four quality/load-time tradeoffs. This is a
+controlled approximation of a persistent runner, not a measured llama-swap or
+in-process unload/reload cycle.
+
 If minimizing memory matters more than obtaining the best point WER,
 **Qwen3-ASR 0.6B 8-bit is the other useful Mac tradeoff**. It used about 1.15 GB of
 process RSS versus about 2.52 GB for Parakeet. Qwen3-ASR 1.7B and Whisper
@@ -41,6 +48,7 @@ are pass/fail gates, not hidden scoring dimensions.
 | Batch intelligibility | WER, lower is better | audio seconds processed per wall second, higher is better | Parakeet | Parakeet | compiled Parakeet |
 | Small resident | WER, lower is better | peak process RSS, lower is better | Qwen 0.6B; Parakeet | Qwen 0.6B; Parakeet | not ranked: no comparable memory signal |
 | Restart intelligibility | WER, lower is better | median fresh-process launch to first complete transcript, lower is better | Parakeet | Parakeet | Whisper; baseline Parakeet; baseline Qwen 1.7B; compiled Parakeet |
+| Ready-runner intelligibility | WER, lower is better | median model-cold activation after framework/device readiness, lower is better | Parakeet | Parakeet | Whisper; baseline Parakeet; baseline Qwen 1.7B; compiled Parakeet |
 
 The exact executable definitions are in
 [`asr-frontier.yaml`](asr-frontier.yaml). The all-hardware catalog is
@@ -117,15 +125,28 @@ and 5060 so every machine counts equally. For the memory frontier it averages
 only the two Macs, where the measurement is comparable. Neither reduction
 changes those combined model residents.
 
-For the restart frontier, the balanced-average view uses each model's
-fastest-restarting tested implementation on each machine. This rule is explicit
-because selecting the resident-speed optimization instead would penalize the
-model for a deployment setting that this particular frontier is trying to
-avoid. Both the combined best-available and balanced-average restart views
-contain only Parakeet; the more varied result appears when a reader filters to
-the 5060 they already own.
+For both model-cold frontiers, the balanced-average view uses each model's
+baseline implementation on each machine. This rule is explicit because
+selecting the resident-speed optimization would penalize the model for a
+deployment setting that these frontiers are trying to expose. Both the combined
+best-available and balanced-average model-cold views contain only Parakeet; the
+more varied result appears when a reader filters to the 5060 they already own.
 
 ## When the model is not already loaded
+
+There are now two clocks for this situation:
+
+- **Application-cold restart:** starts before a new Python process. It includes
+  Python/runtime imports, accelerator setup, model loading, and first inference.
+- **Ready-runner activation:** starts after a new child reports that Python, the
+  inference framework, and its accelerator context are ready. It includes model
+  resolution/loading and first inference.
+
+The second clock answers a narrower planning question: how much could a
+persistent model-cold worker save by avoiding repeated framework startup? Each
+sample still uses a fresh process so no loaded weights or model state survive.
+It therefore does **not** prove the latency of an actual in-process unload/load,
+llama-swap transition, health check, or server route.
 
 The restart metric measures a normal repeat activation, not installation or a
 machine reboot. Weights are already downloaded. One unscored seed activation
@@ -140,10 +161,9 @@ audio clip used by this test, resolves the local model, loads it, transcribes
 that 12.35-second meeting clip, explicitly synchronizes the accelerator, and
 sends the complete UTF-8 transcript over a dedicated pipe. The clock stops
 after the parent receives every byte. WER normalization, JSON writing, and
-process teardown happen afterward. All 150
-scored attempts succeeded, and every offering returned one stable normalized
-transcript across its ten attempts that matched the same offering's resident
-panel transcript for that clip.
+process teardown happen afterward. All 150 scored attempts succeeded, and every
+offering returned one stable normalized transcript across its ten attempts that
+matched the same offering's resident panel transcript for that clip.
 
 | Model/profile | M5 MLX | M1 MLX | 5060 BF16 |
 |---|---:|---:|---:|
@@ -155,13 +175,30 @@ panel transcript for that clip.
 | Qwen3-ASR 0.6B dynamic compile | — | — | 42.960 s |
 | Qwen3-ASR 1.7B dynamic compile | — | — | 43.586 s |
 
-Ten launches are enough for a useful median, not a trustworthy p95. The raw
-samples are retained, but no restart-tail frontier is published. A future p95
-should use at least 40 launches and a persistent-worker experiment should
-separately measure a framework that stays alive while only model state is
-swapped. The present metric is the relevant one when a router launches a new
-Python model application after an unload; it must not be relabeled as that
-lighter persistent-worker swap.
+The narrower ready-runner clock produced these medians:
+
+| Model/profile | M5 MLX | M1 MLX | 5060 BF16 |
+|---|---:|---:|---:|
+| Parakeet baseline | **0.592 s** | **0.999 s** | 1.399 s |
+| Whisper baseline | 0.707 s | 1.356 s | **1.063 s** |
+| Qwen3-ASR 0.6B baseline | 0.721 s | 1.209 s | 1.952 s |
+| Qwen3-ASR 1.7B baseline | 0.824 s | 1.460 s | 2.277 s |
+| Parakeet compiled encoder | — | — | 4.493 s |
+| Qwen3-ASR 0.6B dynamic compile | — | — | 40.572 s |
+| Qwen3-ASR 1.7B dynamic compile | — | — | 41.269 s |
+
+These captures add another 150 successful, transcript-stable attempts. The
+excluded framework/device preparation median was about 0.18 seconds on M5,
+0.23 seconds on M1, and 2.25–2.32 seconds on the 5060. That closely explains
+the gap between the two clocks. Compiled Qwen still spends 40.6–41.3 seconds
+after readiness—almost all in first inference—so its swap penalty is not a
+Python/CUDA import artifact.
+
+Ten independent attempts per clock are enough for a useful median, not a
+trustworthy p95. The raw samples are retained, but no activation-tail frontier
+is published. A future p95 should use at least 40 attempts. The application-cold
+metric is relevant when a router launches a new Python model application after
+an unload; it must not be relabeled as the lighter ready-runner approximation.
 
 The single empty-compiler-cache seed took 98.0 seconds for Qwen 0.6B, 99.5
 seconds for Qwen 1.7B, and 20.9 seconds for compiled Parakeet. Those one-sample
@@ -208,12 +245,12 @@ faster for Whisper. Peak process RSS differed by less than 0.4% for every exact
 pair. Equal 64 GB capacity therefore produced the same fit choices and the same
 frontier residents, but not the same latency.
 
-| Exact artifact | M5 p50 speedup | M5 p95 speedup | M5 throughput speedup | M5 restart speedup |
-|---|---:|---:|---:|---:|
-| Qwen3-ASR 0.6B 8-bit | 1.97x | 2.02x | 2.01x | 1.64x |
-| Qwen3-ASR 1.7B 8-bit | 1.90x | 2.01x | 1.99x | 1.71x |
-| Parakeet TDT 0.6B v3 FP16 | 2.07x | 1.84x | 2.10x | 1.61x |
-| Whisper large-v3-turbo FP16 | 3.06x | 2.90x | 3.09x | 1.81x |
+| Exact artifact | M5 p50 speedup | M5 p95 speedup | M5 throughput speedup | M5 restart speedup | M5 ready-runner speedup |
+|---|---:|---:|---:|---:|---:|
+| Qwen3-ASR 0.6B 8-bit | 1.97x | 2.02x | 2.01x | 1.64x | 1.68x |
+| Qwen3-ASR 1.7B 8-bit | 1.90x | 2.01x | 1.99x | 1.71x | 1.77x |
+| Parakeet TDT 0.6B v3 FP16 | 2.07x | 1.84x | 2.10x | 1.61x | 1.69x |
+| Whisper large-v3-turbo FP16 | 3.06x | 2.90x | 3.09x | 1.81x | 1.92x |
 
 This is a whole-machine control, not a CPU-only benchmark. M1 Max versus M5
 Max changes CPU, GPU, Metal kernels, memory subsystem, and OS together. The
@@ -265,13 +302,18 @@ errors, latency, and runtime-specific memory statistics.
 [`analyze_asr_pilot.py`](analyze_asr_pilot.py) produces the paired bootstrap.
 [`probe_asr_activation.py`](probe_asr_activation.py) performs the isolated
 fresh-process restart measurements and uses a dedicated transcript pipe.
+[`probe_asr_framework_hot.py`](probe_asr_framework_hot.py) and
+[`asr_framework_hot_child.py`](asr_framework_hot_child.py) add a readiness
+handshake so the narrower clock starts only after framework/device setup.
 [`build_asr_observations.py`](build_asr_observations.py) refuses stale
 capture/bootstrap bindings and generates the four catalogs.
 
-The restart wrapper records its own hash, the child benchmark hash, Python
-version, cache and idle-GPU policy, and normalized child arguments in every
-capture. These are the command shapes used; replace angle-bracketed paths and
-model identities with the pinned values recorded in the catalog:
+Both activation wrappers record their own code hashes, the child benchmark
+hash, Python version, cache and idle-GPU policy, and normalized child arguments
+in every capture. The ready-runner wrapper also binds the readiness launcher
+and application-cold base wrapper. These are the command shapes used; replace
+angle-bracketed paths and model identities with the pinned values recorded in
+the catalog:
 
 ```console
 python probe_asr_activation.py --backend mlx \
@@ -292,6 +334,13 @@ python probe_asr_activation.py --backend transformers \
   --language English --max-tokens 512 --dtype bfloat16 \
   --optimization <baseline|qwen-forward-compile-dynamic|parakeet-static-encoder-compile> \
   [--static-audio-seconds 16] --warmup-runs <resident-profile-value>
+
+python probe_asr_framework_hot.py --backend <mlx|transformers> \
+  --python <runtime-python> --launcher asr_framework_hot_child.py \
+  --benchmark-script <bench_mlx_asr.py|bench_transformers_asr.py> \
+  --runs 10 --seed-runs 1 --compiler-cache <system-default|seeded-isolated> \
+  [--require-idle-nvidia] --output <capture.json> -- \
+  <the same pinned benchmark arguments as the matching restart capture>
 ```
 
 `--warmup-runs` preserves the exact resident offering identity in the child

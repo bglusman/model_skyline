@@ -93,6 +93,9 @@ CUDA_MODELS: tuple[dict[str, str], ...] = (
         "activation_filename": (
             "qwen3-asr-06b-bf16-transformers-compile-dynamic-5060-asr-activation-v1.json"
         ),
+        "framework_hot_filename": (
+            "qwen3-asr-06b-bf16-transformers-compile-dynamic-5060-asr-framework-hot-v1.json"
+        ),
     },
     {
         "slug": "qwen3-asr-17b-bf16-compile-dynamic",
@@ -105,6 +108,9 @@ CUDA_MODELS: tuple[dict[str, str], ...] = (
         "quantization": "bf16",
         "activation_filename": (
             "qwen3-asr-17b-bf16-transformers-compile-dynamic-5060-asr-activation-v1.json"
+        ),
+        "framework_hot_filename": (
+            "qwen3-asr-17b-bf16-transformers-compile-dynamic-5060-asr-framework-hot-v1.json"
         ),
     },
     {
@@ -119,6 +125,9 @@ CUDA_MODELS: tuple[dict[str, str], ...] = (
         "quantization": "bf16",
         "activation_filename": (
             "parakeet-tdt-06b-v3-bf16-transformers-compile-static16-5060-asr-activation-v1.json"
+        ),
+        "framework_hot_filename": (
+            "parakeet-tdt-06b-v3-bf16-transformers-compile-static16-5060-asr-framework-hot-v1.json"
         ),
     },
 )
@@ -208,14 +217,39 @@ def _activation_source(
     capture: dict[str, Any],
 ) -> dict[str, Any]:
     methodology = capture["methodology"]
+    seed_runs = int(methodology["seed_runs"])
+    seed_description = "one seed activation" if seed_runs == 1 else f"{seed_runs} seed activations"
     return {
         "id": f"local-asr-activation-{slug}-{machine}",
         "version": "1",
         "methodology": (
             f"{capture['summary']['attempt_count']} fresh-process activation attempts after "
-            f"{methodology['seed_runs']} seed activation(s); locally cached weights; "
+            f"{seed_description}; locally cached weights; "
             f"compiler cache policy {methodology['compiler_cache']}; parent clock stops "
             "after receiving the synchronized first transcript over a dedicated pipe."
+        ),
+        "raw_sha256": _sha256(path),
+    }
+
+
+def _framework_hot_source(
+    slug: str,
+    machine: str,
+    path: Path,
+    capture: dict[str, Any],
+) -> dict[str, Any]:
+    methodology = capture["methodology"]
+    seed_runs = int(methodology["seed_runs"])
+    seed_description = "one seed activation" if seed_runs == 1 else f"{seed_runs} seed activations"
+    return {
+        "id": f"local-asr-framework-hot-{slug}-{machine}",
+        "version": "1",
+        "methodology": (
+            f"{capture['summary']['attempt_count']} fresh-process activation attempts after "
+            f"{seed_description}; parent starts the clock only "
+            "after the child reports that its framework and accelerator context are ready, "
+            "then stops after receiving the synchronized first transcript. This is a "
+            "framework-hot/model-cold approximation, not a router measurement."
         ),
         "raw_sha256": _sha256(path),
     }
@@ -336,6 +370,175 @@ def _validate_activation_capture(
         raise ValueError(f"activation arguments do not match offering identity in {path.name}")
 
 
+def _validate_framework_hot_capture(
+    path: Path,
+    capture: dict[str, Any],
+    *,
+    runtime_kind: str,
+) -> None:
+    summary = capture["summary"]
+    measurements = capture["measurements"]
+    failures = capture["failures"]
+    attempts = int(summary["attempt_count"])
+    if attempts < 10:
+        raise ValueError(f"too few framework-hot attempts in {path.name}")
+    if len(measurements) != int(summary["sample_count"]):
+        raise ValueError(f"framework-hot success count does not match {path.name}")
+    if len(failures) != int(summary["failure_count"]):
+        raise ValueError(f"framework-hot failure count does not match {path.name}")
+    if len(measurements) + len(failures) != attempts:
+        raise ValueError(f"framework-hot attempt count does not match {path.name}")
+    public_failure_reasons = {
+        "activation_timeout",
+        "gpu_idle_check_failed",
+        "child_process_failed",
+    }
+    if any(
+        set(failure) != {"run", "error_type", "public_reason"}
+        or failure["public_reason"] not in public_failure_reasons
+        for failure in failures
+    ):
+        raise ValueError(f"framework-hot failure details are not public-safe in {path.name}")
+    expected_failure_percent = round(len(failures) / attempts * 100.0, 6)
+    if float(summary["failure_percent"]) != expected_failure_percent:
+        raise ValueError(f"framework-hot failure rate does not match {path.name}")
+
+    activation_times = [
+        float(item["activation_command_to_first_transcript_seconds"]) for item in measurements
+    ]
+    if any(value <= 0 for value in activation_times):
+        raise ValueError(f"framework-hot activation time is not positive in {path.name}")
+    if any("launch_to_first_transcript_seconds" in item for item in measurements):
+        raise ValueError(f"framework-hot capture uses a misleading launch clock in {path.name}")
+    if round(statistics.median(activation_times), 6) != float(
+        summary["framework_hot_activation_p50_seconds"]
+    ):
+        raise ValueError(f"framework-hot activation median does not match {path.name}")
+    prepare_times = [float(item["framework_prepare_seconds"]) for item in measurements]
+    if any(value <= 0 for value in prepare_times):
+        raise ValueError(f"framework preparation time is not positive in {path.name}")
+    if round(statistics.median(prepare_times), 6) != float(
+        summary["framework_prepare_p50_seconds"]
+    ):
+        raise ValueError(f"framework preparation median does not match {path.name}")
+    component_fields = {
+        "child_model_load_seconds": "model_load_p50_seconds",
+        "child_first_inference_seconds": "first_inference_p50_seconds",
+    }
+    for measurement_field, summary_field in component_fields.items():
+        component_times = [float(item[measurement_field]) for item in measurements]
+        if any(value < 0 for value in component_times):
+            raise ValueError(f"negative framework-hot component time in {path.name}")
+        if round(statistics.median(component_times), 6) != float(summary[summary_field]):
+            raise ValueError(f"framework-hot component median does not match {path.name}")
+    variants = {str(item["normalized_hypothesis"]) for item in measurements}
+    if len(variants) != int(summary["transcript_variants"]):
+        raise ValueError(f"framework-hot transcript variants do not match {path.name}")
+
+    manifest = _load(MANIFEST)
+    fixed_probe = manifest["items"][0]
+    for measurement in measurements:
+        if measurement["testcase_id"] != fixed_probe["testcase_id"]:
+            raise ValueError(f"framework-hot testcase does not match {path.name}")
+        if measurement["audio_sha256"] != fixed_probe["audio_sha256"]:
+            raise ValueError(f"framework-hot audio does not match {path.name}")
+
+    methodology = capture["methodology"]
+    expected_cache = "system-default" if runtime_kind == "mlx" else "seeded-isolated"
+    if methodology["compiler_cache"] != expected_cache:
+        raise ValueError(f"unexpected framework-hot cache policy in {path.name}")
+    if methodology.get("audio_playback") is not False:
+        raise ValueError(f"framework-hot capture enabled audio playback in {path.name}")
+    expected_clock = (
+        "parent monotonic wall time immediately before sending a one-byte activation command "
+        "to a model-cold child whose framework and accelerator context are ready, through "
+        "receipt of every byte of the first fixed UTF-8 transcript"
+    )
+    if methodology.get("clock") != expected_clock:
+        raise ValueError(f"unexpected framework-hot clock in {path.name}")
+    if methodology.get("require_idle_nvidia") is not (runtime_kind != "mlx"):
+        raise ValueError(f"unexpected framework-hot GPU-idle policy in {path.name}")
+    if methodology.get("process_isolation") != (
+        "every seed and scored sample uses a new process; the clock starts only after "
+        "the framework and accelerator context report ready"
+    ):
+        raise ValueError(f"unexpected framework-hot isolation in {path.name}")
+    if methodology.get("runner_interpretation") != (
+        "framework-hot/model-cold approximation; not an observed in-process model "
+        "unload/reload cycle and not a complete serving-router measurement"
+    ):
+        raise ValueError(f"unexpected framework-hot interpretation in {path.name}")
+    if (
+        methodology["seed_runs"] != 1
+        or len(capture["seed_activation_seconds"]) != 1
+        or len(capture["seed_framework_prepare_seconds"]) != 1
+    ):
+        raise ValueError(f"framework-hot seed count does not match {path.name}")
+    if any(
+        float(value) <= 0
+        for field in ("seed_activation_seconds", "seed_framework_prepare_seconds")
+        for value in capture[field]
+    ):
+        raise ValueError(f"framework-hot seed timing is not positive in {path.name}")
+    if capture["offering"].get("panel_sample_count") != SAMPLE_COUNT:
+        raise ValueError(f"framework-hot panel count does not match {path.name}")
+
+    harness = capture["harness"]
+    bound_files = {
+        "wrapper": "wrapper_sha256",
+        "activation_base": "activation_base_sha256",
+        "launcher": "launcher_sha256",
+        "child_script": "child_script_sha256",
+    }
+    for file_field, hash_field in bound_files.items():
+        filename = harness.get(file_field)
+        if not isinstance(filename, str) or harness.get(hash_field) != _sha256(HERE / filename):
+            raise ValueError(f"stale framework-hot {file_field} binding in {path.name}")
+    if harness.get("wrapper_version") != "1" or harness.get("launcher_version") != "1":
+        raise ValueError(f"unexpected framework-hot harness version in {path.name}")
+    if not str(harness.get("python_version", "")).startswith("Python 3."):
+        raise ValueError(f"missing framework-hot Python version in {path.name}")
+    if "/" in str(harness.get("python", "")):
+        raise ValueError(f"framework-hot Python path was not normalized in {path.name}")
+    expected_backend = "mlx" if runtime_kind == "mlx" else "transformers"
+    if harness.get("backend") != expected_backend:
+        raise ValueError(f"framework-hot backend does not match {path.name}")
+    arguments = harness.get("benchmark_arguments")
+    if not isinstance(arguments, list):
+        raise ValueError(f"missing framework-hot arguments in {path.name}")
+    if len(arguments) % 2 or any(
+        not str(arguments[index]).startswith("--") for index in range(0, len(arguments), 2)
+    ):
+        raise ValueError(f"framework-hot arguments are not normalized pairs in {path.name}")
+    argument_map = dict(zip(arguments[::2], arguments[1::2], strict=True))
+    if len(argument_map) != len(arguments) // 2:
+        raise ValueError(f"framework-hot arguments contain duplicates in {path.name}")
+    offering = capture["offering"]
+    expected_arguments: dict[str, Any] = {
+        "--model": offering["model"],
+        "--model-revision": offering["requested_revision"],
+        "--audio-dir": "<audio-dir>",
+        "--prompt-manifest": "<prompt-manifest>",
+        "--language": offering["requested_language"],
+        "--max-tokens": offering["max_tokens"],
+    }
+    if runtime_kind != "mlx":
+        expected_arguments.update(
+            {
+                "--family": offering["family"],
+                "--dtype": offering["dtype"],
+                "--optimization": offering["optimization"],
+                "--warmup-runs": offering["warmup_runs"],
+            }
+        )
+        if offering["static_audio_seconds"] is not None:
+            expected_arguments["--static-audio-seconds"] = format(
+                float(offering["static_audio_seconds"]), "g"
+            )
+    if {key: str(value) for key, value in expected_arguments.items()} != argument_map:
+        raise ValueError(f"framework-hot arguments do not match offering identity in {path.name}")
+
+
 def _observation(
     value: Any,
     unit: str,
@@ -393,9 +596,15 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
         "-asr-activation-v1.json"
     )
     activation_path = RAW / activation_filename
+    framework_hot_filename = spec.get("framework_hot_filename") or (
+        f"{spec['slug']}-{machine_spec['runtime_slug']}-{machine_spec['capture_token']}"
+        "-asr-framework-hot-v1.json"
+    )
+    framework_hot_path = RAW / framework_hot_filename
     bootstrap_path = RAW / machine_spec["bootstrap"]
     capture = _load(capture_path)
     activation = _load(activation_path)
+    framework_hot = _load(framework_hot_path)
     bootstrap = _load(bootstrap_path)
     manifest = _load(MANIFEST)
     manifest_sha = _sha256(MANIFEST)
@@ -408,6 +617,10 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
         raise ValueError(f"unexpected sample count in {capture_path.name}")
     if activation.get("schema") != ("model-skyline/experimental-asr-activation-capture/v1alpha1"):
         raise ValueError(f"unsupported activation capture schema in {activation_path.name}")
+    if framework_hot.get("schema") != (
+        "model-skyline/experimental-asr-framework-hot-capture/v1alpha1"
+    ):
+        raise ValueError(f"unsupported framework-hot capture schema in {framework_hot_path.name}")
     exact = capture["offering"]
     if exact["model"] != spec["artifact"]:
         raise ValueError(f"unexpected model in {capture_path.name}")
@@ -446,11 +659,43 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
         activation,
         runtime_kind=machine_spec["runtime_kind"],
     )
+    framework_hot_exact = framework_hot["offering"]
+    framework_hot_hardware = framework_hot_exact["hardware"]
+    if isinstance(framework_hot_hardware, dict):
+        framework_hot_hardware = framework_hot_hardware.get("name")
+    if framework_hot_exact["model"] != exact["model"]:
+        raise ValueError(f"framework-hot model does not match {capture_path.name}")
+    if framework_hot_exact["resolved_revision"] != exact["resolved_revision"]:
+        raise ValueError(f"framework-hot revision does not match {capture_path.name}")
+    if framework_hot_hardware != capture_hardware:
+        raise ValueError(f"framework-hot hardware does not match {capture_path.name}")
+    if framework_hot_exact.get("optimization", "baseline") != exact.get("optimization", "baseline"):
+        raise ValueError(f"framework-hot optimization does not match {capture_path.name}")
+    if framework_hot_exact.get("static_audio_seconds") != exact.get("static_audio_seconds"):
+        raise ValueError(f"framework-hot static shape does not match {capture_path.name}")
+    if framework_hot_exact["max_tokens"] != exact["max_tokens"]:
+        raise ValueError(f"framework-hot token limit does not match {capture_path.name}")
+    if machine_spec["runtime_kind"] != "mlx" and framework_hot_exact["runtime"] != exact["runtime"]:
+        raise ValueError(f"framework-hot runtime does not match {capture_path.name}")
+    for package in ("mlx_audio", "mlx", "transformers", "torch", "cuda"):
+        if package in exact and framework_hot_exact.get(package) != exact[package]:
+            raise ValueError(f"framework-hot {package} version does not match {capture_path.name}")
+    if framework_hot_exact["manifest_sha256"] != manifest_sha:
+        raise ValueError(f"unexpected framework-hot manifest in {framework_hot_path.name}")
+    _validate_framework_hot_capture(
+        framework_hot_path,
+        framework_hot,
+        runtime_kind=machine_spec["runtime_kind"],
+    )
     resident_first = capture["measurements"][0]["normalized_hypothesis"]
     activation_first = {item["normalized_hypothesis"] for item in activation["measurements"]}
     if activation_first != {resident_first}:
         raise ValueError(f"activation transcript does not match {capture_path.name}")
+    framework_hot_first = {item["normalized_hypothesis"] for item in framework_hot["measurements"]}
+    if framework_hot_first != {resident_first}:
+        raise ValueError(f"framework-hot transcript does not match {capture_path.name}")
     activation_summary = activation["summary"]
+    framework_hot_summary = framework_hot["summary"]
     interval = _bootstrap_entry(bootstrap, capture)
     if interval["capture_sha256"] != _sha256(capture_path):
         raise ValueError(f"stale bootstrap binding for {capture_path.name}")
@@ -460,6 +705,9 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
     confidence = interval["interval_95"]
     source = _source(spec["slug"], machine, capture_path, machine_spec, capture)
     activation_source = _activation_source(spec["slug"], machine, activation_path, activation)
+    framework_hot_source = _framework_hot_source(
+        spec["slug"], machine, framework_hot_path, framework_hot
+    )
     empty_percent = Decimal(summary["empty_hypothesis_count"]) * Decimal(100)
     empty_percent /= Decimal(SAMPLE_COUNT)
     offering_id = (
@@ -492,6 +740,15 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
         f"compiler_cache={activation['methodology']['compiler_cache']}; "
         f"timeout_seconds={activation['methodology']['timeout_seconds']}; "
         f"fixed_probe={activation['measurements'][0]['testcase_id']}; "
+        f"audio_seconds={manifest['items'][0]['audio_seconds']}"
+    )
+    framework_hot_runtime_config = (
+        "fresh_process_isolation=true; framework_and_device_ready=true; model_cold=true; "
+        "per_process_warmup_runs=0; "
+        f"seed_runs={framework_hot['methodology']['seed_runs']}; "
+        f"compiler_cache={framework_hot['methodology']['compiler_cache']}; "
+        f"timeout_seconds={framework_hot['methodology']['timeout_seconds']}; "
+        f"fixed_probe={framework_hot['measurements'][0]['testcase_id']}; "
         f"audio_seconds={manifest['items'][0]['audio_seconds']}"
     )
     signals = {
@@ -537,6 +794,20 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
             activation_source,
             sample_count=activation_summary["attempt_count"],
         ),
+        "asr_framework_hot_activation_p50_seconds": _observation(
+            framework_hot_summary["framework_hot_activation_p50_seconds"],
+            "seconds",
+            framework_hot["captured_at"],
+            framework_hot_source,
+            sample_count=framework_hot_summary["sample_count"],
+        ),
+        "asr_framework_hot_failure_percent": _observation(
+            framework_hot_summary["failure_percent"],
+            "percent",
+            framework_hot["captured_at"],
+            framework_hot_source,
+            sample_count=framework_hot_summary["attempt_count"],
+        ),
     }
     if machine_spec["memory_comparable"]:
         signals["asr_process_rss_peak_mb"] = _observation(
@@ -576,6 +847,16 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
                 "one fixed 12.35-second meeting clip; includes Python/runtime imports, "
                 "device initialization, model load, and first synchronized inference; "
                 "excludes download, WER scoring, JSON writing, and process teardown"
+            ),
+            "framework_hot_runtime_config": framework_hot_runtime_config,
+            "framework_hot_capture": f"raw/{framework_hot_filename}",
+            "framework_hot_capture_sha256": _sha256(framework_hot_path),
+            "framework_hot_scope": (
+                "framework-hot/model-cold approximation for one fixed 12.35-second meeting "
+                "clip; clock begins only after Python/framework imports and accelerator "
+                "initialization, then includes model resolution, model load, and synchronized "
+                "first inference; fresh-process isolation prevents loaded-model reuse; not an "
+                "observed in-process unload/reload cycle or complete serving-router measurement"
             ),
             "bootstrap": f"raw/{machine_spec['bootstrap']}",
             "bootstrap_sha256": _sha256(bootstrap_path),

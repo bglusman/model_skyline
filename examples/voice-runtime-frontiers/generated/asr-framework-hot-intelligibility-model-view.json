@@ -2,16 +2,16 @@
   "schema_version": "model-skyline/model-frontier-view/v1alpha1",
   "kind": "model-frontier-view",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "policy_id": "local-three-machine-asr-responsive-intelligibility",
-  "policy_sha256": "59cec6dcd8e246b9f85494e1a50b45517bdef4b1abc8668036563b44c0d6800b",
-  "source_snapshot_id": "029a6b4ae6cb4e69465ceb9044668a5e49b32181f39eb2c6f27f5153232ee847",
-  "frontier_id": "asr-responsive-intelligibility",
+  "policy_id": "local-three-machine-asr-framework-hot-intelligibility",
+  "policy_sha256": "145f0916c7b7469ae87a74e60f691b7a202f964aea062d6b96377ea1d4358237",
+  "source_snapshot_id": "a5f5991ec8133480e0c57cb3c8bdbb47d22afa6f2db7107cbb5ff1c33596226a",
+  "frontier_id": "asr-framework-hot-intelligibility",
   "workload": {
     "id": "local-asr-pilot-v1",
     "version": "1.0.0",
     "unit": "utterance"
   },
-  "order_by": "asr_final_latency_p95",
+  "order_by": "asr_framework_hot_activation_p50",
   "uncertainty": "point",
   "axes": [
     {
@@ -22,9 +22,9 @@
       "epsilon_relative": "0"
     },
     {
-      "metric": "asr_final_latency_p95",
+      "metric": "asr_framework_hot_activation_p50",
       "goal": "minimize",
-      "unit": "milliseconds",
+      "unit": "seconds",
       "epsilon_absolute": "0",
       "epsilon_relative": "0"
     }
@@ -83,34 +83,34 @@
                 "oldest_observed_at": "2026-09-15T00:17:14Z",
                 "minimum_sample_count": 24
               },
-              "asr_final_latency_p95": {
-                "value": "59.248694",
-                "unit": "milliseconds",
+              "asr_framework_hot_activation_p50": {
+                "value": "0.592367",
+                "unit": "seconds",
                 "evidence_tiers": [
                   "measured"
                 ],
-                "lower": "44.224715",
-                "upper": "61.693042",
+                "lower": null,
+                "upper": null,
                 "dependencies": [
-                  "signals.asr_final_latency_p95_ms"
+                  "signals.asr_framework_hot_activation_p50_seconds"
                 ],
                 "source_ids": [
-                  "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5"
+                  "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m5"
                 ],
                 "sources": [
                   {
-                    "id": "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5",
+                    "id": "local-asr-framework-hot-parakeet-tdt-06b-v3-fp16-m5",
                     "version": "1",
                     "url": null,
                     "terms_url": null,
                     "license": null,
-                    "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
-                    "raw_sha256": "748a42b8ab908b5ff0fb458172aa344c5e225bbc26d4c577be2ca7840b70af61",
+                    "methodology": "10 fresh-process activation attempts after one seed activation; parent starts the clock only after the child reports that its framework and accelerator context are ready, then stops after receiving the synchronized first transcript. This is a framework-hot/model-cold approximation, not a router measurement.",
+                    "raw_sha256": "d014c96bddaf603eb43e1b5a3dae1314c26a4ad5e17024754237fa9973896303",
                     "retrieved_at": null
                   }
                 ],
-                "oldest_observed_at": "2026-09-15T00:17:14Z",
-                "minimum_sample_count": 24
+                "oldest_observed_at": "2026-09-15T12:52:44Z",
+                "minimum_sample_count": 10
               }
             }
           }
@@ -140,25 +140,25 @@
         "model_id": "parakeet-tdt-0.6b-v3",
         "axes": {
           "asr_corpus_wer": {
-            "value": "8.251366",
+            "value": "8.469945",
             "unit": "percent",
-            "lower": "4.976028666666666666666666666666667",
-            "upper": "11.979797",
+            "lower": "5.019943",
+            "upper": "12.460211",
             "environment_values": {
               "m1-max-64gb": "8.196721",
               "m5-max-64gb": "8.196721",
-              "rtx5060ti-16gb": "8.360656"
+              "rtx5060ti-16gb": "9.016393"
             }
           },
-          "asr_final_latency_p95": {
-            "value": "80.82053733333333333333333333333333",
-            "unit": "milliseconds",
-            "lower": "69.28204633333333333333333333333333",
-            "upper": "84.328955",
+          "asr_framework_hot_activation_p50": {
+            "value": "0.996904",
+            "unit": "seconds",
+            "lower": null,
+            "upper": null,
             "environment_values": {
-              "m1-max-64gb": "109.111687",
-              "m5-max-64gb": "59.248694",
-              "rtx5060ti-16gb": "74.101231"
+              "m1-max-64gb": "0.998946",
+              "m5-max-64gb": "0.592367",
+              "rtx5060ti-16gb": "1.399399"
             }
           }
         },
@@ -173,7 +173,7 @@
           },
           {
             "environment_id": "rtx5060ti-16gb",
-            "offering_id": "self-hosted/parakeet-tdt-06b-v3-bf16-compile-static16-transformers@rtx5060ti-16gb-en"
+            "offering_id": "self-hosted/parakeet-tdt-06b-v3-bf16-transformers@rtx5060ti-16gb-en"
           }
         ],
         "dominated_by": []
@@ -184,25 +184,25 @@
         "model_id": "parakeet-tdt-0.6b-v3",
         "axes": {
           "asr_corpus_wer": {
-            "value": "8.251366",
+            "value": "8.469945",
             "unit": "percent",
-            "lower": "4.976028666666666666666666666666667",
-            "upper": "11.979797",
+            "lower": "5.019943",
+            "upper": "12.460211",
             "environment_values": {
               "m1-max-64gb": "8.196721",
               "m5-max-64gb": "8.196721",
-              "rtx5060ti-16gb": "8.360656"
+              "rtx5060ti-16gb": "9.016393"
             }
           },
-          "asr_final_latency_p95": {
-            "value": "80.82053733333333333333333333333333",
-            "unit": "milliseconds",
-            "lower": "69.28204633333333333333333333333333",
-            "upper": "84.328955",
+          "asr_framework_hot_activation_p50": {
+            "value": "0.996904",
+            "unit": "seconds",
+            "lower": null,
+            "upper": null,
             "environment_values": {
-              "m1-max-64gb": "109.111687",
-              "m5-max-64gb": "59.248694",
-              "rtx5060ti-16gb": "74.101231"
+              "m1-max-64gb": "0.998946",
+              "m5-max-64gb": "0.592367",
+              "rtx5060ti-16gb": "1.399399"
             }
           }
         },
@@ -217,54 +217,10 @@
           },
           {
             "environment_id": "rtx5060ti-16gb",
-            "offering_id": "self-hosted/parakeet-tdt-06b-v3-bf16-compile-static16-transformers@rtx5060ti-16gb-en"
+            "offering_id": "self-hosted/parakeet-tdt-06b-v3-bf16-transformers@rtx5060ti-16gb-en"
           }
         ],
         "dominated_by": []
-      },
-      {
-        "model_id": "Qwen3-ASR-0.6B",
-        "axes": {
-          "asr_corpus_wer": {
-            "value": "8.907103666666666666666666666666667",
-            "unit": "percent",
-            "lower": "4.538328",
-            "upper": "13.97006666666666666666666666666667",
-            "environment_values": {
-              "m1-max-64gb": "9.016393",
-              "m5-max-64gb": "8.852459",
-              "rtx5060ti-16gb": "8.852459"
-            }
-          },
-          "asr_final_latency_p95": {
-            "value": "230.535642",
-            "unit": "milliseconds",
-            "lower": "197.113611",
-            "upper": "351.6311126666666666666666666666667",
-            "environment_values": {
-              "m1-max-64gb": "280.050075",
-              "m5-max-64gb": "138.346556",
-              "rtx5060ti-16gb": "273.210295"
-            }
-          }
-        },
-        "offerings": [
-          {
-            "environment_id": "m1-max-64gb",
-            "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en"
-          },
-          {
-            "environment_id": "m5-max-64gb",
-            "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m5-max-64gb-en"
-          },
-          {
-            "environment_id": "rtx5060ti-16gb",
-            "offering_id": "self-hosted/qwen3-asr-06b-bf16-compile-dynamic-transformers@rtx5060ti-16gb-en"
-          }
-        ],
-        "dominated_by": [
-          "parakeet-tdt-0.6b-v3"
-        ]
       },
       {
         "model_id": "whisper-large-v3-turbo",
@@ -280,15 +236,15 @@
               "rtx5060ti-16gb": "10.491803"
             }
           },
-          "asr_final_latency_p95": {
-            "value": "248.619314",
-            "unit": "milliseconds",
-            "lower": "234.383818",
-            "upper": "257.3851926666666666666666666666667",
+          "asr_framework_hot_activation_p50": {
+            "value": "1.041998666666666666666666666666667",
+            "unit": "seconds",
+            "lower": null,
+            "upper": null,
             "environment_values": {
-              "m1-max-64gb": "450.342923",
-              "m5-max-64gb": "155.352442",
-              "rtx5060ti-16gb": "140.162577"
+              "m1-max-64gb": "1.356475",
+              "m5-max-64gb": "0.706749",
+              "rtx5060ti-16gb": "1.062772"
             }
           }
         },
@@ -307,7 +263,50 @@
           }
         ],
         "dominated_by": [
-          "Qwen3-ASR-0.6B",
+          "parakeet-tdt-0.6b-v3"
+        ]
+      },
+      {
+        "model_id": "Qwen3-ASR-0.6B",
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "9.016393333333333333333333333333333",
+            "unit": "percent",
+            "lower": "4.538328",
+            "upper": "14.26127666666666666666666666666667",
+            "environment_values": {
+              "m1-max-64gb": "9.016393",
+              "m5-max-64gb": "8.852459",
+              "rtx5060ti-16gb": "9.180328"
+            }
+          },
+          "asr_framework_hot_activation_p50": {
+            "value": "1.293999",
+            "unit": "seconds",
+            "lower": null,
+            "upper": null,
+            "environment_values": {
+              "m1-max-64gb": "1.208969",
+              "m5-max-64gb": "0.720928",
+              "rtx5060ti-16gb": "1.9521"
+            }
+          }
+        },
+        "offerings": [
+          {
+            "environment_id": "m1-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m1-max-64gb-en"
+          },
+          {
+            "environment_id": "m5-max-64gb",
+            "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m5-max-64gb-en"
+          },
+          {
+            "environment_id": "rtx5060ti-16gb",
+            "offering_id": "self-hosted/qwen3-asr-06b-bf16-transformers@rtx5060ti-16gb-en"
+          }
+        ],
+        "dominated_by": [
           "parakeet-tdt-0.6b-v3"
         ]
       },
@@ -325,15 +324,15 @@
               "rtx5060ti-16gb": "8.52459"
             }
           },
-          "asr_final_latency_p95": {
-            "value": "442.6961146666666666666666666666667",
-            "unit": "milliseconds",
-            "lower": "355.6000573333333333333333333333333",
-            "upper": "554.3580586666666666666666666666667",
+          "asr_framework_hot_activation_p50": {
+            "value": "1.520366",
+            "unit": "seconds",
+            "lower": null,
+            "upper": null,
             "environment_values": {
-              "m1-max-64gb": "529.873479",
-              "m5-max-64gb": "263.784844",
-              "rtx5060ti-16gb": "534.430021"
+              "m1-max-64gb": "1.460206",
+              "m5-max-64gb": "0.82418",
+              "rtx5060ti-16gb": "2.276712"
             }
           }
         },
@@ -348,7 +347,7 @@
           },
           {
             "environment_id": "rtx5060ti-16gb",
-            "offering_id": "self-hosted/qwen3-asr-17b-bf16-compile-dynamic-transformers@rtx5060ti-16gb-en"
+            "offering_id": "self-hosted/qwen3-asr-17b-bf16-transformers@rtx5060ti-16gb-en"
           }
         ],
         "dominated_by": [
@@ -357,5 +356,5 @@
       }
     ]
   },
-  "view_id": "3e35c415bd306a2bcce5088aee3cd6f5a0ea9d6d62e96cedac25f1792b8df70f"
+  "view_id": "940b0edb88a324fb1cc094ffebc489824e0177a6afb5fabc531649f2858503d1"
 }
