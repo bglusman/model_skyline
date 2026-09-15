@@ -20,6 +20,11 @@ stop both known Ollama models, confirm `/running` is empty, and confirm
 `nvidia-smi` shows the expected free VRAM. Retain that free-memory value with
 the capture.
 
+The official [Ollama FAQ](https://docs.ollama.com/faq) documents loopback as
+the default and `OLLAMA_HOST` as the network-exposure control. Its local API has
+no authentication, so exposing port 11434 would bypass both routing and model
+ownership here.
+
 The lock wrapper acquires `flock` on file descriptor 9 and then `exec`s the
 runner. This detail matters: `flock FILE command` forks on this host, so killing
 the PID tracked by llama-swap can otherwise orphan the child and release the
