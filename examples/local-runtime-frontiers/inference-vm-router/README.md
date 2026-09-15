@@ -34,6 +34,35 @@ the GPU is already occupied; the ASR activation probes do this before every
 child rather than assuming an empty llama-swap `/running` response proves that
 VRAM is free.
 
+The checked-in lock wrapper now performs that fail-closed CUDA check itself.
+After obtaining the cooperative flock, it refuses to launch if `nvidia-smi`
+reports any existing compute PID. This catches deployment mistakes and stale
+direct clients before a second participating runner starts. It cannot prevent a
+new local process from bypassing both the router and lock later, so the Ollama
+loopback binding remains essential.
+
+## Apply and verify the deployment
+
+Install the checked-in overrides and wrappers, reload systemd, then restart the
+two services. Restarting Ollama unloads its current model and disconnects any
+client that still bypasses llama-swap, so do this at a planned handoff point.
+
+```console
+install -m 0644 ollama-model-skyline.conf \
+  /etc/systemd/system/ollama.service.d/zz-model-skyline.conf
+install -m 0755 local-model-exclusive verify-ollama-loopback \
+  /usr/local/libexec/model-skyline/
+systemctl daemon-reload
+systemctl restart ollama.service llama-swap.service
+/usr/local/libexec/model-skyline/verify-ollama-loopback
+```
+
+Do not infer success from the override file alone. `systemctl cat` can show a
+correct checked-in fragment while another deployed copy still sets
+`OLLAMA_HOST=0.0.0.0:11434`. The verifier checks the effective systemd
+environment, the actual listening socket, active client peers, and the local
+API. LAN consumers must use llama-swap instead of port 11434.
+
 The Nari launcher is deliberately a single foreground process: llama-swap's
 tracked PID, the lock owner, and the CUDA server remain the same process after
 the shell wrappers call `exec`. It prepends the project virtual environment to
@@ -78,3 +107,16 @@ direct LAN calls to Ollama even while `/running` was empty. This was the
 remaining bypass that motivated the loopback binding and
 `OLLAMA_MAX_LOADED_MODELS=1` defense above. Clients formerly using port 11434
 must select the same model IDs through port 8090.
+
+On 2026-09-15 a whole-service TTS capture caught the same class of drift again:
+the repository override said loopback, but the installed
+`zz-model-skyline.conf` still contained `OLLAMA_HOST=0.0.0.0:11434`, and live
+LAN clients loaded Qwen while a manual vLLM process held the cooperative lock.
+That capture was discarded. The retained capture stopped both services first;
+the deployment verifier exists so future work can detect the effective-state
+mismatch before benchmarking.
+
+The override was corrected on the same day. Validation confirmed a real
+loopback-only listener, rejection of a deliberately direct CUDA resident with
+exit 75, successful model activation through llama-swap after cleanup, and an
+explicit unload leaving both the GPU and flock free.

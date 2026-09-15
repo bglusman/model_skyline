@@ -8,4 +8,21 @@ fi
 
 exec 9>/run/lock/model-skyline-local-model.lock
 /usr/bin/flock -x 9
+
+# The flock coordinates participating launchers. Refuse to start on top of an
+# uncooperative/direct CUDA process as a second, fail-closed line of defense.
+if [ -x /usr/bin/nvidia-smi ]; then
+  compute_pids="$({
+    /usr/bin/nvidia-smi --query-compute-apps=pid --format=csv,noheader,nounits
+  } 2>/dev/null)" || {
+    echo "refusing local-model launch: nvidia-smi process query failed" >&2
+    exit 69
+  }
+  if [ -n "${compute_pids}" ]; then
+    echo "refusing local-model launch: CUDA compute process already owns the GPU" >&2
+    echo "active compute PIDs: ${compute_pids}" >&2
+    exit 75
+  fi
+fi
+
 exec "$@"
