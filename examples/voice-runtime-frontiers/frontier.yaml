@@ -144,7 +144,8 @@ frontiers:
         tts_invalid_case_rate: 0
     metadata_fields:
       [hardware, artifact, artifact_revision, runtime, runtime_config, voice,
-       synthesis_seed, quality_scope, pilot]
+       synthesis_seed, quality_scope, pilot, capture_harness_sha256,
+       completion_capture]
 
   tts-typical-intelligibility:
     workload: coval-tts-v1-local-whisper-pilot
@@ -162,7 +163,8 @@ frontiers:
         tts_invalid_case_rate: 0
     metadata_fields:
       [hardware, artifact, artifact_revision, runtime, runtime_config, voice,
-       synthesis_seed, quality_scope, pilot]
+       synthesis_seed, quality_scope, pilot, capture_harness_sha256,
+       completion_capture]
 
   tts-batch-intelligibility:
     workload: coval-tts-v1-local-whisper-pilot
@@ -180,6 +182,7 @@ frontiers:
         tts_invalid_case_rate: 0
     metadata_fields:
       [hardware, artifact, artifact_revision, runtime, runtime_config, voice,
-       synthesis_seed, quality_scope, pilot]
+       synthesis_seed, quality_scope, pilot, capture_harness_sha256,
+       completion_capture]
 
 selections: {}

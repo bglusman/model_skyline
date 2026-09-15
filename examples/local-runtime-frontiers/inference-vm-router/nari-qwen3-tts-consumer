@@ -1,0 +1,32 @@
+#!/bin/sh
+set -eu
+
+port="${1:?llama-swap port required}"
+case "${port}" in
+  *[!0-9]* | "")
+    echo "invalid port: ${port}" >&2
+    exit 64
+    ;;
+esac
+
+repo="${NARI_QWEN3_TTS_DIR:-/root/nari-qwen3-tts}"
+venv="${repo}/.venv"
+if [ ! -x "${venv}/bin/nari-qwen3-tts-server" ]; then
+  echo "missing Nari server: ${venv}/bin/nari-qwen3-tts-server" >&2
+  exit 66
+fi
+
+cd "${repo}"
+exec /usr/local/libexec/model-skyline/local-model-exclusive \
+  /usr/bin/env \
+  "PATH=${venv}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+  HF_HUB_OFFLINE=1 \
+  TRANSFORMERS_OFFLINE=1 \
+  "${venv}/bin/nari-qwen3-tts-server" \
+  --profile consumer \
+  --allow-non-h100 \
+  --revision 0c0e3051f131929182e2c023b9537f8b1c68adfe \
+  --local-files-only \
+  --host 127.0.0.1 \
+  --port "${port}" \
+  --max-active-requests 1

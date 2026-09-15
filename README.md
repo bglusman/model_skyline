@@ -44,11 +44,13 @@ measurements and limitations remain linked from the same page.
 
 The [voice runtime experiment](examples/voice-runtime-frontiers/README.md)
 extends the same rules to local speech and complete voice-agent pipelines. Its
-first matched M5/M1/RTX 5060 screen combines a common intelligibility measure
-with audible latency and throughput. A separate preliminary long-form screen
-now records pacing and diarizer-detected speaker changes, but the conclusions
-remain provisional because each offering uses only one synthesis seed and the
-new quality checks still need matched human calibration controls.
+matched M5/M1/RTX 5060 screen combines a common intelligibility measure with
+audible latency and throughput. An experimental consumer-GPU patch for Nari's
+Qwen3-TTS engine now reaches 49 ms median and 83 ms p95 first audible audio on
+the 5060 through the shared llama-swap endpoint. A separate preliminary
+long-form screen records pacing and diarizer-detected speaker changes, but the
+conclusions remain provisional because each offering uses only one synthesis
+seed and the new quality checks still need matched human calibration controls.
 
 Its [local speech-recognition frontiers](examples/voice-runtime-frontiers/ASR.md)
 now compare four model families on the same 24 public utterances across M1,

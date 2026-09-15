@@ -47,13 +47,9 @@ SPECS: tuple[dict[str, Any], ...] = (
         "slug": "qwen3-tts-1.7b-bf16-vllm-omni-5060",
         "latency": "qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1.json",
         "quality": "qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1-wer.json",
-        "pacing": (
-            "qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-"
-            "coval-tts-v1-pacing.json"
-        ),
+        "pacing": ("qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1-pacing.json"),
         "offering_id": (
-            "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni"
-            "@rtx5060ti-16gb-vivian-en-seed1234"
+            "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni@rtx5060ti-16gb-vivian-en-seed1234"
         ),
         "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
         "endpoint": "openai-compatible-pcm-http",
@@ -75,6 +71,41 @@ SPECS: tuple[dict[str, Any], ...] = (
         "invalid_count": 0,
     },
     {
+        "slug": "qwen3-tts-1.7b-bf16-nari-router-5060",
+        "latency": ("qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1.json"),
+        "quality": ("qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-wer.json"),
+        "pacing": ("qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-pacing.json"),
+        "completion": (
+            "qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-completion.json"
+        ),
+        "offering_id": (
+            "self-hosted/qwen3-tts-1.7b-bf16-nari-consumer@rtx5060ti-16gb-vivian-en-seed1234"
+        ),
+        "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "endpoint": "llama-swap-openai-compatible-pcm-http",
+        "quantization": "bf16",
+        "hardware": "NVIDIA GeForce RTX 5060 Ti 16 GB",
+        "artifact": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "artifact_revision": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+        "revision_provenance": "capture-time declaration and server cache inspection",
+        "runtime": ("llama-swap 255 / nari-qwen3-tts @ e8c5b2bf6d65a965037f161d713bfa3e8856feb3"),
+        "runtime_config": (
+            "consumer patch sha256=95f3c610b33ea4fad1d059d041ec898bf63497651efd0302"
+            "fce708bcd54199ea; batch=1; BF16 talker; kv_pages=32; "
+            "workspace=128MiB; max_active_requests=1; server bootstrap suppression; "
+            "llama-swap exclusive local-memory group"
+        ),
+        "capture_harness_sha256": (
+            "005924052023900169d263a2dcc534ef7d8c1ec32975f0ed30400cf6c4e6b8ff"
+        ),
+        "voice": "Vivian; English",
+        "seed": 1234,
+        "p50_key": "playback_ttfa_p50_ms",
+        "p95_key": "playback_ttfa_p95_ms",
+        "wer_interval": ("4.573", "17.188"),
+        "invalid_count": 0,
+    },
+    {
         "slug": "loudr-1-turbo-loudkit-m5",
         "latency": "loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1.json",
         "quality": "loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1-wer.json",
@@ -86,8 +117,7 @@ SPECS: tuple[dict[str, Any], ...] = (
         "hardware": "Apple M5 Max 64 GB",
         "artifact": "loudreader/loudr-1-turbo",
         "artifact_revision": (
-            "checkpoint-sha256:"
-            "590dcf9e1dcec31c54650ee139f345b248bdd7ba11288def664c5f1508f33593"
+            "checkpoint-sha256:590dcf9e1dcec31c54650ee139f345b248bdd7ba11288def664c5f1508f33593"
         ),
         "revision_provenance": "capture-time checkpoint digest",
         "runtime": "loudkit 0.1.1 @ 7a17fa2351e59978b34d5aac07bae6349a7ca5d9",
@@ -111,8 +141,7 @@ SPECS: tuple[dict[str, Any], ...] = (
         "hardware": "NVIDIA GeForce RTX 5060 Ti 16 GB",
         "artifact": "loudreader/loudr-1-turbo",
         "artifact_revision": (
-            "checkpoint-sha256:"
-            "590dcf9e1dcec31c54650ee139f345b248bdd7ba11288def664c5f1508f33593"
+            "checkpoint-sha256:590dcf9e1dcec31c54650ee139f345b248bdd7ba11288def664c5f1508f33593"
         ),
         "revision_provenance": "capture-time checkpoint digest",
         "runtime": "loudkit 0.1.1 @ 7a17fa2351e59978b34d5aac07bae6349a7ca5d9",
@@ -182,6 +211,7 @@ def _offering(spec: dict[str, Any]) -> dict[str, Any]:
     quality = _load(quality_path)
     pacing = _load(pacing_path)
     latency_digest = _sha256(latency_path)
+    quality_digest = _sha256(quality_path)
     if quality["source"]["latency_capture_sha256"] != latency_digest:
         raise ValueError(f"{quality_path.name} does not bind {latency_path.name}")
     if latency["workload"]["manifest_sha256"] != MANIFEST_SHA256:
@@ -202,6 +232,20 @@ def _offering(spec: dict[str, Any]) -> dict[str, Any]:
         raise ValueError(f"{spec['slug']} does not contain exactly 30 scored cases")
     if quality["instrument"]["resolved_revision"] != WHISPER_REVISION:
         raise ValueError(f"unexpected Whisper revision in {quality_path.name}")
+    completion_name = spec.get("completion")
+    completion_path = None if completion_name is None else RAW / completion_name
+    if completion_path is not None:
+        completion = _load(completion_path)
+        if completion["source"]["wer_capture_sha256"] != quality_digest:
+            raise ValueError(f"{completion_path.name} does not bind {quality_path.name}")
+        if completion["summary"]["sample_count"] != 30:
+            raise ValueError(f"{completion_path.name} does not contain 30 scored cases")
+    capture_harness_sha256 = spec.get("capture_harness_sha256")
+    if capture_harness_sha256 is not None:
+        if latency.get("harness", {}).get("sha256") != capture_harness_sha256:
+            raise ValueError(f"unexpected capture harness in {latency_path.name}")
+        if latency.get("offering", {}).get("model_revision") != spec["artifact_revision"]:
+            raise ValueError(f"unexpected model revision in {latency_path.name}")
 
     latency_source = _source(
         spec["slug"],
@@ -213,7 +257,11 @@ def _offering(spec: dict[str, Any]) -> dict[str, Any]:
         spec["slug"],
         "wer",
         quality_path,
-        "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+        (
+            "Saved audio scored by pinned local MLX Whisper with CoVAL "
+            "normalization v2; bounds are descriptive 95% utterance-bootstrap "
+            "reference intervals."
+        ),
     )
     pacing_source = _source(
         spec["slug"],
@@ -248,9 +296,19 @@ def _offering(spec: dict[str, Any]) -> dict[str, Any]:
             "synthesis_seed": spec["seed"],
             "quality_scope": "local Whisper corpus WER; not naturalness or speaker identity",
             "pilot": "one fixed seed per exact offering",
+            **(
+                {"capture_harness_sha256": capture_harness_sha256}
+                if capture_harness_sha256 is not None
+                else {}
+            ),
             "latency_capture": f"raw/{spec['latency']}",
             "quality_capture": f"raw/{spec['quality']}",
             "pacing_capture": f"raw/{spec['pacing']}",
+            **(
+                {"completion_capture": f"raw/{completion_name}"}
+                if completion_name is not None
+                else {}
+            ),
             "audio_set_sha256": quality["source"]["audio_set_sha256"],
         },
         "signals": {

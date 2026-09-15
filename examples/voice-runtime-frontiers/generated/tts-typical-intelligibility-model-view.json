@@ -4,7 +4,7 @@
   "hash_algorithm": "sha256-rfc8785-v1",
   "policy_id": null,
   "policy_sha256": null,
-  "source_snapshot_id": "00d95feac6b4c41e619db6e401dc1729151fa9365944f48c1eb869c1541ff5f2",
+  "source_snapshot_id": "27f1b1f05d766a4bcd0c820187cea1ee9cb2bc84abb3f67d1dc6bbddc6026d2b",
   "frontier_id": "tts-typical-intelligibility",
   "workload": {
     "id": "coval-tts-v1-local-whisper-pilot",
@@ -35,6 +35,85 @@
       {
         "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
         "offerings": [
+          {
+            "offering": {
+              "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-nari-consumer@rtx5060ti-16gb-vivian-en-seed1234",
+              "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
+              "provider": "self-hosted",
+              "endpoint": "llama-swap-openai-compatible-pcm-http",
+              "billing_mode": null,
+              "region": null,
+              "service_tier": "resident",
+              "quantization": "bf16",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline-voice-pilot@1",
+              "capabilities": [
+                "audio",
+                "streaming",
+                "tts"
+              ]
+            },
+            "axes": {
+              "tts_corpus_wer": {
+                "value": "10.03861",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "4.573",
+                "upper": "17.188",
+                "dependencies": [
+                  "signals.tts_corpus_wer_percent"
+                ],
+                "source_ids": [
+                  "voice-pilot-qwen3-tts-1.7b-bf16-nari-router-5060-wer"
+                ],
+                "sources": [
+                  {
+                    "id": "voice-pilot-qwen3-tts-1.7b-bf16-nari-router-5060-wer",
+                    "version": "1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": null,
+                    "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2; bounds are descriptive 95% utterance-bootstrap reference intervals.",
+                    "raw_sha256": "23d09ce1388c31462012fa9fc877883c9f236b129ac7fd3cc2f2032969146faf",
+                    "retrieved_at": null
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T14:07:54Z",
+                "minimum_sample_count": 30
+              },
+              "tts_playback_ttfa_p50": {
+                "value": "48.772",
+                "unit": "milliseconds",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.tts_playback_ttfa_p50_ms"
+                ],
+                "source_ids": [
+                  "voice-pilot-qwen3-tts-1.7b-bf16-nari-router-5060-latency"
+                ],
+                "sources": [
+                  {
+                    "id": "voice-pilot-qwen3-tts-1.7b-bf16-nari-router-5060-latency",
+                    "version": "1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": null,
+                    "methodology": "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+                    "raw_sha256": "930836d8feedab287a5147c5c625ac8451cf5e40ac8f2443a351a01b3f3a3212",
+                    "retrieved_at": null
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T14:06:25Z",
+                "minimum_sample_count": 30
+              }
+            }
+          },
           {
             "offering": {
               "offering_id": "self-hosted/qwen3-tts-1.7b-6bit-mlx@m5-max-64gb-vivian-en-seed1234",
@@ -75,7 +154,7 @@
                     "url": null,
                     "terms_url": null,
                     "license": null,
-                    "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+                    "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2; bounds are descriptive 95% utterance-bootstrap reference intervals.",
                     "raw_sha256": "7c3dd48dd19286db88019afd6d4754da8ed60c7f0e5d305ed571b7b1ecbf92e5",
                     "retrieved_at": null
                   }
@@ -154,7 +233,7 @@
                     "url": null,
                     "terms_url": null,
                     "license": null,
-                    "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2.",
+                    "methodology": "Saved audio scored by pinned local MLX Whisper with CoVAL normalization v2; bounds are descriptive 95% utterance-bootstrap reference intervals.",
                     "raw_sha256": "aa4bc00e9cb2165bc41741bb7158f64db53c79a81d7b3835ef20c7e45dbdff17",
                     "retrieved_at": null
                   }
@@ -198,5 +277,5 @@
     ]
   },
   "balanced_average": null,
-  "view_id": "d4c028d9a8b20df88c6bb918a4920fc8a71e945dc6b76467c5ce496217a80302"
+  "view_id": "f3e839b0f5292a7fcc08f48f7e4812c9fd99dd8ae94749946c8d9d35d43ea291"
 }

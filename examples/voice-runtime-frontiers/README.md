@@ -4,13 +4,14 @@ This experiment asks the same simple question as the text-model work: **which
 few voice systems are best for a specific two-way tradeoff?**
 
 Across both latency frontiers, the first pilot has one clear model-level
-resident: **Qwen3-TTS**. Its M5 MLX offering is the latency winner, while its
-BF16 CUDA offering had a slightly lower point-estimate word error rate. That
-quality difference is not statistically resolved, so it is evidence to
-repeat—not a claim that CUDA is more accurate. LoudKit remains interesting for
-portability, footprint, sustained throughput, and barge-in behavior. Its M5
-offering reaches the batch frontier, but LoudKit is not on either
-quality/latency frontier.
+resident: **Qwen3-TTS**. The patched Nari consumer runtime on the RTX 5060 Ti is
+the fastest exact offering, MLX on the M5 is the middle quality/latency
+tradeoff, and vLLM-Omni on the 5060 has the lowest point-estimate word error
+rate. Those quality differences are not statistically resolved, so they are
+evidence to repeat—not claims that one runtime is more accurate. LoudKit
+remains interesting for portability, footprint, sustained throughput, and
+barge-in behavior. Its M5 offering reaches the batch frontier, but LoudKit is
+not on either quality/latency frontier.
 
 The speech-recognition side is now measured on both 64 GB Macs and the RTX
 5060 Ti. **Parakeet TDT 0.6B v3** is the sole combined point-estimate resident
@@ -28,7 +29,7 @@ explicitly an approximation rather than a measured router swap.
 CUDA memory is withheld from the memory frontier until the experiment has one
 cross-platform whole-service measure.
 
-The runnable TTS definitions are [`frontier.yaml`](frontier.yaml), and the four
+The runnable TTS definitions are [`frontier.yaml`](frontier.yaml), and the five
 exact TTS offerings are in [`observations.json`](observations.json). The latter
 is generated and cross-checked against the retained raw captures by
 [`build_observations.py`](build_observations.py), so the table below is an
@@ -88,29 +89,33 @@ factor (seconds of audio produced per wall second) is better.
 
 | Exact offering | WER | p50 audible | p95 audible | Median RTF | Result |
 |---|---:|---:|---:|---:|---|
+| Qwen3-TTS 1.7B CustomVoice BF16, patched Nari consumer profile through llama-swap, RTX 5060 Ti 16 GB | 10.04% | **49 ms** | **83 ms** | 4.97x | frontier resident; fastest first audio |
 | Qwen3-TTS 1.7B CustomVoice 6-bit, MLX-Audio 0.5.4, M5 Max 64 GB | 8.11% | **74 ms** | **237 ms** | 5.67x | frontier resident |
-| Qwen3-TTS 1.7B CustomVoice BF16, vLLM-Omni 0.26, RTX 5060 Ti 16 GB | **7.34%** | 587 ms | 633 ms | 4.07x | frontier resident |
+| Qwen3-TTS 1.7B CustomVoice BF16, vLLM-Omni 0.26, RTX 5060 Ti 16 GB | **7.34%** | 587 ms | 633 ms | 4.07x | frontier resident; lowest WER point estimate |
 | LoudKit `loudr-1-turbo`, PyTorch/CUDA, RTX 5060 Ti 16 GB | 13.71% | 499 ms | 600 ms | **14.54x** | excluded: 1/30 cap/suspect case |
 | LoudKit `loudr-1-turbo`, CPU generator/MPS renderer, M5 Max 64 GB | 13.13% | 1,093 ms | 1,639 ms | 6.30x | latency-frontier dominated; batch-frontier resident |
 
-Both the typical-response and responsive p95 point-estimate frontiers contain
-the two Qwen offerings: MLX is faster, while BF16 CUDA has the lower WER point
-estimate. Their model-level projection contains only Qwen3-TTS. Across the 518
-normalized reference words, CUDA made 38 errors and MLX made 42. A paired
-utterance bootstrap puts the MLX-minus-CUDA difference at approximately -2.45
-to +4.00 percentage points (95% interval), so the evidence does not establish a
-real quality difference. With uncertainty handled conservatively, both exact
-offerings remain instead of selecting a winner from noise.
+Both latency frontiers contain all three Qwen offerings. Nari reaches audible
+audio first, MLX trades a little latency for a lower WER point estimate, and
+vLLM-Omni trades substantially more latency for the lowest WER point estimate.
+Their model-level projection still contains only Qwen3-TTS because these are
+three implementations of the same model family. Across the 518 normalized
+reference words, Nari made 52 errors, MLX made 42, and vLLM-Omni made 38. The
+descriptive utterance-bootstrap intervals overlap, so the evidence does not
+establish a real quality ordering. All three exact offerings remain rather
+than selecting a winner from one noisy seed.
 
 This is still a pilot, not a finished voice leaderboard. WER is an
 intelligibility proxy and cannot establish naturalness or speaker identity.
 One synthesis seed is also too little for a stochastic model. The next frozen
 version will use a prompt-by-seed panel and the speaker-consistency gate.
 
-The batch frontier contains three eligible tradeoffs: M5 LoudKit at 6.30x RTF,
+The batch frontier still contains three eligible tradeoffs: M5 LoudKit at 6.30x RTF,
 M5 MLX Qwen at 5.67x with lower WER, and CUDA Qwen at 4.07x with the lowest WER
-point estimate. CUDA LoudKit supplies the highest raw throughput at 14.54x but
-fails the no-cap gate. Peak-memory numbers are not mixed yet because MLX
+point estimate. Nari's 4.97x RTF and 10.04% WER are both worse than the M5 MLX
+point, so it is correctly absent from this different frontier. CUDA LoudKit
+supplies the highest raw throughput at 14.54x but fails the no-cap gate.
+Peak-memory numbers are not mixed yet because MLX
 accelerator peaks, process RSS, and multi-process CUDA allocations are
 different measurements. The memory frontier will use one defined whole-service
 measure for every row.
@@ -145,12 +150,13 @@ runs inside that span.
 
 | Exact offering | Corpus words/min | Utterance p50 | Utterance p95 | Median internal-pause share |
 |---|---:|---:|---:|---:|
+| Qwen3-TTS 1.7B BF16, Nari/5060 | 111.4 | 116.3 | 162.9 | 18.4% |
 | Qwen3-TTS 1.7B 6-bit, MLX/M5 | 94.6 | 103.8 | 141.4 | 17.7% |
 | Qwen3-TTS 1.7B BF16, vLLM-Omni/5060 | 119.3 | 127.6 | 172.4 | 15.3% |
 | LoudKit turbo, M5 | 160.9 | 169.8 | 243.9 | 10.2% |
 | LoudKit turbo, 5060 | 160.1 | 169.7 | 241.9 | 10.0% |
 
-This does not turn “natural pacing” into a score. It shows that the two local
+This does not turn “natural pacing” into a score. It shows that the three local
 Qwen runtimes produced materially different durations despite the same prompt
 panel, model family, voice, and requested seed, while LoudKit had a much faster
 tail. A matched set of human recordings is needed before declaring an
@@ -168,6 +174,7 @@ contribute observations to the existing frontier.
 
 | Exact offering | Audio range | WER | Unexpected-speaker cases | Repetition warnings | Words/min |
 |---|---:|---:|---:|---:|---:|
+| Qwen3-TTS 1.7B BF16, Nari/5060 | 42.2–65.4 s | 1.32% | 0/3 | 0/3 | 116.2 |
 | Qwen3-TTS 1.7B 6-bit, MLX/M5 | 47.2–77.6 s | 1.32% | 0/3 | 1/3 | 101.6 |
 | Qwen3-TTS 1.7B BF16, vLLM-Omni/5060 | 38.3–53.0 s | 1.32% | 0/3 | 0/3 | 128.0 |
 | LoudKit turbo, M5 | 32.4–35.7 s | 1.66% | 0/3 | 0/3 | 180.1 |
@@ -176,7 +183,7 @@ contribute observations to the existing frontier.
 The pinned 117M-parameter MLX
 [Streaming Sortformer](https://huggingface.co/nvidia/diar_streaming_sortformer_4spk-v2.1)
 reported one speaker, no label changes, and no secondary-speaker activity in
-all 12 generated passages. A local calibration smoke test also reported one
+all 15 generated passages. A local calibration smoke test also reported one
 speaker for same-voice concatenations and two for one deliberately mixed
 Qwen-Vivian/LoudKit-Joe control. The HN failure was therefore **not reproduced
 in this small panel**; that is not evidence that it cannot occur.
@@ -280,13 +287,28 @@ short listening audit remains diagnostic, not a numerical frontier axis.
 
 ## Nari engine and LoudKit tradeoffs
 
-[Nari's Qwen3-TTS engine](https://github.com/nari-labs/nari-qwen3-tts) is an
-H100-specific serving implementation today: its published path uses CUDA 13,
-FP8 kernels, FlashInfer, and an SM90/H100 requirement. The RTX 5060 Ti cannot
-run it unchanged. One reusable idea did transfer cleanly: suppress Qwen's fixed
-1,920-sample bootstrap frame only after verifying that frame is below the same
-audibility threshold. That cut the M5 MLX Qwen median from roughly 147 ms to
-the retained 75 ms without blindly deleting audible output.
+[Nari's Qwen3-TTS engine](https://github.com/nari-labs/nari-qwen3-tts) publishes
+an H100-oriented path using CUDA 13, FP8 kernels, FlashInfer, and an SM90/H100
+requirement. It does not run unchanged on the RTX 5060 Ti. We tested a small,
+explicit compatibility patch instead: keep the talker projection in BF16 when
+Hopper FP8 is unavailable, capture only batch one, and reduce the KV pages and
+FlashInfer workspace. The exact patch and batch-one profile are retained with
+the [5060 router manifest](../local-runtime-frontiers/inference-vm-router/README.md).
+This is an experimental local patch, not an upstream Nari release.
+
+That path worked unusually well for an interactive voice agent. It used 6,586
+MiB of resident CUDA allocation after startup, produced byte-identical audio
+through direct and llama-swap endpoints, and delivered the 30-prompt panel at
+49 ms median and 83 ms p95 first audible audio. A text-model → Nari → unload
+switch test left one runner and one lock holder at each step. The 6,586 MiB
+number is a resident observation, not yet the cross-runtime peak-memory
+measurement required by the memory frontier.
+
+Nari suppresses Qwen's fixed bootstrap audio in the server. The independent
+MLX path uses a guarded client-side version: it drops the 1,920-sample frame
+only after verifying that the frame is below the same audibility threshold.
+That cut the M5 MLX Qwen median from roughly 147 ms to the retained 75 ms
+without blindly deleting audible output.
 
 The official [Qwen3-TTS](https://github.com/QwenLM/Qwen3-TTS) implementation,
 [MLX-Audio](https://github.com/Blaizzy/mlx-audio), and
@@ -316,16 +338,16 @@ always-on M1: resident local ASR and TTS
 
 available M5: fastest local speech and larger local LLM experiments
 
-RTX 5060 Ti:  CUDA audio experiments or a text model, but not both resident
-              under the current near-full-VRAM vLLM-Omni configuration
+RTX 5060 Ti:  Nari TTS or a text model selected through one llama-swap endpoint;
+              the exclusive group unloads one before starting the other
 ```
 
 This keeps turn-taking local and private while allowing the LLM to be remote
-when its quality advantage matters. The 5060 is the fastest LoudKit host, but
-the M5 is currently the fastest tested Qwen TTS host and the M1 can deliver a
-163 ms median while remaining always available. A voice service should stay
-outside the text-model `llama-swap` exclusivity group unless a combined memory
-measurement shows that co-residency is unsafe.
+when its quality advantage matters. Patched Nari on the 5060 is now the fastest
+tested Qwen TTS path; the M5 MLX path avoids an experimental CUDA patch, and the
+M1 can deliver a 163 ms median while remaining always available. On the 5060,
+TTS belongs in the same exclusive `llama-swap` memory group as text models:
+automatic switching has been tested, while safe co-residency has not.
 
 ## Reproducing the latency screen
 
@@ -370,6 +392,12 @@ python examples/voice-runtime-frontiers/bench_openai_tts.py \
   --save-wav-dir generated/qwen-http-audio \
   --output result.json
 ```
+
+Strict Nari servers omit `stream_format` and explicitly request streaming
+generation with `--stream-format omit --no-non-streaming-mode`. When the real
+router address is private, `--endpoint-label` records a public-safe label while
+the network clock still uses `--base-url`. The capture hashes its own benchmark
+script so later catalog builds can reject a mismatched harness.
 
 Score the audio with the fixed local instrument, then rebuild and evaluate the
 frontiers:

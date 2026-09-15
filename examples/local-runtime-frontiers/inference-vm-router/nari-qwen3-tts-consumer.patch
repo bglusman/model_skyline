@@ -1,0 +1,309 @@
+diff --git a/README.md b/README.md
+index 04e96ec..e160c69 100644
+--- a/README.md
++++ b/README.md
+@@ -24,7 +24,10 @@ Below is a performance comparison with popular serving engines.
+
+ ## Run with Docker
+
+-The container requires an NVIDIA H100, the NVIDIA Container Toolkit, and a driver compatible with CUDA 13.0. The published image supports Linux x86_64 (`linux/amd64`) H100 hosts. The engine has been tested only with English as the primary language.
++The default production configuration requires an NVIDIA H100, the NVIDIA
++Container Toolkit, and a driver compatible with CUDA 13.0. The published image
++supports Linux x86_64 (`linux/amd64`) NVIDIA GPU hosts. The engine has been
++tested only with English as the primary language.
+
+ ```bash
+ docker run --rm --gpus all \
+@@ -35,6 +38,34 @@ docker run --rm --gpus all \
+   ghcr.io/nari-labs/nari-qwen3-tts:latest
+ ```
+
++### Consumer GPUs (experimental)
++
++The `consumer` profile provides a single-request, memory-reduced capture
++surface for CUDA GPUs with roughly 16 GB of VRAM. It keeps BF16 Talker weights
++on devices that cannot run the Hopper-only FP8 GEMM, uses one Talker capture
++slot, and reduces the KV cache and FlashInfer workspace. Start it explicitly
++with `uv`:
++
++```bash
++nari-qwen3-tts-server \
++  --profile consumer \
++  --allow-non-h100
++```
++
++Or pass the opt-in through the container entrypoint:
++
++```bash
++docker run --rm --gpus all \
++  -p 8000:8000 \
++  -e QWEN3_TTS_PROFILE=consumer \
++  -v nari-qwen3-tts-cache:/home/nari/.cache \
++  ghcr.io/nari-labs/nari-qwen3-tts:latest \
++  --allow-non-h100
++```
++
++This compatibility path does not claim the H100 latency or throughput numbers.
++The packaged H100 profiles and their strict FP8 requirement are unchanged.
++
+ Model files and compiled kernels are cached in the named volume. Once model
+ loading and CUDA Graph capture finish, check readiness with:
+
+diff --git a/src/nari_qwen3_tts/executor/build.py b/src/nari_qwen3_tts/executor/build.py
+index 7747f95..bfea575 100644
+--- a/src/nari_qwen3_tts/executor/build.py
++++ b/src/nari_qwen3_tts/executor/build.py
+@@ -70,7 +70,13 @@ def build_cuda_execution(
+         ),
+         submission_fence=generation_fence,
+     )
+-    optimizations = install_capture_optimizations(assets, require_talker_fp8=True)
++    # The H100 production contract requires its SM90-only FlashInfer FP8 GEMM.
++    # Development/consumer configurations retain the BF16 checkpoint projection
++    # when that kernel is unavailable while keeping the other CUDA kernels.
++    optimizations = install_capture_optimizations(
++        assets,
++        require_talker_fp8=assets.config.require_h100,
++    )
+     code_predictor = CodePredictorExecutor(
+         model=assets.code_predictor,
+         layer0_embedding=assets.code_predictor_layer0_embedding,
+diff --git a/src/nari_qwen3_tts/profile.py b/src/nari_qwen3_tts/profile.py
+index 23873fd..f161399 100644
+--- a/src/nari_qwen3_tts/profile.py
++++ b/src/nari_qwen3_tts/profile.py
+@@ -65,6 +65,7 @@ class ExecutionProfile(str, Enum):
+     TTFA = "ttfa"
+     BALANCED = "balanced"
+     THROUGHPUT = "throughput"
++    CONSUMER = "consumer"
+
+
+ class RequiredSchedulingPolicy(str, Enum):
+diff --git a/src/nari_qwen3_tts/serve.py b/src/nari_qwen3_tts/serve.py
+index 0239c83..4bac272 100644
+--- a/src/nari_qwen3_tts/serve.py
++++ b/src/nari_qwen3_tts/serve.py
+@@ -69,7 +69,7 @@ def _parser() -> argparse.ArgumentParser:
+     parser.add_argument("--revision")
+     parser.add_argument("--model-cache-dir")
+     parser.add_argument("--device", default="cuda:0")
+-    parser.add_argument("--profile", choices=("ttfa", "balanced", "throughput"))
++    parser.add_argument("--profile", choices=("ttfa", "balanced", "throughput", "consumer"))
+     parser.add_argument(
+         "--engine-config",
+         type=Path,
+@@ -85,6 +85,11 @@ def _parser() -> argparse.ArgumentParser:
+         default="The Nari Qwen three T T S engine is ready.",
+     )
+     parser.add_argument("--local-files-only", action="store_true")
++    parser.add_argument(
++        "--allow-non-h100",
++        action="store_true",
++        help="allow CUDA GPUs other than H100 and use portable BF16 math when Hopper-only FP8 is unavailable",
++    )
+     parser.add_argument(
+         "--trace-output",
+         type=Path,
+@@ -148,7 +153,7 @@ def main() -> None:
+             revision=args.revision,
+             cache_dir=args.model_cache_dir,
+             device=args.device,
+-            require_h100=True,
++            require_h100=not args.allow_non_h100,
+             local_files_only=args.local_files_only,
+         )
+     )
+diff --git a/tests/model_optimization/test_config_catalog.py b/tests/model_optimization/test_config_catalog.py
+index 954e5c8..f3ea6f8 100644
+--- a/tests/model_optimization/test_config_catalog.py
++++ b/tests/model_optimization/test_config_catalog.py
+@@ -27,13 +27,14 @@ from nari_qwen3_tts.profile import (
+
+
+ @pytest.mark.parametrize(
+-    ("profile", "policy", "lead_s", "chunks", "max_batch"),
++    ("profile", "policy", "lead_s", "chunks", "prefill_max_batch", "max_batch"),
+     [
+         (
+             ExecutionProfile.TTFA,
+             RequiredSchedulingPolicy.DEADLINE_AWARE,
+             1.0,
+             (2, 4, 8, 12),
++            8,
+             32,
+         ),
+         (
+@@ -41,6 +42,7 @@ from nari_qwen3_tts.profile import (
+             RequiredSchedulingPolicy.ROUND_ROBIN,
+             None,
+             (4, 4, 8, 16, 25),
++            8,
+             64,
+         ),
+         (
+@@ -48,8 +50,17 @@ from nari_qwen3_tts.profile import (
+             RequiredSchedulingPolicy.ROUND_ROBIN,
+             None,
+             (25,),
++            8,
+             64,
+         ),
++        (
++            ExecutionProfile.CONSUMER,
++            RequiredSchedulingPolicy.ROUND_ROBIN,
++            None,
++            (2, 4, 8, 12),
++            1,
++            1,
++        ),
+     ],
+ )
+ def test_required_profiles_define_dynamic_capacity_and_policy_metadata(
+@@ -57,6 +68,7 @@ def test_required_profiles_define_dynamic_capacity_and_policy_metadata(
+     policy: RequiredSchedulingPolicy,
+     lead_s: float | None,
+     chunks: tuple[int, ...],
++    prefill_max_batch: int,
+     max_batch: int,
+ ) -> None:
+     config = ProfileLoader().load_profile(profile)
+@@ -65,7 +77,7 @@ def test_required_profiles_define_dynamic_capacity_and_policy_metadata(
+     assert config.policy.kind is policy
+     assert config.policy.pressing_lead_s == lead_s
+     assert config.codec_chunks(silent_bootstrap_suppressed=True) == chunks
+-    assert config.stages.talker_prefill.max_batch_size == 8
++    assert config.stages.talker_prefill.max_batch_size == prefill_max_batch
+     assert config.stages.talker_decode.max_batch_size == max_batch
+     assert config.stages.code_predictor.max_batch_size == max_batch
+     assert config.stages.codec.max_batch_size == max_batch
+@@ -112,6 +124,28 @@ def test_required_profiles_fix_every_stage_capture_surface_to_the_slo_configs()
+     assert throughput.stages.codec.batches.warm_full == dense_b64
+     assert throughput.stages.codec.frames.warm == (*range(1, 13), 25)
+
++    consumer = ProfileLoader().load_profile(ExecutionProfile.CONSUMER)
++    assert consumer.stages.talker_prefill.max_batch_size == 1
++    assert consumer.stages.talker_decode == BatchCaptureConfig(1, (1,))
++    assert consumer.stages.code_predictor == BatchCaptureConfig(1, (1,))
++    assert consumer.stages.codec.batches == CodecBatchCaptureConfig(
++        whole_sequence_first_frame=(1,),
++        whole_sequence_followup=(1,),
++        cold=(1,),
++        warm_partial=(1,),
++        warm_full=(1,),
++    )
++    assert consumer.stages.codec.frames == CodecFrameCaptureConfig(
++        cold=(4, 6, 7),
++        warm=(1, 8, 12),
++        warm_full=(1, 8, 12),
++        terminal_pad=(8, 12),
++    )
++    assert consumer.resources.talker_capture_slots == 1
++    assert consumer.resources.kv_pages == 32
++    assert consumer.resources.workspace_bytes == 128 * 1024 * 1024
++    CaptureCatalog.from_config(consumer.stages).validate_codec_schedule((1,))
++
+
+ def test_ttfa_dense_b32_lowers_exercised_generation_cohorts_to_b24() -> None:
+     catalog = CaptureCatalog.from_config(
+diff --git a/tests/model_optimization/test_factory.py b/tests/model_optimization/test_factory.py
+index 141412d..cc3f565 100644
+--- a/tests/model_optimization/test_factory.py
++++ b/tests/model_optimization/test_factory.py
+@@ -20,6 +20,7 @@ from nari_qwen3_tts.profile import (
+ def test_factory_scratch_pages_cover_the_largest_prefill_token_bucket(monkeypatch) -> None:
+     factory = importlib.import_module("nari_qwen3_tts.executor.build")
+     captured_cache_args: dict[str, object] = {}
++    captured_optimization_args: dict[str, object] = {}
+
+     class FakeCache:
+         def __init__(self, **kwargs) -> None:
+@@ -40,7 +41,11 @@ def test_factory_scratch_pages_cover_the_largest_prefill_token_bucket(monkeypatc
+     monkeypatch.setattr(factory, "CodecExecutor", FakeComponent)
+     monkeypatch.setattr(factory, "TorchCaptureDriver", FakeComponent)
+     monkeypatch.setattr(factory, "CudaGraphPoolFence", FakeComponent)
+-    monkeypatch.setattr(factory, "install_capture_optimizations", lambda *args, **kwargs: object())
++    def install_optimizations(_assets, *, require_talker_fp8: bool):
++        captured_optimization_args["require_talker_fp8"] = require_talker_fp8
++        return object()
++
++    monkeypatch.setattr(factory, "install_capture_optimizations", install_optimizations)
+     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+     monkeypatch.setattr(torch.cuda, "graphs", FakePool())
+
+@@ -88,6 +93,7 @@ def test_factory_scratch_pages_cover_the_largest_prefill_token_bucket(monkeypatc
+     )
+     weight = torch.empty((1,), dtype=torch.float32)
+     assets = SimpleNamespace(
++        config=SimpleNamespace(require_h100=False),
+         device=torch.device("cuda"),
+         model_config=SimpleNamespace(talker=talker_config, num_code_groups=16),
+         talker=SimpleNamespace(get_input_embeddings=lambda: SimpleNamespace(weight=weight)),
+@@ -108,3 +114,4 @@ def test_factory_scratch_pages_cover_the_largest_prefill_token_bucket(monkeypatc
+     )
+
+     assert captured_cache_args["scratch_page_count"] == 8
++    assert captured_optimization_args["require_talker_fp8"] is False
+diff --git a/tests/server/test_serve.py b/tests/server/test_serve.py
+index 8120441..5b9dadb 100644
+--- a/tests/server/test_serve.py
++++ b/tests/server/test_serve.py
+@@ -80,6 +80,16 @@ talker_decode:
+     assert config.stages.talker_decode.batch_sizes[-1] == 24
+
+
++def test_consumer_gpu_support_requires_explicit_profile_and_hardware_override() -> None:
++    args = serve._parser().parse_args(["--profile", "consumer", "--allow-non-h100"])
++    config = serve._load_execution_config(profile=args.profile, config_path=None)
++
++    assert args.allow_non_h100 is True
++    assert config.name == ExecutionProfile.CONSUMER.value
++    assert config.stages.talker_decode.max_batch_size == 1
++    assert config.resources.talker_capture_slots == 1
++
++
+ def test_explicit_server_profile_is_the_base_for_a_profileless_yaml_overlay(tmp_path) -> None:
+     path = tmp_path / "engine.yaml"
+     path.write_text("kv_pages: 128\n", encoding="utf-8")
+diff --git a/src/nari_qwen3_tts/profiles/consumer.yaml b/src/nari_qwen3_tts/profiles/consumer.yaml
+new file mode 100644
+index 0000000..c035472
+--- /dev/null
++++ b/src/nari_qwen3_tts/profiles/consumer.yaml
+@@ -0,0 +1,36 @@
++profile: consumer
++required_policy: round_robin
++pressing_lead_s: null
++talker_prefill:
++  max_batch_size: 1
++  batch_sizes: [1]
++  token_buckets: [32, 64, 128, 192, 384, 640]
++  exact_sequence_lengths: [10]
++  exact_batch_sizes: [1]
++talker_decode:
++  max_batch_size: 1
++  batch_sizes: [1]
++code_predictor:
++  max_batch_size: 1
++  batch_sizes: [1]
++codec:
++  max_batch_size: 1
++  chunk_schedule: [2, 4, 8, 12]
++  suppressed_bootstrap_chunk_schedule: [2, 4, 8, 12]
++  batches:
++    whole_sequence_first_frame: [1]
++    whole_sequence_followup: [1]
++    cold: [1]
++    cold_terminal_partial: []
++    warm_partial: [1]
++    warm_full: [1]
++  frames:
++    cold: [4, 6, 7]
++    cold_terminal_partial: []
++    warm: [1, 8, 12]
++    warm_full: [1, 8, 12]
++    terminal_pad: [8, 12]
++talker_capture_slots: 1
++kv_pages: 32
++kv_page_size: 128
++workspace_bytes: 134217728
