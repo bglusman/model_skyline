@@ -1,0 +1,59 @@
+{
+  "schema_version": "model-skyline/local-system-profile/v1",
+  "served_model": "muse-glimmer-30b-shoehorn-ctx128k-q4kv-load-none",
+  "artifact": {
+    "model_id": "meta-models/Muse-Glimmer-30B",
+    "checkpoint": "Muse-Glimmer-30B-ShoeHorn-5060-ctx131k-q4kv-iq4embdout-sampled",
+    "revision": "b26f8ce4a435571e24656d27efef978073809356",
+    "format": "gguf",
+    "quantization": "ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output",
+    "size_bytes": 13096573440,
+    "content_sha256": "d0b3baa8b28a91bbb8ed2fc7ad076b3d30002cdfa85cc52578521f5d8f6e5220",
+    "source_url": "https://huggingface.co/AtomicChat/Muse-Glimmer-30B-GGUF/tree/b26f8ce4a435571e24656d27efef978073809356",
+    "license": "Apache-2.0",
+    "metadata": {
+      "base_model": "meta-models/Muse-Glimmer-30B",
+      "shoehorn_commit": "0b98620c01f4ca64640cc5604e2a16b05f15a19f",
+      "shoehorn_upstream_pr": "https://github.com/notactuallytreyanastasio/shoehorn/pull/6",
+      "plan": "artifacts/muse-glimmer-shoehorn-5060-ctx131k-q4kv-iq4embdout-plan.json"
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "0.4.0-dev-build-2515",
+    "commit": "5266f24da",
+    "backend": "CUDA",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "q4_0/q4_0",
+    "prefix_cache_enabled": true,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "runtime_binary_sha256": "7ce1f599eafb34e9c5c8edf6e7b018c5d4459bea3c5409865fa51c8b0798997d",
+      "server_alias": "muse-glimmer-30b-shoehorn-ctx128k-q4kv-load-none",
+      "native_context_tokens": 131072,
+      "allocated_context_tokens": 131072,
+      "parallel_slots": 1,
+      "batch_tokens": 2048,
+      "micro_batch_tokens": 512,
+      "threads": 6,
+      "batch_threads": 6,
+      "max_output_tokens": 16384,
+      "n_gpu_layers": "all",
+      "flash_attention": true,
+      "fit": "off",
+      "load_mode": "none",
+      "jinja": true,
+      "cache_ram_bytes": 0,
+      "slot_prefix_reuse": "longest-common-prefix",
+      "prompt_cache_enabled": true,
+      "reasoning_policy": "Reasoning strength: low.",
+      "exclusive_runner": "model-skyline/local-model-exclusive@linux-flock"
+    }
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ]
+}

@@ -5,18 +5,23 @@ LAN llama-swap endpoint, keeps child runtimes on loopback, and puts
 every registered heavyweight model in one exclusive `local-memory` group.
 Loading progress is disabled so it cannot become assistant content.
 
-The manifest registers the two Ollama models already present on the host, a
-measured Qwen3.5 9B Q6_K llama.cpp route, and an experimental Qwen3-TTS route
-served by Nari's consumer-GPU profile. The Qwen route allocates 131,072 tokens
-with Q8 KV and has passed exact early/middle/late retrieval at 126,002 actual
-input tokens. Its 900-second TTL avoids an unnecessary reload in a focused
-agent session; selecting another member still unloads it through the exclusive
-group. The tested Laguna ShoeHorn artifact is deliberately not registered:
-although it is fast, it fails the matched retrieval and perplexity gates. A
-model list should not advertise a path that cannot start or is known to be
-unusable. Each future llama.cpp launcher must use `local-model-exclusive`,
-`-ngl all -fit off`, an explicit context/KV profile, and a loopback `${PORT}`
-supplied by llama-swap.
+The manifest registers the two Ollama models already present on the host,
+measured Qwen3.5 9B Q6_K and Muse Glimmer 30B AD-IQ3_XXS llama.cpp routes, and
+an experimental Qwen3-TTS route served by Nari's consumer-GPU profile. Both
+llama.cpp routes allocate 131,072 tokens. Qwen uses Q8 KV; Muse uses Q4 KV.
+Both returned the exact hidden value with the needle near the beginning,
+middle, and end of 126K-class prompts. Their 900-second TTL avoids an
+unnecessary reload in a focused agent session; selecting another member still
+unloads the current route through the exclusive group.
+
+The tested Laguna and Muse ShoeHorn artifacts are deliberately not registered.
+Laguna fails matched retrieval and perplexity gates. Muse fits and passes the
+small tool/retrieval checks, but its pinned-corpus perplexity is 10.2% worse
+than the smaller calibrated AD-IQ3_XXS control and its answer lengths are much
+less predictable. A model list should not advertise a path that cannot start
+or is known to be a worse default. Each future llama.cpp launcher must use
+`local-model-exclusive`, `-ngl all -fit off`, an explicit context/KV profile,
+and a loopback `${PORT}` supplied by llama-swap.
 
 The checked-in `ollama-model-skyline.conf` binds Ollama to loopback, limits it
 to one loaded model, and aligns its five-minute keep-alive with llama-swap's
@@ -139,3 +144,12 @@ screen. Router discovery reported the configured 131,072-token window. A cold
 router reported no running model, the cooperative lock was free, and
 `nvidia-smi` returned to the 70 MiB display-only baseline. This one deployment
 smoke is not included as additional frontier evidence.
+
+The Muse Glimmer AD-IQ3_XXS route was added later on 2026-09-15 after the exact
+artifact passed 3/3 automatic 30-tool calls and exact 126K retrieval with the
+needle near the beginning, middle, and end. Its cold transition reached ready
+in about 11 seconds in the initial smoke; a separate ShoeHorn comparison used
+the same llama.cpp build, Q4 KV, and 131,072-token allocation. The router keeps
+only the calibrated AtomicChat control because the larger custom quant lost
+the matched perplexity gate. After validation the custom route was removed,
+`/running` was empty, and no CUDA compute process remained.

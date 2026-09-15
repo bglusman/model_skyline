@@ -1,0 +1,123 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": null,
+  "policy_sha256": null,
+  "source_snapshot_id": "a41da29e4ec7843f4772d2e30235274ff1d98e457abb959d9d93730a2fab654c",
+  "frontier_id": "tool-agent-operational",
+  "workload": {
+    "id": "openai-agent-latency-v1",
+    "version": "1",
+    "unit": "request"
+  },
+  "order_by": "tool_call_success",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "tool_call_success",
+      "goal": "maximize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "end_to_end",
+      "goal": "minimize",
+      "unit": "s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-AtomicChat AD-IQ3_XXS (3.51 bpw)-llama.cpp-d9fdd749e2322de9",
+              "model_id": "meta-models/Muse-Glimmer-30B",
+              "provider": "local:inference-vm-rtx5060ti16",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "nvidia-default-180w-limit",
+              "quantization": "AtomicChat AD-IQ3_XXS (3.51 bpw)",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline/openai-matrix@v1",
+              "capabilities": [
+                "long-context",
+                "text",
+                "tools"
+              ]
+            },
+            "axes": {
+              "tool_call_success": {
+                "value": "100",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.local_tool_call_success_percent"
+                ],
+                "source_ids": [
+                  "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm",
+                    "version": "model-skyline/openai-matrix@v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                    "raw_sha256": "c0eaec9a52a6c7543a3d23c968621237dcbbcea8d030be2d686545a39256241a",
+                    "retrieved_at": "2026-09-15T23:05:57.879394Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T23:05:57.879394Z",
+                "minimum_sample_count": 3
+              },
+              "end_to_end": {
+                "value": "4.929467095",
+                "unit": "s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "4.916262724",
+                "upper": "5.001295917",
+                "dependencies": [
+                  "signals.local_end_to_end_seconds"
+                ],
+                "source_ids": [
+                  "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm",
+                    "version": "model-skyline/openai-matrix@v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                    "raw_sha256": "c0eaec9a52a6c7543a3d23c968621237dcbbcea8d030be2d686545a39256241a",
+                    "retrieved_at": "2026-09-15T23:05:57.879394Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T23:05:57.879394Z",
+                "minimum_sample_count": 3
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": null,
+  "view_id": "a4b04240ef5a3ccc52d4fd74a79dee4977c9f71d2ed20f5aeb8e30104b851fa3"
+}

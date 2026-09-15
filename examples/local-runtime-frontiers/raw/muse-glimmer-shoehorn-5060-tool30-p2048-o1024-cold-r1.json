@@ -1,0 +1,108 @@
+{
+  "schema_version": "model-skyline/raw-openai-matrix/v1",
+  "started_at": "2026-09-15T22:03:28.357254Z",
+  "captured_at": "2026-09-15T22:03:55.525725Z",
+  "base_url": "http://127.0.0.1:8091/v1",
+  "model": "muse-glimmer-30b-shoehorn-ctx128k-q4kv-load-none",
+  "mode": "tool",
+  "retrieval_position": null,
+  "retrieval_characters": null,
+  "repetitions": 1,
+  "warmup": false,
+  "runner_state": "cold_model_load",
+  "process_match": "/opt/llama-cpp/build-5266f24/bin/llama-server",
+  "runtime_stats_url": null,
+  "token_count_url": null,
+  "runtime_stats_auth": null,
+  "runner_status_url": "http://127.0.0.1:8091/running",
+  "runner_model_id": "muse-glimmer-30b-shoehorn-ctx128k-q4kv-load-none",
+  "system_prompt_sha256": "24397206731aa5dd6365960113e312d3250a9be48d6e12e70e9d4b2ae4f981f1",
+  "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+  "tool_count": 30,
+  "tool_choice": "auto",
+  "thinking_mode": "runtime_default",
+  "sampling": {
+    "temperature": 0,
+    "seed": 90421
+  },
+  "results": [
+    {
+      "approximate_prefix_tokens": 2048,
+      "prompt_bytes": 8293,
+      "prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+      "input_definition_sha256": "7d6af84e19ccef5ef561eb63cb9d0bcc259dcf6f4886aedb379241bf18550a2f",
+      "expected_content_sha256": null,
+      "construction_input_tokens": null,
+      "max_output_tokens": 1024,
+      "repetition": 1,
+      "ttft_seconds": 18.868917938,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 27.137346681,
+      "decode_tokens_per_second": 28.542303179403472,
+      "usage": {
+        "completion_tokens": 237,
+        "prompt_tokens": 5388,
+        "total_tokens": 5625,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content_bytes": 0,
+      "expected_content_present": null,
+      "expected_content_exact": null,
+      "tool_calls": [
+        {
+          "name": "lookup_fixture",
+          "arguments": {
+            "key": "skyline-cache-probe",
+            "limit": 7
+          },
+          "arguments_sha256": "01fba026b5618ff16a8cbf02cb880b840cbf5ae5db0a2a5e8ec38574eb3f936e",
+          "parse_error": null
+        }
+      ],
+      "tool_correct": true,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 1585369088,
+      "peak_process_physical_footprint_bytes": null,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 738787328
+      },
+      "host_after": {
+        "swap_used_bytes": 752140288
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [
+        {
+          "elapsed_seconds": 0.005021907,
+          "models": []
+        },
+        {
+          "elapsed_seconds": 1.523044567,
+          "models": [
+            {
+              "model": "muse-glimmer-30b-shoehorn-ctx128k-q4kv-load-none",
+              "state": "starting"
+            }
+          ]
+        },
+        {
+          "elapsed_seconds": 13.757704517,
+          "models": [
+            {
+              "model": "muse-glimmer-30b-shoehorn-ctx128k-q4kv-load-none",
+              "state": "ready"
+            }
+          ]
+        }
+      ],
+      "runner_ready_seconds": 13.757704517
+    }
+  ]
+}

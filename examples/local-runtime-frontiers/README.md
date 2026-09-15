@@ -21,13 +21,17 @@ throughput, warm and uncached tool operation, repeated 126K retrieval, and a
 strict plus value-found capacity/physical-footprint roll-up. They remain
 workload-specific, not a universal model ranking.
 
-The newest 16 GB RTX 5060 Ti screen adds Qwen3.5 9B Q6_K as a practical
-128K-class route. It returned the exact hidden value in fresh-server early,
-middle, and late 126,002-token probes. At the middle position it took 72.103 s
-uncached, about 0.693 s after reusing 125,998 prompt tokens, and peaked at
-11.72 GB of combined host/GPU service capacity. It and Laguna are both short
-speed and latency tradeoffs; Qwen alone remains on the validated-context versus
-service-memory frontier. This screen does not measure coding quality or vision.
+The newest 16 GB RTX 5060 Ti screens add Qwen3.5 9B Q6_K and Muse Glimmer
+AD-IQ3_XXS as practical 128K-class routes. Both returned the exact hidden value
+near the beginning, middle, and end of 126K-class prompts. Qwen's middle
+position took 72.103 s uncached, about 0.693 s after reusing 125,998 prompt
+tokens, and peaked at 11.72 GB of combined host/GPU service capacity. Muse's
+fresh-server middle position took 181.46 s including an 11.34-second load; its
+sampled whole-service memory capture and coding-quality pilot remain open.
+Qwen alone therefore remains on the validated-context versus service-memory
+frontier. Neither screen measures vision, and neither yet supplies local coding
+quality. The [2026-09-15 status](overnight-status-2026-09-15.md) is the shortest
+handoff for the new Muse/ShoeHorn work.
 
 The [small, realistic evaluation survey](../../docs/small-realistic-evaluations.md)
 compares several text, tool, vision, and SVG candidates before choosing a
@@ -960,6 +964,22 @@ and 24.9124 decode token/s. The 19,672,967,680-byte ShoeHorn fit reached
 5.0167 for the official artifact. The custom fit is therefore slightly larger,
 slower on both axes, and worse on two small PPL controls; it does not enter the
 recommended set.
+
+The 16 GB RTX 5060 Ti requires a much smaller offering. AtomicChat's calibrated
+12,224,327,968-byte AD-IQ3_XXS is the retained route. It reaches median
+pp2048/tg512 rates of 1,022.59 and 31.3664 token/s, passes 3/3 automatic
+30-tool calls, and returns the exact hidden value with the needle near the
+beginning, middle, and end of roughly 126K input tokens. Its pinned-corpus PPL
+is 5.2003 ± 0.11916.
+
+A general tensor-override implementation proposed in ShoeHorn PR #6 made a
+13,096,573,440-byte, 3.758-bpw alternative possible at the same 128K/Q4-KV
+service position. It also passes the checked tools and all three retrieval
+positions, and its prompt-processing median is 1,109.02 token/s. It is not the
+default: decode falls to 30.6355 token/s, PPL worsens 10.2% to 5.7316, and some
+answers consume far more reasoning tokens. This is a valid custom fit and a
+failed promotion, not a broken artifact. The exact plan and matched evidence
+are in the [Muse audit](muse-glimmer-audit.md).
 
 The llama-swap routes expose both the official target-only artifact and the
 same target plus the official DFlash2 Q4_K_M draft. Both use a 131,072-token

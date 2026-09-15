@@ -1,0 +1,80 @@
+{
+  "schema_version": "model-skyline/shoehorn-plan-observation/v1",
+  "captured_on": "2026-09-15",
+  "shoehorn": {
+    "version": "0.3.0-dev",
+    "commit": "0b98620c01f4ca64640cc5604e2a16b05f15a19f",
+    "binary_sha256": "a814268f406abbc209a12668dff76186c980dddc9476a7c52e9bfd89c9869e95",
+    "upstream_pr": "https://github.com/notactuallytreyanastasio/shoehorn/pull/6"
+  },
+  "source": {
+    "model_id": "AtomicChat/Muse-Glimmer-30B-GGUF",
+    "revision": "b26f8ce4a435571e24656d27efef978073809356",
+    "files": [
+      {
+        "filename": "Muse-Glimmer-30B-BF16-00001-of-00002.gguf",
+        "size_bytes": 27869304128,
+        "sha256": "c78eb5a0218a194ffec394a4f3c85de6973ac73c9fba977257be2abb50159832"
+      },
+      {
+        "filename": "Muse-Glimmer-30B-BF16-00002-of-00002.gguf",
+        "size_bytes": 27856207232,
+        "sha256": "030f0f7e7c5bc0a3fe5fd392bfed7d9e2868f2c57658ee311061ef9f868f7914"
+      }
+    ]
+  },
+  "importance_matrix": {
+    "filename": "muse-glimmer.imatrix.gguf",
+    "size_bytes": 13403200,
+    "sha256": "eae2b1317b4412675b1b62e86e375a28f4930fd55e149f74f140f26bce0ab054"
+  },
+  "request": {
+    "command": "shoehorn quantize --model Muse-Glimmer-30B-BF16-00001-of-00002.gguf --imatrix muse-glimmer.imatrix.gguf --ctx 131072 --budget 15GiB --reserve 512MiB --kv q4_0 --tensor-type token_embd.weight=IQ4_XS --tensor-type output.weight=IQ4_XS --output Muse-Glimmer-30B-ShoeHorn-5060-ctx131k-q4kv-iq4embdout-sampled.gguf",
+    "context_tokens": 131072,
+    "kv_type": "q4_0",
+    "budget_bytes": 16106127360,
+    "reserve_bytes": 536870912,
+    "exact_errors": false,
+    "sampled_rows_per_tensor": 128,
+    "tensor_type_overrides": {
+      "token_embd.weight": "IQ4_XS",
+      "output.weight": "IQ4_XS"
+    }
+  },
+  "solver_observation": {
+    "tensor_count": 731,
+    "solved_tensor_count": 416,
+    "imatrix_solved_tensor_count": 416,
+    "fixed_tensor_count": 315,
+    "reported_weight_gib": "12.18",
+    "reported_overall_bpw": "3.758",
+    "reported_weight_slack_bytes": 16384,
+    "reported_kv_gib": "1.83",
+    "reported_compute_mib": "498.6",
+    "assignments": [
+      {"type": "F32", "tensors": 313, "reported_bytes": "5.4 MiB"},
+      {"type": "IQ2_S", "tensors": 2, "reported_bytes": "81.2 MiB"},
+      {"type": "IQ2_XS", "tensors": 2, "reported_bytes": "44.2 MiB"},
+      {"type": "IQ2_XXS", "tensors": 96, "reported_bytes": "1.77 GiB"},
+      {"type": "IQ3_XXS", "tensors": 4, "reported_bytes": "194.1 MiB"},
+      {"type": "IQ4_XS", "tensors": 166, "reported_bytes": "7.92 GiB"},
+      {"type": "Q4_K", "tensors": 41, "reported_bytes": "340.9 MiB"},
+      {"type": "Q5_K", "tensors": 107, "reported_bytes": "1.84 GiB"}
+    ],
+    "default_plan_comparison": {
+      "reported_weight_gib": "12.18",
+      "reported_overall_bpw": "3.758",
+      "embedding_and_output_reported_gib": "2.66",
+      "overridden_embedding_and_output_reported_gib": "1.34",
+      "plan_log_sha256": "52bf059b9b04ad6c70fbc228c5fea2a6bef6452f3e67a9e2dde5a72788af15be"
+    },
+    "plan_log_sha256": "9a41045f0542bcda5eff0118baed6a41f887bf0b9320d67fc74c718f6bbbb284"
+  },
+  "output": {
+    "filename": "Muse-Glimmer-30B-ShoeHorn-5060-ctx131k-q4kv-iq4embdout-sampled.gguf",
+    "size_bytes": 13096573440,
+    "sha256": "d0b3baa8b28a91bbb8ed2fc7ad076b3d30002cdfa85cc52578521f5d8f6e5220",
+    "quantize_log_sha256": "b0d2ab1362296f9f33e6454492af771b54e11991cfd3ed591deec420c74de89c",
+    "disposition": "rejected-as-default-after-matched-runtime-and-perplexity-comparison"
+  }
+}

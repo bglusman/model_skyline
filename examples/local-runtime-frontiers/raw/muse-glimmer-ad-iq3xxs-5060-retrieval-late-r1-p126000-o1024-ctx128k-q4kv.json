@@ -1,0 +1,87 @@
+{
+  "schema_version": "model-skyline/raw-openai-matrix/v1",
+  "started_at": "2026-09-15T21:56:54.437703Z",
+  "captured_at": "2026-09-15T21:59:48.461294Z",
+  "base_url": "http://127.0.0.1:8091/v1",
+  "model": "muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none",
+  "mode": "retrieval",
+  "retrieval_position": "0.9",
+  "retrieval_characters": [
+    298116
+  ],
+  "repetitions": 1,
+  "warmup": false,
+  "runner_state": "warm",
+  "process_match": "/opt/llama-cpp/build-5266f24/bin/llama-server",
+  "runtime_stats_url": null,
+  "token_count_url": null,
+  "runtime_stats_auth": null,
+  "runner_status_url": "http://127.0.0.1:8091/running",
+  "runner_model_id": "muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none",
+  "system_prompt_sha256": "24397206731aa5dd6365960113e312d3250a9be48d6e12e70e9d4b2ae4f981f1",
+  "tool_schema_sha256": null,
+  "tool_count": 0,
+  "tool_choice": null,
+  "thinking_mode": "runtime_default",
+  "sampling": {
+    "temperature": 0,
+    "seed": 90421
+  },
+  "results": [
+    {
+      "approximate_prefix_tokens": 126000,
+      "prompt_bytes": 298116,
+      "prompt_sha256": "a591cd3f650e87c370af172aef1820e0117d80b398a05b2c5ebce964ae7f334b",
+      "input_definition_sha256": "ab8db9d6c1271d5229e3ae07630fb6dfcdc0a6b9ba10428bf75f85c5c85818b8",
+      "expected_content_sha256": "3bc407830384d13200ce850874f2ab34a4a758640d6d0ed02d31be0668f282e9",
+      "construction_input_tokens": null,
+      "max_output_tokens": 1024,
+      "repetition": 1,
+      "ttft_seconds": 156.619256477,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 173.981570914,
+      "decode_tokens_per_second": 18.891490601104117,
+      "usage": {
+        "completion_tokens": 329,
+        "prompt_tokens": 126002,
+        "total_tokens": 126331,
+        "prompt_tokens_details": {
+          "cached_tokens": 26
+        }
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "content_sha256": "3bc407830384d13200ce850874f2ab34a4a758640d6d0ed02d31be0668f282e9",
+      "content_bytes": 31,
+      "expected_content_present": true,
+      "expected_content_exact": true,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 1585369088,
+      "peak_process_physical_footprint_bytes": null,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 739573760
+      },
+      "host_after": {
+        "swap_used_bytes": 739573760
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [
+        {
+          "elapsed_seconds": 0.005233304,
+          "models": [
+            {
+              "model": "muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none",
+              "state": "ready"
+            }
+          ]
+        }
+      ],
+      "runner_ready_seconds": 0.005233304
+    }
+  ]
+}

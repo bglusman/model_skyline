@@ -1,0 +1,870 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "kind": "frontier",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "snapshot_id": "a41da29e4ec7843f4772d2e30235274ff1d98e457abb959d9d93730a2fab654c",
+  "config_hash": "91c2b96aa89d778800a82831c00eaf32f00f67e1cf9a8ea7e48f1412790fba8f",
+  "catalog_hash": "93e891a635d1f881a59e72c58d29f231f0995fb5cd3e2ad84661521ed812b91b",
+  "engine_version": "0.9.0",
+  "generated_at": "2026-09-15T23:10:00Z",
+  "frontier_id": "tool-agent-operational",
+  "workload": {
+    "id": "openai-agent-latency-v1",
+    "version": "1",
+    "unit": "request"
+  },
+  "order_by": "tool_call_success",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "tool_call_success",
+      "goal": "maximize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "end_to_end",
+      "goal": "minimize",
+      "unit": "s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "members": [
+    {
+      "offering": {
+        "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-AtomicChat AD-IQ3_XXS (3.51 bpw)-llama.cpp-d9fdd749e2322de9",
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "provider": "local:inference-vm-rtx5060ti16",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "nvidia-default-180w-limit",
+        "quantization": "AtomicChat AD-IQ3_XXS (3.51 bpw)",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "tool_call_success": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_tool_call_success_percent"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "c0eaec9a52a6c7543a3d23c968621237dcbbcea8d030be2d686545a39256241a",
+              "retrieved_at": "2026-09-15T23:05:57.879394Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T23:05:57.879394Z",
+          "minimum_sample_count": 3
+        },
+        "end_to_end": {
+          "value": "4.929467095",
+          "unit": "s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "4.916262724",
+          "upper": "5.001295917",
+          "dependencies": [
+            "signals.local_end_to_end_seconds"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "c0eaec9a52a6c7543a3d23c968621237dcbbcea8d030be2d686545a39256241a",
+              "retrieved_at": "2026-09-15T23:05:57.879394Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T23:05:57.879394Z",
+          "minimum_sample_count": 3
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "inference-vm-rtx5060ti16",
+          "manufacturer": "custom",
+          "machine_model": "Proxmox-VM-125",
+          "chip": "Intel-i7-14700K-plus-RTX-5060-Ti-16GB",
+          "architecture": "x86_64",
+          "memory_bytes": 10350514176,
+          "cpu_cores": 16,
+          "cpu_core_groups": {
+            "kvm-passthrough-vcpu": 16
+          },
+          "gpu_cores": 4608,
+          "os_name": "Ubuntu",
+          "os_version": "22.04.5-LTS-kernel-5.15.0-190-generic",
+          "power_source": "unknown",
+          "power_mode": "nvidia-default-180w-limit",
+          "negotiated_adapter_watts": null,
+          "metadata": {
+            "accelerator": "NVIDIA GeForce RTX 5060 Ti",
+            "accelerator_architecture": "Blackwell",
+            "accelerator_core_unit": "CUDA-core",
+            "accelerator_memory_bytes_reported_by_nvidia_smi": 17103323136,
+            "accelerator_memory_mib_reported_by_nvidia_smi": 16311,
+            "accelerator_uuid": "GPU-029ff01b-22d2-691f-0848-5c84f28f9dfa",
+            "cuda_capability": "12.0",
+            "driver_version": "580.167.08",
+            "gpu_power_limit_watts": 180,
+            "hypervisor": "KVM",
+            "inventory_observed_at": "2026-09-14T15:55:27Z",
+            "nvidia_reference": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+          }
+        },
+        "artifact": {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "checkpoint": "Muse-Glimmer-30B-AD-IQ3_XXS",
+          "revision": "b26f8ce4a435571e24656d27efef978073809356",
+          "format": "gguf",
+          "quantization": "AtomicChat AD-IQ3_XXS (3.51 bpw)",
+          "size_bytes": 12224327968,
+          "content_sha256": "392ee6a723541aaf79374c046ddc41464981698e807f5d600f41e294d4b7cec6",
+          "source_url": "https://huggingface.co/AtomicChat/Muse-Glimmer-30B-GGUF/tree/b26f8ce4a435571e24656d27efef978073809356",
+          "license": "Apache-2.0",
+          "metadata": {
+            "filename": "Muse-Glimmer-30B-AD-IQ3_XXS.gguf",
+            "base_model": "meta-models/Muse-Glimmer-30B",
+            "publisher_reported_bpw": "3.51",
+            "publisher_reported_neutral_kld": "0.064353",
+            "publisher_reported_agentic_kld": "0.168065"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "0.4.0-dev-build-2515",
+          "commit": "5266f24da",
+          "backend": "CUDA",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q4_0/q4_0",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "runtime_binary_sha256": "7ce1f599eafb34e9c5c8edf6e7b018c5d4459bea3c5409865fa51c8b0798997d",
+            "server_alias": "muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none",
+            "native_context_tokens": 131072,
+            "allocated_context_tokens": 131072,
+            "parallel_slots": 1,
+            "batch_tokens": 2048,
+            "micro_batch_tokens": 512,
+            "threads": 6,
+            "batch_threads": 6,
+            "max_output_tokens": 16384,
+            "n_gpu_layers": "all",
+            "flash_attention": true,
+            "fit": "off",
+            "load_mode": "none",
+            "jinja": true,
+            "cache_ram_bytes": 0,
+            "slot_prefix_reuse": "longest-common-prefix",
+            "prompt_cache_enabled": true,
+            "reasoning_policy": "Reasoning strength: low.",
+            "exclusive_runner": "model-skyline/local-model-exclusive@linux-flock"
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "openai-tool-p2048-o1024-warm",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "agent_integration",
+          "input_definition_sha256": "7d6af84e19ccef5ef561eb63cb9d0bcc259dcf6f4886aedb379241bf18550a2f",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 1024,
+          "repetitions": 3,
+          "warmup_repetitions": 0,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "warm",
+          "position": {
+            "mode": "tool",
+            "prompt_bytes": 8293,
+            "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+            "system_prompt_sha256": "24397206731aa5dd6365960113e312d3250a9be48d6e12e70e9d4b2ae4f981f1",
+            "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+            "tool_count": 30,
+            "tool_choice": "auto",
+            "thinking_mode": "runtime_default",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "unavailable",
+            "decode_rate_source": "unavailable",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "tool_calls": 3
+            },
+            "api": "openai-chat-completions-streaming"
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": []
+    }
+  ],
+  "evaluated": [
+    {
+      "offering": {
+        "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-AtomicChat AD-IQ3_XXS (3.51 bpw)-llama.cpp-d9fdd749e2322de9",
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "provider": "local:inference-vm-rtx5060ti16",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "nvidia-default-180w-limit",
+        "quantization": "AtomicChat AD-IQ3_XXS (3.51 bpw)",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "tool_call_success": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_tool_call_success_percent"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "c0eaec9a52a6c7543a3d23c968621237dcbbcea8d030be2d686545a39256241a",
+              "retrieved_at": "2026-09-15T23:05:57.879394Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T23:05:57.879394Z",
+          "minimum_sample_count": 3
+        },
+        "end_to_end": {
+          "value": "4.929467095",
+          "unit": "s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "4.916262724",
+          "upper": "5.001295917",
+          "dependencies": [
+            "signals.local_end_to_end_seconds"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "c0eaec9a52a6c7543a3d23c968621237dcbbcea8d030be2d686545a39256241a",
+              "retrieved_at": "2026-09-15T23:05:57.879394Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T23:05:57.879394Z",
+          "minimum_sample_count": 3
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "inference-vm-rtx5060ti16",
+          "manufacturer": "custom",
+          "machine_model": "Proxmox-VM-125",
+          "chip": "Intel-i7-14700K-plus-RTX-5060-Ti-16GB",
+          "architecture": "x86_64",
+          "memory_bytes": 10350514176,
+          "cpu_cores": 16,
+          "cpu_core_groups": {
+            "kvm-passthrough-vcpu": 16
+          },
+          "gpu_cores": 4608,
+          "os_name": "Ubuntu",
+          "os_version": "22.04.5-LTS-kernel-5.15.0-190-generic",
+          "power_source": "unknown",
+          "power_mode": "nvidia-default-180w-limit",
+          "negotiated_adapter_watts": null,
+          "metadata": {
+            "accelerator": "NVIDIA GeForce RTX 5060 Ti",
+            "accelerator_architecture": "Blackwell",
+            "accelerator_core_unit": "CUDA-core",
+            "accelerator_memory_bytes_reported_by_nvidia_smi": 17103323136,
+            "accelerator_memory_mib_reported_by_nvidia_smi": 16311,
+            "accelerator_uuid": "GPU-029ff01b-22d2-691f-0848-5c84f28f9dfa",
+            "cuda_capability": "12.0",
+            "driver_version": "580.167.08",
+            "gpu_power_limit_watts": 180,
+            "hypervisor": "KVM",
+            "inventory_observed_at": "2026-09-14T15:55:27Z",
+            "nvidia_reference": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+          }
+        },
+        "artifact": {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "checkpoint": "Muse-Glimmer-30B-AD-IQ3_XXS",
+          "revision": "b26f8ce4a435571e24656d27efef978073809356",
+          "format": "gguf",
+          "quantization": "AtomicChat AD-IQ3_XXS (3.51 bpw)",
+          "size_bytes": 12224327968,
+          "content_sha256": "392ee6a723541aaf79374c046ddc41464981698e807f5d600f41e294d4b7cec6",
+          "source_url": "https://huggingface.co/AtomicChat/Muse-Glimmer-30B-GGUF/tree/b26f8ce4a435571e24656d27efef978073809356",
+          "license": "Apache-2.0",
+          "metadata": {
+            "filename": "Muse-Glimmer-30B-AD-IQ3_XXS.gguf",
+            "base_model": "meta-models/Muse-Glimmer-30B",
+            "publisher_reported_bpw": "3.51",
+            "publisher_reported_neutral_kld": "0.064353",
+            "publisher_reported_agentic_kld": "0.168065"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "0.4.0-dev-build-2515",
+          "commit": "5266f24da",
+          "backend": "CUDA",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q4_0/q4_0",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "runtime_binary_sha256": "7ce1f599eafb34e9c5c8edf6e7b018c5d4459bea3c5409865fa51c8b0798997d",
+            "server_alias": "muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none",
+            "native_context_tokens": 131072,
+            "allocated_context_tokens": 131072,
+            "parallel_slots": 1,
+            "batch_tokens": 2048,
+            "micro_batch_tokens": 512,
+            "threads": 6,
+            "batch_threads": 6,
+            "max_output_tokens": 16384,
+            "n_gpu_layers": "all",
+            "flash_attention": true,
+            "fit": "off",
+            "load_mode": "none",
+            "jinja": true,
+            "cache_ram_bytes": 0,
+            "slot_prefix_reuse": "longest-common-prefix",
+            "prompt_cache_enabled": true,
+            "reasoning_policy": "Reasoning strength: low.",
+            "exclusive_runner": "model-skyline/local-model-exclusive@linux-flock"
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "openai-tool-p2048-o1024-warm",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "agent_integration",
+          "input_definition_sha256": "7d6af84e19ccef5ef561eb63cb9d0bcc259dcf6f4886aedb379241bf18550a2f",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 1024,
+          "repetitions": 3,
+          "warmup_repetitions": 0,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "warm",
+          "position": {
+            "mode": "tool",
+            "prompt_bytes": 8293,
+            "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+            "system_prompt_sha256": "24397206731aa5dd6365960113e312d3250a9be48d6e12e70e9d4b2ae4f981f1",
+            "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+            "tool_count": 30,
+            "tool_choice": "auto",
+            "thinking_mode": "runtime_default",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "unavailable",
+            "decode_rate_source": "unavailable",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "tool_calls": 3
+            },
+            "api": "openai-chat-completions-streaming"
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output-llama.cpp-cca4700cec9538c4",
+        "model_id": "meta-models/Muse-Glimmer-30B",
+        "provider": "local:inference-vm-rtx5060ti16",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "nvidia-default-180w-limit",
+        "quantization": "ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "tool_call_success": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_tool_call_success_percent"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-shoehorn-5060-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-shoehorn-5060-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "8e35ac065efff16e3dd011aaf47bc7bc461f77f5651fc14f28378c6b10f3d6de",
+              "retrieved_at": "2026-09-15T22:04:38.056965Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T22:04:38.056965Z",
+          "minimum_sample_count": 3
+        },
+        "end_to_end": {
+          "value": "8.799357269",
+          "unit": "s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "8.791717767",
+          "upper": "8.863374635",
+          "dependencies": [
+            "signals.local_end_to_end_seconds"
+          ],
+          "source_ids": [
+            "local-measurement:muse-glimmer-shoehorn-5060-p2048-o1024-warm"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:muse-glimmer-shoehorn-5060-p2048-o1024-warm",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "8e35ac065efff16e3dd011aaf47bc7bc461f77f5651fc14f28378c6b10f3d6de",
+              "retrieved_at": "2026-09-15T22:04:38.056965Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T22:04:38.056965Z",
+          "minimum_sample_count": 3
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "inference-vm-rtx5060ti16",
+          "manufacturer": "custom",
+          "machine_model": "Proxmox-VM-125",
+          "chip": "Intel-i7-14700K-plus-RTX-5060-Ti-16GB",
+          "architecture": "x86_64",
+          "memory_bytes": 10350514176,
+          "cpu_cores": 16,
+          "cpu_core_groups": {
+            "kvm-passthrough-vcpu": 16
+          },
+          "gpu_cores": 4608,
+          "os_name": "Ubuntu",
+          "os_version": "22.04.5-LTS-kernel-5.15.0-190-generic",
+          "power_source": "unknown",
+          "power_mode": "nvidia-default-180w-limit",
+          "negotiated_adapter_watts": null,
+          "metadata": {
+            "accelerator": "NVIDIA GeForce RTX 5060 Ti",
+            "accelerator_architecture": "Blackwell",
+            "accelerator_core_unit": "CUDA-core",
+            "accelerator_memory_bytes_reported_by_nvidia_smi": 17103323136,
+            "accelerator_memory_mib_reported_by_nvidia_smi": 16311,
+            "accelerator_uuid": "GPU-029ff01b-22d2-691f-0848-5c84f28f9dfa",
+            "cuda_capability": "12.0",
+            "driver_version": "580.167.08",
+            "gpu_power_limit_watts": 180,
+            "hypervisor": "KVM",
+            "inventory_observed_at": "2026-09-14T15:55:27Z",
+            "nvidia_reference": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+          }
+        },
+        "artifact": {
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "checkpoint": "Muse-Glimmer-30B-ShoeHorn-5060-ctx131k-q4kv-iq4embdout-sampled",
+          "revision": "b26f8ce4a435571e24656d27efef978073809356",
+          "format": "gguf",
+          "quantization": "ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output",
+          "size_bytes": 13096573440,
+          "content_sha256": "d0b3baa8b28a91bbb8ed2fc7ad076b3d30002cdfa85cc52578521f5d8f6e5220",
+          "source_url": "https://huggingface.co/AtomicChat/Muse-Glimmer-30B-GGUF/tree/b26f8ce4a435571e24656d27efef978073809356",
+          "license": "Apache-2.0",
+          "metadata": {
+            "base_model": "meta-models/Muse-Glimmer-30B",
+            "shoehorn_commit": "0b98620c01f4ca64640cc5604e2a16b05f15a19f",
+            "shoehorn_upstream_pr": "https://github.com/notactuallytreyanastasio/shoehorn/pull/6",
+            "plan": "artifacts/muse-glimmer-shoehorn-5060-ctx131k-q4kv-iq4embdout-plan.json"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "0.4.0-dev-build-2515",
+          "commit": "5266f24da",
+          "backend": "CUDA",
+          "context_capacity_tokens": 131072,
+          "kv_cache": "q4_0/q4_0",
+          "prefix_cache_enabled": true,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "runtime_binary_sha256": "7ce1f599eafb34e9c5c8edf6e7b018c5d4459bea3c5409865fa51c8b0798997d",
+            "server_alias": "muse-glimmer-30b-shoehorn-ctx128k-q4kv-load-none",
+            "native_context_tokens": 131072,
+            "allocated_context_tokens": 131072,
+            "parallel_slots": 1,
+            "batch_tokens": 2048,
+            "micro_batch_tokens": 512,
+            "threads": 6,
+            "batch_threads": 6,
+            "max_output_tokens": 16384,
+            "n_gpu_layers": "all",
+            "flash_attention": true,
+            "fit": "off",
+            "load_mode": "none",
+            "jinja": true,
+            "cache_ram_bytes": 0,
+            "slot_prefix_reuse": "longest-common-prefix",
+            "prompt_cache_enabled": true,
+            "reasoning_policy": "Reasoning strength: low.",
+            "exclusive_runner": "model-skyline/local-model-exclusive@linux-flock"
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "openai-tool-p2048-o1024-warm",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "agent_integration",
+          "input_definition_sha256": "7d6af84e19ccef5ef561eb63cb9d0bcc259dcf6f4886aedb379241bf18550a2f",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 1024,
+          "repetitions": 3,
+          "warmup_repetitions": 0,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "warm",
+          "position": {
+            "mode": "tool",
+            "prompt_bytes": 8293,
+            "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+            "system_prompt_sha256": "24397206731aa5dd6365960113e312d3250a9be48d6e12e70e9d4b2ae4f981f1",
+            "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+            "tool_count": 30,
+            "tool_choice": "auto",
+            "thinking_mode": "runtime_default",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "unavailable",
+            "decode_rate_source": "unavailable",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "tool_calls": 3
+            },
+            "api": "openai-chat-completions-streaming"
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": [
+        "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-AtomicChat AD-IQ3_XXS (3.51 bpw)-llama.cpp-d9fdd749e2322de9"
+      ]
+    }
+  ],
+  "rejected": [],
+  "axis_evidence": {
+    "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
+    "kind": "axis-evidence-inventory",
+    "hash_algorithm": "sha256-rfc8785-v1",
+    "config_hash": "91c2b96aa89d778800a82831c00eaf32f00f67e1cf9a8ea7e48f1412790fba8f",
+    "catalog_hash": "93e891a635d1f881a59e72c58d29f231f0995fb5cd3e2ad84661521ed812b91b",
+    "generated_at": "2026-09-15T23:10:00Z",
+    "workload": {
+      "id": "openai-agent-latency-v1",
+      "version": "1",
+      "unit": "request"
+    },
+    "axes": [
+      {
+        "metric": "tool_call_success",
+        "goal": "maximize",
+        "unit": "percent",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0"
+      },
+      {
+        "metric": "end_to_end",
+        "goal": "minimize",
+        "unit": "s",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0.05"
+      }
+    ],
+    "candidate_universe_hash": "950746736a548b9e034547cf25a4f6da2bccd15aec7ff032b7550704b9ab81d7",
+    "candidates": [
+      {
+        "offering": {
+          "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-AtomicChat AD-IQ3_XXS (3.51 bpw)-llama.cpp-d9fdd749e2322de9",
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "provider": "local:inference-vm-rtx5060ti16",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "nvidia-default-180w-limit",
+          "quantization": "AtomicChat AD-IQ3_XXS (3.51 bpw)",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "tool_call_success": {
+            "value": "100",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_tool_call_success_percent"
+            ],
+            "source_ids": [
+              "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "c0eaec9a52a6c7543a3d23c968621237dcbbcea8d030be2d686545a39256241a",
+                "retrieved_at": "2026-09-15T23:05:57.879394Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T23:05:57.879394Z",
+            "minimum_sample_count": 3
+          },
+          "end_to_end": {
+            "value": "4.929467095",
+            "unit": "s",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "4.916262724",
+            "upper": "5.001295917",
+            "dependencies": [
+              "signals.local_end_to_end_seconds"
+            ],
+            "source_ids": [
+              "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "c0eaec9a52a6c7543a3d23c968621237dcbbcea8d030be2d686545a39256241a",
+                "retrieved_at": "2026-09-15T23:05:57.879394Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T23:05:57.879394Z",
+            "minimum_sample_count": 3
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "local/inference-vm-rtx5060ti16/meta-models/Muse-Glimmer-30B@gguf-ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output-llama.cpp-cca4700cec9538c4",
+          "model_id": "meta-models/Muse-Glimmer-30B",
+          "provider": "local:inference-vm-rtx5060ti16",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "nvidia-default-180w-limit",
+          "quantization": "ShoeHorn sampled mixed 3.758 bpw with IQ4_XS embedding/output",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "tool_call_success": {
+            "value": "100",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_tool_call_success_percent"
+            ],
+            "source_ids": [
+              "local-measurement:muse-glimmer-shoehorn-5060-p2048-o1024-warm"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:muse-glimmer-shoehorn-5060-p2048-o1024-warm",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "8e35ac065efff16e3dd011aaf47bc7bc461f77f5651fc14f28378c6b10f3d6de",
+                "retrieved_at": "2026-09-15T22:04:38.056965Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T22:04:38.056965Z",
+            "minimum_sample_count": 3
+          },
+          "end_to_end": {
+            "value": "8.799357269",
+            "unit": "s",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "8.791717767",
+            "upper": "8.863374635",
+            "dependencies": [
+              "signals.local_end_to_end_seconds"
+            ],
+            "source_ids": [
+              "local-measurement:muse-glimmer-shoehorn-5060-p2048-o1024-warm"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:muse-glimmer-shoehorn-5060-p2048-o1024-warm",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "8e35ac065efff16e3dd011aaf47bc7bc461f77f5651fc14f28378c6b10f3d6de",
+                "retrieved_at": "2026-09-15T22:04:38.056965Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T22:04:38.056965Z",
+            "minimum_sample_count": 3
+          }
+        }
+      }
+    ],
+    "inventory_id": "2c8ab54c917858679a697927569c013e7eab8daf2c6e6228ca9f1e85a5d21079"
+  },
+  "public_release_blocked": false,
+  "sources": [
+    {
+      "id": "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "c0eaec9a52a6c7543a3d23c968621237dcbbcea8d030be2d686545a39256241a",
+      "retrieved_at": "2026-09-15T23:05:57.879394Z"
+    },
+    {
+      "id": "local-measurement:muse-glimmer-shoehorn-5060-p2048-o1024-warm",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "8e35ac065efff16e3dd011aaf47bc7bc461f77f5651fc14f28378c6b10f3d6de",
+      "retrieved_at": "2026-09-15T22:04:38.056965Z"
+    }
+  ],
+  "source_watermarks": {
+    "local-measurement:muse-glimmer-ad-iq3xxs-5060-p2048-o1024-warm": "2026-09-15T23:05:57.879394Z",
+    "local-measurement:muse-glimmer-shoehorn-5060-p2048-o1024-warm": "2026-09-15T22:04:38.056965Z"
+  }
+}

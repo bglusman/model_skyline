@@ -1,0 +1,100 @@
+{
+  "schema_version": "model-skyline/raw-openai-matrix/v1",
+  "started_at": "2026-09-15T22:28:54.648171Z",
+  "captured_at": "2026-09-15T22:31:56.156446Z",
+  "base_url": "http://127.0.0.1:8091/v1",
+  "model": "muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none",
+  "mode": "retrieval",
+  "retrieval_position": "0.5",
+  "retrieval_characters": [
+    298118
+  ],
+  "repetitions": 1,
+  "warmup": false,
+  "runner_state": "cold_model_load",
+  "process_match": "/opt/llama-cpp/build-5266f24/bin/llama-server",
+  "runtime_stats_url": null,
+  "token_count_url": null,
+  "runtime_stats_auth": null,
+  "runner_status_url": "http://127.0.0.1:8091/running",
+  "runner_model_id": "muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none",
+  "system_prompt_sha256": "24397206731aa5dd6365960113e312d3250a9be48d6e12e70e9d4b2ae4f981f1",
+  "tool_schema_sha256": null,
+  "tool_count": 0,
+  "tool_choice": null,
+  "thinking_mode": "runtime_default",
+  "sampling": {
+    "temperature": 0,
+    "seed": 90421
+  },
+  "results": [
+    {
+      "approximate_prefix_tokens": 126000,
+      "prompt_bytes": 298118,
+      "prompt_sha256": "6afefd61eee5ea6d9d70fead682f6675794c334b6b8d33cf609163a266717afd",
+      "input_definition_sha256": "e48150660f1cf50ca1ea9e8d61511865e6d8d60ed20f9ed20b172ea0ef0a7481",
+      "expected_content_sha256": "a0f4a93f4579be3f5049a1716920d20a5644dd0b3f16aef713186e04bd033092",
+      "construction_input_tokens": null,
+      "max_output_tokens": 1024,
+      "repetition": 1,
+      "ttft_seconds": 167.543470621,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 181.461793024,
+      "decode_tokens_per_second": 18.89595544527064,
+      "usage": {
+        "completion_tokens": 264,
+        "prompt_tokens": 126001,
+        "total_tokens": 126265,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "content_sha256": "a0f4a93f4579be3f5049a1716920d20a5644dd0b3f16aef713186e04bd033092",
+      "content_bytes": 31,
+      "expected_content_present": true,
+      "expected_content_exact": true,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 1331298304,
+      "peak_process_physical_footprint_bytes": null,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 762507264
+      },
+      "host_after": {
+        "swap_used_bytes": 757002240
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [
+        {
+          "elapsed_seconds": 0.004987803,
+          "models": []
+        },
+        {
+          "elapsed_seconds": 0.09723266,
+          "models": [
+            {
+              "model": "muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none",
+              "state": "starting"
+            }
+          ]
+        },
+        {
+          "elapsed_seconds": 11.33633832,
+          "models": [
+            {
+              "model": "muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none",
+              "state": "ready"
+            }
+          ]
+        }
+      ],
+      "runner_ready_seconds": 11.33633832
+    }
+  ]
+}
