@@ -13,74 +13,47 @@ from typing import Any
 HERE = Path(__file__).resolve().parent
 RAW = HERE / "raw"
 WORKLOAD = {
-    "id": "coval-tts-v1-local-whisper-pilot",
-    "version": "1.2.0+local-whisper-pilot.1",
+    "id": "coval-tts-v1-local-whisper-seed-panel",
+    "version": "1.2.0+local-whisper-seed-panel.1",
     "unit": "utterance",
 }
-MANIFEST_SHA256 = "e30909112f5fd886157008ca960c00d4f68f29de69b29d5913a5bf3383ad71ec"
-WHISPER_REVISION = "624c19c9af5603fa73b83bce14d4aeea96156d18"
+SEED_PANEL = RAW / "tts-seed-panel-v1-results.json"
 
 SPECS: tuple[dict[str, Any], ...] = (
     {
         "slug": "qwen3-tts-1.7b-6bit-mlx-m5",
-        "latency": "qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1.json",
-        "quality": "qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1-wer.json",
-        "pacing": "qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1-pacing.json",
-        "offering_id": "self-hosted/qwen3-tts-1.7b-6bit-mlx@m5-max-64gb-vivian-en-seed1234",
         "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
         "endpoint": "in-process-mlx",
         "quantization": "6bit",
         "hardware": "Apple M5 Max 64 GB",
         "artifact": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-6bit",
         "artifact_revision": "1c6c0ff58c43afa8df571facde2efa077efd85e2",
-        "revision_provenance": "post-capture local cache inspection",
+        "revision_provenance": "capture-time declaration and resolved snapshot",
         "runtime": "mlx-audio 0.5.4 / MLX 0.32.2",
         "runtime_config": "streaming_interval=0.32s; guarded_1920_sample_bootstrap_suppression",
         "voice": "Vivian; English",
-        "seed": 1234,
-        "p50_key": "perceived_ttfa_p50_ms",
-        "p95_key": "perceived_ttfa_p95_ms",
-        "wer_interval": ("4.126", "12.500"),
-        "invalid_count": 0,
     },
     {
         "slug": "qwen3-tts-1.7b-bf16-vllm-omni-5060",
-        "latency": "qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1.json",
-        "quality": "qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1-wer.json",
-        "pacing": ("qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1-pacing.json"),
-        "offering_id": (
-            "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni@rtx5060ti-16gb-vivian-en-seed1234"
-        ),
         "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
         "endpoint": "openai-compatible-pcm-http",
         "quantization": "bf16",
         "hardware": "NVIDIA GeForce RTX 5060 Ti 16 GB",
         "artifact": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
         "artifact_revision": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
-        "revision_provenance": "post-capture server cache inspection",
+        "revision_provenance": "capture-time declaration and server cache inspection",
         "runtime": "vLLM-Omni 0.26.0",
         "runtime_config": (
-            "max_model_len=2048; VLLM_USE_FLASHINFER_SAMPLER=0; "
+            "omni pipeline; max_model_len=2048; VLLM_USE_FLASHINFER_SAMPLER=0; "
             "guarded_1920_sample_bootstrap_suppression"
         ),
         "voice": "Vivian; English",
-        "seed": 1234,
-        "p50_key": "playback_ttfa_p50_ms",
-        "p95_key": "playback_ttfa_p95_ms",
-        "wer_interval": ("2.740", "13.178"),
-        "invalid_count": 0,
+        "capture_harness_sha256": (
+            "005924052023900169d263a2dcc534ef7d8c1ec32975f0ed30400cf6c4e6b8ff"
+        ),
     },
     {
         "slug": "qwen3-tts-1.7b-bf16-nari-router-5060",
-        "latency": ("qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1.json"),
-        "quality": ("qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-wer.json"),
-        "pacing": ("qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-pacing.json"),
-        "completion": (
-            "qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-completion.json"
-        ),
-        "offering_id": (
-            "self-hosted/qwen3-tts-1.7b-bf16-nari-consumer@rtx5060ti-16gb-vivian-en-seed1234"
-        ),
         "model_id": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
         "endpoint": "llama-swap-openai-compatible-pcm-http",
         "quantization": "bf16",
@@ -99,18 +72,9 @@ SPECS: tuple[dict[str, Any], ...] = (
             "005924052023900169d263a2dcc534ef7d8c1ec32975f0ed30400cf6c4e6b8ff"
         ),
         "voice": "Vivian; English",
-        "seed": 1234,
-        "p50_key": "playback_ttfa_p50_ms",
-        "p95_key": "playback_ttfa_p95_ms",
-        "wer_interval": ("4.573", "17.188"),
-        "invalid_count": 0,
     },
     {
         "slug": "loudr-1-turbo-loudkit-m5",
-        "latency": "loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1.json",
-        "quality": "loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1-wer.json",
-        "pacing": "loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1-pacing.json",
-        "offering_id": "self-hosted/loudr-1-turbo-loudkit@m5-max-64gb-joe-en-seed7",
         "model_id": "loudr-1-turbo",
         "endpoint": "in-process-loudkit",
         "quantization": "mixed-fp16-fp32",
@@ -123,18 +87,9 @@ SPECS: tuple[dict[str, Any], ...] = (
         "runtime": "loudkit 0.1.1 @ 7a17fa2351e59978b34d5aac07bae6349a7ca5d9",
         "runtime_config": "generator=cpu; renderer=mps; deterministic",
         "voice": "joe; English",
-        "seed": 7,
-        "p50_key": "perceived_ttfa_p50_ms",
-        "p95_key": "perceived_ttfa_p95_ms",
-        "wer_interval": ("4.960", "25.586"),
-        "invalid_count": 0,
     },
     {
         "slug": "loudr-1-turbo-loudkit-5060",
-        "latency": "loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1.json",
-        "quality": "loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1-wer.json",
-        "pacing": "loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1-pacing.json",
-        "offering_id": "self-hosted/loudr-1-turbo-loudkit@rtx5060ti-16gb-joe-en-seed7",
         "model_id": "loudr-1-turbo",
         "endpoint": "in-process-loudkit",
         "quantization": "mixed-fp16-fp32",
@@ -147,11 +102,6 @@ SPECS: tuple[dict[str, Any], ...] = (
         "runtime": "loudkit 0.1.1 @ 7a17fa2351e59978b34d5aac07bae6349a7ca5d9",
         "runtime_config": "cuda; sdpa; deterministic ragged vocoder",
         "voice": "joe; English",
-        "seed": 7,
-        "p50_key": "perceived_ttfa_p50_ms",
-        "p95_key": "perceived_ttfa_p95_ms",
-        "wer_interval": ("4.382", "28.493"),
-        "invalid_count": 1,
     },
 )
 
@@ -173,7 +123,7 @@ def _decimal(value: Any) -> str:
 
 def _source(slug: str, kind: str, path: Path, methodology: str) -> dict[str, Any]:
     return {
-        "id": f"voice-pilot-{slug}-{kind}",
+        "id": f"voice-seed-panel-{slug}-{kind}",
         "version": "1",
         "methodology": methodology,
         "raw_sha256": _sha256(path),
@@ -186,13 +136,14 @@ def _observation(
     observed_at: str,
     source: dict[str, Any],
     *,
+    sample_count: int,
     lower: str | None = None,
     upper: str | None = None,
 ) -> dict[str, Any]:
     result: dict[str, Any] = {
         "value": _decimal(value),
         "unit": unit,
-        "sample_count": 30,
+        "sample_count": sample_count,
         "observed_at": observed_at,
         "source": source,
     }
@@ -203,80 +154,87 @@ def _observation(
     return result
 
 
-def _offering(spec: dict[str, Any]) -> dict[str, Any]:
-    latency_path = RAW / spec["latency"]
-    quality_path = RAW / spec["quality"]
-    pacing_path = RAW / spec["pacing"]
-    latency = _load(latency_path)
-    quality = _load(quality_path)
-    pacing = _load(pacing_path)
-    latency_digest = _sha256(latency_path)
-    quality_digest = _sha256(quality_path)
-    if quality["source"]["latency_capture_sha256"] != latency_digest:
-        raise ValueError(f"{quality_path.name} does not bind {latency_path.name}")
-    if latency["workload"]["manifest_sha256"] != MANIFEST_SHA256:
-        raise ValueError(f"unexpected prompt manifest in {latency_path.name}")
-    if quality["source"]["manifest_sha256"] != MANIFEST_SHA256:
-        raise ValueError(f"unexpected prompt manifest in {quality_path.name}")
-    if pacing["source"]["manifest_sha256"] != MANIFEST_SHA256:
-        raise ValueError(f"unexpected prompt manifest in {pacing_path.name}")
-    if pacing["source"]["audio_set_sha256"] != quality["source"]["audio_set_sha256"]:
-        raise ValueError(f"{pacing_path.name} and {quality_path.name} score different audio")
-    summary = latency["resident_summary_excluding_first_request"]
-    quality_summary = quality["summary"]
-    if (
-        summary["sample_count"] != 30
-        or quality_summary["sample_count"] != 30
-        or pacing["summary"]["sample_count"] != 30
-    ):
-        raise ValueError(f"{spec['slug']} does not contain exactly 30 scored cases")
-    if quality["instrument"]["resolved_revision"] != WHISPER_REVISION:
-        raise ValueError(f"unexpected Whisper revision in {quality_path.name}")
-    completion_name = spec.get("completion")
-    completion_path = None if completion_name is None else RAW / completion_name
-    if completion_path is not None:
-        completion = _load(completion_path)
-        if completion["source"]["wer_capture_sha256"] != quality_digest:
-            raise ValueError(f"{completion_path.name} does not bind {quality_path.name}")
-        if completion["summary"]["sample_count"] != 30:
-            raise ValueError(f"{completion_path.name} does not contain 30 scored cases")
+def _verify_identity(
+    spec: dict[str, Any],
+    panel_offering: dict[str, Any],
+) -> None:
+    identity = panel_offering["offering_identity_without_seed"]
+    if identity.get("model") != spec["artifact"]:
+        raise ValueError(f"{spec['slug']} has an unexpected model artifact")
+    revision = spec["artifact_revision"]
+    if "resolved_revision" in identity and identity["resolved_revision"] != revision:
+        raise ValueError(f"{spec['slug']} has an unexpected resolved revision")
+    if "model_revision" in identity and identity["model_revision"] != revision:
+        raise ValueError(f"{spec['slug']} has an unexpected model revision")
+    if "checkpoint_sha256" in identity:
+        expected_checkpoint = revision.removeprefix("checkpoint-sha256:")
+        if identity["checkpoint_sha256"] != expected_checkpoint:
+            raise ValueError(f"{spec['slug']} has an unexpected checkpoint digest")
     capture_harness_sha256 = spec.get("capture_harness_sha256")
     if capture_harness_sha256 is not None:
-        if latency.get("harness", {}).get("sha256") != capture_harness_sha256:
-            raise ValueError(f"unexpected capture harness in {latency_path.name}")
-        if latency.get("offering", {}).get("model_revision") != spec["artifact_revision"]:
-            raise ValueError(f"unexpected model revision in {latency_path.name}")
+        for run in panel_offering["source_runs"]:
+            path = HERE / run["sources"]["latency"]["path"]
+            if _load(path).get("harness", {}).get("sha256") != capture_harness_sha256:
+                raise ValueError(f"unexpected capture harness in {path.name}")
+
+
+def _observed_at(panel_offering: dict[str, Any], kind: str) -> str:
+    values = [
+        run["sources"][kind]["captured_at"]
+        for run in panel_offering["source_runs"]
+        if isinstance(run["sources"][kind].get("captured_at"), str)
+    ]
+    if not values:
+        raise ValueError(f"{panel_offering['slug']} has no {kind} capture time")
+    return max(values)
+
+
+def _offering(
+    spec: dict[str, Any],
+    panel_offering: dict[str, Any],
+) -> dict[str, Any]:
+    if panel_offering.get("slug") != spec["slug"]:
+        raise ValueError(f"seed-panel slug mismatch for {spec['slug']}")
+    _verify_identity(spec, panel_offering)
+    summary = panel_offering["summary"]
+    sample_count = int(summary["sample_count"])
+    if sample_count != 90 or summary["seed_count"] != 3:
+        raise ValueError(f"{spec['slug']} is not a complete 3 x 30 seed panel")
 
     latency_source = _source(
         spec["slug"],
         "latency",
-        latency_path,
-        "Resident local synthesis capture; one unscored warmup followed by 30 prompts.",
+        SEED_PANEL,
+        (
+            "Ninety resident synthesis measurements pooled from 30 matched prompts "
+            "at each of three seeds; percentiles are calculated from utterances, "
+            "not from per-seed medians."
+        ),
     )
     quality_source = _source(
         spec["slug"],
         "wer",
-        quality_path,
+        SEED_PANEL,
         (
             "Saved audio scored by pinned local MLX Whisper with CoVAL "
-            "normalization v2; bounds are descriptive 95% utterance-bootstrap "
-            "reference intervals."
+            "normalization v2; bounds are a descriptive two-stage bootstrap "
+            "over seeds and prompts."
         ),
     )
     pacing_source = _source(
         spec["slug"],
         "pacing",
-        pacing_path,
+        SEED_PANEL,
         (
             "Deterministic reference-word rate and energy-pause proxies from the same "
             "saved audio; no naturalness threshold is asserted."
         ),
     )
-    invalid_percent = Decimal(spec["invalid_count"]) * Decimal(100) / Decimal(30)
-    wer_lower, wer_upper = spec["wer_interval"]
+    capture_harness_sha256 = spec.get("capture_harness_sha256")
+    seeds = [run["seed"] for run in panel_offering["source_runs"]]
     return {
         "offering": {
-            "offering_id": spec["offering_id"],
+            "offering_id": panel_offering["offering_id"],
             "model_id": spec["model_id"],
             "provider": "self-hosted",
             "endpoint": spec["endpoint"],
@@ -293,84 +251,96 @@ def _offering(spec: dict[str, Any]) -> dict[str, Any]:
             "runtime": spec["runtime"],
             "runtime_config": spec["runtime_config"],
             "voice": spec["voice"],
-            "synthesis_seed": spec["seed"],
+            "synthesis_seeds": seeds,
             "quality_scope": "local Whisper corpus WER; not naturalness or speaker identity",
-            "pilot": "one fixed seed per exact offering",
+            "evidence_status": "provisional three-seed panel",
             **(
                 {"capture_harness_sha256": capture_harness_sha256}
                 if capture_harness_sha256 is not None
                 else {}
             ),
-            "latency_capture": f"raw/{spec['latency']}",
-            "quality_capture": f"raw/{spec['quality']}",
-            "pacing_capture": f"raw/{spec['pacing']}",
-            **(
-                {"completion_capture": f"raw/{completion_name}"}
-                if completion_name is not None
-                else {}
-            ),
-            "audio_set_sha256": quality["source"]["audio_set_sha256"],
+            "seed_panel_definition": "tts-seed-panel.json",
+            "seed_panel_capture": f"raw/{SEED_PANEL.name}",
+            "source_run_count": len(panel_offering["source_runs"]),
+            "audio_set_sha256s": [run["audio_set_sha256"] for run in panel_offering["source_runs"]],
         },
         "signals": {
             "tts_corpus_wer_percent": _observation(
-                quality_summary["corpus_wer_percentage"],
+                summary["corpus_wer_percentage"],
                 "percent",
-                quality["captured_at"],
+                _observed_at(panel_offering, "quality"),
                 quality_source,
-                lower=wer_lower,
-                upper=wer_upper,
+                sample_count=sample_count,
+                lower=_decimal(summary["corpus_wer_percentage_lower"]),
+                upper=_decimal(summary["corpus_wer_percentage_upper"]),
             ),
             "tts_playback_ttfa_p50_ms": _observation(
-                summary[spec["p50_key"]],
+                summary["playback_ttfa_p50_ms"],
                 "milliseconds",
-                latency["captured_at"],
+                _observed_at(panel_offering, "latency"),
                 latency_source,
+                sample_count=sample_count,
             ),
             "tts_playback_ttfa_p95_ms": _observation(
-                summary[spec["p95_key"]],
+                summary["playback_ttfa_p95_ms"],
                 "milliseconds",
-                latency["captured_at"],
+                _observed_at(panel_offering, "latency"),
                 latency_source,
+                sample_count=sample_count,
             ),
             "tts_realtime_factor_p50": _observation(
                 summary["real_time_factor_p50"],
                 "ratio",
-                latency["captured_at"],
+                _observed_at(panel_offering, "latency"),
                 latency_source,
+                sample_count=sample_count,
             ),
             "tts_invalid_case_percent": _observation(
-                invalid_percent,
+                summary["invalid_case_percent"],
                 "percent",
-                latency["captured_at"],
+                max(
+                    _observed_at(panel_offering, "latency"),
+                    _observed_at(panel_offering, "quality"),
+                    _observed_at(panel_offering, "completion"),
+                ),
                 latency_source,
+                sample_count=sample_count,
             ),
             "tts_corpus_words_per_minute": _observation(
-                pacing["summary"]["corpus_words_per_minute"],
+                summary["corpus_words_per_minute"],
                 "words/minute",
-                pacing["captured_at"],
+                _observed_at(panel_offering, "pacing"),
                 pacing_source,
+                sample_count=sample_count,
             ),
             "tts_words_per_minute_p95": _observation(
-                pacing["summary"]["words_per_minute_p95"],
+                summary["words_per_minute_p95"],
                 "words/minute",
-                pacing["captured_at"],
+                _observed_at(panel_offering, "pacing"),
                 pacing_source,
+                sample_count=sample_count,
             ),
             "tts_internal_pause_fraction_p50": _observation(
-                pacing["summary"]["internal_pause_fraction_p50"],
+                summary["internal_pause_fraction_p50"],
                 "ratio",
-                pacing["captured_at"],
+                _observed_at(panel_offering, "pacing"),
                 pacing_source,
+                sample_count=sample_count,
             ),
         },
     }
 
 
 def _render() -> str:
+    panel = _load(SEED_PANEL)
+    panel_offerings = {offering["slug"]: offering for offering in panel.get("offerings", [])}
+    expected_slugs = {spec["slug"] for spec in SPECS}
+    if set(panel_offerings) != expected_slugs:
+        raise ValueError("seed-panel offerings do not match catalog specifications")
     catalog = {
         "schema_version": "model-skyline/v1alpha1",
         "workload": WORKLOAD,
-        "offerings": [_offering(spec) for spec in SPECS],
+        "offerings": [_offering(spec, panel_offerings[spec["slug"]]) for spec in SPECS],
     }
     return json.dumps(catalog, indent=2, ensure_ascii=False) + "\n"
 

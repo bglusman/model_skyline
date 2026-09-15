@@ -1,0 +1,147 @@
+{
+  "schema": "model-skyline/tts-seed-panel-definition/v1alpha1",
+  "id": "coval-tts-v1-local-whisper-seed-panel",
+  "version": "1.2.0+local-whisper-seed-panel.1",
+  "seeds": [7, 1234, 2026],
+  "bootstrap": {
+    "iterations": 10000,
+    "random_seed": 20260915
+  },
+  "offerings": [
+    {
+      "slug": "qwen3-tts-1.7b-6bit-mlx-m5",
+      "offering_id": "self-hosted/qwen3-tts-1.7b-6bit-mlx@m5-max-64gb-vivian-en",
+      "runs": [
+        {
+          "seed": 7,
+          "latency": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed7-coval-tts-v1.json",
+          "quality": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed7-coval-tts-v1-wer.json",
+          "pacing": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed7-coval-tts-v1-pacing.json",
+          "completion": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed7-coval-tts-v1-completion.json"
+        },
+        {
+          "seed": 1234,
+          "latency": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1.json",
+          "quality": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1-wer.json",
+          "pacing": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1-pacing.json",
+          "completion": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1-completion.json"
+        },
+        {
+          "seed": 2026,
+          "latency": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed2026-coval-tts-v1.json",
+          "quality": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed2026-coval-tts-v1-wer.json",
+          "pacing": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed2026-coval-tts-v1-pacing.json",
+          "completion": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed2026-coval-tts-v1-completion.json"
+        }
+      ]
+    },
+    {
+      "slug": "qwen3-tts-1.7b-bf16-vllm-omni-5060",
+      "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni@rtx5060ti-16gb-vivian-en",
+      "runs": [
+        {
+          "seed": 7,
+          "latency": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed7-coval-tts-v1.json",
+          "quality": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed7-coval-tts-v1-wer.json",
+          "pacing": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed7-coval-tts-v1-pacing.json",
+          "completion": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed7-coval-tts-v1-completion.json"
+        },
+        {
+          "seed": 1234,
+          "latency": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1.json",
+          "quality": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1-wer.json",
+          "pacing": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1-pacing.json",
+          "completion": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1-completion.json"
+        },
+        {
+          "seed": 2026,
+          "latency": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed2026-coval-tts-v1.json",
+          "quality": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed2026-coval-tts-v1-wer.json",
+          "pacing": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed2026-coval-tts-v1-pacing.json",
+          "completion": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed2026-coval-tts-v1-completion.json"
+        }
+      ]
+    },
+    {
+      "slug": "qwen3-tts-1.7b-bf16-nari-router-5060",
+      "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-nari-consumer@rtx5060ti-16gb-vivian-en",
+      "runs": [
+        {
+          "seed": 7,
+          "latency": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed7-coval-tts-v1.json",
+          "quality": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed7-coval-tts-v1-wer.json",
+          "pacing": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed7-coval-tts-v1-pacing.json",
+          "completion": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed7-coval-tts-v1-completion.json"
+        },
+        {
+          "seed": 1234,
+          "latency": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1.json",
+          "quality": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-wer.json",
+          "pacing": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-pacing.json",
+          "completion": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-completion.json"
+        },
+        {
+          "seed": 2026,
+          "latency": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed2026-coval-tts-v1.json",
+          "quality": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed2026-coval-tts-v1-wer.json",
+          "pacing": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed2026-coval-tts-v1-pacing.json",
+          "completion": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed2026-coval-tts-v1-completion.json"
+        }
+      ]
+    },
+    {
+      "slug": "loudr-1-turbo-loudkit-m5",
+      "offering_id": "self-hosted/loudr-1-turbo-loudkit@m5-max-64gb-joe-en",
+      "runs": [
+        {
+          "seed": 7,
+          "latency": "raw/loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1.json",
+          "quality": "raw/loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1-wer.json",
+          "pacing": "raw/loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1-pacing.json",
+          "completion": "raw/loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1-completion.json"
+        },
+        {
+          "seed": 1234,
+          "latency": "raw/loudr-1-turbo-loudkit-m5-seed1234-coval-tts-v1.json",
+          "quality": "raw/loudr-1-turbo-loudkit-m5-seed1234-coval-tts-v1-wer.json",
+          "pacing": "raw/loudr-1-turbo-loudkit-m5-seed1234-coval-tts-v1-pacing.json",
+          "completion": "raw/loudr-1-turbo-loudkit-m5-seed1234-coval-tts-v1-completion.json"
+        },
+        {
+          "seed": 2026,
+          "latency": "raw/loudr-1-turbo-loudkit-m5-seed2026-coval-tts-v1.json",
+          "quality": "raw/loudr-1-turbo-loudkit-m5-seed2026-coval-tts-v1-wer.json",
+          "pacing": "raw/loudr-1-turbo-loudkit-m5-seed2026-coval-tts-v1-pacing.json",
+          "completion": "raw/loudr-1-turbo-loudkit-m5-seed2026-coval-tts-v1-completion.json"
+        }
+      ]
+    },
+    {
+      "slug": "loudr-1-turbo-loudkit-5060",
+      "offering_id": "self-hosted/loudr-1-turbo-loudkit@rtx5060ti-16gb-joe-en",
+      "runs": [
+        {
+          "seed": 7,
+          "latency": "raw/loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1.json",
+          "quality": "raw/loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1-wer.json",
+          "pacing": "raw/loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1-pacing.json",
+          "completion": "raw/loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1-completion.json"
+        },
+        {
+          "seed": 1234,
+          "latency": "raw/loudr-1-turbo-loudkit-5060-seed1234-coval-tts-v1.json",
+          "quality": "raw/loudr-1-turbo-loudkit-5060-seed1234-coval-tts-v1-wer.json",
+          "pacing": "raw/loudr-1-turbo-loudkit-5060-seed1234-coval-tts-v1-pacing.json",
+          "completion": "raw/loudr-1-turbo-loudkit-5060-seed1234-coval-tts-v1-completion.json"
+        },
+        {
+          "seed": 2026,
+          "latency": "raw/loudr-1-turbo-loudkit-5060-seed2026-coval-tts-v1.json",
+          "quality": "raw/loudr-1-turbo-loudkit-5060-seed2026-coval-tts-v1-wer.json",
+          "pacing": "raw/loudr-1-turbo-loudkit-5060-seed2026-coval-tts-v1-pacing.json",
+          "completion": "raw/loudr-1-turbo-loudkit-5060-seed2026-coval-tts-v1-completion.json"
+        }
+      ]
+    }
+  ]
+}

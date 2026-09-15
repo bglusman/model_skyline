@@ -1,0 +1,721 @@
+{
+  "methodology": {
+    "bootstrap_iterations": 10000,
+    "bootstrap_random_seed": 20260915,
+    "pooling": "utterance measurements pooled across matched seeds",
+    "uncertainty_scope": "Only three synthesis seeds are represented; the interval is provisional.",
+    "warning": "No metric is calculated by averaging per-seed medians or percentages.",
+    "wer": "total word errors divided by total normalized reference words",
+    "wer_interval": "descriptive two-stage 95% bootstrap interval: resample seeds, then prompts within each selected seed"
+  },
+  "offerings": [
+    {
+      "invalid_cases": [
+        {
+          "seed": 7,
+          "testcase_id": "A9"
+        }
+      ],
+      "offering_id": "self-hosted/qwen3-tts-1.7b-6bit-mlx@m5-max-64gb-vivian-en",
+      "offering_identity_without_seed": {
+        "hardware": "Apple M5 Max",
+        "language": "English",
+        "mlx": "0.32.2",
+        "model": "mlx-community/Qwen3-TTS-12Hz-1.7B-CustomVoice-6bit",
+        "os": "macOS-26.6.2-arm64-arm-64bit",
+        "requested_revision": "1c6c0ff58c43afa8df571facde2efa077efd85e2",
+        "resolved_revision": "1c6c0ff58c43afa8df571facde2efa077efd85e2",
+        "runtime": "mlx-audio 0.5.4",
+        "speaker": "Vivian",
+        "streaming_interval_seconds": 0.32,
+        "suppress_fixed_bootstrap": true
+      },
+      "per_seed": [
+        {
+          "corpus_wer_percentage": 10.617761,
+          "invalid_case_count": 1,
+          "seed": 7
+        },
+        {
+          "corpus_wer_percentage": 8.108108,
+          "invalid_case_count": 0,
+          "seed": 1234
+        },
+        {
+          "corpus_wer_percentage": 10.23166,
+          "invalid_case_count": 0,
+          "seed": 2026
+        }
+      ],
+      "slug": "qwen3-tts-1.7b-6bit-mlx-m5",
+      "source_runs": [
+        {
+          "audio_set_sha256": "a9e93d793ff758e6ee94b1291a1b1a9bf4815eb9fe2b0b807d6a3b4b8103b39e",
+          "seed": 7,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:21:32Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed7-coval-tts-v1-completion.json",
+              "sha256": "a84dbf6bf6a9bee51d5de53d2f4c1758d04128f3e17872d2ef0c19f32de4eb1c"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:17:30Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed7-coval-tts-v1.json",
+              "sha256": "de571732ba68ee9c8743fea642320ff28245fd4263f156ee5e5127320a2fa64e"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:21:32Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed7-coval-tts-v1-pacing.json",
+              "sha256": "ebb58d99623d3d8cd40d438f32589840f68ac61b18d33150c4138093ad5235dc"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:20:57Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed7-coval-tts-v1-wer.json",
+              "sha256": "22d489081d678401e584c8b3d8359f6c29775692ec7bab7b0e2fe9ba278f0b9a"
+            }
+          }
+        },
+        {
+          "audio_set_sha256": "2363c64f23131b7eee4c6c61110884c18b91e3b78718ef0b3997cd9754debd24",
+          "seed": 1234,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:30:41Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1-completion.json",
+              "sha256": "732987624586ff6c91bf6b7877fa2718038c2d51a8e1829b909c7c18be973a65"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:29:50Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1.json",
+              "sha256": "4422da6c8043a7a1f1e8cca7b32cf4b9aafb32c89874b6143ff64e958bfc32b5"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:30:41Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1-pacing.json",
+              "sha256": "7baa9169fd6d3d6d6efd3f08f77f0791f19e5a04d58a0161dafee4a07043a41a"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:30:41Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed1234-coval-tts-v1-wer.json",
+              "sha256": "9304ef3911b9f3eaad45c53dcb4d48b7716187951da75a1fe5922725b2fb5edb"
+            }
+          }
+        },
+        {
+          "audio_set_sha256": "ef43dc7a46333744a72af5026540cb130430d0877efd96967530eb8d755fd46c",
+          "seed": 2026,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:21:32Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed2026-coval-tts-v1-completion.json",
+              "sha256": "e6a7ff199270683f6adb0ccb3f241ed193272faf5273fc3b0cb364358a43e132"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:18:33Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed2026-coval-tts-v1.json",
+              "sha256": "fb6d45481a42faef08a28789b3a416dcbbdae39de4c32c3938ea8aa3e2eae31f"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:21:32Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed2026-coval-tts-v1-pacing.json",
+              "sha256": "3baa79d39838922e74aede935689abcfef91a20fa12941e49bf664398b6ab68e"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:21:02Z",
+              "path": "raw/qwen3-tts-1.7b-6bit-mlx-m5-seed2026-coval-tts-v1-wer.json",
+              "sha256": "e395109e62ccdff53a86d601c32165ecf7667526435aa89c51b43b911f59a86f"
+            }
+          }
+        }
+      ],
+      "summary": {
+        "corpus_wer_percentage": 9.65251,
+        "corpus_wer_percentage_lower": 6.487488,
+        "corpus_wer_percentage_upper": 13.527594,
+        "corpus_words_per_minute": 100.879504,
+        "internal_pause_fraction_p50": 0.164641,
+        "invalid_case_count": 1,
+        "invalid_case_percent": 1.111111,
+        "playback_ttfa_p50_ms": 78.704,
+        "playback_ttfa_p95_ms": 101.806,
+        "real_time_factor_p50": 5.433,
+        "sample_count": 90,
+        "seed_count": 3,
+        "total_errors": 150,
+        "total_reference_words": 1554,
+        "words_per_minute_p50": 110.306345,
+        "words_per_minute_p95": 153.708625
+      }
+    },
+    {
+      "invalid_cases": [],
+      "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni@rtx5060ti-16gb-vivian-en",
+      "offering_identity_without_seed": {
+        "client_hardware": "x86_64",
+        "client_os": "Linux-5.15.0-190-generic-x86_64-with-glibc2.35",
+        "endpoint": "http://vllm-omni.local:8091/v1/audio/speech",
+        "language": "English",
+        "model": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "model_revision": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+        "provider": "self-hosted",
+        "request_non_streaming_mode": null,
+        "request_stream_format": "audio",
+        "runtime": "vLLM-Omni 0.26.0 max_model_len=2048 VLLM_USE_FLASHINFER_SAMPLER=0",
+        "server_hardware": "NVIDIA GeForce RTX 5060 Ti 16 GB",
+        "suppress_fixed_bootstrap": true,
+        "voice": "vivian"
+      },
+      "per_seed": [
+        {
+          "corpus_wer_percentage": 7.722008,
+          "invalid_case_count": 0,
+          "seed": 7
+        },
+        {
+          "corpus_wer_percentage": 11.003861,
+          "invalid_case_count": 0,
+          "seed": 1234
+        },
+        {
+          "corpus_wer_percentage": 9.266409,
+          "invalid_case_count": 0,
+          "seed": 2026
+        }
+      ],
+      "slug": "qwen3-tts-1.7b-bf16-vllm-omni-5060",
+      "source_runs": [
+        {
+          "audio_set_sha256": "4e5a3831102928f22008f6bfb07d82682ffebc7b9e723a4ad1b182decce48ca1",
+          "seed": 7,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:38:02Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed7-coval-tts-v1-completion.json",
+              "sha256": "405c99ea986b3a257cfe9c37bb18a5ae5ada153c40888267b3157dfc19c6265d"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:31:39Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed7-coval-tts-v1.json",
+              "sha256": "e083aa959985da7fa598d341591d44cf41c28c9c523f55e79611f212ff9d282a"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:38:01Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed7-coval-tts-v1-pacing.json",
+              "sha256": "820c3d7adccc21c18804652570c50f0ae8a734ff72861070f7a28b31e6dbdf50"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:35:35Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed7-coval-tts-v1-wer.json",
+              "sha256": "3fd360ffedf0a2d04a0b26a3a6d462f2e07f13d3ab41281dd8221505ba28a5f6"
+            }
+          }
+        },
+        {
+          "audio_set_sha256": "6ebcce76e4bab709555a0c2edcb161dda8de4ca104e84833b9de96d64ac0dd9d",
+          "seed": 1234,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:38:02Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1-completion.json",
+              "sha256": "5e4eab7712ba8974d2b2f4414b3d68717eebfd2df8bc4790419f5b7873b34b71"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:32:53Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1.json",
+              "sha256": "755d2a8f7f3a4a771b4d30ef9d89bfe8f4562f995e38cdbc8fdc00ea58f76b34"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:38:02Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1-pacing.json",
+              "sha256": "3fcc8277ae5417e65a7c7a53b52a3534b25cc666f7e75ecdc34da255c87df4eb"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:35:41Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed1234-coval-tts-v1-wer.json",
+              "sha256": "4bb4ef71948cd808be55ea5a753b011a99ea21acbd6f26905e189c4266c72872"
+            }
+          }
+        },
+        {
+          "audio_set_sha256": "6e7b51c361c0429bc52b342d8aa929935d29bcb5bad7b032515680e5b32d044c",
+          "seed": 2026,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:38:02Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed2026-coval-tts-v1-completion.json",
+              "sha256": "4db7bfad630c124771a4dd16f896358a836e6be6d1ae52f5c165d442cfdf882a"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:34:09Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed2026-coval-tts-v1.json",
+              "sha256": "d77ca8389e4435fd4d6aabda18af64971bb3c2cbd94adaca012baf8df4509b24"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:38:02Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed2026-coval-tts-v1-pacing.json",
+              "sha256": "49206d73d0c05fecae247e67a78f51bc73d1352527eef06202889a70823ed727"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:35:47Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-vllm-omni-5060-seed2026-coval-tts-v1-wer.json",
+              "sha256": "e9652de986ed7c7796daa3cdfd45094ef3076c9d0ac332932f6b8c3b63f5443d"
+            }
+          }
+        }
+      ],
+      "summary": {
+        "corpus_wer_percentage": 9.330759,
+        "corpus_wer_percentage_lower": 5.657836,
+        "corpus_wer_percentage_upper": 13.962307,
+        "corpus_words_per_minute": 113.386654,
+        "internal_pause_fraction_p50": 0.135532,
+        "invalid_case_count": 0,
+        "invalid_case_percent": 0.0,
+        "playback_ttfa_p50_ms": 560.493,
+        "playback_ttfa_p95_ms": 573.907,
+        "real_time_factor_p50": 4.125,
+        "sample_count": 90,
+        "seed_count": 3,
+        "total_errors": 145,
+        "total_reference_words": 1554,
+        "words_per_minute_p50": 118.577339,
+        "words_per_minute_p95": 171.804826
+      }
+    },
+    {
+      "invalid_cases": [],
+      "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-nari-consumer@rtx5060ti-16gb-vivian-en",
+      "offering_identity_without_seed": {
+        "client_hardware": "x86_64",
+        "client_os": "Linux-5.15.0-190-generic-x86_64-with-glibc2.35",
+        "endpoint": "http://llama-swap.local:8090/v1/audio/speech",
+        "language": "English",
+        "model": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "model_revision": "0c0e3051f131929182e2c023b9537f8b1c68adfe",
+        "provider": "self-hosted",
+        "request_non_streaming_mode": false,
+        "request_stream_format": null,
+        "runtime": "llama-swap 255 / nari-qwen3-tts e8c5b2b consumer patch 95f3c61 / torch 2.13.0 / flashinfer 0.6.16.post2",
+        "server_hardware": "NVIDIA GeForce RTX 5060 Ti 16 GB",
+        "suppress_fixed_bootstrap": false,
+        "voice": "vivian"
+      },
+      "per_seed": [
+        {
+          "corpus_wer_percentage": 10.42471,
+          "invalid_case_count": 0,
+          "seed": 7
+        },
+        {
+          "corpus_wer_percentage": 10.03861,
+          "invalid_case_count": 0,
+          "seed": 1234
+        },
+        {
+          "corpus_wer_percentage": 9.65251,
+          "invalid_case_count": 0,
+          "seed": 2026
+        }
+      ],
+      "slug": "qwen3-tts-1.7b-bf16-nari-router-5060",
+      "source_runs": [
+        {
+          "audio_set_sha256": "b1bb07f95d75df0691af11a88a9e8b90d112fc621fa95846467ab81b4df9d934",
+          "seed": 7,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:21:32Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed7-coval-tts-v1-completion.json",
+              "sha256": "a882816f98e65dc0adf0203a334bf477f605979ac3280c7bb940ffa6106cddad"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:16:55Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed7-coval-tts-v1.json",
+              "sha256": "9e7369e695c28d5d0ab5911c885b017a97baed9886bf0fb3b2ff4b2149fafbc2"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:21:32Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed7-coval-tts-v1-pacing.json",
+              "sha256": "01ee78785a72d0427e9c23e88c6927de79f8d3121f2f235fcb67f210b48580ec"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:21:08Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed7-coval-tts-v1-wer.json",
+              "sha256": "c6e9187f9a1ee15ca5276f3e3e23e5b85ced1c6b9b89a23e768104138acdc06a"
+            }
+          }
+        },
+        {
+          "audio_set_sha256": "8c268254bc93a8e311b95a2211a3c3699bcaf8e2a5ceadffc3bc8bd4a9c5a72e",
+          "seed": 1234,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:08:12Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-completion.json",
+              "sha256": "0c85b8f5a1538f6903a61d87eb0d34bc400ce6693bbf29668ff5329750d23510"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:06:25Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1.json",
+              "sha256": "930836d8feedab287a5147c5c625ac8451cf5e40ac8f2443a351a01b3f3a3212"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T13:47:07Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-pacing.json",
+              "sha256": "8674402f549995e8ff16b04aa26e8ddec676d03ebbbae6e926f44398e9a0244a"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:07:54Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed1234-coval-tts-v1-wer.json",
+              "sha256": "23d09ce1388c31462012fa9fc877883c9f236b129ac7fd3cc2f2032969146faf"
+            }
+          }
+        },
+        {
+          "audio_set_sha256": "fd8235d92e33b0adc7b1974b557baccdd0e2b59c5c829a701048ad0201b62449",
+          "seed": 2026,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:21:33Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed2026-coval-tts-v1-completion.json",
+              "sha256": "e6a8881066459788779675b93bb90f6d1e3175136d000bafd3e2d04fd211cb66"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:17:55Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed2026-coval-tts-v1.json",
+              "sha256": "82593caf3c217d29caeeb01363af70ac430c1664781002e2fb95b0409f9e3a84"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:21:33Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed2026-coval-tts-v1-pacing.json",
+              "sha256": "e847e3460c31324733397780a7f99220b3b44fa76b6afb9f543d21e30c072085"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:21:13Z",
+              "path": "raw/qwen3-tts-1.7b-bf16-nari-router-5060-seed2026-coval-tts-v1-wer.json",
+              "sha256": "bbcc7a772d7427e3d1fe2317ab6e10ed0ebb73406d0621e7a3722a17ff361990"
+            }
+          }
+        }
+      ],
+      "summary": {
+        "corpus_wer_percentage": 10.03861,
+        "corpus_wer_percentage_lower": 6.662206,
+        "corpus_wer_percentage_upper": 14.061668,
+        "corpus_words_per_minute": 113.777387,
+        "internal_pause_fraction_p50": 0.157659,
+        "invalid_case_count": 0,
+        "invalid_case_percent": 0.0,
+        "playback_ttfa_p50_ms": 47.249,
+        "playback_ttfa_p95_ms": 57.053,
+        "real_time_factor_p50": 4.971,
+        "sample_count": 90,
+        "seed_count": 3,
+        "total_errors": 156,
+        "total_reference_words": 1554,
+        "words_per_minute_p50": 119.556131,
+        "words_per_minute_p95": 165.235437
+      }
+    },
+    {
+      "invalid_cases": [
+        {
+          "seed": 1234,
+          "testcase_id": "A13"
+        },
+        {
+          "seed": 2026,
+          "testcase_id": "A1"
+        }
+      ],
+      "offering_id": "self-hosted/loudr-1-turbo-loudkit@m5-max-64gb-joe-en",
+      "offering_identity_without_seed": {
+        "backend": "torch",
+        "checkpoint_sha256": "590dcf9e1dcec31c54650ee139f345b248bdd7ba11288def664c5f1508f33593",
+        "engine": "algo[e5303ba243087222] loudkit-1 single_path decode=fusion_mtp2 euler=1(cosine) temp=0.8 rep=1.2 min_p=0.05 sil=31 win=255 | exec[gen=cpu/render=mps attn=eager prec[encoder=fp32,estimator=fp16,token_generator=fp16,vocoder=fp32] tf32=off deterministic]",
+        "hardware": "Apple M5 Max",
+        "language": "en",
+        "model": "loudreader/loudr-1-turbo",
+        "os": "macOS-26.6.2-arm64-arm-64bit",
+        "runtime": "loudkit 0.1.1",
+        "source_revision": "7a17fa2351e59978b34d5aac07bae6349a7ca5d9",
+        "voice": "joe"
+      },
+      "per_seed": [
+        {
+          "corpus_wer_percentage": 13.127413,
+          "invalid_case_count": 0,
+          "seed": 7
+        },
+        {
+          "corpus_wer_percentage": 8.301158,
+          "invalid_case_count": 1,
+          "seed": 1234
+        },
+        {
+          "corpus_wer_percentage": 12.548263,
+          "invalid_case_count": 1,
+          "seed": 2026
+        }
+      ],
+      "slug": "loudr-1-turbo-loudkit-m5",
+      "source_runs": [
+        {
+          "audio_set_sha256": "50e3c213d5dfac68b267a44d80c03d776f41d728ad1abe3b4227962162df6ead",
+          "seed": 7,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:30:42Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1-completion.json",
+              "sha256": "f4da97a8af4f41797ed41d9a6b78bd7fef4feb11867854124d743ecf2e42b9c5"
+            },
+            "latency": {
+              "captured_at": "2026-09-14T21:43:17Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1.json",
+              "sha256": "c470b8c10c2659eb132ba4be90891604a5efc3c85298cc06f1da0977b8d4e5ce"
+            },
+            "pacing": {
+              "captured_at": "2026-09-14T22:27:14Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1-pacing.json",
+              "sha256": "e0d81e638d004e3f13f86bd052e2a62468d9dc2e0965d9e6e4365eb26b9479a8"
+            },
+            "quality": {
+              "captured_at": "2026-09-14T21:54:46Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed7-coval-tts-v1-wer.json",
+              "sha256": "73b71cc174ea44ba0b3335a53174f4d4e0378fb3e0cf07a28315e42f3b71d029"
+            }
+          }
+        },
+        {
+          "audio_set_sha256": "aba2552a405b3f050369207d2fc56c453368ee3a8c91fec78849b66448fa9a3e",
+          "seed": 1234,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:30:41Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed1234-coval-tts-v1-completion.json",
+              "sha256": "e5568a764c5834b7f439e5a060820f309badb1b1702e265b2ad5b40998b3ac2a"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:23:17Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed1234-coval-tts-v1.json",
+              "sha256": "fc0c859d965c5d223467770d4ed7384564d6a5ae7e5b4c200b315d39e754623a"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:30:41Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed1234-coval-tts-v1-pacing.json",
+              "sha256": "212f5e87af161cd21c3a0fa203e15418c25462980bf498e782a7f033b78fb618"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:26:56Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed1234-coval-tts-v1-wer.json",
+              "sha256": "0f9b6682518a0c5bcb2187a98a4b11b4cf61170a0a4242d7b26203485e442242"
+            }
+          }
+        },
+        {
+          "audio_set_sha256": "261171eaa33e4578f1c36d2179edd1e5b67a0d0af7c4cf4e8b431b2517e6a6b1",
+          "seed": 2026,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:30:42Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed2026-coval-tts-v1-completion.json",
+              "sha256": "41d4940f503acd326c06acf57dcfb9092409e032420a0fbb3ef092c911983e6e"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:24:02Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed2026-coval-tts-v1.json",
+              "sha256": "b43677c9b7197218a770fa35e5bbf744ac4e71db6826f2e15e9904e2d13d6eef"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:30:42Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed2026-coval-tts-v1-pacing.json",
+              "sha256": "d7b1ef60132c3cb20c79ea50dfa705cd0050a89f3230b62d34ce27995c5a5609"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:27:02Z",
+              "path": "raw/loudr-1-turbo-loudkit-m5-seed2026-coval-tts-v1-wer.json",
+              "sha256": "30fe4206eeeab16531fba113fe7bf1a199ed1a1e949d63bf4e3b99d51c4a0aa1"
+            }
+          }
+        }
+      ],
+      "summary": {
+        "corpus_wer_percentage": 11.325611,
+        "corpus_wer_percentage_lower": 6.525862,
+        "corpus_wer_percentage_upper": 17.666299,
+        "corpus_words_per_minute": 161.019305,
+        "internal_pause_fraction_p50": 0.108118,
+        "invalid_case_count": 2,
+        "invalid_case_percent": 2.222222,
+        "playback_ttfa_p50_ms": 1081.936,
+        "playback_ttfa_p95_ms": 1421.542,
+        "real_time_factor_p50": 6.238,
+        "sample_count": 90,
+        "seed_count": 3,
+        "total_errors": 176,
+        "total_reference_words": 1554,
+        "words_per_minute_p50": 171.074205,
+        "words_per_minute_p95": 261.767785
+      }
+    },
+    {
+      "invalid_cases": [
+        {
+          "seed": 7,
+          "testcase_id": "A1"
+        },
+        {
+          "seed": 1234,
+          "testcase_id": "A13"
+        },
+        {
+          "seed": 2026,
+          "testcase_id": "A1"
+        }
+      ],
+      "offering_id": "self-hosted/loudr-1-turbo-loudkit@rtx5060ti-16gb-joe-en",
+      "offering_identity_without_seed": {
+        "backend": "torch",
+        "checkpoint_sha256": "590dcf9e1dcec31c54650ee139f345b248bdd7ba11288def664c5f1508f33593",
+        "engine": "algo[e5303ba243087222] loudkit-1 single_path decode=fusion_mtp2 euler=1(cosine) temp=0.8 rep=1.2 min_p=0.05 sil=31 win=255 | exec[cuda attn=sdpa prec[encoder=fp32,estimator=fp16,token_generator=fp16,vocoder=fp32] tf32=off ragged-vocoder deterministic]",
+        "hardware": "x86_64",
+        "language": "en",
+        "model": "loudreader/loudr-1-turbo",
+        "os": "Linux-5.15.0-190-generic-x86_64-with-glibc2.35",
+        "runtime": "loudkit 0.1.1",
+        "source_revision": "7a17fa2351e59978b34d5aac07bae6349a7ca5d9",
+        "voice": "joe"
+      },
+      "per_seed": [
+        {
+          "corpus_wer_percentage": 13.706564,
+          "invalid_case_count": 1,
+          "seed": 7
+        },
+        {
+          "corpus_wer_percentage": 8.494208,
+          "invalid_case_count": 1,
+          "seed": 1234
+        },
+        {
+          "corpus_wer_percentage": 12.355212,
+          "invalid_case_count": 1,
+          "seed": 2026
+        }
+      ],
+      "slug": "loudr-1-turbo-loudkit-5060",
+      "source_runs": [
+        {
+          "audio_set_sha256": "94347d1103b29c8e2542fa13b768b63216c42678132629a9478b9a456c9814c1",
+          "seed": 7,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:30:42Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1-completion.json",
+              "sha256": "739cd12a36f8e67cade186ff31fffbd5b54978b922918fc8f97824bc2ea522eb"
+            },
+            "latency": {
+              "captured_at": "2026-09-14T21:45:48Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1.json",
+              "sha256": "73fcfbb93103687c4b0b8b71bb034608d9794b3c2c8e179f2ae726015b002541"
+            },
+            "pacing": {
+              "captured_at": "2026-09-14T22:27:14Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1-pacing.json",
+              "sha256": "5f6119085bece9a05d07fb4eaf9076523a9c38350667bc8f18c480e90965e592"
+            },
+            "quality": {
+              "captured_at": "2026-09-14T21:54:52Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed7-coval-tts-v1-wer.json",
+              "sha256": "307e54ae8af49c6939f5336cc66c9073ab8bc9c23988a23a0d902fc07edf2edf"
+            }
+          }
+        },
+        {
+          "audio_set_sha256": "d0e0df6de9508dbc6f7c6eea10216f6f5dead0152a913d9be5cd222d87b83fce",
+          "seed": 1234,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:30:42Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed1234-coval-tts-v1-completion.json",
+              "sha256": "8924e194482915d0da13e697b1e7426c76a69e855ce0b6fd5602aabdea5966fb"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:23:10Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed1234-coval-tts-v1.json",
+              "sha256": "bf1e2c278aa16f82f066acdd5f74a3391342cf9211f8c465deb80c81bb058ce6"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:30:42Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed1234-coval-tts-v1-pacing.json",
+              "sha256": "20042f708e827f7975bcf2ec1128018a50fc9175d3c57679994aa232edb67ebd"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:27:07Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed1234-coval-tts-v1-wer.json",
+              "sha256": "fa2828b5d867e82a01fae36d3be4bc69e2988890117a25732de69b77dbbb225e"
+            }
+          }
+        },
+        {
+          "audio_set_sha256": "60c01c29113095f3a03bdfb979f282e06f2f3ce7c5000a5862c5a7b7359c8207",
+          "seed": 2026,
+          "sources": {
+            "completion": {
+              "captured_at": "2026-09-15T14:30:42Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed2026-coval-tts-v1-completion.json",
+              "sha256": "b30a7b1c61157dfe3abeb600d7f8f4c30f7400997a4f8079dd60f6bdf4400bc3"
+            },
+            "latency": {
+              "captured_at": "2026-09-15T14:23:33Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed2026-coval-tts-v1.json",
+              "sha256": "010eae86683a16fd368eb2f7d53a1423202e956cc8c7fff36df0188027f2657b"
+            },
+            "pacing": {
+              "captured_at": "2026-09-15T14:30:42Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed2026-coval-tts-v1-pacing.json",
+              "sha256": "871bd4ec473cd50dc22b7abde60d55dc4d797b6df778c42145121e57589c8651"
+            },
+            "quality": {
+              "captured_at": "2026-09-15T14:27:13Z",
+              "path": "raw/loudr-1-turbo-loudkit-5060-seed2026-coval-tts-v1-wer.json",
+              "sha256": "a41ff560b9899625ffa6a44e32b0b073a0ae61448cd1373034fce7b4987334fa"
+            }
+          }
+        }
+      ],
+      "summary": {
+        "corpus_wer_percentage": 11.518662,
+        "corpus_wer_percentage_lower": 6.402523,
+        "corpus_wer_percentage_upper": 18.616428,
+        "corpus_words_per_minute": 160.974549,
+        "internal_pause_fraction_p50": 0.107523,
+        "invalid_case_count": 3,
+        "invalid_case_percent": 3.333333,
+        "playback_ttfa_p50_ms": 500.898,
+        "playback_ttfa_p95_ms": 595.058,
+        "real_time_factor_p50": 14.403,
+        "sample_count": 90,
+        "seed_count": 3,
+        "total_errors": 179,
+        "total_reference_words": 1554,
+        "words_per_minute_p50": 171.041694,
+        "words_per_minute_p95": 261.767785
+      }
+    }
+  ],
+  "panel": {
+    "id": "coval-tts-v1-local-whisper-seed-panel",
+    "prompt_manifest_sha256": "e30909112f5fd886157008ca960c00d4f68f29de69b29d5913a5bf3383ad71ec",
+    "prompts_per_seed": 30,
+    "quality_instrument_revision": "624c19c9af5603fa73b83bce14d4aeea96156d18",
+    "samples_per_offering": 90,
+    "seeds": [
+      7,
+      1234,
+      2026
+    ],
+    "version": "1.2.0+local-whisper-seed-panel.1"
+  },
+  "schema": "model-skyline/experimental-tts-seed-panel/v1alpha1"
+}
