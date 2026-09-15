@@ -145,6 +145,15 @@ admission gates rather than a hidden third axis. The model-first view again
 reduces both eligible offerings to Qwen3-TTS; there is still no balanced
 cross-model environment panel from which to compute an honest average.
 
+One failed capture also exposed an operational boundary. The exclusive file
+lock serializes runners that agree to use it, but it cannot stop a client from
+calling Ollama directly. A direct client loaded another model during the first
+vLLM attempt, so that attempt was discarded. The retained vLLM and CUDA
+LoudKit captures temporarily stopped both llama-swap and Ollama, verified an
+empty GPU, and then held the exclusive lock. A follow-up router change should
+make bypassing the shared switch harder; the current mutex is cooperative, not
+a machine-wide memory scheduler.
+
 ### What the matched winner comparison adds
 
 Because Nari and vLLM-Omni synthesized the same prompts at the same requested
