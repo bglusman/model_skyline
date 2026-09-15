@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build ASR observation catalogs from the retained two-Mac pilot captures."""
+"""Build ASR observation catalogs from retained Mac and CUDA pilot captures."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ MANIFEST = HERE / "prompts" / "local-asr-pilot-v1.json"
 WORKLOAD = {"id": "local-asr-pilot-v1", "version": "1.0.0", "unit": "utterance"}
 SAMPLE_COUNT = 24
 
-MODELS: tuple[dict[str, str], ...] = (
+MLX_MODELS: tuple[dict[str, str], ...] = (
     {
         "slug": "qwen3-asr-06b-8bit",
         "artifact": "mlx-community/Qwen3-ASR-0.6B-8bit",
@@ -47,7 +47,42 @@ MODELS: tuple[dict[str, str], ...] = (
     },
 )
 
-HARDWARE: dict[str, dict[str, str]] = {
+CUDA_MODELS: tuple[dict[str, str], ...] = (
+    {
+        "slug": "qwen3-asr-06b-bf16",
+        "filename": "qwen3-asr-06b-bf16-transformers-5060-local-asr-pilot-v1.json",
+        "artifact": "Qwen/Qwen3-ASR-0.6B-hf",
+        "model_id": "Qwen3-ASR-0.6B",
+        "revision": "7f1569a48a89f3e3f4dc3a5c9d28bddd903bc76c",
+        "quantization": "bf16",
+    },
+    {
+        "slug": "qwen3-asr-17b-bf16",
+        "filename": "qwen3-asr-17b-bf16-transformers-5060-local-asr-pilot-v1.json",
+        "artifact": "Qwen/Qwen3-ASR-1.7B-hf",
+        "model_id": "Qwen3-ASR-1.7B",
+        "revision": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
+        "quantization": "bf16",
+    },
+    {
+        "slug": "whisper-large-v3-turbo-bf16",
+        "filename": ("whisper-large-v3-turbo-bf16-transformers-5060-local-asr-pilot-v1.json"),
+        "artifact": "openai/whisper-large-v3-turbo",
+        "model_id": "whisper-large-v3-turbo",
+        "revision": "41f01f3fe87f28c78e2fbf8b568835947dd65ed9",
+        "quantization": "bf16",
+    },
+    {
+        "slug": "parakeet-tdt-06b-v3-bf16",
+        "filename": ("parakeet-tdt-06b-v3-bf16-transformers-5060-local-asr-pilot-v1.json"),
+        "artifact": "nvidia/parakeet-tdt-0.6b-v3",
+        "model_id": "parakeet-tdt-0.6b-v3",
+        "revision": "541d1f99c6b0c3cd0b11a95167540bb8edefd82b",
+        "quantization": "bf16",
+    },
+)
+
+HARDWARE: dict[str, dict[str, Any]] = {
     "m1": {
         "capture_token": "m1",
         "capture_name": "Apple M1 Max",
@@ -55,6 +90,10 @@ HARDWARE: dict[str, dict[str, str]] = {
         "offering_name": "m1-max-64gb",
         "provider": "local:m1-max-64gb",
         "bootstrap": "m1-local-asr-pilot-v1-bootstrap.json",
+        "runtime_kind": "mlx",
+        "runtime_slug": "mlx",
+        "endpoint": "in-process-mlx",
+        "memory_comparable": True,
     },
     "m5": {
         "capture_token": "m5",
@@ -63,6 +102,22 @@ HARDWARE: dict[str, dict[str, str]] = {
         "offering_name": "m5-max-64gb",
         "provider": "local:m5-max-64gb",
         "bootstrap": "m5-local-asr-pilot-v1-bootstrap.json",
+        "runtime_kind": "mlx",
+        "runtime_slug": "mlx",
+        "endpoint": "in-process-mlx",
+        "memory_comparable": True,
+    },
+    "5060": {
+        "capture_token": "5060",
+        "capture_name": "NVIDIA GeForce RTX 5060 Ti",
+        "metadata_name": "NVIDIA GeForce RTX 5060 Ti 16 GB",
+        "offering_name": "rtx5060ti-16gb",
+        "provider": "local:rtx5060ti-16gb",
+        "bootstrap": "rtx5060ti-local-asr-pilot-v1-bootstrap.json",
+        "runtime_kind": "transformers",
+        "runtime_slug": "transformers",
+        "endpoint": "in-process-cuda",
+        "memory_comparable": False,
     },
 }
 
@@ -82,12 +137,13 @@ def _decimal(value: Any) -> str:
     return format(Decimal(str(value)), "f")
 
 
-def _source(slug: str, machine: str, path: Path) -> dict[str, Any]:
+def _source(slug: str, machine: str, path: Path, machine_spec: dict[str, Any]) -> dict[str, Any]:
+    runtime = "MLX-Audio" if machine_spec["runtime_kind"] == "mlx" else "Transformers/PyTorch CUDA"
     return {
         "id": f"local-asr-pilot-{slug}-{machine}",
         "version": "1",
         "methodology": (
-            "Resident in-process MLX-Audio transcription; one unscored warmup, "
+            f"Resident in-process {runtime} transcription; one unscored warmup, "
             "then 24 complete audio files sequentially at batch size one."
         ),
         "raw_sha256": _sha256(path),
@@ -119,7 +175,10 @@ def _observation(
 
 def _bootstrap_entry(bootstrap: dict[str, Any], capture: dict[str, Any]) -> dict[str, Any]:
     offering = capture["offering"]
-    key = f"{offering['model']}|{offering['runtime']}|{offering['hardware']}"
+    hardware = offering["hardware"]
+    if isinstance(hardware, dict):
+        hardware = hardware.get("name")
+    key = f"{offering['model']}|{offering['runtime']}|{hardware}"
     try:
         entry = bootstrap["offerings"][key]
     except KeyError as error:
@@ -129,8 +188,10 @@ def _bootstrap_entry(bootstrap: dict[str, Any], capture: dict[str, Any]) -> dict
     return entry
 
 
-def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, str]) -> dict[str, Any]:
-    filename = f"{spec['slug']}-mlx-{machine_spec['capture_token']}-local-asr-pilot-v1.json"
+def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) -> dict[str, Any]:
+    filename = spec.get("filename") or (
+        f"{spec['slug']}-mlx-{machine_spec['capture_token']}-local-asr-pilot-v1.json"
+    )
     capture_path = RAW / filename
     bootstrap_path = RAW / machine_spec["bootstrap"]
     capture = _load(capture_path)
@@ -148,7 +209,10 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, str]) 
         raise ValueError(f"unexpected model in {capture_path.name}")
     if exact["resolved_revision"] != spec["revision"]:
         raise ValueError(f"unexpected revision in {capture_path.name}")
-    if exact["hardware"] != machine_spec["capture_name"]:
+    capture_hardware = exact["hardware"]
+    if isinstance(capture_hardware, dict):
+        capture_hardware = capture_hardware.get("name")
+    if capture_hardware != machine_spec["capture_name"]:
         raise ValueError(f"unexpected hardware in {capture_path.name}")
     interval = _bootstrap_entry(bootstrap, capture)
     if interval["capture_sha256"] != _sha256(capture_path):
@@ -157,16 +221,70 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, str]) 
     observed_at = capture["captured_at"]
     summary = capture["summary"]
     confidence = interval["interval_95"]
-    source = _source(spec["slug"], machine, capture_path)
+    source = _source(spec["slug"], machine, capture_path, machine_spec)
     empty_percent = Decimal(summary["empty_hypothesis_count"]) * Decimal(100)
     empty_percent /= Decimal(SAMPLE_COUNT)
-    offering_id = f"self-hosted/{spec['slug']}-mlx@{machine_spec['offering_name']}-en"
+    offering_id = (
+        f"self-hosted/{spec['slug']}-{machine_spec['runtime_slug']}"
+        f"@{machine_spec['offering_name']}-en"
+    )
+    if machine_spec["runtime_kind"] == "mlx":
+        runtime = f"MLX-Audio {exact['mlx_audio']} / MLX {exact['mlx']}"
+        runtime_config = (
+            f"batch_size=1; max_tokens={exact['max_tokens']}; "
+            f"requested_language={exact['requested_language']}; "
+            f"language_argument={exact['language_argument']!r}"
+        )
+    else:
+        runtime = (
+            f"Transformers {exact['transformers']} / PyTorch {exact['torch']} / "
+            f"CUDA {exact['cuda']}"
+        )
+        runtime_config = (
+            f"batch_size=1; dtype={exact['dtype']}; max_tokens={exact['max_tokens']}; "
+            f"language_argument={exact['language_argument']!r}; "
+            f"attention={exact['attention']}"
+        )
+    signals = {
+        "asr_corpus_wer_percent": _observation(
+            summary["corpus_wer_percentage"],
+            "percent",
+            observed_at,
+            source,
+            lower=confidence["corpus_wer_percentage"][0],
+            upper=confidence["corpus_wer_percentage"][1],
+        ),
+        "asr_final_latency_p50_ms": _observation(
+            summary["final_latency_p50_ms"],
+            "milliseconds",
+            observed_at,
+            source,
+            lower=confidence["final_latency_p50_ms"][0],
+            upper=confidence["final_latency_p50_ms"][1],
+        ),
+        "asr_final_latency_p95_ms": _observation(
+            summary["final_latency_p95_ms"],
+            "milliseconds",
+            observed_at,
+            source,
+            lower=confidence["final_latency_p95_ms"][0],
+            upper=confidence["final_latency_p95_ms"][1],
+        ),
+        "asr_realtime_factor": _observation(
+            summary["real_time_factor_corpus"], "ratio", observed_at, source
+        ),
+        "asr_empty_hypothesis_percent": _observation(empty_percent, "percent", observed_at, source),
+    }
+    if machine_spec["memory_comparable"]:
+        signals["asr_process_rss_peak_mb"] = _observation(
+            summary["process_rss_mb_max"], "megabytes", observed_at, source
+        )
     return {
         "offering": {
             "offering_id": offering_id,
             "model_id": spec["model_id"],
             "provider": machine_spec["provider"],
-            "endpoint": "in-process-mlx",
+            "endpoint": machine_spec["endpoint"],
             "service_tier": "resident",
             "quantization": spec["quantization"],
             "agent_harness": "model-skyline-local-asr-pilot@1",
@@ -176,12 +294,8 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, str]) 
             "hardware": machine_spec["metadata_name"],
             "artifact": exact["model"],
             "artifact_revision": exact["resolved_revision"],
-            "runtime": f"MLX-Audio {exact['mlx_audio']} / MLX {exact['mlx']}",
-            "runtime_config": (
-                f"batch_size=1; max_tokens={exact['max_tokens']}; "
-                f"requested_language={exact['requested_language']}; "
-                f"language_argument={exact['language_argument']!r}"
-            ),
+            "runtime": runtime,
+            "runtime_config": runtime_config,
             "quality_scope": (
                 "24-utterance English pilot across meeting, financial-call, "
                 "difficult audiobook, and non-US political speech"
@@ -196,41 +310,7 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, str]) 
             "manifest_sha256": manifest_sha,
             "audio_set_sha256": capture["workload"]["audio_set_sha256"],
         },
-        "signals": {
-            "asr_corpus_wer_percent": _observation(
-                summary["corpus_wer_percentage"],
-                "percent",
-                observed_at,
-                source,
-                lower=confidence["corpus_wer_percentage"][0],
-                upper=confidence["corpus_wer_percentage"][1],
-            ),
-            "asr_final_latency_p50_ms": _observation(
-                summary["final_latency_p50_ms"],
-                "milliseconds",
-                observed_at,
-                source,
-                lower=confidence["final_latency_p50_ms"][0],
-                upper=confidence["final_latency_p50_ms"][1],
-            ),
-            "asr_final_latency_p95_ms": _observation(
-                summary["final_latency_p95_ms"],
-                "milliseconds",
-                observed_at,
-                source,
-                lower=confidence["final_latency_p95_ms"][0],
-                upper=confidence["final_latency_p95_ms"][1],
-            ),
-            "asr_realtime_factor": _observation(
-                summary["real_time_factor_corpus"], "ratio", observed_at, source
-            ),
-            "asr_process_rss_peak_mb": _observation(
-                summary["process_rss_mb_max"], "megabytes", observed_at, source
-            ),
-            "asr_empty_hypothesis_percent": _observation(
-                empty_percent, "percent", observed_at, source
-            ),
-        },
+        "signals": signals,
     }
 
 
@@ -242,7 +322,7 @@ def _render(hardware: str) -> str:
         "offerings": [
             _offering(spec, machine, machine_spec)
             for machine, machine_spec in machines.items()
-            for spec in MODELS
+            for spec in (MLX_MODELS if machine_spec["runtime_kind"] == "mlx" else CUDA_MODELS)
         ],
     }
     return json.dumps(catalog, indent=2, ensure_ascii=False) + "\n"
@@ -250,7 +330,7 @@ def _render(hardware: str) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--hardware", choices=("all", "m1", "m5"), default="all")
+    parser.add_argument("--hardware", choices=("all", "m1", "m5", "5060"), default="all")
     parser.add_argument("--output", type=Path, default=HERE / "asr-observations.json")
     parser.add_argument(
         "--check",

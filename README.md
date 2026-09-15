@@ -51,11 +51,13 @@ remain provisional because each offering uses only one synthesis seed and the
 new quality checks still need matched human calibration controls.
 
 Its [local speech-recognition frontiers](examples/voice-runtime-frontiers/ASR.md)
-now compare four exact MLX offerings on the same 24 public utterances. Parakeet
-TDT 0.6B v3 is the current quality/speed point winner on both 64 GB Macs;
-Qwen3-ASR 0.6B 8-bit joins it when memory is the second dimension. The file
-also records why this small-panel result is provisional and why M1-to-M5 speed
-cannot be represented by one universal multiplier.
+now compare four model families on the same 24 public utterances across M1,
+M5, and RTX 5060 Ti runtimes. Parakeet TDT 0.6B v3 is the combined
+quality/speed point winner; Qwen3-ASR 0.6B 8-bit joins it on the Mac memory
+frontier, while Qwen3-ASR 1.7B remains a quality/speed tradeoff on the 5060
+alone. The file also records why this small-panel result is provisional, why
+M1-to-M5 speed has no universal multiplier, and why unlike memory statistics
+are not mixed.
 
 ## What a frontier means
 

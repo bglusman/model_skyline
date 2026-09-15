@@ -31,9 +31,19 @@ def _percentile(values: np.ndarray, percentile: float) -> float:
     return round(float(np.percentile(values, percentile)), 6)
 
 
+def _hardware_name(capture: dict[str, Any]) -> str:
+    hardware = capture["offering"]["hardware"]
+    if isinstance(hardware, dict):
+        hardware = hardware.get("name")
+    if not isinstance(hardware, str):
+        raise ValueError("capture hardware must be a string or contain a string name")
+    return hardware
+
+
 def _offering_id(capture: dict[str, Any]) -> str:
     offering = capture["offering"]
-    return f"{offering['model']}|{offering['runtime']}|{offering['hardware']}"
+    hardware = _hardware_name(capture)
+    return f"{offering['model']}|{offering['runtime']}|{hardware}"
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -117,7 +127,7 @@ def main() -> None:
             "capture_sha256": _sha256(path),
             "model": capture["offering"]["model"],
             "runtime": capture["offering"]["runtime"],
-            "hardware": capture["offering"]["hardware"],
+            "hardware": _hardware_name(capture),
             "point": {
                 "corpus_wer_percentage": capture["summary"]["corpus_wer_percentage"],
                 "final_latency_p50_ms": capture["summary"]["final_latency_p50_ms"],

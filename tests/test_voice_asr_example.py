@@ -41,6 +41,7 @@ def test_asr_observation_catalogs_rebuild_from_bound_raw_captures() -> None:
         ("all", "asr-observations.json"),
         ("m1", "asr-observations-m1.json"),
         ("m5", "asr-observations-m5.json"),
+        ("5060", "asr-observations-5060.json"),
     ):
         result = subprocess.run(
             [
@@ -68,6 +69,13 @@ def test_asr_frontier_residents_are_the_same_on_both_macs() -> None:
             "Qwen3-ASR-0.6B",
             "parakeet-tdt-0.6b-v3",
         }
+
+
+def test_asr_cuda_frontiers_keep_the_measured_quality_speed_tradeoff() -> None:
+    expected = {"Qwen3-ASR-1.7B", "parakeet-tdt-0.6b-v3"}
+    for frontier_id in FRONTIERS[:3]:
+        assert _models(frontier_id, "asr-observations-5060.json") == expected
+    assert _models("asr-small-resident", "asr-observations-5060.json") == set()
 
 
 def test_asr_generated_model_views_agree_for_best_and_balanced_reductions() -> None:

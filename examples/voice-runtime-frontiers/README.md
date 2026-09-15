@@ -12,12 +12,14 @@ portability, footprint, sustained throughput, and barge-in behavior. Its M5
 offering reaches the batch frontier, but LoudKit is not on either
 quality/latency frontier.
 
-The speech-recognition side is now measured too. On both 64 GB Macs,
-**Parakeet TDT 0.6B v3** is the sole point-estimate resident for WER versus
-median latency, p95 latency, and throughput. The small-resident frontier keeps
-both Parakeet and **Qwen3-ASR 0.6B 8-bit**. See the concise
+The speech-recognition side is now measured on both 64 GB Macs and the RTX
+5060 Ti. **Parakeet TDT 0.6B v3** is the sole combined point-estimate resident
+for WER versus median latency, p95 latency, and throughput. On the 5060 alone,
+Parakeet trades speed against Qwen3-ASR 1.7B's slightly lower point WER. The
+Mac small-resident frontier keeps Parakeet and **Qwen3-ASR 0.6B 8-bit**. See the concise
 [`local ASR report`](ASR.md) for definitions, exact points, uncertainty, and
-the controlled M1/M5 comparison.
+the controlled M1/M5 comparison. CUDA memory is withheld from that frontier
+until the experiment has one cross-platform whole-service measure.
 
 The runnable TTS definitions are [`frontier.yaml`](frontier.yaml), and the four
 exact TTS offerings are in [`observations.json`](observations.json). The latter

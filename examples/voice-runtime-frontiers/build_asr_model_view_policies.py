@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate balanced two-Mac model-view policies for ASR frontier snapshots."""
+"""Generate balanced-hardware model-view policies for ASR frontier snapshots."""
 
 from __future__ import annotations
 
@@ -23,7 +23,12 @@ ENVIRONMENTS = {
         "environment_id": "m5-max-64gb",
         "provider": "local:m5-max-64gb",
     },
+    "NVIDIA GeForce RTX 5060 Ti 16 GB": {
+        "environment_id": "rtx5060ti-16gb",
+        "provider": "local:rtx5060ti-16gb",
+    },
 }
+MAC_ENVIRONMENTS = {"Apple M1 Max 64 GB", "Apple M5 Max 64 GB"}
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -37,24 +42,29 @@ def _render(snapshot_path: Path) -> str:
     snapshot = _load(snapshot_path)
     if snapshot.get("kind") != "frontier":
         raise ValueError(f"{snapshot_path} is not a frontier snapshot")
+    frontier_id = snapshot["frontier_id"]
+    included_hardware = (
+        MAC_ENVIRONMENTS if frontier_id == "asr-small-resident" else set(ENVIRONMENTS)
+    )
     by_model: dict[str, dict[str, str]] = {}
     for item in snapshot["evaluated"]:
         model = item["offering"]["model_id"]
         hardware = item["metadata"]["hardware"]
-        try:
-            environment = ENVIRONMENTS[hardware]["environment_id"]
-        except KeyError as error:
-            raise ValueError(f"unsupported ASR hardware {hardware!r}") from error
+        if hardware not in included_hardware:
+            continue
+        environment = ENVIRONMENTS[hardware]["environment_id"]
         by_model.setdefault(model, {})[environment] = item["offering"]["offering_id"]
-    expected_environments = {item["environment_id"] for item in ENVIRONMENTS.values()}
+    expected_environments = {
+        ENVIRONMENTS[hardware]["environment_id"] for hardware in included_hardware
+    }
     for model, offerings in by_model.items():
         if set(offerings) != expected_environments:
-            raise ValueError(f"{model} does not have a balanced two-Mac panel")
+            raise ValueError(f"{model} does not have the declared balanced hardware panel")
 
-    frontier_id = snapshot["frontier_id"]
+    policy_scope = "two-mac" if frontier_id == "asr-small-resident" else "three-machine"
     policy = {
         "schema_version": "model-skyline/model-frontier-view-policy/v1alpha1",
-        "policy_id": f"apple-64gb-two-mac-{frontier_id}",
+        "policy_id": f"local-{policy_scope}-{frontier_id}",
         "source_snapshot_id": snapshot["snapshot_id"],
         "aggregation": "arithmetic_mean",
         "environments": [
@@ -62,7 +72,8 @@ def _render(snapshot_path: Path) -> str:
                 "environment_id": environment["environment_id"],
                 "provider": environment["provider"],
             }
-            for environment in ENVIRONMENTS.values()
+            for hardware, environment in ENVIRONMENTS.items()
+            if hardware in included_hardware
         ],
         "models": [
             {

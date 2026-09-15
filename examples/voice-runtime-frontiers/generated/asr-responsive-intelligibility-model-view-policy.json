@@ -1,7 +1,7 @@
 {
   "schema_version": "model-skyline/model-frontier-view-policy/v1alpha1",
-  "policy_id": "apple-64gb-two-mac-asr-responsive-intelligibility",
-  "source_snapshot_id": "1e3c972cbade87d15af4d3086effdcd128c0cd6dd7e190e925d64cadaf575a47",
+  "policy_id": "local-three-machine-asr-responsive-intelligibility",
+  "source_snapshot_id": "6ba38c53b36e4e0ef4dd1953f9ed5b923a54c9ed5221533b58c38f6f5ff375cd",
   "aggregation": "arithmetic_mean",
   "environments": [
     {
@@ -11,6 +11,10 @@
     {
       "environment_id": "m5-max-64gb",
       "provider": "local:m5-max-64gb"
+    },
+    {
+      "environment_id": "rtx5060ti-16gb",
+      "provider": "local:rtx5060ti-16gb"
     }
   ],
   "models": [
@@ -24,6 +28,10 @@
         {
           "environment_id": "m5-max-64gb",
           "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/qwen3-asr-06b-bf16-transformers@rtx5060ti-16gb-en"
         }
       ]
     },
@@ -37,6 +45,10 @@
         {
           "environment_id": "m5-max-64gb",
           "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/qwen3-asr-17b-bf16-transformers@rtx5060ti-16gb-en"
         }
       ]
     },
@@ -50,6 +62,10 @@
         {
           "environment_id": "m5-max-64gb",
           "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/parakeet-tdt-06b-v3-bf16-transformers@rtx5060ti-16gb-en"
         }
       ]
     },
@@ -63,6 +79,10 @@
         {
           "environment_id": "m5-max-64gb",
           "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/whisper-large-v3-turbo-bf16-transformers@rtx5060ti-16gb-en"
         }
       ]
     }
