@@ -158,6 +158,61 @@ def test_v2_cuda_preflight_rejects_before_launch(
     assert not marker.exists()
 
 
+def test_v2_preserves_a_launched_commands_failure_status(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module = _load_capture_v2_module()
+    process = module.v1.ProcessInfo
+    tables = [{4321: process(4321, 1, 10, "test command")}, {}]
+
+    class FinishedChild:
+        pid = 4321
+        returncode = 7
+        poll_count = 0
+
+        def poll(self) -> int | None:
+            self.poll_count += 1
+            return None if self.poll_count == 1 else self.returncode
+
+    child = FinishedChild()
+    monkeypatch.setattr(module.sys, "platform", "darwin")
+    monkeypatch.setattr(module.subprocess, "Popen", lambda *args, **kwargs: child)
+    monkeypatch.setattr(module.v1, "_process_table", lambda: tables.pop(0))
+    monkeypatch.setattr(
+        module,
+        "_sample",
+        lambda **kwargs: {
+            "elapsed_milliseconds": 0,
+            "selected_process_count": 1,
+            "rss_bytes": 10,
+            "host_physical_bytes": 10,
+            "device_memory_bytes": None,
+            "combined_capacity_bytes": 10,
+            "unselected_cuda_process_count": None,
+            "unselected_cuda_memory_bytes": None,
+        },
+    )
+
+    payload, returncode = module.capture(
+        architecture="apple_unified",
+        hardware_label="test-mac",
+        offering_id="test/offering",
+        process_label="command",
+        process_matches=(),
+        root_pids=set(),
+        interval_seconds=0.05,
+        wait_for_process_seconds=1,
+        timeout_seconds=1,
+        stop_file=None,
+        workload_captures=[],
+        command=["test-command"],
+    )
+
+    assert payload["stop_reason"] == "launched command exited"
+    assert payload["child_returncode"] == 7
+    assert returncode == 7
+
+
 def test_published_service_memory_panel_replays_raw_hashes() -> None:
     result = subprocess.run(
         [sys.executable, str(BUILDER), "--check"],

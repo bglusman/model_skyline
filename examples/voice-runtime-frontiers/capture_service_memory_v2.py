@@ -227,7 +227,11 @@ def capture(
             if selected:
                 seen_process = True
             elif seen_process:
-                stop_reason = "selected process exited"
+                stop_reason = (
+                    "launched command exited"
+                    if child is not None and child.poll() is not None
+                    else "selected process exited"
+                )
                 break
             if seen_process:
                 samples.append(
