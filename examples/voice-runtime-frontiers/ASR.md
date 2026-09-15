@@ -8,6 +8,14 @@ combined quality/speed frontiers, and the simpler model-level views agree.
 Its compiled encoder offering is also the sole point-estimate quality/speed
 resident when the RTX 5060 Ti is considered alone.
 
+Restarting a model is a different workload from calling one that is already
+resident. The combined restart frontier still selects M5 Parakeet, but the
+5060-only restart frontier keeps four useful tradeoffs: Whisper restarts
+fastest, baseline Parakeet improves quality, baseline Qwen 1.7B improves it
+again, and compiled Parakeet has the lowest point WER at the highest restart
+cost. Compiled Qwen is not a restart choice: it takes about 43 seconds even
+after its compiler cache has been seeded.
+
 If minimizing memory matters more than obtaining the best point WER,
 **Qwen3-ASR 0.6B 8-bit is the other useful Mac tradeoff**. It used about 1.15 GB of
 process RSS versus about 2.52 GB for Parakeet. Qwen3-ASR 1.7B and Whisper
@@ -32,6 +40,7 @@ are pass/fail gates, not hidden scoring dimensions.
 | Typical intelligibility | WER, lower is better | median final-transcript latency, lower is better | Parakeet | Parakeet | compiled Parakeet |
 | Batch intelligibility | WER, lower is better | audio seconds processed per wall second, higher is better | Parakeet | Parakeet | compiled Parakeet |
 | Small resident | WER, lower is better | peak process RSS, lower is better | Qwen 0.6B; Parakeet | Qwen 0.6B; Parakeet | not ranked: no comparable memory signal |
+| Restart intelligibility | WER, lower is better | median fresh-process launch to first complete transcript, lower is better | Parakeet | Parakeet | Whisper; baseline Parakeet; baseline Qwen 1.7B; compiled Parakeet |
 
 The exact executable definitions are in
 [`asr-frontier.yaml`](asr-frontier.yaml). The all-hardware catalog is
@@ -51,6 +60,10 @@ Every row uses batch size one, declared unscored warmup calls, the same exact
 24 audio files in the same order, and the pinned model revision recorded in the catalog.
 The Macs use MLX 0.32.2 and MLX-Audio 0.5.4. The 5060 uses Transformers 5.17,
 PyTorch 2.13, CUDA 13, and BF16 weights. No audio was played.
+The activation captures record power and thermal state: the M5 was on AC with
+AC `powermode 2` (High Power), both Macs reported no thermal or performance
+warning, and the CUDA harness refused to begin any child while another NVIDIA
+compute process was present.
 
 ### M5 Max 64 GB
 
@@ -96,13 +109,65 @@ three combined quality/speed frontiers, while Parakeet and Qwen 0.6B occupy the
 Mac quality/memory frontier. The exact view adds an important deployment clue:
 on the 5060, tuning collapses a two-model baseline frontier to one resident.
 
-Both model-level reductions agree. The **best-available** view asks whether a
-model's single best tested implementation survives the combined exact
-frontier. The **balanced-average** view averages each quality/speed dimension
-across M1, M5, and 5060 so every machine counts equally. For the memory
-frontier it averages only the two Macs, where the measurement is comparable.
-Neither reduction changes the model residents above. That agreement is useful
-evidence that the recommendation is not just an artifact of selecting the M5.
+For the original resident-speed and memory frontiers, both model-level
+reductions agree. The **best-available** view asks whether a model's single best
+tested implementation survives the combined exact frontier. The
+**balanced-average** view averages each quality/speed dimension across M1, M5,
+and 5060 so every machine counts equally. For the memory frontier it averages
+only the two Macs, where the measurement is comparable. Neither reduction
+changes those combined model residents.
+
+For the restart frontier, the balanced-average view uses each model's
+fastest-restarting tested implementation on each machine. This rule is explicit
+because selecting the resident-speed optimization instead would penalize the
+model for a deployment setting that this particular frontier is trying to
+avoid. Both the combined best-available and balanced-average restart views
+contain only Parakeet; the more varied result appears when a reader filters to
+the 5060 they already own.
+
+## When the model is not already loaded
+
+The restart metric measures a normal repeat activation, not installation or a
+machine reboot. Weights are already downloaded. One unscored seed activation
+establishes ordinary system caches; each of the ten scored samples then starts
+a new Python process with no model or tensors in memory. On CUDA, the seed and
+scored processes share one otherwise-isolated TorchInductor, Triton, and CUDA
+JIT cache. On MLX, system-managed Metal/MLX caches are declared but not cleared.
+
+The parent starts its monotonic clock immediately before process launch. The
+child imports its runtime, parses the full manifest, hashes only the fixed
+audio clip used by this test, resolves the local model, loads it, transcribes
+that 12.35-second meeting clip, explicitly synchronizes the accelerator, and
+sends the complete UTF-8 transcript over a dedicated pipe. The clock stops
+after the parent receives every byte. WER normalization, JSON writing, and
+process teardown happen afterward. All 150
+scored attempts succeeded, and every offering returned one stable normalized
+transcript across its ten attempts that matched the same offering's resident
+panel transcript for that clip.
+
+| Model/profile | M5 MLX | M1 MLX | 5060 BF16 |
+|---|---:|---:|---:|
+| Parakeet baseline | **0.765 s** | **1.232 s** | 3.675 s |
+| Whisper baseline | 0.882 s | 1.594 s | **3.381 s** |
+| Qwen3-ASR 0.6B baseline | 0.880 s | 1.440 s | 4.180 s |
+| Qwen3-ASR 1.7B baseline | 0.990 s | 1.692 s | 4.584 s |
+| Parakeet compiled encoder | — | — | 6.800 s |
+| Qwen3-ASR 0.6B dynamic compile | — | — | 42.960 s |
+| Qwen3-ASR 1.7B dynamic compile | — | — | 43.586 s |
+
+Ten launches are enough for a useful median, not a trustworthy p95. The raw
+samples are retained, but no restart-tail frontier is published. A future p95
+should use at least 40 launches and a persistent-worker experiment should
+separately measure a framework that stays alive while only model state is
+swapped. The present metric is the relevant one when a router launches a new
+Python model application after an unload; it must not be relabeled as that
+lighter persistent-worker swap.
+
+The single empty-compiler-cache seed took 98.0 seconds for Qwen 0.6B, 99.5
+seconds for Qwen 1.7B, and 20.9 seconds for compiled Parakeet. Those one-sample
+figures expose first-compilation magnitude but are not frontier axes. Nor does
+this report manufacture a session break-even point by adding unrelated
+medians; a fixed-K short-session burst should be measured directly.
 
 ## What compilation changed
 
@@ -115,10 +180,12 @@ dynamic shapes avoided that failure: Qwen 0.6B improved by 1.84x at p50, 1.65x
 at p95, and 1.64x in corpus throughput. Qwen 1.7B improved by only 1.15x, 1.09x,
 and 1.09x respectively.
 
-Compilation is not free. The first measured Qwen dynamic-compile warmup took
-about 94 seconds; a second process with compiler artifacts cached still took
-about 40 seconds. It therefore makes sense for a long-lived resident service,
-not a router that unloads the model frequently.
+Compilation is not free. The resident experiment's first Qwen dynamic-compile
+warmup took about 94 seconds and a second process with compiler artifacts
+cached still took about 40 seconds. The dedicated restart experiment now makes
+that consequence explicit: seeded-cache Qwen activation takes 43.0–43.6
+seconds versus 4.2–4.6 seconds uncompiled. It therefore makes sense for a
+long-lived resident service, not a router that unloads the model frequently.
 
 [Transformers' Parakeet guide](https://huggingface.co/docs/transformers/model_doc/parakeet#making-the-model-go-brrr)
 shows full-generation compilation with static padding for a CTC model. The TDT
@@ -141,12 +208,12 @@ faster for Whisper. Peak process RSS differed by less than 0.4% for every exact
 pair. Equal 64 GB capacity therefore produced the same fit choices and the same
 frontier residents, but not the same latency.
 
-| Exact artifact | M5 p50 speedup | M5 p95 speedup | M5 throughput speedup |
-|---|---:|---:|---:|
-| Qwen3-ASR 0.6B 8-bit | 1.97x | 2.02x | 2.01x |
-| Qwen3-ASR 1.7B 8-bit | 1.90x | 2.01x | 1.99x |
-| Parakeet TDT 0.6B v3 FP16 | 2.07x | 1.84x | 2.10x |
-| Whisper large-v3-turbo FP16 | 3.06x | 2.90x | 3.09x |
+| Exact artifact | M5 p50 speedup | M5 p95 speedup | M5 throughput speedup | M5 restart speedup |
+|---|---:|---:|---:|---:|
+| Qwen3-ASR 0.6B 8-bit | 1.97x | 2.02x | 2.01x | 1.64x |
+| Qwen3-ASR 1.7B 8-bit | 1.90x | 2.01x | 1.99x | 1.71x |
+| Parakeet TDT 0.6B v3 FP16 | 2.07x | 1.84x | 2.10x | 1.61x |
+| Whisper large-v3-turbo FP16 | 3.06x | 2.90x | 3.09x | 1.81x |
 
 This is a whole-machine control, not a CPU-only benchmark. M1 Max versus M5
 Max changes CPU, GPU, Metal kernels, memory subsystem, and OS together. The
@@ -196,17 +263,50 @@ normalizes the local audio. [`bench_mlx_asr.py`](bench_mlx_asr.py) and
 on MLX and CUDA, verify all hashes, and retain per-utterance transcripts,
 errors, latency, and runtime-specific memory statistics.
 [`analyze_asr_pilot.py`](analyze_asr_pilot.py) produces the paired bootstrap.
+[`probe_asr_activation.py`](probe_asr_activation.py) performs the isolated
+fresh-process restart measurements and uses a dedicated transcript pipe.
 [`build_asr_observations.py`](build_asr_observations.py) refuses stale
 capture/bootstrap bindings and generates the four catalogs.
 
+The restart wrapper records its own hash, the child benchmark hash, Python
+version, cache and idle-GPU policy, and normalized child arguments in every
+capture. These are the command shapes used; replace angle-bracketed paths and
+model identities with the pinned values recorded in the catalog:
+
+```console
+python probe_asr_activation.py --backend mlx \
+  --python <mlx-python> --benchmark-script bench_mlx_asr.py \
+  --runs 10 --seed-runs 1 --compiler-cache system-default \
+  --output <capture.json> -- \
+  --model <repository> --model-revision <commit> \
+  --audio-dir <audio-dir> --prompt-manifest prompts/local-asr-pilot-v1.json \
+  --language English --max-tokens 512
+
+python probe_asr_activation.py --backend transformers \
+  --python <cuda-python> --benchmark-script bench_transformers_asr.py \
+  --runs 10 --seed-runs 1 --compiler-cache seeded-isolated \
+  --require-idle-nvidia --output <capture.json> -- \
+  --family <qwen3-asr|parakeet-tdt|whisper> \
+  --model <repository> --model-revision <commit> \
+  --audio-dir <audio-dir> --prompt-manifest prompts/local-asr-pilot-v1.json \
+  --language English --max-tokens 512 --dtype bfloat16 \
+  --optimization <baseline|qwen-forward-compile-dynamic|parakeet-static-encoder-compile> \
+  [--static-audio-seconds 16] --warmup-runs <resident-profile-value>
+```
+
+`--warmup-runs` preserves the exact resident offering identity in the child
+capture; startup-probe mode deliberately performs zero per-process warmups.
+
 The next measurements should be:
 
-1. a cold-start/swap-ready frontier with a controlled compiler-cache state;
-2. a live-streaming panel that measures partial text, finalization, and
+1. a persistent-worker swap-ready panel and a directly measured fixed-K
+   short-session workload;
+2. a restart-tail study with at least 40 launches per offering;
+3. a live-streaming panel that measures partial text, finalization, and
    endpointer delay;
-3. a larger English panel with noise, accents, long-form speech, and local
+4. a larger English panel with noise, accents, long-form speech, and local
    microphone conditions; and
-4. separate multilingual workloads rather than averaging languages into one
+5. separate multilingual workloads rather than averaging languages into one
    opaque score.
 
 Those additions may introduce new frontier residents. They should not be

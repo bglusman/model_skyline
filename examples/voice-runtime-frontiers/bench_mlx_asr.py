@@ -6,6 +6,11 @@ sequentially without playback. It records exact model and workload provenance,
 corpus/domain WER, end-of-speech-to-final-text latency, throughput, and memory
 instruments. Memory is descriptive until another runtime provides a comparable
 whole-service measurement.
+
+``--startup-probe`` is a deliberately smaller child-process mode used by
+``probe_asr_activation.py``. It skips the resident warmup and transcribes only
+the first fixed clip so the parent can clock process launch through the first
+usable transcript.
 """
 
 from __future__ import annotations
@@ -17,6 +22,7 @@ import inspect
 import json
 import os
 import platform
+import struct
 import subprocess
 import time
 from collections import defaultdict
@@ -64,6 +70,21 @@ def _process_rss_mb() -> float:
         text=True,
     )
     return float(result.stdout.strip()) / 1024.0
+
+
+def _send_startup_transcript(transcript: str) -> None:
+    descriptor = os.environ.get("MODEL_SKYLINE_STARTUP_READY_FD")
+    if descriptor is None:
+        raise RuntimeError("startup probe is missing its parent communication pipe")
+    fd = int(descriptor)
+    payload = transcript.encode("utf-8")
+    framed = struct.pack("!Q", len(payload)) + payload
+    try:
+        while framed:
+            written = os.write(fd, framed)
+            framed = framed[written:]
+    finally:
+        os.close(fd)
 
 
 def _extract_text(result: Any) -> str:
@@ -187,6 +208,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--prompt-manifest", type=Path, required=True)
     parser.add_argument("--language")
     parser.add_argument("--max-tokens", type=int, default=512)
+    parser.add_argument("--startup-probe", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     return parser
 
@@ -204,9 +226,11 @@ def main() -> None:
     ):
         raise SystemExit("--prompt-manifest is not a supported local ASR panel")
 
+    manifest_items = manifest["items"]
+    items_to_verify = manifest_items[:1] if args.startup_probe else manifest_items
     prompts: list[tuple[dict[str, Any], Path]] = []
     audio_set_digest = hashlib.sha256()
-    for item in manifest["items"]:
+    for index, item in enumerate(manifest_items):
         if not isinstance(item, dict):
             raise SystemExit("every manifest item must be an object")
         filename = item.get("audio_filename")
@@ -214,13 +238,14 @@ def main() -> None:
         reference = item.get("reference")
         if not all(isinstance(value, str) for value in (filename, expected_sha, reference)):
             raise SystemExit("manifest item is missing audio filename, hash, or reference")
-        audio_path = args.audio_dir / filename
-        actual_sha = _sha256(audio_path)
-        if actual_sha != expected_sha:
-            raise SystemExit(f"audio hash mismatch: {audio_path}")
         audio_set_digest.update(str(item.get("testcase_id")).encode())
-        audio_set_digest.update(bytes.fromhex(actual_sha))
-        prompts.append((item, audio_path))
+        audio_set_digest.update(bytes.fromhex(expected_sha))
+        if index < len(items_to_verify):
+            audio_path = args.audio_dir / filename
+            actual_sha = _sha256(audio_path)
+            if actual_sha != expected_sha:
+                raise SystemExit(f"audio hash mismatch: {audio_path}")
+            prompts.append((item, audio_path))
     if not prompts:
         raise SystemExit("prompt manifest contains no cases")
 
@@ -236,17 +261,24 @@ def main() -> None:
     resident_mlx_active_gb = float(mx.get_active_memory()) / 1e9
     resident_mlx_cache_gb = float(mx.get_cache_memory()) / 1e9
 
-    warm_started = time.monotonic()
-    _transcribe(model, prompts[0][1], language_argument, args.max_tokens)
-    warmup_seconds = time.monotonic() - warm_started
+    warmup_seconds = 0.0
+    if not args.startup_probe:
+        warm_started = time.monotonic()
+        _transcribe(model, prompts[0][1], language_argument, args.max_tokens)
+        warmup_seconds = time.monotonic() - warm_started
 
     normalizer = EnglishTextNormalizer()
     measurements: list[dict[str, Any]] = []
-    for item, audio_path in prompts:
+    scored_prompts = prompts[:1] if args.startup_probe else prompts
+    for item, audio_path in scored_prompts:
         mx.reset_peak_memory()
         started = time.monotonic()
         hypothesis = _transcribe(model, audio_path, language_argument, args.max_tokens)
+        if args.startup_probe:
+            mx.synchronize()
         wall_seconds = time.monotonic() - started
+        if args.startup_probe:
+            _send_startup_transcript(hypothesis)
         normalized_reference = str(normalizer(item["reference"]))
         normalized_hypothesis = str(normalizer(hypothesis))
         counts = _error_counts(normalized_reference, normalized_hypothesis)
@@ -291,18 +323,28 @@ def main() -> None:
             "requested_language": args.language,
             "language_argument": language_argument,
             "max_tokens": args.max_tokens,
+            "startup_probe": args.startup_probe,
         },
         "workload": {
             "manifest_id": manifest.get("id"),
             "manifest_version": manifest.get("version"),
             "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
             "audio_set_sha256": audio_set_digest.hexdigest(),
-            "sample_count": len(prompts),
+            "sample_count": len(scored_prompts),
+            "panel_sample_count": len(manifest_items),
             "normalization": NORM_VERSION,
         },
         "methodology": {
-            "warmup": "first manifest clip, unscored, after model load",
-            "request_order": "manifest order, sequential, batch size one",
+            "warmup": (
+                "none; first fixed clip is the startup probe"
+                if args.startup_probe
+                else "first manifest clip, unscored, after model load"
+            ),
+            "request_order": (
+                "first manifest clip only, batch size one"
+                if args.startup_probe
+                else "manifest order, sequential, batch size one"
+            ),
             "latency": (
                 "wall time from invocation on a complete resident audio file until "
                 "the final transcript object returns"

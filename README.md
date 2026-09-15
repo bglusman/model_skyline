@@ -55,7 +55,11 @@ now compare four model families on the same 24 public utterances across M1,
 M5, and RTX 5060 Ti runtimes. Parakeet TDT 0.6B v3 is the combined
 quality/speed point winner; Qwen3-ASR 0.6B 8-bit joins it on the Mac memory
 frontier. On the 5060, a compiled Parakeet encoder turns the two-model baseline
-frontier into one point-estimate resident. The file also records why this
+frontier into one point-estimate resident. A separate quality-versus-restart
+frontier shows the opposite deployment tradeoff: compiled Qwen takes about 43
+seconds to return its first transcript from a fresh process even with seeded
+compiler artifacts, while uncompiled 5060 offerings take 3.4–4.6 seconds and
+M5 MLX offerings take 0.8–1.0 seconds. The file also records why this
 small-panel result is provisional, why compile warmup changes router policy,
 why M1-to-M5 speed has no universal multiplier, and why unlike memory
 statistics are not mixed.

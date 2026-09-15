@@ -21,6 +21,10 @@ workloads:
       audio_playback: false
       request_shape: complete_file_batch_size_one
       latency_clock: resident_invocation_to_final_transcript_return
+      activation_clock: fresh_process_launch_to_complete_first_transcript_pipe_receipt
+      activation_cache_policy: >-
+        locally cached weights after one seed activation; normal system-managed
+        MLX/Metal caches or isolated seeded TorchInductor, Triton, and CUDA JIT caches
       quality_normalization: open-asr-leaderboard-compatible-whisper-english-v1
       prompt_manifest_sha256: 3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063
       evidence_status: provisional_small_panel
@@ -88,6 +92,30 @@ metrics:
     description: Empty normalized transcripts; used as an admission gate, not an axis.
     requirements: *requirements
 
+  asr_repeat_activation_p50:
+    kind: signal
+    signal: asr_repeat_activation_p50_seconds
+    unit: seconds
+    description: >-
+      Median time from a fresh application-process launch until the complete
+      synchronized transcript for one fixed 12.35-second meeting clip reaches
+      the parent process. Weights are already downloaded and one seed activation
+      establishes the declared on-disk/system cache policy.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 10
+      require_source: true
+
+  asr_activation_failure_rate:
+    kind: signal
+    signal: asr_activation_failure_percent
+    unit: percent
+    description: Failed or timed-out repeat activation attempts; used as a gate.
+    requirements:
+      max_age_hours: 8760
+      minimum_samples: 10
+      require_source: true
+
 frontiers:
   asr-responsive-intelligibility:
     workload: local-asr-pilot-v1
@@ -143,5 +171,24 @@ frontiers:
     uncertainty: point
     eligibility: *eligibility
     metadata_fields: *metadata
+
+  asr-restart-intelligibility:
+    workload: local-asr-pilot-v1
+    axes:
+      - metric: asr_corpus_wer
+        goal: minimize
+      - metric: asr_repeat_activation_p50
+        goal: minimize
+    order_by: asr_repeat_activation_p50
+    uncertainty: point
+    eligibility:
+      required_capabilities: [asr]
+      allow_unknown_age: false
+      maximum_gate_values:
+        asr_empty_hypothesis_rate: 0
+        asr_activation_failure_rate: 0
+    metadata_fields:
+      [hardware, artifact, artifact_revision, runtime, activation_runtime_config,
+       quality_scope, activation_scope]
 
 selections: {}
