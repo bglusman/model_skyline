@@ -3,15 +3,19 @@
 This experiment asks the same simple question as the text-model work: **which
 few voice systems are best for a specific two-way tradeoff?**
 
-Across both latency frontiers, the first pilot has one clear model-level
-resident: **Qwen3-TTS**. The patched Nari consumer runtime on the RTX 5060 Ti is
-the fastest exact offering, MLX on the M5 is the middle quality/latency
-tradeoff, and vLLM-Omni on the 5060 has the lowest point-estimate word error
-rate. Those quality differences are not statistically resolved, so they are
-evidence to repeat—not claims that one runtime is more accurate. LoudKit
-remains interesting for portability, footprint, sustained throughput, and
-barge-in behavior. Its M5 offering reaches the batch frontier, but LoudKit is
-not on either quality/latency frontier.
+The matched three-seed panel leaves two exact TTS winners, both serving
+**Qwen3-TTS** on the RTX 5060 Ti. The patched Nari consumer is the interactive
+choice: 57 ms p95 to audible speech and 4.97x real-time generation. vLLM-Omni
+is the measured-intelligibility tradeoff: 9.33% WER versus Nari's 10.04%, but
+roughly half a second slower to speak. Their WER intervals overlap, so this is
+not evidence that one runtime is truly more accurate. These two offerings sit
+on all three measured TTS frontiers.
+
+The M5 MLX path is fast and had slightly lower pooled WER than Nari, but one of
+90 utterances contained a conspicuous repeated-word loop and fails the strict
+zero-warning gate. LoudKit remains interesting for portability, footprint,
+sustained throughput, and barge-in behavior, but token-cap cases at multiple
+seeds keep both LoudKit offerings outside the current strict frontiers.
 
 The speech-recognition side is now measured on both 64 GB Macs and the RTX
 5060 Ti. **Parakeet TDT 0.6B v3** is the sole combined point-estimate resident
@@ -31,9 +35,12 @@ cross-platform whole-service measure.
 
 The runnable TTS definitions are [`frontier.yaml`](frontier.yaml), and the five
 exact TTS offerings are in [`observations.json`](observations.json). The latter
-is generated and cross-checked against the retained raw captures by
-[`build_observations.py`](build_observations.py), so the table below is an
-explanation of an executable frontier rather than a hand-ranked list.
+is generated from the audited three-seed result in
+[`tts-seed-panel-v1-results.json`](raw/tts-seed-panel-v1-results.json). The
+[`aggregate helper`](aggregate_tts_seed_panel.py) verifies every raw hash and
+cross-link before pooling utterances; [`build_observations.py`](build_observations.py)
+then creates the ordinary Skyline catalog. The table below therefore explains
+an executable frontier rather than a hand-ranked list.
 Replayable exact snapshots and the simpler model-first projections are retained
 in [`generated/`](generated/). ASR has its own
 [`definitions`](asr-frontier.yaml) and [`catalog`](asr-observations.json) so
@@ -46,9 +53,9 @@ a stable voice are pass/fail gates, not hidden extra dimensions.
 
 | Frontier | First axis | Second axis | Status |
 |---|---|---|---|
-| TTS responsive | corpus word error rate, lower is better | p95 playback-aware time to first audible audio, lower is better | measured pilot |
-| TTS typical response | corpus word error rate, lower is better | p50 playback-aware time to first audible audio, lower is better | measured pilot |
-| TTS batch | corpus word error rate, lower is better | sustained real-time factor, higher is better | measured pilot |
+| TTS responsive | corpus word error rate, lower is better | p95 playback-aware time to first audible audio, lower is better | measured 90-utterance seed panel |
+| TTS typical response | corpus word error rate, lower is better | p50 playback-aware time to first audible audio, lower is better | measured 90-utterance seed panel |
+| TTS batch | corpus word error rate, lower is better | sustained real-time factor, higher is better | measured 90-utterance seed panel |
 | TTS small resident | corpus word error rate, lower is better | peak whole-service memory, lower is better | defined; awaiting comparable memory captures |
 | STT responsive | corpus word error rate, lower is better | p95 resident complete-file-to-final latency, lower is better | measured 24-utterance pilot |
 | STT typical response | corpus word error rate, lower is better | p50 resident complete-file-to-final latency, lower is better | measured 24-utterance pilot |
@@ -61,11 +68,13 @@ a stable voice are pass/fail gates, not hidden extra dimensions.
 
 The primary latency statistic is p95: a voice interaction is especially
 sensitive to occasional awkward pauses. The p50 frontier remains separate so a
-system with good ordinary latency is not hidden by a tail problem. A candidate
-must also pass declared gates for no truncation, no playback underrun, supported
-language, intelligible output, and stable speaker identity. Long-form speaker
-consistency is not folded into word error rate; it gets its own reproducible
-gate.
+system with good ordinary latency is not hidden by a tail problem. The current
+executable gate rejects any offering with a captured endpoint/synthesis
+failure, empty output, explicit token cap, invalid/suspect latency flag, or
+deterministic completion/repetition warning. Supported language is part of the
+offering identity. Long-form speaker consistency remains a separate diagnostic
+until it has human-calibrated controls, so it is not silently folded into word
+error rate or treated as a frontier gate yet.
 
 The full voice-agent clock is also explicit:
 
@@ -80,41 +89,46 @@ runtime, and network path.
 
 ## First quality-linked local frontier
 
-All rows used the same 30 public service-style prompts, one fixed synthesis
-seed per offering, one unscored warmup, one resident model process, and no
-audio playback. The generated audio was scored by one pinned local
+All rows used the same 30 public service-style prompts at seeds 7, 1234, and
+2026: 90 scored utterances per offering, with one unscored warmup per run and
+no audio playback. The generated audio was scored by one pinned local
 Whisper-large-v3-turbo FP16 instrument using CoVAL normalization version 2 and
 corpus-level WER. Lower WER and audible latency are better; higher real-time
 factor (seconds of audio produced per wall second) is better.
 
-| Exact offering | WER | p50 audible | p95 audible | Median RTF | Result |
-|---|---:|---:|---:|---:|---|
-| Qwen3-TTS 1.7B CustomVoice BF16, patched Nari consumer profile through llama-swap, RTX 5060 Ti 16 GB | 10.04% | **49 ms** | **83 ms** | 4.97x | frontier resident; fastest first audio |
-| Qwen3-TTS 1.7B CustomVoice 6-bit, MLX-Audio 0.5.4, M5 Max 64 GB | 8.11% | **74 ms** | **237 ms** | 5.67x | frontier resident |
-| Qwen3-TTS 1.7B CustomVoice BF16, vLLM-Omni 0.26, RTX 5060 Ti 16 GB | **7.34%** | 587 ms | 633 ms | 4.07x | frontier resident; lowest WER point estimate |
-| LoudKit `loudr-1-turbo`, PyTorch/CUDA, RTX 5060 Ti 16 GB | 13.71% | 499 ms | 600 ms | **14.54x** | excluded: 1/30 cap/suspect case |
-| LoudKit `loudr-1-turbo`, CPU generator/MPS renderer, M5 Max 64 GB | 13.13% | 1,093 ms | 1,639 ms | 6.30x | latency-frontier dominated; batch-frontier resident |
+| Exact offering | WER (descriptive 95% interval) | p50 audible | p95 audible | Median RTF | Automatic failures | Result |
+|---|---:|---:|---:|---:|---:|---|
+| Qwen3-TTS 1.7B BF16, patched Nari consumer through llama-swap, RTX 5060 Ti | 10.04% (6.66–14.06) | **47 ms** | **57 ms** | 4.97x | 0/90 | resident; fastest first audio |
+| Qwen3-TTS 1.7B BF16, vLLM-Omni 0.26, RTX 5060 Ti | **9.33%** (5.66–13.96) | 560 ms | 574 ms | 4.13x | 0/90 | resident; lowest WER point estimate |
+| Qwen3-TTS 1.7B 6-bit, MLX-Audio 0.5.4, M5 Max | 9.65% (6.49–13.53) | 79 ms | 102 ms | 5.43x | 1/90 | excluded: repeated-word loop |
+| LoudKit `loudr-1-turbo`, PyTorch/CUDA, RTX 5060 Ti | 11.52% (6.40–18.62) | 501 ms | 595 ms | **14.40x** | 3/90 | excluded: token caps |
+| LoudKit `loudr-1-turbo`, CPU generator/MPS renderer, M5 Max | 11.33% (6.53–17.67) | 1,082 ms | 1,422 ms | 6.24x | 2/90 | excluded: token caps |
 
-Both latency frontiers contain all three Qwen offerings. Nari reaches audible
-audio first, MLX trades a little latency for a lower WER point estimate, and
-vLLM-Omni trades substantially more latency for the lowest WER point estimate.
-Their model-level projection still contains only Qwen3-TTS because these are
-three implementations of the same model family. Across the 518 normalized
-reference words, Nari made 52 errors, MLX made 42, and vLLM-Omni made 38. The
-descriptive utterance-bootstrap intervals overlap, so the evidence does not
-establish a real quality ordering. All three exact offerings remain rather
-than selecting a winner from one noisy seed.
+All three exact frontiers now contain the same two offerings. Nari is much
+faster on both latency axes and has higher sustained throughput; vLLM-Omni has
+the lower WER point estimate. Neither dominates the other, so both remain for
+responsive, typical-response, and batch use. Across 1,554 normalized reference
+words, Nari made 156 errors and vLLM-Omni made 145. Their descriptive intervals
+overlap substantially, so the evidence does not establish a real accuracy
+ordering.
 
-This is still a pilot, not a finished voice leaderboard. WER is an
+The model-first best-available view contains only Qwen3-TTS because both exact
+winners implement that model family. A balanced-average model view is not
+published here: after the strict failure gate, the catalog does not contain a
+complete common environment panel for two different model families. Inventing
+an average over unmatched runtimes or hardware would imply evidence we do not
+have.
+
+This remains a provisional panel, not a finished voice leaderboard. WER is an
 intelligibility proxy and cannot establish naturalness or speaker identity.
-One synthesis seed is also too little for a stochastic model. The next frozen
-version will use a prompt-by-seed panel and the speaker-consistency gate.
+Three seeds expose meaningful run-to-run variation, but are still too few for
+a stable population estimate. The interval therefore resamples seeds first
+and prompts second and is explicitly descriptive.
 
-The batch frontier still contains three eligible tradeoffs: M5 LoudKit at 6.30x RTF,
-M5 MLX Qwen at 5.67x with lower WER, and CUDA Qwen at 4.07x with the lowest WER
-point estimate. Nari's 4.97x RTF and 10.04% WER are both worse than the M5 MLX
-point, so it is correctly absent from this different frontier. CUDA LoudKit
-supplies the highest raw throughput at 14.54x but fails the no-cap gate.
+The batch result changed materially from the one-seed screen. MLX's 5.43x RTF
+would otherwise be competitive, while CUDA LoudKit is the raw throughput
+leader at 14.40x; both fail the zero-warning gate. Nari and vLLM-Omni remain a
+quality/throughput tradeoff rather than collapsing to one winner.
 Peak-memory numbers are not mixed yet because MLX
 accelerator peaks, process RSS, and multi-process CUDA allocations are
 different measurements. The memory frontier will use one defined whole-service
@@ -123,7 +137,7 @@ measure for every row.
 ### Matched hardware-only controls
 
 The earlier uncontrolled-seed screen remains useful for isolating the two Macs.
-It is not mixed into the fixed-seed quality frontier.
+It is not mixed into the matched-seed quality frontier.
 
 | Exact same artifact/runtime | M5 Max 64 GB | M1 Max 64 GB | M5 advantage |
 |---|---:|---:|---:|
@@ -135,10 +149,9 @@ It is not mixed into the fixed-seed quality frontier.
 The retained raw captures are in [`raw/`](raw/). They retain the model
 identifier (and checkpoint hash where the runtime exposed one), runtime
 version, hardware, settings, individual requests, and public-prompt digest.
-The generated catalog also records the two Qwen repository revisions found in
-the local caches after capture and labels that weaker provenance explicitly;
-the capture helpers now accept immutable revisions so reruns bind them at
-capture time.
+All three Qwen paths now declare their immutable repository revision at capture
+time. The seed-panel result also retains the SHA-256 of every latency, WER,
+pacing, and completion capture, so changing any input makes the replay fail.
 
 ### Pacing screen prompted by the HN discussion
 
@@ -150,15 +163,15 @@ runs inside that span.
 
 | Exact offering | Corpus words/min | Utterance p50 | Utterance p95 | Median internal-pause share |
 |---|---:|---:|---:|---:|
-| Qwen3-TTS 1.7B BF16, Nari/5060 | 111.4 | 116.3 | 162.9 | 18.4% |
-| Qwen3-TTS 1.7B 6-bit, MLX/M5 | 94.6 | 103.8 | 141.4 | 17.7% |
-| Qwen3-TTS 1.7B BF16, vLLM-Omni/5060 | 119.3 | 127.6 | 172.4 | 15.3% |
-| LoudKit turbo, M5 | 160.9 | 169.8 | 243.9 | 10.2% |
-| LoudKit turbo, 5060 | 160.1 | 169.7 | 241.9 | 10.0% |
+| Qwen3-TTS 1.7B BF16, Nari/5060 | 113.8 | 119.6 | 165.2 | 15.8% |
+| Qwen3-TTS 1.7B 6-bit, MLX/M5 | 100.9 | 110.3 | 153.7 | 16.5% |
+| Qwen3-TTS 1.7B BF16, vLLM-Omni/5060 | 113.4 | 118.6 | 171.8 | 13.6% |
+| LoudKit turbo, M5 | 161.0 | 171.1 | 261.8 | 10.8% |
+| LoudKit turbo, 5060 | 161.0 | 171.0 | 261.8 | 10.8% |
 
 This does not turn “natural pacing” into a score. It shows that the three local
 Qwen runtimes produced materially different durations despite the same prompt
-panel, model family, voice, and requested seed, while LoudKit had a much faster
+panel, model family, voice, and requested seeds, while LoudKit had a much faster
 tail. A matched set of human recordings is needed before declaring an
 acceptable range or adding a gate. The energy-based pause proxy also is not yet
 aligned to the prompt's punctuation.
@@ -197,10 +210,13 @@ why completion, repetition, pacing, and speaker stability need separate gates.
 The deterministic [`score_tts_completion.py`](score_tts_completion.py) replay
 flags that case because its ASR hypothesis ends in eight identical punctuation
 tokens while the reference has one. It also looks for adjacent one-to-eight
-word loops. These are ASR-derived warnings, not proof of an acoustic defect,
-and are not frontier gates yet.
-The short-panel LoudKit/CUDA cap did not recur here, but three successful long
-passages do not erase the retained 1/30 short-panel failure.
+word loops. These are ASR-derived warnings, not proof of an acoustic defect.
+The short matched panel's deterministic warnings are a conservative frontier
+gate; the separate long-form result remains diagnostic and does not contribute
+an observation to that gate.
+The short panel hit a LoudKit token cap at all three CUDA seeds and at two of
+three M5 seeds. Its absence from three long passages does not erase those
+retained failures.
 
 ## What the matched Macs tell us
 
@@ -235,9 +251,10 @@ arrival plus the leading-silence duration—reported a 140 ms median. Mapping
 each sample to the time it could actually play reported 506 ms, and 28 of 30
 prompts had a pre-audible stall.
 
-The capture therefore retains both numbers. The later fixed-seed pass used the
-guarded bootstrap suppression: it did not report the silent first frame as
-deliverable audio and measured 587 ms median without a hidden underrun.
+The capture therefore retains both numbers. The later matched-seed passes used
+the guarded bootstrap suppression: it did not report the silent first frame as
+deliverable audio. The seed-1234 pass measured 587 ms median without a hidden
+underrun; the pooled three-seed result is 560 ms.
 
 - **CoVAL-compatible TTFA** preserves comparison with the published formula;
 - **playback-aware TTFA** pauses the audio clock on underrun and is the axis
@@ -298,8 +315,8 @@ This is an experimental local patch, not an upstream Nari release.
 
 That path worked unusually well for an interactive voice agent. It used 6,586
 MiB of resident CUDA allocation after startup, produced byte-identical audio
-through direct and llama-swap endpoints, and delivered the 30-prompt panel at
-49 ms median and 83 ms p95 first audible audio. A text-model → Nari → unload
+through direct and llama-swap endpoints, and delivered the pooled panel at
+47 ms median and 57 ms p95 first audible audio. A text-model → Nari → unload
 switch test left one runner and one lock holder at each step. The 6,586 MiB
 number is a resident observation, not yet the cross-runtime peak-memory
 measurement required by the memory frontier.
@@ -324,8 +341,8 @@ is fast in sustained CUDA generation. Its current Python streaming surface
 yields complete synthesis windows, so short-prompt first audio arrives much
 later than Qwen's codec-frame stream. On the present evidence it is a strong
 footprint, portability, batch, and barge-in candidate—not the local TTFA
-winner. The single CUDA token-cap case must be understood before it can pass a
-strict agent-voice gate.
+winner. The CUDA path hit one token cap in every seed run, and that recurring
+failure must be understood before it can pass a strict agent-voice gate.
 
 ## Practical deployment recommendation
 
@@ -355,6 +372,10 @@ The prompt file is an exact Apache-2.0 copy of CoVAL `tts-v1` 1.2.0 at commit
 `c9786d181776ba393e85718e26e6b9f67fe19f7c`; its SHA-256 is
 `e30909112f5fd886157008ca960c00d4f68f29de69b29d5913a5bf3383ad71ec`.
 Each helper buffers output and does not play audio.
+Run each synthesis command once with each of the matched seeds `7`, `1234`,
+and `2026`, using a different output file and WAV directory for every seed.
+Keep every other offering setting byte-for-byte stable and run only one model
+runner per accelerator at a time.
 
 MLX/Qwen:
 
@@ -393,6 +414,16 @@ python examples/voice-runtime-frontiers/bench_openai_tts.py \
   --output result.json
 ```
 
+For vLLM-Omni 0.26, start the Qwen server in Omni mode; without `--omni` the
+CLI selects base vLLM's incompatible single-model path:
+
+```console
+VLLM_USE_FLASHINFER_SAMPLER=0 vllm-omni serve \
+  Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice --omni \
+  --revision 0c0e3051f131929182e2c023b9537f8b1c68adfe \
+  --max-model-len 2048 --port 8091
+```
+
 Strict Nari servers omit `stream_format` and explicitly request streaming
 generation with `--stream-format omit --no-non-streaming-mode`. When the real
 router address is private, `--endpoint-label` records a public-safe label while
@@ -423,9 +454,12 @@ python examples/voice-runtime-frontiers/score_tts_speaker_drift.py \
   --output result-long-diarization.json
 
 python examples/voice-runtime-frontiers/score_tts_completion.py \
-  --wer-capture result-long-wer.json \
-  --output result-long-completion.json
+  --wer-capture result-wer.json \
+  --output result-completion.json
 
+python examples/voice-runtime-frontiers/aggregate_tts_seed_panel.py \
+  --panel examples/voice-runtime-frontiers/tts-seed-panel.json \
+  --output examples/voice-runtime-frontiers/raw/tts-seed-panel-v1-results.json
 python examples/voice-runtime-frontiers/build_observations.py
 modelskyline validate \
   examples/voice-runtime-frontiers/frontier.yaml \
@@ -441,9 +475,8 @@ measurements, and transcriptions without adding unexpected audio playback.
 
 ## Next evidence required
 
-1. Repeat stochastic TTS over a frozen prompt-by-seed panel and attach
-   uncertainty intervals rather than treating four word errors as a model
-   difference.
+1. Expand the frozen panel beyond three synthesis seeds and add a paired
+   comparison report; the current bootstrap interval is still provisional.
 2. Add matched human same-speaker and different-speaker controls, then turn the
    preliminary long-form diarization screen into a calibrated admission gate.
 3. Record matched human controls, align pauses to punctuation, and only then

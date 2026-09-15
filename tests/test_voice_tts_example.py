@@ -14,6 +14,7 @@ ROOT = Path(__file__).parents[1]
 BENCHMARK = ROOT / "examples" / "voice-runtime-frontiers" / "bench_openai_tts.py"
 EXAMPLE = ROOT / "examples" / "voice-runtime-frontiers"
 RAW = EXAMPLE / "raw"
+AGGREGATOR = EXAMPLE / "aggregate_tts_seed_panel.py"
 NARI_STEM = "qwen3-tts-1.7b-bf16-nari-router-5060-seed1234"
 ROUTER = ROOT / "examples" / "local-runtime-frontiers" / "inference-vm-router"
 
@@ -130,24 +131,111 @@ def test_nari_router_capture_is_exact_bound_and_on_the_latency_frontiers() -> No
 
     catalog = json.loads((EXAMPLE / "observations.json").read_text(encoding="utf-8"))
     assert len(catalog["offerings"]) == 5
-    nari_id = "self-hosted/qwen3-tts-1.7b-bf16-nari-consumer@rtx5060ti-16gb-vivian-en-seed1234"
+    nari_id = "self-hosted/qwen3-tts-1.7b-bf16-nari-consumer@rtx5060ti-16gb-vivian-en"
     nari = next(item for item in catalog["offerings"] if item["offering"]["offering_id"] == nari_id)
-    assert nari["signals"]["tts_playback_ttfa_p95_ms"]["value"] == "82.865"
-    for frontier_id in ("tts-responsive-intelligibility", "tts-typical-intelligibility"):
+    assert nari["signals"]["tts_playback_ttfa_p95_ms"]["value"] == "57.053"
+    assert nari["signals"]["tts_corpus_wer_percent"]["sample_count"] == 90
+    for frontier_id in (
+        "tts-responsive-intelligibility",
+        "tts-typical-intelligibility",
+        "tts-batch-intelligibility",
+    ):
         snapshot = json.loads(
             (EXAMPLE / "generated" / f"{frontier_id}.json").read_text(encoding="utf-8")
         )
         assert nari_id in [item["offering"]["offering_id"] for item in snapshot["members"]]
-    batch = json.loads(
-        (EXAMPLE / "generated" / "tts-batch-intelligibility.json").read_text(encoding="utf-8")
-    )
-    assert nari_id not in [item["offering"]["offering_id"] for item in batch["members"]]
 
     for path in RAW.glob(f"{NARI_STEM}-*.json"):
         serialized = path.read_text(encoding="utf-8")
         assert "192.168." not in serialized
         assert "/Users/" not in serialized
         assert "/root/" not in serialized
+
+
+def test_tts_seed_panel_replays_raw_hashes_and_pooled_metrics() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(AGGREGATOR),
+            "--panel",
+            str(EXAMPLE / "tts-seed-panel.json"),
+            "--output",
+            str(RAW / "tts-seed-panel-v1-results.json"),
+            "--check",
+        ],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+
+    panel = json.loads((RAW / "tts-seed-panel-v1-results.json").read_text())
+    assert panel["panel"]["seeds"] == [7, 1234, 2026]
+    assert panel["panel"]["samples_per_offering"] == 90
+    offerings = {item["slug"]: item for item in panel["offerings"]}
+    assert set(offerings) == {
+        "qwen3-tts-1.7b-6bit-mlx-m5",
+        "qwen3-tts-1.7b-bf16-vllm-omni-5060",
+        "qwen3-tts-1.7b-bf16-nari-router-5060",
+        "loudr-1-turbo-loudkit-m5",
+        "loudr-1-turbo-loudkit-5060",
+    }
+    assert offerings["qwen3-tts-1.7b-bf16-nari-router-5060"]["summary"] == {
+        "corpus_wer_percentage": 10.03861,
+        "corpus_wer_percentage_lower": 6.662206,
+        "corpus_wer_percentage_upper": 14.061668,
+        "corpus_words_per_minute": 113.777387,
+        "internal_pause_fraction_p50": 0.157659,
+        "invalid_case_count": 0,
+        "invalid_case_percent": 0.0,
+        "playback_ttfa_p50_ms": 47.249,
+        "playback_ttfa_p95_ms": 57.053,
+        "real_time_factor_p50": 4.971,
+        "sample_count": 90,
+        "seed_count": 3,
+        "total_errors": 156,
+        "total_reference_words": 1554,
+        "words_per_minute_p50": 119.556131,
+        "words_per_minute_p95": 165.235437,
+    }
+    assert offerings["qwen3-tts-1.7b-6bit-mlx-m5"]["invalid_cases"] == [
+        {"seed": 7, "testcase_id": "A9"}
+    ]
+    for offering in offerings.values():
+        assert [run["seed"] for run in offering["source_runs"]] == [7, 1234, 2026]
+        for run in offering["source_runs"]:
+            for source in run["sources"].values():
+                source_path = EXAMPLE / source["path"]
+                assert hashlib.sha256(source_path.read_bytes()).hexdigest() == source["sha256"]
+                raw = source_path.read_text(encoding="utf-8")
+                assert "192.168." not in raw
+                assert "/Users/" not in raw
+                assert "/root/" not in raw
+
+
+def test_tts_seed_panel_frontiers_have_two_exact_and_one_model_winner() -> None:
+    expected_exact = {
+        "self-hosted/qwen3-tts-1.7b-bf16-nari-consumer@rtx5060ti-16gb-vivian-en",
+        "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni@rtx5060ti-16gb-vivian-en",
+    }
+    for frontier_id in (
+        "tts-responsive-intelligibility",
+        "tts-typical-intelligibility",
+        "tts-batch-intelligibility",
+    ):
+        snapshot = json.loads(
+            (EXAMPLE / "generated" / f"{frontier_id}.json").read_text(encoding="utf-8")
+        )
+        assert {item["offering"]["offering_id"] for item in snapshot["members"]} == expected_exact
+        assert len(snapshot["rejected"]) == 3
+        view = json.loads(
+            (EXAMPLE / "generated" / f"{frontier_id}-model-view.json").read_text(encoding="utf-8")
+        )
+        assert [item["model_id"] for item in view["best_available"]["members"]] == [
+            "Qwen3-TTS-12Hz-1.7B-CustomVoice"
+        ]
+        assert view["balanced_average"] is None
 
 
 def test_nari_long_form_capture_has_no_deterministic_warning() -> None:
