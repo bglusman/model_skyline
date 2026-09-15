@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import statistics
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -89,6 +90,9 @@ CUDA_MODELS: tuple[dict[str, str], ...] = (
         "model_id": "Qwen3-ASR-0.6B",
         "revision": "7f1569a48a89f3e3f4dc3a5c9d28bddd903bc76c",
         "quantization": "bf16",
+        "activation_filename": (
+            "qwen3-asr-06b-bf16-transformers-compile-dynamic-5060-asr-activation-v1.json"
+        ),
     },
     {
         "slug": "qwen3-asr-17b-bf16-compile-dynamic",
@@ -99,6 +103,9 @@ CUDA_MODELS: tuple[dict[str, str], ...] = (
         "model_id": "Qwen3-ASR-1.7B",
         "revision": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
         "quantization": "bf16",
+        "activation_filename": (
+            "qwen3-asr-17b-bf16-transformers-compile-dynamic-5060-asr-activation-v1.json"
+        ),
     },
     {
         "slug": "parakeet-tdt-06b-v3-bf16-compile-static16",
@@ -110,6 +117,9 @@ CUDA_MODELS: tuple[dict[str, str], ...] = (
         "model_id": "parakeet-tdt-0.6b-v3",
         "revision": "541d1f99c6b0c3cd0b11a95167540bb8edefd82b",
         "quantization": "bf16",
+        "activation_filename": (
+            "parakeet-tdt-06b-v3-bf16-transformers-compile-static16-5060-asr-activation-v1.json"
+        ),
     },
 )
 
@@ -191,19 +201,155 @@ def _source(
     }
 
 
+def _activation_source(
+    slug: str,
+    machine: str,
+    path: Path,
+    capture: dict[str, Any],
+) -> dict[str, Any]:
+    methodology = capture["methodology"]
+    return {
+        "id": f"local-asr-activation-{slug}-{machine}",
+        "version": "1",
+        "methodology": (
+            f"{capture['summary']['attempt_count']} fresh-process activation attempts after "
+            f"{methodology['seed_runs']} seed activation(s); locally cached weights; "
+            f"compiler cache policy {methodology['compiler_cache']}; parent clock stops "
+            "after receiving the synchronized first transcript over a dedicated pipe."
+        ),
+        "raw_sha256": _sha256(path),
+    }
+
+
+def _validate_activation_capture(
+    path: Path,
+    capture: dict[str, Any],
+    *,
+    runtime_kind: str,
+) -> None:
+    summary = capture["summary"]
+    measurements = capture["measurements"]
+    failures = capture["failures"]
+    attempts = int(summary["attempt_count"])
+    if attempts < 10:
+        raise ValueError(f"too few activation attempts in {path.name}")
+    if len(measurements) != int(summary["sample_count"]):
+        raise ValueError(f"activation success count does not match {path.name}")
+    if len(failures) != int(summary["failure_count"]):
+        raise ValueError(f"activation failure count does not match {path.name}")
+    if len(measurements) + len(failures) != attempts:
+        raise ValueError(f"activation attempt count does not match {path.name}")
+    public_failure_reasons = {
+        "activation_timeout",
+        "gpu_idle_check_failed",
+        "child_process_failed",
+    }
+    if any(
+        set(failure) != {"run", "error_type", "public_reason"}
+        or failure["public_reason"] not in public_failure_reasons
+        for failure in failures
+    ):
+        raise ValueError(f"activation failure details are not public-safe in {path.name}")
+    expected_failure_percent = round(len(failures) / attempts * 100.0, 6)
+    if float(summary["failure_percent"]) != expected_failure_percent:
+        raise ValueError(f"activation failure rate does not match {path.name}")
+    launch_times = [float(item["launch_to_first_transcript_seconds"]) for item in measurements]
+    if any(value <= 0 for value in launch_times):
+        raise ValueError(f"activation time is not positive in {path.name}")
+    if round(statistics.median(launch_times), 6) != float(
+        summary["launch_to_first_transcript_p50_seconds"]
+    ):
+        raise ValueError(f"activation median does not match {path.name}")
+    variants = {str(item["normalized_hypothesis"]) for item in measurements}
+    if len(variants) != int(summary["transcript_variants"]):
+        raise ValueError(f"activation transcript variants do not match {path.name}")
+
+    manifest = _load(MANIFEST)
+    fixed_probe = manifest["items"][0]
+    for measurement in measurements:
+        if measurement["testcase_id"] != fixed_probe["testcase_id"]:
+            raise ValueError(f"activation testcase does not match {path.name}")
+        if measurement["audio_sha256"] != fixed_probe["audio_sha256"]:
+            raise ValueError(f"activation audio does not match {path.name}")
+
+    methodology = capture["methodology"]
+    expected_cache = "system-default" if runtime_kind == "mlx" else "seeded-isolated"
+    if methodology["compiler_cache"] != expected_cache:
+        raise ValueError(f"unexpected activation cache policy in {path.name}")
+    if methodology.get("require_idle_nvidia") is not (runtime_kind != "mlx"):
+        raise ValueError(f"unexpected activation GPU-idle policy in {path.name}")
+    if (
+        methodology["seed_runs"] != 1
+        or len(capture["seed_launch_to_first_transcript_seconds"]) != 1
+    ):
+        raise ValueError(f"activation seed count does not match {path.name}")
+    if capture["offering"].get("panel_sample_count") != SAMPLE_COUNT:
+        raise ValueError(f"activation panel count does not match {path.name}")
+
+    harness = capture["harness"]
+    if harness.get("wrapper_version") != "1":
+        raise ValueError(f"unexpected activation wrapper version in {path.name}")
+    if harness.get("wrapper_sha256") != _sha256(HERE / harness["wrapper"]):
+        raise ValueError(f"stale activation wrapper binding in {path.name}")
+    if harness.get("child_script_sha256") != _sha256(HERE / harness["child_script"]):
+        raise ValueError(f"stale activation child binding in {path.name}")
+    if not str(harness.get("python_version", "")).startswith("Python 3."):
+        raise ValueError(f"missing activation Python version in {path.name}")
+    if "/" in str(harness.get("python", "")):
+        raise ValueError(f"activation Python path was not normalized in {path.name}")
+    expected_backend = "mlx" if runtime_kind == "mlx" else "transformers"
+    if harness.get("backend") != expected_backend:
+        raise ValueError(f"activation backend does not match {path.name}")
+    arguments = harness.get("benchmark_arguments")
+    if not isinstance(arguments, list):
+        raise ValueError(f"missing activation arguments in {path.name}")
+    if len(arguments) % 2 or any(
+        not str(arguments[index]).startswith("--") for index in range(0, len(arguments), 2)
+    ):
+        raise ValueError(f"activation arguments are not normalized pairs in {path.name}")
+    argument_map = dict(zip(arguments[::2], arguments[1::2], strict=True))
+    if len(argument_map) != len(arguments) // 2:
+        raise ValueError(f"activation arguments contain duplicates in {path.name}")
+    offering = capture["offering"]
+    expected_arguments: dict[str, Any] = {
+        "--model": offering["model"],
+        "--model-revision": offering["requested_revision"],
+        "--audio-dir": "<audio-dir>",
+        "--prompt-manifest": "<prompt-manifest>",
+        "--language": offering["requested_language"],
+        "--max-tokens": offering["max_tokens"],
+    }
+    if runtime_kind != "mlx":
+        expected_arguments.update(
+            {
+                "--family": offering["family"],
+                "--dtype": offering["dtype"],
+                "--optimization": offering["optimization"],
+                "--warmup-runs": offering["warmup_runs"],
+            }
+        )
+        if offering["static_audio_seconds"] is not None:
+            expected_arguments["--static-audio-seconds"] = format(
+                float(offering["static_audio_seconds"]), "g"
+            )
+    if {key: str(value) for key, value in expected_arguments.items()} != argument_map:
+        raise ValueError(f"activation arguments do not match offering identity in {path.name}")
+
+
 def _observation(
     value: Any,
     unit: str,
     observed_at: str,
     source: dict[str, Any],
     *,
+    sample_count: int = SAMPLE_COUNT,
     lower: Any | None = None,
     upper: Any | None = None,
 ) -> dict[str, Any]:
     result: dict[str, Any] = {
         "value": _decimal(value),
         "unit": unit,
-        "sample_count": SAMPLE_COUNT,
+        "sample_count": sample_count,
         "observed_at": observed_at,
         "source": source,
     }
@@ -242,9 +388,16 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
         f"{spec['slug']}-mlx-{machine_spec['capture_token']}-local-asr-pilot-v1.json"
     )
     capture_path = RAW / filename
+    activation_filename = spec.get("activation_filename") or (
+        f"{spec['slug']}-{machine_spec['runtime_slug']}-{machine_spec['capture_token']}"
+        "-asr-activation-v1.json"
+    )
+    activation_path = RAW / activation_filename
     bootstrap_path = RAW / machine_spec["bootstrap"]
     capture = _load(capture_path)
+    activation = _load(activation_path)
     bootstrap = _load(bootstrap_path)
+    manifest = _load(MANIFEST)
     manifest_sha = _sha256(MANIFEST)
 
     if capture.get("schema") != "model-skyline/experimental-local-asr-capture/v1alpha1":
@@ -253,6 +406,8 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
         raise ValueError(f"unexpected manifest in {capture_path.name}")
     if capture["summary"]["sample_count"] != SAMPLE_COUNT:
         raise ValueError(f"unexpected sample count in {capture_path.name}")
+    if activation.get("schema") != ("model-skyline/experimental-asr-activation-capture/v1alpha1"):
+        raise ValueError(f"unsupported activation capture schema in {activation_path.name}")
     exact = capture["offering"]
     if exact["model"] != spec["artifact"]:
         raise ValueError(f"unexpected model in {capture_path.name}")
@@ -263,6 +418,39 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
         capture_hardware = capture_hardware.get("name")
     if capture_hardware != machine_spec["capture_name"]:
         raise ValueError(f"unexpected hardware in {capture_path.name}")
+    activation_exact = activation["offering"]
+    activation_hardware = activation_exact["hardware"]
+    if isinstance(activation_hardware, dict):
+        activation_hardware = activation_hardware.get("name")
+    if activation_exact["model"] != exact["model"]:
+        raise ValueError(f"activation model does not match {capture_path.name}")
+    if activation_exact["resolved_revision"] != exact["resolved_revision"]:
+        raise ValueError(f"activation revision does not match {capture_path.name}")
+    if activation_hardware != capture_hardware:
+        raise ValueError(f"activation hardware does not match {capture_path.name}")
+    if activation_exact.get("optimization", "baseline") != exact.get("optimization", "baseline"):
+        raise ValueError(f"activation optimization does not match {capture_path.name}")
+    if activation_exact.get("static_audio_seconds") != exact.get("static_audio_seconds"):
+        raise ValueError(f"activation static shape does not match {capture_path.name}")
+    if activation_exact["max_tokens"] != exact["max_tokens"]:
+        raise ValueError(f"activation token limit does not match {capture_path.name}")
+    if machine_spec["runtime_kind"] != "mlx" and activation_exact["runtime"] != exact["runtime"]:
+        raise ValueError(f"activation runtime does not match {capture_path.name}")
+    for package in ("mlx_audio", "mlx", "transformers", "torch", "cuda"):
+        if package in exact and activation_exact.get(package) != exact[package]:
+            raise ValueError(f"activation {package} version does not match {capture_path.name}")
+    if activation_exact["manifest_sha256"] != manifest_sha:
+        raise ValueError(f"unexpected activation manifest in {activation_path.name}")
+    _validate_activation_capture(
+        activation_path,
+        activation,
+        runtime_kind=machine_spec["runtime_kind"],
+    )
+    resident_first = capture["measurements"][0]["normalized_hypothesis"]
+    activation_first = {item["normalized_hypothesis"] for item in activation["measurements"]}
+    if activation_first != {resident_first}:
+        raise ValueError(f"activation transcript does not match {capture_path.name}")
+    activation_summary = activation["summary"]
     interval = _bootstrap_entry(bootstrap, capture)
     if interval["capture_sha256"] != _sha256(capture_path):
         raise ValueError(f"stale bootstrap binding for {capture_path.name}")
@@ -271,6 +459,7 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
     summary = capture["summary"]
     confidence = interval["interval_95"]
     source = _source(spec["slug"], machine, capture_path, machine_spec, capture)
+    activation_source = _activation_source(spec["slug"], machine, activation_path, activation)
     empty_percent = Decimal(summary["empty_hypothesis_count"]) * Decimal(100)
     empty_percent /= Decimal(SAMPLE_COUNT)
     offering_id = (
@@ -297,6 +486,14 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
             f"static_audio_seconds={exact.get('static_audio_seconds')}; "
             f"warmup_runs={exact.get('warmup_runs', 1)}"
         )
+    activation_runtime_config = (
+        "fresh_process=true; per_process_warmup_runs=0; "
+        f"seed_runs={activation['methodology']['seed_runs']}; "
+        f"compiler_cache={activation['methodology']['compiler_cache']}; "
+        f"timeout_seconds={activation['methodology']['timeout_seconds']}; "
+        f"fixed_probe={activation['measurements'][0]['testcase_id']}; "
+        f"audio_seconds={manifest['items'][0]['audio_seconds']}"
+    )
     signals = {
         "asr_corpus_wer_percent": _observation(
             summary["corpus_wer_percentage"],
@@ -326,6 +523,20 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
             summary["real_time_factor_corpus"], "ratio", observed_at, source
         ),
         "asr_empty_hypothesis_percent": _observation(empty_percent, "percent", observed_at, source),
+        "asr_repeat_activation_p50_seconds": _observation(
+            activation_summary["launch_to_first_transcript_p50_seconds"],
+            "seconds",
+            activation["captured_at"],
+            activation_source,
+            sample_count=activation_summary["sample_count"],
+        ),
+        "asr_activation_failure_percent": _observation(
+            activation_summary["failure_percent"],
+            "percent",
+            activation["captured_at"],
+            activation_source,
+            sample_count=activation_summary["attempt_count"],
+        ),
     }
     if machine_spec["memory_comparable"]:
         signals["asr_process_rss_peak_mb"] = _observation(
@@ -348,6 +559,7 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
             "artifact_revision": exact["resolved_revision"],
             "runtime": runtime,
             "runtime_config": runtime_config,
+            "activation_runtime_config": activation_runtime_config,
             "quality_scope": (
                 "24-utterance English pilot across meeting, financial-call, "
                 "difficult audiobook, and non-US political speech"
@@ -357,6 +569,14 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
                 "excludes end-of-turn detection and live-stream capture"
             ),
             "capture": f"raw/{filename}",
+            "activation_capture": f"raw/{activation_filename}",
+            "activation_capture_sha256": _sha256(activation_path),
+            "activation_scope": (
+                "repeat application-cold launch with already-downloaded weights and "
+                "one fixed 12.35-second meeting clip; includes Python/runtime imports, "
+                "device initialization, model load, and first synchronized inference; "
+                "excludes download, WER scoring, JSON writing, and process teardown"
+            ),
             "bootstrap": f"raw/{machine_spec['bootstrap']}",
             "bootstrap_sha256": _sha256(bootstrap_path),
             "manifest_sha256": manifest_sha,

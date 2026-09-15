@@ -13,6 +13,7 @@ FRONTIERS = (
     "asr-typical-intelligibility",
     "asr-batch-intelligibility",
     "asr-small-resident",
+    "asr-restart-intelligibility",
 )
 ENVIRONMENTS = {
     "Apple M1 Max 64 GB": {
@@ -38,6 +39,17 @@ PREFERRED_OFFERINGS = {
     ),
     ("parakeet-tdt-0.6b-v3", "rtx5060ti-16gb"): (
         "self-hosted/parakeet-tdt-06b-v3-bf16-compile-static16-transformers@rtx5060ti-16gb-en"
+    ),
+}
+RESTART_PREFERRED_OFFERINGS = {
+    ("Qwen3-ASR-0.6B", "rtx5060ti-16gb"): (
+        "self-hosted/qwen3-asr-06b-bf16-transformers@rtx5060ti-16gb-en"
+    ),
+    ("Qwen3-ASR-1.7B", "rtx5060ti-16gb"): (
+        "self-hosted/qwen3-asr-17b-bf16-transformers@rtx5060ti-16gb-en"
+    ),
+    ("parakeet-tdt-0.6b-v3", "rtx5060ti-16gb"): (
+        "self-hosted/parakeet-tdt-06b-v3-bf16-transformers@rtx5060ti-16gb-en"
     ),
 }
 
@@ -70,7 +82,12 @@ def _render(snapshot_path: Path) -> str:
         if previous is None:
             model_offerings[environment] = offering_id
             continue
-        preferred = PREFERRED_OFFERINGS.get((model, environment))
+        preferences = (
+            RESTART_PREFERRED_OFFERINGS
+            if frontier_id == "asr-restart-intelligibility"
+            else PREFERRED_OFFERINGS
+        )
+        preferred = preferences.get((model, environment))
         if preferred is None or preferred not in {previous, offering_id}:
             raise ValueError(
                 f"multiple {model} offerings for {environment} without an explicit preference"

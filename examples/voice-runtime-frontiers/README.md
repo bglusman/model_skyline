@@ -19,8 +19,11 @@ an encoder-compiled Parakeet profile dominates every baseline and optimized
 candidate on those point estimates. The Mac small-resident frontier keeps
 Parakeet and **Qwen3-ASR 0.6B 8-bit**. See the concise
 [`local ASR report`](ASR.md) for definitions, exact points, uncertainty, and
-the controlled M1/M5 comparison. CUDA memory is withheld from that frontier
-until the experiment has one cross-platform whole-service measure.
+the controlled M1/M5 comparison. The additional restart frontier measures a
+fresh process through its first complete transcript: it keeps four tradeoffs
+on the 5060 because compilation helps resident requests but hurts activation.
+CUDA memory is withheld from the memory frontier until the experiment has one
+cross-platform whole-service measure.
 
 The runnable TTS definitions are [`frontier.yaml`](frontier.yaml), and the four
 exact TTS offerings are in [`observations.json`](observations.json). The latter
@@ -47,6 +50,7 @@ a stable voice are pass/fail gates, not hidden extra dimensions.
 | STT typical response | corpus word error rate, lower is better | p50 resident complete-file-to-final latency, lower is better | measured 24-utterance pilot |
 | STT batch | corpus word error rate, lower is better | corpus real-time factor, higher is better | measured 24-utterance pilot |
 | STT small resident | corpus word error rate, lower is better | peak in-process RSS, lower is better | measured for comparable MLX offerings |
+| STT restart | corpus word error rate, lower is better | median fresh-process launch to first complete transcript, lower is better | measured over ten restarts per offering |
 | Voice agent | deterministic task success, higher is better | p95 time from user stop to first audible response, lower is better | defined; not yet measured here |
 | Voice agent cost | deterministic task success, higher is better | marginal cost per completed session, lower is better | defined; not yet measured here |
 

@@ -27,9 +27,13 @@
         "artifact_revision": "89e96d92ba34aca20b3e29fb10cc284097d1219f",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
         "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='English'",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/qwen3-asr-06b-8bit-mlx-m1-local-asr-pilot-v1.json",
+        "activation_capture": "raw/qwen3-asr-06b-8bit-mlx-m1-asr-activation-v1.json",
+        "activation_capture_sha256": "608523d32149ce91d62e591fdac8008f2b72ac934720e7872eeb19c9f592fbfc",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/m1-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "d6c6f24003afe5ace874ca42fa5cb8ffa9ad3f1b1ac122b46925c5ab426caa73",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -102,6 +106,30 @@
             "raw_sha256": "a53ddede1ca53c54eeed2b5bb9c240119c5feebc5c34e26b5447d13feb3e8f71"
           }
         },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "1.440411",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:04:39Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-06b-8bit-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "608523d32149ce91d62e591fdac8008f2b72ac934720e7872eeb19c9f592fbfc"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:04:39Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-06b-8bit-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "608523d32149ce91d62e591fdac8008f2b72ac934720e7872eeb19c9f592fbfc"
+          }
+        },
         "asr_process_rss_peak_mb": {
           "value": "1153.5625",
           "unit": "megabytes",
@@ -137,9 +165,13 @@
         "artifact_revision": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
         "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='English'",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/qwen3-asr-17b-8bit-mlx-m1-local-asr-pilot-v1.json",
+        "activation_capture": "raw/qwen3-asr-17b-8bit-mlx-m1-asr-activation-v1.json",
+        "activation_capture_sha256": "2d0997e1a090aee19d8a0671c03f79cde744d3e1a44b61453b1d9bdeb46b6562",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/m1-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "d6c6f24003afe5ace874ca42fa5cb8ffa9ad3f1b1ac122b46925c5ab426caa73",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -212,6 +244,30 @@
             "raw_sha256": "6890b5b927b123061c7cb6de52aab8329a8af9dc9e16ab298b45935892df66c3"
           }
         },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "1.6921",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:05:00Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-17b-8bit-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "2d0997e1a090aee19d8a0671c03f79cde744d3e1a44b61453b1d9bdeb46b6562"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:05:00Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-17b-8bit-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "2d0997e1a090aee19d8a0671c03f79cde744d3e1a44b61453b1d9bdeb46b6562"
+          }
+        },
         "asr_process_rss_peak_mb": {
           "value": "2543.0",
           "unit": "megabytes",
@@ -247,9 +303,13 @@
         "artifact_revision": "624c19c9af5603fa73b83bce14d4aeea96156d18",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
         "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='en'",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/whisper-large-v3-turbo-fp16-mlx-m1-local-asr-pilot-v1.json",
+        "activation_capture": "raw/whisper-large-v3-turbo-fp16-mlx-m1-asr-activation-v1.json",
+        "activation_capture_sha256": "cbdc124f0528e57711641d59ef511a0b4f5809dcb2990d8361aebe49b64ef948",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/m1-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "d6c6f24003afe5ace874ca42fa5cb8ffa9ad3f1b1ac122b46925c5ab426caa73",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -322,6 +382,30 @@
             "raw_sha256": "e3ddf4e959565c44393ebcb0e9b19eba6efc71c8a36d0527ba8e374cadd05673"
           }
         },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "1.594297",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:05:19Z",
+          "source": {
+            "id": "local-asr-activation-whisper-large-v3-turbo-fp16-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "cbdc124f0528e57711641d59ef511a0b4f5809dcb2990d8361aebe49b64ef948"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:05:19Z",
+          "source": {
+            "id": "local-asr-activation-whisper-large-v3-turbo-fp16-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "cbdc124f0528e57711641d59ef511a0b4f5809dcb2990d8361aebe49b64ef948"
+          }
+        },
         "asr_process_rss_peak_mb": {
           "value": "1695.984375",
           "unit": "megabytes",
@@ -357,9 +441,13 @@
         "artifact_revision": "ed2b7e8c15f9aaa0b5772e2efb986255eaef7e15",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
         "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument=None",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/parakeet-tdt-06b-v3-fp16-mlx-m1-local-asr-pilot-v1.json",
+        "activation_capture": "raw/parakeet-tdt-06b-v3-fp16-mlx-m1-asr-activation-v1.json",
+        "activation_capture_sha256": "c6fc43f273d1a02b0352b3790416fa1916ddd647ead9eb0fa7ef0d4b186d38cf",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/m1-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "d6c6f24003afe5ace874ca42fa5cb8ffa9ad3f1b1ac122b46925c5ab426caa73",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -432,6 +520,30 @@
             "raw_sha256": "1636c2c80c4de185087209291db0383e8b30ea38d8feb48a8a1f48bd7086294f"
           }
         },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "1.231917",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:04:22Z",
+          "source": {
+            "id": "local-asr-activation-parakeet-tdt-06b-v3-fp16-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "c6fc43f273d1a02b0352b3790416fa1916ddd647ead9eb0fa7ef0d4b186d38cf"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:04:22Z",
+          "source": {
+            "id": "local-asr-activation-parakeet-tdt-06b-v3-fp16-m1",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "c6fc43f273d1a02b0352b3790416fa1916ddd647ead9eb0fa7ef0d4b186d38cf"
+          }
+        },
         "asr_process_rss_peak_mb": {
           "value": "2519.75",
           "unit": "megabytes",
@@ -467,9 +579,13 @@
         "artifact_revision": "89e96d92ba34aca20b3e29fb10cc284097d1219f",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
         "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='English'",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/qwen3-asr-06b-8bit-mlx-m5-local-asr-pilot-v1.json",
+        "activation_capture": "raw/qwen3-asr-06b-8bit-mlx-m5-asr-activation-v1.json",
+        "activation_capture_sha256": "47e24836a8748ba07db95756c87c7137899beb125c59abcbbfd706324fcd8b1c",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/m5-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "b24031012728a65ff6e51a9ef0228b0fcb332a32af37e1de651e8049d02512f3",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -542,6 +658,30 @@
             "raw_sha256": "ffadb764e87dc2944d01e9b7d5a0d7db4e89cc567ef4a21eed314385f11b5a19"
           }
         },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "0.880048",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:04:43Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-06b-8bit-m5",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "47e24836a8748ba07db95756c87c7137899beb125c59abcbbfd706324fcd8b1c"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:04:43Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-06b-8bit-m5",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "47e24836a8748ba07db95756c87c7137899beb125c59abcbbfd706324fcd8b1c"
+          }
+        },
         "asr_process_rss_peak_mb": {
           "value": "1152.453125",
           "unit": "megabytes",
@@ -577,9 +717,13 @@
         "artifact_revision": "a8379a2e2f9e313c9292cdf1af4055ab56d50d55",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
         "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='English'",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/qwen3-asr-17b-8bit-mlx-m5-local-asr-pilot-v1.json",
+        "activation_capture": "raw/qwen3-asr-17b-8bit-mlx-m5-asr-activation-v1.json",
+        "activation_capture_sha256": "7f722265d2586d6817a53ffd85c1cd7a280e4741c1546374f862fa0061cda0e2",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/m5-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "b24031012728a65ff6e51a9ef0228b0fcb332a32af37e1de651e8049d02512f3",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -652,6 +796,30 @@
             "raw_sha256": "c823570bf7e5dfd08a431be77ec25c01b78f9f5a7887e7c3ad5273de928096e9"
           }
         },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "0.989741",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:04:56Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-17b-8bit-m5",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "7f722265d2586d6817a53ffd85c1cd7a280e4741c1546374f862fa0061cda0e2"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:04:56Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-17b-8bit-m5",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "7f722265d2586d6817a53ffd85c1cd7a280e4741c1546374f862fa0061cda0e2"
+          }
+        },
         "asr_process_rss_peak_mb": {
           "value": "2544.234375",
           "unit": "megabytes",
@@ -687,9 +855,13 @@
         "artifact_revision": "624c19c9af5603fa73b83bce14d4aeea96156d18",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
         "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument='en'",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/whisper-large-v3-turbo-fp16-mlx-m5-local-asr-pilot-v1.json",
+        "activation_capture": "raw/whisper-large-v3-turbo-fp16-mlx-m5-asr-activation-v1.json",
+        "activation_capture_sha256": "373b40e1a39a7cf1f12e3e955cd3f99f1889586965ff8067927f0bbb71c82167",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/m5-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "b24031012728a65ff6e51a9ef0228b0fcb332a32af37e1de651e8049d02512f3",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -762,6 +934,30 @@
             "raw_sha256": "eb9f2f886c99f5d604c29a208ced0fc2191aab43718aeb8e8bdcc082e7069350"
           }
         },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "0.882306",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:05:07Z",
+          "source": {
+            "id": "local-asr-activation-whisper-large-v3-turbo-fp16-m5",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "373b40e1a39a7cf1f12e3e955cd3f99f1889586965ff8067927f0bbb71c82167"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:05:07Z",
+          "source": {
+            "id": "local-asr-activation-whisper-large-v3-turbo-fp16-m5",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "373b40e1a39a7cf1f12e3e955cd3f99f1889586965ff8067927f0bbb71c82167"
+          }
+        },
         "asr_process_rss_peak_mb": {
           "value": "1702.453125",
           "unit": "megabytes",
@@ -797,9 +993,13 @@
         "artifact_revision": "ed2b7e8c15f9aaa0b5772e2efb986255eaef7e15",
         "runtime": "MLX-Audio 0.5.4 / MLX 0.32.2",
         "runtime_config": "batch_size=1; max_tokens=512; requested_language=English; language_argument=None",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=system-default; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/parakeet-tdt-06b-v3-fp16-mlx-m5-local-asr-pilot-v1.json",
+        "activation_capture": "raw/parakeet-tdt-06b-v3-fp16-mlx-m5-asr-activation-v1.json",
+        "activation_capture_sha256": "c822981a47d387b3ff173e8c433735bc344254702ad3b3b091e3fd4156854714",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/m5-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "b24031012728a65ff6e51a9ef0228b0fcb332a32af37e1de651e8049d02512f3",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -872,6 +1072,30 @@
             "raw_sha256": "748a42b8ab908b5ff0fb458172aa344c5e225bbc26d4c577be2ca7840b70af61"
           }
         },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "0.764509",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:04:32Z",
+          "source": {
+            "id": "local-asr-activation-parakeet-tdt-06b-v3-fp16-m5",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "c822981a47d387b3ff173e8c433735bc344254702ad3b3b091e3fd4156854714"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:04:32Z",
+          "source": {
+            "id": "local-asr-activation-parakeet-tdt-06b-v3-fp16-m5",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "c822981a47d387b3ff173e8c433735bc344254702ad3b3b091e3fd4156854714"
+          }
+        },
         "asr_process_rss_peak_mb": {
           "value": "2523.9375",
           "unit": "megabytes",
@@ -907,9 +1131,13 @@
         "artifact_revision": "7f1569a48a89f3e3f4dc3a5c9d28bddd903bc76c",
         "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
         "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='English'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=baseline; static_audio_seconds=None; warmup_runs=1",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=seeded-isolated; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/qwen3-asr-06b-bf16-transformers-5060-local-asr-pilot-v1.json",
+        "activation_capture": "raw/qwen3-asr-06b-bf16-transformers-5060-asr-activation-v1.json",
+        "activation_capture_sha256": "5c7b7c946df5927971396c9fdbb8f2cfbf304f10bb6f117d3472e536e4dfd128",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -981,6 +1209,30 @@
             "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
             "raw_sha256": "a93fafbf681023b2fb07e2d7cb630d7158957731d27909eab5faced525f39fe2"
           }
+        },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "4.179811",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:05:01Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-06b-bf16-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "5c7b7c946df5927971396c9fdbb8f2cfbf304f10bb6f117d3472e536e4dfd128"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:05:01Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-06b-bf16-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "5c7b7c946df5927971396c9fdbb8f2cfbf304f10bb6f117d3472e536e4dfd128"
+          }
         }
       }
     },
@@ -1005,9 +1257,13 @@
         "artifact_revision": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
         "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
         "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='English'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=baseline; static_audio_seconds=None; warmup_runs=1",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=seeded-isolated; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/qwen3-asr-17b-bf16-transformers-5060-local-asr-pilot-v1.json",
+        "activation_capture": "raw/qwen3-asr-17b-bf16-transformers-5060-asr-activation-v1.json",
+        "activation_capture_sha256": "ccc192293e99072a3f8fceaf9f053dffa0fef048764b223342447f0fd2bb73e7",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -1079,6 +1335,30 @@
             "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
             "raw_sha256": "fde120a628a5ec233619a73d6586a6e62097d32f478a590385c5f0278f2eda8d"
           }
+        },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "4.584229",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:06:03Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-17b-bf16-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "ccc192293e99072a3f8fceaf9f053dffa0fef048764b223342447f0fd2bb73e7"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:06:03Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-17b-bf16-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "ccc192293e99072a3f8fceaf9f053dffa0fef048764b223342447f0fd2bb73e7"
+          }
         }
       }
     },
@@ -1103,9 +1383,13 @@
         "artifact_revision": "41f01f3fe87f28c78e2fbf8b568835947dd65ed9",
         "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
         "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=440; language_argument='en'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=baseline; static_audio_seconds=None; warmup_runs=1",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=seeded-isolated; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/whisper-large-v3-turbo-bf16-transformers-5060-local-asr-pilot-v1.json",
+        "activation_capture": "raw/whisper-large-v3-turbo-bf16-transformers-5060-asr-activation-v1.json",
+        "activation_capture_sha256": "99d1bd56d4630c944e2cb7806ec83b1e800184322148268061d3d91cf6dbcac0",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -1177,6 +1461,30 @@
             "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
             "raw_sha256": "e3c6aad15ca561946cebd69a5075b2271c5d9844e46bfb7937a765a3397cde93"
           }
+        },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "3.380649",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:06:49Z",
+          "source": {
+            "id": "local-asr-activation-whisper-large-v3-turbo-bf16-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "99d1bd56d4630c944e2cb7806ec83b1e800184322148268061d3d91cf6dbcac0"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:06:49Z",
+          "source": {
+            "id": "local-asr-activation-whisper-large-v3-turbo-bf16-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "99d1bd56d4630c944e2cb7806ec83b1e800184322148268061d3d91cf6dbcac0"
+          }
         }
       }
     },
@@ -1201,9 +1509,13 @@
         "artifact_revision": "541d1f99c6b0c3cd0b11a95167540bb8edefd82b",
         "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
         "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='en'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=baseline; static_audio_seconds=None; warmup_runs=1",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=seeded-isolated; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/parakeet-tdt-06b-v3-bf16-transformers-5060-local-asr-pilot-v1.json",
+        "activation_capture": "raw/parakeet-tdt-06b-v3-bf16-transformers-5060-asr-activation-v1.json",
+        "activation_capture_sha256": "b567a2376c1bdf3a1e2adc32af6e5d9e3494cfc5c91ce97ce52ee78b2ff6d4a2",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -1275,6 +1587,30 @@
             "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
             "raw_sha256": "cba7f4996e6f286ff1eebff18a11673b091103086fd6ea24343be6e0543c9620"
           }
+        },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "3.674972",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:07:40Z",
+          "source": {
+            "id": "local-asr-activation-parakeet-tdt-06b-v3-bf16-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "b567a2376c1bdf3a1e2adc32af6e5d9e3494cfc5c91ce97ce52ee78b2ff6d4a2"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:07:40Z",
+          "source": {
+            "id": "local-asr-activation-parakeet-tdt-06b-v3-bf16-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "b567a2376c1bdf3a1e2adc32af6e5d9e3494cfc5c91ce97ce52ee78b2ff6d4a2"
+          }
         }
       }
     },
@@ -1299,9 +1635,13 @@
         "artifact_revision": "7f1569a48a89f3e3f4dc3a5c9d28bddd903bc76c",
         "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
         "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='English'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=qwen-forward-compile-dynamic; static_audio_seconds=None; warmup_runs=3",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=seeded-isolated; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/qwen3-asr-06b-bf16-transformers-compile-dynamic-warm3-5060-local-asr-pilot-v1.json",
+        "activation_capture": "raw/qwen3-asr-06b-bf16-transformers-compile-dynamic-5060-asr-activation-v1.json",
+        "activation_capture_sha256": "6c3fae3e81f5a5c9b37145486f02e703a011eefbfd543d7e370497f937288dac",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -1373,6 +1713,30 @@
             "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
             "raw_sha256": "914830f83c3a7e5b8590e00faa6104007fbc259d96443f8e9e8c979cc7b2564f"
           }
+        },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "42.959516",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:18:39Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-06b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "6c3fae3e81f5a5c9b37145486f02e703a011eefbfd543d7e370497f937288dac"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:18:39Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-06b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "6c3fae3e81f5a5c9b37145486f02e703a011eefbfd543d7e370497f937288dac"
+          }
         }
       }
     },
@@ -1397,9 +1761,13 @@
         "artifact_revision": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
         "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
         "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='English'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=qwen-forward-compile-dynamic; static_audio_seconds=None; warmup_runs=3",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=seeded-isolated; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/qwen3-asr-17b-bf16-transformers-compile-dynamic-warm3-5060-local-asr-pilot-v1.json",
+        "activation_capture": "raw/qwen3-asr-17b-bf16-transformers-compile-dynamic-5060-asr-activation-v1.json",
+        "activation_capture_sha256": "45fae4934e1c4c1f04d04ca679b9c98b5f808d36b9b5bf97caebb24e79563483",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -1471,6 +1839,30 @@
             "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
             "raw_sha256": "783c4a9166b4445ccb4da14f77130fdbe2be22d9f2ffa75e84e8ab1a5100f0b3"
           }
+        },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "43.586417",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:28:00Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-17b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "45fae4934e1c4c1f04d04ca679b9c98b5f808d36b9b5bf97caebb24e79563483"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:28:00Z",
+          "source": {
+            "id": "local-asr-activation-qwen3-asr-17b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "45fae4934e1c4c1f04d04ca679b9c98b5f808d36b9b5bf97caebb24e79563483"
+          }
         }
       }
     },
@@ -1495,9 +1887,13 @@
         "artifact_revision": "541d1f99c6b0c3cd0b11a95167540bb8edefd82b",
         "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
         "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='en'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=parakeet-static-encoder-compile; static_audio_seconds=16.0; warmup_runs=10",
+        "activation_runtime_config": "fresh_process=true; per_process_warmup_runs=0; seed_runs=1; compiler_cache=seeded-isolated; timeout_seconds=300.0; fixed_probe=ami_cleaned:AMI_ES2004b_H01_FEE013_0135840_0137075; audio_seconds=12.35",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/parakeet-tdt-06b-v3-bf16-transformers-compile-static16-warm10-5060-local-asr-pilot-v1.json",
+        "activation_capture": "raw/parakeet-tdt-06b-v3-bf16-transformers-compile-static16-5060-asr-activation-v1.json",
+        "activation_capture_sha256": "bbc8526ea09311ee49cb4fd528407f9f15041b847431b70fd49fd1c9944ab110",
+        "activation_scope": "repeat application-cold launch with already-downloaded weights and one fixed 12.35-second meeting clip; includes Python/runtime imports, device initialization, model load, and first synchronized inference; excludes download, WER scoring, JSON writing, and process teardown",
         "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
         "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
@@ -1568,6 +1964,30 @@
             "version": "1",
             "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 10 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
             "raw_sha256": "fce5ba58f1f93dd07e7c68382b518e57f2a326f0f662c7b01806d874863456f1"
+          }
+        },
+        "asr_repeat_activation_p50_seconds": {
+          "value": "6.800498",
+          "unit": "seconds",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:09:26Z",
+          "source": {
+            "id": "local-asr-activation-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "bbc8526ea09311ee49cb4fd528407f9f15041b847431b70fd49fd1c9944ab110"
+          }
+        },
+        "asr_activation_failure_percent": {
+          "value": "0.0",
+          "unit": "percent",
+          "sample_count": 10,
+          "observed_at": "2026-09-15T05:09:26Z",
+          "source": {
+            "id": "local-asr-activation-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
+            "version": "1",
+            "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+            "raw_sha256": "bbc8526ea09311ee49cb4fd528407f9f15041b847431b70fd49fd1c9944ab110"
           }
         }
       }

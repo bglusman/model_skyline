@@ -1,7 +1,7 @@
 {
   "schema_version": "model-skyline/model-frontier-view-policy/v1alpha1",
-  "policy_id": "local-two-mac-asr-small-resident",
-  "source_snapshot_id": "050302876856277ccddf3d0a0b394cb0db9e03f1782fad8687109a2caf2f1c11",
+  "policy_id": "local-three-machine-asr-restart-intelligibility",
+  "source_snapshot_id": "642518cbff8f5fb3c302c80fd4bdde215d30799c722d8beea84871c446414c38",
   "aggregation": "arithmetic_mean",
   "environments": [
     {
@@ -11,6 +11,10 @@
     {
       "environment_id": "m5-max-64gb",
       "provider": "local:m5-max-64gb"
+    },
+    {
+      "environment_id": "rtx5060ti-16gb",
+      "provider": "local:rtx5060ti-16gb"
     }
   ],
   "models": [
@@ -24,6 +28,10 @@
         {
           "environment_id": "m5-max-64gb",
           "offering_id": "self-hosted/qwen3-asr-06b-8bit-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/qwen3-asr-06b-bf16-transformers@rtx5060ti-16gb-en"
         }
       ]
     },
@@ -37,6 +45,10 @@
         {
           "environment_id": "m5-max-64gb",
           "offering_id": "self-hosted/qwen3-asr-17b-8bit-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/qwen3-asr-17b-bf16-transformers@rtx5060ti-16gb-en"
         }
       ]
     },
@@ -50,6 +62,10 @@
         {
           "environment_id": "m5-max-64gb",
           "offering_id": "self-hosted/parakeet-tdt-06b-v3-fp16-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/parakeet-tdt-06b-v3-bf16-transformers@rtx5060ti-16gb-en"
         }
       ]
     },
@@ -63,6 +79,10 @@
         {
           "environment_id": "m5-max-64gb",
           "offering_id": "self-hosted/whisper-large-v3-turbo-fp16-mlx@m5-max-64gb-en"
+        },
+        {
+          "environment_id": "rtx5060ti-16gb",
+          "offering_id": "self-hosted/whisper-large-v3-turbo-bf16-transformers@rtx5060ti-16gb-en"
         }
       ]
     }

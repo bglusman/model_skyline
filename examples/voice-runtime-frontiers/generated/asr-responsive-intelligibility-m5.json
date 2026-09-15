@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "2ca85e61d4ce20d5f32cef0196be6e0cba7a8ba20f061b8a09c61659db5481a6",
-  "config_hash": "67a19142abcbb0c1c1a94c20f72675c944cc23483dcc0fedcda15ff21de16882",
-  "catalog_hash": "80551f1d854a55fa57b23848ada617ce61e16dac290ac6bae9eddad133b9fe62",
+  "snapshot_id": "db1ced951642eafa0e65cb75376b2e3f2486703e168b3825d4f6f5787985b650",
+  "config_hash": "ff9ba688842c6e5bf3361409fb953107e9ca3c2fae941e680e4141d12f338597",
+  "catalog_hash": "24627c60580a6ef759b3c5c0a0ed718156cd9b7c9f1fe4ca5b58832a8edc0b39",
   "engine_version": "0.9.0",
-  "generated_at": "2026-09-15T03:10:00Z",
+  "generated_at": "2026-09-15T06:00:00Z",
   "frontier_id": "asr-responsive-intelligibility",
   "workload": {
     "id": "local-asr-pilot-v1",
@@ -492,9 +492,9 @@
     "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
-    "config_hash": "67a19142abcbb0c1c1a94c20f72675c944cc23483dcc0fedcda15ff21de16882",
-    "catalog_hash": "80551f1d854a55fa57b23848ada617ce61e16dac290ac6bae9eddad133b9fe62",
-    "generated_at": "2026-09-15T03:10:00Z",
+    "config_hash": "ff9ba688842c6e5bf3361409fb953107e9ca3c2fae941e680e4141d12f338597",
+    "catalog_hash": "24627c60580a6ef759b3c5c0a0ed718156cd9b7c9f1fe4ca5b58832a8edc0b39",
+    "generated_at": "2026-09-15T06:00:00Z",
     "workload": {
       "id": "local-asr-pilot-v1",
       "version": "1.0.0",
@@ -835,7 +835,7 @@
         }
       }
     ],
-    "inventory_id": "1f3cc213512bb6382a524242199272d49eecfb5d0505a669e87d8d6aa6f6575a"
+    "inventory_id": "93adf0ee401de302b9175a1e04477fedb7b405979c273b69edeefa2baadc8a94"
   },
   "public_release_blocked": false,
   "sources": [
@@ -850,6 +850,16 @@
       "retrieved_at": null
     },
     {
+      "id": "local-asr-activation-qwen3-asr-17b-8bit-m5",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "7f722265d2586d6817a53ffd85c1cd7a280e4741c1546374f862fa0061cda0e2",
+      "retrieved_at": null
+    },
+    {
       "id": "local-asr-pilot-qwen3-asr-17b-8bit-m5",
       "version": "1",
       "url": null,
@@ -857,6 +867,26 @@
       "license": null,
       "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
       "raw_sha256": "c823570bf7e5dfd08a431be77ec25c01b78f9f5a7887e7c3ad5273de928096e9",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-whisper-large-v3-turbo-fp16-m5",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "373b40e1a39a7cf1f12e3e955cd3f99f1889586965ff8067927f0bbb71c82167",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-qwen3-asr-06b-8bit-m5",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "47e24836a8748ba07db95756c87c7137899beb125c59abcbbfd706324fcd8b1c",
       "retrieved_at": null
     },
     {
@@ -888,12 +918,26 @@
       "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
       "raw_sha256": "ffadb764e87dc2944d01e9b7d5a0d7db4e89cc567ef4a21eed314385f11b5a19",
       "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-parakeet-tdt-06b-v3-fp16-m5",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy system-default; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "c822981a47d387b3ff173e8c433735bc344254702ad3b3b091e3fd4156854714",
+      "retrieved_at": null
     }
   ],
   "source_watermarks": {
     "local-asr-pilot-qwen3-asr-06b-8bit-m5": "2026-09-15T00:17:01Z",
+    "local-asr-activation-qwen3-asr-06b-8bit-m5": "2026-09-15T05:04:43Z",
     "local-asr-pilot-qwen3-asr-17b-8bit-m5": "2026-09-15T00:17:07Z",
+    "local-asr-activation-qwen3-asr-17b-8bit-m5": "2026-09-15T05:04:56Z",
     "local-asr-pilot-whisper-large-v3-turbo-fp16-m5": "2026-09-15T00:17:12Z",
-    "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5": "2026-09-15T00:17:14Z"
+    "local-asr-activation-whisper-large-v3-turbo-fp16-m5": "2026-09-15T05:05:07Z",
+    "local-asr-pilot-parakeet-tdt-06b-v3-fp16-m5": "2026-09-15T00:17:14Z",
+    "local-asr-activation-parakeet-tdt-06b-v3-fp16-m5": "2026-09-15T05:04:32Z"
   }
 }

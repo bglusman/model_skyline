@@ -5,6 +5,11 @@ The harness intentionally measures complete-file transcription, matching the
 MLX pilot clock. It performs one unscored warmup, synchronizes CUDA around each
 timed request, never plays audio, and retains CPU/GPU memory instruments
 separately so unlike memory accounting is not silently mixed.
+
+``--startup-probe`` is a deliberately smaller child-process mode used by
+``probe_asr_activation.py``. It skips resident warmups and transcribes only the
+first fixed clip so the parent can clock process launch through the first
+usable transcript.
 """
 
 from __future__ import annotations
@@ -13,7 +18,9 @@ import argparse
 import hashlib
 import importlib.metadata
 import json
+import os
 import platform
+import struct
 import subprocess
 import time
 from collections import defaultdict
@@ -56,6 +63,21 @@ def _sha256(path: Path) -> str:
 
 def _process_rss_mb() -> float:
     return float(psutil.Process().memory_info().rss) / (1024 * 1024)
+
+
+def _send_startup_transcript(transcript: str) -> None:
+    descriptor = os.environ.get("MODEL_SKYLINE_STARTUP_READY_FD")
+    if descriptor is None:
+        raise RuntimeError("startup probe is missing its parent communication pipe")
+    fd = int(descriptor)
+    payload = transcript.encode("utf-8")
+    framed = struct.pack("!Q", len(payload)) + payload
+    try:
+        while framed:
+            written = os.write(fd, framed)
+            framed = framed[written:]
+    finally:
+        os.close(fd)
 
 
 def _gpu_identity() -> dict[str, Any]:
@@ -344,6 +366,7 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--static-audio-seconds", type=float)
     parser.add_argument("--warmup-runs", type=int, default=1)
+    parser.add_argument("--startup-probe", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     return parser
 
@@ -365,9 +388,11 @@ def main() -> None:
     ):
         raise SystemExit("--prompt-manifest is not a supported local ASR panel")
 
+    manifest_items = manifest["items"]
+    items_to_verify = manifest_items[:1] if args.startup_probe else manifest_items
     prompts: list[tuple[dict[str, Any], Path]] = []
     audio_set_digest = hashlib.sha256()
-    for item in manifest["items"]:
+    for index, item in enumerate(manifest_items):
         if not isinstance(item, dict):
             raise SystemExit("every manifest item must be an object")
         filename = item.get("audio_filename")
@@ -375,13 +400,14 @@ def main() -> None:
         reference = item.get("reference")
         if not all(isinstance(value, str) for value in (filename, expected_sha, reference)):
             raise SystemExit("manifest item is missing audio filename, hash, or reference")
-        audio_path = args.audio_dir / filename
-        actual_sha = _sha256(audio_path)
-        if actual_sha != expected_sha:
-            raise SystemExit(f"audio hash mismatch: {audio_path}")
         audio_set_digest.update(str(item.get("testcase_id")).encode())
-        audio_set_digest.update(bytes.fromhex(actual_sha))
-        prompts.append((item, audio_path))
+        audio_set_digest.update(bytes.fromhex(expected_sha))
+        if index < len(items_to_verify):
+            audio_path = args.audio_dir / filename
+            actual_sha = _sha256(audio_path)
+            if actual_sha != expected_sha:
+                raise SystemExit(f"audio hash mismatch: {audio_path}")
+            prompts.append((item, audio_path))
     if not prompts:
         raise SystemExit("prompt manifest contains no cases")
 
@@ -407,21 +433,26 @@ def main() -> None:
         "cuda_reserved_gb": round(torch.cuda.memory_reserved() / 1e9, 6),
     }
 
-    warm_started = time.monotonic()
-    for _ in range(args.warmup_runs):
-        adapter.transcribe(prompts[0][1], args.language, args.max_tokens)
-    torch.cuda.synchronize()
-    warmup_seconds = time.monotonic() - warm_started
+    warmup_seconds = 0.0
+    if not args.startup_probe:
+        warm_started = time.monotonic()
+        for _ in range(args.warmup_runs):
+            adapter.transcribe(prompts[0][1], args.language, args.max_tokens)
+        torch.cuda.synchronize()
+        warmup_seconds = time.monotonic() - warm_started
 
     normalizer = EnglishTextNormalizer()
     measurements: list[dict[str, Any]] = []
-    for item, audio_path in prompts:
+    scored_prompts = prompts[:1] if args.startup_probe else prompts
+    for item, audio_path in scored_prompts:
         torch.cuda.reset_peak_memory_stats()
         torch.cuda.synchronize()
         started = time.monotonic()
         hypothesis = adapter.transcribe(audio_path, args.language, args.max_tokens)
         torch.cuda.synchronize()
         wall_seconds = time.monotonic() - started
+        if args.startup_probe:
+            _send_startup_transcript(hypothesis)
         normalized_reference = str(normalizer(item["reference"]))
         normalized_hypothesis = str(normalizer(hypothesis))
         counts = _error_counts(normalized_reference, normalized_hypothesis)
@@ -472,21 +503,31 @@ def main() -> None:
             "optimization": args.optimization,
             "static_audio_seconds": args.static_audio_seconds,
             "warmup_runs": args.warmup_runs,
+            "startup_probe": args.startup_probe,
         },
         "workload": {
             "manifest_id": manifest.get("id"),
             "manifest_version": manifest.get("version"),
             "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
             "audio_set_sha256": audio_set_digest.hexdigest(),
-            "sample_count": len(prompts),
+            "sample_count": len(scored_prompts),
+            "panel_sample_count": len(manifest_items),
             "normalization": NORM_VERSION,
         },
         "methodology": {
             "warmup": (
-                f"first manifest clip repeated {args.warmup_runs} time(s), "
-                "unscored, after model load"
+                "none; first fixed clip is the startup probe"
+                if args.startup_probe
+                else (
+                    f"first manifest clip repeated {args.warmup_runs} time(s), "
+                    "unscored, after model load"
+                )
             ),
-            "request_order": "manifest order, sequential, batch size one",
+            "request_order": (
+                "first manifest clip only, batch size one"
+                if args.startup_probe
+                else "manifest order, sequential, batch size one"
+            ),
             "latency": (
                 "CUDA-synchronized wall time from reading one complete resident audio "
                 "file through return of its final decoded transcript"

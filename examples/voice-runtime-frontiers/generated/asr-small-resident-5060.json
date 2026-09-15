@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "426bdaa29c460e833b4e1ed94950a14bd25a08f99de7b577732c13093ac69913",
-  "config_hash": "d4ea992ee4d6166427dc10d15ec9d448e7a7a4d89500f99e911935336f77514d",
-  "catalog_hash": "eed0e3e0612cf3fe44538557df1ff467e495d4233f119d94111dbd4d79dba8d9",
+  "snapshot_id": "151ad7213e6c08225c92711c8152446eb13a4c7385f0d6c93dd1b38d3ab46c24",
+  "config_hash": "dc0bcea7b9fd69b9c8f6eae1a95ec6cecb5ba83f40d2b2200e983a71250dfdea",
+  "catalog_hash": "11e24d67459c73fd0bfaefbbaa6cb84226304858e9e91857085bc1cececee82b",
   "engine_version": "0.9.0",
-  "generated_at": "2026-09-15T03:45:00Z",
+  "generated_at": "2026-09-15T06:00:00Z",
   "frontier_id": "asr-small-resident",
   "workload": {
     "id": "local-asr-pilot-v1",
@@ -81,9 +81,9 @@
     "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
-    "config_hash": "d4ea992ee4d6166427dc10d15ec9d448e7a7a4d89500f99e911935336f77514d",
-    "catalog_hash": "eed0e3e0612cf3fe44538557df1ff467e495d4233f119d94111dbd4d79dba8d9",
-    "generated_at": "2026-09-15T03:45:00Z",
+    "config_hash": "dc0bcea7b9fd69b9c8f6eae1a95ec6cecb5ba83f40d2b2200e983a71250dfdea",
+    "catalog_hash": "11e24d67459c73fd0bfaefbbaa6cb84226304858e9e91857085bc1cececee82b",
+    "generated_at": "2026-09-15T06:00:00Z",
     "workload": {
       "id": "local-asr-pilot-v1",
       "version": "1.0.0",
@@ -458,10 +458,20 @@
         }
       }
     ],
-    "inventory_id": "dcc2fe2e68bf557faa87bc6b4adcbb077160b2d8ebcba963ba2e444520b219e9"
+    "inventory_id": "2e295d7a4dfae5d47190ce819748c01aa88210ddc398e5c4ba03c779ab42ae9b"
   },
   "public_release_blocked": false,
   "sources": [
+    {
+      "id": "local-asr-activation-qwen3-asr-17b-bf16-compile-dynamic-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "45fae4934e1c4c1f04d04ca679b9c98b5f808d36b9b5bf97caebb24e79563483",
+      "retrieved_at": null
+    },
     {
       "id": "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060",
       "version": "1",
@@ -470,6 +480,16 @@
       "license": null,
       "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
       "raw_sha256": "914830f83c3a7e5b8590e00faa6104007fbc259d96443f8e9e8c979cc7b2564f",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-qwen3-asr-17b-bf16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "ccc192293e99072a3f8fceaf9f053dffa0fef048764b223342447f0fd2bb73e7",
       "retrieved_at": null
     },
     {
@@ -483,6 +503,16 @@
       "retrieved_at": null
     },
     {
+      "id": "local-asr-activation-parakeet-tdt-06b-v3-bf16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "b567a2376c1bdf3a1e2adc32af6e5d9e3494cfc5c91ce97ce52ee78b2ff6d4a2",
+      "retrieved_at": null
+    },
+    {
       "id": "local-asr-pilot-qwen3-asr-17b-bf16-5060",
       "version": "1",
       "url": null,
@@ -493,6 +523,16 @@
       "retrieved_at": null
     },
     {
+      "id": "local-asr-activation-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "bbc8526ea09311ee49cb4fd528407f9f15041b847431b70fd49fd1c9944ab110",
+      "retrieved_at": null
+    },
+    {
       "id": "local-asr-pilot-parakeet-tdt-06b-v3-bf16-5060",
       "version": "1",
       "url": null,
@@ -500,6 +540,16 @@
       "license": null,
       "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
       "raw_sha256": "cba7f4996e6f286ff1eebff18a11673b091103086fd6ea24343be6e0543c9620",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-whisper-large-v3-turbo-bf16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "99d1bd56d4630c944e2cb7806ec83b1e800184322148268061d3d91cf6dbcac0",
       "retrieved_at": null
     },
     {
@@ -523,6 +573,16 @@
       "retrieved_at": null
     },
     {
+      "id": "local-asr-activation-qwen3-asr-06b-bf16-compile-dynamic-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "6c3fae3e81f5a5c9b37145486f02e703a011eefbfd543d7e370497f937288dac",
+      "retrieved_at": null
+    },
+    {
       "id": "local-asr-pilot-whisper-large-v3-turbo-bf16-5060",
       "version": "1",
       "url": null,
@@ -530,6 +590,16 @@
       "license": null,
       "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
       "raw_sha256": "e3c6aad15ca561946cebd69a5075b2271c5d9844e46bfb7937a765a3397cde93",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-activation-qwen3-asr-06b-bf16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "10 fresh-process activation attempts after 1 seed activation(s); locally cached weights; compiler cache policy seeded-isolated; parent clock stops after receiving the synchronized first transcript over a dedicated pipe.",
+      "raw_sha256": "5c7b7c946df5927971396c9fdbb8f2cfbf304f10bb6f117d3472e536e4dfd128",
       "retrieved_at": null
     },
     {
@@ -545,11 +615,18 @@
   ],
   "source_watermarks": {
     "local-asr-pilot-qwen3-asr-06b-bf16-5060": "2026-09-15T03:03:39Z",
+    "local-asr-activation-qwen3-asr-06b-bf16-5060": "2026-09-15T05:05:01Z",
     "local-asr-pilot-qwen3-asr-17b-bf16-5060": "2026-09-15T03:04:38Z",
+    "local-asr-activation-qwen3-asr-17b-bf16-5060": "2026-09-15T05:06:03Z",
     "local-asr-pilot-whisper-large-v3-turbo-bf16-5060": "2026-09-15T03:05:36Z",
+    "local-asr-activation-whisper-large-v3-turbo-bf16-5060": "2026-09-15T05:06:49Z",
     "local-asr-pilot-parakeet-tdt-06b-v3-bf16-5060": "2026-09-15T03:02:59Z",
+    "local-asr-activation-parakeet-tdt-06b-v3-bf16-5060": "2026-09-15T05:07:40Z",
     "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060": "2026-09-15T03:32:39Z",
+    "local-asr-activation-qwen3-asr-06b-bf16-compile-dynamic-5060": "2026-09-15T05:18:39Z",
     "local-asr-pilot-qwen3-asr-17b-bf16-compile-dynamic-5060": "2026-09-15T03:36:13Z",
-    "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060": "2026-09-15T03:27:42Z"
+    "local-asr-activation-qwen3-asr-17b-bf16-compile-dynamic-5060": "2026-09-15T05:28:00Z",
+    "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060": "2026-09-15T03:27:42Z",
+    "local-asr-activation-parakeet-tdt-06b-v3-bf16-compile-static16-5060": "2026-09-15T05:09:26Z"
   }
 }
