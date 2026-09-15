@@ -710,6 +710,93 @@
       "title": "LocalRuntimeIdentity",
       "type": "object"
     },
+    "LocalServiceMemoryEvidence": {
+      "additionalProperties": false,
+      "description": "One whole-service memory observation bound to the workload capture.",
+      "properties": {
+        "schema_version": {
+          "const": "model-skyline/experimental-service-memory/v2alpha1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "memory_architecture": {
+          "enum": [
+            "apple_unified",
+            "linux_split_cuda"
+          ],
+          "title": "Memory Architecture",
+          "type": "string"
+        },
+        "peak_service_capacity_bytes": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Peak Service Capacity Bytes",
+          "type": "integer"
+        },
+        "host_bytes_at_service_peak": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Host Bytes At Service Peak",
+          "type": "integer"
+        },
+        "accelerator_bytes_at_service_peak": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accelerator Bytes At Service Peak"
+        },
+        "peak_host_swap_growth_bytes": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Peak Host Swap Growth Bytes",
+          "type": "integer"
+        },
+        "sample_count": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Sample Count",
+          "type": "integer"
+        },
+        "raw_artifact_path": {
+          "maxLength": 512,
+          "minLength": 1,
+          "pattern": "^(?:[a-z0-9][a-z0-9._-]{0,254}/)*[a-z0-9][a-z0-9._-]{0,254}\\.(?:csv|json|txt|xml)$",
+          "title": "Raw Artifact Path",
+          "type": "string"
+        },
+        "raw_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Raw Sha256",
+          "type": "string"
+        },
+        "workload_capture_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Workload Capture Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "memory_architecture",
+        "peak_service_capacity_bytes",
+        "host_bytes_at_service_peak",
+        "peak_host_swap_growth_bytes",
+        "sample_count",
+        "raw_artifact_path",
+        "raw_sha256",
+        "workload_capture_sha256"
+      ],
+      "title": "LocalServiceMemoryEvidence",
+      "type": "object"
+    },
     "WorkloadReference": {
       "additionalProperties": false,
       "properties": {
@@ -780,6 +867,17 @@
       "anyOf": [
         {
           "$ref": "#/$defs/LocalPerformanceEvidence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "service_memory": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LocalServiceMemoryEvidence"
         },
         {
           "type": "null"

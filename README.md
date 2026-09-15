@@ -39,8 +39,12 @@ that: declare your own workload shape, offerings, and axes;
 
 The current [plain-language local-model
 frontiers](examples/local-runtime-frontiers/current-model-frontiers.md) show
-this model-first view for the 64 GB Apple Silicon experiments. Their exact
-measurements and limitations remain linked from the same page.
+this model-first view for the 64 GB Apple Silicon experiments and the 16 GB
+RTX 5060 Ti. On the 5060, Qwen3.5 9B Q6 is the first tested route to retrieve
+an exact value from 126,002 input tokens while fitting in about 11.72 GB of
+combined host/GPU service capacity. Laguna remains the faster-generation and
+shorter-context tradeoff. These are runtime screens, not coding-quality scores;
+their exact measurements and limitations remain linked from the same page.
 
 The [voice runtime experiment](examples/voice-runtime-frontiers/README.md)
 extends the same rules to local speech and complete voice-agent pipelines. Its

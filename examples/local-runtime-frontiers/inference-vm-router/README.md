@@ -5,13 +5,18 @@ LAN llama-swap endpoint, keeps child runtimes on loopback, and puts
 every registered heavyweight model in one exclusive `local-memory` group.
 Loading progress is disabled so it cannot become assistant content.
 
-The manifest registers the two Ollama models already present on the host and an
-experimental Qwen3-TTS route served by Nari's consumer-GPU profile. The tested
-Laguna ShoeHorn artifact is deliberately not registered: although it is fast,
-it fails the matched retrieval and perplexity gates. A model list should not
-advertise a path that cannot start or is known to be unusable. Each future
-llama.cpp launcher must use `local-model-exclusive`, `-ngl all -fit off`, an
-explicit context/KV profile, and a loopback `${PORT}` supplied by llama-swap.
+The manifest registers the two Ollama models already present on the host, a
+measured Qwen3.5 9B Q6_K llama.cpp route, and an experimental Qwen3-TTS route
+served by Nari's consumer-GPU profile. The Qwen route allocates 131,072 tokens
+with Q8 KV and has passed exact early/middle/late retrieval at 126,002 actual
+input tokens. Its 900-second TTL avoids an unnecessary reload in a focused
+agent session; selecting another member still unloads it through the exclusive
+group. The tested Laguna ShoeHorn artifact is deliberately not registered:
+although it is fast, it fails the matched retrieval and perplexity gates. A
+model list should not advertise a path that cannot start or is known to be
+unusable. Each future llama.cpp launcher must use `local-model-exclusive`,
+`-ngl all -fit off`, an explicit context/KV profile, and a loopback `${PORT}`
+supplied by llama-swap.
 
 The checked-in `ollama-model-skyline.conf` binds Ollama to loopback, limits it
 to one loaded model, and aligns its five-minute keep-alive with llama-swap's
@@ -126,3 +131,11 @@ The override was corrected on the same day. Validation confirmed a real
 loopback-only listener, rejection of a deliberately direct CUDA resident with
 exit 75, successful model activation through llama-swap after cleanup, and an
 explicit unload leaving both the GPU and flock free.
+
+The Qwen3.5 Q6 route was deployed on 2026-09-15 after its retained 128K-class
+screen. Router discovery reported the configured 131,072-token window. A cold
+30-tool smoke reached health-ready in 2.314 s, returned the exact call in
+5.173 s with zero loading-state events, and was then explicitly unloaded. The
+router reported no running model, the cooperative lock was free, and
+`nvidia-smi` returned to the 70 MiB display-only baseline. This one deployment
+smoke is not included as additional frontier evidence.

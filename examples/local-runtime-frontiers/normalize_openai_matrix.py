@@ -286,6 +286,73 @@ def _configured_max_output(runtime: LocalRuntimeIdentity) -> int | None:
     return value
 
 
+def _service_memory_evidence(
+    path: Path,
+    *,
+    workload_capture: Path,
+    hardware_id: str,
+    raw_artifact_path: str,
+) -> dict[str, Any]:
+    value = json.loads(path.read_text(encoding="utf-8"), parse_float=Decimal)
+    if value.get("schema") != "model-skyline/experimental-service-memory/v2alpha1":
+        raise ValueError("service-memory capture has an unsupported schema")
+    if value.get("hardware") != hardware_id:
+        raise ValueError("service-memory capture hardware does not match the hardware profile")
+    if value.get("contains_prompts_or_model_messages") is not False:
+        raise ValueError(
+            "service-memory capture must explicitly exclude prompts and model messages"
+        )
+    if value.get("child_returncode") != 0:
+        raise ValueError("service-memory capture did not stop cleanly")
+
+    capture_sha256 = _sha256(workload_capture)
+    bound_captures = value.get("workload_captures")
+    if not isinstance(bound_captures, list):
+        raise ValueError("service-memory capture is missing workload bindings")
+    matches = [
+        item
+        for item in bound_captures
+        if isinstance(item, dict) and item.get("name") == workload_capture.name
+    ]
+    if len(matches) != 1 or matches[0].get("sha256") != capture_sha256:
+        raise ValueError("service-memory capture does not bind the exact workload capture")
+
+    summary = value.get("summary")
+    if not isinstance(summary, dict):
+        raise ValueError("service-memory capture is missing its summary")
+    fields = {
+        "peak_service_capacity_bytes": "peak_combined_capacity_bytes",
+        "accelerator_bytes_at_service_peak": "device_bytes_at_combined_peak",
+        "host_bytes_at_service_peak": "host_bytes_at_combined_peak",
+        "peak_host_swap_growth_bytes": "peak_host_swap_growth_bytes",
+        "sample_count": "complete_sample_count",
+    }
+    parsed_summary: dict[str, int | None] = {}
+    for field, summary_field in fields.items():
+        raw_value = summary.get(summary_field)
+        if raw_value is None and field == "accelerator_bytes_at_service_peak":
+            parsed_summary[field] = None
+            continue
+        parsed = _integer(raw_value, field=summary_field)
+        if parsed < 0:
+            raise ValueError(f"{summary_field} cannot be negative")
+        parsed_summary[field] = parsed
+
+    instrument = value.get("instrument")
+    architecture = instrument.get("memory_architecture") if isinstance(instrument, dict) else None
+    if architecture not in {"apple_unified", "linux_split_cuda"}:
+        raise ValueError("service-memory capture has an unsupported memory architecture")
+    evidence = {
+        "schema_version": value["schema"],
+        "memory_architecture": architecture,
+        **parsed_summary,
+        "raw_artifact_path": raw_artifact_path,
+        "raw_sha256": _sha256(path),
+        "workload_capture_sha256": capture_sha256,
+    }
+    return evidence
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--capture", type=Path, required=True)
@@ -293,6 +360,8 @@ def main() -> None:
     parser.add_argument("--system-profile", type=Path, required=True)
     parser.add_argument("--output-directory", type=Path, required=True)
     parser.add_argument("--raw-artifact-path", required=True)
+    parser.add_argument("--service-memory-capture", type=Path)
+    parser.add_argument("--service-memory-raw-artifact-path")
     parser.add_argument("--measurement-prefix", required=True)
     parser.add_argument(
         "--kind",
@@ -301,9 +370,25 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    if (args.service_memory_capture is None) != (args.service_memory_raw_artifact_path is None):
+        parser.error(
+            "--service-memory-capture and --service-memory-raw-artifact-path must be used together"
+        )
+
     capture = json.loads(args.capture.read_text(encoding="utf-8"), parse_float=Decimal)
     hardware = LocalHardwareIdentity.model_validate_json(args.hardware.read_text(encoding="utf-8"))
     served_model, artifact, runtime, capabilities = _load_profile(args.system_profile)
+    service_evidence: dict[str, Any] | None = None
+    if args.service_memory_capture is not None:
+        try:
+            service_evidence = _service_memory_evidence(
+                args.service_memory_capture,
+                workload_capture=args.capture,
+                hardware_id=hardware.hardware_id,
+                raw_artifact_path=args.service_memory_raw_artifact_path,
+            )
+        except ValueError as exc:
+            parser.error(str(exc))
     if capture.get("schema_version") != "model-skyline/raw-openai-matrix/v1":
         parser.error("unsupported capture schema_version")
     if capture.get("model") != served_model:
@@ -489,6 +574,7 @@ def main() -> None:
                         "output_token_counts": output_counts,
                         "metrics": metrics,
                     },
+                    "service_memory": (service_evidence if state in {"disabled", "miss"} else None),
                     "integrity": integrity,
                     "capabilities": capabilities,
                     "provenance": {

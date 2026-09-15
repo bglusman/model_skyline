@@ -493,6 +493,7 @@ def test_capacity_catalog_selects_largest_passing_position() -> None:
     signals = offering.signals
     assert signals["local_validated_context_tokens"].value == Decimal("2048")
     assert signals["local_peak_process_physical_footprint_bytes"].value == Decimal("20500000000")
+    assert signals["local_peak_service_capacity_bytes"].value == Decimal("20500000000")
     assert offering.metadata["capacity_validation"] == {
         "integrity_check": "retrieval",
         "attempted_position_count": 2,
@@ -512,6 +513,64 @@ def test_capacity_catalog_selects_largest_passing_position() -> None:
         for position in ladder
         if isinstance(position, dict)
     )
+
+
+def test_capacity_catalog_uses_bound_split_cuda_service_memory() -> None:
+    payload = _capacity_payload(126_000, "split-service-memory")
+    performance = payload["performance"]
+    assert isinstance(performance, dict)
+    metrics = performance["metrics"]
+    assert isinstance(metrics, dict)
+    del metrics["peak_process_physical_footprint_bytes"]
+    payload["service_memory"] = {
+        "schema_version": "model-skyline/experimental-service-memory/v2alpha1",
+        "memory_architecture": "linux_split_cuda",
+        "peak_service_capacity_bytes": 11_716_790_272,
+        "host_bytes_at_service_peak": 1_967_130_624,
+        "accelerator_bytes_at_service_peak": 9_749_659_648,
+        "peak_host_swap_growth_bytes": 1_048_576,
+        "sample_count": 1_009,
+        "raw_artifact_path": "raw/service-memory.json",
+        "raw_sha256": "3" * 64,
+        "workload_capture_sha256": "4" * 64,
+    }
+
+    catalog = build_local_capacity_catalog(
+        [LocalMeasurementRecord.model_validate(payload)],
+        workload=WorkloadReference(
+            id="validated-capacity-v1",
+            version="1",
+            unit="context_position",
+        ),
+    )
+
+    offering = catalog.offerings[0]
+    memory = offering.signals["local_peak_service_capacity_bytes"]
+    assert memory.value == Decimal("11716790272")
+    assert memory.source is not None
+    assert memory.source.raw_sha256 == "3" * 64
+    service_metadata = offering.metadata["service_memory"]
+    assert isinstance(service_metadata, dict)
+    assert service_metadata["memory_architecture"] == "linux_split_cuda"
+
+
+def test_split_cuda_service_memory_rejects_inconsistent_component_sum() -> None:
+    payload = _capacity_payload(126_000, "bad-split-service-memory")
+    payload["service_memory"] = {
+        "schema_version": "model-skyline/experimental-service-memory/v2alpha1",
+        "memory_architecture": "linux_split_cuda",
+        "peak_service_capacity_bytes": 11_716_790_273,
+        "host_bytes_at_service_peak": 1_967_130_624,
+        "accelerator_bytes_at_service_peak": 9_749_659_648,
+        "peak_host_swap_growth_bytes": 0,
+        "sample_count": 1,
+        "raw_artifact_path": "raw/service-memory.json",
+        "raw_sha256": "3" * 64,
+        "workload_capture_sha256": "4" * 64,
+    }
+
+    with pytest.raises(ValueError, match="must equal host plus accelerator"):
+        LocalMeasurementRecord.model_validate(payload)
 
 
 def test_capacity_catalog_retains_failed_candidate_without_validated_signal() -> None:

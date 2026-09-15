@@ -1,0 +1,60 @@
+{
+  "schema_version": "model-skyline/local-system-profile/v1",
+  "served_model": "qwen35-9b-q6k-ctx128k-q8kv-load-none",
+  "artifact": {
+    "model_id": "Qwen/Qwen3.5-9B",
+    "checkpoint": "Qwen3.5-9B-Q6_K",
+    "revision": "6cf6f4e2055a0793b88db06dc8965e066db0e9eb",
+    "format": "gguf",
+    "quantization": "Q6_K",
+    "size_bytes": 7359230048,
+    "content_sha256": "b4fed2983efc25bdc63c74f76bc5dfe8f3a434dfa45e1ba17aadecf19eb3161b",
+    "source_url": "https://huggingface.co/eaddario/Qwen3.5-9B-GGUF/tree/6cf6f4e2055a0793b88db06dc8965e066db0e9eb",
+    "license": "Apache-2.0",
+    "metadata": {
+      "filename": "Qwen3.5-9B-Q6_K.gguf",
+      "base_model": "Qwen/Qwen3.5-9B",
+      "text_only_without_mmproj": true,
+      "legacy_runtime_file_type_label": "Q8_0",
+      "quantization_identity_note": "The pinned artifact filename, publisher manifest, byte size, and SHA-256 identify Q6_K. llama.cpp build 2515 labels this Qwen3.5 artifact Q8_0 in model_type metadata."
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "0.4.0-dev-build-2515",
+    "commit": "5266f24da",
+    "backend": "CUDA",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "q8_0/q8_0",
+    "prefix_cache_enabled": true,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "runtime_binary_sha256": "7ce1f599eafb34e9c5c8edf6e7b018c5d4459bea3c5409865fa51c8b0798997d",
+      "server_alias": "qwen35-9b-q6k-ctx128k-q8kv-load-none",
+      "native_context_tokens": 262144,
+      "allocated_context_tokens": 131072,
+      "parallel_slots": 1,
+      "batch_tokens": 2048,
+      "micro_batch_tokens": 512,
+      "threads": 6,
+      "batch_threads": 6,
+      "max_output_tokens": 16384,
+      "n_gpu_layers": "all",
+      "flash_attention": true,
+      "fit": "off",
+      "load_mode": "none",
+      "jinja": true,
+      "cache_ram_bytes": 0,
+      "slot_prefix_reuse": "longest-common-prefix",
+      "prompt_cache_enabled": true,
+      "reasoning": "off",
+      "exclusive_runner": "model-skyline/local-model-exclusive@linux-flock"
+    }
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ]
+}

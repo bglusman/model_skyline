@@ -23,6 +23,7 @@ from urllib.parse import urlparse
 import httpx
 
 DEFAULT_SYSTEM_PROMPT = "You are a deterministic local runtime measurement probe."
+HTTP_MAX_KEEPALIVE_CONNECTIONS = 0
 
 
 def _timestamp() -> str:
@@ -912,7 +913,14 @@ def main() -> None:
     endpoint = args.base_url.rstrip("/") + "/chat/completions"
     results: list[dict[str, Any]] = []
     started_at = _timestamp()
-    with httpx.Client(timeout=httpx.Timeout(900, connect=10)) as client:
+    # Some local inference servers close an HTTP/1.1 connection after a large
+    # streamed response without advertising ``Connection: close``.  Reusing
+    # that stale socket makes the next repetition fail even though the server
+    # completed the previous request and remains healthy.  Benchmark requests
+    # use fresh loopback connections so repetitions measure the model rather
+    # than a server-specific keep-alive quirk.
+    limits = httpx.Limits(max_keepalive_connections=HTTP_MAX_KEEPALIVE_CONNECTIONS)
+    with httpx.Client(timeout=httpx.Timeout(900, connect=10), limits=limits) as client:
         if args.warmup:
             _stream_request(
                 client,

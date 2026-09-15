@@ -9,6 +9,30 @@ logToStdout: both
 sendLoadingState: false
 
 models:
+  qwen35-9b-q6k-ctx128k-q8kv-load-none:
+    name: Qwen3.5 9B Q6_K 128K Q8 KV (llama.cpp)
+    cmd: >-
+      /usr/local/libexec/model-skyline/local-model-exclusive
+      /opt/llama-cpp/build-5266f24/bin/llama-server
+      --model /opt/models/model-skyline/Qwen3.5-9B-Q6_K.gguf
+      --alias qwen35-9b-q6k-ctx128k-q8kv-load-none
+      --host 127.0.0.1 --port ${PORT}
+      --ctx-size 131072 --parallel 1
+      --batch-size 2048 --ubatch-size 512
+      --threads 6 --threads-batch 6
+      --n-gpu-layers all --flash-attn on
+      --cache-type-k q8_0 --cache-type-v q8_0
+      --fit off --load-mode none --cache-ram 0
+      --jinja --reasoning off --reasoning-format none
+    proxy: http://127.0.0.1:${PORT}
+    checkEndpoint: /health
+    ttl: 900
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 131072
+
   qwen3.5:9b:
     name: Qwen3.5 9B Q4_K_M (Ollama control)
     cmd: /usr/local/libexec/model-skyline/llama-swap-ollama-hold
@@ -49,6 +73,7 @@ routing:
           swap: true
           exclusive: true
           members:
+            - qwen35-9b-q6k-ctx128k-q8kv-load-none
             - qwen3.5:9b
             - qwen3-embedding:0.6b
             - Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice

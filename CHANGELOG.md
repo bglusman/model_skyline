@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add a first cross-model RTX 5060 Ti screen: Qwen3.5 9B Q6_K and Laguna XS
+  2.1 now have reproducible short-speed, uncached-tool, validated-context versus
+  latency, and validated-context versus whole-service-memory frontiers. Add
+  workload-bound split-CUDA service-memory evidence and prevent stale HTTP
+  keep-alive reuse after very large streamed responses. Register the validated
+  Qwen profile in the 5060's exclusive llama-swap deployment.
 - Add a bounded, report-only frontier-proximity calculation and extend the
   local cross-frontier coverage artifact with every eligible point's exact
   normalized distance, dominance intervals, and witnesses. Exact membership
