@@ -15,6 +15,7 @@ BENCHMARK = ROOT / "examples" / "voice-runtime-frontiers" / "bench_openai_tts.py
 EXAMPLE = ROOT / "examples" / "voice-runtime-frontiers"
 RAW = EXAMPLE / "raw"
 AGGREGATOR = EXAMPLE / "aggregate_tts_seed_panel.py"
+COMPARATOR = EXAMPLE / "compare_tts_seed_panel.py"
 NARI_STEM = "qwen3-tts-1.7b-bf16-nari-router-5060-seed1234"
 ROUTER = ROOT / "examples" / "local-runtime-frontiers" / "inference-vm-router"
 
@@ -236,6 +237,53 @@ def test_tts_seed_panel_frontiers_have_two_exact_and_one_model_winner() -> None:
             "Qwen3-TTS-12Hz-1.7B-CustomVoice"
         ]
         assert view["balanced_average"] is None
+
+
+def test_tts_seed_panel_paired_winner_comparison_replays() -> None:
+    comparison_path = RAW / "tts-seed-panel-v1-paired-comparisons.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(COMPARATOR),
+            "--panel",
+            str(EXAMPLE / "tts-seed-panel.json"),
+            "--aggregate",
+            str(RAW / "tts-seed-panel-v1-results.json"),
+            "--output",
+            str(comparison_path),
+            "--check",
+        ],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+
+    payload = json.loads(comparison_path.read_text(encoding="utf-8"))
+    assert payload["panel"]["matched_cells_per_comparison"] == 90
+    assert len(payload["comparisons"]) == 1
+    comparison = payload["comparisons"][0]
+    assert comparison["id"] == "nari-consumer-vs-vllm-omni"
+    assert comparison["cell_counts"] == {
+        "candidate_faster_first_audio": 90,
+        "candidate_fewer_word_errors": 10,
+        "candidate_more_word_errors": 20,
+        "candidate_slower_first_audio": 0,
+        "same_first_audio": 0,
+        "same_word_errors": 60,
+    }
+    assert comparison["metrics"]["corpus_wer_percentage_points"] == {
+        "bootstrap_fraction_candidate_better": 0.2588,
+        "candidate_better_when": "lower",
+        "candidate_minus_reference": 0.707851,
+        "descriptive_95_percent_interval": {
+            "lower": -2.529287,
+            "upper": 3.838898,
+        },
+        "unit": "percentage points",
+    }
+    assert comparison["metrics"]["playback_ttfa_p95_ms"]["candidate_minus_reference"] == -516.853
 
 
 def test_nari_long_form_capture_has_no_deterministic_warning() -> None:

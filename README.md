@@ -53,7 +53,9 @@ quality/speed tradeoffs on all three TTS frontiers; both reduce to Qwen3-TTS in
 the simpler model view. MLX and LoudKit measurements remain visible but fail a
 strict zero-loop/zero-token-cap gate. A separate preliminary long-form screen
 records pacing and diarizer-detected speaker changes; naturalness and speaker
-identity still need matched human calibration controls.
+identity still need matched human calibration controls. A paired replay of the
+two winners finds a clear 513–517 ms Nari latency advantage, while the measured
+0.71-point WER difference remains unresolved.
 
 Its [local speech-recognition frontiers](examples/voice-runtime-frontiers/ASR.md)
 now compare four model families on the same 24 public utterances across M1,
