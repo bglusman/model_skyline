@@ -1,0 +1,76 @@
+{
+  "schema_version": "model-skyline/shoehorn-plan-observation/v1",
+  "captured_on": "2026-09-15",
+  "shoehorn": {
+    "version": "0.3.0",
+    "commit": "7a4b093802e3efc2dd8e79d80ac744c98c8deeb7",
+    "binary_sha256": "731fe46e50080d22a1fe4cebc00a044c017ff16b71d5d68a8044339483b7d4fd",
+    "upstream_pr": "https://github.com/notactuallytreyanastasio/shoehorn/pull/3"
+  },
+  "source": {
+    "model_id": "bartowski/Laguna-XS-2.1-GGUF",
+    "revision": "8f7579d6ab7d3122716100116cf1a62f490ab6f3",
+    "base_model_id": "poolside/Laguna-XS-2.1",
+    "base_model_revision": "c5f36269bbdbd3f27fddc9a9f9dbae0cf2cf57db",
+    "reported_model_gib": "62.33",
+    "files": [
+      {
+        "filename": "Laguna-XS-2.1-bf16/Laguna-XS-2.1-bf16-00001-of-00002.gguf",
+        "size_bytes": 39549806080,
+        "sha256": "b7e3d86dd0a057b3e87e42cb334ef29ae9a51a24488cdcc02f09488bee22ed5a"
+      },
+      {
+        "filename": "Laguna-XS-2.1-bf16/Laguna-XS-2.1-bf16-00002-of-00002.gguf",
+        "size_bytes": 27380420416,
+        "sha256": "819d8b379a6b4f466fa864cab82d6c107af0659d66198bb49668ce0c5bf3a136"
+      }
+    ]
+  },
+  "importance_matrix": {
+    "filename": "Laguna-XS-2.1-imatrix.gguf",
+    "size_bytes": 187846208,
+    "sha256": "755a96c86f9d40114e9788a4f94b2ddbada1416edb2f4c12a58575a4c1022bb2"
+  },
+  "request": {
+    "command": "shoehorn fit bartowski/Laguna-XS-2.1-GGUF --ctx 32768 --budget 15GiB --kv q8_0 --exact-errors -o Laguna-XS-2.1-shoehorn-5060-ctx32k-q8kv-exact.gguf",
+    "context_tokens": 32768,
+    "kv_type": "q8_0",
+    "budget_bytes": 16106127360,
+    "reserve_bytes": 536870912,
+    "exact_errors": true,
+    "sampled_rows_per_tensor": null
+  },
+  "solver_observation": {
+    "tensor_count": 678,
+    "solved_tensor_count": 478,
+    "imatrix_solved_tensor_count": 476,
+    "fixed_tensor_count": 200,
+    "reported_weight_gib": "11.62",
+    "reported_overall_bpw": "2.985",
+    "reported_weight_budget_percent_used": "100.000",
+    "reported_weight_slack_bytes": 512,
+    "reported_kv_gib": "2.66",
+    "reported_compute_mib": "228.0",
+    "assignments": [
+      {"type": "F16", "tensors": 2, "reported_bytes": "1.00 GiB"},
+      {"type": "F32", "tensors": 200, "reported_bytes": "744448 B"},
+      {"type": "IQ2_S", "tensors": 30, "reported_bytes": "1.29 GiB"},
+      {"type": "IQ2_XS", "tensors": 14, "reported_bytes": "150.9 MiB"},
+      {"type": "IQ2_XXS", "tensors": 291, "reported_bytes": "3.39 GiB"},
+      {"type": "IQ3_S", "tensors": 59, "reported_bytes": "2.49 GiB"},
+      {"type": "IQ3_XXS", "tensors": 49, "reported_bytes": "1.45 GiB"},
+      {"type": "IQ4_XS", "tensors": 31, "reported_bytes": "1.70 GiB"},
+      {"type": "Q5_K", "tensors": 1, "reported_bytes": "720896 B"},
+      {"type": "Q6_K", "tensors": 1, "reported_bytes": "160.8 MiB"}
+    ]
+  },
+  "output": {
+    "filename": "Laguna-XS-2.1-shoehorn-5060-ctx32k-q8kv-exact.gguf",
+    "size_bytes": 12481779328,
+    "sha256": "2a0b5d0cfb25d7e5387330511e71c16452878772d757505cf5c7f5849dfa70f2",
+    "manifest": "laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-manifest.json",
+    "fit_log_sha256": "f15a39fe7348eb709d0578dae2c5da5a807ca1f9f78590f4b669aedc10a720c2",
+    "embedded_file_type": "IQ2_XXS",
+    "metadata_note": "llama.cpp displays the dominant aggregate tensor type and its nominal 2.0625 bpw; the complete mixed plan averages 2.985 bpw"
+  }
+}

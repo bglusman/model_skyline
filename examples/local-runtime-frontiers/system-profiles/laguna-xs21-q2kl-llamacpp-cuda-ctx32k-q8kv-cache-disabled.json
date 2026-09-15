@@ -1,0 +1,57 @@
+{
+  "schema_version": "model-skyline/local-system-profile/v1",
+  "served_model": "laguna-xs21-q2kl-ctx32k-q8kv-load-none",
+  "artifact": {
+    "model_id": "poolside/Laguna-XS-2.1",
+    "checkpoint": "Laguna-XS-2.1-Q2_K_L",
+    "revision": "8f7579d6ab7d3122716100116cf1a62f490ab6f3",
+    "format": "gguf",
+    "quantization": "Q2_K_L",
+    "size_bytes": 12358537600,
+    "content_sha256": "d7bf188938336479d61e3cf60d071d6df6d723433c2eeec11f21e75fc6229e59",
+    "source_url": "https://huggingface.co/bartowski/Laguna-XS-2.1-GGUF/tree/8f7579d6ab7d3122716100116cf1a62f490ab6f3",
+    "license": "OpenMDW-1.1",
+    "metadata": {
+      "filename": "Laguna-XS-2.1-Q2_K_L.gguf",
+      "base_model_revision": "c5f36269bbdbd3f27fddc9a9f9dbae0cf2cf57db"
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "0.4.0-dev-build-2515",
+    "commit": "5266f24da",
+    "backend": "CUDA",
+    "context_capacity_tokens": 32768,
+    "kv_cache": "q8_0/q8_0",
+    "prefix_cache_enabled": false,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "runtime_binary_sha256": "7ce1f599eafb34e9c5c8edf6e7b018c5d4459bea3c5409865fa51c8b0798997d",
+      "native_context_tokens": 262144,
+      "allocated_context_tokens": 32768,
+      "parallel_slots": 1,
+      "batch_tokens": 2048,
+      "micro_batch_tokens": 512,
+      "threads": 6,
+      "batch_threads": 6,
+      "max_output_tokens": 16384,
+      "n_gpu_layers": "all",
+      "flash_attention": true,
+      "fit": "off",
+      "load_mode": "none",
+      "jinja": true,
+      "cache_ram_bytes": 0,
+      "cache_idle_slots": false,
+      "context_checkpoints": 0,
+      "prompt_cache_enabled": false,
+      "reasoning": "off",
+      "exclusive_runner": "model-skyline/local-model-exclusive@linux-flock"
+    }
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ]
+}

@@ -286,26 +286,54 @@ def _command_output(arguments: list[str]) -> str | None:
     return output[:4096] if output else None
 
 
+def _parse_linux_swap_used_bytes(meminfo: str) -> int | None:
+    values: dict[str, int] = {}
+    for line in meminfo.splitlines():
+        fields = line.split()
+        if len(fields) != 3 or fields[0] not in {"SwapTotal:", "SwapFree:"}:
+            continue
+        if fields[2] != "kB":
+            return None
+        try:
+            values[fields[0]] = int(fields[1]) * 1024
+        except ValueError:
+            return None
+    if set(values) != {"SwapTotal:", "SwapFree:"}:
+        return None
+    used_bytes = values["SwapTotal:"] - values["SwapFree:"]
+    return used_bytes if used_bytes >= 0 else None
+
+
 def _swap_used_bytes() -> int | None:
-    output = _command_output(["sysctl", "-n", "vm.swapusage"])
-    if output is None:
-        return None
-    match = re.search(r"\bused\s*=\s*([0-9.]+)([KMG])\b", output)
-    if match is None:
-        return None
-    scale = {"K": 1024, "M": 1024**2, "G": 1024**3}[match.group(2)]
-    return int(Decimal(match.group(1)) * scale)
+    if sys.platform == "darwin":
+        output = _command_output(["sysctl", "-n", "vm.swapusage"])
+        if output is None:
+            return None
+        match = re.search(r"\bused\s*=\s*([0-9.]+)([KMG])\b", output)
+        if match is None:
+            return None
+        scale = {"K": 1024, "M": 1024**2, "G": 1024**3}[match.group(2)]
+        return int(Decimal(match.group(1)) * scale)
+    if sys.platform.startswith("linux"):
+        try:
+            meminfo = Path("/proc/meminfo").read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            return None
+        return _parse_linux_swap_used_bytes(meminfo)
+    return None
 
 
 def _host_state() -> dict[str, Any] | None:
-    if sys.platform != "darwin":
-        return None
-    return {
-        "swap_used_bytes": _swap_used_bytes(),
-        "memory_pressure": _command_output(["memory_pressure", "-Q"]),
-        "thermal_state": _command_output(["pmset", "-g", "therm"]),
-        "power_source": _command_output(["pmset", "-g", "ps"]),
-    }
+    if sys.platform == "darwin":
+        return {
+            "swap_used_bytes": _swap_used_bytes(),
+            "memory_pressure": _command_output(["memory_pressure", "-Q"]),
+            "thermal_state": _command_output(["pmset", "-g", "therm"]),
+            "power_source": _command_output(["pmset", "-g", "ps"]),
+        }
+    if sys.platform.startswith("linux"):
+        return {"swap_used_bytes": _swap_used_bytes()}
+    return None
 
 
 def _runtime_stats(

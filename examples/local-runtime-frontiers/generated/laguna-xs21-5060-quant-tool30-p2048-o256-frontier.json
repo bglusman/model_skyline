@@ -1,0 +1,872 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "kind": "frontier",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "snapshot_id": "225761f7f7a717e42499ebf941fb58ec4855ba3ebd93fd7f5a536bb73db814e2",
+  "config_hash": "91c2b96aa89d778800a82831c00eaf32f00f67e1cf9a8ea7e48f1412790fba8f",
+  "catalog_hash": "4e48e32c62c547e38ae4b5fa74d08a7fac958bfce89ad95acbb83f46bc0acbc5",
+  "engine_version": "0.9.0",
+  "generated_at": "2026-09-15T18:49:30Z",
+  "frontier_id": "tool-agent-operational",
+  "workload": {
+    "id": "openai-agent-latency-v1",
+    "version": "1",
+    "unit": "request"
+  },
+  "order_by": "tool_call_success",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "tool_call_success",
+      "goal": "maximize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "end_to_end",
+      "goal": "minimize",
+      "unit": "s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "members": [
+    {
+      "offering": {
+        "offering_id": "local/inference-vm-rtx5060ti16/poolside/Laguna-XS-2.1@gguf-ShoeHorn exact mixed 2.985 bpw-llama.cpp-a2abc8b120beadad",
+        "model_id": "poolside/Laguna-XS-2.1",
+        "provider": "local:inference-vm-rtx5060ti16",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "nvidia-default-180w-limit",
+        "quantization": "ShoeHorn exact mixed 2.985 bpw",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "tool_call_success": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_tool_call_success_percent"
+          ],
+          "source_ids": [
+            "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "8a7c0c602986f8161a1e10a5f5ee715eb47692b776f4c75344f3794cba69df33",
+              "retrieved_at": "2026-09-15T18:39:36.174860Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T18:39:36.174860Z",
+          "minimum_sample_count": 3
+        },
+        "end_to_end": {
+          "value": "2.306836957",
+          "unit": "s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "2.304977159",
+          "upper": "2.41239322",
+          "dependencies": [
+            "signals.local_end_to_end_seconds"
+          ],
+          "source_ids": [
+            "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "8a7c0c602986f8161a1e10a5f5ee715eb47692b776f4c75344f3794cba69df33",
+              "retrieved_at": "2026-09-15T18:39:36.174860Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T18:39:36.174860Z",
+          "minimum_sample_count": 3
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "inference-vm-rtx5060ti16",
+          "manufacturer": "custom",
+          "machine_model": "Proxmox-VM-125",
+          "chip": "Intel-i7-14700K-plus-RTX-5060-Ti-16GB",
+          "architecture": "x86_64",
+          "memory_bytes": 10350514176,
+          "cpu_cores": 16,
+          "cpu_core_groups": {
+            "kvm-passthrough-vcpu": 16
+          },
+          "gpu_cores": 4608,
+          "os_name": "Ubuntu",
+          "os_version": "22.04.5-LTS-kernel-5.15.0-190-generic",
+          "power_source": "unknown",
+          "power_mode": "nvidia-default-180w-limit",
+          "negotiated_adapter_watts": null,
+          "metadata": {
+            "accelerator": "NVIDIA GeForce RTX 5060 Ti",
+            "accelerator_architecture": "Blackwell",
+            "accelerator_core_unit": "CUDA-core",
+            "accelerator_memory_bytes_reported_by_nvidia_smi": 17103323136,
+            "accelerator_memory_mib_reported_by_nvidia_smi": 16311,
+            "accelerator_uuid": "GPU-029ff01b-22d2-691f-0848-5c84f28f9dfa",
+            "cuda_capability": "12.0",
+            "driver_version": "580.167.08",
+            "gpu_power_limit_watts": 180,
+            "hypervisor": "KVM",
+            "inventory_observed_at": "2026-09-14T15:55:27Z",
+            "nvidia_reference": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+          }
+        },
+        "artifact": {
+          "model_id": "poolside/Laguna-XS-2.1",
+          "checkpoint": "Laguna-XS-2.1-shoehorn-5060-ctx32k-q8kv-exact",
+          "revision": "c5f36269bbdbd3f27fddc9a9f9dbae0cf2cf57db",
+          "format": "gguf",
+          "quantization": "ShoeHorn exact mixed 2.985 bpw",
+          "size_bytes": 12481779328,
+          "content_sha256": "2a0b5d0cfb25d7e5387330511e71c16452878772d757505cf5c7f5849dfa70f2",
+          "source_url": "https://huggingface.co/poolside/Laguna-XS-2.1/tree/c5f36269bbdbd3f27fddc9a9f9dbae0cf2cf57db",
+          "license": "OpenMDW-1.1",
+          "metadata": {
+            "source_gguf_repository": "bartowski/Laguna-XS-2.1-GGUF",
+            "source_gguf_revision": "8f7579d6ab7d3122716100116cf1a62f490ab6f3",
+            "shoehorn_version": "0.3.0",
+            "shoehorn_commit": "7a4b093802e3efc2dd8e79d80ac744c98c8deeb7",
+            "plan": "artifacts/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-plan.json",
+            "manifest": "artifacts/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-manifest.json",
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "0.4.0-dev-build-2515",
+          "commit": "5266f24da",
+          "backend": "CUDA",
+          "context_capacity_tokens": 32768,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "runtime_binary_sha256": "7ce1f599eafb34e9c5c8edf6e7b018c5d4459bea3c5409865fa51c8b0798997d",
+            "native_context_tokens": 262144,
+            "allocated_context_tokens": 32768,
+            "parallel_slots": 1,
+            "batch_tokens": 2048,
+            "micro_batch_tokens": 512,
+            "threads": 6,
+            "batch_threads": 6,
+            "max_output_tokens": 16384,
+            "n_gpu_layers": "all",
+            "flash_attention": true,
+            "fit": "off",
+            "load_mode": "none",
+            "jinja": true,
+            "cache_ram_bytes": 0,
+            "cache_idle_slots": false,
+            "context_checkpoints": 0,
+            "prompt_cache_enabled": false,
+            "reasoning": "off",
+            "exclusive_runner": "model-skyline/local-model-exclusive@linux-flock"
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "openai-tool-p2048-o256-disabled",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "agent_integration",
+          "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 256,
+          "repetitions": 3,
+          "warmup_repetitions": 0,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "disabled",
+          "position": {
+            "mode": "tool",
+            "prompt_bytes": 8293,
+            "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+            "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+            "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+            "tool_count": 30,
+            "tool_choice": "auto",
+            "thinking_mode": "disabled",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "unavailable",
+            "decode_rate_source": "unavailable",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "tool_calls": 3
+            },
+            "api": "openai-chat-completions-streaming"
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": []
+    }
+  ],
+  "evaluated": [
+    {
+      "offering": {
+        "offering_id": "local/inference-vm-rtx5060ti16/poolside/Laguna-XS-2.1@gguf-ShoeHorn exact mixed 2.985 bpw-llama.cpp-a2abc8b120beadad",
+        "model_id": "poolside/Laguna-XS-2.1",
+        "provider": "local:inference-vm-rtx5060ti16",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "nvidia-default-180w-limit",
+        "quantization": "ShoeHorn exact mixed 2.985 bpw",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "tool_call_success": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_tool_call_success_percent"
+          ],
+          "source_ids": [
+            "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "8a7c0c602986f8161a1e10a5f5ee715eb47692b776f4c75344f3794cba69df33",
+              "retrieved_at": "2026-09-15T18:39:36.174860Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T18:39:36.174860Z",
+          "minimum_sample_count": 3
+        },
+        "end_to_end": {
+          "value": "2.306836957",
+          "unit": "s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "2.304977159",
+          "upper": "2.41239322",
+          "dependencies": [
+            "signals.local_end_to_end_seconds"
+          ],
+          "source_ids": [
+            "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "8a7c0c602986f8161a1e10a5f5ee715eb47692b776f4c75344f3794cba69df33",
+              "retrieved_at": "2026-09-15T18:39:36.174860Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T18:39:36.174860Z",
+          "minimum_sample_count": 3
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "inference-vm-rtx5060ti16",
+          "manufacturer": "custom",
+          "machine_model": "Proxmox-VM-125",
+          "chip": "Intel-i7-14700K-plus-RTX-5060-Ti-16GB",
+          "architecture": "x86_64",
+          "memory_bytes": 10350514176,
+          "cpu_cores": 16,
+          "cpu_core_groups": {
+            "kvm-passthrough-vcpu": 16
+          },
+          "gpu_cores": 4608,
+          "os_name": "Ubuntu",
+          "os_version": "22.04.5-LTS-kernel-5.15.0-190-generic",
+          "power_source": "unknown",
+          "power_mode": "nvidia-default-180w-limit",
+          "negotiated_adapter_watts": null,
+          "metadata": {
+            "accelerator": "NVIDIA GeForce RTX 5060 Ti",
+            "accelerator_architecture": "Blackwell",
+            "accelerator_core_unit": "CUDA-core",
+            "accelerator_memory_bytes_reported_by_nvidia_smi": 17103323136,
+            "accelerator_memory_mib_reported_by_nvidia_smi": 16311,
+            "accelerator_uuid": "GPU-029ff01b-22d2-691f-0848-5c84f28f9dfa",
+            "cuda_capability": "12.0",
+            "driver_version": "580.167.08",
+            "gpu_power_limit_watts": 180,
+            "hypervisor": "KVM",
+            "inventory_observed_at": "2026-09-14T15:55:27Z",
+            "nvidia_reference": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+          }
+        },
+        "artifact": {
+          "model_id": "poolside/Laguna-XS-2.1",
+          "checkpoint": "Laguna-XS-2.1-shoehorn-5060-ctx32k-q8kv-exact",
+          "revision": "c5f36269bbdbd3f27fddc9a9f9dbae0cf2cf57db",
+          "format": "gguf",
+          "quantization": "ShoeHorn exact mixed 2.985 bpw",
+          "size_bytes": 12481779328,
+          "content_sha256": "2a0b5d0cfb25d7e5387330511e71c16452878772d757505cf5c7f5849dfa70f2",
+          "source_url": "https://huggingface.co/poolside/Laguna-XS-2.1/tree/c5f36269bbdbd3f27fddc9a9f9dbae0cf2cf57db",
+          "license": "OpenMDW-1.1",
+          "metadata": {
+            "source_gguf_repository": "bartowski/Laguna-XS-2.1-GGUF",
+            "source_gguf_revision": "8f7579d6ab7d3122716100116cf1a62f490ab6f3",
+            "shoehorn_version": "0.3.0",
+            "shoehorn_commit": "7a4b093802e3efc2dd8e79d80ac744c98c8deeb7",
+            "plan": "artifacts/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-plan.json",
+            "manifest": "artifacts/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-manifest.json",
+            "digest_scheme": "sha256-rfc8785-file-manifest-v1"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "0.4.0-dev-build-2515",
+          "commit": "5266f24da",
+          "backend": "CUDA",
+          "context_capacity_tokens": 32768,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "runtime_binary_sha256": "7ce1f599eafb34e9c5c8edf6e7b018c5d4459bea3c5409865fa51c8b0798997d",
+            "native_context_tokens": 262144,
+            "allocated_context_tokens": 32768,
+            "parallel_slots": 1,
+            "batch_tokens": 2048,
+            "micro_batch_tokens": 512,
+            "threads": 6,
+            "batch_threads": 6,
+            "max_output_tokens": 16384,
+            "n_gpu_layers": "all",
+            "flash_attention": true,
+            "fit": "off",
+            "load_mode": "none",
+            "jinja": true,
+            "cache_ram_bytes": 0,
+            "cache_idle_slots": false,
+            "context_checkpoints": 0,
+            "prompt_cache_enabled": false,
+            "reasoning": "off",
+            "exclusive_runner": "model-skyline/local-model-exclusive@linux-flock"
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "openai-tool-p2048-o256-disabled",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "agent_integration",
+          "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 256,
+          "repetitions": 3,
+          "warmup_repetitions": 0,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "disabled",
+          "position": {
+            "mode": "tool",
+            "prompt_bytes": 8293,
+            "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+            "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+            "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+            "tool_count": 30,
+            "tool_choice": "auto",
+            "thinking_mode": "disabled",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "unavailable",
+            "decode_rate_source": "unavailable",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "tool_calls": 3
+            },
+            "api": "openai-chat-completions-streaming"
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": []
+    },
+    {
+      "offering": {
+        "offering_id": "local/inference-vm-rtx5060ti16/poolside/Laguna-XS-2.1@gguf-Q2_K_L-llama.cpp-4b78a7b8c36f9594",
+        "model_id": "poolside/Laguna-XS-2.1",
+        "provider": "local:inference-vm-rtx5060ti16",
+        "endpoint": null,
+        "billing_mode": "owned_hardware",
+        "region": "local",
+        "service_tier": "nvidia-default-180w-limit",
+        "quantization": "Q2_K_L",
+        "reasoning_effort": null,
+        "agent_harness": "model-skyline/openai-matrix@v1",
+        "capabilities": [
+          "long-context",
+          "text",
+          "tools"
+        ]
+      },
+      "axes": {
+        "tool_call_success": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": null,
+          "upper": null,
+          "dependencies": [
+            "signals.local_tool_call_success_percent"
+          ],
+          "source_ids": [
+            "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "62adfed59ec42d54973d9adb005b6c0ed76576c1cb073c6678c0309d20a63cef",
+              "retrieved_at": "2026-09-15T18:09:34.570034Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T18:09:34.570034Z",
+          "minimum_sample_count": 3
+        },
+        "end_to_end": {
+          "value": "2.732334839",
+          "unit": "s",
+          "evidence_tiers": [
+            "measured"
+          ],
+          "lower": "2.732156414",
+          "upper": "2.822285703",
+          "dependencies": [
+            "signals.local_end_to_end_seconds"
+          ],
+          "source_ids": [
+            "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled"
+          ],
+          "sources": [
+            {
+              "id": "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled",
+              "version": "model-skyline/openai-matrix@v1",
+              "url": null,
+              "terms_url": null,
+              "license": "CC0-1.0",
+              "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+              "raw_sha256": "62adfed59ec42d54973d9adb005b6c0ed76576c1cb073c6678c0309d20a63cef",
+              "retrieved_at": "2026-09-15T18:09:34.570034Z"
+            }
+          ],
+          "oldest_observed_at": "2026-09-15T18:09:34.570034Z",
+          "minimum_sample_count": 3
+        }
+      },
+      "metadata": {
+        "hardware": {
+          "hardware_id": "inference-vm-rtx5060ti16",
+          "manufacturer": "custom",
+          "machine_model": "Proxmox-VM-125",
+          "chip": "Intel-i7-14700K-plus-RTX-5060-Ti-16GB",
+          "architecture": "x86_64",
+          "memory_bytes": 10350514176,
+          "cpu_cores": 16,
+          "cpu_core_groups": {
+            "kvm-passthrough-vcpu": 16
+          },
+          "gpu_cores": 4608,
+          "os_name": "Ubuntu",
+          "os_version": "22.04.5-LTS-kernel-5.15.0-190-generic",
+          "power_source": "unknown",
+          "power_mode": "nvidia-default-180w-limit",
+          "negotiated_adapter_watts": null,
+          "metadata": {
+            "accelerator": "NVIDIA GeForce RTX 5060 Ti",
+            "accelerator_architecture": "Blackwell",
+            "accelerator_core_unit": "CUDA-core",
+            "accelerator_memory_bytes_reported_by_nvidia_smi": 17103323136,
+            "accelerator_memory_mib_reported_by_nvidia_smi": 16311,
+            "accelerator_uuid": "GPU-029ff01b-22d2-691f-0848-5c84f28f9dfa",
+            "cuda_capability": "12.0",
+            "driver_version": "580.167.08",
+            "gpu_power_limit_watts": 180,
+            "hypervisor": "KVM",
+            "inventory_observed_at": "2026-09-14T15:55:27Z",
+            "nvidia_reference": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+          }
+        },
+        "artifact": {
+          "model_id": "poolside/Laguna-XS-2.1",
+          "checkpoint": "Laguna-XS-2.1-Q2_K_L",
+          "revision": "8f7579d6ab7d3122716100116cf1a62f490ab6f3",
+          "format": "gguf",
+          "quantization": "Q2_K_L",
+          "size_bytes": 12358537600,
+          "content_sha256": "d7bf188938336479d61e3cf60d071d6df6d723433c2eeec11f21e75fc6229e59",
+          "source_url": "https://huggingface.co/bartowski/Laguna-XS-2.1-GGUF/tree/8f7579d6ab7d3122716100116cf1a62f490ab6f3",
+          "license": "OpenMDW-1.1",
+          "metadata": {
+            "filename": "Laguna-XS-2.1-Q2_K_L.gguf",
+            "base_model_revision": "c5f36269bbdbd3f27fddc9a9f9dbae0cf2cf57db"
+          }
+        },
+        "runtime": {
+          "runtime_id": "llama.cpp",
+          "version": "0.4.0-dev-build-2515",
+          "commit": "5266f24da",
+          "backend": "CUDA",
+          "context_capacity_tokens": 32768,
+          "kv_cache": "q8_0/q8_0",
+          "prefix_cache_enabled": false,
+          "speculative_method": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "configuration": {
+            "runtime_binary_sha256": "7ce1f599eafb34e9c5c8edf6e7b018c5d4459bea3c5409865fa51c8b0798997d",
+            "native_context_tokens": 262144,
+            "allocated_context_tokens": 32768,
+            "parallel_slots": 1,
+            "batch_tokens": 2048,
+            "micro_batch_tokens": 512,
+            "threads": 6,
+            "batch_threads": 6,
+            "max_output_tokens": 16384,
+            "n_gpu_layers": "all",
+            "flash_attention": true,
+            "fit": "off",
+            "load_mode": "none",
+            "jinja": true,
+            "cache_ram_bytes": 0,
+            "cache_idle_slots": false,
+            "context_checkpoints": 0,
+            "prompt_cache_enabled": false,
+            "reasoning": "off",
+            "exclusive_runner": "model-skyline/local-model-exclusive@linux-flock"
+          }
+        },
+        "workload": {
+          "reference": {
+            "id": "openai-tool-p2048-o256-disabled",
+            "version": "model-skyline/openai-matrix@v1",
+            "unit": "request"
+          },
+          "kind": "agent_integration",
+          "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+          "requested_input_tokens": 2048,
+          "max_output_tokens": 256,
+          "repetitions": 3,
+          "warmup_repetitions": 0,
+          "concurrency": 1,
+          "runner_state": "warm",
+          "prefix_cache_state": "disabled",
+          "position": {
+            "mode": "tool",
+            "prompt_bytes": 8293,
+            "user_prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+            "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+            "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+            "tool_count": 30,
+            "tool_choice": "auto",
+            "thinking_mode": "disabled",
+            "sampling": {
+              "temperature": 0,
+              "seed": 90421
+            },
+            "time_to_first_token_source": "unavailable",
+            "decode_rate_source": "unavailable",
+            "token_count_url": null,
+            "construction_input_tokens": null,
+            "finish_reasons": {
+              "tool_calls": 3
+            },
+            "api": "openai-chat-completions-streaming"
+          }
+        },
+        "local_evidence_status": "provisional"
+      },
+      "dominated_by": [
+        "local/inference-vm-rtx5060ti16/poolside/Laguna-XS-2.1@gguf-ShoeHorn exact mixed 2.985 bpw-llama.cpp-a2abc8b120beadad"
+      ]
+    }
+  ],
+  "rejected": [],
+  "axis_evidence": {
+    "schema_version": "model-skyline/axis-evidence-inventory/v1alpha1",
+    "kind": "axis-evidence-inventory",
+    "hash_algorithm": "sha256-rfc8785-v1",
+    "config_hash": "91c2b96aa89d778800a82831c00eaf32f00f67e1cf9a8ea7e48f1412790fba8f",
+    "catalog_hash": "4e48e32c62c547e38ae4b5fa74d08a7fac958bfce89ad95acbb83f46bc0acbc5",
+    "generated_at": "2026-09-15T18:49:30Z",
+    "workload": {
+      "id": "openai-agent-latency-v1",
+      "version": "1",
+      "unit": "request"
+    },
+    "axes": [
+      {
+        "metric": "tool_call_success",
+        "goal": "maximize",
+        "unit": "percent",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0"
+      },
+      {
+        "metric": "end_to_end",
+        "goal": "minimize",
+        "unit": "s",
+        "epsilon_absolute": "0",
+        "epsilon_relative": "0.05"
+      }
+    ],
+    "candidate_universe_hash": "a1df95db27ecabdb7b36688a795e40dd4f5587ad3b90c1f50bdaaa02766500b5",
+    "candidates": [
+      {
+        "offering": {
+          "offering_id": "local/inference-vm-rtx5060ti16/poolside/Laguna-XS-2.1@gguf-Q2_K_L-llama.cpp-4b78a7b8c36f9594",
+          "model_id": "poolside/Laguna-XS-2.1",
+          "provider": "local:inference-vm-rtx5060ti16",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "nvidia-default-180w-limit",
+          "quantization": "Q2_K_L",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "tool_call_success": {
+            "value": "100",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_tool_call_success_percent"
+            ],
+            "source_ids": [
+              "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "62adfed59ec42d54973d9adb005b6c0ed76576c1cb073c6678c0309d20a63cef",
+                "retrieved_at": "2026-09-15T18:09:34.570034Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T18:09:34.570034Z",
+            "minimum_sample_count": 3
+          },
+          "end_to_end": {
+            "value": "2.732334839",
+            "unit": "s",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "2.732156414",
+            "upper": "2.822285703",
+            "dependencies": [
+              "signals.local_end_to_end_seconds"
+            ],
+            "source_ids": [
+              "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "62adfed59ec42d54973d9adb005b6c0ed76576c1cb073c6678c0309d20a63cef",
+                "retrieved_at": "2026-09-15T18:09:34.570034Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T18:09:34.570034Z",
+            "minimum_sample_count": 3
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "local/inference-vm-rtx5060ti16/poolside/Laguna-XS-2.1@gguf-ShoeHorn exact mixed 2.985 bpw-llama.cpp-a2abc8b120beadad",
+          "model_id": "poolside/Laguna-XS-2.1",
+          "provider": "local:inference-vm-rtx5060ti16",
+          "endpoint": null,
+          "billing_mode": "owned_hardware",
+          "region": "local",
+          "service_tier": "nvidia-default-180w-limit",
+          "quantization": "ShoeHorn exact mixed 2.985 bpw",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline/openai-matrix@v1",
+          "capabilities": [
+            "long-context",
+            "text",
+            "tools"
+          ]
+        },
+        "axes": {
+          "tool_call_success": {
+            "value": "100",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": null,
+            "upper": null,
+            "dependencies": [
+              "signals.local_tool_call_success_percent"
+            ],
+            "source_ids": [
+              "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "8a7c0c602986f8161a1e10a5f5ee715eb47692b776f4c75344f3794cba69df33",
+                "retrieved_at": "2026-09-15T18:39:36.174860Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T18:39:36.174860Z",
+            "minimum_sample_count": 3
+          },
+          "end_to_end": {
+            "value": "2.306836957",
+            "unit": "s",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "2.304977159",
+            "upper": "2.41239322",
+            "dependencies": [
+              "signals.local_end_to_end_seconds"
+            ],
+            "source_ids": [
+              "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled"
+            ],
+            "sources": [
+              {
+                "id": "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled",
+                "version": "model-skyline/openai-matrix@v1",
+                "url": null,
+                "terms_url": null,
+                "license": "CC0-1.0",
+                "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                "raw_sha256": "8a7c0c602986f8161a1e10a5f5ee715eb47692b776f4c75344f3794cba69df33",
+                "retrieved_at": "2026-09-15T18:39:36.174860Z"
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T18:39:36.174860Z",
+            "minimum_sample_count": 3
+          }
+        }
+      }
+    ],
+    "inventory_id": "7bfe832343e8fa282ba028148541b809d781472e5eb8c63a6de2af6c63fa385c"
+  },
+  "public_release_blocked": false,
+  "sources": [
+    {
+      "id": "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "8a7c0c602986f8161a1e10a5f5ee715eb47692b776f4c75344f3794cba69df33",
+      "retrieved_at": "2026-09-15T18:39:36.174860Z"
+    },
+    {
+      "id": "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled",
+      "version": "model-skyline/openai-matrix@v1",
+      "url": null,
+      "terms_url": null,
+      "license": "CC0-1.0",
+      "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+      "raw_sha256": "62adfed59ec42d54973d9adb005b6c0ed76576c1cb073c6678c0309d20a63cef",
+      "retrieved_at": "2026-09-15T18:09:34.570034Z"
+    }
+  ],
+  "source_watermarks": {
+    "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled": "2026-09-15T18:09:34.570034Z",
+    "local-measurement:laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled": "2026-09-15T18:39:36.174860Z"
+  }
+}

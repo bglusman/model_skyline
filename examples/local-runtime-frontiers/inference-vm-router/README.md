@@ -6,11 +6,12 @@ every registered heavyweight model in one exclusive `local-memory` group.
 Loading progress is disabled so it cannot become assistant content.
 
 The manifest registers the two Ollama models already present on the host and an
-experimental Qwen3-TTS route served by Nari's consumer-GPU profile. The Laguna
-ShoeHorn routes will be added only after their exact artifacts exist; a model
-list should not advertise a path that cannot start. Each future llama.cpp
-launcher must use `local-model-exclusive`, `-ngl all -fit off`, an explicit
-context/KV profile, and a loopback `${PORT}` supplied by llama-swap.
+experimental Qwen3-TTS route served by Nari's consumer-GPU profile. The tested
+Laguna ShoeHorn artifact is deliberately not registered: although it is fast,
+it fails the matched retrieval and perplexity gates. A model list should not
+advertise a path that cannot start or is known to be unusable. Each future
+llama.cpp launcher must use `local-model-exclusive`, `-ngl all -fit off`, an
+explicit context/KV profile, and a loopback `${PORT}` supplied by llama-swap.
 
 The checked-in `ollama-model-skyline.conf` binds Ollama to loopback, limits it
 to one loaded model, and aligns its five-minute keep-alive with llama-swap's

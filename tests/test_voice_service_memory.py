@@ -102,6 +102,31 @@ def test_v2_cuda_rows_are_strictly_parsed() -> None:
         module._parse_cuda_process_rows("100, unavailable\n")
 
 
+def test_v2_parses_linux_swap_used_bytes() -> None:
+    module = _load_capture_v2_module()
+
+    assert (
+        module._parse_linux_swap_used_bytes(
+            "MemTotal: 100 kB\nSwapTotal: 4096 kB\nSwapFree: 1024 kB\n"
+        )
+        == 3 * 1024 * 1024
+    )
+    with pytest.raises(module.CaptureError, match="missing swap totals"):
+        module._parse_linux_swap_used_bytes("SwapTotal: 4096 kB\n")
+    with pytest.raises(module.CaptureError, match="more free swap"):
+        module._parse_linux_swap_used_bytes("SwapTotal: 1 kB\nSwapFree: 2 kB\n")
+
+
+def test_v2_parses_darwin_swap_used_bytes() -> None:
+    module = _load_capture_v2_module()
+
+    assert module._parse_darwin_swap_used_bytes("total = 8.00G  used = 1.50G  free = 6.50G") == (
+        1536 * 1024 * 1024
+    )
+    with pytest.raises(module.CaptureError, match="unparseable"):
+        module._parse_darwin_swap_used_bytes("total = 8.00G")
+
+
 def test_v2_rejects_cuda_memory_outside_selected_tree(monkeypatch: pytest.MonkeyPatch) -> None:
     module = _load_capture_v2_module()
     monkeypatch.setattr(
@@ -133,6 +158,7 @@ def test_v2_cuda_preflight_rejects_before_launch(
     monkeypatch.setattr(module.sys, "platform", "linux")
     monkeypatch.setattr(module.v1, "_process_table", lambda: {})
     monkeypatch.setattr(module.v1, "_selected_pids", lambda *args, **kwargs: set())
+    monkeypatch.setattr(module, "_host_swap_used_bytes", lambda: 0)
 
     def reject_unselected(_selected_pids: set[int]) -> int:
         raise module.CaptureError("unselected CUDA owner")
@@ -178,6 +204,7 @@ def test_v2_preserves_a_launched_commands_failure_status(
     monkeypatch.setattr(module.sys, "platform", "darwin")
     monkeypatch.setattr(module.subprocess, "Popen", lambda *args, **kwargs: child)
     monkeypatch.setattr(module.v1, "_process_table", lambda: tables.pop(0))
+    monkeypatch.setattr(module, "_host_swap_used_bytes", lambda: 20)
     monkeypatch.setattr(
         module,
         "_sample",
@@ -190,6 +217,7 @@ def test_v2_preserves_a_launched_commands_failure_status(
             "combined_capacity_bytes": 10,
             "unselected_cuda_process_count": None,
             "unselected_cuda_memory_bytes": None,
+            "host_swap_used_bytes": 20,
         },
     )
 
@@ -211,6 +239,8 @@ def test_v2_preserves_a_launched_commands_failure_status(
     assert payload["stop_reason"] == "launched command exited"
     assert payload["child_returncode"] == 7
     assert returncode == 7
+    assert payload["summary"]["host_swap_delta_bytes"] == 0
+    assert payload["summary"]["peak_host_swap_growth_bytes"] == 0
 
 
 def test_published_service_memory_panel_replays_raw_hashes() -> None:

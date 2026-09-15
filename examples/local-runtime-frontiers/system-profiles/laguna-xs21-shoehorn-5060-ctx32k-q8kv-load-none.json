@@ -1,0 +1,62 @@
+{
+  "schema_version": "model-skyline/local-system-profile/v1",
+  "served_model": "laguna-xs21-shoehorn-5060-ctx32k-q8kv-load-none",
+  "artifact": {
+    "model_id": "poolside/Laguna-XS-2.1",
+    "checkpoint": "Laguna-XS-2.1-shoehorn-5060-ctx32k-q8kv-exact",
+    "revision": "c5f36269bbdbd3f27fddc9a9f9dbae0cf2cf57db",
+    "format": "gguf",
+    "quantization": "ShoeHorn exact mixed 2.985 bpw",
+    "size_bytes": 12481779328,
+    "content_sha256": "2a0b5d0cfb25d7e5387330511e71c16452878772d757505cf5c7f5849dfa70f2",
+    "source_url": "https://huggingface.co/poolside/Laguna-XS-2.1/tree/c5f36269bbdbd3f27fddc9a9f9dbae0cf2cf57db",
+    "license": "OpenMDW-1.1",
+    "metadata": {
+      "source_gguf_repository": "bartowski/Laguna-XS-2.1-GGUF",
+      "source_gguf_revision": "8f7579d6ab7d3122716100116cf1a62f490ab6f3",
+      "shoehorn_version": "0.3.0",
+      "shoehorn_commit": "7a4b093802e3efc2dd8e79d80ac744c98c8deeb7",
+      "plan": "artifacts/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-plan.json",
+      "manifest": "artifacts/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-manifest.json",
+      "digest_scheme": "sha256-rfc8785-file-manifest-v1"
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "0.4.0-dev-build-2515",
+    "commit": "5266f24da",
+    "backend": "CUDA",
+    "context_capacity_tokens": 32768,
+    "kv_cache": "q8_0/q8_0",
+    "prefix_cache_enabled": false,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "runtime_binary_sha256": "7ce1f599eafb34e9c5c8edf6e7b018c5d4459bea3c5409865fa51c8b0798997d",
+      "native_context_tokens": 262144,
+      "allocated_context_tokens": 32768,
+      "parallel_slots": 1,
+      "batch_tokens": 2048,
+      "micro_batch_tokens": 512,
+      "threads": 6,
+      "batch_threads": 6,
+      "max_output_tokens": 16384,
+      "n_gpu_layers": "all",
+      "flash_attention": true,
+      "fit": "off",
+      "load_mode": "none",
+      "jinja": true,
+      "cache_ram_bytes": 0,
+      "cache_idle_slots": false,
+      "context_checkpoints": 0,
+      "prompt_cache_enabled": false,
+      "reasoning": "off",
+      "exclusive_runner": "model-skyline/local-model-exclusive@linux-flock"
+    }
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ]
+}

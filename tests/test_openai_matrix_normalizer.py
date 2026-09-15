@@ -257,6 +257,21 @@ def test_client_decode_rate_excludes_the_first_timed_token() -> None:
     assert MATRIX._client_decode_rate(21, 3.0, 3.0) is None
 
 
+def test_linux_swap_capture_parses_used_bytes() -> None:
+    assert MATRIX._parse_linux_swap_used_bytes(
+        "MemTotal: 100 kB\nSwapTotal: 4096 kB\nSwapFree: 1024 kB\n"
+    ) == (3 * 1024 * 1024)
+    assert MATRIX._parse_linux_swap_used_bytes("SwapTotal: 4096 kB\n") is None
+    assert MATRIX._parse_linux_swap_used_bytes("SwapTotal: 1 kB\nSwapFree: 2 kB\n") is None
+
+
+def test_linux_host_state_retains_swap(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(MATRIX.sys, "platform", "linux")
+    monkeypatch.setattr(MATRIX, "_swap_used_bytes", lambda: 42)
+
+    assert MATRIX._host_state() == {"swap_used_bytes": 42}
+
+
 def test_runtime_memory_finds_omlx_active_memory_pressure() -> None:
     stats = {
         "active_models": {
