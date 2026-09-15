@@ -33,6 +33,7 @@ FLASH_CODER_SCREEN = EXAMPLE / "harbor-quality-screen-qwen38-flash-coder.yaml"
 LAGUNA_SCREEN = EXAMPLE / "harbor-quality-screen-laguna-xs21.yaml"
 LAGUNA_SCREEN_SUMMARY = EXAMPLE / "raw" / "harbor-smoke-laguna-xs21-nvfp4-fix-git-summary.json"
 CUDA_5060_SCREEN = EXAMPLE / "harbor-quality-screen-5060-qwen35-muse.yaml"
+CUDA_5060_PILOT = EXAMPLE / "harbor-quality-pilot-5060-qwen35-muse.yaml"
 CUDA_5060_SCREEN_SUMMARIES = {
     "qwen35_9b_q6k_5060": (
         EXAMPLE / "raw" / "harbor-smoke-qwen35-9b-q6k-5060-fix-git-summary.json"
@@ -540,6 +541,26 @@ def test_5060_screen_is_additive_prompt_free_and_promotes_both_candidates() -> N
             "valid_trials": 1,
         }
         assert summary["trials"][0]["parser_feedback_events"]["errors"] == 0
+
+
+def test_5060_pilot_is_a_separate_screen_bound_population() -> None:
+    pilot = yaml.safe_load(PILOT.read_text(encoding="utf-8"))
+    cuda_pilot = yaml.safe_load(CUDA_5060_PILOT.read_text(encoding="utf-8"))
+
+    assert cuda_pilot["promotion_source"]["screen_sha256"] == hashlib.sha256(
+        CUDA_5060_SCREEN.read_bytes()
+    ).hexdigest()
+    assert cuda_pilot["task_sets"]["pilot_5"] == pilot["task_sets"]["pilot_5"]
+    assert set(cuda_pilot["pilot_frontiers"]) == {
+        "agent_quality_latency",
+        "agent_quality_cache_efficiency",
+    }
+    assert cuda_pilot["publication"]["full_benchmark_estimation_allowed"] is False
+    for candidate in cuda_pilot["candidates"].values():
+        profile_path = EXAMPLE / candidate["system_profile"]
+        assert candidate["system_profile_sha256"] == hashlib.sha256(
+            profile_path.read_bytes()
+        ).hexdigest()
 
 
 def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
