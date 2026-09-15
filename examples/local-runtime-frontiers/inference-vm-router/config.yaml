@@ -30,6 +30,16 @@ models:
     checkEndpoint: /api/tags
     ttl: 300
 
+  Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice:
+    name: Qwen3-TTS 1.7B CustomVoice BF16 (Nari consumer profile)
+    cmd: /usr/local/libexec/model-skyline/nari-qwen3-tts-consumer ${PORT}
+    proxy: http://127.0.0.1:${PORT}
+    checkEndpoint: /ready
+    ttl: 300
+    capabilities:
+      in: [text]
+      out: [audio]
+
 routing:
   router:
     use: group
@@ -41,3 +51,4 @@ routing:
           members:
             - qwen3.5:9b
             - qwen3-embedding:0.6b
+            - Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice

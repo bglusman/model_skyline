@@ -607,8 +607,8 @@ the paged SSD prefix cache by default with a zero-byte RAM hot cache; controlled
 cache-free measurements set `QWEN38_OMLX_CACHE=0`. OpenCode and OMP both expose
 the non-speculative baseline/F16-KV and baseline/TQ4-KV controls, MTP/F16-KV,
 MTP/TQ4-KV, and DFlash/TQ4 aliases through the same router. The paired baseline
-profiles isolate KV compression from speculative decoding. OMP keeps the
-OMP has to decide when to shorten a long conversation into a summary. It is set
+profiles isolate KV compression from speculative decoding. OMP has to decide
+when to shorten a long conversation into a summary. It is set
 to do that after the conversation uses 75% of whichever model's declared
 context window is selected. This leaves the final 25% for the next response,
 tool results, and the summarization step itself.

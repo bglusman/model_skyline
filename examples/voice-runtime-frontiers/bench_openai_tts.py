@@ -149,8 +149,7 @@ def _run_once(
         bootstrap_rms = _centered_rms(raw_pcm[:bootstrap_bytes])
         if bootstrap_rms > AUDIBLE_RMS_THRESHOLD:
             raise RuntimeError(
-                "refusing to suppress an audible Qwen bootstrap frame "
-                f"(RMS {bootstrap_rms:.6f})"
+                f"refusing to suppress an audible Qwen bootstrap frame (RMS {bootstrap_rms:.6f})"
             )
         delivered_chunks = []
         delivered_arrivals = []
@@ -171,9 +170,7 @@ def _run_once(
     first_body_ms = (first_body_at - started) * 1000.0
     first_deliverable_ms = (delivery_at - started) * 1000.0
     audible_sample = _first_audible_offset_samples(pcm, sample_rate)
-    leading_silence_ms = (
-        None if audible_sample is None else audible_sample / sample_rate * 1000.0
-    )
+    leading_silence_ms = None if audible_sample is None else audible_sample / sample_rate * 1000.0
     coval_ttfa_ms = (
         None if leading_silence_ms is None else first_deliverable_ms + leading_silence_ms
     )
@@ -201,16 +198,10 @@ def _run_once(
         "leading_silence_ms": (
             None if leading_silence_ms is None else round(leading_silence_ms, 3)
         ),
-        "coval_ttfa_ms": (
-            None if coval_ttfa_ms is None else round(coval_ttfa_ms, 3)
-        ),
-        "playback_ttfa_ms": (
-            None if playback_ttfa_ms is None else round(playback_ttfa_ms, 3)
-        ),
+        "coval_ttfa_ms": (None if coval_ttfa_ms is None else round(coval_ttfa_ms, 3)),
+        "playback_ttfa_ms": (None if playback_ttfa_ms is None else round(playback_ttfa_ms, 3)),
         "pre_audible_buffer_delay_ms": (
-            None
-            if pre_audible_buffer_delay_ms is None
-            else round(pre_audible_buffer_delay_ms, 3)
+            None if pre_audible_buffer_delay_ms is None else round(pre_audible_buffer_delay_ms, 3)
         ),
         "wall_seconds": round(wall_seconds, 6),
         "audio_seconds": round(audio_seconds, 6),
@@ -228,6 +219,13 @@ def _run_once(
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-url", required=True)
+    parser.add_argument(
+        "--endpoint-label",
+        help=(
+            "Public-safe endpoint label retained in the capture instead of the "
+            "actual network address."
+        ),
+    )
     parser.add_argument("--model", required=True)
     parser.add_argument(
         "--model-revision",
@@ -244,6 +242,18 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--language", default="English")
     parser.add_argument("--sample-rate", type=int, default=24_000)
     parser.add_argument("--repetitions", type=int, default=6)
+    parser.add_argument(
+        "--stream-format",
+        choices=("audio", "sse", "omit"),
+        default="audio",
+        help="OpenAI-compatible stream_format value, or omit for strict servers.",
+    )
+    parser.add_argument(
+        "--non-streaming-mode",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Optional server-specific generation mode; omitted unless explicitly set.",
+    )
     parser.add_argument(
         "--prompt-manifest",
         type=Path,
@@ -285,9 +295,12 @@ def main() -> None:
         "language": args.language,
         "response_format": "pcm",
         "stream": True,
-        "stream_format": "audio",
         "seed": args.seed,
     }
+    if args.stream_format != "omit":
+        request_body["stream_format"] = args.stream_format
+    if args.non_streaming_mode is not None:
+        request_body["non_streaming_mode"] = args.non_streaming_mode
     manifest_payload: dict[str, Any] | None = None
     manifest_digest: str | None = None
     if args.prompt_manifest is None:
@@ -360,9 +373,7 @@ def main() -> None:
                     args.sample_rate,
                 )
 
-    warm_measurements = [
-        item for item in measurements if item["included_in_summary"]
-    ]
+    warm_measurements = [item for item in measurements if item["included_in_summary"]]
     coval_ttfa_values = [
         float(item["coval_ttfa_ms"])
         for item in warm_measurements
@@ -382,19 +393,25 @@ def main() -> None:
     payload = {
         "schema": "model-skyline/experimental-openai-tts-capture/v1alpha1",
         "captured_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "harness": {
+            "script": Path(__file__).name,
+            "sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        },
         "offering": {
             "model": args.model,
             "model_revision": args.model_revision,
             "provider": args.provider,
             "runtime": args.runtime_label,
             "server_hardware": args.server_hardware,
-            "endpoint": endpoint,
+            "endpoint": args.endpoint_label or endpoint,
             "client_hardware": platform.processor() or platform.machine(),
             "client_os": platform.platform(),
             "voice": args.voice,
             "language": args.language,
             "seed": args.seed,
             "suppress_fixed_bootstrap": args.suppress_fixed_bootstrap,
+            "request_stream_format": (None if args.stream_format == "omit" else args.stream_format),
+            "request_non_streaming_mode": args.non_streaming_mode,
         },
         "workload": (
             {
@@ -410,8 +427,7 @@ def main() -> None:
                 "manifest_sha256": manifest_digest,
                 "prompt_count": len(work_items) - 1,
                 "process_model": (
-                    "one persistent HTTP client, one unscored warmup, then one request "
-                    "per prompt"
+                    "one persistent HTTP client, one unscored warmup, then one request per prompt"
                 ),
             }
         ),
@@ -432,9 +448,7 @@ def main() -> None:
             "audible_hop_seconds": AUDIBLE_HOP_SECONDS,
             "metric_reference": METRIC_REFERENCE,
             "fixed_bootstrap_samples": QWEN_FIXED_BOOTSTRAP_SAMPLES,
-            "suppression_guard": (
-                "first-frame centered RMS must not exceed audible_rms_threshold"
-            ),
+            "suppression_guard": ("first-frame centered RMS must not exceed audible_rms_threshold"),
             "network_scope": "client-observed; includes network and HTTP overhead",
             "warning": "Component latency smoke only; no listening or intelligibility score.",
         },
@@ -445,9 +459,7 @@ def main() -> None:
             "coval_ttfa_p95_ms": _percentile(coval_ttfa_values, 95),
             "playback_ttfa_p50_ms": _percentile(playback_ttfa_values, 50),
             "playback_ttfa_p95_ms": _percentile(playback_ttfa_values, 95),
-            "pre_audible_buffer_delay_case_count": sum(
-                delay > 1.0 for delay in buffer_delays
-            ),
+            "pre_audible_buffer_delay_case_count": sum(delay > 1.0 for delay in buffer_delays),
             "pre_audible_buffer_delay_p95_ms": _percentile(buffer_delays, 95),
             "real_time_factor_p50": _percentile(rtf_values, 50),
             "real_time_factor_p05": _percentile(rtf_values, 5),

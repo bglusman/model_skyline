@@ -5,11 +5,12 @@ LAN llama-swap endpoint, keeps child runtimes on loopback, and puts
 every registered heavyweight model in one exclusive `local-memory` group.
 Loading progress is disabled so it cannot become assistant content.
 
-The initial manifest registers the two Ollama models already present on the
-host. The Laguna ShoeHorn routes will be added only after their exact artifacts
-exist; a model list should not advertise a path that cannot start. Each future
-llama.cpp launcher must use `local-model-exclusive`, `-ngl all -fit off`, an
-explicit context/KV profile, and a loopback `${PORT}` supplied by llama-swap.
+The manifest registers the two Ollama models already present on the host and an
+experimental Qwen3-TTS route served by Nari's consumer-GPU profile. The Laguna
+ShoeHorn routes will be added only after their exact artifacts exist; a model
+list should not advertise a path that cannot start. Each future llama.cpp
+launcher must use `local-model-exclusive`, `-ngl all -fit off`, an explicit
+context/KV profile, and a loopback `${PORT}` supplied by llama-swap.
 
 The checked-in `ollama-model-skyline.conf` binds Ollama to loopback, limits it
 to one loaded model, and aligns its five-minute keep-alive with llama-swap's
@@ -32,6 +33,28 @@ lock for their whole lifetime. Benchmark harnesses should also fail closed when
 the GPU is already occupied; the ASR activation probes do this before every
 child rather than assuming an empty llama-swap `/running` response proves that
 VRAM is free.
+
+The Nari launcher is deliberately a single foreground process: llama-swap's
+tracked PID, the lock owner, and the CUDA server remain the same process after
+the shell wrappers call `exec`. It prepends the project virtual environment to
+`PATH` because Nari's runtime compilation invokes the installed `ninja`
+executable by name. It also forces offline model resolution, one active request,
+and loopback binding. This VM's default repository location is
+`/root/nari-qwen3-tts`; set `NARI_QWEN3_TTS_DIR` in the llama-swap service when a
+deployment uses another path.
+
+The exact experimental Nari tree used for the measurements starts at upstream
+commit `e8c5b2bf6d65a965037f161d713bfa3e8856feb3` and applies
+[`nari-qwen3-tts-consumer.patch`](nari-qwen3-tts-consumer.patch). The patch adds
+an explicit non-H100 opt-in and a batch-one profile; it does not weaken the
+existing H100 profiles. Install the repository's locked `codec`, `cuda`, and
+`serving` dependency groups before using the route. This is a measured local
+compatibility patch, not an upstream Nari release.
+
+llama-swap v255 successfully dispatches `/v1/audio/speech` for the exact Qwen
+model ID, but its `/v1/models` response omits this audio-only route. TTS clients
+must therefore configure `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` explicitly;
+absence from that discovery response does not mean the route is unavailable.
 
 The pinned router binary is llama-swap v255, release commit `7761aa1`. The
 official Linux AMD64 archive SHA-256 is

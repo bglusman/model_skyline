@@ -1,0 +1,85 @@
+{
+  "captured_at": "2026-09-15T13:48:49Z",
+  "measurements": [
+    {
+      "audible_frame_fraction_within_span": 0.659547,
+      "audible_span_seconds": 42.144,
+      "audio_seconds": 42.16,
+      "audio_sha256": "2c4c4fe6578f91cc38aa506358de077544a195df1b766a5e1ed063041672d3b8",
+      "internal_pause_count": 16,
+      "internal_pause_fraction_of_span": 0.227719,
+      "internal_pause_max_ms": 1040.0,
+      "internal_pause_p50_ms": 551.0,
+      "internal_pause_p95_ms": 1023.5,
+      "internal_pause_seconds": 9.597,
+      "normalized_reference": "good afternoon and thank you for calling the neighborhood library i can help renew your books check whether a title is available or explain how to get a new library card before we begin please have your card number nearby but do not read any passwords or payment details aloud the downtown branch closes at 80 clock tonight the north branch closes at 6 and its study rooms are already reserved if you need a quiet workspace the riverside branch still has 2 rooms open after 430 tell me which service you need and i will guide you through the next step",
+      "normalized_word_count": 102,
+      "sample_rate_hz": 24000,
+      "testcase_id": "L1",
+      "words_per_minute": 145.216401
+    },
+    {
+      "audible_frame_fraction_within_span": 0.578571,
+      "audible_span_seconds": 65.332,
+      "audio_seconds": 65.36,
+      "audio_sha256": "2359991eccb3011ef512337c71b8740c6d2026a0eefa5d50334bc2475397f44c",
+      "internal_pause_count": 30,
+      "internal_pause_fraction_of_span": 0.339038,
+      "internal_pause_max_ms": 3129.0,
+      "internal_pause_p50_ms": 547.5,
+      "internal_pause_p95_ms": 2154.65,
+      "internal_pause_seconds": 22.15,
+      "normalized_reference": "here is the travel update for tuesday morning train 714 is expected on platform 3 at 925 approximately 12 minutes behind schedule passengers traveling to lakeview should remain on board through central station passengers for the airport must transfer to the blue line and allow at least 15 minutes for the connection elevators near the east entrance are temporarily unavailable so anyone who needs step free access should use the west entrance on market street keep your ticket available until you leave the destination station and listen for another announcement if the platform changes",
+      "normalized_word_count": 94,
+      "sample_rate_hz": 24000,
+      "testcase_id": "L2",
+      "words_per_minute": 86.328292
+    },
+    {
+      "audible_frame_fraction_within_span": 0.572397,
+      "audible_span_seconds": 48.416,
+      "audio_seconds": 48.48,
+      "audio_sha256": "b266db5b45f76adb7d286459bf2047181023a8ff93b441f1503fe6652f714ca0",
+      "internal_pause_count": 25,
+      "internal_pause_fraction_of_span": 0.284679,
+      "internal_pause_max_ms": 997.0,
+      "internal_pause_p50_ms": 458.0,
+      "internal_pause_p95_ms": 967.2,
+      "internal_pause_seconds": 13.783,
+      "normalized_reference": "let us review the plan one more time 1st save your work and close any programs that are using the shared folder 2nd confirm that the backup completed successfully at 215 this morning 3rd disconnect the old drive label it with today is date and place it in the locked cabinet when the replacement drive is connected wait for the green status light before starting the verification scan the scan may take 20 to 30 minutes if you see a red warning stop immediately and record the exact message otherwise let the process finish open 3 sample files and report the result to the support team",
+      "normalized_word_count": 106,
+      "sample_rate_hz": 24000,
+      "testcase_id": "L3",
+      "words_per_minute": 131.361533
+    }
+  ],
+  "methodology": {
+    "audible_frame_seconds": 0.01,
+    "audible_hop_seconds": 0.001,
+    "audible_rms_threshold": 0.01,
+    "minimum_internal_pause_ms": 150.0,
+    "normalization": "whisper_normalizer EnglishTextNormalizer",
+    "normalization_version": "2",
+    "pause_proxy": "continuous below-threshold frame runs inside the audible span; not text-aligned punctuation pauses",
+    "speaking_rate": "normalized reference words divided by the span from first to last audible frame",
+    "warning": "Descriptive deterministic proxies only. Admission thresholds require matched human-speech calibration and do not establish naturalness."
+  },
+  "schema": "model-skyline/experimental-tts-pacing-capture/v1alpha1",
+  "source": {
+    "audio_set_sha256": "ab5ebac1d42a49b77101387a9c1db23a8198d1592d715b6c299818315245a3ee",
+    "manifest_id": "speaker-consistency-v1",
+    "manifest_sha256": "1e22dbdf98f474979da247aee673ceb8dd27675389876d9eb46408e3e9c8c4b8",
+    "manifest_version": "1.0.0"
+  },
+  "summary": {
+    "audible_span_seconds_total": 155.892,
+    "corpus_words_per_minute": 116.234316,
+    "internal_pause_count_total": 71,
+    "internal_pause_fraction_p50": 0.284679,
+    "internal_pause_fraction_p95": 0.333602,
+    "normalized_reference_word_count": 302,
+    "sample_count": 3,
+    "words_per_minute_p50": 131.361533,
+    "words_per_minute_p95": 143.830914
+  }
+}
