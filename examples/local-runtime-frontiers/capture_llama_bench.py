@@ -15,6 +15,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from capture_lock import LockToolUnavailable, coordinated_command
+
 
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -51,7 +53,7 @@ def main() -> None:
     parser.add_argument(
         "--exclusive-lock",
         type=Path,
-        help="optional BSD lock file shared with local model launchers",
+        help="optional platform-native lock file shared with local model launchers",
     )
     parser.add_argument(
         "--lock-timeout",
@@ -139,22 +141,14 @@ def main() -> None:
         lock = args.exclusive_lock.expanduser().resolve()
         if not lock.parent.is_dir():
             parser.error("--exclusive-lock parent directory must exist")
-        lockf = Path("/usr/bin/lockf")
-        if not lockf.is_file():
-            parser.error("--exclusive-lock requires /usr/bin/lockf")
-        run_command = [
-            str(lockf),
-            "-k",
-            "-t",
-            str(args.lock_timeout),
-            str(lock),
-            *command,
-        ]
-        coordination = {
-            "method": "bsd-flock",
-            "lock_file": "${LOCAL_MODEL_RUNNER_LOCK}",
-            "timeout_seconds": args.lock_timeout,
-        }
+        try:
+            run_command, coordination = coordinated_command(
+                command,
+                lock=lock,
+                timeout_seconds=args.lock_timeout,
+            )
+        except LockToolUnavailable as exc:
+            parser.error(str(exc))
     started_at = _timestamp()
     start = time.monotonic_ns()
     completed = subprocess.run(run_command, text=True, capture_output=True, check=False)

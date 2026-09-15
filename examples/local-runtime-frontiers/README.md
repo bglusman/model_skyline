@@ -595,10 +595,13 @@ ID unloads the previous managed runner before starting the next one. The oMLX
 process is shared by aliases for each exposed profile; switching between an
 oMLX profile and another heavyweight runtime still follows the same mutex.
 `/running` is the authoritative check before a direct benchmark bypasses the
-router. Every managed launcher also holds the same BSD file lock for its full
-lifetime. Direct llama-bench captures request that lock with a zero-second
-timeout, closing the race in which an agent request could start a runner after
-the idle check; a busy lock fails the capture instead of contaminating it.
+router. Every managed launcher also holds the same host-wide advisory lock for
+its full lifetime. Direct llama-bench and llama-perplexity captures request that
+lock with a zero-second timeout, closing the race in which an agent request
+could start a runner after the idle check; a busy lock fails the capture instead
+of contaminating it. The capture wrappers use the host's native tool: BSD
+`lockf` on macOS and Linux `flock`. The lock path must match the launcher on that
+host; the path itself is not shared between machines.
 
 Loading-state streaming is disabled because some agent clients preserve those
 operational messages as assistant content. The managed TTL is 900 seconds, and
