@@ -80,6 +80,37 @@ CUDA_MODELS: tuple[dict[str, str], ...] = (
         "revision": "541d1f99c6b0c3cd0b11a95167540bb8edefd82b",
         "quantization": "bf16",
     },
+    {
+        "slug": "qwen3-asr-06b-bf16-compile-dynamic",
+        "filename": (
+            "qwen3-asr-06b-bf16-transformers-compile-dynamic-warm3-5060-local-asr-pilot-v1.json"
+        ),
+        "artifact": "Qwen/Qwen3-ASR-0.6B-hf",
+        "model_id": "Qwen3-ASR-0.6B",
+        "revision": "7f1569a48a89f3e3f4dc3a5c9d28bddd903bc76c",
+        "quantization": "bf16",
+    },
+    {
+        "slug": "qwen3-asr-17b-bf16-compile-dynamic",
+        "filename": (
+            "qwen3-asr-17b-bf16-transformers-compile-dynamic-warm3-5060-local-asr-pilot-v1.json"
+        ),
+        "artifact": "Qwen/Qwen3-ASR-1.7B-hf",
+        "model_id": "Qwen3-ASR-1.7B",
+        "revision": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
+        "quantization": "bf16",
+    },
+    {
+        "slug": "parakeet-tdt-06b-v3-bf16-compile-static16",
+        "filename": (
+            "parakeet-tdt-06b-v3-bf16-transformers-compile-static16-warm10-"
+            "5060-local-asr-pilot-v1.json"
+        ),
+        "artifact": "nvidia/parakeet-tdt-0.6b-v3",
+        "model_id": "parakeet-tdt-0.6b-v3",
+        "revision": "541d1f99c6b0c3cd0b11a95167540bb8edefd82b",
+        "quantization": "bf16",
+    },
 )
 
 HARDWARE: dict[str, dict[str, Any]] = {
@@ -137,13 +168,23 @@ def _decimal(value: Any) -> str:
     return format(Decimal(str(value)), "f")
 
 
-def _source(slug: str, machine: str, path: Path, machine_spec: dict[str, Any]) -> dict[str, Any]:
+def _source(
+    slug: str,
+    machine: str,
+    path: Path,
+    machine_spec: dict[str, Any],
+    capture: dict[str, Any],
+) -> dict[str, Any]:
     runtime = "MLX-Audio" if machine_spec["runtime_kind"] == "mlx" else "Transformers/PyTorch CUDA"
+    warmup_runs = capture["offering"].get("warmup_runs", 1)
+    warmup = (
+        "one unscored warmup" if warmup_runs == 1 else f"{warmup_runs} unscored warmup invocations"
+    )
     return {
         "id": f"local-asr-pilot-{slug}-{machine}",
         "version": "1",
         "methodology": (
-            f"Resident in-process {runtime} transcription; one unscored warmup, "
+            f"Resident in-process {runtime} transcription; {warmup}, "
             "then 24 complete audio files sequentially at batch size one."
         ),
         "raw_sha256": _sha256(path),
@@ -179,6 +220,14 @@ def _bootstrap_entry(bootstrap: dict[str, Any], capture: dict[str, Any]) -> dict
     if isinstance(hardware, dict):
         hardware = hardware.get("name")
     key = f"{offering['model']}|{offering['runtime']}|{hardware}"
+    optimization = offering.get("optimization", "baseline")
+    static_seconds = offering.get("static_audio_seconds")
+    warmup_runs = offering.get("warmup_runs", 1)
+    if optimization != "baseline" or static_seconds is not None or warmup_runs != 1:
+        key += (
+            f"|optimization={optimization}|static_audio_seconds={static_seconds}"
+            f"|warmup_runs={warmup_runs}"
+        )
     try:
         entry = bootstrap["offerings"][key]
     except KeyError as error:
@@ -221,7 +270,7 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
     observed_at = capture["captured_at"]
     summary = capture["summary"]
     confidence = interval["interval_95"]
-    source = _source(spec["slug"], machine, capture_path, machine_spec)
+    source = _source(spec["slug"], machine, capture_path, machine_spec, capture)
     empty_percent = Decimal(summary["empty_hypothesis_count"]) * Decimal(100)
     empty_percent /= Decimal(SAMPLE_COUNT)
     offering_id = (
@@ -243,7 +292,10 @@ def _offering(spec: dict[str, str], machine: str, machine_spec: dict[str, Any]) 
         runtime_config = (
             f"batch_size=1; dtype={exact['dtype']}; max_tokens={exact['max_tokens']}; "
             f"language_argument={exact['language_argument']!r}; "
-            f"attention={exact['attention']}"
+            f"attention={exact['attention']}; "
+            f"optimization={exact.get('optimization', 'baseline')}; "
+            f"static_audio_seconds={exact.get('static_audio_seconds')}; "
+            f"warmup_runs={exact.get('warmup_runs', 1)}"
         )
     signals = {
         "asr_corpus_wer_percent": _observation(

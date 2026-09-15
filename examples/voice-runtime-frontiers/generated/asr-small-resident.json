@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "cff9f518700aa41bd1c7e566989ff2047c324cc0a953d86c2166015b0887d043",
+  "snapshot_id": "9dc41974167f6a98885aa2b178b466cb540918d5f4151b3953e628143067d3fe",
   "config_hash": "d4ea992ee4d6166427dc10d15ec9d448e7a7a4d89500f99e911935336f77514d",
-  "catalog_hash": "b3abe984482c18d84704d72698f725a3df4ac9e97c2df0f41dba904eafa7b2d0",
+  "catalog_hash": "670c905898fb3318f660b6e0a58b19a10279e39b7e5184e08a94962b71df0fc7",
   "engine_version": "0.9.0",
-  "generated_at": "2026-09-15T03:10:00Z",
+  "generated_at": "2026-09-15T03:45:00Z",
   "frontier_id": "asr-small-resident",
   "workload": {
     "id": "local-asr-pilot-v1",
@@ -1031,13 +1031,31 @@
   ],
   "rejected": [
     {
+      "offering_id": "self-hosted/parakeet-tdt-06b-v3-bf16-compile-static16-transformers@rtx5060ti-16gb-en",
+      "reasons": [
+        "asr_process_rss_peak: signal 'asr_process_rss_peak_mb' is missing"
+      ]
+    },
+    {
       "offering_id": "self-hosted/parakeet-tdt-06b-v3-bf16-transformers@rtx5060ti-16gb-en",
       "reasons": [
         "asr_process_rss_peak: signal 'asr_process_rss_peak_mb' is missing"
       ]
     },
     {
+      "offering_id": "self-hosted/qwen3-asr-06b-bf16-compile-dynamic-transformers@rtx5060ti-16gb-en",
+      "reasons": [
+        "asr_process_rss_peak: signal 'asr_process_rss_peak_mb' is missing"
+      ]
+    },
+    {
       "offering_id": "self-hosted/qwen3-asr-06b-bf16-transformers@rtx5060ti-16gb-en",
+      "reasons": [
+        "asr_process_rss_peak: signal 'asr_process_rss_peak_mb' is missing"
+      ]
+    },
+    {
+      "offering_id": "self-hosted/qwen3-asr-17b-bf16-compile-dynamic-transformers@rtx5060ti-16gb-en",
       "reasons": [
         "asr_process_rss_peak: signal 'asr_process_rss_peak_mb' is missing"
       ]
@@ -1060,8 +1078,8 @@
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
     "config_hash": "d4ea992ee4d6166427dc10d15ec9d448e7a7a4d89500f99e911935336f77514d",
-    "catalog_hash": "b3abe984482c18d84704d72698f725a3df4ac9e97c2df0f41dba904eafa7b2d0",
-    "generated_at": "2026-09-15T03:10:00Z",
+    "catalog_hash": "670c905898fb3318f660b6e0a58b19a10279e39b7e5184e08a94962b71df0fc7",
+    "generated_at": "2026-09-15T03:45:00Z",
     "workload": {
       "id": "local-asr-pilot-v1",
       "version": "1.0.0",
@@ -1083,8 +1101,58 @@
         "epsilon_relative": "0.02"
       }
     ],
-    "candidate_universe_hash": "7b115c258daaadb23192a3504f7cdb73470939eca3be6025da35fef0e7312926",
+    "candidate_universe_hash": "ad46216854aa319682dee05568a435ff2bcee928fc0a2e00a32decb6eda63209",
     "candidates": [
+      {
+        "offering": {
+          "offering_id": "self-hosted/qwen3-asr-06b-bf16-compile-dynamic-transformers@rtx5060ti-16gb-en",
+          "model_id": "Qwen3-ASR-0.6B",
+          "provider": "local:rtx5060ti-16gb",
+          "endpoint": "in-process-cuda",
+          "billing_mode": null,
+          "region": null,
+          "service_tier": "resident",
+          "quantization": "bf16",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline-local-asr-pilot@1",
+          "capabilities": [
+            "asr",
+            "audio",
+            "stt"
+          ]
+        },
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.852459",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "4.538328",
+            "upper": "13.823563",
+            "dependencies": [
+              "signals.asr_corpus_wer_percent"
+            ],
+            "source_ids": [
+              "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060"
+            ],
+            "sources": [
+              {
+                "id": "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+                "raw_sha256": "914830f83c3a7e5b8590e00faa6104007fbc259d96443f8e9e8c979cc7b2564f",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T03:32:39Z",
+            "minimum_sample_count": 24
+          }
+        }
+      },
       {
         "offering": {
           "offering_id": "self-hosted/qwen3-asr-06b-bf16-transformers@rtx5060ti-16gb-en",
@@ -1137,6 +1205,56 @@
       },
       {
         "offering": {
+          "offering_id": "self-hosted/qwen3-asr-17b-bf16-compile-dynamic-transformers@rtx5060ti-16gb-en",
+          "model_id": "Qwen3-ASR-1.7B",
+          "provider": "local:rtx5060ti-16gb",
+          "endpoint": "in-process-cuda",
+          "billing_mode": null,
+          "region": null,
+          "service_tier": "resident",
+          "quantization": "bf16",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline-local-asr-pilot@1",
+          "capabilities": [
+            "asr",
+            "audio",
+            "stt"
+          ]
+        },
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.52459",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "4.841335",
+            "upper": "12.773109",
+            "dependencies": [
+              "signals.asr_corpus_wer_percent"
+            ],
+            "source_ids": [
+              "local-asr-pilot-qwen3-asr-17b-bf16-compile-dynamic-5060"
+            ],
+            "sources": [
+              {
+                "id": "local-asr-pilot-qwen3-asr-17b-bf16-compile-dynamic-5060",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+                "raw_sha256": "783c4a9166b4445ccb4da14f77130fdbe2be22d9f2ffa75e84e8ab1a5100f0b3",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T03:36:13Z",
+            "minimum_sample_count": 24
+          }
+        }
+      },
+      {
+        "offering": {
           "offering_id": "self-hosted/qwen3-asr-17b-bf16-transformers@rtx5060ti-16gb-en",
           "model_id": "Qwen3-ASR-1.7B",
           "provider": "local:rtx5060ti-16gb",
@@ -1181,6 +1299,56 @@
               }
             ],
             "oldest_observed_at": "2026-09-15T03:04:38Z",
+            "minimum_sample_count": 24
+          }
+        }
+      },
+      {
+        "offering": {
+          "offering_id": "self-hosted/parakeet-tdt-06b-v3-bf16-compile-static16-transformers@rtx5060ti-16gb-en",
+          "model_id": "parakeet-tdt-0.6b-v3",
+          "provider": "local:rtx5060ti-16gb",
+          "endpoint": "in-process-cuda",
+          "billing_mode": null,
+          "region": null,
+          "service_tier": "resident",
+          "quantization": "bf16",
+          "reasoning_effort": null,
+          "agent_harness": "model-skyline-local-asr-pilot@1",
+          "capabilities": [
+            "asr",
+            "audio",
+            "stt"
+          ]
+        },
+        "axes": {
+          "asr_corpus_wer": {
+            "value": "8.360656",
+            "unit": "percent",
+            "evidence_tiers": [
+              "measured"
+            ],
+            "lower": "5.043408",
+            "upper": "12.086179",
+            "dependencies": [
+              "signals.asr_corpus_wer_percent"
+            ],
+            "source_ids": [
+              "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060"
+            ],
+            "sources": [
+              {
+                "id": "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
+                "version": "1",
+                "url": null,
+                "terms_url": null,
+                "license": null,
+                "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 10 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+                "raw_sha256": "fce5ba58f1f93dd07e7c68382b518e57f2a326f0f662c7b01806d874863456f1",
+                "retrieved_at": null
+              }
+            ],
+            "oldest_observed_at": "2026-09-15T03:27:42Z",
             "minimum_sample_count": 24
           }
         }
@@ -1918,7 +2086,7 @@
         }
       }
     ],
-    "inventory_id": "55c17bcd59d351625093bd4da626fca9e62aec4394c0702ca8e74e2015d88a63"
+    "inventory_id": "675259ee0c1426dccec868ee26469ca9afef91a74dd2d41a2563f28f79bb20a1"
   },
   "public_release_blocked": false,
   "sources": [
@@ -1930,6 +2098,16 @@
       "license": null,
       "methodology": "Resident in-process MLX-Audio transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
       "raw_sha256": "a53ddede1ca53c54eeed2b5bb9c240119c5feebc5c34e26b5447d13feb3e8f71",
+      "retrieved_at": null
+    },
+    {
+      "id": "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+      "raw_sha256": "914830f83c3a7e5b8590e00faa6104007fbc259d96443f8e9e8c979cc7b2564f",
       "retrieved_at": null
     },
     {
@@ -2013,6 +2191,16 @@
       "retrieved_at": null
     },
     {
+      "id": "local-asr-pilot-qwen3-asr-17b-bf16-compile-dynamic-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+      "raw_sha256": "783c4a9166b4445ccb4da14f77130fdbe2be22d9f2ffa75e84e8ab1a5100f0b3",
+      "retrieved_at": null
+    },
+    {
       "id": "local-asr-pilot-whisper-large-v3-turbo-fp16-m5",
       "version": "1",
       "url": null,
@@ -2051,6 +2239,16 @@
       "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
       "raw_sha256": "e3c6aad15ca561946cebd69a5075b2271c5d9844e46bfb7937a765a3397cde93",
       "retrieved_at": null
+    },
+    {
+      "id": "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
+      "version": "1",
+      "url": null,
+      "terms_url": null,
+      "license": null,
+      "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 10 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+      "raw_sha256": "fce5ba58f1f93dd07e7c68382b518e57f2a326f0f662c7b01806d874863456f1",
+      "retrieved_at": null
     }
   ],
   "source_watermarks": {
@@ -2065,6 +2263,9 @@
     "local-asr-pilot-qwen3-asr-06b-bf16-5060": "2026-09-15T03:03:39Z",
     "local-asr-pilot-qwen3-asr-17b-bf16-5060": "2026-09-15T03:04:38Z",
     "local-asr-pilot-whisper-large-v3-turbo-bf16-5060": "2026-09-15T03:05:36Z",
-    "local-asr-pilot-parakeet-tdt-06b-v3-bf16-5060": "2026-09-15T03:02:59Z"
+    "local-asr-pilot-parakeet-tdt-06b-v3-bf16-5060": "2026-09-15T03:02:59Z",
+    "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060": "2026-09-15T03:32:39Z",
+    "local-asr-pilot-qwen3-asr-17b-bf16-compile-dynamic-5060": "2026-09-15T03:36:13Z",
+    "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060": "2026-09-15T03:27:42Z"
   }
 }

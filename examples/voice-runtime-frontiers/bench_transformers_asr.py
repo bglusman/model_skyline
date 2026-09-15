@@ -95,7 +95,13 @@ def _first_text(value: Any) -> str:
 
 
 class Qwen3ASRAdapter:
-    def __init__(self, model_id: str, revision: str, dtype: torch.dtype) -> None:
+    def __init__(
+        self,
+        model_id: str,
+        revision: str,
+        dtype: torch.dtype,
+        optimization: str,
+    ) -> None:
         self.processor = AutoProcessor.from_pretrained(  # type: ignore[no-untyped-call]
             model_id, revision=revision
         )
@@ -106,6 +112,12 @@ class Qwen3ASRAdapter:
             attn_implementation="sdpa",
         ).to("cuda")
         self.model.eval()
+        if optimization == "qwen-forward-compile":
+            self.model.forward = torch.compile(self.model.forward)
+        elif optimization == "qwen-forward-compile-dynamic":
+            self.model.forward = torch.compile(self.model.forward, dynamic=True)
+        elif optimization != "baseline":
+            raise ValueError(f"unsupported Qwen optimization: {optimization}")
 
     def transcribe(self, path: Path, language: str | None, max_tokens: int) -> str:
         inputs = self.processor.apply_transcription_request(
@@ -124,7 +136,14 @@ class Qwen3ASRAdapter:
 
 
 class ParakeetTDTAdapter:
-    def __init__(self, model_id: str, revision: str, dtype: torch.dtype) -> None:
+    def __init__(
+        self,
+        model_id: str,
+        revision: str,
+        dtype: torch.dtype,
+        optimization: str,
+        static_audio_seconds: float | None,
+    ) -> None:
         self.processor = AutoProcessor.from_pretrained(  # type: ignore[no-untyped-call]
             model_id, revision=revision
         )
@@ -134,22 +153,61 @@ class ParakeetTDTAdapter:
             dtype=dtype,
         ).to("cuda")
         self.model.eval()
+        self.static_audio_samples: int | None = None
+        if static_audio_seconds is not None:
+            if static_audio_seconds <= 0:
+                raise ValueError("--static-audio-seconds must be positive")
+            self.static_audio_samples = round(
+                static_audio_seconds * self.processor.feature_extractor.sampling_rate
+            )
+        if optimization == "parakeet-static-encoder-compile":
+            if self.static_audio_samples is None:
+                raise ValueError("compiled Parakeet requires positive --static-audio-seconds")
+            self.model.encoder.forward = torch.compile(
+                self.model.encoder.forward,
+                fullgraph=True,
+                dynamic=False,
+                mode="reduce-overhead",
+            )
+        elif optimization != "baseline":
+            raise ValueError(f"unsupported Parakeet optimization: {optimization}")
 
     def transcribe(self, path: Path, language: str | None, max_tokens: int) -> str:
         del language, max_tokens
         audio, sample_rate = _read_audio(path)
+        processor_kwargs: dict[str, Any] = {}
+        if self.static_audio_samples is not None:
+            if len(audio) > self.static_audio_samples:
+                raise ValueError(
+                    f"{path} exceeds the configured static audio length "
+                    f"({len(audio)} > {self.static_audio_samples} samples)"
+                )
+            processor_kwargs = {
+                "padding": "max_length",
+                "max_length": self.static_audio_samples,
+            }
         inputs = self.processor(
             audio,
             sampling_rate=sample_rate,
             return_tensors="pt",
+            **processor_kwargs,
         ).to(device=self.model.device, dtype=self.model.dtype)
         with torch.inference_mode():
-            output = self.model.generate(**inputs, return_dict_in_generate=True)
+            output = self.model.generate(
+                **inputs,
+                return_dict_in_generate=True,
+            )
         return _first_text(self.processor.decode(output.sequences, skip_special_tokens=True))
 
 
 class WhisperAdapter:
-    def __init__(self, model_id: str, revision: str, dtype: torch.dtype) -> None:
+    def __init__(
+        self,
+        model_id: str,
+        revision: str,
+        dtype: torch.dtype,
+        optimization: str,
+    ) -> None:
         self.processor = AutoProcessor.from_pretrained(  # type: ignore[no-untyped-call]
             model_id, revision=revision
         )
@@ -160,6 +218,8 @@ class WhisperAdapter:
             attn_implementation="sdpa",
         ).to("cuda")
         self.model.eval()
+        if optimization != "baseline":
+            raise ValueError(f"unsupported Whisper optimization: {optimization}")
 
     def transcribe(self, path: Path, language: str | None, max_tokens: int) -> str:
         audio, sample_rate = _read_audio(path)
@@ -183,13 +243,26 @@ class WhisperAdapter:
         return _first_text(self.processor.batch_decode(sequences, skip_special_tokens=True))
 
 
-def _load_adapter(family: str, model_id: str, revision: str, dtype: torch.dtype) -> ASRAdapter:
+def _load_adapter(
+    family: str,
+    model_id: str,
+    revision: str,
+    dtype: torch.dtype,
+    optimization: str,
+    static_audio_seconds: float | None,
+) -> ASRAdapter:
     if family == "qwen3-asr":
-        return Qwen3ASRAdapter(model_id, revision, dtype)
+        return Qwen3ASRAdapter(model_id, revision, dtype, optimization)
     if family == "parakeet-tdt":
-        return ParakeetTDTAdapter(model_id, revision, dtype)
+        return ParakeetTDTAdapter(
+            model_id,
+            revision,
+            dtype,
+            optimization,
+            static_audio_seconds,
+        )
     if family == "whisper":
-        return WhisperAdapter(model_id, revision, dtype)
+        return WhisperAdapter(model_id, revision, dtype, optimization)
     raise ValueError(f"unsupported family: {family}")
 
 
@@ -259,6 +332,18 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--language")
     parser.add_argument("--max-tokens", type=int, default=512)
     parser.add_argument("--dtype", choices=("bfloat16", "float16"), default="bfloat16")
+    parser.add_argument(
+        "--optimization",
+        choices=(
+            "baseline",
+            "qwen-forward-compile",
+            "qwen-forward-compile-dynamic",
+            "parakeet-static-encoder-compile",
+        ),
+        default="baseline",
+    )
+    parser.add_argument("--static-audio-seconds", type=float)
+    parser.add_argument("--warmup-runs", type=int, default=1)
     parser.add_argument("--output", type=Path, required=True)
     return parser
 
@@ -267,6 +352,8 @@ def main() -> None:
     args = _parser().parse_args()
     if args.max_tokens <= 0:
         raise SystemExit("--max-tokens must be positive")
+    if args.warmup_runs <= 0:
+        raise SystemExit("--warmup-runs must be positive")
     if not torch.cuda.is_available():
         raise SystemExit("CUDA is required")
     manifest_bytes = args.prompt_manifest.read_bytes()
@@ -304,7 +391,14 @@ def main() -> None:
     dtype = getattr(torch, args.dtype)
     torch.cuda.reset_peak_memory_stats()
     load_started = time.monotonic()
-    adapter = _load_adapter(args.family, args.model, args.model_revision, dtype)
+    adapter = _load_adapter(
+        args.family,
+        args.model,
+        args.model_revision,
+        dtype,
+        args.optimization,
+        args.static_audio_seconds,
+    )
     torch.cuda.synchronize()
     model_load_seconds = time.monotonic() - load_started
     resident_memory = {
@@ -314,7 +408,8 @@ def main() -> None:
     }
 
     warm_started = time.monotonic()
-    adapter.transcribe(prompts[0][1], args.language, args.max_tokens)
+    for _ in range(args.warmup_runs):
+        adapter.transcribe(prompts[0][1], args.language, args.max_tokens)
     torch.cuda.synchronize()
     warmup_seconds = time.monotonic() - warm_started
 
@@ -374,6 +469,9 @@ def main() -> None:
             "max_tokens": args.max_tokens,
             "dtype": args.dtype,
             "attention": "sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT",
+            "optimization": args.optimization,
+            "static_audio_seconds": args.static_audio_seconds,
+            "warmup_runs": args.warmup_runs,
         },
         "workload": {
             "manifest_id": manifest.get("id"),
@@ -384,7 +482,10 @@ def main() -> None:
             "normalization": NORM_VERSION,
         },
         "methodology": {
-            "warmup": "first manifest clip, unscored, after model load",
+            "warmup": (
+                f"first manifest clip repeated {args.warmup_runs} time(s), "
+                "unscored, after model load"
+            ),
             "request_order": "manifest order, sequential, batch size one",
             "latency": (
                 "CUDA-synchronized wall time from reading one complete resident audio "

@@ -26,12 +26,12 @@
         "artifact": "Qwen/Qwen3-ASR-0.6B-hf",
         "artifact_revision": "7f1569a48a89f3e3f4dc3a5c9d28bddd903bc76c",
         "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
-        "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='English'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT",
+        "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='English'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=baseline; static_audio_seconds=None; warmup_runs=1",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/qwen3-asr-06b-bf16-transformers-5060-local-asr-pilot-v1.json",
         "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
-        "bootstrap_sha256": "3fa740c2546edbd002d3fad744cc75044ba579ccf78ac3de89324ac288a836bc",
+        "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
         "audio_set_sha256": "f22027da9378c59f39accce9193d809df20b43fbe31743896b1d6e3556bdcf9c"
       },
@@ -124,12 +124,12 @@
         "artifact": "Qwen/Qwen3-ASR-1.7B-hf",
         "artifact_revision": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
         "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
-        "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='English'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT",
+        "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='English'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=baseline; static_audio_seconds=None; warmup_runs=1",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/qwen3-asr-17b-bf16-transformers-5060-local-asr-pilot-v1.json",
         "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
-        "bootstrap_sha256": "3fa740c2546edbd002d3fad744cc75044ba579ccf78ac3de89324ac288a836bc",
+        "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
         "audio_set_sha256": "f22027da9378c59f39accce9193d809df20b43fbe31743896b1d6e3556bdcf9c"
       },
@@ -222,12 +222,12 @@
         "artifact": "openai/whisper-large-v3-turbo",
         "artifact_revision": "41f01f3fe87f28c78e2fbf8b568835947dd65ed9",
         "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
-        "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=440; language_argument='en'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT",
+        "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=440; language_argument='en'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=baseline; static_audio_seconds=None; warmup_runs=1",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/whisper-large-v3-turbo-bf16-transformers-5060-local-asr-pilot-v1.json",
         "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
-        "bootstrap_sha256": "3fa740c2546edbd002d3fad744cc75044ba579ccf78ac3de89324ac288a836bc",
+        "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
         "audio_set_sha256": "f22027da9378c59f39accce9193d809df20b43fbe31743896b1d6e3556bdcf9c"
       },
@@ -320,12 +320,12 @@
         "artifact": "nvidia/parakeet-tdt-0.6b-v3",
         "artifact_revision": "541d1f99c6b0c3cd0b11a95167540bb8edefd82b",
         "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
-        "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='en'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT",
+        "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='en'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=baseline; static_audio_seconds=None; warmup_runs=1",
         "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
         "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
         "capture": "raw/parakeet-tdt-06b-v3-bf16-transformers-5060-local-asr-pilot-v1.json",
         "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
-        "bootstrap_sha256": "3fa740c2546edbd002d3fad744cc75044ba579ccf78ac3de89324ac288a836bc",
+        "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
         "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
         "audio_set_sha256": "f22027da9378c59f39accce9193d809df20b43fbe31743896b1d6e3556bdcf9c"
       },
@@ -394,6 +394,300 @@
             "version": "1",
             "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; one unscored warmup, then 24 complete audio files sequentially at batch size one.",
             "raw_sha256": "cba7f4996e6f286ff1eebff18a11673b091103086fd6ea24343be6e0543c9620"
+          }
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "self-hosted/qwen3-asr-06b-bf16-compile-dynamic-transformers@rtx5060ti-16gb-en",
+        "model_id": "Qwen3-ASR-0.6B",
+        "provider": "local:rtx5060ti-16gb",
+        "endpoint": "in-process-cuda",
+        "service_tier": "resident",
+        "quantization": "bf16",
+        "agent_harness": "model-skyline-local-asr-pilot@1",
+        "capabilities": [
+          "asr",
+          "audio",
+          "stt"
+        ]
+      },
+      "metadata": {
+        "hardware": "NVIDIA GeForce RTX 5060 Ti 16 GB",
+        "artifact": "Qwen/Qwen3-ASR-0.6B-hf",
+        "artifact_revision": "7f1569a48a89f3e3f4dc3a5c9d28bddd903bc76c",
+        "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
+        "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='English'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=qwen-forward-compile-dynamic; static_audio_seconds=None; warmup_runs=3",
+        "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
+        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
+        "capture": "raw/qwen3-asr-06b-bf16-transformers-compile-dynamic-warm3-5060-local-asr-pilot-v1.json",
+        "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
+        "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
+        "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
+        "audio_set_sha256": "f22027da9378c59f39accce9193d809df20b43fbe31743896b1d6e3556bdcf9c"
+      },
+      "signals": {
+        "asr_corpus_wer_percent": {
+          "value": "8.852459",
+          "unit": "percent",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:32:39Z",
+          "source": {
+            "id": "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "914830f83c3a7e5b8590e00faa6104007fbc259d96443f8e9e8c979cc7b2564f"
+          },
+          "lower": "4.538328",
+          "upper": "13.823563"
+        },
+        "asr_final_latency_p50_ms": {
+          "value": "189.58313",
+          "unit": "milliseconds",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:32:39Z",
+          "source": {
+            "id": "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "914830f83c3a7e5b8590e00faa6104007fbc259d96443f8e9e8c979cc7b2564f"
+          },
+          "lower": "161.685218",
+          "upper": "202.619986"
+        },
+        "asr_final_latency_p95_ms": {
+          "value": "273.210295",
+          "unit": "milliseconds",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:32:39Z",
+          "source": {
+            "id": "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "914830f83c3a7e5b8590e00faa6104007fbc259d96443f8e9e8c979cc7b2564f"
+          },
+          "lower": "216.019454",
+          "upper": "586.513171"
+        },
+        "asr_realtime_factor": {
+          "value": "47.92949",
+          "unit": "ratio",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:32:39Z",
+          "source": {
+            "id": "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "914830f83c3a7e5b8590e00faa6104007fbc259d96443f8e9e8c979cc7b2564f"
+          }
+        },
+        "asr_empty_hypothesis_percent": {
+          "value": "0",
+          "unit": "percent",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:32:39Z",
+          "source": {
+            "id": "local-asr-pilot-qwen3-asr-06b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "914830f83c3a7e5b8590e00faa6104007fbc259d96443f8e9e8c979cc7b2564f"
+          }
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "self-hosted/qwen3-asr-17b-bf16-compile-dynamic-transformers@rtx5060ti-16gb-en",
+        "model_id": "Qwen3-ASR-1.7B",
+        "provider": "local:rtx5060ti-16gb",
+        "endpoint": "in-process-cuda",
+        "service_tier": "resident",
+        "quantization": "bf16",
+        "agent_harness": "model-skyline-local-asr-pilot@1",
+        "capabilities": [
+          "asr",
+          "audio",
+          "stt"
+        ]
+      },
+      "metadata": {
+        "hardware": "NVIDIA GeForce RTX 5060 Ti 16 GB",
+        "artifact": "Qwen/Qwen3-ASR-1.7B-hf",
+        "artifact_revision": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
+        "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
+        "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='English'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=qwen-forward-compile-dynamic; static_audio_seconds=None; warmup_runs=3",
+        "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
+        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
+        "capture": "raw/qwen3-asr-17b-bf16-transformers-compile-dynamic-warm3-5060-local-asr-pilot-v1.json",
+        "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
+        "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
+        "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
+        "audio_set_sha256": "f22027da9378c59f39accce9193d809df20b43fbe31743896b1d6e3556bdcf9c"
+      },
+      "signals": {
+        "asr_corpus_wer_percent": {
+          "value": "8.52459",
+          "unit": "percent",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:36:13Z",
+          "source": {
+            "id": "local-asr-pilot-qwen3-asr-17b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "783c4a9166b4445ccb4da14f77130fdbe2be22d9f2ffa75e84e8ab1a5100f0b3"
+          },
+          "lower": "4.841335",
+          "upper": "12.773109"
+        },
+        "asr_final_latency_p50_ms": {
+          "value": "357.394692",
+          "unit": "milliseconds",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:36:13Z",
+          "source": {
+            "id": "local-asr-pilot-qwen3-asr-17b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "783c4a9166b4445ccb4da14f77130fdbe2be22d9f2ffa75e84e8ab1a5100f0b3"
+          },
+          "lower": "320.041103",
+          "upper": "386.459549"
+        },
+        "asr_final_latency_p95_ms": {
+          "value": "534.430021",
+          "unit": "milliseconds",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:36:13Z",
+          "source": {
+            "id": "local-asr-pilot-qwen3-asr-17b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "783c4a9166b4445ccb4da14f77130fdbe2be22d9f2ffa75e84e8ab1a5100f0b3"
+          },
+          "lower": "409.139221",
+          "upper": "802.786468"
+        },
+        "asr_realtime_factor": {
+          "value": "25.750573",
+          "unit": "ratio",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:36:13Z",
+          "source": {
+            "id": "local-asr-pilot-qwen3-asr-17b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "783c4a9166b4445ccb4da14f77130fdbe2be22d9f2ffa75e84e8ab1a5100f0b3"
+          }
+        },
+        "asr_empty_hypothesis_percent": {
+          "value": "0",
+          "unit": "percent",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:36:13Z",
+          "source": {
+            "id": "local-asr-pilot-qwen3-asr-17b-bf16-compile-dynamic-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 3 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "783c4a9166b4445ccb4da14f77130fdbe2be22d9f2ffa75e84e8ab1a5100f0b3"
+          }
+        }
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "self-hosted/parakeet-tdt-06b-v3-bf16-compile-static16-transformers@rtx5060ti-16gb-en",
+        "model_id": "parakeet-tdt-0.6b-v3",
+        "provider": "local:rtx5060ti-16gb",
+        "endpoint": "in-process-cuda",
+        "service_tier": "resident",
+        "quantization": "bf16",
+        "agent_harness": "model-skyline-local-asr-pilot@1",
+        "capabilities": [
+          "asr",
+          "audio",
+          "stt"
+        ]
+      },
+      "metadata": {
+        "hardware": "NVIDIA GeForce RTX 5060 Ti 16 GB",
+        "artifact": "nvidia/parakeet-tdt-0.6b-v3",
+        "artifact_revision": "541d1f99c6b0c3cd0b11a95167540bb8edefd82b",
+        "runtime": "Transformers 5.17.0 / PyTorch 2.13.0+cu130 / CUDA 13.0",
+        "runtime_config": "batch_size=1; dtype=bfloat16; max_tokens=512; language_argument='en'; attention=sdpa for Qwen3-ASR and Whisper; native default for Parakeet TDT; optimization=parakeet-static-encoder-compile; static_audio_seconds=16.0; warmup_runs=10",
+        "quality_scope": "24-utterance English pilot across meeting, financial-call, difficult audiobook, and non-US political speech",
+        "latency_scope": "complete audio file already available to final transcript return; excludes end-of-turn detection and live-stream capture",
+        "capture": "raw/parakeet-tdt-06b-v3-bf16-transformers-compile-static16-warm10-5060-local-asr-pilot-v1.json",
+        "bootstrap": "raw/rtx5060ti-local-asr-pilot-v1-bootstrap.json",
+        "bootstrap_sha256": "2839affbf4605bf9e14e0ac5e30c8b4128dbda744c0b0c628376b6474e74dc7a",
+        "manifest_sha256": "3c30d7789d3ee326fa7dfd3ee4b7db0b657181f16ec9a8c49512cb325b939063",
+        "audio_set_sha256": "f22027da9378c59f39accce9193d809df20b43fbe31743896b1d6e3556bdcf9c"
+      },
+      "signals": {
+        "asr_corpus_wer_percent": {
+          "value": "8.360656",
+          "unit": "percent",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:27:42Z",
+          "source": {
+            "id": "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 10 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "fce5ba58f1f93dd07e7c68382b518e57f2a326f0f662c7b01806d874863456f1"
+          },
+          "lower": "5.043408",
+          "upper": "12.086179"
+        },
+        "asr_final_latency_p50_ms": {
+          "value": "60.614202",
+          "unit": "milliseconds",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:27:42Z",
+          "source": {
+            "id": "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 10 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "fce5ba58f1f93dd07e7c68382b518e57f2a326f0f662c7b01806d874863456f1"
+          },
+          "lower": "56.427799",
+          "upper": "63.395584"
+        },
+        "asr_final_latency_p95_ms": {
+          "value": "74.101231",
+          "unit": "milliseconds",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:27:42Z",
+          "source": {
+            "id": "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 10 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "fce5ba58f1f93dd07e7c68382b518e57f2a326f0f662c7b01806d874863456f1"
+          },
+          "lower": "68.048286",
+          "upper": "74.54874"
+        },
+        "asr_realtime_factor": {
+          "value": "157.784071",
+          "unit": "ratio",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:27:42Z",
+          "source": {
+            "id": "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 10 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "fce5ba58f1f93dd07e7c68382b518e57f2a326f0f662c7b01806d874863456f1"
+          }
+        },
+        "asr_empty_hypothesis_percent": {
+          "value": "0",
+          "unit": "percent",
+          "sample_count": 24,
+          "observed_at": "2026-09-15T03:27:42Z",
+          "source": {
+            "id": "local-asr-pilot-parakeet-tdt-06b-v3-bf16-compile-static16-5060",
+            "version": "1",
+            "methodology": "Resident in-process Transformers/PyTorch CUDA transcription; 10 unscored warmup invocations, then 24 complete audio files sequentially at batch size one.",
+            "raw_sha256": "fce5ba58f1f93dd07e7c68382b518e57f2a326f0f662c7b01806d874863456f1"
           }
         }
       }

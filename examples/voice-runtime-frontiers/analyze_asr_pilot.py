@@ -43,7 +43,16 @@ def _hardware_name(capture: dict[str, Any]) -> str:
 def _offering_id(capture: dict[str, Any]) -> str:
     offering = capture["offering"]
     hardware = _hardware_name(capture)
-    return f"{offering['model']}|{offering['runtime']}|{hardware}"
+    identity = f"{offering['model']}|{offering['runtime']}|{hardware}"
+    optimization = offering.get("optimization", "baseline")
+    static_seconds = offering.get("static_audio_seconds")
+    warmup_runs = offering.get("warmup_runs", 1)
+    if optimization != "baseline" or static_seconds is not None or warmup_runs != 1:
+        identity += (
+            f"|optimization={optimization}|static_audio_seconds={static_seconds}"
+            f"|warmup_runs={warmup_runs}"
+        )
+    return identity
 
 
 def _parser() -> argparse.ArgumentParser:
