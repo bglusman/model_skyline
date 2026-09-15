@@ -8,9 +8,12 @@ import sys
 from pathlib import Path
 from types import ModuleType
 
+import pytest
+
 ROOT = Path(__file__).parents[1]
 EXAMPLE = ROOT / "examples" / "voice-runtime-frontiers"
 CAPTURE = EXAMPLE / "capture_service_memory.py"
+CAPTURE_V2 = EXAMPLE / "capture_service_memory_v2.py"
 BUILDER = EXAMPLE / "build_tts_service_memory_panel.py"
 MEMORY_RESULT = EXAMPLE / "raw" / "tts-service-memory-panel-v1-results.json"
 CATALOG = EXAMPLE / "observations.json"
@@ -19,6 +22,15 @@ MEMORY_FRONTIER = EXAMPLE / "generated" / "tts-small-resident-intelligibility.js
 
 def _load_capture_module() -> ModuleType:
     spec = importlib.util.spec_from_file_location("capture_service_memory", CAPTURE)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _load_capture_v2_module() -> ModuleType:
+    spec = importlib.util.spec_from_file_location("capture_service_memory_v2", CAPTURE_V2)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
@@ -77,6 +89,128 @@ def test_combined_peak_uses_one_sample_and_retains_component_peaks() -> None:
     assert summary["peak_combined_elapsed_milliseconds"] == 200
     assert summary["host_bytes_at_combined_peak"] == 90
     assert summary["device_bytes_at_combined_peak"] == 30
+
+
+def test_v2_cuda_rows_are_strictly_parsed() -> None:
+    module = _load_capture_v2_module()
+
+    assert module._parse_cuda_process_rows("100, 2\n101, 3\n") == [
+        (100, 2 * 1024 * 1024),
+        (101, 3 * 1024 * 1024),
+    ]
+    with pytest.raises(module.CaptureError, match="non-numeric"):
+        module._parse_cuda_process_rows("100, unavailable\n")
+
+
+def test_v2_rejects_cuda_memory_outside_selected_tree(monkeypatch: pytest.MonkeyPatch) -> None:
+    module = _load_capture_v2_module()
+    monkeypatch.setattr(
+        module,
+        "_query_cuda_process_rows",
+        lambda: [(100, 2 * 1024 * 1024), (101, 3 * 1024 * 1024)],
+    )
+
+    with pytest.raises(module.CaptureError, match="1 unselected compute process"):
+        module._cuda_process_memory_bytes({100})
+
+
+def test_v2_accepts_only_selected_cuda_memory(monkeypatch: pytest.MonkeyPatch) -> None:
+    module = _load_capture_v2_module()
+    monkeypatch.setattr(
+        module,
+        "_query_cuda_process_rows",
+        lambda: [(100, 2 * 1024 * 1024), (101, 3 * 1024 * 1024)],
+    )
+
+    assert module._cuda_process_memory_bytes({100, 101}) == 5 * 1024 * 1024
+
+
+def test_v2_cuda_preflight_rejects_before_launch(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    module = _load_capture_v2_module()
+    marker = tmp_path / "command-started"
+    monkeypatch.setattr(module.sys, "platform", "linux")
+    monkeypatch.setattr(module.v1, "_process_table", lambda: {})
+    monkeypatch.setattr(module.v1, "_selected_pids", lambda *args, **kwargs: set())
+
+    def reject_unselected(_selected_pids: set[int]) -> int:
+        raise module.CaptureError("unselected CUDA owner")
+
+    monkeypatch.setattr(module, "_cuda_process_memory_bytes", reject_unselected)
+
+    with pytest.raises(module.CaptureError, match="unselected CUDA owner"):
+        module.capture(
+            architecture="linux_split_cuda",
+            hardware_label="test-gpu",
+            offering_id="test/offering",
+            process_label="marker",
+            process_matches=(),
+            root_pids=set(),
+            interval_seconds=0.05,
+            wait_for_process_seconds=1,
+            timeout_seconds=1,
+            stop_file=None,
+            workload_captures=[],
+            command=[sys.executable, "-c", f"open({str(marker)!r}, 'w').close()"],
+        )
+
+    assert not marker.exists()
+
+
+def test_v2_preserves_a_launched_commands_failure_status(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module = _load_capture_v2_module()
+    process = module.v1.ProcessInfo
+    tables = [{4321: process(4321, 1, 10, "test command")}, {}]
+
+    class FinishedChild:
+        pid = 4321
+        returncode = 7
+        poll_count = 0
+
+        def poll(self) -> int | None:
+            self.poll_count += 1
+            return None if self.poll_count == 1 else self.returncode
+
+    child = FinishedChild()
+    monkeypatch.setattr(module.sys, "platform", "darwin")
+    monkeypatch.setattr(module.subprocess, "Popen", lambda *args, **kwargs: child)
+    monkeypatch.setattr(module.v1, "_process_table", lambda: tables.pop(0))
+    monkeypatch.setattr(
+        module,
+        "_sample",
+        lambda **kwargs: {
+            "elapsed_milliseconds": 0,
+            "selected_process_count": 1,
+            "rss_bytes": 10,
+            "host_physical_bytes": 10,
+            "device_memory_bytes": None,
+            "combined_capacity_bytes": 10,
+            "unselected_cuda_process_count": None,
+            "unselected_cuda_memory_bytes": None,
+        },
+    )
+
+    payload, returncode = module.capture(
+        architecture="apple_unified",
+        hardware_label="test-mac",
+        offering_id="test/offering",
+        process_label="command",
+        process_matches=(),
+        root_pids=set(),
+        interval_seconds=0.05,
+        wait_for_process_seconds=1,
+        timeout_seconds=1,
+        stop_file=None,
+        workload_captures=[],
+        command=["test-command"],
+    )
+
+    assert payload["stop_reason"] == "launched command exited"
+    assert payload["child_returncode"] == 7
+    assert returncode == 7
 
 
 def test_published_service_memory_panel_replays_raw_hashes() -> None:

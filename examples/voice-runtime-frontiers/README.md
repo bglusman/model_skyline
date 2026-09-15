@@ -150,9 +150,19 @@ lock serializes runners that agree to use it, but it cannot stop a client from
 calling Ollama directly. A direct client loaded another model during the first
 vLLM attempt, so that attempt was discarded. The retained vLLM and CUDA
 LoudKit captures temporarily stopped both llama-swap and Ollama, verified an
-empty GPU, and then held the exclusive lock. A follow-up router change should
-make bypassing the shared switch harder; the current mutex is cooperative, not
-a machine-wide memory scheduler.
+empty GPU, and then held the exclusive lock. The deployed follow-up now keeps
+Ollama on loopback and makes the shared launcher refuse a second CUDA owner.
+The mutex is still cooperative, not a machine-wide memory scheduler: a local
+process can ignore both the router and its lock.
+
+Future CUDA memory runs should use
+[`capture_service_memory_v2.py`](capture_service_memory_v2.py). It checks all
+CUDA compute allocations before launch and on every sample. If even one belongs
+to a process outside the selected service tree, the capture stops instead of
+quietly publishing an inflated result. The original
+[`capture_service_memory.py`](capture_service_memory.py) remains unchanged
+because the published v1 panel records its exact file hash. In other words, v1
+reproduces the existing evidence; v2 is the safer default for new evidence.
 
 ### What the matched winner comparison adds
 
