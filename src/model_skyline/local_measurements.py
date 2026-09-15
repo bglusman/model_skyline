@@ -239,6 +239,37 @@ class LocalPerformanceEvidence(FrozenModel):
         return self
 
 
+class LocalServiceMemoryEvidence(FrozenModel):
+    """One whole-service memory observation bound to the workload capture."""
+
+    schema_version: Literal["model-skyline/experimental-service-memory/v2alpha1"]
+    memory_architecture: Literal["apple_unified", "linux_split_cuda"]
+    peak_service_capacity_bytes: SafeCount
+    host_bytes_at_service_peak: SafeCount
+    accelerator_bytes_at_service_peak: SafeCount | None = None
+    peak_host_swap_growth_bytes: SafeCount
+    sample_count: PositiveSafeCount
+    raw_artifact_path: RelativeArtifactPath
+    raw_sha256: Sha256Digest
+    workload_capture_sha256: Sha256Digest
+
+    @model_validator(mode="after")
+    def component_accounting_is_consistent(self) -> Self:
+        accelerator = self.accelerator_bytes_at_service_peak
+        if self.memory_architecture == "linux_split_cuda":
+            if accelerator is None:
+                raise ValueError("split CUDA service memory requires an accelerator component")
+            if self.peak_service_capacity_bytes != self.host_bytes_at_service_peak + accelerator:
+                raise ValueError(
+                    "split CUDA service capacity must equal host plus accelerator bytes"
+                )
+        elif accelerator is not None:
+            raise ValueError("Apple unified service memory must not add an accelerator component")
+        elif self.peak_service_capacity_bytes != self.host_bytes_at_service_peak:
+            raise ValueError("Apple unified service capacity must equal its physical footprint")
+        return self
+
+
 class LocalMeasurementProvenance(FrozenModel):
     tool: Identifier
     tool_version: Identifier
@@ -269,6 +300,7 @@ class LocalMeasurementRecord(FrozenModel):
     runtime: LocalRuntimeIdentity
     workload: LocalBenchmarkWorkload
     performance: LocalPerformanceEvidence | None = None
+    service_memory: LocalServiceMemoryEvidence | None = None
     integrity: LocalIntegrityEvidence | None = None
     capabilities: Capabilities = ()
     provenance: LocalMeasurementProvenance
@@ -694,14 +726,20 @@ def build_local_capacity_catalog(
         source = _source(selected)
         signals: dict[str, Observation] = {}
         if passing:
-            footprint = selected.performance.metrics.get(
+            service_memory = selected.service_memory
+            physical_footprint = selected.performance.metrics.get(
                 LocalMetricName.peak_process_physical_footprint_bytes
             )
-            if footprint is None:
+            if service_memory is None and physical_footprint is None:
                 raise ValueError(
                     f"capacity record {selected.measurement_id!r} is missing sampled "
-                    "physical footprint"
+                    "whole-service capacity or physical footprint"
                 )
+            # A macOS physical footprint already accounts for the unified-memory
+            # service. Split CUDA captures provide the explicitly sampled sum of
+            # host PSS and device allocation instead. The generic signal makes
+            # both visible while the retained memory-architecture metadata keeps
+            # unlike accounting methods auditable.
             capacity_signal = (
                 "local_validated_context_tokens"
                 if integrity_check is LocalCapacityIntegrityCheck.retrieval
@@ -715,13 +753,50 @@ def build_local_capacity_catalog(
                     observed_at=selected.completed_at,
                     source=source,
                 ),
-                "local_peak_process_physical_footprint_bytes": _observation(
-                    footprint.values,
+            }
+            for metric_name, series in selected.performance.metrics.items():
+                signals[f"local_{metric_name.value}"] = _observation(
+                    series.values,
+                    unit=series.unit,
+                    record=selected,
+                    source=source,
+                )
+            if service_memory is not None:
+                memory_source = SourceReference(
+                    id=f"local-service-memory:{selected.measurement_id}",
+                    version=service_memory.schema_version,
+                    url=None,
+                    license="CC0-1.0",
+                    methodology=(
+                        "Whole-service peak sampled across the bound workload capture; "
+                        "split CUDA reports host PSS plus device allocation, while Apple "
+                        "unified memory reports physical footprint."
+                    ),
+                    raw_sha256=service_memory.raw_sha256,
+                    retrieved_at=selected.completed_at,
+                )
+                signals["local_peak_service_capacity_bytes"] = Observation(
+                    value=service_memory.peak_service_capacity_bytes,
+                    unit="byte",
+                    sample_count=1,
+                    observed_at=selected.completed_at,
+                    source=memory_source,
+                )
+            else:
+                assert physical_footprint is not None
+                signals["local_peak_service_capacity_bytes"] = _observation(
+                    physical_footprint.values,
                     unit="byte",
                     record=selected,
                     source=source,
-                ),
-            }
+                )
+            if physical_footprint is not None:
+                signals["local_peak_process_physical_footprint_bytes"] = _observation(
+                    physical_footprint.values,
+                    unit="byte",
+                    record=selected,
+                    source=source,
+                )
         offering = local_offering_key(selected)
         assert offering.offering_id == offering_id
         attempted = sorted(
@@ -766,6 +841,11 @@ def build_local_capacity_catalog(
                     "hardware": selected.hardware.model_dump(mode="json"),
                     "artifact": selected.artifact.model_dump(mode="json"),
                     "runtime": selected.runtime.model_dump(mode="json"),
+                    "service_memory": (
+                        selected.service_memory.model_dump(mode="json")
+                        if selected.service_memory is not None
+                        else None
+                    ),
                     "runtime_identity_sha256": content_hash(selected.runtime),
                     "workload": selected.workload.model_dump(mode="json"),
                     "raw_artifact_path": selected.provenance.raw_artifact_path,

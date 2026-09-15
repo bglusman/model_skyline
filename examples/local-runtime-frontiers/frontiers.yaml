@@ -54,8 +54,10 @@ workloads:
     cohort: deterministic-byte-prompt-actual-token-count@v1
     benchmark: validated retrieval capacity and peak memory
     description: >-
-      Maximum fully passing retrieval position paired with measured peak
-      physical footprint; OOM-free allocation alone is insufficient.
+      Maximum fully passing retrieval position paired with a declared measured
+      memory signal. Production Apple frontiers use process physical footprint;
+      split-memory screens use whole-service host-plus-accelerator capacity.
+      OOM-free allocation alone is insufficient.
     variables: {}
     assumptions:
       swap_allowed: false
@@ -139,6 +141,14 @@ metrics:
       max_age_hours: 720
       minimum_samples: 3
 
+  end_to_end_screen:
+    kind: signal
+    signal: local_end_to_end_seconds
+    unit: s
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 1
+
   tool_call_success:
     kind: signal
     signal: local_tool_call_success_percent
@@ -146,6 +156,14 @@ metrics:
     requirements:
       max_age_hours: 720
       minimum_samples: 3
+
+  tool_call_success_screen:
+    kind: signal
+    signal: local_tool_call_success_percent
+    unit: percent
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 1
 
   tool_argument_parse_success:
     kind: signal
@@ -179,6 +197,14 @@ metrics:
       max_age_hours: 720
       minimum_samples: 3
 
+  validated_context_screen:
+    kind: signal
+    signal: local_validated_context_tokens
+    unit: token
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 1
+
   retrieved_value_context:
     kind: signal
     signal: local_retrieved_value_context_tokens
@@ -194,6 +220,14 @@ metrics:
     requirements:
       max_age_hours: 720
       minimum_samples: 3
+
+  peak_service_capacity:
+    kind: signal
+    signal: local_peak_service_capacity_bytes
+    unit: byte
+    requirements:
+      max_age_hours: 720
+      minimum_samples: 1
 
   prefix_cache_reuse:
     kind: signal
@@ -293,6 +327,23 @@ frontiers:
         tool_call_success: 100
     metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
 
+  tool-agent-operational-screen:
+    workload: openai-agent-latency-v1
+    axes:
+      - metric: tool_call_success_screen
+        goal: maximize
+      - metric: end_to_end_screen
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: tool_call_success_screen
+    uncertainty: point
+    eligibility:
+      required_capabilities: [text, tools]
+      allow_unknown_age: false
+      minimum_axis_values:
+        tool_call_success_screen: 100
+    metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
   warm-cache-operational:
     workload: openai-agent-latency-v1
     axes:
@@ -362,6 +413,40 @@ frontiers:
       required_capabilities: [long-context]
       allow_unknown_age: false
     metadata_fields: [hardware, artifact, runtime, workload, local_evidence_status]
+
+  validated-capacity-service-memory-screen:
+    workload: validated-capacity-v1
+    axes:
+      - metric: validated_context_screen
+        goal: maximize
+        epsilon_relative: 0.02
+      - metric: peak_service_capacity
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: validated_context_screen
+    uncertainty: point
+    eligibility:
+      required_capabilities: [long-context]
+      allow_unknown_age: false
+    metadata_fields:
+      [hardware, artifact, runtime, service_memory, workload, local_evidence_status]
+
+  validated-capacity-latency-screen:
+    workload: validated-capacity-v1
+    axes:
+      - metric: validated_context_screen
+        goal: maximize
+        epsilon_relative: 0.02
+      - metric: end_to_end_screen
+        goal: minimize
+        epsilon_relative: 0.05
+    order_by: validated_context_screen
+    uncertainty: point
+    eligibility:
+      required_capabilities: [long-context]
+      allow_unknown_age: false
+    metadata_fields:
+      [hardware, artifact, runtime, service_memory, workload, local_evidence_status]
 
   retrieved-value-capacity-memory:
     workload: retrieved-value-capacity-v1

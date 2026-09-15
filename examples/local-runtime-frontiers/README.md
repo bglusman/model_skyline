@@ -21,6 +21,14 @@ throughput, warm and uncached tool operation, repeated 126K retrieval, and a
 strict plus value-found capacity/physical-footprint roll-up. They remain
 workload-specific, not a universal model ranking.
 
+The newest 16 GB RTX 5060 Ti screen adds Qwen3.5 9B Q6_K as a practical
+128K-class route. It returned the exact hidden value in fresh-server early,
+middle, and late 126,002-token probes. At the middle position it took 72.103 s
+uncached, about 0.693 s after reusing 125,998 prompt tokens, and peaked at
+11.72 GB of combined host/GPU service capacity. It and Laguna are both short
+speed and latency tradeoffs; Qwen alone remains on the validated-context versus
+service-memory frontier. This screen does not measure coding quality or vision.
+
 The [small, realistic evaluation survey](../../docs/small-realistic-evaluations.md)
 compares several text, tool, vision, and SVG candidates before choosing a
 default. [Little Dorrit](dorrit-benchmark-intake.md) remains one intake in that
@@ -64,6 +72,16 @@ non-finite perplexity. It is therefore useful quantization evidence, not a
 route to deploy. A 128K/Q8-KV resident fit is arithmetically impossible at this
 budget, while the 128K/Q4-KV screen leaves only a severe 2.222-bpw weight plan.
 Neither 32K result is a substitute for the requested 128K agent route.
+
+The separate Qwen3.5 9B Q6_K control now supplies that 128K-class route without
+a custom fit. The exact artifact is 7,359,230,048 bytes, uses a 131,072-token
+runtime allocation and Q8 KV cache, and is identified by SHA-256 in its
+[`system profile`](system-profiles/qwen35-9b-q6k-llamacpp-cuda-ctx128k-q8kv.json).
+It validated 126,002 actual input tokens and passed a 30-tool selection probe.
+The official checkpoint's larger native context is retained as metadata, not
+reported as locally proven capacity. An exploratory Q4 KV run used less memory
+but was materially slower at the long position, so the checked-in route keeps
+Q8 KV. No exploratory Q4 raw result or altered artifact is promoted.
 
 The dated [`overnight handoff`](overnight-handoff-2026-09-14.md) summarizes the
 published frontier residents, cross-Mac conclusions, runtime state, and pending
@@ -200,6 +218,9 @@ Every active frontier has exactly two decision axes:
   (maximize), at an exact prompt/output/mode/cache position.
 - `tool-agent-operational`: exact tool-call success (maximize) vs end-to-end
   latency (minimize). A 100% success threshold rejects fast broken routes.
+- `tool-agent-operational-screen`: the same two axes with one sample permitted.
+  It is for early candidate screening and must not be presented as the
+  three-sample operational result.
 - `warm-cache-operational`: observed input reuse (reported cache-hit tokens
   divided by actual input tokens per repetition, maximize) vs end-to-end latency
   (minimize), with exact tool correctness and zero swap-growth gates. Reuse
@@ -213,6 +234,15 @@ Every active frontier has exactly two decision axes:
   information access from exact output-format obedience.
 - `validated-capacity-memory`: largest fully exact-answer retrieval position
   (maximize) vs peak physical footprint (minimize).
+- `validated-capacity-service-memory-screen`: largest fully exact-answer input
+  position (maximize) vs a whole-service capacity peak (minimize). On Apple
+  unified memory the peak is the kernel-accounted service footprint. On split
+  CUDA memory it is host proportional-set memory plus GPU allocation sampled
+  at the same instant.
+- `validated-capacity-latency-screen`: largest fully exact-answer input
+  position (maximize) vs uncached end-to-end time (minimize). It keeps the
+  long-and-slow versus short-and-fast choice visible instead of collapsing it
+  into a score.
 - `retrieved-value-capacity-memory`: largest position where every response
   contains the requested value (maximize) vs peak physical footprint
   (minimize).
@@ -687,6 +717,12 @@ python examples/local-runtime-frontiers/openai_matrix.py \
   --output examples/local-runtime-frontiers/raw/tool-matrix.json
 ```
 
+The harness opens a fresh loopback TCP connection for every request. Some local
+servers close the connection after a very large streamed response while still
+remaining healthy; reusing that stale connection made the following cached
+request look like a model failure. This transport choice avoids that false
+failure and does not alter the measured model workload.
+
 Current oMLX protects its admin telemetry with a signed session cookie even
 when the inference API itself has no key. `--runtime-stats-cookie-env` sends an
 already-created session value only to the loopback stats URL and records the
@@ -767,6 +803,28 @@ post-first-token inter-token rate are different estimands and must not share a
 frontier axis without an explicit conversion policy. If a tool call is buffered
 and the server reports neither value, the normalizer deliberately omits TTFT and
 decode rate while retaining semantic-event and end-to-end latency.
+
+For a whole-service memory capture, bind its digest to the exact OpenAI matrix
+capture during normalization:
+
+```console
+python examples/local-runtime-frontiers/normalize_openai_matrix.py \
+  --capture examples/local-runtime-frontiers/raw/request-matrix.json \
+  --hardware examples/local-runtime-frontiers/hardware/inference-vm-rtx5060ti16.json \
+  --system-profile examples/local-runtime-frontiers/system-profiles/exact-profile.json \
+  --raw-artifact-path raw/request-matrix.json \
+  --service-memory-capture examples/local-runtime-frontiers/raw/service-memory.json \
+  --service-memory-raw-artifact-path raw/service-memory.json \
+  --measurement-prefix exact-profile-request \
+  --kind long_context_retrieval \
+  --output-directory examples/local-runtime-frontiers/measurements
+```
+
+Both service-memory arguments are required together. The normalizer verifies
+the hardware ID, clean child exit, privacy flag, exact workload filename and
+SHA-256 binding, then attaches the memory evidence only to an uncached or
+cache-disabled position. The compact measurement retains the peak and source
+digest rather than duplicating every sampler row.
 
 Retrieval mode builds deterministic unique distractor records, inserts one
 passkey at a fixed character fraction, and asks for that passkey alone. It

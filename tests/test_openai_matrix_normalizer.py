@@ -27,6 +27,24 @@ MATRIX_SPEC = importlib.util.spec_from_file_location("openai_matrix", MATRIX_SCR
 assert MATRIX_SPEC is not None and MATRIX_SPEC.loader is not None
 MATRIX = importlib.util.module_from_spec(MATRIX_SPEC)
 MATRIX_SPEC.loader.exec_module(MATRIX)
+QWEN_RAW = (
+    ROOT
+    / "examples"
+    / "local-runtime-frontiers"
+    / "raw"
+    / "qwen35-9b-q6k-5060-retrieval-mid-r3-p126000-o64-ctx128k-q8kv-alias.json"
+)
+QWEN_MEMORY = (
+    ROOT
+    / "examples"
+    / "local-runtime-frontiers"
+    / "raw"
+    / "qwen35-9b-q6k-128k-q8kv-service-memory-v2-load-none-linuxswap-alias.json"
+)
+
+
+def test_matrix_disables_keepalive_reuse_between_large_streams() -> None:
+    assert MATRIX.HTTP_MAX_KEEPALIVE_CONNECTIONS == 0
 
 
 def test_extracts_dflash_acceptance_from_nested_runtime_stats() -> None:
@@ -283,6 +301,33 @@ def test_runtime_memory_finds_omlx_active_memory_pressure() -> None:
     }
 
     assert MATRIX._runtime_memory_bytes(stats) == 47_125_083_168
+
+
+def test_service_memory_evidence_binds_workload_and_keeps_split_components() -> None:
+    evidence = NORMALIZER._service_memory_evidence(
+        QWEN_MEMORY,
+        workload_capture=QWEN_RAW,
+        hardware_id="inference-vm-rtx5060ti16",
+        raw_artifact_path=(
+            "raw/qwen35-9b-q6k-128k-q8kv-service-memory-v2-load-none-linuxswap-alias.json"
+        ),
+    )
+
+    assert evidence["peak_service_capacity_bytes"] == 11_716_790_272
+    assert evidence["accelerator_bytes_at_service_peak"] == 9_749_659_648
+    assert evidence["host_bytes_at_service_peak"] == 1_967_130_624
+    assert evidence["peak_host_swap_growth_bytes"] == 1_048_576
+    assert evidence["memory_architecture"] == "linux_split_cuda"
+
+
+def test_service_memory_evidence_rejects_an_unbound_workload() -> None:
+    with pytest.raises(ValueError, match="does not bind"):
+        NORMALIZER._service_memory_evidence(
+            QWEN_MEMORY,
+            workload_capture=CAPTURE,
+            hardware_id="inference-vm-rtx5060ti16",
+            raw_artifact_path="raw/qwen-memory.json",
+        )
 
 
 def test_normalizer_splits_prefix_cache_miss_and_warm_positions(tmp_path: Path) -> None:

@@ -1,0 +1,161 @@
+{
+  "schema_version": "model-skyline/local-measurement/v1alpha1",
+  "measurement_id": "qwen35-9b-q6k-5060-pp2048-tg512",
+  "status": "provisional",
+  "started_at": "2026-09-15T19:21:15.505488Z",
+  "completed_at": "2026-09-15T19:22:06.092419Z",
+  "hardware": {
+    "hardware_id": "inference-vm-rtx5060ti16",
+    "manufacturer": "custom",
+    "machine_model": "Proxmox-VM-125",
+    "chip": "Intel-i7-14700K-plus-RTX-5060-Ti-16GB",
+    "architecture": "x86_64",
+    "memory_bytes": 10350514176,
+    "cpu_cores": 16,
+    "cpu_core_groups": {
+      "kvm-passthrough-vcpu": 16
+    },
+    "gpu_cores": 4608,
+    "os_name": "Ubuntu",
+    "os_version": "22.04.5-LTS-kernel-5.15.0-190-generic",
+    "power_source": "unknown",
+    "power_mode": "nvidia-default-180w-limit",
+    "negotiated_adapter_watts": null,
+    "metadata": {
+      "accelerator": "NVIDIA GeForce RTX 5060 Ti",
+      "accelerator_architecture": "Blackwell",
+      "accelerator_core_unit": "CUDA-core",
+      "accelerator_memory_bytes_reported_by_nvidia_smi": 17103323136,
+      "accelerator_memory_mib_reported_by_nvidia_smi": 16311,
+      "accelerator_uuid": "GPU-029ff01b-22d2-691f-0848-5c84f28f9dfa",
+      "cuda_capability": "12.0",
+      "driver_version": "580.167.08",
+      "gpu_power_limit_watts": 180,
+      "hypervisor": "KVM",
+      "inventory_observed_at": "2026-09-14T15:55:27Z",
+      "nvidia_reference": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+    }
+  },
+  "artifact": {
+    "model_id": "Qwen/Qwen3.5-9B",
+    "checkpoint": "Qwen3.5-9B-Q6_K",
+    "revision": "6cf6f4e2055a0793b88db06dc8965e066db0e9eb",
+    "format": "gguf",
+    "quantization": "Q6_K",
+    "size_bytes": 7359230048,
+    "content_sha256": "b4fed2983efc25bdc63c74f76bc5dfe8f3a434dfa45e1ba17aadecf19eb3161b",
+    "source_url": "https://huggingface.co/eaddario/Qwen3.5-9B-GGUF/tree/6cf6f4e2055a0793b88db06dc8965e066db0e9eb",
+    "license": "Apache-2.0",
+    "metadata": {
+      "filename": "Qwen3.5-9B-Q6_K.gguf"
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "build-2515",
+    "commit": "5266f24d",
+    "backend": "CUDA",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "q8_0/q8_0",
+    "prefix_cache_enabled": false,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/llama-bench@v1",
+    "configuration": {
+      "runtime_binary_sha256": "db5121d39fd54eea7419d5d80ed94cba8acdd8b5fd5373e040575495b4198f59",
+      "n_batch": 2048,
+      "n_ubatch": 512,
+      "n_threads": 6,
+      "cpu_mask": "0x0",
+      "cpu_strict": false,
+      "poll": 50,
+      "type_k": "q8_0",
+      "type_v": "q8_0",
+      "n_gpu_layers": -1,
+      "n_cpu_moe": 0,
+      "split_mode": "layer",
+      "main_gpu": 0,
+      "no_kv_offload": false,
+      "flash_attn": 1,
+      "devices": "auto",
+      "tensor_split": "0.00",
+      "tensor_buft_overrides": "none",
+      "load_mode": "auto",
+      "lazy_mode": "auto",
+      "embeddings": false,
+      "no_op_offload": 0,
+      "no_host": false,
+      "fit_target": 0,
+      "fit_min_ctx": 0
+    }
+  },
+  "workload": {
+    "reference": {
+      "id": "llama-bench-pp2048-tg512",
+      "version": "llama.cpp@5266f24d/model-skyline@v1",
+      "unit": "benchmark_run"
+    },
+    "kind": "short_decode",
+    "input_definition_sha256": "dd8324b0bcc51218d3a0506ab98b13e900dfe88967a21e39c35e1e5af95f520c",
+    "requested_input_tokens": 2048,
+    "max_output_tokens": 512,
+    "repetitions": 5,
+    "warmup_repetitions": 1,
+    "concurrency": 1,
+    "runner_state": "warm",
+    "prefix_cache_state": "disabled",
+    "position": {
+      "batch": 2048,
+      "micro_batch": 512,
+      "threads": 6
+    }
+  },
+  "performance": {
+    "actual_input_tokens": 2048,
+    "output_token_counts": [
+      512,
+      512,
+      512,
+      512,
+      512
+    ],
+    "metrics": {
+      "prompt_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "2669.1",
+          "2669.31",
+          "2664.44",
+          "2661.41",
+          "2660.46"
+        ]
+      },
+      "decode_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "57.9203",
+          "57.9429",
+          "57.9381",
+          "57.9194",
+          "57.9247"
+        ]
+      }
+    }
+  },
+  "service_memory": null,
+  "integrity": null,
+  "capabilities": [
+    "text"
+  ],
+  "provenance": {
+    "tool": "llama-bench",
+    "tool_version": "build-2515",
+    "command_sha256": "e310eaffde1f33be7153f542be4c058531cb1531f6507f619733b281c37bfe0c",
+    "raw_artifact_path": "raw/qwen35-9b-q6k-5060-pp2048-tg512.json",
+    "raw_sha256": "99ece859e9d1dd0dc2e5c37d594c20310dd55898be10a0d82c47cdb2f1cb23c0",
+    "captured_at": "2026-09-15T19:22:06.092419Z",
+    "methodology": "llama-bench built-in warmup followed by five serial prompt-processing and decode repetitions; exact command and per-repetition samples retained.",
+    "source_url": null,
+    "license": "CC0-1.0"
+  },
+  "notes": "Provisional cross-machine microbenchmark; no model-quality claim."
+}

@@ -1,0 +1,123 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": null,
+  "policy_sha256": null,
+  "source_snapshot_id": "b570e94e9bb62717b6c7e08a5c75cff345b53388b693a8136a853cb8f414a216",
+  "frontier_id": "validated-capacity-service-memory-screen",
+  "workload": {
+    "id": "validated-capacity-v1",
+    "version": "1",
+    "unit": "context_position"
+  },
+  "order_by": "validated_context_screen",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "validated_context_screen",
+      "goal": "maximize",
+      "unit": "token",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.02"
+    },
+    {
+      "metric": "peak_service_capacity",
+      "goal": "minimize",
+      "unit": "byte",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "Qwen/Qwen3.5-9B",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/inference-vm-rtx5060ti16/Qwen/Qwen3.5-9B@gguf-Q6_K-llama.cpp-d2ea6b0ddf6419e2",
+              "model_id": "Qwen/Qwen3.5-9B",
+              "provider": "local:inference-vm-rtx5060ti16",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "nvidia-default-180w-limit",
+              "quantization": "Q6_K",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline/openai-matrix@v1",
+              "capabilities": [
+                "long-context",
+                "text",
+                "tools"
+              ]
+            },
+            "axes": {
+              "validated_context_screen": {
+                "value": "126002",
+                "unit": "token",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.local_validated_context_tokens"
+                ],
+                "source_ids": [
+                  "local-measurement:qwen35-9b-q6k-5060-retrieval-mid-service-p126000-o64-miss-needle-0p5"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:qwen35-9b-q6k-5060-retrieval-mid-service-p126000-o64-miss-needle-0p5",
+                    "version": "model-skyline/openai-matrix@v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                    "raw_sha256": "f32c535fc0bb7f289eec044673f9f6b64c9e7a658cde1feecb6ccdaa1e4e02c2",
+                    "retrieved_at": "2026-09-15T19:49:23.007251Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T19:49:23.007251Z",
+                "minimum_sample_count": 1
+              },
+              "peak_service_capacity": {
+                "value": "11716790272",
+                "unit": "byte",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.local_peak_service_capacity_bytes"
+                ],
+                "source_ids": [
+                  "local-service-memory:qwen35-9b-q6k-5060-retrieval-mid-service-p126000-o64-miss-needle-0p5"
+                ],
+                "sources": [
+                  {
+                    "id": "local-service-memory:qwen35-9b-q6k-5060-retrieval-mid-service-p126000-o64-miss-needle-0p5",
+                    "version": "model-skyline/experimental-service-memory/v2alpha1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Whole-service peak sampled across the bound workload capture; split CUDA reports host PSS plus device allocation, while Apple unified memory reports physical footprint.",
+                    "raw_sha256": "4c87da1a745942ba27a523ad20f10e998d6fff77a86d0ab7d13d87cc28e25fbe",
+                    "retrieved_at": "2026-09-15T19:49:23.007251Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T19:49:23.007251Z",
+                "minimum_sample_count": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": null,
+  "view_id": "011f573c4de51c2a450c84fe96c1008c9ee629a3be3add3c1ad69904882556fd"
+}

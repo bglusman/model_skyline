@@ -1,0 +1,210 @@
+{
+  "schema_version": "model-skyline/local-measurement/v1alpha1",
+  "measurement_id": "qwen35-9b-q6k-5060-retrieval-early-p126000-o64-miss-needle-0p1",
+  "status": "provisional",
+  "started_at": "2026-09-15T19:50:11.857605Z",
+  "completed_at": "2026-09-15T19:51:24.627384Z",
+  "hardware": {
+    "hardware_id": "inference-vm-rtx5060ti16",
+    "manufacturer": "custom",
+    "machine_model": "Proxmox-VM-125",
+    "chip": "Intel-i7-14700K-plus-RTX-5060-Ti-16GB",
+    "architecture": "x86_64",
+    "memory_bytes": 10350514176,
+    "cpu_cores": 16,
+    "cpu_core_groups": {
+      "kvm-passthrough-vcpu": 16
+    },
+    "gpu_cores": 4608,
+    "os_name": "Ubuntu",
+    "os_version": "22.04.5-LTS-kernel-5.15.0-190-generic",
+    "power_source": "unknown",
+    "power_mode": "nvidia-default-180w-limit",
+    "negotiated_adapter_watts": null,
+    "metadata": {
+      "accelerator": "NVIDIA GeForce RTX 5060 Ti",
+      "accelerator_architecture": "Blackwell",
+      "accelerator_core_unit": "CUDA-core",
+      "accelerator_memory_bytes_reported_by_nvidia_smi": 17103323136,
+      "accelerator_memory_mib_reported_by_nvidia_smi": 16311,
+      "accelerator_uuid": "GPU-029ff01b-22d2-691f-0848-5c84f28f9dfa",
+      "cuda_capability": "12.0",
+      "driver_version": "580.167.08",
+      "gpu_power_limit_watts": 180,
+      "hypervisor": "KVM",
+      "inventory_observed_at": "2026-09-14T15:55:27Z",
+      "nvidia_reference": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5060-family/"
+    }
+  },
+  "artifact": {
+    "model_id": "Qwen/Qwen3.5-9B",
+    "checkpoint": "Qwen3.5-9B-Q6_K",
+    "revision": "6cf6f4e2055a0793b88db06dc8965e066db0e9eb",
+    "format": "gguf",
+    "quantization": "Q6_K",
+    "size_bytes": 7359230048,
+    "content_sha256": "b4fed2983efc25bdc63c74f76bc5dfe8f3a434dfa45e1ba17aadecf19eb3161b",
+    "source_url": "https://huggingface.co/eaddario/Qwen3.5-9B-GGUF/tree/6cf6f4e2055a0793b88db06dc8965e066db0e9eb",
+    "license": "Apache-2.0",
+    "metadata": {
+      "filename": "Qwen3.5-9B-Q6_K.gguf",
+      "base_model": "Qwen/Qwen3.5-9B",
+      "text_only_without_mmproj": true,
+      "legacy_runtime_file_type_label": "Q8_0",
+      "quantization_identity_note": "The pinned artifact filename, publisher manifest, byte size, and SHA-256 identify Q6_K. llama.cpp build 2515 labels this Qwen3.5 artifact Q8_0 in model_type metadata."
+    }
+  },
+  "runtime": {
+    "runtime_id": "llama.cpp",
+    "version": "0.4.0-dev-build-2515",
+    "commit": "5266f24da",
+    "backend": "CUDA",
+    "context_capacity_tokens": 131072,
+    "kv_cache": "q8_0/q8_0",
+    "prefix_cache_enabled": true,
+    "speculative_method": null,
+    "agent_harness": "model-skyline/openai-matrix@v1",
+    "configuration": {
+      "runtime_binary_sha256": "7ce1f599eafb34e9c5c8edf6e7b018c5d4459bea3c5409865fa51c8b0798997d",
+      "server_alias": "qwen35-9b-q6k-ctx128k-q8kv-load-none",
+      "native_context_tokens": 262144,
+      "allocated_context_tokens": 131072,
+      "parallel_slots": 1,
+      "batch_tokens": 2048,
+      "micro_batch_tokens": 512,
+      "threads": 6,
+      "batch_threads": 6,
+      "max_output_tokens": 16384,
+      "n_gpu_layers": "all",
+      "flash_attention": true,
+      "fit": "off",
+      "load_mode": "none",
+      "jinja": true,
+      "cache_ram_bytes": 0,
+      "slot_prefix_reuse": "longest-common-prefix",
+      "prompt_cache_enabled": true,
+      "reasoning": "off",
+      "exclusive_runner": "model-skyline/local-model-exclusive@linux-flock"
+    }
+  },
+  "workload": {
+    "reference": {
+      "id": "openai-retrieval-p126000-o64-miss-needle-0p1",
+      "version": "model-skyline/openai-matrix@v1",
+      "unit": "request"
+    },
+    "kind": "long_context_retrieval",
+    "input_definition_sha256": "8f384377f8a351e1b5407517bc153931352cf1cca50a2331bfefcf4cb50c1046",
+    "requested_input_tokens": 126000,
+    "max_output_tokens": 64,
+    "repetitions": 1,
+    "warmup_repetitions": 0,
+    "concurrency": 1,
+    "runner_state": "warm",
+    "prefix_cache_state": "miss",
+    "position": {
+      "mode": "retrieval",
+      "prompt_bytes": 193587,
+      "user_prompt_sha256": "e297e2556807cb344cfaffbb920ba53de918190db7ed9b3e86f288a2b7727583",
+      "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+      "tool_schema_sha256": null,
+      "tool_count": 0,
+      "tool_choice": null,
+      "thinking_mode": "disabled",
+      "sampling": {
+        "temperature": 0,
+        "seed": 90421
+      },
+      "time_to_first_token_source": "client-first-streamed-text-event",
+      "decode_rate_source": "client-post-first-token-inter-token-rate",
+      "token_count_url": "http://127.0.0.1:8091/v1/messages/count_tokens",
+      "construction_input_tokens": 126000,
+      "finish_reasons": {
+        "stop": 1
+      },
+      "api": "openai-chat-completions-streaming",
+      "retrieval_character_fraction": "0.1"
+    }
+  },
+  "performance": {
+    "actual_input_tokens": 126002,
+    "output_token_counts": [
+      22
+    ],
+    "metrics": {
+      "time_to_first_semantic_event_seconds": {
+        "unit": "s",
+        "values": [
+          "71.509668839"
+        ]
+      },
+      "end_to_end_seconds": {
+        "unit": "s",
+        "values": [
+          "72.08784781"
+        ]
+      },
+      "time_to_first_token_seconds": {
+        "unit": "s",
+        "values": [
+          "71.509668839"
+        ]
+      },
+      "decode_tokens_per_second": {
+        "unit": "token/s",
+        "values": [
+          "36.32093357473565"
+        ]
+      },
+      "peak_process_rss_bytes": {
+        "unit": "byte",
+        "values": [
+          "1964826624"
+        ]
+      },
+      "swap_delta_bytes": {
+        "unit": "byte",
+        "values": [
+          "524288"
+        ]
+      },
+      "prefix_cache_hit_tokens": {
+        "unit": "token",
+        "values": [
+          "0"
+        ]
+      }
+    }
+  },
+  "service_memory": null,
+  "integrity": {
+    "retrieval": {
+      "passed": 1,
+      "total": 1
+    },
+    "retrieval_value": {
+      "passed": 1,
+      "total": 1
+    },
+    "tool_calls": null,
+    "tool_argument_parsing": null,
+    "structured_output": null
+  },
+  "capabilities": [
+    "long-context",
+    "text",
+    "tools"
+  ],
+  "provenance": {
+    "tool": "model-skyline/openai-matrix",
+    "tool_version": "v1",
+    "command_sha256": "b22bef8abe2403d3b5a639d2402df4918f75bb1b61f4678bd8848cc29093ec1f",
+    "raw_artifact_path": "raw/qwen35-9b-q6k-5060-retrieval-early-r1-p126000-o64-ctx128k-q8kv-zero-hit-alias.json",
+    "raw_sha256": "28cee9dce4bddc4e1d2ba2e3710cfa68762b39d6662061b06f4966122c393b6e",
+    "captured_at": "2026-09-15T19:51:24.627384Z",
+    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+    "source_url": null,
+    "license": "CC0-1.0"
+  },
+  "notes": "Provisional operational runtime evidence; no model-quality claim."
+}

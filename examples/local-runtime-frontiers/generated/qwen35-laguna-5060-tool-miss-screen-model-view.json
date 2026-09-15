@@ -1,0 +1,207 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": null,
+  "policy_sha256": null,
+  "source_snapshot_id": "6c84fa05e32d99e7b40ac7b241f50b7d154d14e5595f5248d9545ca0c7677943",
+  "frontier_id": "tool-agent-operational-screen",
+  "workload": {
+    "id": "openai-agent-latency-v1",
+    "version": "1",
+    "unit": "request"
+  },
+  "order_by": "tool_call_success_screen",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "tool_call_success_screen",
+      "goal": "maximize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "end_to_end_screen",
+      "goal": "minimize",
+      "unit": "s",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "poolside/Laguna-XS-2.1",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/inference-vm-rtx5060ti16/poolside/Laguna-XS-2.1@gguf-Q2_K_L-llama.cpp-4b78a7b8c36f9594",
+              "model_id": "poolside/Laguna-XS-2.1",
+              "provider": "local:inference-vm-rtx5060ti16",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "nvidia-default-180w-limit",
+              "quantization": "Q2_K_L",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline/openai-matrix@v1",
+              "capabilities": [
+                "long-context",
+                "text",
+                "tools"
+              ]
+            },
+            "axes": {
+              "tool_call_success_screen": {
+                "value": "100",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.local_tool_call_success_percent"
+                ],
+                "source_ids": [
+                  "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled",
+                    "version": "model-skyline/openai-matrix@v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                    "raw_sha256": "62adfed59ec42d54973d9adb005b6c0ed76576c1cb073c6678c0309d20a63cef",
+                    "retrieved_at": "2026-09-15T18:09:34.570034Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T18:09:34.570034Z",
+                "minimum_sample_count": 3
+              },
+              "end_to_end_screen": {
+                "value": "2.732334839",
+                "unit": "s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "2.732156414",
+                "upper": "2.822285703",
+                "dependencies": [
+                  "signals.local_end_to_end_seconds"
+                ],
+                "source_ids": [
+                  "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled",
+                    "version": "model-skyline/openai-matrix@v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                    "raw_sha256": "62adfed59ec42d54973d9adb005b6c0ed76576c1cb073c6678c0309d20a63cef",
+                    "retrieved_at": "2026-09-15T18:09:34.570034Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T18:09:34.570034Z",
+                "minimum_sample_count": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "model_id": "Qwen/Qwen3.5-9B",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/inference-vm-rtx5060ti16/Qwen/Qwen3.5-9B@gguf-Q6_K-llama.cpp-d2ea6b0ddf6419e2",
+              "model_id": "Qwen/Qwen3.5-9B",
+              "provider": "local:inference-vm-rtx5060ti16",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "nvidia-default-180w-limit",
+              "quantization": "Q6_K",
+              "reasoning_effort": null,
+              "agent_harness": "model-skyline/openai-matrix@v1",
+              "capabilities": [
+                "long-context",
+                "text",
+                "tools"
+              ]
+            },
+            "axes": {
+              "tool_call_success_screen": {
+                "value": "100",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.local_tool_call_success_percent"
+                ],
+                "source_ids": [
+                  "local-measurement:qwen35-9b-q6k-5060-tool30-p2048-o256-miss"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:qwen35-9b-q6k-5060-tool30-p2048-o256-miss",
+                    "version": "model-skyline/openai-matrix@v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                    "raw_sha256": "d5bb886127951d1477dd24089748e98cdd8eb20cee77661af9a896ff39609e7e",
+                    "retrieved_at": "2026-09-15T19:47:59.418627Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T19:47:59.418627Z",
+                "minimum_sample_count": 1
+              },
+              "end_to_end_screen": {
+                "value": "2.845586192",
+                "unit": "s",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": "2.845586192",
+                "upper": "2.845586192",
+                "dependencies": [
+                  "signals.local_end_to_end_seconds"
+                ],
+                "source_ids": [
+                  "local-measurement:qwen35-9b-q6k-5060-tool30-p2048-o256-miss"
+                ],
+                "sources": [
+                  {
+                    "id": "local-measurement:qwen35-9b-q6k-5060-tool30-p2048-o256-miss",
+                    "version": "model-skyline/openai-matrix@v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "Serial streaming OpenAI-compatible requests at one exact prompt/output/mode/cache position; client TTFT, completion latency, usage, output digest, and tool parsing retained.",
+                    "raw_sha256": "d5bb886127951d1477dd24089748e98cdd8eb20cee77661af9a896ff39609e7e",
+                    "retrieved_at": "2026-09-15T19:47:59.418627Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T19:47:59.418627Z",
+                "minimum_sample_count": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": null,
+  "view_id": "ea054404a40826eaa7305b408ba5e6143623a07ca42aadb366dbc8212060950f"
+}

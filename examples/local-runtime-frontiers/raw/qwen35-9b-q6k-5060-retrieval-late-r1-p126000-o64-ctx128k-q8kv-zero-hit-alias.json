@@ -1,0 +1,75 @@
+{
+  "schema_version": "model-skyline/raw-openai-matrix/v1",
+  "started_at": "2026-09-15T19:52:24.527697Z",
+  "captured_at": "2026-09-15T19:53:37.310139Z",
+  "base_url": "http://127.0.0.1:8091/v1",
+  "model": "qwen35-9b-q6k-ctx128k-q8kv-load-none",
+  "mode": "retrieval",
+  "retrieval_position": "0.9",
+  "retrieval_characters": null,
+  "repetitions": 1,
+  "warmup": false,
+  "runner_state": "warm",
+  "process_match": "/opt/llama-cpp/build-5266f24/bin/llama-server",
+  "runtime_stats_url": null,
+  "token_count_url": "http://127.0.0.1:8091/v1/messages/count_tokens",
+  "runtime_stats_auth": null,
+  "runner_status_url": null,
+  "runner_model_id": null,
+  "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+  "tool_schema_sha256": null,
+  "tool_count": 0,
+  "tool_choice": null,
+  "thinking_mode": "disabled",
+  "sampling": {
+    "temperature": 0,
+    "seed": 90421
+  },
+  "results": [
+    {
+      "approximate_prefix_tokens": 126000,
+      "prompt_bytes": 193588,
+      "prompt_sha256": "3ab5a5f403587b7a424ada11dc8a4009d83a09d4da7aa0c0442e0c6617b5a981",
+      "input_definition_sha256": "ea0fd78374dae2a0cfa4c506cd7a96a291fad182f7adc5a79af37f8f320c7614",
+      "expected_content_sha256": "3bc407830384d13200ce850874f2ab34a4a758640d6d0ed02d31be0668f282e9",
+      "construction_input_tokens": 126000,
+      "max_output_tokens": 64,
+      "repetition": 1,
+      "ttft_seconds": 71.521606379,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 72.100419885,
+      "decode_tokens_per_second": 36.28111608024641,
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 126002,
+        "total_tokens": 126024,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "content_sha256": "3bc407830384d13200ce850874f2ab34a4a758640d6d0ed02d31be0668f282e9",
+      "content_bytes": 31,
+      "expected_content_present": true,
+      "expected_content_exact": true,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 1963819008,
+      "peak_process_physical_footprint_bytes": null,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 753524736
+      },
+      "host_after": {
+        "swap_used_bytes": 753786880
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    }
+  ]
+}

@@ -2,14 +2,14 @@
 
 **Last updated: 2026-09-15.** The main cross-model results are provisional
 measurements on the 64 GB M5 Max test machine, with matched M1 Max measurements
-used only for the separate hardware comparison below. A new, clearly separated
-RTX 5060 Ti section compares two quantizations of the same Laguna model. These
-results are not averaged across machines.
+used only for the separate hardware comparison below. Clearly separated RTX
+5060 Ti sections now compare two Laguna quantizations and the stock Laguna
+control with Qwen3.5 9B. Results are not averaged across machines.
 
 ## The short answer
 
-There is no single best local model. There are currently four useful headline
-choices:
+There is no single best local model. On the 64 GB M5 Max, there are currently
+four useful headline choices:
 
 - **Qwen3.8 27B** is the strongest measured general coding-agent choice.
 - **Qwen3.8 Flash Next** is the best proven long-context choice. The tested DS4
@@ -26,6 +26,13 @@ coding-agent recommendation yet: its Harbor smoke solved 0/2 verifier checks
 and produced 25 parser errors. **Qwen3.8 Flash
 Coder** previously won the uncached tool test; Laguna now dominates it there,
 and Flash Coder still fails the broader agent and retrieval checks.
+
+On the 16 GB RTX 5060 Ti, **Qwen3.5 9B Q6** is the first measured practical
+128K-class route. It returned the exact hidden value with the needle near the
+beginning, middle, and end of three separate 126,002-token prompts. Its middle
+run peaked at 11.72 GB of combined host/GPU service capacity. It has not run
+the coding-quality pilot, so this is a long-context and runtime recommendation,
+not evidence that it is a stronger coding model than the 64 GB Mac choices.
 
 ## Best-available model frontiers
 
@@ -171,6 +178,50 @@ The exact generated views are [speed](generated/laguna-xs21-5060-quant-short-thr
 [retrieval](generated/laguna-xs21-5060-quant-retrieval-p30000-model-view.json).
 Each model-first view still displays Laguna only once while retaining the exact
 winning file underneath.
+
+## RTX 5060 model frontiers: Qwen3.5 9B and Laguna
+
+This is the first cross-model 5060 comparison. It uses the Qwen3.5 9B Q6_K
+GGUF with a 131,072-token allocation and Q8 KV cache, alongside the stock
+Laguna XS 2.1 Q2_K_L control. Each row still compares exactly two quantities.
+The candidate set has only two models, and the operational Qwen results are
+single-run screens unless stated otherwise.
+
+| Meaning of “best” | Two quantities compared | Frontier resident(s) | Plain-English reading |
+| --- | --- | --- | --- |
+| Fast short processing | prompt speed ↑ × generation speed ↑ | **Qwen3.5 9B** and **Laguna XS 2.1** | Qwen processes the prompt faster (2,664.44 vs 2,070.5 token/s); Laguna generates faster (139.458 vs 57.925 token/s). Neither wins both. Each result has five benchmark samples. |
+| Correct, fast uncached tool use | exact tool success ↑ × turnaround time ↓ | **Qwen3.5 9B** and **Laguna XS 2.1** | Both pass exactly. Laguna takes 2.732 s and Qwen 2.846 s; the configured 5% latency tolerance treats that difference as equivalent. Qwen has only one independent uncached attempt, so this is a screen. |
+| More proven context in less service memory | exact-answer input length ↑ × whole-service capacity ↓ | **Qwen3.5 9B** | Qwen validates 126,002 tokens at 11.72 GB. Laguna validates 30,000 at 14.27 GB, so Qwen wins both quantities. |
+| More proven context without waiting | exact-answer input length ↑ × uncached turnaround time ↓ | **Qwen3.5 9B** and **Laguna XS 2.1** | Qwen handles much more context but takes 72.103 s. Laguna handles less and takes 18.530 s. Neither wins both. |
+
+“Whole-service capacity” makes the discrete-GPU and unified-memory results
+comparable without pretending they expose the same operating-system counter.
+For this CUDA host it is host proportional-set memory plus GPU allocation from
+the same sampled instant. Qwen's device allocation itself peaked at 9.75 GB,
+which also directly demonstrates that this profile fits the 16 GB GPU. The
+combined number is capacity accounting, not a claim that the GPU alone used
+11.72 GB.
+
+The middle-position Qwen run included one uncached request and two repeats. The
+uncached request took 72.103 s; both repeats reused 125,998 of 126,002 input
+tokens and took about 0.693 s. Its 30-tool run similarly fell from 2.846 s on
+the cache miss to a 0.815 s median on two warm repeats. Fresh-server early and
+late probes each reported zero cached tokens and returned the exact value, so
+the position checks did not accidentally rely on the middle prompt's cache.
+
+The [official checkpoint](https://huggingface.co/Qwen/Qwen3.5-9B) advertises a
+262,144-token native context, but this runtime allocated 131,072 and the
+experiment proves 126,002—not 262K. This
+route is text-only because the tested GGUF has no vision projector. A Q4 KV
+exploration used less capacity but slowed long-context generation to about
+24.7 token/s, versus about 36.3 token/s with Q8 KV, so Q8 is the retained
+profile. No coding-quality score has been measured; Qwen3.5 9B therefore does
+not displace Qwen3.8 27B on the coding frontiers above.
+
+The generated model views are [short speed](generated/qwen35-laguna-5060-short-throughput-model-view.json),
+[uncached tools](generated/qwen35-laguna-5060-tool-miss-screen-model-view.json),
+[validated context versus service memory](generated/qwen35-laguna-5060-validated-capacity-service-memory-screen-model-view.json),
+and [validated context versus latency](generated/qwen35-laguna-5060-validated-capacity-latency-screen-model-view.json).
 
 ## What the two Macs tell us
 

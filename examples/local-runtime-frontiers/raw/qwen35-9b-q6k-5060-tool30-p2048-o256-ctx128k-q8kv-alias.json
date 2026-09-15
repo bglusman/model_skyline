@@ -1,0 +1,195 @@
+{
+  "schema_version": "model-skyline/raw-openai-matrix/v1",
+  "started_at": "2026-09-15T19:47:54.893871Z",
+  "captured_at": "2026-09-15T19:47:59.418627Z",
+  "base_url": "http://127.0.0.1:8091/v1",
+  "model": "qwen35-9b-q6k-ctx128k-q8kv-load-none",
+  "mode": "tool",
+  "retrieval_position": null,
+  "retrieval_characters": null,
+  "repetitions": 3,
+  "warmup": false,
+  "runner_state": "warm",
+  "process_match": "/opt/llama-cpp/build-5266f24/bin/llama-server",
+  "runtime_stats_url": null,
+  "token_count_url": null,
+  "runtime_stats_auth": null,
+  "runner_status_url": null,
+  "runner_model_id": null,
+  "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+  "tool_schema_sha256": "18985567fe60ff683c1080672270956b5dea0d1de02c1ca8e7c01f6088e09c3f",
+  "tool_count": 30,
+  "tool_choice": "auto",
+  "thinking_mode": "disabled",
+  "sampling": {
+    "temperature": 0,
+    "seed": 90421
+  },
+  "results": [
+    {
+      "approximate_prefix_tokens": 2048,
+      "prompt_bytes": 8293,
+      "prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+      "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+      "expected_content_sha256": null,
+      "construction_input_tokens": null,
+      "max_output_tokens": 256,
+      "repetition": 1,
+      "ttft_seconds": 2.248399152,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 2.845586192,
+      "decode_tokens_per_second": 68.65520725299066,
+      "usage": {
+        "completion_tokens": 42,
+        "prompt_tokens": 5260,
+        "total_tokens": 5302,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content_bytes": 0,
+      "expected_content_present": null,
+      "expected_content_exact": null,
+      "tool_calls": [
+        {
+          "name": "lookup_fixture",
+          "arguments": {
+            "key": "skyline-cache-probe",
+            "limit": 7
+          },
+          "arguments_sha256": "01fba026b5618ff16a8cbf02cb880b840cbf5ae5db0a2a5e8ec38574eb3f936e",
+          "parse_error": null
+        }
+      ],
+      "tool_correct": true,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 1680830464,
+      "peak_process_physical_footprint_bytes": null,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 752214016
+      },
+      "host_after": {
+        "swap_used_bytes": 752738304
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    },
+    {
+      "approximate_prefix_tokens": 2048,
+      "prompt_bytes": 8293,
+      "prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+      "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+      "expected_content_sha256": null,
+      "construction_input_tokens": null,
+      "max_output_tokens": 256,
+      "repetition": 2,
+      "ttft_seconds": 0.220412633,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 0.818015844,
+      "decode_tokens_per_second": 68.60739575243012,
+      "usage": {
+        "completion_tokens": 42,
+        "prompt_tokens": 5260,
+        "total_tokens": 5302,
+        "prompt_tokens_details": {
+          "cached_tokens": 5256
+        }
+      },
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content_bytes": 0,
+      "expected_content_present": null,
+      "expected_content_exact": null,
+      "tool_calls": [
+        {
+          "name": "lookup_fixture",
+          "arguments": {
+            "key": "skyline-cache-probe",
+            "limit": 7
+          },
+          "arguments_sha256": "01fba026b5618ff16a8cbf02cb880b840cbf5ae5db0a2a5e8ec38574eb3f936e",
+          "parse_error": null
+        }
+      ],
+      "tool_correct": true,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 1681641472,
+      "peak_process_physical_footprint_bytes": null,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 752738304
+      },
+      "host_after": {
+        "swap_used_bytes": 752738304
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    },
+    {
+      "approximate_prefix_tokens": 2048,
+      "prompt_bytes": 8293,
+      "prompt_sha256": "c46c0c1ea4c838e0e7e83369897cf039d27bb1b312e2c61cb235c2d864571226",
+      "input_definition_sha256": "9882ff50c731100d2702e330f5d80d88093dc04fb12cc2d4e2b636fab868a49c",
+      "expected_content_sha256": null,
+      "construction_input_tokens": null,
+      "max_output_tokens": 256,
+      "repetition": 3,
+      "ttft_seconds": 0.213838218,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 0.812252285,
+      "decode_tokens_per_second": 68.51443216491099,
+      "usage": {
+        "completion_tokens": 42,
+        "prompt_tokens": 5260,
+        "total_tokens": 5302,
+        "prompt_tokens_details": {
+          "cached_tokens": 5256
+        }
+      },
+      "finish_reasons": [
+        "tool_calls"
+      ],
+      "content_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "content_bytes": 0,
+      "expected_content_present": null,
+      "expected_content_exact": null,
+      "tool_calls": [
+        {
+          "name": "lookup_fixture",
+          "arguments": {
+            "key": "skyline-cache-probe",
+            "limit": 7
+          },
+          "arguments_sha256": "01fba026b5618ff16a8cbf02cb880b840cbf5ae5db0a2a5e8ec38574eb3f936e",
+          "parse_error": null
+        }
+      ],
+      "tool_correct": true,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 1633562624,
+      "peak_process_physical_footprint_bytes": null,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 752738304
+      },
+      "host_after": {
+        "swap_used_bytes": 752738304
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    }
+  ]
+}

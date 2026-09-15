@@ -1,0 +1,75 @@
+{
+  "schema_version": "model-skyline/raw-openai-matrix/v1",
+  "started_at": "2026-09-15T19:50:11.857605Z",
+  "captured_at": "2026-09-15T19:51:24.627384Z",
+  "base_url": "http://127.0.0.1:8091/v1",
+  "model": "qwen35-9b-q6k-ctx128k-q8kv-load-none",
+  "mode": "retrieval",
+  "retrieval_position": "0.1",
+  "retrieval_characters": null,
+  "repetitions": 1,
+  "warmup": false,
+  "runner_state": "warm",
+  "process_match": "/opt/llama-cpp/build-5266f24/bin/llama-server",
+  "runtime_stats_url": null,
+  "token_count_url": "http://127.0.0.1:8091/v1/messages/count_tokens",
+  "runtime_stats_auth": null,
+  "runner_status_url": null,
+  "runner_model_id": null,
+  "system_prompt_sha256": "18200944863667a568df30afd6c839a9115649ff796cb0310c25cfcc6d089a15",
+  "tool_schema_sha256": null,
+  "tool_count": 0,
+  "tool_choice": null,
+  "thinking_mode": "disabled",
+  "sampling": {
+    "temperature": 0,
+    "seed": 90421
+  },
+  "results": [
+    {
+      "approximate_prefix_tokens": 126000,
+      "prompt_bytes": 193587,
+      "prompt_sha256": "e297e2556807cb344cfaffbb920ba53de918190db7ed9b3e86f288a2b7727583",
+      "input_definition_sha256": "8f384377f8a351e1b5407517bc153931352cf1cca50a2331bfefcf4cb50c1046",
+      "expected_content_sha256": "acf1e6964f92f0e4b1051f35ce62dd64655c0bc90227a54e347c50e210e9d05d",
+      "construction_input_tokens": 126000,
+      "max_output_tokens": 64,
+      "repetition": 1,
+      "ttft_seconds": 71.509668839,
+      "ttft_semantics": "first_complete_semantic_stream_event",
+      "end_to_end_seconds": 72.08784781,
+      "decode_tokens_per_second": 36.32093357473565,
+      "usage": {
+        "completion_tokens": 22,
+        "prompt_tokens": 126002,
+        "total_tokens": 126024,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        }
+      },
+      "finish_reasons": [
+        "stop"
+      ],
+      "content_sha256": "acf1e6964f92f0e4b1051f35ce62dd64655c0bc90227a54e347c50e210e9d05d",
+      "content_bytes": 31,
+      "expected_content_present": true,
+      "expected_content_exact": true,
+      "tool_calls": [],
+      "tool_correct": null,
+      "loading_state_events": 0,
+      "peak_process_rss_bytes": 1964826624,
+      "peak_process_physical_footprint_bytes": null,
+      "peak_runtime_memory_bytes": null,
+      "host_before": {
+        "swap_used_bytes": 753262592
+      },
+      "host_after": {
+        "swap_used_bytes": 753786880
+      },
+      "runtime_stats_before": null,
+      "runtime_stats_after": null,
+      "runner_state_events": [],
+      "runner_ready_seconds": null
+    }
+  ]
+}
