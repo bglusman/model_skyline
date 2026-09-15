@@ -10,6 +10,9 @@ New candidates must not be appended to that digest-bound file after results
 are published. The Qwen3.8 Flash Coder experiment therefore uses the separate
 additive [`candidate screen`](harbor-quality-screen-qwen38-flash-coder.yaml);
 its failed smoke does not invalidate or join this five-task population.
+The RTX 5060 Ti comparison likewise has a separate
+[`Qwen3.5/Muse screen`](harbor-quality-screen-5060-qwen35-muse.yaml), so its
+hardware-specific routes do not rewrite the original Apple-silicon cohort.
 
 ## What the pilot can establish
 
@@ -158,6 +161,28 @@ the summary retains both rather than treating them as interchangeable.
 Protocol mode also requires the pinned Harbor revision, Terminus identity,
 parser and sampling settings, context/output budget, summarization settings,
 concurrency, route, task set, and system-profile digest.
+
+### RTX 5060 Ti additive smoke
+
+The 16 GB RTX 5060 Ti routes both passed the same `fix-git` smoke and its 2/2
+pytest verifier. This proves that each exact quantization, llama.cpp profile,
+Terminus parser, terminal environment, and verifier can complete a valid loop.
+It does **not** establish a quality difference from one easy task.
+
+| Exact route | Reward | Agent execution | Episodes | Input / cache / output tokens | Parser feedback |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Qwen3.5 9B Q6_K, Q8 KV | 1 | 48.514 s | 8 | 25,264 / 19,611 / 1,873 | 1 warning |
+| Muse Glimmer 30B AD-IQ3_XXS, Q4 KV | 1 | 191.972 s | 17 | 78,190 / 73,357 / 4,443 | 0 |
+
+On this one run Qwen completed the agent phase about four times faster and in
+fewer turns. Muse reused a larger fraction of its input tokens from cache, but
+generated a much longer trajectory. Treat those differences as promotion and
+diagnostic evidence only; the matched five-task pilot is the first usable
+quality/latency comparison.
+
+The prompt-free, digest-bound records are
+[`Qwen3.5`](raw/harbor-smoke-qwen35-9b-q6k-5060-fix-git-summary.json) and
+[`Muse Glimmer`](raw/harbor-smoke-muse-glimmer-ad-iq3xxs-5060-fix-git-summary.json).
 
 ## Agent-task memory capture
 

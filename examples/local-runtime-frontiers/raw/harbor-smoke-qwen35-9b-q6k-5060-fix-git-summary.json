@@ -1,0 +1,116 @@
+{
+  "aggregate": {
+    "invalid_trials": 0,
+    "success_percent": "100.0",
+    "successes": "1.0",
+    "valid_trials": 1
+  },
+  "contains_prompts_or_model_messages": false,
+  "expected": {
+    "model": "qwen35-9b-q6k-ctx128k-q8kv-load-none",
+    "quality_attributable_exceptions": [
+      "AgentSafetyRefusalError",
+      "AgentTimeoutError"
+    ],
+    "task_digests": {
+      "terminal-bench/fix-git": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e"
+    },
+    "tasks": [
+      "terminal-bench/fix-git"
+    ]
+  },
+  "invalid": [],
+  "job": {
+    "concurrency": 1,
+    "finished_at": "2026-09-15T19:21:40.398790",
+    "harbor": {
+      "git_commit_hash": "88fdbc9d42e907c0414654f041ece5eaf798f538",
+      "version": "0.23.0"
+    },
+    "id": "e9d6cedf-3a70-48db-a2e1-9c77ed1c1f8d",
+    "job_config_sha256": "de86b56e03030e66d9539da105f1f7b045169520ce615b5f6ecc6a658a202a18",
+    "job_lock_sha256": "13945019ecad1fd632c3847e7ae3a8c499bce0409e95193123f2250ec04d4f73",
+    "job_result_sha256": "501a58f890075ea187d637436705f51c59f2ef08b1d38a1667a9bdf7692ada4f",
+    "started_at": "2026-09-15T19:20:17.009373"
+  },
+  "protocol": {
+    "candidate": "qwen35_9b_q6k_5060",
+    "protocol_sha256": "f385df736e072fea2eb381e847a257f051248a1cf0c76058f9b93983267dc9ef",
+    "system_profile": "system-profiles/qwen35-9b-q6k-llamacpp-cuda-ctx128k-q8kv.json",
+    "system_profile_sha256": "b1dac5217a3aa9daf36c83e208c1da1cee2015f0819701d85c9c12f31523b7a7",
+    "task_set": "smoke"
+  },
+  "schema_version": "model-skyline/harbor-local-job-summary/v1",
+  "trials": [
+    {
+      "agent": {
+        "name": "terminus-2",
+        "version": "2.0.0"
+      },
+      "agent_configuration": {
+        "full_history_recorded": true,
+        "max_input_tokens": 114688,
+        "max_output_tokens": 16384,
+        "max_turns": 40,
+        "parser": "json",
+        "proactive_summarization_free_tokens": 8192,
+        "summarization_enabled": true,
+        "temperature": "1.0",
+        "top_p": "0.95"
+      },
+      "agent_episodes": 8,
+      "api_request_times_msec": [
+        "4124.743938446045",
+        "4167.31595993042",
+        "6681.912183761597",
+        "3302.9932975769043",
+        "6995.353698730469",
+        "3624.3021488189697",
+        "4140.614748001099",
+        "3605.407953262329"
+      ],
+      "audit": {
+        "ctrf_sha256": "9013034aade87c69fd668015abce7723ed1196f28cf98a555ee1840d5426950a",
+        "reward_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "trajectory_sha256": "c7c60ad442d2b5b813c98076d5c2767ff68aa45b073a2ab775fd738d69d099ed",
+        "trial_config_sha256": "fbe3f8f6df2ce7917d408ca7701223f6b9d12afe9b0ceb6690b5b6c1df6bbe47",
+        "trial_lock_sha256": "fd57989b79598c3603d7e93b262880c5309a8266b40c987e71faced8fa679c09",
+        "trial_result_sha256": "cb6ed57f714d90f684837c1ea5e244f0be729b0904ce9c485e721457439172fe",
+        "verifier_stdout_sha256": "4bd14bfd04f36a245d0a2fe08cd023cffc8ec4519dec5f02de56d2eec16caadd"
+      },
+      "ctrf": {
+        "failed": 0,
+        "other": 0,
+        "passed": 2,
+        "pending": 0,
+        "skipped": 0,
+        "tests": 2,
+        "tool_version": "8.4.1"
+      },
+      "incomplete_api_requests": 0,
+      "model": "qwen35-9b-q6k-ctx128k-q8kv-load-none",
+      "parser_feedback_events": {
+        "errors": 0,
+        "warnings": 1
+      },
+      "quality_attributable_exception": null,
+      "reward": "1.0",
+      "task_checksum": "e89f54f2fc73ac576f976c1cd09758e4c9ccf152e53c2dcd91da0c178b89abc7",
+      "task_lock_digest": "sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e",
+      "task_name": "terminal-bench/fix-git",
+      "timing_seconds": {
+        "agent_execution": "48.513906",
+        "agent_setup": "20.431198",
+        "environment_setup": "2.562507",
+        "verifier": "7.575353"
+      },
+      "tokens": {
+        "cache": 19611,
+        "input": 25264,
+        "output": 1873
+      },
+      "trial_id": "ebc6a376-6627-4a0a-9787-c92fa36a2e44",
+      "trial_name": "fix-git__jvozmHX"
+    }
+  ]
+}

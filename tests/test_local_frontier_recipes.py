@@ -32,6 +32,17 @@ PILOT = EXAMPLE / "harbor-quality-pilot.yaml"
 FLASH_CODER_SCREEN = EXAMPLE / "harbor-quality-screen-qwen38-flash-coder.yaml"
 LAGUNA_SCREEN = EXAMPLE / "harbor-quality-screen-laguna-xs21.yaml"
 LAGUNA_SCREEN_SUMMARY = EXAMPLE / "raw" / "harbor-smoke-laguna-xs21-nvfp4-fix-git-summary.json"
+CUDA_5060_SCREEN = EXAMPLE / "harbor-quality-screen-5060-qwen35-muse.yaml"
+CUDA_5060_SCREEN_SUMMARIES = {
+    "qwen35_9b_q6k_5060": (
+        EXAMPLE / "raw" / "harbor-smoke-qwen35-9b-q6k-5060-fix-git-summary.json"
+    ),
+    "muse_glimmer_ad_iq3xxs_5060": (
+        EXAMPLE
+        / "raw"
+        / "harbor-smoke-muse-glimmer-ad-iq3xxs-5060-fix-git-summary.json"
+    ),
+}
 FLASH_CODER_CAPACITY_RAW = (
     EXAMPLE / "raw" / "qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json"
 )
@@ -483,6 +494,52 @@ def test_published_harbor_smoke_summaries_are_prompt_free_and_auditable() -> Non
                 len(digest) == 64 and set(digest) <= set("0123456789abcdef")
                 for digest in trial["audit"].values()
             )
+
+
+def test_5060_screen_is_additive_prompt_free_and_promotes_both_candidates() -> None:
+    pilot = yaml.safe_load(PILOT.read_text(encoding="utf-8"))
+    screen = yaml.safe_load(CUDA_5060_SCREEN.read_text(encoding="utf-8"))
+    screen_digest = hashlib.sha256(CUDA_5060_SCREEN.read_bytes()).hexdigest()
+
+    assert screen["schema_version"] == "model-skyline/local-quality-pilot/v1"
+    assert screen["screen"]["relationship_to_frozen_pilot"] == "additive_candidate_gate"
+    assert screen["screen"]["comparable_protocol_sha256"] == FROZEN_HARBOR_PILOT_SHA256
+    for field in (
+        "name",
+        "version",
+        "harbor_version",
+        "harbor_revision",
+        "parser",
+        "temperature",
+        "top_p",
+        "max_turns",
+        "max_input_tokens",
+        "max_output_tokens",
+    ):
+        assert screen["harness"][field] == pilot["harness"][field]
+
+    for candidate_name, candidate in screen["candidates"].items():
+        profile_path = EXAMPLE / candidate["system_profile"]
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        assert candidate["system_profile_sha256"] == hashlib.sha256(
+            profile_path.read_bytes()
+        ).hexdigest()
+        assert profile["served_model"] == candidate["route"]
+        assert profile["runtime"]["backend"] == "CUDA"
+
+        summary = json.loads(
+            CUDA_5060_SCREEN_SUMMARIES[candidate_name].read_text(encoding="utf-8")
+        )
+        assert summary["contains_prompts_or_model_messages"] is False
+        assert "/Users/" not in json.dumps(summary)
+        assert summary["protocol"]["protocol_sha256"] == screen_digest
+        assert summary["aggregate"] == {
+            "invalid_trials": 0,
+            "success_percent": "100.0",
+            "successes": "1.0",
+            "valid_trials": 1,
+        }
+        assert summary["trials"][0]["parser_feedback_events"]["errors"] == 0
 
 
 def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:
