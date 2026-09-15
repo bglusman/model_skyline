@@ -112,6 +112,30 @@ words, Nari made 156 errors and vLLM-Omni made 145. Their descriptive intervals
 overlap substantially, so the evidence does not establish a real accuracy
 ordering.
 
+### What the matched winner comparison adds
+
+Because Nari and vLLM-Omni synthesized the same prompts at the same requested
+seed settings, their difference can be measured cell by cell instead of by
+comparing two independent summary intervals. The retained
+[`paired comparison`](raw/tts-seed-panel-v1-paired-comparisons.json) reports
+Nari minus vLLM-Omni:
+
+| Difference | Measured delta | Descriptive paired 95% interval | Plain meaning |
+|---|---:|---:|---|
+| Corpus WER | +0.71 percentage points | −2.53 to +3.84 | no resolved accuracy ordering |
+| p50 audible latency | −513 ms | −516 to −511 ms | Nari is materially faster |
+| p95 audible latency | −517 ms | −629 to −470 ms | Nari is materially faster in the tail |
+| Median real-time factor | +0.85x | +0.82x to +0.86x | Nari generates more audio per wall second |
+
+Nari reached first audible audio sooner in all 90 matched cells. It made fewer
+word errors in 10 cells, the same number in 60, and more in 20. Only 25.9% of
+the descriptive bootstrap resamples favored Nari on WER, but the interval
+crosses zero widely. That fraction is not a posterior probability or a
+significance test; with three seed labels, the honest conclusion remains
+“clear measured speed difference, unresolved accuracy difference.” Matching a
+seed label also does not imply that different runtimes consumed identical
+random draws.
+
 The model-first best-available view contains only Qwen3-TTS because both exact
 winners implement that model family. A balanced-average model view is not
 published here: after the strict failure gate, the catalog does not contain a
@@ -460,6 +484,11 @@ python examples/voice-runtime-frontiers/score_tts_completion.py \
 python examples/voice-runtime-frontiers/aggregate_tts_seed_panel.py \
   --panel examples/voice-runtime-frontiers/tts-seed-panel.json \
   --output examples/voice-runtime-frontiers/raw/tts-seed-panel-v1-results.json
+python examples/voice-runtime-frontiers/compare_tts_seed_panel.py \
+  --panel examples/voice-runtime-frontiers/tts-seed-panel.json \
+  --aggregate examples/voice-runtime-frontiers/raw/tts-seed-panel-v1-results.json \
+  --output \
+    examples/voice-runtime-frontiers/raw/tts-seed-panel-v1-paired-comparisons.json
 python examples/voice-runtime-frontiers/build_observations.py
 modelskyline validate \
   examples/voice-runtime-frontiers/frontier.yaml \
@@ -475,8 +504,8 @@ measurements, and transcriptions without adding unexpected audio playback.
 
 ## Next evidence required
 
-1. Expand the frozen panel beyond three synthesis seeds and add a paired
-   comparison report; the current bootstrap interval is still provisional.
+1. Expand the frozen panel beyond three synthesis seeds; the aggregate and
+   paired bootstrap intervals are still provisional.
 2. Add matched human same-speaker and different-speaker controls, then turn the
    preliminary long-form diarization screen into a calibrated admission gate.
 3. Record matched human controls, align pauses to punctuation, and only then

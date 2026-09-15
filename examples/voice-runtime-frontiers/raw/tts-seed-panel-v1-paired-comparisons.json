@@ -1,0 +1,89 @@
+{
+  "comparisons": [
+    {
+      "candidate": {
+        "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-nari-consumer@rtx5060ti-16gb-vivian-en",
+        "slug": "qwen3-tts-1.7b-bf16-nari-router-5060"
+      },
+      "cell_counts": {
+        "candidate_faster_first_audio": 90,
+        "candidate_fewer_word_errors": 10,
+        "candidate_more_word_errors": 20,
+        "candidate_slower_first_audio": 0,
+        "same_first_audio": 0,
+        "same_word_errors": 60
+      },
+      "id": "nari-consumer-vs-vllm-omni",
+      "matched_cells": 90,
+      "metrics": {
+        "corpus_wer_percentage_points": {
+          "bootstrap_fraction_candidate_better": 0.2588,
+          "candidate_better_when": "lower",
+          "candidate_minus_reference": 0.707851,
+          "descriptive_95_percent_interval": {
+            "lower": -2.529287,
+            "upper": 3.838898
+          },
+          "unit": "percentage points"
+        },
+        "playback_ttfa_p50_ms": {
+          "bootstrap_fraction_candidate_better": 1.0,
+          "candidate_better_when": "lower",
+          "candidate_minus_reference": -513.244,
+          "descriptive_95_percent_interval": {
+            "lower": -516.195,
+            "upper": -510.718
+          },
+          "unit": "milliseconds"
+        },
+        "playback_ttfa_p95_ms": {
+          "bootstrap_fraction_candidate_better": 1.0,
+          "candidate_better_when": "lower",
+          "candidate_minus_reference": -516.853,
+          "descriptive_95_percent_interval": {
+            "lower": -629.416,
+            "upper": -470.471
+          },
+          "unit": "milliseconds"
+        },
+        "realtime_factor_p50": {
+          "bootstrap_fraction_candidate_better": 1.0,
+          "candidate_better_when": "higher",
+          "candidate_minus_reference": 0.846,
+          "descriptive_95_percent_interval": {
+            "lower": 0.822,
+            "upper": 0.862
+          },
+          "unit": "ratio"
+        }
+      },
+      "reference": {
+        "offering_id": "self-hosted/qwen3-tts-1.7b-bf16-vllm-omni@rtx5060ti-16gb-vivian-en",
+        "slug": "qwen3-tts-1.7b-bf16-vllm-omni-5060"
+      }
+    }
+  ],
+  "methodology": {
+    "bootstrap": "descriptive crossed bootstrap: resample seeds and prompt identifiers, then evaluate their full crossing while preserving offering pairs",
+    "bootstrap_iterations": 10000,
+    "bootstrap_random_seed": 20260915,
+    "delta_sign": "candidate minus reference",
+    "interpretation": "Bootstrap fractions are descriptive resampling support, not posterior probabilities or a pass/fail significance test.",
+    "pairing": "same prompt identifier and requested synthesis seed",
+    "warning": "Only three seed labels are represented. Matching a seed label controls the requested setting but does not imply identical random draws across runtimes."
+  },
+  "panel": {
+    "aggregate_result_sha256": "bfae3bda1b651451508a0c333c877214da48c4a6ce4a833d951171a8a90d566c",
+    "definition_sha256": "ed7be98352f44cb60fad90a1fae6101ff35285551cc9329010fd98e4d95ab22a",
+    "id": "coval-tts-v1-local-whisper-seed-panel",
+    "matched_cells_per_comparison": 90,
+    "prompts_per_seed": 30,
+    "seeds": [
+      7,
+      1234,
+      2026
+    ],
+    "version": "1.2.0+local-whisper-seed-panel.1"
+  },
+  "schema": "model-skyline/experimental-tts-paired-comparison/v1alpha1"
+}
