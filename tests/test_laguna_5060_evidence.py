@@ -32,9 +32,7 @@ def test_shoehorn_plan_is_internally_consistent() -> None:
 
 
 def test_shoehorn_manifest_hashes_the_exact_file_list() -> None:
-    manifest = _load(
-        "artifacts/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-manifest.json"
-    )
+    manifest = _load("artifacts/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-manifest.json")
 
     assert manifest["size_bytes"] == sum(item["size_bytes"] for item in manifest["files"])
     assert manifest["content_sha256"] == content_hash(manifest["files"])
@@ -59,23 +57,22 @@ def test_normalized_measurements_bind_their_raw_captures() -> None:
         "p30000-o64-disabled-needle-0p5.json",
         "laguna-xs21-q2kl-llamacpp-cuda-load-none-tool30-auto-p2048-o256-disabled.json",
         "laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-pp2048-tg512.json",
-        "laguna-xs21-shoehorn-5060-load-none-retrieval-mid-r3-"
-        "p30000-o64-disabled-needle-0p5.json",
+        "laguna-xs21-shoehorn-5060-load-none-retrieval-mid-r3-p30000-o64-disabled-needle-0p5.json",
         "laguna-xs21-shoehorn-5060-load-none-tool30-auto-p2048-o256-disabled.json",
     )
     for name in names:
         measurement = _load(f"measurements/{name}")
         raw_path = BASE / measurement["provenance"]["raw_artifact_path"]
-        assert hashlib.sha256(raw_path.read_bytes()).hexdigest() == (
-            measurement["provenance"]["raw_sha256"]
+        assert (
+            hashlib.sha256(raw_path.read_bytes()).hexdigest()
+            == (measurement["provenance"]["raw_sha256"])
         )
 
 
 def test_custom_fit_retains_invalid_perplexity_evidence() -> None:
     for suffix in ("invalid", "fa-off-f16kv"):
         capture = _load(
-            "raw/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-"
-            f"wikitext2-head512-ppl-{suffix}.json"
+            f"raw/laguna-xs21-shoehorn-5060-ctx32k-q8kv-exact-wikitext2-head512-ppl-{suffix}.json"
         )
         assert capture["status"] == "invalid"
         assert capture["result"] is None
@@ -94,8 +91,9 @@ def test_matched_retrieval_gate_rejects_the_custom_fit() -> None:
         "retrieval-mid-r3-p30000-o64-disabled-needle-0p5.json"
     )
 
-    assert stock["workload"]["input_definition_sha256"] == (
-        custom["workload"]["input_definition_sha256"]
+    assert (
+        stock["workload"]["input_definition_sha256"]
+        == (custom["workload"]["input_definition_sha256"])
     )
     assert stock["performance"]["actual_input_tokens"] == 30_000
     assert custom["performance"]["actual_input_tokens"] == 30_000
