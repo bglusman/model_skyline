@@ -1,0 +1,50 @@
+#!/bin/sh
+set -eu
+
+service_name="${1:-ollama.service}"
+
+if [ "$(/usr/bin/systemctl is-active "${service_name}")" != "active" ]; then
+  echo "Ollama service is not active: ${service_name}" >&2
+  exit 1
+fi
+
+environment="$(/usr/bin/systemctl show "${service_name}" --property=Environment --value)"
+case " ${environment} " in
+  *" OLLAMA_HOST=127.0.0.1:11434 "*) ;;
+  *)
+    echo "effective OLLAMA_HOST is not loopback-only" >&2
+    exit 1
+    ;;
+esac
+
+attempt=0
+while ! /usr/bin/curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1; do
+  attempt=$((attempt + 1))
+  if [ "${attempt}" -ge 40 ]; then
+    echo "Ollama did not become ready on loopback within 10 seconds" >&2
+    exit 1
+  fi
+  /usr/bin/sleep 0.25
+done
+
+listeners="$(/usr/bin/ss -H -ltn 'sport = :11434')"
+if [ -z "${listeners}" ]; then
+  echo "Ollama is not listening on port 11434" >&2
+  exit 1
+fi
+if echo "${listeners}" | /usr/bin/awk '{print $4}' | \
+  /usr/bin/grep -Ev '^(127\.0\.0\.1|\[::1\]):11434$' >/dev/null; then
+  echo "Ollama has a non-loopback listener" >&2
+  echo "${listeners}" >&2
+  exit 1
+fi
+
+connections="$(/usr/bin/ss -H -tn state established 'sport = :11434')"
+if [ -n "${connections}" ] && echo "${connections}" | /usr/bin/awk '{print $4}' | \
+  /usr/bin/grep -Ev '^(127\.0\.0\.1|\[::1\]):[0-9]+$' >/dev/null; then
+  echo "Ollama has a non-loopback client connection" >&2
+  echo "${connections}" >&2
+  exit 1
+fi
+
+echo "verified: Ollama is active and reachable only through loopback"
