@@ -55,10 +55,15 @@ without confusing a power ceiling with measured draw.
 The [structured-decision and compound-system
 experiment](examples/structured-decision-frontiers/README.md) adds separate
 frontiers for typed routing decisions and complete tool-using systems. It can
-compare Jev with general LLMs on the same decision contract, then compare
-heavy-only, light-only, and router-plus-worker policies end to end. Compound
-offerings identify and charge every component call; primitive routing accuracy
-is never relabeled as completed-agent quality.
+compare Jev with general LLMs on the same decision contract after TypeSafe
+waitlist access, then compare heavy-only, light-only, and router-plus-worker
+policies end to end. The first local screen keeps both Qwen3.8 and faster
+GPT-OSS on the accuracy/latency frontier, while Qwen alone survives the
+accuracy/calibration comparison. A measured GPT-OSS→Qwen cascade shows why
+calibration and residency matter: the overconfident router rarely called its
+worker, and exclusive model swapping made the pair slower without improving
+accuracy. Compound offerings identify every component call; primitive routing
+accuracy is never relabeled as completed-agent quality.
 
 The [voice runtime experiment](examples/voice-runtime-frontiers/README.md)
 extends the same rules to local speech and complete voice-agent pipelines. Its

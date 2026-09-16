@@ -89,7 +89,37 @@ metrics:
     kind: signal
     signal: structured_mean_heavy_model_calls_per_case
     unit: call/case
-    requirements: {minimum_samples: 64, max_age_hours: 720}
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  router_accuracy:
+    kind: signal
+    signal: structured_router_decision_accuracy_percent
+    unit: percent
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  router_coverage:
+    kind: signal
+    signal: structured_router_autonomous_coverage_percent
+    unit: percent
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  router_confidence:
+    kind: signal
+    signal: structured_router_mean_max_probability
+    unit: probability
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  router_brier:
+    kind: signal
+    signal: structured_router_mean_brier_score
+    unit: score
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  router_error_rescue:
+    kind: signal
+    signal: structured_router_error_rescue_percent
+    unit: percent
+    requirements: {minimum_samples: 1, max_age_hours: 720}
+  router_override_harm:
+    kind: signal
+    signal: structured_router_override_harm_percent
+    unit: percent
+    requirements: {minimum_samples: 1, max_age_hours: 720}
   tool_selection:
     kind: signal
     signal: structured_tool_selection_accuracy_percent
@@ -178,6 +208,18 @@ frontiers:
       minimum_gate_values: {autonomous_accuracy: 95, schema_valid: 100}
       maximum_gate_values: {unsafe_action: 0}
     metadata_fields: [system_kind, component_count]
+
+  compound-routing-quality-vs-heavy-demand:
+    workload: structured-routing-screen-v1
+    axes:
+      - {metric: final_success, goal: maximize}
+      - {metric: heavy_calls, goal: minimize}
+    order_by: final_success
+    eligibility:
+      required_capabilities: [compound-system, structured-decisions]
+      allow_unknown_age: false
+      minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, compound, component_count]
 
   tool-outcome-vs-latency:
     workload: bfcl-v4-offline-cross-category-64

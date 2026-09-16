@@ -1,0 +1,33 @@
+{
+  "schema_version": "model-skyline/structured-decision-compound-candidate/v1alpha1",
+  "offering": {
+    "offering_id": "compound/gpt-oss-20b-router+qwen3.8-27b-confidence-review@m5-64gb-sequential-swap-v1",
+    "model_id": "compound/gpt-oss-20b+qwen3.8-27b",
+    "provider": "local-m5",
+    "endpoint": "http://127.0.0.1:8090/v1",
+    "billing_mode": "self-hosted",
+    "service_tier": "apple-m5-64gb-sequential-swap",
+    "quantization": "router-mxfp4+worker-mlx-4bit",
+    "reasoning_effort": "router-low+worker-disabled",
+    "agent_harness": "system-one-confidence-review-cascade-v1",
+    "capabilities": ["compound-system", "structured-decisions"]
+  },
+  "router_component_id": "gpt-oss-router",
+  "worker_component_id": "qwen38-reviewer",
+  "routing_policy": {
+    "policy_id": "heavy-or-low-confidence-review-v1",
+    "invoke_worker_on_choices": ["heavy"],
+    "invoke_worker_below_max_probability": "0.800000",
+    "preserve_choices_without_review": ["abstain"],
+    "resolution": "worker_replaces_router",
+    "maximum_worker_calls_per_case": 1
+  },
+  "measurement_conditions": {
+    "model_residency": "llama-swap-exclusive-sequential",
+    "co_resident": false,
+    "request_order": "case-major",
+    "concurrency": 1,
+    "interpretation": "Measures the currently deployable swap-backed cascade; it is not an estimate of a co-resident pair."
+  },
+  "cost_basis": "unavailable"
+}

@@ -252,6 +252,10 @@ def test_compound_system_gets_final_credit_but_retains_router_and_worker_demand(
         ]
         result["tool_selection_correct"] = True
         result["tool_arguments_correct"] = True
+        result["router_decision_correct"] = index in {0, 2}
+        result["router_abstained"] = index == 1
+        result["router_max_probability"] = "0.8"
+        result["router_brier_score"] = "0.2"
 
     row = _normalize(value).offerings[0]
 
@@ -259,6 +263,12 @@ def test_compound_system_gets_final_credit_but_retains_router_and_worker_demand(
     assert row.signals["structured_final_success_percent"].value == 100
     assert row.signals["structured_mean_model_calls_per_case"].value == Decimal("1.5")
     assert row.signals["structured_mean_heavy_model_calls_per_case"].value == Decimal("0.5")
+    assert row.signals["structured_router_decision_accuracy_percent"].value == 50
+    assert row.signals["structured_router_autonomous_coverage_percent"].value == 75
+    assert row.signals["structured_router_mean_max_probability"].value == Decimal("0.8")
+    assert row.signals["structured_router_mean_brier_score"].value == Decimal("0.2")
+    assert row.signals["structured_router_error_rescue_percent"].value == 100
+    assert row.signals["structured_router_override_harm_percent"].value == 0
     assert "structured_mean_cost_usd_per_case" not in row.signals
     assert row.metadata["compound"] is True
     assert row.metadata["component_count"] == 2
@@ -339,6 +349,22 @@ def test_decision_component_requires_decision_capability_and_identity_shape() ->
     wrong_shape["system"]["components"][0]["role"] = "worker"
     with pytest.raises(StructuredDecisionAdapterError, match="exactly one decision"):
         _normalize(wrong_shape)
+
+    separate_router = deepcopy(_decision_run())
+    separate_router["results"][0]["router_decision_correct"] = True
+    separate_router["results"][0]["router_abstained"] = False
+    separate_router["results"][0]["router_max_probability"] = "0.8"
+    separate_router["results"][0]["router_brier_score"] = "0.2"
+    with pytest.raises(StructuredDecisionAdapterError, match="cannot report a separate router"):
+        _normalize(separate_router)
+
+
+def test_rejects_partial_router_diagnostics() -> None:
+    value = _decision_run()
+    value["results"][0]["router_decision_correct"] = True
+
+    with pytest.raises(StructuredDecisionAdapterError, match="must be reported together"):
+        _normalize(value)
 
 
 def test_rejects_prompt_or_response_text_bags_without_echoing_value() -> None:

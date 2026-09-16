@@ -7,7 +7,10 @@
   Add decision, safe-automation, tool-use, and heavy-demand frontier recipes;
   an official System One comparison runner for Jev and OpenAI-compatible
   models; a pinned 64-case BFCL calibration manifest; and the first warm M5
-  Qwen3.8 routing screen.
+  Qwen3.8 routing screen. Add a matched GPT-OSS 20B control and a measured
+  GPT-OSS→Qwen confidence-review cascade, including router calibration,
+  abstention, rescue, override-harm, component-token, heavy-call, and explicit
+  co-residency/swap-profile evidence.
 - Add local quality × average-power and quality × energy-per-item frontier
   guidance, with adapter wattage, OS power mode, and GPU power caps retained as
   exact offering tiers. Add a fail-closed, prompt-free importer for the official

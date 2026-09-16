@@ -5,10 +5,11 @@ import importlib.util
 import json
 from decimal import Decimal
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 from typing import Any
 
 from model_skyline.adapters.structured_decisions import (
+    StructuredDecisionRun,
     StructuredDecisionWorkloadIdentity,
     structured_decision_case_set_sha256,
     structured_decision_workload_version,
@@ -127,20 +128,48 @@ def test_bfcl_manifest_is_exact_balanced_and_matches_workload() -> None:
 def test_candidate_configs_have_complete_distinct_offerings() -> None:
     jev = _object(EXAMPLE / "jev-candidate.json")
     qwen = _object(EXAMPLE / "qwen38-local-candidate.json")
+    gpt_oss = _object(EXAMPLE / "gpt-oss-20b-local-candidate.json")
     jev_offering = OfferingKey.model_validate(jev["offering"])
     qwen_offering = OfferingKey.model_validate(qwen["offering"])
+    gpt_oss_offering = OfferingKey.model_validate(gpt_oss["offering"])
 
-    assert jev_offering.offering_id != qwen_offering.offering_id
+    assert (
+        len(
+            {
+                jev_offering.offering_id,
+                qwen_offering.offering_id,
+                gpt_oss_offering.offering_id,
+            }
+        )
+        == 3
+    )
     assert jev_offering.capabilities == qwen_offering.capabilities == ("structured-decisions",)
+    assert gpt_oss_offering.capabilities == ("structured-decisions",)
+    assert gpt_oss["resource_class"] == "light"
+    assert gpt_oss["backend"]["reasoning_effort"] == "low"
+    assert gpt_oss["backend"]["structured_outputs"] is False
     assert qwen["backend"]["max_tokens"] == 512
     assert qwen["backend"]["chat_template_kwargs"] == {"enable_thinking": False}
     assert qwen["measurement_conditions"]["model_residency"] == "warm"
+
+    compound = _object(EXAMPLE / "gpt-oss-qwen38-review-cascade.json")
+    compound_offering = OfferingKey.model_validate(compound["offering"])
+    assert compound_offering.capabilities == ("compound-system", "structured-decisions")
+    assert compound["routing_policy"] == {
+        "policy_id": "heavy-or-low-confidence-review-v1",
+        "invoke_worker_on_choices": ["heavy"],
+        "invoke_worker_below_max_probability": "0.800000",
+        "preserve_choices_without_review": ["abstain"],
+        "resolution": "worker_replaces_router",
+        "maximum_worker_calls_per_case": 1,
+    }
+    assert compound["measurement_conditions"]["co_resident"] is False
 
 
 def test_frontier_recipes_keep_primitive_and_complete_system_claims_separate() -> None:
     config = load_config(EXAMPLE / "frontiers.yaml")
 
-    assert len(config.frontiers) == 9
+    assert len(config.frontiers) == 10
     assert config.frontiers["decision-quality-vs-latency"].eligibility.required_capabilities == (
         "structured-decisions",
     )
@@ -150,6 +179,9 @@ def test_frontier_recipes_keep_primitive_and_complete_system_claims_separate() -
     assert config.frontiers[
         "compound-outcome-vs-heavy-demand"
     ].eligibility.required_capabilities == ("compound-system", "tools")
+    assert config.frontiers[
+        "compound-routing-quality-vs-heavy-demand"
+    ].eligibility.required_capabilities == ("compound-system", "structured-decisions")
 
 
 def test_normalized_multiclass_brier_rejects_invalid_probabilities() -> None:
@@ -171,3 +203,67 @@ def test_normalized_multiclass_brier_rejects_invalid_probabilities() -> None:
         assert "sum to one" in str(exc)
     else:  # pragma: no cover - assertion aid
         raise AssertionError("invalid probability distribution was accepted")
+
+
+def test_compound_runner_counts_both_components_without_emitting_inputs() -> None:
+    runner = _runner_module()
+
+    class FakeContext:
+        def __init__(self, choice: str) -> None:
+            self.choice = choice
+
+        def __enter__(self):
+            choice = self.choice
+
+            class FakeClient:
+                def system_one(self, state: Any, questions: dict[str, Any]):
+                    del state
+                    question_name = next(iter(questions))
+                    probabilities = {
+                        "light": 1.0 if choice == "light" else 0.0,
+                        "heavy": 1.0 if choice == "heavy" else 0.0,
+                        "abstain": 1.0 if choice == "abstain" else 0.0,
+                    }
+                    return SimpleNamespace(
+                        choices={
+                            question_name: SimpleNamespace(
+                                choice=choice,
+                                probabilities=probabilities,
+                            )
+                        },
+                        usage=SimpleNamespace(
+                            input_tokens=10,
+                            output_tokens=2,
+                            input_tokens_total=10,
+                            output_tokens_total=2,
+                        ),
+                        debug={"llm_attempts": [{}]},
+                    )
+
+            return FakeClient()
+
+        def __exit__(self, *args: Any) -> None:
+            del args
+
+    def fake_client(candidate: dict[str, Any]) -> FakeContext:
+        model_id = candidate["offering"]["model_id"]
+        return FakeContext("heavy" if model_id == "openai/gpt-oss-20b" else "light")
+
+    runner._client = fake_client
+    result = runner.run_compound(
+        EXAMPLE / "routing-screen-v1.json",
+        EXAMPLE / "gpt-oss-20b-local-candidate.json",
+        EXAMPLE / "qwen38-local-candidate.json",
+        EXAMPLE / "gpt-oss-qwen38-review-cascade.json",
+        repetitions=1,
+    )
+    validated = StructuredDecisionRun.model_validate(result)
+
+    assert validated.system.kind == "compound_model_system"
+    assert len(validated.results) == 18
+    assert all(item.model_calls == 2 for item in validated.results)
+    assert all(item.heavy_model_calls == 1 for item in validated.results)
+    assert all(item.router_abstained is False for item in validated.results)
+    serialized = json.dumps(result)
+    assert '"state"' not in serialized
+    assert '"expected"' not in serialized

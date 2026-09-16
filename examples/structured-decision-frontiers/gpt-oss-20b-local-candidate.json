@@ -1,0 +1,37 @@
+{
+  "backend": {
+    "kind": "openai-compatible",
+    "model": "gpt-oss:20b",
+    "base_url": "http://127.0.0.1:8090/v1",
+    "api_key_env": null,
+    "structured_outputs": false,
+    "max_tokens": 2048,
+    "temperature": 0,
+    "reasoning_effort": "low",
+    "chat_template_kwargs": {}
+  },
+  "offering": {
+    "offering_id": "local/gpt-oss-20b-mxfp4@m5-64gb-warm-low-max2048-prompted-json",
+    "model_id": "openai/gpt-oss-20b",
+    "provider": "local-m5",
+    "endpoint": "http://127.0.0.1:8090/v1",
+    "billing_mode": "self-hosted",
+    "service_tier": "apple-m5-64gb-warm",
+    "quantization": "mxfp4",
+    "reasoning_effort": "low",
+    "agent_harness": "system-one-adapter-probabilities-warm-low-max2048-prompted-json",
+    "capabilities": ["structured-decisions"]
+  },
+  "component_id": "decision",
+  "resource_class": "light",
+  "guidance": "Answer the suite's named Choice exactly once. Do not invent a fourth route.",
+  "routing_policy": "Use the returned route directly; this primitive screen has no fallback.",
+  "measurement_conditions": {
+    "model_residency": "warm",
+    "prefix_cache": "ollama-default",
+    "request_order": "case-major",
+    "concurrency": 1
+  },
+  "cost_basis": "unavailable",
+  "fixed_cost_usd_per_model_call": null
+}
