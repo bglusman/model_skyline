@@ -35,16 +35,12 @@ LAGUNA_SCREEN_SUMMARY = EXAMPLE / "raw" / "harbor-smoke-laguna-xs21-nvfp4-fix-gi
 CUDA_5060_SCREEN = EXAMPLE / "harbor-quality-screen-5060-qwen35-muse.yaml"
 CUDA_5060_PILOT = EXAMPLE / "harbor-quality-pilot-5060-qwen35-muse.yaml"
 CUDA_5060_PILOT_SUMMARIES = {
-    "qwen35_9b_q6k_5060": (
-        EXAMPLE / "raw" / "harbor-pilot5-qwen35-9b-q6k-5060-summary.json"
-    ),
+    "qwen35_9b_q6k_5060": (EXAMPLE / "raw" / "harbor-pilot5-qwen35-9b-q6k-5060-summary.json"),
     "muse_glimmer_ad_iq3xxs_5060": (
         EXAMPLE / "raw" / "harbor-pilot5-muse-glimmer-ad-iq3xxs-5060-summary.json"
     ),
 }
-CUDA_5060_PILOT_CATALOG = (
-    EXAMPLE / "generated" / "harbor-pilot5-5060-qwen35-muse-catalog.json"
-)
+CUDA_5060_PILOT_CATALOG = EXAMPLE / "generated" / "harbor-pilot5-5060-qwen35-muse-catalog.json"
 CUDA_5060_PILOT_FRONTIERS = (
     EXAMPLE / "generated" / "harbor-pilot5-5060-quality-latency-frontier.json",
     EXAMPLE / "generated" / "harbor-pilot5-5060-quality-cache-efficiency-frontier.json",
@@ -58,9 +54,7 @@ CUDA_5060_SCREEN_SUMMARIES = {
         EXAMPLE / "raw" / "harbor-smoke-qwen35-9b-q6k-5060-fix-git-summary.json"
     ),
     "muse_glimmer_ad_iq3xxs_5060": (
-        EXAMPLE
-        / "raw"
-        / "harbor-smoke-muse-glimmer-ad-iq3xxs-5060-fix-git-summary.json"
+        EXAMPLE / "raw" / "harbor-smoke-muse-glimmer-ad-iq3xxs-5060-fix-git-summary.json"
     ),
 }
 FLASH_CODER_CAPACITY_RAW = (
@@ -541,15 +535,14 @@ def test_5060_screen_is_additive_prompt_free_and_promotes_both_candidates() -> N
     for candidate_name, candidate in screen["candidates"].items():
         profile_path = EXAMPLE / candidate["system_profile"]
         profile = json.loads(profile_path.read_text(encoding="utf-8"))
-        assert candidate["system_profile_sha256"] == hashlib.sha256(
-            profile_path.read_bytes()
-        ).hexdigest()
+        assert (
+            candidate["system_profile_sha256"]
+            == hashlib.sha256(profile_path.read_bytes()).hexdigest()
+        )
         assert profile["served_model"] == candidate["route"]
         assert profile["runtime"]["backend"] == "CUDA"
 
-        summary = json.loads(
-            CUDA_5060_SCREEN_SUMMARIES[candidate_name].read_text(encoding="utf-8")
-        )
+        summary = json.loads(CUDA_5060_SCREEN_SUMMARIES[candidate_name].read_text(encoding="utf-8"))
         assert summary["contains_prompts_or_model_messages"] is False
         assert "/Users/" not in json.dumps(summary)
         assert summary["protocol"]["protocol_sha256"] == screen_digest
@@ -566,9 +559,10 @@ def test_5060_pilot_is_a_separate_screen_bound_population() -> None:
     pilot = yaml.safe_load(PILOT.read_text(encoding="utf-8"))
     cuda_pilot = yaml.safe_load(CUDA_5060_PILOT.read_text(encoding="utf-8"))
 
-    assert cuda_pilot["promotion_source"]["screen_sha256"] == hashlib.sha256(
-        CUDA_5060_SCREEN.read_bytes()
-    ).hexdigest()
+    assert (
+        cuda_pilot["promotion_source"]["screen_sha256"]
+        == hashlib.sha256(CUDA_5060_SCREEN.read_bytes()).hexdigest()
+    )
     assert cuda_pilot["task_sets"]["pilot_5"] == pilot["task_sets"]["pilot_5"]
     assert set(cuda_pilot["pilot_frontiers"]) == {
         "agent_quality_latency",
@@ -577,9 +571,10 @@ def test_5060_pilot_is_a_separate_screen_bound_population() -> None:
     assert cuda_pilot["publication"]["full_benchmark_estimation_allowed"] is False
     for candidate in cuda_pilot["candidates"].values():
         profile_path = EXAMPLE / candidate["system_profile"]
-        assert candidate["system_profile_sha256"] == hashlib.sha256(
-            profile_path.read_bytes()
-        ).hexdigest()
+        assert (
+            candidate["system_profile_sha256"]
+            == hashlib.sha256(profile_path.read_bytes()).hexdigest()
+        )
 
     expected_success = {
         "qwen35_9b_q6k_5060": "60.0",
@@ -599,9 +594,7 @@ def test_5060_pilot_is_a_separate_screen_bound_population() -> None:
     assert len(catalog.offerings) == 2
     for frontier_path in CUDA_5060_PILOT_FRONTIERS:
         snapshot = load_frontier_snapshot(frontier_path)
-        assert [member.offering.model_id for member in snapshot.members] == [
-            "Qwen/Qwen3.5-9B"
-        ]
+        assert [member.offering.model_id for member in snapshot.members] == ["Qwen/Qwen3.5-9B"]
     for view_path in CUDA_5060_PILOT_MODEL_VIEWS:
         view = json.loads(view_path.read_text(encoding="utf-8"))
         assert [member["model_id"] for member in view["best_available"]["members"]] == [
