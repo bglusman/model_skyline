@@ -184,6 +184,14 @@ class StructuredDecisionCaseResult(FrozenModel):
     brier_score: CanonicalDecimal | None = Field(
         default=None, ge=0, le=1, max_digits=18, decimal_places=12
     )
+    router_decision_correct: bool | None = None
+    router_abstained: bool | None = None
+    router_max_probability: CanonicalDecimal | None = Field(
+        default=None, ge=0, le=1, max_digits=18, decimal_places=12
+    )
+    router_brier_score: CanonicalDecimal | None = Field(
+        default=None, ge=0, le=1, max_digits=18, decimal_places=12
+    )
     tool_selection_correct: bool | None = None
     tool_arguments_correct: bool | None = None
     tool_sequence_correct: bool | None = None
@@ -203,6 +211,19 @@ class StructuredDecisionCaseResult(FrozenModel):
             raise ValueError("a successful result must be schema-valid and safe")
         if self.decision_correct and not self.schema_valid:
             raise ValueError("a correct decision must be schema-valid")
+        router_diagnostics = (
+            self.router_decision_correct,
+            self.router_abstained,
+            self.router_max_probability,
+            self.router_brier_score,
+        )
+        if any(value is None for value in router_diagnostics) and any(
+            value is not None for value in router_diagnostics
+        ):
+            raise ValueError(
+                "router correctness, abstention, probability, and Brier diagnostics "
+                "must be reported together"
+            )
         if self.final_success and any(
             value is False
             for value in (
@@ -349,6 +370,8 @@ class StructuredDecisionRun(FrozenModel):
                 )
             if any(result.final_success != result.decision_correct for result in self.results):
                 raise ValueError("decision_component final_success must equal decision_correct")
+            if any(result.router_decision_correct is not None for result in self.results):
+                raise ValueError("decision_component results cannot report a separate router")
         elif self.system.kind == "compound_model_system":
             if "compound-system" not in self.offering.capabilities:
                 raise ValueError(
@@ -503,6 +526,64 @@ def normalize_structured_decision_run(
             _mean([value for value in brier_scores if value is not None]),
             "score",
         )
+
+    routed = [result for result in results if result.router_decision_correct is not None]
+    if routed:
+        add(
+            "structured_router_decision_accuracy_percent",
+            _percent(sum(bool(result.router_decision_correct) for result in routed), len(routed)),
+            "percent",
+            len(routed),
+        )
+        add(
+            "structured_router_autonomous_coverage_percent",
+            _percent(sum(not bool(result.router_abstained) for result in routed), len(routed)),
+            "percent",
+            len(routed),
+        )
+        add(
+            "structured_router_mean_max_probability",
+            _mean(
+                [
+                    result.router_max_probability
+                    for result in routed
+                    if result.router_max_probability is not None
+                ]
+            ),
+            "probability",
+            len(routed),
+        )
+        add(
+            "structured_router_mean_brier_score",
+            _mean(
+                [
+                    result.router_brier_score
+                    for result in routed
+                    if result.router_brier_score is not None
+                ]
+            ),
+            "score",
+            len(routed),
+        )
+        router_errors = [result for result in routed if not result.router_decision_correct]
+        if router_errors:
+            add(
+                "structured_router_error_rescue_percent",
+                _percent(sum(result.final_success for result in router_errors), len(router_errors)),
+                "percent",
+                len(router_errors),
+            )
+        router_successes = [result for result in routed if result.router_decision_correct]
+        if router_successes:
+            add(
+                "structured_router_override_harm_percent",
+                _percent(
+                    sum(not result.final_success for result in router_successes),
+                    len(router_successes),
+                ),
+                "percent",
+                len(router_successes),
+            )
 
     for field, signal in (
         ("tool_selection_correct", "structured_tool_selection_accuracy_percent"),

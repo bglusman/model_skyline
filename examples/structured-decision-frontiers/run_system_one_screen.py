@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Run the public routing screen through Jev or an OpenAI-compatible model.
+"""Run the public routing screen through one model or an explicit two-model cascade.
 
 Install the optional integration first:
 
     uv sync --extra structured-decisions
 
 The output is a prompt-free ``structured-decision-run`` artifact. The source
-suite and candidate configuration remain separate, auditable inputs.
+suite and candidate configurations remain separate, auditable inputs.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ import hashlib
 import json
 import os
 import time
-from contextlib import AbstractContextManager
+from contextlib import AbstractContextManager, ExitStack
 from datetime import UTC, datetime
 from decimal import Decimal, localcontext
 from pathlib import Path
@@ -159,17 +159,19 @@ def _client(candidate: dict[str, Any]) -> ClientContext:
                             "strict": True,
                         },
                     }
+                request: dict[str, Any] = {
+                    "model": self.model_name,
+                    "messages": render_messages(messages),
+                    "response_format": response_format,
+                    "max_tokens": int(backend["max_tokens"]),
+                    "temperature": float(backend.get("temperature", 0)),
+                    "extra_body": {"chat_template_kwargs": backend.get("chat_template_kwargs", {})},
+                }
+                reasoning_effort = backend.get("reasoning_effort")
+                if reasoning_effort is not None:
+                    request["reasoning_effort"] = reasoning_effort
                 with translating(self.translate_error):
-                    response = self._client.chat.completions.create(
-                        model=self.model_name,
-                        messages=cast(Any, render_messages(messages)),
-                        response_format=cast(Any, response_format),
-                        max_tokens=int(backend["max_tokens"]),
-                        temperature=float(backend.get("temperature", 0)),
-                        extra_body={
-                            "chat_template_kwargs": backend.get("chat_template_kwargs", {})
-                        },
-                    )
+                    response = self._client.chat.completions.create(**cast(Any, request))
                 usage = response.usage
                 if usage is None:
                     raise ValueError("OpenAI-compatible response omitted token usage")
@@ -202,6 +204,27 @@ def _call_count(response: Response, *, backend_kind: str) -> int:
     return len(attempts)
 
 
+def _token_totals(response: Response) -> tuple[int, int]:
+    """Read direct TypeSafe usage or adapter totals without changing semantics."""
+
+    usage = response.usage
+    return (
+        int(getattr(usage, "input_tokens_total", usage.input_tokens)),
+        int(getattr(usage, "output_tokens_total", usage.output_tokens)),
+    )
+
+
+def _fixed_cost(candidate: dict[str, Any]) -> tuple[str, Decimal | None]:
+    cost_basis = cast(str, candidate["cost_basis"])
+    fixed_cost_value = candidate.get("fixed_cost_usd_per_model_call")
+    fixed_cost = Decimal(str(fixed_cost_value)) if fixed_cost_value is not None else None
+    if (cost_basis == "unavailable") != (fixed_cost is None):
+        raise ValueError(
+            "cost_basis must be unavailable exactly when fixed_cost_usd_per_model_call is null"
+        )
+    return cost_basis, fixed_cost
+
+
 def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str, Any]:
     if repetitions < 1:
         raise ValueError("repetitions must be positive")
@@ -214,15 +237,11 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
     backend = cast(dict[str, Any], candidate["backend"])
     component_id = cast(str, candidate["component_id"])
     resource_class = cast(str, candidate["resource_class"])
-    cost_basis = cast(str, candidate["cost_basis"])
-    fixed_cost_value = candidate.get("fixed_cost_usd_per_model_call")
-    fixed_cost = Decimal(str(fixed_cost_value)) if fixed_cost_value is not None else None
-    if (cost_basis == "unavailable") != (fixed_cost is None):
-        raise ValueError(
-            "cost_basis must be unavailable exactly when fixed_cost_usd_per_model_call is null"
-        )
+    cost_basis, fixed_cost = _fixed_cost(candidate)
 
     results: list[dict[str, Any]] = []
+    input_tokens_total = 0
+    output_tokens_total = 0
     observed_at = datetime.now(UTC)
     questions = {
         question_name: {
@@ -254,10 +273,18 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
             case_sha256 = case_sha256_by_id[case["case_id"]]
             for repetition in range(1, repetitions + 1):
                 started = time.perf_counter()
-                response = client.system_one(case["state"], questions)
+                try:
+                    response = client.system_one(case["state"], questions)
+                except Exception as exc:
+                    raise RuntimeError(
+                        f"candidate failed on case {case['case_id']!r}, repetition {repetition}"
+                    ) from exc
                 latency = Decimal(str(time.perf_counter() - started))
                 answer = response.choices[question_name]
                 calls = _call_count(response, backend_kind=cast(str, backend["kind"]))
+                response_input_tokens, response_output_tokens = _token_totals(response)
+                input_tokens_total += response_input_tokens
+                output_tokens_total += response_output_tokens
                 cost = fixed_cost * calls if fixed_cost is not None else None
                 results.append(
                     {
@@ -347,8 +374,333 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
             "backend_kind": backend["kind"],
             "candidate_configuration_sha256": hashlib.sha256(candidate_raw).hexdigest(),
             "measurement_conditions": candidate.get("measurement_conditions", {}),
-            "input_tokens_total": None,
-            "output_tokens_total": None,
+            "input_tokens_total": input_tokens_total,
+            "output_tokens_total": output_tokens_total,
+        },
+    }
+
+
+def run_compound(
+    suite_path: Path,
+    router_candidate_path: Path,
+    worker_candidate_path: Path,
+    compound_candidate_path: Path,
+    *,
+    repetitions: int,
+) -> dict[str, Any]:
+    """Measure a light router whose selected heavy route receives worker review.
+
+    This is a routing-decision cascade, not an end-to-end tool-task result. The
+    worker answers the same pinned routing question and replaces the router's
+    decision only on the choices named by the immutable policy.
+    """
+
+    if repetitions < 1:
+        raise ValueError("repetitions must be positive")
+    suite, suite_raw = _load_object(suite_path, label="suite")
+    router, router_raw = _load_object(router_candidate_path, label="router candidate")
+    worker, worker_raw = _load_object(worker_candidate_path, label="worker candidate")
+    compound, compound_raw = _load_object(compound_candidate_path, label="compound candidate")
+    if router["resource_class"] != "light":
+        raise ValueError("compound router candidate must have resource_class light")
+    if worker["resource_class"] != "heavy":
+        raise ValueError("compound worker candidate must have resource_class heavy")
+
+    question = cast(dict[str, Any], suite["question"])
+    question_name = cast(str, question["name"])
+    criteria = cast(dict[str, Any], question["criteria"])
+    labels = set(criteria)
+    policy = cast(dict[str, Any], compound["routing_policy"])
+    expected_policy_keys = {
+        "policy_id",
+        "invoke_worker_on_choices",
+        "invoke_worker_below_max_probability",
+        "preserve_choices_without_review",
+        "resolution",
+        "maximum_worker_calls_per_case",
+    }
+    if set(policy) != expected_policy_keys:
+        raise ValueError("routing policy must contain the exact supported keys")
+    if not isinstance(policy["policy_id"], str) or not policy["policy_id"]:
+        raise ValueError("routing_policy.policy_id must be a nonempty string")
+    invoke_worker_on_choices = policy.get("invoke_worker_on_choices")
+    if not isinstance(invoke_worker_on_choices, list) or not invoke_worker_on_choices:
+        raise ValueError("routing_policy.invoke_worker_on_choices must be a nonempty list")
+    worker_choices = set(invoke_worker_on_choices)
+    if not worker_choices.issubset(labels):
+        raise ValueError("routing policy names a choice absent from the suite")
+    preserve_choices_value = policy.get("preserve_choices_without_review", [])
+    if not isinstance(preserve_choices_value, list):
+        raise ValueError("routing_policy.preserve_choices_without_review must be a list")
+    preserve_choices = set(preserve_choices_value)
+    if not preserve_choices.issubset(labels):
+        raise ValueError("routing policy preserves a choice absent from the suite")
+    if worker_choices.intersection(preserve_choices):
+        raise ValueError("a route cannot both invoke the worker and bypass review")
+    threshold_value = policy.get("invoke_worker_below_max_probability")
+    confidence_threshold = Decimal(str(threshold_value)) if threshold_value is not None else None
+    if confidence_threshold is not None and not 0 <= confidence_threshold <= 1:
+        raise ValueError("routing confidence threshold must be between zero and one")
+    if policy.get("resolution") != "worker_replaces_router":
+        raise ValueError("routing_policy.resolution must be worker_replaces_router")
+    if policy.get("maximum_worker_calls_per_case") != 1:
+        raise ValueError("routing_policy.maximum_worker_calls_per_case must equal one")
+
+    router_component_id = cast(str, compound["router_component_id"])
+    worker_component_id = cast(str, compound["worker_component_id"])
+    if not router_component_id or not worker_component_id:
+        raise ValueError("compound component IDs must be nonempty")
+    if router_component_id == worker_component_id:
+        raise ValueError("compound component IDs must be distinct")
+
+    compound_cost_basis = cast(str, compound["cost_basis"])
+    _, router_fixed_cost = _fixed_cost(router)
+    _, worker_fixed_cost = _fixed_cost(worker)
+    if compound_cost_basis == "unavailable":
+        if router_fixed_cost is not None or worker_fixed_cost is not None:
+            raise ValueError("unavailable compound cost requires unavailable component costs")
+    elif router_fixed_cost is None or worker_fixed_cost is None:
+        raise ValueError("a declared compound cost basis requires both component costs")
+
+    router_questions = {
+        question_name: {
+            "type": "choice",
+            "instructions": f"{router['guidance']}\n\n{question['instructions']}",
+            "criteria": criteria,
+        }
+    }
+    worker_questions = {
+        question_name: {
+            "type": "choice",
+            "instructions": f"{worker['guidance']}\n\n{question['instructions']}",
+            "criteria": criteria,
+        }
+    }
+    cases = cast(list[dict[str, Any]], suite["cases"])
+    case_sha256_by_id: dict[str, str] = {}
+    for case in cases:
+        case_id = cast(str, case["case_id"])
+        if case_id in case_sha256_by_id:
+            raise ValueError(f"suite repeats case_id {case_id!r}")
+        case_sha256_by_id[case_id] = _digest(
+            {
+                "case_id": case_id,
+                "state": case["state"],
+                "expected": case["expected"],
+                "stratum": case["stratum"],
+                "question": question,
+            }
+        )
+
+    results: list[dict[str, Any]] = []
+    input_tokens_total = 0
+    output_tokens_total = 0
+    component_input_tokens = {router_component_id: 0, worker_component_id: 0}
+    component_output_tokens = {router_component_id: 0, worker_component_id: 0}
+    observed_at = datetime.now(UTC)
+    router_backend = cast(dict[str, Any], router["backend"])
+    worker_backend = cast(dict[str, Any], worker["backend"])
+
+    with ExitStack() as stack:
+        router_client = stack.enter_context(_client(router))
+        worker_client = stack.enter_context(_client(worker))
+        for case in cases:
+            expected = cast(str, case["expected"])
+            if expected not in labels:
+                raise ValueError(f"case {case['case_id']!r} has an unknown expected label")
+            case_sha256 = case_sha256_by_id[case["case_id"]]
+            for repetition in range(1, repetitions + 1):
+                started = time.perf_counter()
+                try:
+                    router_response = router_client.system_one(case["state"], router_questions)
+                except Exception as exc:
+                    raise RuntimeError(
+                        f"router failed on case {case['case_id']!r}, repetition {repetition}"
+                    ) from exc
+                router_answer = router_response.choices[question_name]
+                router_max_probability = max(
+                    Decimal(str(probability))
+                    for probability in router_answer.probabilities.values()
+                )
+                router_calls = _call_count(
+                    router_response,
+                    backend_kind=cast(str, router_backend["kind"]),
+                )
+                router_input, router_output = _token_totals(router_response)
+                component_input_tokens[router_component_id] += router_input
+                component_output_tokens[router_component_id] += router_output
+
+                worker_calls = 0
+                worker_input = 0
+                worker_output = 0
+                final_answer = router_answer
+                confidence_fallback = (
+                    confidence_threshold is not None
+                    and router_answer.choice not in preserve_choices
+                    and router_max_probability < confidence_threshold
+                )
+                if router_answer.choice in worker_choices or confidence_fallback:
+                    try:
+                        worker_response = worker_client.system_one(case["state"], worker_questions)
+                    except Exception as exc:
+                        raise RuntimeError(
+                            f"worker failed on case {case['case_id']!r}, repetition {repetition}"
+                        ) from exc
+                    final_answer = worker_response.choices[question_name]
+                    worker_calls = _call_count(
+                        worker_response,
+                        backend_kind=cast(str, worker_backend["kind"]),
+                    )
+                    worker_input, worker_output = _token_totals(worker_response)
+                    component_input_tokens[worker_component_id] += worker_input
+                    component_output_tokens[worker_component_id] += worker_output
+
+                latency = Decimal(str(time.perf_counter() - started))
+                input_tokens_total += router_input + worker_input
+                output_tokens_total += router_output + worker_output
+                router_cost = (
+                    router_fixed_cost * router_calls if router_fixed_cost is not None else None
+                )
+                worker_cost = (
+                    worker_fixed_cost * worker_calls if worker_fixed_cost is not None else None
+                )
+                total_cost = (
+                    router_cost + worker_cost
+                    if router_cost is not None and worker_cost is not None
+                    else None
+                )
+                results.append(
+                    {
+                        "case_id": case["case_id"],
+                        "case_sha256": case_sha256,
+                        "repetition": repetition,
+                        "decision_correct": final_answer.choice == expected,
+                        "final_success": final_answer.choice == expected,
+                        "schema_valid": True,
+                        "abstained": final_answer.choice == "abstain",
+                        "unsafe_action": (
+                            expected == "abstain" and final_answer.choice != "abstain"
+                        ),
+                        "latency_seconds": _decimal(latency, decimal_places=9),
+                        "total_cost_usd": (
+                            _decimal(total_cost, decimal_places=12)
+                            if total_cost is not None
+                            else None
+                        ),
+                        "model_calls": router_calls + worker_calls,
+                        "heavy_model_calls": worker_calls,
+                        "component_usage": [
+                            {
+                                "component_id": router_component_id,
+                                "calls": router_calls,
+                                "cost_usd": (
+                                    _decimal(router_cost, decimal_places=12)
+                                    if router_cost is not None
+                                    else None
+                                ),
+                            },
+                            {
+                                "component_id": worker_component_id,
+                                "calls": worker_calls,
+                                "cost_usd": (
+                                    _decimal(worker_cost, decimal_places=12)
+                                    if worker_cost is not None
+                                    else None
+                                ),
+                            },
+                        ],
+                        "brier_score": _decimal(
+                            _brier(final_answer.probabilities, expected, labels),
+                            decimal_places=12,
+                        ),
+                        "router_decision_correct": router_answer.choice == expected,
+                        "router_abstained": router_answer.choice == "abstain",
+                        "router_max_probability": _decimal(
+                            router_max_probability,
+                            decimal_places=12,
+                        ),
+                        "router_brier_score": _decimal(
+                            _brier(router_answer.probabilities, expected, labels),
+                            decimal_places=12,
+                        ),
+                        "tool_selection_correct": None,
+                        "tool_arguments_correct": None,
+                        "tool_sequence_correct": None,
+                        "tool_policy_compliant": None,
+                        "tool_side_effects_correct": None,
+                    }
+                )
+
+    compound_offering = cast(dict[str, Any], compound["offering"])
+    router_offering = cast(dict[str, Any], router["offering"])
+    worker_offering = cast(dict[str, Any], worker["offering"])
+    return {
+        "schema_version": "model-skyline/structured-decision-run/v1alpha1",
+        "observed_at": observed_at.isoformat().replace("+00:00", "Z"),
+        "workload_id": "structured-routing-screen-v1",
+        "workload_unit": "decision",
+        "workload": {
+            "suite_id": suite["suite_id"],
+            "suite_version": suite["suite_version"],
+            "case_manifest_sha256": hashlib.sha256(suite_raw).hexdigest(),
+            "case_set_sha256": structured_decision_case_set_sha256(case_sha256_by_id.items()),
+            "case_count": len(case_sha256_by_id),
+            "harness_id": "model-skyline/system-one-screen",
+            "harness_version": "1",
+            "scorer_version": "normalized-multiclass-brier-v1",
+            "oracle_kind": "deterministic",
+            "repetitions_per_case": repetitions,
+            "concurrency": 1,
+        },
+        "benchmark_source": {
+            "id": suite["suite_id"],
+            "version": suite["suite_version"],
+            "url": "https://github.com/bglusman/model_skyline",
+            "license": suite["license"],
+            "methodology": suite["methodology"],
+            "raw_sha256": hashlib.sha256(suite_raw).hexdigest(),
+            "retrieved_at": observed_at.isoformat().replace("+00:00", "Z"),
+        },
+        "offering": compound_offering,
+        "system": {
+            "kind": "compound_model_system",
+            "routing_policy_sha256": _digest(policy),
+            "components": [
+                {
+                    "component_id": router_component_id,
+                    "role": "router",
+                    "resource_class": "light",
+                    "activation": "always",
+                    "offering": router_offering,
+                    "guidance_sha256": _digest(router["guidance"]),
+                },
+                {
+                    "component_id": worker_component_id,
+                    "role": "worker",
+                    "resource_class": "heavy",
+                    "activation": "confidence_fallback",
+                    "offering": worker_offering,
+                    "guidance_sha256": _digest(worker["guidance"]),
+                },
+            ],
+        },
+        "cost_basis": compound_cost_basis,
+        "results": results,
+        "metadata": {
+            "suite_license": suite["license"],
+            "suite_methodology": suite["methodology"],
+            "component_backend_kinds": {
+                router_component_id: router_backend["kind"],
+                worker_component_id: worker_backend["kind"],
+            },
+            "candidate_configuration_sha256": hashlib.sha256(compound_raw).hexdigest(),
+            "router_candidate_configuration_sha256": hashlib.sha256(router_raw).hexdigest(),
+            "worker_candidate_configuration_sha256": hashlib.sha256(worker_raw).hexdigest(),
+            "measurement_conditions": compound.get("measurement_conditions", {}),
+            "input_tokens_total": input_tokens_total,
+            "output_tokens_total": output_tokens_total,
+            "component_input_tokens": component_input_tokens,
+            "component_output_tokens": component_output_tokens,
         },
     }
 
@@ -357,10 +709,23 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("suite", type=Path)
     parser.add_argument("candidate", type=Path)
+    parser.add_argument("--worker-candidate", type=Path)
+    parser.add_argument("--compound-candidate", type=Path)
     parser.add_argument("--repetitions", type=int, default=3)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    result = run(args.suite, args.candidate, repetitions=args.repetitions)
+    if (args.worker_candidate is None) != (args.compound_candidate is None):
+        parser.error("--worker-candidate and --compound-candidate must be supplied together")
+    if args.worker_candidate is None:
+        result = run(args.suite, args.candidate, repetitions=args.repetitions)
+    else:
+        result = run_compound(
+            args.suite,
+            args.candidate,
+            args.worker_candidate,
+            args.compound_candidate,
+            repetitions=args.repetitions,
+        )
     args.output.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
 
 

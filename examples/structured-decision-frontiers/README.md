@@ -10,10 +10,12 @@ same question:
    and cheaply?** A single model and a light-router-plus-heavy-worker pair both
    belong here, provided every call is counted.
 
-Jev is a non-generative structured-decision model, not a drop-in general LLM.
-It may still improve a general agent as a router, guardrail, or verifier. The
-compound-system measurements test that claim end to end instead of transferring
-Jev's primitive decision score to the worker.
+Jev is a hosted, non-generative structured-decision model, not a drop-in general
+LLM. TypeSafe has not published weights or a self-hosting commitment, and access
+is currently waitlisted. It may still improve a general agent as a router,
+guardrail, or verifier after access becomes available. The compound-system
+measurements test that claim instead of transferring a router score to its
+worker.
 
 ## The three candidate types
 
@@ -38,7 +40,7 @@ costs do not sum to total cost.
 
 ## Frontier definitions
 
-[`frontiers.yaml`](frontiers.yaml) contains nine ordinary two-axis frontiers:
+[`frontiers.yaml`](frontiers.yaml) contains ten ordinary two-axis frontiers:
 
 | Frontier | First axis | Second axis | What it tells us |
 | --- | --- | --- | --- |
@@ -47,6 +49,7 @@ costs do not sum to total cost.
 | decision quality vs calibration | correct route | normalized Brier error | whether confidence is useful, not merely whether top-1 wins |
 | safe automation vs cost | non-abstained share | mean cost | most work handled under 95% autonomous accuracy and zero unsafe actions |
 | safe automation vs latency | non-abstained share | p95 response time | local/self-hosted version when a defensible dollar cost is unavailable |
+| compound routing quality vs heavy demand | final route accuracy | heavy calls per case | whether a routing cascade improves decisions without simply calling the heavy model every time |
 | tool outcome vs latency | complete case success | p95 wall time | fastest complete tool system |
 | tool outcome vs cost | complete case success | cost per success | cheapest complete tool system |
 | tool arguments vs latency | correct arguments | p95 wall time | argument quality after selection and policy gates |
@@ -87,6 +90,11 @@ its end-to-end outcomes are measured.
 - [`jev-candidate.json`](jev-candidate.json) configures the TypeSafe API route.
 - [`qwen38-local-candidate.json`](qwen38-local-candidate.json) configures the
   current llama-swap OpenAI-compatible route.
+- [`gpt-oss-20b-local-candidate.json`](gpt-oss-20b-local-candidate.json)
+  configures the lighter local GPT-OSS control.
+- [`gpt-oss-qwen38-review-cascade.json`](gpt-oss-qwen38-review-cascade.json)
+  defines an exact GPT-OSS router plus Qwen reviewer policy. It explicitly says
+  that the present deployment swaps models rather than keeping them co-resident.
 - [`bfcl-v4-offline-64-manifest.json`](bfcl-v4-offline-64-manifest.json) pins 64
   offline BFCL cases, source blobs, answers, scorers, source revision, license,
   retrieval time, and the mapping to ModelSkyline's tool subdimensions. It is a
@@ -127,6 +135,20 @@ uv run python \
   --repetitions 3 --output qwen38-run.json
 ```
 
+Run the pinned local review cascade:
+
+```console
+uv run python \
+  examples/structured-decision-frontiers/run_system_one_screen.py \
+  examples/structured-decision-frontiers/routing-screen-v1.json \
+  examples/structured-decision-frontiers/gpt-oss-20b-local-candidate.json \
+  --worker-candidate \
+    examples/structured-decision-frontiers/qwen38-local-candidate.json \
+  --compound-candidate \
+    examples/structured-decision-frontiers/gpt-oss-qwen38-review-cascade.json \
+  --repetitions 3 --output cascade-run.json
+```
+
 The runner uses TypeSafe's official
 [`system-one-adapter`](https://github.com/typesafe-ai/system-one-adapter-python)
 so Jev and a general LLM receive the same `Choice` contract. It emits no prompt,
@@ -139,18 +161,22 @@ uv run modelskyline normalize-structured-decision-run jev-run.json \
   --retrieved-at 2026-09-16T15:00:00Z --output jev-catalog.json
 ```
 
-The committed runner currently covers decision components. A BFCL or
-environment harness emits the same run schema for complete single and compound
-systems. That harness must count technical failures, router calls, retries,
-fallbacks, and worker calls rather than dropping failed cases.
+The runner covers decision components and a two-component routing-review
+cascade. It records the router's accuracy, abstention, maximum probability and
+Brier score separately from the final system result. A BFCL or environment
+harness emits the same run schema for complete tool systems. That harness must
+count technical failures, router calls, retries, fallbacks, and worker calls
+rather than dropping failed cases.
 
 ## Current status
 
-The schema, normalizer, exact routing screen, BFCL manifest, and frontier policy
-are implemented. No Jev result is committed because this machine does not have
-a `TYPESAFE_API_KEY`; therefore there are **no measured Jev or compound-system
-frontier residents yet**. That is an access prerequisite, not evidence for or
-against Jev.
+The schema, normalizer, exact routing screen, BFCL manifest, cascade runner, and
+frontier policy are implemented. Qwen3.8, GPT-OSS, and the first swap-backed
+compound policy have been measured on the M5. See
+[`status-2026-09-16.md`](status-2026-09-16.md) for the results and their limits.
+
+No Jev result exists because the account is on TypeSafe's early-access
+waitlist. That is an access prerequisite, not evidence for or against Jev.
 
 The next result-of-record step is a matched matrix of heavy-only, light-only,
 Jev+worker, and small-local+worker on the BFCL panel, followed by a smaller
