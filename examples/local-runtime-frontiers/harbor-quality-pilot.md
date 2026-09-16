@@ -184,6 +184,24 @@ The prompt-free, digest-bound records are
 [`Qwen3.5`](raw/harbor-smoke-qwen35-9b-q6k-5060-fix-git-summary.json) and
 [`Muse Glimmer`](raw/harbor-smoke-muse-glimmer-ad-iq3xxs-5060-fix-git-summary.json).
 
+The promoted five-task run is also complete. Qwen solved 3/5 tasks and Muse
+solved 2/5. The separate
+[`5060 pilot protocol`](harbor-quality-pilot-5060-qwen35-muse.yaml) preserves
+the smoke digest and binds both exact CUDA routes to the same workload.
+
+| Exact route | Success | All-task p95 wall | Uncached input | Cache reuse | Output tokens |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Qwen3.5 9B Q6_K, Q8 KV | 3/5 | 786.460 s | 118,599 | 94.090% | 38,984 |
+| Muse Glimmer AD-IQ3_XXS, Q4 KV | 2/5 | 805.445 s | 48,206 | 95.607% | 30,396 |
+
+The protocol requires at least 60% success, so Qwen is the only resident on
+both generated 5060 frontiers: quality versus p95 task time, and quality versus
+uncached input demand. Muse's lower token demand is retained as measured
+diagnostic evidence but cannot recommend a route that failed most tasks. The
+prompt-free records are
+[`Qwen`](raw/harbor-pilot5-qwen35-9b-q6k-5060-summary.json) and
+[`Muse`](raw/harbor-pilot5-muse-glimmer-ad-iq3xxs-5060-summary.json).
+
 ## Agent-task memory capture
 
 The quality/memory frontier uses macOS's kernel-accounted physical footprint,

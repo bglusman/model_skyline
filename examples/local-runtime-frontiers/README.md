@@ -27,10 +27,12 @@ near the beginning, middle, and end of 126K-class prompts. Qwen's middle
 position took 72.103 s uncached, about 0.693 s after reusing 125,998 prompt
 tokens, and peaked at 11.72 GB of combined host/GPU service capacity. Muse's
 fresh-server middle position took 181.46 s including an 11.34-second load; its
-sampled whole-service memory capture and coding-quality pilot remain open.
-Qwen alone therefore remains on the validated-context versus service-memory
-frontier. Neither screen measures vision, and neither yet supplies local coding
-quality. The [2026-09-15 status](overnight-status-2026-09-15.md) is the shortest
+sampled whole-service memory capture remains open. Both then ran the same
+five-task Harbor coding pilot: Qwen solved 3/5 and Muse 2/5. The declared 60%
+usefulness gate makes Qwen the only resident on the 5060 quality × latency and
+quality × uncached-input frontiers. Qwen also remains alone on the
+validated-context versus service-memory frontier. Neither route measures
+vision. The [2026-09-15 status](overnight-status-2026-09-15.md) is the shortest
 handoff for the new Muse/ShoeHorn work.
 
 The [small, realistic evaluation survey](../../docs/small-realistic-evaluations.md)

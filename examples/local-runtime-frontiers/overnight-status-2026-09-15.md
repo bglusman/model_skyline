@@ -60,9 +60,11 @@ Every row still compares exactly two quantities:
   2.1 remain the model residents. Both Muse offerings are dominated on this
   narrow raw-speed definition.
 
-Muse may still earn a quality × speed or quality × memory frontier position;
-that requires running the same local coding-quality pilot. Publisher benchmark
-scores are not copied onto the local quant.
+The matched five-task quality pilot is now complete. Qwen3.5 solved 3/5 tasks
+(60%); Muse solved 2/5 (40%). With the declared 60% usefulness gate, Qwen is the
+only resident on the 5060 quality × latency and quality × uncached-input
+frontiers. Muse used fewer uncached tokens, but an efficient unsuccessful route
+is intentionally not recommended.
 
 ## ShoeHorn work sent upstream
 
@@ -81,10 +83,11 @@ output hashes and the complete constrained plan are retained in
 
 ## Next useful work
 
-1. Run the same small Harbor coding-quality pilot on 5060 Qwen3.5 and Muse.
-   That creates the missing quality × latency and quality × memory comparison.
-2. Add a sampled whole-service memory capture for Muse. The current VRAM values
-   are deployment snapshots, not eligible memory-frontier evidence.
+1. Add sampled whole-service memory captures for both pilot routes. The current
+   VRAM values are deployment snapshots, not eligible memory-frontier evidence.
+2. Diagnose Qwen's recoverable JSON-wrapper warnings and rerun only if a new,
+   separately named route materially improves tool parsing without changing
+   the model artifact.
 3. Decide whether ShoeHorn should grow a baseline-comparison command that
    automatically rejects a larger/worse-loss plan before publication.
 4. Keep Mac GPU work paused until local noise is acceptable; none of this 5060
