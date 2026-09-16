@@ -52,6 +52,14 @@ adapter wattage, OS power mode, and GPU power limits as explicit service tiers,
 so the same machine can be compared at several controllable operating points
 without confusing a power ceiling with measured draw.
 
+The [structured-decision and compound-system
+experiment](examples/structured-decision-frontiers/README.md) adds separate
+frontiers for typed routing decisions and complete tool-using systems. It can
+compare Jev with general LLMs on the same decision contract, then compare
+heavy-only, light-only, and router-plus-worker policies end to end. Compound
+offerings identify and charge every component call; primitive routing accuracy
+is never relabeled as completed-agent quality.
+
 The [voice runtime experiment](examples/voice-runtime-frontiers/README.md)
 extends the same rules to local speech and complete voice-agent pipelines. Its
 matched M5/M1/RTX 5060 screen combines a common intelligibility measure with

@@ -32,6 +32,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+structured-decisions = [
+  "system-one-adapter[openai]>=0.1.3,<0.2",
+]
 dev = [
   "hypothesis>=6.120,<7",
   "jsonschema>=4.23,<5",

@@ -35,6 +35,7 @@ QUALITY_SCHEMA_NAMES = (
 )
 LOCAL_SCHEMA_NAME = "local-measurement.schema.json"
 IPW_SCHEMA_NAME = "intelligence-per-watt-import.schema.json"
+STRUCTURED_DECISION_SCHEMA_NAME = "structured-decision-run.schema.json"
 MODEL_VIEW_SCHEMA_NAMES = (
     "model-frontier-view-policy.schema.json",
     "model-frontier-view-snapshot.schema.json",
@@ -181,6 +182,14 @@ def test_committed_intelligence_per_watt_binding_schema_matches_generator() -> N
     Draft202012Validator.check_schema(generated)
     assert public_schemas()[IPW_SCHEMA_NAME] == generated
     assert "Raw upstream accuracy artifacts" in generated["$comment"]
+
+
+def test_committed_structured_decision_schema_matches_generator() -> None:
+    generated = generated_schemas()[STRUCTURED_DECISION_SCHEMA_NAME]
+
+    Draft202012Validator.check_schema(generated)
+    assert public_schemas()[STRUCTURED_DECISION_SCHEMA_NAME] == generated
+    assert "primitive decision accuracy is not interchangeable" in generated["$comment"]
 
 
 @pytest.mark.parametrize("name", MODEL_VIEW_SCHEMA_NAMES)

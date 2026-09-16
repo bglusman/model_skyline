@@ -72,6 +72,10 @@ from model_skyline.adapters.models_dev import (
     project_aider_with_models_dev,
     write_models_dev_projection,
 )
+from model_skyline.adapters.structured_decisions import (
+    StructuredDecisionAdapterError,
+    normalize_structured_decision_file,
+)
 from model_skyline.adapters.swe_bench import (
     DEFAULT_MAX_SOURCE_BYTES as SWE_BENCH_DEFAULT_MAX_SOURCE_BYTES,
 )
@@ -1584,6 +1588,36 @@ def normalize_local_agent_benchmark_command(
         TypeError,
         ValueError,
     ) as exc:
+        _error(exc)
+
+
+@app.command("normalize-structured-decision-run", rich_help_panel=LOCAL_EVIDENCE_PANEL)
+def normalize_structured_decision_run_command(
+    run: Annotated[
+        Path,
+        typer.Argument(exists=True, readable=True, dir_okay=False),
+    ],
+    retrieved_at: Annotated[
+        str,
+        typer.Option(
+            "--retrieved-at",
+            help="timezone-aware timestamp when the prompt-free run was acquired",
+        ),
+    ],
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False),
+    ] = None,
+) -> None:
+    """Normalize one decision component or complete single/compound system run."""
+
+    try:
+        timestamp = _retrieved_at(retrieved_at)
+        if timestamp is None:  # pragma: no cover - Typer requires the option
+            raise ValueError("--retrieved-at is required")
+        catalog = normalize_structured_decision_file(run, retrieved_at=timestamp)
+        _emit(dump_json(catalog), output)
+    except (StructuredDecisionAdapterError, OSError, TypeError, ValueError) as exc:
         _error(exc)
 
 

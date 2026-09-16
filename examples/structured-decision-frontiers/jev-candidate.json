@@ -1,0 +1,22 @@
+{
+  "backend": {
+    "kind": "typesafe",
+    "model": "jev-latest",
+    "api_key_env": "TYPESAFE_API_KEY"
+  },
+  "offering": {
+    "offering_id": "typesafe/jev-latest@api",
+    "model_id": "typesafe/jev-latest",
+    "provider": "typesafe",
+    "endpoint": "https://api.typesafe.ai",
+    "billing_mode": "api",
+    "service_tier": "default",
+    "capabilities": ["structured-decisions"]
+  },
+  "component_id": "decision",
+  "resource_class": "light",
+  "guidance": "Answer the suite's named Choice exactly once. Do not invent a fourth route.",
+  "routing_policy": "Use the returned route directly; this primitive screen has no fallback.",
+  "cost_basis": "unavailable",
+  "fixed_cost_usd_per_model_call": null
+}

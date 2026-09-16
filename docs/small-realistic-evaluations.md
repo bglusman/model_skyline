@@ -1,8 +1,12 @@
 # Small, realistic evaluation candidates
 
-**Status as of 2026-09-14: survey only.** Nothing on this page is a default
-ModelSkyline quality signal yet. The purpose is to choose a small set of useful
-heuristics after running calibration models, not to accumulate benchmarks.
+**Status as of 2026-09-16: survey plus pinned BFCL calibration manifest.** No
+candidate on this page is a default ModelSkyline quality signal yet. The first
+BFCL source revision, 64 exact case IDs, file blobs, answers, scorers, license,
+and signal mapping are now pinned in
+[`bfcl-v4-offline-64-manifest.json`](../examples/structured-decision-frontiers/bfcl-v4-offline-64-manifest.json).
+It has not yet passed multi-model calibration. The purpose remains choosing a
+small set of useful heuristics, not accumulating benchmarks.
 
 ## The simple goal
 
@@ -29,7 +33,7 @@ panel result must never be presented as the upstream full-benchmark score.
 | Candidate | What it usefully predicts | Grading | Full size | Proposed first run | Current assessment |
 | --- | --- | --- | ---: | ---: | --- |
 | [IFBench](https://github.com/allenai/IFBench) | Whether a text model obeys precise length, format, copying, counting, and content constraints | 58 published Python verifiers; no judge | 300 prompts | all 300 | **Run soon.** Cheap, easy to replay, and more discriminating than saturated IFEval. |
-| [BFCL V4](https://github.com/ShishirPatil/gorilla/tree/main/berkeley-function-call-leaderboard) | Whether a model emits the right function and arguments, including parallel and multi-turn cases | AST and executable checks; no judge for the offline core | large, split into categories | 64 pinned offline cases | **Run soon.** Use difficult offline categories; simple function calls alone overlap our existing probe and may be saturated. |
+| [BFCL repository v4 data](https://github.com/ShishirPatil/gorilla/tree/main/berkeley-function-call-leaderboard) | Whether a model emits the right function and arguments, including parallel and multi-turn cases | AST and executable checks; no judge for the offline core | large, split into categories | 64 now-pinned offline cases | **Ready for calibration runs.** The panel spans eight offline categories and is not the newer BFCL V4 Agentic aggregate. |
 | [AutomationBench](https://github.com/zapier/AutomationBench) | Whether an agent leaves simulated CRM, inbox, calendar, support, finance, and HR systems in the correct state | Positive and negative final-state assertions; no judge | 600 scored public tasks | 30 pinned tasks, five per domain | **Highest-value realistic pilot.** More expensive than BFCL, but much closer to actual work. |
 | [SVGEditBench](https://github.com/mti-lab/SVGEditBench) | Whether a text model can make a requested SVG edit without corrupting the image | Render target comparison; compression also examines code | 600 prompts: 100 images × 6 edits | 60 pinned prompts, ten per edit | **Run as a calibration.** Excellent metric shape, but mostly single-attribute edits may now be too easy, and upstream does not ship a turnkey scorer. |
 | [OCRBench](https://github.com/qywh2023/OCRbench) | Whether a vision model can read scenes, documents, key fields, and handwritten formulas | Published answer matching by task type | 1,000 prompts in v1; 10,000 in v2 | 100 pinned v1 prompts, 20 per component | **Useful first VLM screen.** Small enough after stratification, but check current saturation before promotion. |

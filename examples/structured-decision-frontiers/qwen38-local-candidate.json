@@ -1,0 +1,36 @@
+{
+  "backend": {
+    "kind": "openai-compatible",
+    "model": "mlx-community/Qwen3.8-27B-4bit",
+    "base_url": "http://127.0.0.1:8090/v1",
+    "api_key_env": null,
+    "structured_outputs": false,
+    "max_tokens": 512,
+    "temperature": 0,
+    "chat_template_kwargs": {"enable_thinking": false}
+  },
+  "offering": {
+    "offering_id": "local/qwen3.8-27b-4bit@m5-64gb-warm-max512-nothink",
+    "model_id": "qwen/qwen3.8-27b",
+    "provider": "local-m5",
+    "endpoint": "http://127.0.0.1:8090/v1",
+    "billing_mode": "self-hosted",
+    "service_tier": "apple-m5-64gb-warm",
+    "quantization": "mlx-4bit",
+    "reasoning_effort": "disabled",
+    "agent_harness": "system-one-adapter-probabilities-warm-max512",
+    "capabilities": ["structured-decisions"]
+  },
+  "component_id": "decision",
+  "resource_class": "heavy",
+  "guidance": "Answer the suite's named Choice exactly once. Do not invent a fourth route.",
+  "routing_policy": "Use the returned route directly; this primitive screen has no fallback.",
+  "measurement_conditions": {
+    "model_residency": "warm",
+    "prefix_cache": "enabled",
+    "request_order": "case-major",
+    "concurrency": 1
+  },
+  "cost_basis": "unavailable",
+  "fixed_cost_usd_per_model_call": null
+}
