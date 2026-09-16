@@ -1,0 +1,67 @@
+schema_version: model-skyline/local-quality-pilot/v1
+status: provisional
+
+# This additive screen intentionally does not modify harbor-quality-pilot.yaml:
+# changing the frozen pilot would invalidate every summary bound to its digest.
+benchmark:
+  name: terminal-bench/terminal-bench-2-1
+  source_url: https://github.com/harbor-framework/terminal-bench-2-1
+  revision: 7131e4375048a0e408a8fb404b5f499d726b695b
+  license: Apache-2.0
+
+harness:
+  name: harbor/terminus-2
+  version: 2.0.0
+  harbor_version: 0.23.0
+  harbor_revision: 88fdbc9d42e907c0414654f041ece5eaf798f538
+  execution_timezone: America/New_York
+  parser: json
+  temperature: "1.0"
+  top_p: "0.95"
+  max_turns: 40
+  max_input_tokens: 114688
+  max_output_tokens: 16384
+  summarization_enabled: true
+  proactive_summarization_free_tokens: 8192
+  store_all_messages: true
+  concurrency: 1
+  quality_attributable_exceptions:
+    - AgentTimeoutError
+    - AgentSafetyRefusalError
+  model_switching: batch_all_tasks_for_one_route
+  loading_state_streaming: false
+
+task_sets:
+  smoke:
+    evidence_tier: proxy
+    transferable_to_full_benchmark: false
+    tasks:
+      - name: terminal-bench/fix-git
+        digest: sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e
+        stratum: software-engineering/git-recovery/easy
+
+candidates:
+  qwen35_9b_q6k_5060:
+    route: qwen35-9b-q6k-ctx128k-q8kv-load-none
+    system_profile: system-profiles/qwen35-9b-q6k-llamacpp-cuda-ctx128k-q8kv.json
+    system_profile_sha256: b1dac5217a3aa9daf36c83e208c1da1cee2015f0819701d85c9c12f31523b7a7
+    role: compact_dense_cuda_control
+  muse_glimmer_ad_iq3xxs_5060:
+    route: muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none
+    system_profile: system-profiles/muse-glimmer-ad-iq3xxs-5060-ctx128k-q4kv.json
+    system_profile_sha256: 17a9abae96cbdc44207e0156f3f8f43bf7c8997c7b5e7d23cb6d8989ac8aed66
+    role: dense_aggressive_quant_cuda_candidate
+
+screen:
+  relationship_to_frozen_pilot: additive_candidate_gate
+  comparable_protocol: harbor-quality-pilot.yaml
+  comparable_protocol_sha256: 07e4af7f9acdfef54b0627a3722984baa7ab48bba8b1472e97f42ecc00147c41
+  promotion_requires:
+    - verifier_valid_reward_one
+    - no_parser_errors
+  on_failure: do_not_run_five_task_pilot
+
+publication:
+  smoke_result_is_a_quality_score: false
+  failed_smoke_is_screening_evidence_only: true
+  source_job_upload: private_until_trajectory_and_rights_review

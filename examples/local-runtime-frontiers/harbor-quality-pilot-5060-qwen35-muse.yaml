@@ -1,0 +1,128 @@
+schema_version: model-skyline/local-quality-pilot/v1
+status: provisional
+
+# This is a new, hardware-specific population. It does not modify the original
+# Apple-silicon pilot or reinterpret the one-task promotion screen as quality.
+promotion_source:
+  screen: harbor-quality-screen-5060-qwen35-muse.yaml
+  screen_sha256: f385df736e072fea2eb381e847a257f051248a1cf0c76058f9b93983267dc9ef
+  requirement: both_candidates_passed_verifier_valid_smoke
+
+benchmark:
+  name: terminal-bench/terminal-bench-2-1
+  source_url: https://github.com/harbor-framework/terminal-bench-2-1
+  revision: 7131e4375048a0e408a8fb404b5f499d726b695b
+  license: Apache-2.0
+
+harness:
+  name: harbor/terminus-2
+  version: 2.0.0
+  harbor_version: 0.23.0
+  harbor_revision: 88fdbc9d42e907c0414654f041ece5eaf798f538
+  execution_timezone: America/New_York
+  parser: json
+  temperature: "1.0"
+  top_p: "0.95"
+  max_turns: 40
+  max_input_tokens: 114688
+  max_output_tokens: 16384
+  summarization_enabled: true
+  proactive_summarization_free_tokens: 8192
+  store_all_messages: true
+  concurrency: 1
+  quality_attributable_exceptions:
+    - AgentTimeoutError
+    - AgentSafetyRefusalError
+  model_switching: batch_all_tasks_for_one_route
+  loading_state_streaming: false
+
+task_sets:
+  pilot_5:
+    evidence_tier: measured
+    measured_workload_name: terminal-bench-2.1-local-pilot-5@7131e437
+    workload_version: terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1
+    workload_unit: task
+    transferable_to_full_benchmark: false
+    selection_method: deliberately-stratified-convenience-pilot-v1
+    caveat: >-
+      Complete measurement of this five-task workload only. It is not a
+      calibrated coreset and must not be reported as Terminal-Bench 2.1 quality.
+    tasks:
+      - name: terminal-bench/fix-git
+        digest: sha256:16948b980df9d96de616a205f5acca1c5d395de83ff4f8ffabcafacb93226f2e
+        stratum: software-engineering/git-recovery/easy
+      - name: terminal-bench/build-cython-ext
+        digest: sha256:35dc561790e73f13e59837828ac0863c0893edc6b71d42cf7d58656c843adf12
+        stratum: debugging/build-and-dependencies/medium
+      - name: terminal-bench/multi-source-data-merger
+        digest: sha256:70367c38732e1beda7b229968a48d60242277c2fa4db91339c3f064c4c230d49
+        stratum: data-processing/schema-and-etl/medium
+      - name: terminal-bench/fix-code-vulnerability
+        digest: sha256:d31348aa16b533a15f013420e4d9726dc529e6086adc7d6d48067d22cc18fe71
+        stratum: security/code-patching/hard
+      - name: terminal-bench/cancel-async-tasks
+        digest: sha256:a3d048d351136e48070696cda8bb79660dfd74db1fea3b6da88559f0332699c1
+        stratum: software-engineering/concurrency-debugging/hard
+
+candidates:
+  qwen35_9b_q6k_5060:
+    route: qwen35-9b-q6k-ctx128k-q8kv-load-none
+    system_profile: system-profiles/qwen35-9b-q6k-llamacpp-cuda-ctx128k-q8kv.json
+    system_profile_sha256: b1dac5217a3aa9daf36c83e208c1da1cee2015f0819701d85c9c12f31523b7a7
+    role: compact_dense_cuda_control
+  muse_glimmer_ad_iq3xxs_5060:
+    route: muse-glimmer-30b-ad-iq3xxs-ctx128k-q4kv-load-none
+    system_profile: system-profiles/muse-glimmer-ad-iq3xxs-5060-ctx128k-q4kv.json
+    system_profile_sha256: 17a9abae96cbdc44207e0156f3f8f43bf7c8997c7b5e7d23cb6d8989ac8aed66
+    role: dense_aggressive_quant_cuda_candidate
+
+phases:
+  - name: stratified_pilot
+    task_set: pilot_5
+    attempts_per_task: 1
+    candidates: [qwen35_9b_q6k_5060, muse_glimmer_ad_iq3xxs_5060]
+    promotion: result_can_change_a_5060_quality_frontier_or_default_order
+  - name: repeated_pilot
+    task_set: pilot_5
+    attempts_per_task: 5
+    candidates: promoted_only
+    promotion: uncertainty_interval_can_change_frontier_membership
+
+validity_gates:
+  - exact_task_digest_matches_manifest
+  - exact_model_artifact_and_runtime_profile_recorded
+  - trial_exception_is_absent_or_protocol_quality_attributable
+  - verifier_result_present
+  - verifier_ctrf_artifact_present_and_parseable
+  - reward_matches_ctrf_test_outcome
+  - trajectory_and_result_raw_hashes_retained
+  - no_llama_swap_loading_events_in_model_history
+  - cache_frontier_requires_zero_incomplete_api_requests
+
+pilot_frontiers:
+  agent_quality_latency:
+    axes:
+      - metric: pilot_task_success_percent
+        goal: maximize
+      - metric: p95_task_wall_seconds
+        goal: minimize
+        epsilon_relative: "0.05"
+    eligibility:
+      minimum_success_percent: "60"
+      exact_task_set_required: true
+  agent_quality_cache_efficiency:
+    axes:
+      - metric: pilot_task_success_percent
+        goal: maximize
+      - metric: total_uncached_input_tokens
+        goal: minimize
+        epsilon_relative: "0.05"
+    eligibility:
+      minimum_success_percent: "60"
+      exact_task_set_required: true
+
+publication:
+  pilot_score_label: five-task measured workload, not Terminal-Bench 2.1
+  full_benchmark_estimation_allowed: false
+  infrastructure_invalid_trials_count_as_failures: false
+  source_job_upload: private_until_trajectory_and_rights_review

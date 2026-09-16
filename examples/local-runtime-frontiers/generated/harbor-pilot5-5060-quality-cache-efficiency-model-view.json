@@ -1,0 +1,123 @@
+{
+  "schema_version": "model-skyline/model-frontier-view/v1alpha1",
+  "kind": "model-frontier-view",
+  "hash_algorithm": "sha256-rfc8785-v1",
+  "policy_id": null,
+  "policy_sha256": null,
+  "source_snapshot_id": "c7e2f0528355d6383680ccb7f2ad608a6f7b3faa2cfe7aad4e94f6ea6cb11cbf",
+  "frontier_id": "local-agent-quality-cache-efficiency",
+  "workload": {
+    "id": "terminal-bench-2.1-local-pilot-5@7131e437",
+    "version": "terminal-bench@7131e437+terminus-2@2.0.0+pilot-v1",
+    "unit": "task"
+  },
+  "order_by": "pilot_task_success",
+  "uncertainty": "point",
+  "axes": [
+    {
+      "metric": "pilot_task_success",
+      "goal": "maximize",
+      "unit": "percent",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0"
+    },
+    {
+      "metric": "pilot_uncached_input_tokens",
+      "goal": "minimize",
+      "unit": "token",
+      "epsilon_absolute": "0",
+      "epsilon_relative": "0.05"
+    }
+  ],
+  "best_available": {
+    "reduction": "any_exact_member",
+    "members": [
+      {
+        "model_id": "Qwen/Qwen3.5-9B",
+        "offerings": [
+          {
+            "offering": {
+              "offering_id": "local/inference-vm-rtx5060ti16/Qwen/Qwen3.5-9B@gguf-Q6_K-llama.cpp-7d5d2143252c6f6a",
+              "model_id": "Qwen/Qwen3.5-9B",
+              "provider": "local:inference-vm-rtx5060ti16",
+              "endpoint": null,
+              "billing_mode": "owned_hardware",
+              "region": "local",
+              "service_tier": "nvidia-default-180w-limit",
+              "quantization": "Q6_K",
+              "reasoning_effort": null,
+              "agent_harness": "harbor/terminus-2@2.0.0+harbor@0.23.0+harness-sha256:f357a4f3ae7fb4d1",
+              "capabilities": [
+                "long-context",
+                "text",
+                "tools"
+              ]
+            },
+            "axes": {
+              "pilot_task_success": {
+                "value": "60",
+                "unit": "percent",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.local_pilot_task_success_percent"
+                ],
+                "source_ids": [
+                  "local-quality-pilot:qwen35_9b_q6k_5060:2b0692a5-e436-43db-bfb6-1291906b5056"
+                ],
+                "sources": [
+                  {
+                    "id": "local-quality-pilot:qwen35_9b_q6k_5060:2b0692a5-e436-43db-bfb6-1291906b5056",
+                    "version": "model-skyline/harbor-local-job-summary/v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+                    "raw_sha256": "88de9331ff9e71f7c548e7f742d88cffab7f565ca596b293a54a8dc0833f0685",
+                    "retrieved_at": "2026-09-15T23:59:12.934103Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T23:59:12.934103Z",
+                "minimum_sample_count": 5
+              },
+              "pilot_uncached_input_tokens": {
+                "value": "118599",
+                "unit": "token",
+                "evidence_tiers": [
+                  "measured"
+                ],
+                "lower": null,
+                "upper": null,
+                "dependencies": [
+                  "signals.local_pilot_total_uncached_input_tokens"
+                ],
+                "source_ids": [
+                  "local-quality-pilot:qwen35_9b_q6k_5060:2b0692a5-e436-43db-bfb6-1291906b5056"
+                ],
+                "sources": [
+                  {
+                    "id": "local-quality-pilot:qwen35_9b_q6k_5060:2b0692a5-e436-43db-bfb6-1291906b5056",
+                    "version": "model-skyline/harbor-local-job-summary/v1",
+                    "url": null,
+                    "terms_url": null,
+                    "license": "CC0-1.0",
+                    "methodology": "One serial Harbor Terminus-2 attempt per task on the exact pinned task set; verifier-backed rewards, complete task wall time, and recorded complete-request token accounting were normalized from the prompt-free summary. Exact token-demand signals are emitted only when the harness reports no incomplete API request.",
+                    "raw_sha256": "88de9331ff9e71f7c548e7f742d88cffab7f565ca596b293a54a8dc0833f0685",
+                    "retrieved_at": "2026-09-15T23:59:12.934103Z"
+                  }
+                ],
+                "oldest_observed_at": "2026-09-15T23:59:12.934103Z",
+                "minimum_sample_count": 5
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "balanced_average": null,
+  "view_id": "4d50b882d76803ce54a93606ad2b167d0b9819e081f1cc7ece5e8f0db7666825"
+}

@@ -32,6 +32,31 @@ PILOT = EXAMPLE / "harbor-quality-pilot.yaml"
 FLASH_CODER_SCREEN = EXAMPLE / "harbor-quality-screen-qwen38-flash-coder.yaml"
 LAGUNA_SCREEN = EXAMPLE / "harbor-quality-screen-laguna-xs21.yaml"
 LAGUNA_SCREEN_SUMMARY = EXAMPLE / "raw" / "harbor-smoke-laguna-xs21-nvfp4-fix-git-summary.json"
+CUDA_5060_SCREEN = EXAMPLE / "harbor-quality-screen-5060-qwen35-muse.yaml"
+CUDA_5060_PILOT = EXAMPLE / "harbor-quality-pilot-5060-qwen35-muse.yaml"
+CUDA_5060_PILOT_SUMMARIES = {
+    "qwen35_9b_q6k_5060": (EXAMPLE / "raw" / "harbor-pilot5-qwen35-9b-q6k-5060-summary.json"),
+    "muse_glimmer_ad_iq3xxs_5060": (
+        EXAMPLE / "raw" / "harbor-pilot5-muse-glimmer-ad-iq3xxs-5060-summary.json"
+    ),
+}
+CUDA_5060_PILOT_CATALOG = EXAMPLE / "generated" / "harbor-pilot5-5060-qwen35-muse-catalog.json"
+CUDA_5060_PILOT_FRONTIERS = (
+    EXAMPLE / "generated" / "harbor-pilot5-5060-quality-latency-frontier.json",
+    EXAMPLE / "generated" / "harbor-pilot5-5060-quality-cache-efficiency-frontier.json",
+)
+CUDA_5060_PILOT_MODEL_VIEWS = (
+    EXAMPLE / "generated" / "harbor-pilot5-5060-quality-latency-model-view.json",
+    EXAMPLE / "generated" / "harbor-pilot5-5060-quality-cache-efficiency-model-view.json",
+)
+CUDA_5060_SCREEN_SUMMARIES = {
+    "qwen35_9b_q6k_5060": (
+        EXAMPLE / "raw" / "harbor-smoke-qwen35-9b-q6k-5060-fix-git-summary.json"
+    ),
+    "muse_glimmer_ad_iq3xxs_5060": (
+        EXAMPLE / "raw" / "harbor-smoke-muse-glimmer-ad-iq3xxs-5060-fix-git-summary.json"
+    ),
+}
 FLASH_CODER_CAPACITY_RAW = (
     EXAMPLE / "raw" / "qwen38-flash-coder-q4km-no-prompt-cache-retrieval-mid-ladder-o64.json"
 )
@@ -483,6 +508,98 @@ def test_published_harbor_smoke_summaries_are_prompt_free_and_auditable() -> Non
                 len(digest) == 64 and set(digest) <= set("0123456789abcdef")
                 for digest in trial["audit"].values()
             )
+
+
+def test_5060_screen_is_additive_prompt_free_and_promotes_both_candidates() -> None:
+    pilot = yaml.safe_load(PILOT.read_text(encoding="utf-8"))
+    screen = yaml.safe_load(CUDA_5060_SCREEN.read_text(encoding="utf-8"))
+    screen_digest = hashlib.sha256(CUDA_5060_SCREEN.read_bytes()).hexdigest()
+
+    assert screen["schema_version"] == "model-skyline/local-quality-pilot/v1"
+    assert screen["screen"]["relationship_to_frozen_pilot"] == "additive_candidate_gate"
+    assert screen["screen"]["comparable_protocol_sha256"] == FROZEN_HARBOR_PILOT_SHA256
+    for field in (
+        "name",
+        "version",
+        "harbor_version",
+        "harbor_revision",
+        "parser",
+        "temperature",
+        "top_p",
+        "max_turns",
+        "max_input_tokens",
+        "max_output_tokens",
+    ):
+        assert screen["harness"][field] == pilot["harness"][field]
+
+    for candidate_name, candidate in screen["candidates"].items():
+        profile_path = EXAMPLE / candidate["system_profile"]
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+        assert (
+            candidate["system_profile_sha256"]
+            == hashlib.sha256(profile_path.read_bytes()).hexdigest()
+        )
+        assert profile["served_model"] == candidate["route"]
+        assert profile["runtime"]["backend"] == "CUDA"
+
+        summary = json.loads(CUDA_5060_SCREEN_SUMMARIES[candidate_name].read_text(encoding="utf-8"))
+        assert summary["contains_prompts_or_model_messages"] is False
+        assert "/Users/" not in json.dumps(summary)
+        assert summary["protocol"]["protocol_sha256"] == screen_digest
+        assert summary["aggregate"] == {
+            "invalid_trials": 0,
+            "success_percent": "100.0",
+            "successes": "1.0",
+            "valid_trials": 1,
+        }
+        assert summary["trials"][0]["parser_feedback_events"]["errors"] == 0
+
+
+def test_5060_pilot_is_a_separate_screen_bound_population() -> None:
+    pilot = yaml.safe_load(PILOT.read_text(encoding="utf-8"))
+    cuda_pilot = yaml.safe_load(CUDA_5060_PILOT.read_text(encoding="utf-8"))
+
+    assert (
+        cuda_pilot["promotion_source"]["screen_sha256"]
+        == hashlib.sha256(CUDA_5060_SCREEN.read_bytes()).hexdigest()
+    )
+    assert cuda_pilot["task_sets"]["pilot_5"] == pilot["task_sets"]["pilot_5"]
+    assert set(cuda_pilot["pilot_frontiers"]) == {
+        "agent_quality_latency",
+        "agent_quality_cache_efficiency",
+    }
+    assert cuda_pilot["publication"]["full_benchmark_estimation_allowed"] is False
+    for candidate in cuda_pilot["candidates"].values():
+        profile_path = EXAMPLE / candidate["system_profile"]
+        assert (
+            candidate["system_profile_sha256"]
+            == hashlib.sha256(profile_path.read_bytes()).hexdigest()
+        )
+
+    expected_success = {
+        "qwen35_9b_q6k_5060": "60.0",
+        "muse_glimmer_ad_iq3xxs_5060": "40.0",
+    }
+    protocol_digest = hashlib.sha256(CUDA_5060_PILOT.read_bytes()).hexdigest()
+    for candidate_name, summary_path in CUDA_5060_PILOT_SUMMARIES.items():
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        assert summary["contains_prompts_or_model_messages"] is False
+        assert "/Users/" not in json.dumps(summary)
+        assert summary["protocol"]["protocol_sha256"] == protocol_digest
+        assert summary["aggregate"]["invalid_trials"] == 0
+        assert summary["aggregate"]["valid_trials"] == 5
+        assert summary["aggregate"]["success_percent"] == expected_success[candidate_name]
+
+    catalog = load_catalog(CUDA_5060_PILOT_CATALOG)
+    assert len(catalog.offerings) == 2
+    for frontier_path in CUDA_5060_PILOT_FRONTIERS:
+        snapshot = load_frontier_snapshot(frontier_path)
+        assert [member.offering.model_id for member in snapshot.members] == ["Qwen/Qwen3.5-9B"]
+    for view_path in CUDA_5060_PILOT_MODEL_VIEWS:
+        view = json.loads(view_path.read_text(encoding="utf-8"))
+        assert [member["model_id"] for member in view["best_available"]["members"]] == [
+            "Qwen/Qwen3.5-9B"
+        ]
 
 
 def test_flash_coder_screen_is_additive_auditable_and_not_promoted() -> None:

@@ -31,12 +31,11 @@ On the 16 GB RTX 5060 Ti, **Qwen3.5 9B Q6** is the first measured practical
 128K-class route. It returned the exact hidden value with the needle near the
 beginning, middle, and end of three separate 126,002-token prompts. Its middle
 run peaked at 11.72 GB of combined host/GPU service capacity. It has not run
-the coding-quality pilot, so this is a long-context and runtime recommendation,
-not evidence that it is a stronger coding model than the 64 GB Mac choices.
+the Mac cohort's coding-quality pilot, but it has now solved 3/5 tasks in a
+matched 5060 pilot, exactly clearing that protocol's 60% usefulness floor.
 **Muse Glimmer 30B AD-IQ3_XXS** is now a second measured 128K-class route on
 that GPU. It also passes the three retrieval positions and 30-tool screen, but
-it is slower and has not run the coding-quality pilot; its reason to remain a
-candidate is potential model quality, not a current frontier win.
+it solved only 2/5 coding tasks and is excluded from the 5060 quality frontiers.
 
 ## Best-available model frontiers
 
@@ -219,13 +218,46 @@ experiment proves 126,002—not 262K. This
 route is text-only because the tested GGUF has no vision projector. A Q4 KV
 exploration used less capacity but slowed long-context generation to about
 24.7 token/s, versus about 36.3 token/s with Q8 KV, so Q8 is the retained
-profile. No coding-quality score has been measured; Qwen3.5 9B therefore does
-not displace Qwen3.8 27B on the coding frontiers above.
+profile. The separate 5060 coding result below does not displace Qwen3.8 27B
+on the Mac coding frontiers above; hardware-specific populations are not
+silently mixed.
 
 The generated model views are [short speed](generated/qwen35-laguna-5060-short-throughput-model-view.json),
 [uncached tools](generated/qwen35-laguna-5060-tool-miss-screen-model-view.json),
 [validated context versus service memory](generated/qwen35-laguna-5060-validated-capacity-service-memory-screen-model-view.json),
 and [validated context versus latency](generated/qwen35-laguna-5060-validated-capacity-latency-screen-model-view.json).
+
+## RTX 5060 coding-quality frontiers: Qwen3.5 9B and Muse
+
+Both exact 128K routes ran the same five pinned Terminal-Bench tasks through
+Harbor/Terminus-2. This is a complete result for that small workload, not a
+Terminal-Bench 2.1 score or a general intelligence ranking.
+
+| Exact route | Tasks solved | p95 task wall time | Uncached input tokens | Frontier result |
+| --- | ---: | ---: | ---: | --- |
+| Qwen3.5 9B Q6_K, Q8 KV | 3/5 (60%) | 786.460 s | 118,599 | Resident on quality × latency and quality × uncached-input frontiers |
+| Muse Glimmer AD-IQ3_XXS, Q4 KV | 2/5 (40%) | 805.445 s | 48,206 | Ineligible: below the declared 60% usefulness floor |
+
+Qwen passed `fix-git`, `multi-source-data-merger`, and
+`cancel-async-tasks`. Muse passed the first two but failed
+`cancel-async-tasks`; it also timed out on `build-cython-ext`. Qwen emitted many
+recoverable JSON-wrapper warnings. Muse was usually cleaner but still produced
+four parser feedback events across two tasks. Parser cleanliness therefore did
+not predict verifier success in this sample.
+
+Muse used fewer uncached input tokens, but it is not a frontier resident because
+it failed the usefulness gate. Among useful candidates, Qwen is currently the
+only resident; this is a one-model eligible set, not evidence that its token
+demand is broadly optimal.
+
+The machine-readable evidence is the
+[catalog](generated/harbor-pilot5-5060-qwen35-muse-catalog.json),
+[quality × latency frontier](generated/harbor-pilot5-5060-quality-latency-frontier.json),
+and [quality × uncached-input frontier](generated/harbor-pilot5-5060-quality-cache-efficiency-frontier.json).
+The simpler model-first views are [latency](generated/harbor-pilot5-5060-quality-latency-model-view.json)
+and [uncached input](generated/harbor-pilot5-5060-quality-cache-efficiency-model-view.json).
+The [protocol](harbor-quality-pilot-5060-qwen35-muse.yaml) is immutable and
+separate from the original Mac cohort.
 
 ## RTX 5060 Muse quantization frontier
 
@@ -258,10 +290,9 @@ and [model view](generated/muse-glimmer-5060-quant-tool-warm-p2048-o1024-model-v
 select the calibrated control after both candidates clear the exact-call gate.
 
 In the broader 5060 raw-speed set, both Muse offerings are dominated by Qwen3.5
-9B Q6: Qwen processes and generates faster. Muse cannot enter a quality × speed
-or quality × memory frontier until the same local coding-quality workload is
-run. Publisher benchmark scores are not substituted for that missing local
-quant evidence. The expanded [offering frontier](generated/qwen35-laguna-muse-5060-short-throughput-frontier.json)
+9B Q6: Qwen processes and generates faster. The matched coding pilot now also
+rejects Muse from the quality frontiers because its 40% success is below the
+60% usefulness gate. The expanded [offering frontier](generated/qwen35-laguna-muse-5060-short-throughput-frontier.json)
 and [model view](generated/qwen35-laguna-muse-5060-short-throughput-model-view.json)
 retain Qwen and Laguna and exclude Muse on this exact raw-speed definition.
 
