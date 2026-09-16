@@ -424,6 +424,9 @@ SCHEMA_IDS = {
         "urn:model-skyline:schema:v1alpha1:quality-portfolio-derivation"
     ),
     "local-measurement.schema.json": "urn:model-skyline:schema:v1alpha1:local-measurement",
+    "intelligence-per-watt-import.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:intelligence-per-watt-import"
+    ),
     "paired-quality-estimate.schema.json": (
         "urn:model-skyline:schema:v1alpha1:paired-quality-estimate"
     ),
@@ -918,6 +921,7 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
     """Generate candidate schemas from models for maintainer review."""
 
     from model_skyline.adapters.harbor import HarborTerminalBenchImportConfig
+    from model_skyline.adapters.intelligence_per_watt import IntelligencePerWattImportBinding
     from model_skyline.traces import RequestTrace
 
     request_trace_schema = RequestTrace.model_json_schema(mode="validation")
@@ -959,6 +963,9 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         ),
         "local-measurement.schema.json": LocalMeasurementRecord.model_json_schema(
             mode="validation"
+        ),
+        "intelligence-per-watt-import.schema.json": (
+            IntelligencePerWattImportBinding.model_json_schema(mode="validation")
         ),
         "paired-quality-estimate.schema.json": PairedQualityEstimate.model_json_schema(
             mode="validation"
@@ -1047,6 +1054,14 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
                 "record. Model-quality claims are intentionally outside this contract and must "
                 "be joined through reviewed exact OfferingKey reconciliation. JSON Schema does "
                 "not reproduce all semantic cross-field validation; run ModelSkyline validation."
+            )
+        if name == "intelligence-per-watt-import.schema.json":
+            generated_schema["$comment"] = (
+                "This binding supplies exact local route, power tier, workload, and run identity "
+                "that the upstream aggregate cannot prove. Raw upstream accuracy artifacts may "
+                "contain prompts, reference answers, and model responses and must remain private. "
+                "The ModelSkyline adapter publishes aggregates only and semantically rejects "
+                "partial, imputed, zero, mixed-basis, or truncated telemetry."
             )
         if name == "paired-quality-estimate.schema.json":
             _quality_complete_offering_key(generated_schema)

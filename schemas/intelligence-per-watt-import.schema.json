@@ -1,0 +1,603 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:intelligence-per-watt-import",
+  "$defs": {
+    "IntelligencePerWattRunIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Dataset Id",
+          "type": "string"
+        },
+        "dataset_revision": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Dataset Revision",
+          "type": "string"
+        },
+        "task_manifest_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Task Manifest Sha256",
+          "type": "string"
+        },
+        "task_set_kind": {
+          "enum": [
+            "full",
+            "screen"
+          ],
+          "title": "Task Set Kind",
+          "type": "string"
+        },
+        "attempts_per_task": {
+          "default": 1,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Attempts Per Task",
+          "type": "integer"
+        },
+        "concurrency": {
+          "default": 1,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Concurrency",
+          "type": "integer"
+        },
+        "configuration_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Configuration Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "dataset_revision",
+        "task_manifest_sha256",
+        "task_set_kind",
+        "configuration_sha256"
+      ],
+      "title": "IntelligencePerWattRunIdentity",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "LocalArtifactIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "checkpoint": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Checkpoint",
+          "type": "string"
+        },
+        "revision": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Revision",
+          "type": "string"
+        },
+        "format": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Format",
+          "type": "string"
+        },
+        "quantization": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Quantization",
+          "type": "string"
+        },
+        "size_bytes": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "content_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "maxLength": 2048,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "model_id",
+        "checkpoint",
+        "revision",
+        "format",
+        "quantization",
+        "size_bytes",
+        "content_sha256"
+      ],
+      "title": "LocalArtifactIdentity",
+      "type": "object"
+    },
+    "LocalHardwareIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "hardware_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Hardware Id",
+          "type": "string"
+        },
+        "manufacturer": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Manufacturer",
+          "type": "string"
+        },
+        "machine_model": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Machine Model",
+          "type": "string"
+        },
+        "chip": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Chip",
+          "type": "string"
+        },
+        "architecture": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Architecture",
+          "type": "string"
+        },
+        "memory_bytes": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Memory Bytes",
+          "type": "integer"
+        },
+        "cpu_cores": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Cpu Cores",
+          "type": "integer"
+        },
+        "cpu_core_groups": {
+          "additionalProperties": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxProperties": 16,
+          "minProperties": 1,
+          "propertyNames": {
+            "maxLength": 512,
+            "minLength": 1
+          },
+          "title": "Cpu Core Groups",
+          "type": "object"
+        },
+        "gpu_cores": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Gpu Cores",
+          "type": "integer"
+        },
+        "os_name": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Os Name",
+          "type": "string"
+        },
+        "os_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Os Version",
+          "type": "string"
+        },
+        "power_source": {
+          "enum": [
+            "ac",
+            "battery",
+            "unknown"
+          ],
+          "title": "Power Source",
+          "type": "string"
+        },
+        "power_mode": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Power Mode",
+          "type": "string"
+        },
+        "negotiated_adapter_watts": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Negotiated Adapter Watts"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "hardware_id",
+        "manufacturer",
+        "machine_model",
+        "chip",
+        "architecture",
+        "memory_bytes",
+        "cpu_cores",
+        "cpu_core_groups",
+        "gpu_cores",
+        "os_name",
+        "os_version",
+        "power_source",
+        "power_mode"
+      ],
+      "title": "LocalHardwareIdentity",
+      "type": "object"
+    },
+    "LocalRuntimeIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "runtime_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Runtime Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "commit": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Commit"
+        },
+        "backend": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Backend",
+          "type": "string"
+        },
+        "context_capacity_tokens": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Context Capacity Tokens",
+          "type": "integer"
+        },
+        "kv_cache": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Kv Cache",
+          "type": "string"
+        },
+        "prefix_cache_enabled": {
+          "title": "Prefix Cache Enabled",
+          "type": "boolean"
+        },
+        "speculative_method": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speculative Method"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "configuration": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Configuration",
+          "type": "object"
+        }
+      },
+      "required": [
+        "runtime_id",
+        "backend",
+        "context_capacity_tokens",
+        "kv_cache",
+        "prefix_cache_enabled"
+      ],
+      "title": "LocalRuntimeIdentity",
+      "type": "object"
+    },
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "billing_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Billing Mode"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/ipw-accuracy-import/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "upstream_revision": {
+      "pattern": "^[0-9a-f]{40}$",
+      "title": "Upstream Revision",
+      "type": "string"
+    },
+    "expected_model": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Expected Model",
+      "type": "string"
+    },
+    "expected_energy_basis": {
+      "enum": [
+        "gpu",
+        "soc"
+      ],
+      "title": "Expected Energy Basis",
+      "type": "string"
+    },
+    "observed_at": {
+      "format": "date-time",
+      "title": "Observed At",
+      "type": "string"
+    },
+    "workload_id": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Workload Id",
+      "type": "string"
+    },
+    "workload_unit": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Workload Unit",
+      "type": "string"
+    },
+    "run": {
+      "$ref": "#/$defs/IntelligencePerWattRunIdentity"
+    },
+    "hardware": {
+      "$ref": "#/$defs/LocalHardwareIdentity"
+    },
+    "artifact": {
+      "$ref": "#/$defs/LocalArtifactIdentity"
+    },
+    "runtime": {
+      "$ref": "#/$defs/LocalRuntimeIdentity"
+    },
+    "offering": {
+      "$ref": "#/$defs/OfferingKey"
+    },
+    "metadata": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "upstream_revision",
+    "expected_model",
+    "expected_energy_basis",
+    "observed_at",
+    "workload_id",
+    "workload_unit",
+    "run",
+    "hardware",
+    "artifact",
+    "runtime",
+    "offering"
+  ],
+  "title": "IntelligencePerWattImportBinding",
+  "type": "object",
+  "$comment": "This binding supplies exact local route, power tier, workload, and run identity that the upstream aggregate cannot prove. Raw upstream accuracy artifacts may contain prompts, reference answers, and model responses and must remain private. The ModelSkyline adapter publishes aggregates only and semantically rejects partial, imputed, zero, mixed-basis, or truncated telemetry."
+}
