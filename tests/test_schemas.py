@@ -34,6 +34,7 @@ QUALITY_SCHEMA_NAMES = (
     "catalog-enrichment-policy.schema.json",
 )
 LOCAL_SCHEMA_NAME = "local-measurement.schema.json"
+IPW_SCHEMA_NAME = "intelligence-per-watt-import.schema.json"
 MODEL_VIEW_SCHEMA_NAMES = (
     "model-frontier-view-policy.schema.json",
     "model-frontier-view-snapshot.schema.json",
@@ -172,6 +173,14 @@ def test_committed_local_measurement_schema_matches_generator() -> None:
     Draft202012Validator.check_schema(generated)
     assert public_schemas()[LOCAL_SCHEMA_NAME] == generated
     assert "Model-quality claims are intentionally outside" in generated["$comment"]
+
+
+def test_committed_intelligence_per_watt_binding_schema_matches_generator() -> None:
+    generated = generated_schemas()[IPW_SCHEMA_NAME]
+
+    Draft202012Validator.check_schema(generated)
+    assert public_schemas()[IPW_SCHEMA_NAME] == generated
+    assert "Raw upstream accuracy artifacts" in generated["$comment"]
 
 
 @pytest.mark.parametrize("name", MODEL_VIEW_SCHEMA_NAMES)

@@ -46,6 +46,12 @@ combined host/GPU service capacity. Laguna remains the faster-generation and
 shorter-context tradeoff. These are runtime screens, not coding-quality scores;
 their exact measurements and limitations remain linked from the same page.
 
+The [local intelligence-efficiency protocol](docs/intelligence-efficiency.md)
+adds quality × average-power and quality × energy-per-item frontiers. It treats
+adapter wattage, OS power mode, and GPU power limits as explicit service tiers,
+so the same machine can be compared at several controllable operating points
+without confusing a power ceiling with measured draw.
+
 The [voice runtime experiment](examples/voice-runtime-frontiers/README.md)
 extends the same rules to local speech and complete voice-agent pipelines. Its
 matched M5/M1/RTX 5060 screen combines a common intelligibility measure with
@@ -302,6 +308,7 @@ explicit modules such as `model_skyline.quality_evidence`,
 - [Same- and cross-workload catalog composition](docs/catalog-enrichment.md)
 - [Best-available, average, and environment-specific model views](docs/model-level-frontiers.md)
 - [Efficient subset estimation and quantization quality](docs/efficient-quality-estimation.md)
+- [Local quality, power, and energy frontiers](docs/intelligence-efficiency.md)
 - [Local runtime measurement and frontier example](examples/local-runtime-frontiers/README.md)
 - [Voice runtime and agent frontier experiment](examples/voice-runtime-frontiers/README.md)
 - [Runtime and gateway integration options](docs/gateway-integrations.md)

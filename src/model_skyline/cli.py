@@ -46,6 +46,11 @@ from model_skyline.adapters.hermes import (
     import_hermes_session,
     load_hermes_session_mapping,
 )
+from model_skyline.adapters.intelligence_per_watt import (
+    IntelligencePerWattAdapterError,
+    load_intelligence_per_watt_binding,
+    normalize_intelligence_per_watt_accuracy_file,
+)
 from model_skyline.adapters.local_agent_benchmark import (
     LocalAgentBenchmarkAdapterError,
     normalize_local_agent_benchmark_file,
@@ -416,6 +421,54 @@ def build_local_catalog_artifact(
         )
         _emit(dump_json(catalog), output)
     except (InputError, OSError, ValueError) as exc:
+        _error(exc)
+
+
+@app.command("import-intelligence-per-watt", rich_help_panel=LOCAL_EVIDENCE_PANEL)
+def import_intelligence_per_watt_command(
+    accuracy_artifact: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            readable=True,
+            dir_okay=False,
+            help="private upstream analysis/accuracy.json artifact",
+        ),
+    ],
+    binding: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            readable=True,
+            dir_okay=False,
+            help="reviewed exact local route and workload binding",
+        ),
+    ],
+    retrieved_at: Annotated[
+        str,
+        typer.Option(
+            "--retrieved-at",
+            help="timezone-aware timestamp when the private artifact was acquired",
+        ),
+    ],
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", dir_okay=False),
+    ] = None,
+) -> None:
+    """Project complete IPW aggregates without publishing prompts or responses."""
+
+    try:
+        timestamp = _retrieved_at(retrieved_at)
+        if timestamp is None:  # pragma: no cover - Typer requires the option
+            raise ValueError("--retrieved-at is required")
+        catalog = normalize_intelligence_per_watt_accuracy_file(
+            accuracy_artifact,
+            binding=load_intelligence_per_watt_binding(binding),
+            retrieved_at=timestamp,
+        )
+        _emit(dump_json(catalog), output)
+    except (IntelligencePerWattAdapterError, OSError, TypeError, ValueError) as exc:
         _error(exc)
 
 

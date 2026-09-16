@@ -47,6 +47,19 @@ captures live in the separate [voice runtime frontier
 experiment](../voice-runtime-frontiers/README.md); voice results are not mixed
 into the coding frontiers on this page.
 
+Power and energy are also separate two-axis choices. The
+[intelligence-efficiency protocol](../../docs/intelligence-efficiency.md)
+defines quality × average watts and quality × joules per item, explains why
+IPW/IPJ ratios are derived labels rather than replacement frontiers, and treats
+adapter wattage, macOS power mode, or an NVIDIA power cap as part of the exact
+offering. The current office M5/60 W state has its own
+[`hardware profile`](hardware/macbook-m5max-64-adapter60.json); it is not
+silently merged with the historical M5/140 W profile.
+The dated
+[`2026-09-16 efficiency status`](intelligence-efficiency-status-2026-09-16.md)
+records the first official-harness smoke, the deliberately rejected zero-power
+artifact, and the remaining telemetry/scoring preflights.
+
 ## Where custom fits belong
 
 A hardware-targeted quantization is a real candidate, not an approximation

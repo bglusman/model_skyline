@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Add local quality × average-power and quality × energy-per-item frontier
+  guidance, with adapter wattage, OS power mode, and GPU power caps retained as
+  exact offering tiers. Add a fail-closed, prompt-free importer for the official
+  Intelligence Per Watt accuracy aggregate, a language-neutral binding schema,
+  and the observed 60 W M5 hardware profile. The importer recomputes accuracy,
+  IPW/IPJ, and telemetry coverage and rejects partial, zero, imputed, mixed-basis,
+  truncated, or internally inconsistent evidence.
 - Add a first cross-model RTX 5060 Ti screen: Qwen3.5 9B Q6_K and Laguna XS
   2.1 now have reproducible short-speed, uncached-tool, validated-context versus
   latency, and validated-context versus whole-service-memory frontiers. Add
