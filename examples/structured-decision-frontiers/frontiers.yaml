@@ -1,0 +1,230 @@
+schema_version: model-skyline/v1alpha1
+
+# These policies define meaningful two-axis questions. A result belongs here
+# only when its normalized run uses the exact workload identity below.
+workloads:
+  structured-routing-screen-v1:
+    unit: decision
+    version: structured-decision-sha256:00e9c82ddeb2053e2ae549b93139b2016376202842f2af3a403150d9437ff3a6
+    harness: model-skyline/system-one-screen@1
+    cohort: 18-public-cases-x-3-repetitions
+    benchmark: ModelSkyline structured routing screen v1
+    description: >-
+      A small deterministic calibration screen for light/heavy/abstain routing.
+      It measures a decision component, not end-to-end agent intelligence.
+    variables: {}
+    assumptions:
+      case_manifest_sha256: a32151761c15bed516f72dbf7b3383b12c444950bc310ed99ca395c13b65a25e
+      case_set_sha256: 9056ff862caef984b5a6a2a670868a77d0ba8fe8b6c603c91c561cde44a2522b
+      scorer: normalized-multiclass-brier-v1
+
+  bfcl-v4-offline-cross-category-64:
+    unit: tool_case
+    version: structured-decision-sha256:501e6320908d8d5ab45f13ce134b60f74b620696c453c993d0fcd468cfa71945
+    harness: gorilla/bfcl@6ea57973c7a6097fd7c5915698c54c17c5b1b6c8
+    cohort: exact-64-case-model-skyline-calibration-panel
+    benchmark: BFCL v4 repository offline cross-category pilot
+    description: >-
+      Sixty-four pinned offline cases spanning selection, no-call, parallel,
+      multi-turn, missing-function, and missing-parameter behavior. This is not
+      the upstream full BFCL score or the BFCL V4 Agentic aggregate.
+    variables: {}
+    assumptions:
+      panel_manifest_sha256: 9f44666f8e518e367a87bba8df00621e43b5cb2d543ca5676bcdf84ab58562ae
+      case_set_sha256: 2710ef03331608a0cb8294cfdf5a41c5258c8175a46d5abf7a5323443eb4181b
+      source_revision: 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8
+
+metrics:
+  decision_accuracy:
+    kind: signal
+    signal: structured_decision_accuracy_percent
+    unit: percent
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  final_success:
+    kind: signal
+    signal: structured_final_success_percent
+    unit: percent
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  schema_valid:
+    kind: signal
+    signal: structured_schema_valid_percent
+    unit: percent
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  autonomous_coverage:
+    kind: signal
+    signal: structured_autonomous_coverage_percent
+    unit: percent
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  autonomous_accuracy:
+    kind: signal
+    signal: structured_autonomous_accuracy_percent
+    unit: percent
+    requirements: {minimum_samples: 1, max_age_hours: 720}
+  unsafe_action:
+    kind: signal
+    signal: structured_unsafe_action_percent
+    unit: percent
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  p95_latency:
+    kind: signal
+    signal: structured_p95_latency_seconds
+    unit: s
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  mean_cost:
+    kind: signal
+    signal: structured_mean_cost_usd_per_case
+    unit: USD/case
+    requirements: {minimum_samples: 54, max_age_hours: 168}
+  cost_per_success:
+    kind: signal
+    signal: structured_cost_usd_per_success
+    unit: USD/success
+    requirements: {minimum_samples: 54, max_age_hours: 168}
+  brier:
+    kind: signal
+    signal: structured_mean_brier_score
+    unit: score
+    requirements: {minimum_samples: 54, max_age_hours: 720}
+  heavy_calls:
+    kind: signal
+    signal: structured_mean_heavy_model_calls_per_case
+    unit: call/case
+    requirements: {minimum_samples: 64, max_age_hours: 720}
+  tool_selection:
+    kind: signal
+    signal: structured_tool_selection_accuracy_percent
+    unit: percent
+    requirements: {minimum_samples: 1, max_age_hours: 720}
+  tool_arguments:
+    kind: signal
+    signal: structured_tool_argument_accuracy_percent
+    unit: percent
+    requirements: {minimum_samples: 1, max_age_hours: 720}
+  tool_sequence:
+    kind: signal
+    signal: structured_tool_sequence_accuracy_percent
+    unit: percent
+    requirements: {minimum_samples: 1, max_age_hours: 720}
+  tool_policy:
+    kind: signal
+    signal: structured_tool_policy_compliance_percent
+    unit: percent
+    requirements: {minimum_samples: 1, max_age_hours: 720}
+  tool_side_effects:
+    kind: signal
+    signal: structured_tool_side_effect_accuracy_percent
+    unit: percent
+    requirements: {minimum_samples: 1, max_age_hours: 720}
+
+frontiers:
+  decision-quality-vs-latency:
+    workload: structured-routing-screen-v1
+    axes:
+      - {metric: decision_accuracy, goal: maximize}
+      - {metric: p95_latency, goal: minimize, epsilon_relative: 0.05}
+    order_by: decision_accuracy
+    eligibility:
+      required_capabilities: [structured-decisions]
+      allow_unknown_age: false
+      minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, component_count, cost_basis]
+
+  decision-quality-vs-cost:
+    workload: structured-routing-screen-v1
+    axes:
+      - {metric: decision_accuracy, goal: maximize}
+      - {metric: mean_cost, goal: minimize, epsilon_relative: 0.05}
+    order_by: decision_accuracy
+    eligibility:
+      required_capabilities: [structured-decisions]
+      allow_unknown_age: false
+      minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, component_count, cost_basis]
+
+  decision-quality-vs-calibration:
+    workload: structured-routing-screen-v1
+    axes:
+      - {metric: decision_accuracy, goal: maximize}
+      - {metric: brier, goal: minimize}
+    order_by: decision_accuracy
+    eligibility:
+      required_capabilities: [structured-decisions]
+      allow_unknown_age: false
+      minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, component_count]
+
+  safe-automation-vs-cost:
+    workload: structured-routing-screen-v1
+    axes:
+      - {metric: autonomous_coverage, goal: maximize}
+      - {metric: mean_cost, goal: minimize, epsilon_relative: 0.05}
+    order_by: autonomous_coverage
+    eligibility:
+      required_capabilities: [structured-decisions]
+      allow_unknown_age: false
+      minimum_gate_values: {autonomous_accuracy: 95, schema_valid: 100}
+      maximum_gate_values: {unsafe_action: 0}
+    metadata_fields: [system_kind, component_count, cost_basis]
+
+  safe-automation-vs-latency:
+    workload: structured-routing-screen-v1
+    axes:
+      - {metric: autonomous_coverage, goal: maximize}
+      - {metric: p95_latency, goal: minimize, epsilon_relative: 0.05}
+    order_by: autonomous_coverage
+    eligibility:
+      required_capabilities: [structured-decisions]
+      allow_unknown_age: false
+      minimum_gate_values: {autonomous_accuracy: 95, schema_valid: 100}
+      maximum_gate_values: {unsafe_action: 0}
+    metadata_fields: [system_kind, component_count]
+
+  tool-outcome-vs-latency:
+    workload: bfcl-v4-offline-cross-category-64
+    axes:
+      - {metric: final_success, goal: maximize}
+      - {metric: p95_latency, goal: minimize, epsilon_relative: 0.05}
+    order_by: final_success
+    eligibility:
+      required_capabilities: [tools]
+      allow_unknown_age: false
+      minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, compound, component_count]
+
+  tool-outcome-vs-cost:
+    workload: bfcl-v4-offline-cross-category-64
+    axes:
+      - {metric: final_success, goal: maximize}
+      - {metric: cost_per_success, goal: minimize, epsilon_relative: 0.05}
+    order_by: final_success
+    eligibility:
+      required_capabilities: [tools]
+      allow_unknown_age: false
+      minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, compound, component_count, cost_basis]
+
+  tool-arguments-vs-latency:
+    workload: bfcl-v4-offline-cross-category-64
+    axes:
+      - {metric: tool_arguments, goal: maximize}
+      - {metric: p95_latency, goal: minimize, epsilon_relative: 0.05}
+    order_by: tool_arguments
+    eligibility:
+      required_capabilities: [tools]
+      allow_unknown_age: false
+      minimum_gate_values: {tool_selection: 90, tool_policy: 90, schema_valid: 100}
+    metadata_fields: [system_kind, compound, component_count]
+
+  compound-outcome-vs-heavy-demand:
+    workload: bfcl-v4-offline-cross-category-64
+    axes:
+      - {metric: final_success, goal: maximize}
+      - {metric: heavy_calls, goal: minimize}
+    order_by: final_success
+    eligibility:
+      required_capabilities: [compound-system, tools]
+      allow_unknown_age: false
+      minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, compound, component_count]
+
+selections: {}

@@ -1,0 +1,102 @@
+{
+  "manifest_version": "model-skyline/bfcl-pilot-manifest/v1alpha1",
+  "panel_id": "bfcl-v4-offline-cross-category-64",
+  "status": "proposed-calibration-panel",
+  "source": {
+    "repository": "https://github.com/ShishirPatil/gorilla",
+    "revision": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+    "retrieved_at": "2026-09-16T00:00:00Z",
+    "license": "Apache-2.0",
+    "methodology_url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md"
+  },
+  "selection_method": "Eight deterministic, approximately evenly position-spaced IDs from each of eight offline categories. This is a ModelSkyline calibration panel, not an upstream BFCL aggregate.",
+  "case_digest_method": "sha256-rfc8785-v1 over each complete source JSONL row; case-set digest is sha256-rfc8785-v1 over the sorted case_id/case_sha256 pairs.",
+  "case_count": 64,
+  "case_set_sha256": "2710ef03331608a0cb8294cfdf5a41c5258c8175a46d5abf7a5323443eb4181b",
+  "categories": [
+    {
+      "id": "simple_python",
+      "question_path": "berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_simple_python.json",
+      "question_blob_sha1": "356a0db61e54eb1d92d8e10d014463cf2eb513cc",
+      "answer_path": "berkeley-function-call-leaderboard/bfcl_eval/data/possible_answer/BFCL_v4_simple_python.json",
+      "answer_blob_sha1": "268c55641a21b51fc15730ce39ce906444a935a1",
+      "case_ids": ["simple_python_0", "simple_python_57", "simple_python_114", "simple_python_171", "simple_python_228", "simple_python_285", "simple_python_342", "simple_python_399"]
+    },
+    {
+      "id": "multiple",
+      "question_path": "berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_multiple.json",
+      "question_blob_sha1": "83643fa853e7a29a50e7303b0279284c37dd63c8",
+      "answer_path": "berkeley-function-call-leaderboard/bfcl_eval/data/possible_answer/BFCL_v4_multiple.json",
+      "answer_blob_sha1": "1f2f1fbfd9b7c8859ef5a92d6c18b0a6b2bc2663",
+      "case_ids": ["multiple_0", "multiple_28", "multiple_56", "multiple_85", "multiple_113", "multiple_142", "multiple_170", "multiple_199"]
+    },
+    {
+      "id": "parallel",
+      "question_path": "berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_parallel.json",
+      "question_blob_sha1": "04040475c8c77facf4f3e75e7079607c25c557d2",
+      "answer_path": "berkeley-function-call-leaderboard/bfcl_eval/data/possible_answer/BFCL_v4_parallel.json",
+      "answer_blob_sha1": "94c4be296d0fee3f7ae8863c4855783da563ca22",
+      "case_ids": ["parallel_0", "parallel_28", "parallel_56", "parallel_85", "parallel_113", "parallel_142", "parallel_170", "parallel_199"]
+    },
+    {
+      "id": "parallel_multiple",
+      "question_path": "berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_parallel_multiple.json",
+      "question_blob_sha1": "832039d6758e2569d65342b3fc9524924a03832a",
+      "answer_path": "berkeley-function-call-leaderboard/bfcl_eval/data/possible_answer/BFCL_v4_parallel_multiple.json",
+      "answer_blob_sha1": "52b010cb01334c98456cc3ec0886dd85d51ec284",
+      "case_ids": ["parallel_multiple_0", "parallel_multiple_28", "parallel_multiple_56", "parallel_multiple_85", "parallel_multiple_113", "parallel_multiple_142", "parallel_multiple_170", "parallel_multiple_199"]
+    },
+    {
+      "id": "irrelevance",
+      "question_path": "berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_irrelevance.json",
+      "question_blob_sha1": "0077629949f2d52734cef2f110b0d040d8c47554",
+      "answer_path": null,
+      "answer_blob_sha1": null,
+      "case_ids": ["irrelevance_0", "irrelevance_34", "irrelevance_68", "irrelevance_102", "irrelevance_136", "irrelevance_170", "irrelevance_204", "irrelevance_239"]
+    },
+    {
+      "id": "multi_turn_base",
+      "question_path": "berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_multi_turn_base.json",
+      "question_blob_sha1": "656fbd5e56969373353cd58b880234a6cc4edc99",
+      "answer_path": "berkeley-function-call-leaderboard/bfcl_eval/data/possible_answer/BFCL_v4_multi_turn_base.json",
+      "answer_blob_sha1": "3ee85fcd5e8cccca24e2347e464b58fd1b9f02a1",
+      "case_ids": ["multi_turn_base_0", "multi_turn_base_28", "multi_turn_base_56", "multi_turn_base_85", "multi_turn_base_113", "multi_turn_base_142", "multi_turn_base_170", "multi_turn_base_199"]
+    },
+    {
+      "id": "multi_turn_miss_func",
+      "question_path": "berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_multi_turn_miss_func.json",
+      "question_blob_sha1": "28e7987841719aec4e4f3f3f4b6c2f1915c831f3",
+      "answer_path": "berkeley-function-call-leaderboard/bfcl_eval/data/possible_answer/BFCL_v4_multi_turn_miss_func.json",
+      "answer_blob_sha1": "ec10a3566a613ddce8e05438425d40f6ec15fbfc",
+      "case_ids": ["multi_turn_miss_func_0", "multi_turn_miss_func_28", "multi_turn_miss_func_56", "multi_turn_miss_func_85", "multi_turn_miss_func_113", "multi_turn_miss_func_142", "multi_turn_miss_func_170", "multi_turn_miss_func_199"]
+    },
+    {
+      "id": "multi_turn_miss_param",
+      "question_path": "berkeley-function-call-leaderboard/bfcl_eval/data/BFCL_v4_multi_turn_miss_param.json",
+      "question_blob_sha1": "2e87caf87fb48f7807a18610311bdfa1138d0599",
+      "answer_path": "berkeley-function-call-leaderboard/bfcl_eval/data/possible_answer/BFCL_v4_multi_turn_miss_param.json",
+      "answer_blob_sha1": "94edb50ede0de76f35e937d4b96128857357d95b",
+      "case_ids": ["multi_turn_miss_param_0", "multi_turn_miss_param_28", "multi_turn_miss_param_56", "multi_turn_miss_param_85", "multi_turn_miss_param_113", "multi_turn_miss_param_142", "multi_turn_miss_param_170", "multi_turn_miss_param_199"]
+    }
+  ],
+  "scorers": [
+    {
+      "id": "ast_checker",
+      "path": "berkeley-function-call-leaderboard/bfcl_eval/eval_checker/ast_eval/ast_checker.py",
+      "blob_sha1": "160fd75cfc8b2b7ef9f83a244f81da0fe0244e39"
+    },
+    {
+      "id": "multi_turn_checker",
+      "path": "berkeley-function-call-leaderboard/bfcl_eval/eval_checker/multi_turn_eval/multi_turn_checker.py",
+      "blob_sha1": "34b36715cdfaa4464ba1be137af4d30e85da8efb"
+    }
+  ],
+  "model_skyline_signal_mapping": {
+    "structured_final_success_percent": "All applicable upstream checks for the case pass.",
+    "structured_tool_selection_accuracy_percent": "Correct function identity, function set, or intentional no-call.",
+    "structured_tool_argument_accuracy_percent": "Applicable AST/executable argument checks pass.",
+    "structured_tool_sequence_accuracy_percent": "Applicable parallel or multi-turn ordering/dependency checks pass.",
+    "structured_tool_policy_compliance_percent": "Applicable irrelevance, missing-function, and missing-parameter behavior passes.",
+    "structured_tool_side_effect_accuracy_percent": "Null for this panel unless a pinned environment verifier separately proves final state."
+  }
+}

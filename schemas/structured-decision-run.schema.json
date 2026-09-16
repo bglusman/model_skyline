@@ -1,0 +1,754 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:model-skyline:schema:v1alpha1:structured-decision-run",
+  "$defs": {
+    "ComponentUsage": {
+      "additionalProperties": false,
+      "description": "Calls and attributed cost for one declared component in one case.",
+      "properties": {
+        "component_id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "calls": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Calls",
+          "type": "integer"
+        },
+        "cost_usd": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                  "type": "string",
+                  "maxLength": 1024
+                }
+              ],
+              "decimal_places": 12,
+              "max_digits": 38
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cost Usd"
+        }
+      },
+      "required": [
+        "component_id",
+        "calls"
+      ],
+      "title": "ComponentUsage",
+      "type": "object"
+    },
+    "CompoundComponent": {
+      "additionalProperties": false,
+      "description": "One exact model/component and how the compound policy may activate it.",
+      "properties": {
+        "component_id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Component Id",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "decision",
+            "router",
+            "worker",
+            "fallback",
+            "guardrail",
+            "verifier"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "resource_class": {
+          "enum": [
+            "light",
+            "heavy"
+          ],
+          "title": "Resource Class",
+          "type": "string"
+        },
+        "activation": {
+          "enum": [
+            "always",
+            "router_selected",
+            "confidence_fallback",
+            "post_action",
+            "on_failure"
+          ],
+          "title": "Activation",
+          "type": "string"
+        },
+        "offering": {
+          "$ref": "#/$defs/OfferingKey"
+        },
+        "guidance_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Guidance Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_id",
+        "role",
+        "resource_class",
+        "activation",
+        "offering",
+        "guidance_sha256"
+      ],
+      "title": "CompoundComponent",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "OfferingKey": {
+      "additionalProperties": false,
+      "description": "Identity grain for a routable candidate, narrower than model name.",
+      "properties": {
+        "offering_id": {
+          "minLength": 1,
+          "title": "Offering Id",
+          "type": "string"
+        },
+        "model_id": {
+          "minLength": 1,
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "billing_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Billing Mode"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        },
+        "service_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Service Tier"
+        },
+        "quantization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantization"
+        },
+        "reasoning_effort": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Effort"
+        },
+        "agent_harness": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agent Harness"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._:/-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 128,
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offering_id",
+        "model_id",
+        "provider"
+      ],
+      "title": "OfferingKey",
+      "type": "object"
+    },
+    "SourceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "terms_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "pattern": "^https?://[^@?#]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terms Url"
+        },
+        "license": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "License"
+        },
+        "methodology": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Methodology"
+        },
+        "raw_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Sha256"
+        },
+        "retrieved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrieved At"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "SourceReference",
+      "type": "object"
+    },
+    "StructuredDecisionCaseResult": {
+      "additionalProperties": false,
+      "description": "Prompt-free outcome for one case repetition.",
+      "properties": {
+        "case_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Case Id",
+          "type": "string"
+        },
+        "case_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Case Sha256",
+          "type": "string"
+        },
+        "repetition": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Repetition",
+          "type": "integer"
+        },
+        "decision_correct": {
+          "title": "Decision Correct",
+          "type": "boolean"
+        },
+        "final_success": {
+          "title": "Final Success",
+          "type": "boolean"
+        },
+        "schema_valid": {
+          "title": "Schema Valid",
+          "type": "boolean"
+        },
+        "abstained": {
+          "title": "Abstained",
+          "type": "boolean"
+        },
+        "unsafe_action": {
+          "title": "Unsafe Action",
+          "type": "boolean"
+        },
+        "latency_seconds": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*(?:\\d{0,29}|(?=[\\d.]{1,39}0*$)\\d{0,29}\\.\\d{0,9}0*$))$",
+              "type": "string",
+              "maxLength": 1024
+            }
+          ],
+          "title": "Latency Seconds"
+        },
+        "total_cost_usd": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "pattern": "^(?!-)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                  "type": "string",
+                  "maxLength": 1024
+                }
+              ],
+              "decimal_places": 12,
+              "max_digits": 38
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Cost Usd"
+        },
+        "model_calls": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Model Calls",
+          "type": "integer"
+        },
+        "heavy_model_calls": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Heavy Model Calls",
+          "type": "integer"
+        },
+        "component_usage": {
+          "items": {
+            "$ref": "#/$defs/ComponentUsage"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Component Usage",
+          "type": "array"
+        },
+        "brier_score": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "pattern": "^(?!-)(?=[+]?(?:0*(?:\\.\\d*)?|0*1(?:\\.0*)?)$)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                  "type": "string",
+                  "maxLength": 1024
+                }
+              ],
+              "decimal_places": 12,
+              "max_digits": 18
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Brier Score"
+        },
+        "tool_selection_correct": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Selection Correct"
+        },
+        "tool_arguments_correct": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Arguments Correct"
+        },
+        "tool_sequence_correct": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Sequence Correct"
+        },
+        "tool_policy_compliant": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Policy Compliant"
+        },
+        "tool_side_effects_correct": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Side Effects Correct"
+        }
+      },
+      "required": [
+        "case_id",
+        "case_sha256",
+        "repetition",
+        "decision_correct",
+        "final_success",
+        "schema_valid",
+        "abstained",
+        "unsafe_action",
+        "latency_seconds",
+        "model_calls",
+        "heavy_model_calls",
+        "component_usage"
+      ],
+      "title": "StructuredDecisionCaseResult",
+      "type": "object"
+    },
+    "StructuredDecisionSystemIdentity": {
+      "additionalProperties": false,
+      "description": "The complete candidate, including routing policy and every component.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "decision_component",
+            "single_model_system",
+            "compound_model_system"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "routing_policy_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Routing Policy Sha256",
+          "type": "string"
+        },
+        "components": {
+          "items": {
+            "$ref": "#/$defs/CompoundComponent"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Components",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "routing_policy_sha256",
+        "components"
+      ],
+      "title": "StructuredDecisionSystemIdentity",
+      "type": "object"
+    },
+    "StructuredDecisionWorkloadIdentity": {
+      "additionalProperties": false,
+      "description": "Fields that must remain identical for candidates to be comparable.",
+      "properties": {
+        "suite_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Suite Id",
+          "type": "string"
+        },
+        "suite_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Suite Version",
+          "type": "string"
+        },
+        "case_manifest_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Case Manifest Sha256",
+          "type": "string"
+        },
+        "case_set_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Case Set Sha256",
+          "type": "string"
+        },
+        "case_count": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Case Count",
+          "type": "integer"
+        },
+        "harness_id": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Harness Id",
+          "type": "string"
+        },
+        "harness_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Harness Version",
+          "type": "string"
+        },
+        "scorer_version": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Scorer Version",
+          "type": "string"
+        },
+        "oracle_kind": {
+          "enum": [
+            "deterministic",
+            "human_labels",
+            "model_consensus",
+            "environment_verifier"
+          ],
+          "title": "Oracle Kind",
+          "type": "string"
+        },
+        "repetitions_per_case": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Repetitions Per Case",
+          "type": "integer"
+        },
+        "concurrency": {
+          "default": 1,
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "title": "Concurrency",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "suite_id",
+        "suite_version",
+        "case_manifest_sha256",
+        "case_set_sha256",
+        "case_count",
+        "harness_id",
+        "harness_version",
+        "scorer_version",
+        "oracle_kind",
+        "repetitions_per_case"
+      ],
+      "title": "StructuredDecisionWorkloadIdentity",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One exact decision component or complete single/compound system run.",
+  "properties": {
+    "schema_version": {
+      "const": "model-skyline/structured-decision-run/v1alpha1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "observed_at": {
+      "format": "date-time",
+      "title": "Observed At",
+      "type": "string"
+    },
+    "workload_id": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Workload Id",
+      "type": "string"
+    },
+    "workload_unit": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Workload Unit",
+      "type": "string"
+    },
+    "workload": {
+      "$ref": "#/$defs/StructuredDecisionWorkloadIdentity"
+    },
+    "benchmark_source": {
+      "$ref": "#/$defs/SourceReference"
+    },
+    "offering": {
+      "$ref": "#/$defs/OfferingKey"
+    },
+    "system": {
+      "$ref": "#/$defs/StructuredDecisionSystemIdentity"
+    },
+    "cost_basis": {
+      "enum": [
+        "billed",
+        "provider_reported",
+        "reconstructed",
+        "unavailable"
+      ],
+      "title": "Cost Basis",
+      "type": "string"
+    },
+    "results": {
+      "items": {
+        "$ref": "#/$defs/StructuredDecisionCaseResult"
+      },
+      "maxItems": 1000000,
+      "minItems": 1,
+      "title": "Results",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "observed_at",
+    "workload_id",
+    "workload_unit",
+    "workload",
+    "benchmark_source",
+    "offering",
+    "system",
+    "cost_basis",
+    "results"
+  ],
+  "title": "StructuredDecisionRun",
+  "type": "object",
+  "$comment": "A run represents one exact decision component or complete routable system. Compound runs must identify every component, routing/guidance policy, call, and attributed cost; primitive decision accuracy is not interchangeable with end-to-end task success. Prompts, responses, and hidden answers are excluded. JSON Schema cannot enforce repetition completeness, component totals, or cost reconciliation; run ModelSkyline semantic validation before use."
+}

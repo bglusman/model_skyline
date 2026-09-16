@@ -427,6 +427,9 @@ SCHEMA_IDS = {
     "intelligence-per-watt-import.schema.json": (
         "urn:model-skyline:schema:v1alpha1:intelligence-per-watt-import"
     ),
+    "structured-decision-run.schema.json": (
+        "urn:model-skyline:schema:v1alpha1:structured-decision-run"
+    ),
     "paired-quality-estimate.schema.json": (
         "urn:model-skyline:schema:v1alpha1:paired-quality-estimate"
     ),
@@ -922,6 +925,7 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
 
     from model_skyline.adapters.harbor import HarborTerminalBenchImportConfig
     from model_skyline.adapters.intelligence_per_watt import IntelligencePerWattImportBinding
+    from model_skyline.adapters.structured_decisions import StructuredDecisionRun
     from model_skyline.traces import RequestTrace
 
     request_trace_schema = RequestTrace.model_json_schema(mode="validation")
@@ -966,6 +970,9 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
         ),
         "intelligence-per-watt-import.schema.json": (
             IntelligencePerWattImportBinding.model_json_schema(mode="validation")
+        ),
+        "structured-decision-run.schema.json": StructuredDecisionRun.model_json_schema(
+            mode="validation"
         ),
         "paired-quality-estimate.schema.json": PairedQualityEstimate.model_json_schema(
             mode="validation"
@@ -1062,6 +1069,15 @@ def generated_schemas() -> dict[str, dict[str, Any]]:
                 "contain prompts, reference answers, and model responses and must remain private. "
                 "The ModelSkyline adapter publishes aggregates only and semantically rejects "
                 "partial, imputed, zero, mixed-basis, or truncated telemetry."
+            )
+        if name == "structured-decision-run.schema.json":
+            generated_schema["$comment"] = (
+                "A run represents one exact decision component or complete routable system. "
+                "Compound runs must identify every component, routing/guidance policy, call, "
+                "and attributed cost; primitive decision accuracy is not interchangeable with "
+                "end-to-end task success. Prompts, responses, and hidden answers are excluded. "
+                "JSON Schema cannot enforce repetition completeness, component totals, or cost "
+                "reconciliation; run ModelSkyline semantic validation before use."
             )
         if name == "paired-quality-estimate.schema.json":
             _quality_complete_offering_key(generated_schema)
