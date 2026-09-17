@@ -1,0 +1,34 @@
+{
+  "backend": {
+    "kind": "openai-compatible-completions",
+    "bfcl_handler": "qwen_fc",
+    "model": "qwen3.8-27b-oq4e-mtp:baseline-f16kv",
+    "base_url": "http://127.0.0.1:8090/v1",
+    "max_context_tokens": 262144,
+    "temperature": 0.001
+  },
+  "offering": {
+    "offering_id": "local/qwen3.8-27b-oq4e@m5-64gb-bfcl-prompt-warm-f16kv",
+    "model_id": "qwen/qwen3.8-27b",
+    "provider": "local-m5",
+    "endpoint": "http://127.0.0.1:8090/v1",
+    "billing_mode": "self-hosted",
+    "service_tier": "apple-m5-64gb-omlx-pool-warm",
+    "quantization": "mlx-oq4e",
+    "reasoning_effort": "enabled",
+    "agent_harness": "bfcl-qwen-fc-handler-pinned-6ea5797",
+    "capabilities": ["tools"]
+  },
+  "component_id": "qwen38-worker",
+  "resource_class": "heavy",
+  "guidance": "Use the pinned BFCL Qwen function-call template and parser.",
+  "routing_policy": "Use the model result directly; this single-model control has no fallback.",
+  "measurement_conditions": {
+    "model_residency": "omlx-dynamic-pool-warm",
+    "prefix_cache": "enabled",
+    "request_order": "category-then-case-major",
+    "concurrency": 1
+  },
+  "cost_basis": "unavailable",
+  "fixed_cost_usd_per_model_call": null
+}

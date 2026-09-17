@@ -252,6 +252,7 @@ def test_compound_system_gets_final_credit_but_retains_router_and_worker_demand(
         ]
         result["tool_selection_correct"] = True
         result["tool_arguments_correct"] = True
+        result["primary_success"] = index in {0, 1, 2}
         result["router_decision_correct"] = index in {0, 2}
         result["router_abstained"] = index == 1
         result["router_max_probability"] = "0.8"
@@ -263,6 +264,9 @@ def test_compound_system_gets_final_credit_but_retains_router_and_worker_demand(
     assert row.signals["structured_final_success_percent"].value == 100
     assert row.signals["structured_mean_model_calls_per_case"].value == Decimal("1.5")
     assert row.signals["structured_mean_heavy_model_calls_per_case"].value == Decimal("0.5")
+    assert row.signals["structured_primary_success_percent"].value == 75
+    assert row.signals["structured_primary_error_rescue_percent"].value == 100
+    assert row.signals["structured_primary_override_harm_percent"].value == 0
     assert row.signals["structured_router_decision_accuracy_percent"].value == 50
     assert row.signals["structured_router_autonomous_coverage_percent"].value == 75
     assert row.signals["structured_router_mean_max_probability"].value == Decimal("0.8")

@@ -56,14 +56,15 @@ The [structured-decision and compound-system
 experiment](examples/structured-decision-frontiers/README.md) adds separate
 frontiers for typed routing decisions and complete tool-using systems. It can
 compare Jev with general LLMs on the same decision contract after TypeSafe
-waitlist access, then compare heavy-only, light-only, and router-plus-worker
-policies end to end. The first local screen keeps both Qwen3.8 and faster
-GPT-OSS on the accuracy/latency frontier, while Qwen alone survives the
-accuracy/calibration comparison. A measured GPT-OSS→Qwen cascade shows why
-calibration and residency matter: the overconfident router rarely called its
-worker, and exclusive model swapping made the pair slower without improving
-accuracy. Compound offerings identify every component call; primitive routing
-accuracy is never relabeled as completed-agent quality.
+waitlist access, then compare single models and multi-model policies end to
+end. The first repeated local tool screen now has two clear residents: Granite
+4 Micro is the speed-first choice at 95% success and 1.42 seconds p95; a
+co-resident Granite→Qwen no-call verifier raises success to 96.67% at 11.94
+seconds p95 and 0.45 Qwen calls per case. Qwen alone is dominated on this narrow
+workload. An earlier GPT-OSS→Qwen policy and a naive Granite→Qwen replacement
+policy remain useful negative evidence. Compound offerings identify every
+component call and must beat their components on at least one axis to be called
+a winner.
 
 The [voice runtime experiment](examples/voice-runtime-frontiers/README.md)
 extends the same rules to local speech and complete voice-agent pipelines. Its

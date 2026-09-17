@@ -1,0 +1,1112 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "workload": {
+    "id": "bfcl-v4-offline-single-turn-40",
+    "version": "structured-decision-sha256:0bcaebca79f8066d416ad67c63baab2ff1c393eb817d802835688ca3043b6f55",
+    "unit": "tool-case"
+  },
+  "offerings": [
+    {
+      "offering": {
+        "offering_id": "compound/granite4-3b-primary+qwen3.8-27b-no-call-veto@m5-64gb-omlx-coresident-v1",
+        "model_id": "compound/granite4-3b+qwen3.8-27b",
+        "provider": "local-m5",
+        "endpoint": "http://127.0.0.1:8090/v1",
+        "billing_mode": "self-hosted",
+        "region": null,
+        "service_tier": "apple-m5-64gb-omlx-pool-warm-coresident",
+        "quantization": "primary-mlx-8bit+verifier-mlx-oq4e",
+        "reasoning_effort": "primary-disabled+verifier-enabled",
+        "agent_harness": "bfcl-single-tool-no-call-veto-v1",
+        "capabilities": [
+          "compound-system",
+          "tools"
+        ]
+      },
+      "signals": {
+        "structured_decision_accuracy_percent": {
+          "value": "96.66666666666666666666666666666667",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_final_success_percent": {
+          "value": "96.66666666666666666666666666666667",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_schema_valid_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_autonomous_coverage_percent": {
+          "value": "83.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_autonomous_accuracy_percent": {
+          "value": "96",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 100,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_unsafe_action_percent": {
+          "value": "0",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_p95_latency_seconds": {
+          "value": "11.9365500181",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_mean_model_calls_per_case": {
+          "value": "1.45",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_mean_heavy_model_calls_per_case": {
+          "value": "0.45",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_primary_success_percent": {
+          "value": "95",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_primary_error_rescue_percent": {
+          "value": "33.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 6,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_primary_override_harm_percent": {
+          "value": "0",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 114,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_tool_selection_accuracy_percent": {
+          "value": "96.66666666666666666666666666666667",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_tool_argument_accuracy_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 96,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_tool_policy_compliance_percent": {
+          "value": "83.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 24,
+          "observed_at": "2026-09-17T03:50:06.593826Z",
+          "source": {
+            "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        }
+      },
+      "metadata": {
+        "adapter": {
+          "id": "model-skyline/structured-decision-run",
+          "version": "2"
+        },
+        "system": {
+          "kind": "compound_model_system",
+          "routing_policy_sha256": "44d9979e14d4b4d6f7e003018080a3f43dbaf66c4c59c86433a4130cd28501ea",
+          "components": [
+            {
+              "component_id": "granite4-worker",
+              "role": "decision",
+              "resource_class": "light",
+              "activation": "always",
+              "offering": {
+                "offering_id": "local/granite4-micro-3b-8bit@m5-64gb-omlx-bfcl-prompt-warm",
+                "model_id": "ibm-granite/granite-4.0-micro",
+                "provider": "local-m5",
+                "endpoint": "http://127.0.0.1:8090/v1",
+                "billing_mode": "self-hosted",
+                "region": null,
+                "service_tier": "apple-m5-64gb-omlx-pool-warm",
+                "quantization": "mlx-8bit",
+                "reasoning_effort": "disabled",
+                "agent_harness": "bfcl-granite4-handler-pinned-6ea5797",
+                "capabilities": [
+                  "tools"
+                ]
+              },
+              "guidance_sha256": "f0bf9b067a47204901a0c6e94c71a9a92d180f2c0de801dfa753b2f69096d6be"
+            },
+            {
+              "component_id": "qwen38-worker",
+              "role": "fallback",
+              "resource_class": "heavy",
+              "activation": "policy_trigger",
+              "offering": {
+                "offering_id": "local/qwen3.8-27b-oq4e@m5-64gb-bfcl-prompt-warm-f16kv",
+                "model_id": "qwen/qwen3.8-27b",
+                "provider": "local-m5",
+                "endpoint": "http://127.0.0.1:8090/v1",
+                "billing_mode": "self-hosted",
+                "region": null,
+                "service_tier": "apple-m5-64gb-omlx-pool-warm",
+                "quantization": "mlx-oq4e",
+                "reasoning_effort": "enabled",
+                "agent_harness": "bfcl-qwen-fc-handler-pinned-6ea5797",
+                "capabilities": [
+                  "tools"
+                ]
+              },
+              "guidance_sha256": "8a756d8f3e4a5e37ba755a35a7ce9e2a644fd0bdec62aacd6c3c92ea86e1ac84"
+            }
+          ]
+        },
+        "system_kind": "compound_model_system",
+        "compound": true,
+        "component_count": 2,
+        "cost_basis": "unavailable",
+        "workload_identity": {
+          "suite_id": "bfcl-v4-offline-single-turn-40",
+          "suite_version": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+          "case_manifest_sha256": "9f44666f8e518e367a87bba8df00621e43b5cb2d543ca5676bcdf84ab58562ae",
+          "case_set_sha256": "2232275651c311956309081e425c4bb40fcef1ee311572ea3b28233cd9b568e3",
+          "case_count": 40,
+          "harness_id": "model-skyline/bfcl-single-turn-panel",
+          "harness_version": "1",
+          "scorer_version": "bfcl-ast-checker@6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+          "oracle_kind": "deterministic",
+          "repetitions_per_case": 3,
+          "concurrency": 1
+        },
+        "benchmark_source": {
+          "id": "bfcl-v4-offline-cross-category-64",
+          "version": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+          "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+          "terms_url": null,
+          "license": "Apache-2.0",
+          "methodology": "The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+          "raw_sha256": "9f44666f8e518e367a87bba8df00621e43b5cb2d543ca5676bcdf84ab58562ae",
+          "retrieved_at": "2026-09-16T00:00:00Z"
+        },
+        "case_count": 40,
+        "result_count": 120,
+        "contains_prompt_or_response_text": false,
+        "run_metadata": {
+          "suite_license": "Apache-2.0",
+          "candidate_configuration_sha256": "b3f01439314c22c9611398e44d04b04f761cae2977a1c0a2b7d2d4627256167a",
+          "fallback_candidate_configuration_sha256": "7fca2e238391acc66941790988aed783eeafa0523368a0a56d8baf727ac692c1",
+          "compound_candidate_configuration_sha256": "73290f4709a05786a7c0015753c703243176be2856be0dd5212e20b029d68e48",
+          "measurement_conditions": {
+            "request_order": "category-then-case-major",
+            "concurrency": 1,
+            "deployment": "omlx-dynamic-pool-warm-coresident"
+          },
+          "input_tokens_total": 59658,
+          "output_tokens_total": 17844,
+          "component_input_tokens": {
+            "granite4-worker": 44724,
+            "qwen38-worker": 14934
+          },
+          "component_output_tokens": {
+            "granite4-worker": 8244,
+            "qwen38-worker": 9600
+          }
+        }
+      },
+      "default_source": {
+        "id": "structured-decision-run:sha256:aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+        "version": "model-skyline/structured-decision-run/v1alpha1",
+        "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+        "terms_url": null,
+        "license": "Apache-2.0",
+        "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+        "raw_sha256": "aa7c7272f9b33bb2f72dcab0686e2dc0eadc8ae93d902cfbddb9af1b3006485c",
+        "retrieved_at": "2026-09-17T04:25:00Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "local/granite4-micro-3b-8bit@m5-64gb-omlx-bfcl-prompt-warm",
+        "model_id": "ibm-granite/granite-4.0-micro",
+        "provider": "local-m5",
+        "endpoint": "http://127.0.0.1:8090/v1",
+        "billing_mode": "self-hosted",
+        "region": null,
+        "service_tier": "apple-m5-64gb-omlx-pool-warm",
+        "quantization": "mlx-8bit",
+        "reasoning_effort": "disabled",
+        "agent_harness": "bfcl-granite4-handler-pinned-6ea5797",
+        "capabilities": [
+          "tools"
+        ]
+      },
+      "signals": {
+        "structured_decision_accuracy_percent": {
+          "value": "95",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_final_success_percent": {
+          "value": "95",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_schema_valid_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_autonomous_coverage_percent": {
+          "value": "85",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_autonomous_accuracy_percent": {
+          "value": "94.11764705882352941176470588235294",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 102,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_unsafe_action_percent": {
+          "value": "0",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_p95_latency_seconds": {
+          "value": "1.415259425",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_mean_model_calls_per_case": {
+          "value": "1",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_mean_heavy_model_calls_per_case": {
+          "value": "0",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_tool_selection_accuracy_percent": {
+          "value": "95",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_tool_argument_accuracy_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 96,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_tool_policy_compliance_percent": {
+          "value": "75",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 24,
+          "observed_at": "2026-09-17T03:57:35.650946Z",
+          "source": {
+            "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        }
+      },
+      "metadata": {
+        "adapter": {
+          "id": "model-skyline/structured-decision-run",
+          "version": "2"
+        },
+        "system": {
+          "kind": "single_model_system",
+          "routing_policy_sha256": "cd2e34a8613aeeadee24a810030b090c83db910a98352786c81c1d6ef1546ffa",
+          "components": [
+            {
+              "component_id": "granite4-worker",
+              "role": "worker",
+              "resource_class": "light",
+              "activation": "always",
+              "offering": {
+                "offering_id": "local/granite4-micro-3b-8bit@m5-64gb-omlx-bfcl-prompt-warm",
+                "model_id": "ibm-granite/granite-4.0-micro",
+                "provider": "local-m5",
+                "endpoint": "http://127.0.0.1:8090/v1",
+                "billing_mode": "self-hosted",
+                "region": null,
+                "service_tier": "apple-m5-64gb-omlx-pool-warm",
+                "quantization": "mlx-8bit",
+                "reasoning_effort": "disabled",
+                "agent_harness": "bfcl-granite4-handler-pinned-6ea5797",
+                "capabilities": [
+                  "tools"
+                ]
+              },
+              "guidance_sha256": "f0bf9b067a47204901a0c6e94c71a9a92d180f2c0de801dfa753b2f69096d6be"
+            }
+          ]
+        },
+        "system_kind": "single_model_system",
+        "compound": false,
+        "component_count": 1,
+        "cost_basis": "unavailable",
+        "workload_identity": {
+          "suite_id": "bfcl-v4-offline-single-turn-40",
+          "suite_version": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+          "case_manifest_sha256": "9f44666f8e518e367a87bba8df00621e43b5cb2d543ca5676bcdf84ab58562ae",
+          "case_set_sha256": "2232275651c311956309081e425c4bb40fcef1ee311572ea3b28233cd9b568e3",
+          "case_count": 40,
+          "harness_id": "model-skyline/bfcl-single-turn-panel",
+          "harness_version": "1",
+          "scorer_version": "bfcl-ast-checker@6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+          "oracle_kind": "deterministic",
+          "repetitions_per_case": 3,
+          "concurrency": 1
+        },
+        "benchmark_source": {
+          "id": "bfcl-v4-offline-cross-category-64",
+          "version": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+          "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+          "terms_url": null,
+          "license": "Apache-2.0",
+          "methodology": "The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+          "raw_sha256": "9f44666f8e518e367a87bba8df00621e43b5cb2d543ca5676bcdf84ab58562ae",
+          "retrieved_at": "2026-09-16T00:00:00Z"
+        },
+        "case_count": 40,
+        "result_count": 120,
+        "contains_prompt_or_response_text": false,
+        "run_metadata": {
+          "suite_license": "Apache-2.0",
+          "candidate_configuration_sha256": "b3f01439314c22c9611398e44d04b04f761cae2977a1c0a2b7d2d4627256167a",
+          "fallback_candidate_configuration_sha256": null,
+          "compound_candidate_configuration_sha256": null,
+          "measurement_conditions": {
+            "request_order": "category-then-case-major",
+            "concurrency": 1,
+            "deployment": "omlx-dynamic-pool-warm"
+          },
+          "input_tokens_total": 44724,
+          "output_tokens_total": 8260,
+          "component_input_tokens": {
+            "granite4-worker": 44724
+          },
+          "component_output_tokens": {
+            "granite4-worker": 8260
+          }
+        }
+      },
+      "default_source": {
+        "id": "structured-decision-run:sha256:e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+        "version": "model-skyline/structured-decision-run/v1alpha1",
+        "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+        "terms_url": null,
+        "license": "Apache-2.0",
+        "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+        "raw_sha256": "e61b8c5dab17146e23ed7329010af2bbd74f9083c449af5f208759568f8b2337",
+        "retrieved_at": "2026-09-17T04:25:00Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "local/qwen3.8-27b-oq4e@m5-64gb-bfcl-prompt-warm-f16kv",
+        "model_id": "qwen/qwen3.8-27b",
+        "provider": "local-m5",
+        "endpoint": "http://127.0.0.1:8090/v1",
+        "billing_mode": "self-hosted",
+        "region": null,
+        "service_tier": "apple-m5-64gb-omlx-pool-warm",
+        "quantization": "mlx-oq4e",
+        "reasoning_effort": "enabled",
+        "agent_harness": "bfcl-qwen-fc-handler-pinned-6ea5797",
+        "capabilities": [
+          "tools"
+        ]
+      },
+      "signals": {
+        "structured_decision_accuracy_percent": {
+          "value": "94.16666666666666666666666666666667",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_final_success_percent": {
+          "value": "94.16666666666666666666666666666667",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_schema_valid_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_autonomous_coverage_percent": {
+          "value": "83.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_autonomous_accuracy_percent": {
+          "value": "93",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 100,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_unsafe_action_percent": {
+          "value": "0",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_p95_latency_seconds": {
+          "value": "21.64897965415",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_mean_model_calls_per_case": {
+          "value": "1",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_mean_heavy_model_calls_per_case": {
+          "value": "1",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_tool_selection_accuracy_percent": {
+          "value": "94.16666666666666666666666666666667",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 120,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_tool_argument_accuracy_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 93,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        },
+        "structured_tool_policy_compliance_percent": {
+          "value": "83.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 24,
+          "observed_at": "2026-09-17T03:59:17.655677Z",
+          "source": {
+            "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+            "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+            "retrieved_at": "2026-09-17T04:25:00Z"
+          }
+        }
+      },
+      "metadata": {
+        "adapter": {
+          "id": "model-skyline/structured-decision-run",
+          "version": "2"
+        },
+        "system": {
+          "kind": "single_model_system",
+          "routing_policy_sha256": "cd2e34a8613aeeadee24a810030b090c83db910a98352786c81c1d6ef1546ffa",
+          "components": [
+            {
+              "component_id": "qwen38-worker",
+              "role": "worker",
+              "resource_class": "heavy",
+              "activation": "always",
+              "offering": {
+                "offering_id": "local/qwen3.8-27b-oq4e@m5-64gb-bfcl-prompt-warm-f16kv",
+                "model_id": "qwen/qwen3.8-27b",
+                "provider": "local-m5",
+                "endpoint": "http://127.0.0.1:8090/v1",
+                "billing_mode": "self-hosted",
+                "region": null,
+                "service_tier": "apple-m5-64gb-omlx-pool-warm",
+                "quantization": "mlx-oq4e",
+                "reasoning_effort": "enabled",
+                "agent_harness": "bfcl-qwen-fc-handler-pinned-6ea5797",
+                "capabilities": [
+                  "tools"
+                ]
+              },
+              "guidance_sha256": "8a756d8f3e4a5e37ba755a35a7ce9e2a644fd0bdec62aacd6c3c92ea86e1ac84"
+            }
+          ]
+        },
+        "system_kind": "single_model_system",
+        "compound": false,
+        "component_count": 1,
+        "cost_basis": "unavailable",
+        "workload_identity": {
+          "suite_id": "bfcl-v4-offline-single-turn-40",
+          "suite_version": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+          "case_manifest_sha256": "9f44666f8e518e367a87bba8df00621e43b5cb2d543ca5676bcdf84ab58562ae",
+          "case_set_sha256": "2232275651c311956309081e425c4bb40fcef1ee311572ea3b28233cd9b568e3",
+          "case_count": 40,
+          "harness_id": "model-skyline/bfcl-single-turn-panel",
+          "harness_version": "1",
+          "scorer_version": "bfcl-ast-checker@6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+          "oracle_kind": "deterministic",
+          "repetitions_per_case": 3,
+          "concurrency": 1
+        },
+        "benchmark_source": {
+          "id": "bfcl-v4-offline-cross-category-64",
+          "version": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+          "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+          "terms_url": null,
+          "license": "Apache-2.0",
+          "methodology": "The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+          "raw_sha256": "9f44666f8e518e367a87bba8df00621e43b5cb2d543ca5676bcdf84ab58562ae",
+          "retrieved_at": "2026-09-16T00:00:00Z"
+        },
+        "case_count": 40,
+        "result_count": 120,
+        "contains_prompt_or_response_text": false,
+        "run_metadata": {
+          "suite_license": "Apache-2.0",
+          "candidate_configuration_sha256": "7fca2e238391acc66941790988aed783eeafa0523368a0a56d8baf727ac692c1",
+          "fallback_candidate_configuration_sha256": null,
+          "compound_candidate_configuration_sha256": null,
+          "measurement_conditions": {
+            "request_order": "category-then-case-major",
+            "concurrency": 1,
+            "deployment": "omlx-dynamic-pool-warm"
+          },
+          "input_tokens_total": 41850,
+          "output_tokens_total": 24647,
+          "component_input_tokens": {
+            "qwen38-worker": 41850
+          },
+          "component_output_tokens": {
+            "qwen38-worker": 24647
+          }
+        }
+      },
+      "default_source": {
+        "id": "structured-decision-run:sha256:0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+        "version": "model-skyline/structured-decision-run/v1alpha1",
+        "url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/berkeley-function-call-leaderboard/bfcl_eval/data/README.md",
+        "terms_url": null,
+        "license": "Apache-2.0",
+        "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The five single-turn categories and pinned IDs from the ModelSkyline BFCL v4 calibration manifest, scored with the pinned upstream AST checker.",
+        "raw_sha256": "0734bbe781c377f8fd71cca76f7791d9ed3d0b583e250bfcb12eacee8f42646d",
+        "retrieved_at": "2026-09-17T04:25:00Z"
+      }
+    }
+  ]
+}
