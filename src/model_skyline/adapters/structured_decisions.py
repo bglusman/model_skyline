@@ -40,7 +40,7 @@ from model_skyline.models import (
 
 STRUCTURED_DECISION_RUN_SCHEMA_VERSION: Final = "model-skyline/structured-decision-run/v1alpha1"
 STRUCTURED_DECISION_ADAPTER_ID: Final = "model-skyline/structured-decision-run"
-STRUCTURED_DECISION_ADAPTER_VERSION: Final = "1"
+STRUCTURED_DECISION_ADAPTER_VERSION: Final = "2"
 MAX_STRUCTURED_DECISION_RUN_BYTES: Final = 64_000_000
 _FORBIDDEN_METADATA_KEYS: Final = frozenset(
     {
@@ -117,6 +117,7 @@ class CompoundComponent(FrozenModel):
         "always",
         "router_selected",
         "confidence_fallback",
+        "policy_trigger",
         "post_action",
         "on_failure",
     ]
@@ -184,6 +185,7 @@ class StructuredDecisionCaseResult(FrozenModel):
     brier_score: CanonicalDecimal | None = Field(
         default=None, ge=0, le=1, max_digits=18, decimal_places=12
     )
+    primary_success: bool | None = None
     router_decision_correct: bool | None = None
     router_abstained: bool | None = None
     router_max_probability: CanonicalDecimal | None = Field(
@@ -379,6 +381,8 @@ class StructuredDecisionRun(FrozenModel):
                 )
             if self.offering.agent_harness is None:
                 raise ValueError("compound_model_system requires an exact agent_harness")
+        elif any(result.primary_success is not None for result in self.results):
+            raise ValueError("only compound_model_system results can report primary_success")
         return self
 
 
@@ -526,6 +530,40 @@ def normalize_structured_decision_run(
             _mean([value for value in brier_scores if value is not None]),
             "score",
         )
+
+    primary_results = [result for result in results if result.primary_success is not None]
+    if primary_results:
+        add(
+            "structured_primary_success_percent",
+            _percent(
+                sum(bool(result.primary_success) for result in primary_results),
+                len(primary_results),
+            ),
+            "percent",
+            len(primary_results),
+        )
+        primary_errors = [result for result in primary_results if not result.primary_success]
+        if primary_errors:
+            add(
+                "structured_primary_error_rescue_percent",
+                _percent(
+                    sum(result.final_success for result in primary_errors),
+                    len(primary_errors),
+                ),
+                "percent",
+                len(primary_errors),
+            )
+        primary_successes = [result for result in primary_results if result.primary_success]
+        if primary_successes:
+            add(
+                "structured_primary_override_harm_percent",
+                _percent(
+                    sum(not result.final_success for result in primary_successes),
+                    len(primary_successes),
+                ),
+                "percent",
+                len(primary_successes),
+            )
 
     routed = [result for result in results if result.router_decision_correct is not None]
     if routed:

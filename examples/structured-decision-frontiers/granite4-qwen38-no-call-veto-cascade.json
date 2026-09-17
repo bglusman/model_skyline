@@ -1,0 +1,34 @@
+{
+  "schema_version": "model-skyline/structured-decision-compound-candidate/v1alpha1",
+  "offering": {
+    "offering_id": "compound/granite4-3b-primary+qwen3.8-27b-no-call-veto@m5-64gb-omlx-coresident-v1",
+    "model_id": "compound/granite4-3b+qwen3.8-27b",
+    "provider": "local-m5",
+    "endpoint": "http://127.0.0.1:8090/v1",
+    "billing_mode": "self-hosted",
+    "service_tier": "apple-m5-64gb-omlx-pool-warm-coresident",
+    "quantization": "primary-mlx-8bit+verifier-mlx-oq4e",
+    "reasoning_effort": "primary-disabled+verifier-enabled",
+    "agent_harness": "bfcl-single-tool-no-call-veto-v1",
+    "capabilities": ["compound-system", "tools"]
+  },
+  "primary_component_id": "granite4-worker",
+  "fallback_component_id": "qwen38-worker",
+  "routing_policy": {
+    "policy_id": "bfcl-single-tool-no-call-veto-v1",
+    "invoke_fallback_on": [
+      "malformed-or-contract-invalid",
+      "single-available-tool-with-primary-call"
+    ],
+    "resolution": "fallback-vetoes-primary-tool-call",
+    "maximum_fallback_calls_per_case": 1
+  },
+  "measurement_conditions": {
+    "model_residency": "omlx-dynamic-pool-warm-coresident",
+    "co_resident": true,
+    "request_order": "category-then-case-major",
+    "concurrency": 1,
+    "interpretation": "Granite keeps its tool call unless Qwen independently decides that no tool should be called. A contract-invalid Granite result is replaced outright."
+  },
+  "cost_basis": "unavailable"
+}

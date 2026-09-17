@@ -1,5 +1,55 @@
 # Structured decisions, tool use, and compound model systems
 
+## Plain-language result
+
+A model pair is useful only when it earns a place beside the individual models.
+For a two-axis frontier, that means no tested alternative is both better on the
+first axis and better on the second.
+
+The current 64 GB M5 single-turn tool calibration has two residents:
+
+| Choice | Correct tool outcomes | p95 wall time | Qwen calls per case | Why it remains |
+| --- | ---: | ---: | ---: | --- |
+| Granite 4 Micro 3B 8-bit | 95.00% | 1.42 s | 0 | speed-first choice |
+| Granite primary + Qwen3.8 no-call veto | 96.67% | 11.94 s | 0.45 | quality-first choice |
+
+Qwen3.8 alone scored 94.17% at 21.65 seconds p95, so Granite dominates it for
+this narrow job. This does **not** say Granite is generally smarter than Qwen.
+It says a small tool specialist is the better implementation for these 40 BFCL
+single-turn cases.
+
+The compound policy is intentionally limited. Granite constructs the call.
+When exactly one tool is available and Granite proposes using it, Qwen may veto
+the call by independently deciding that no tool is appropriate. Qwen cannot
+rewrite a valid Granite call. Across three repetitions, the veto rescued 2 of
+6 primary errors and harmed 0 of 114 primary successes.
+
+This is positive but provisional evidence: 120 observations came from only 40
+distinct cases, and both rescues were repetitions of one no-call case. The
+result justifies keeping compound candidates in the framework; it does not yet
+justify a default production cascade.
+
+## Other pairs worth measuring
+
+The useful pattern is complementary roles, not merely “two models.” The next
+high-value candidates are:
+
+- a general worker plus [Granite Guardian](https://www.ibm.com/granite/docs/models/guardian)
+  or [Qwen3Guard](https://huggingface.co/Qwen/Qwen3Guard-Gen-0.6B), measured on
+  safety caught versus false-positive blocks and added latency;
+- a general worker plus a tiny function-calling specialist such as
+  [xLAM-2 1B](https://huggingface.co/Salesforce/xLAM-2-1b-fc-r), measured on a
+  heterogeneous workflow where text/code generation and tool dispatch are both
+  scored; and
+- a target model plus a speculative draft model, measured on equivalent output
+  quality versus latency and memory. The existing Qwen+DFlash work belongs to
+  this execution-optimization class, not the semantic-cascade class above.
+
+[FunctionGemma 270M](https://huggingface.co/google/functiongemma-270m-it) is a
+later candidate after task-specific tuning; its own model card says it is meant
+to be fine-tuned for a particular function-calling task, so a zero-shot test
+would not fairly answer whether the architecture is useful.
+
 This experiment answers two related questions without pretending they are the
 same question:
 
@@ -40,7 +90,7 @@ costs do not sum to total cost.
 
 ## Frontier definitions
 
-[`frontiers.yaml`](frontiers.yaml) contains ten ordinary two-axis frontiers:
+[`frontiers.yaml`](frontiers.yaml) contains twelve ordinary two-axis frontiers:
 
 | Frontier | First axis | Second axis | What it tells us |
 | --- | --- | --- | --- |
@@ -54,6 +104,8 @@ costs do not sum to total cost.
 | tool outcome vs cost | complete case success | cost per success | cheapest complete tool system |
 | tool arguments vs latency | correct arguments | p95 wall time | argument quality after selection and policy gates |
 | compound outcome vs heavy demand | complete case success | heavy calls per case | whether routing actually avoids expensive work without losing outcomes |
+| single-turn tool outcome vs latency | correct BFCL case | p95 wall time | whether a specialist or pair earns the speed/quality tradeoff |
+| single-turn tool outcome vs heavy demand | correct BFCL case | heavy calls per case | whether added heavy-model work buys an outcome improvement |
 
 Tool selection, argument correctness, sequence correctness, policy compliance,
 side-effect correctness, schema validity, and unsafe-action rate remain separate
@@ -62,8 +114,9 @@ corrupted its arguments, called tools in the wrong order, or acted when it
 should have stopped.
 
 The “tool outcome” frontiers admit both single and compound systems. That is the
-direct answer to whether a pair beats heavy-only or light-only. The final
-compound-only frontier then explains *how* a winning pair saves work.
+direct answer to whether a pair beats either component alone. A compound-only
+frontier can explain how pairs differ, but it cannot establish that any pair is
+worth using; only the shared frontier can do that.
 
 ## First evaluation matrix
 
@@ -100,6 +153,18 @@ its end-to-end outcomes are measured.
   retrieval time, and the mapping to ModelSkyline's tool subdimensions. It is a
   ModelSkyline calibration panel, not the full upstream BFCL score and not the
   BFCL V4 Agentic aggregate.
+- [`run_bfcl_single_turn_panel.py`](run_bfcl_single_turn_panel.py) reuses the
+  pinned upstream Granite/Qwen prompt handlers and AST scorer for the 40
+  single-turn cases. The runner writes scored, prompt-free evidence.
+- [`granite4-3b-8bit-omlx-bfcl-candidate.json`](granite4-3b-8bit-omlx-bfcl-candidate.json)
+  and [`qwen38-oq4e-bfcl-candidate.json`](qwen38-oq4e-bfcl-candidate.json) pin the
+  two single-model controls.
+- [`granite4-qwen38-no-call-veto-cascade.json`](granite4-qwen38-no-call-veto-cascade.json)
+  defines the winning selective-veto policy. The naive replacement policy is
+  retained separately as a negative control.
+- [`generated/bfcl-single-turn-r3-composed-catalog.json`](generated/bfcl-single-turn-r3-composed-catalog.json)
+  contains the three normalized offerings. The two adjacent frontier snapshots
+  are the result-of-record views.
 
 The BFCL panel covers single, competing, parallel, parallel+competing,
 intentional no-call, multi-turn, missing-function, and missing-parameter cases.
@@ -168,17 +233,39 @@ harness emits the same run schema for complete tool systems. That harness must
 count technical failures, router calls, retries, fallbacks, and worker calls
 rather than dropping failed cases.
 
+## Run the BFCL single-turn calibration
+
+Install the small offline-runner dependency set, then provide a Gorilla checkout
+at revision `6ea57973c7a6097fd7c5915698c54c17c5b1b6c8`:
+
+```console
+uv sync --extra bfcl-pilot
+uv run python examples/structured-decision-frontiers/run_bfcl_single_turn_panel.py \
+  examples/structured-decision-frontiers/bfcl-v4-offline-64-manifest.json \
+  examples/structured-decision-frontiers/granite4-3b-8bit-omlx-bfcl-candidate.json \
+  --bfcl-root /path/to/gorilla \
+  --fallback-candidate \
+    examples/structured-decision-frontiers/qwen38-oq4e-bfcl-candidate.json \
+  --compound-candidate \
+    examples/structured-decision-frontiers/granite4-qwen38-no-call-veto-cascade.json \
+  --repetitions 3 --output compound-run.json
+```
+
+Run each single-model candidate without the two compound flags. Normalize each
+run, compose the three catalogs, and evaluate the two `single-turn-*`
+frontiers. The committed generated artifacts demonstrate that complete path.
+
 ## Current status
 
-The schema, normalizer, exact routing screen, BFCL manifest, cascade runner, and
-frontier policy are implemented. Qwen3.8, GPT-OSS, and the first swap-backed
-compound policy have been measured on the M5. See
-[`status-2026-09-16.md`](status-2026-09-16.md) for the results and their limits.
+The schema, normalizer, exact routing screen, BFCL manifest, BFCL runner,
+cascade runner, and frontier policies are implemented. See
+[`status-2026-09-17.md`](status-2026-09-17.md) for the matched Granite, Qwen,
+and compound results, plus the earlier negative results and their limits.
 
 No Jev result exists because the account is on TypeSafe's early-access
 waitlist. That is an access prerequisite, not evidence for or against Jev.
 
-The next result-of-record step is a matched matrix of heavy-only, light-only,
-Jev+worker, and small-local+worker on the BFCL panel, followed by a smaller
-state-verifying workload. Promotion requires multiple candidates, nontrivial
-score spread, stable repetitions, and no unexplained parser or policy failures.
+The next result-of-record step is a holdout no-call/tool-policy panel and a
+small state-verifying workload. Granite Guardian or Qwen3Guard are sensible
+guardrail-pair candidates after that harness exists. Jev remains queued for the
+same decision screen when API access becomes available.

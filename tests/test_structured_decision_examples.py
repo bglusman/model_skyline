@@ -15,7 +15,7 @@ from model_skyline.adapters.structured_decisions import (
     structured_decision_workload_version,
 )
 from model_skyline.canonical import content_hash
-from model_skyline.io import load_config
+from model_skyline.io import load_catalog, load_config, load_frontier_snapshot
 from model_skyline.models import OfferingKey
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +31,15 @@ def _object(path: Path) -> dict[str, Any]:
 def _runner_module() -> ModuleType:
     path = EXAMPLE / "run_system_one_screen.py"
     spec = importlib.util.spec_from_file_location("structured_decision_runner", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _bfcl_runner_module() -> ModuleType:
+    path = EXAMPLE / "run_bfcl_single_turn_panel.py"
+    spec = importlib.util.spec_from_file_location("bfcl_single_turn_runner", path)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -165,11 +174,27 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
     }
     assert compound["measurement_conditions"]["co_resident"] is False
 
+    granite_bfcl = _object(EXAMPLE / "granite4-3b-8bit-omlx-bfcl-candidate.json")
+    qwen_bfcl = _object(EXAMPLE / "qwen38-oq4e-bfcl-candidate.json")
+    veto = _object(EXAMPLE / "granite4-qwen38-no-call-veto-cascade.json")
+    replacement = _object(EXAMPLE / "granite4-qwen38-single-tool-review-cascade.json")
+    assert OfferingKey.model_validate(granite_bfcl["offering"]).capabilities == ("tools",)
+    assert OfferingKey.model_validate(qwen_bfcl["offering"]).capabilities == ("tools",)
+    assert OfferingKey.model_validate(veto["offering"]).capabilities == (
+        "compound-system",
+        "tools",
+    )
+    assert veto["primary_component_id"] == granite_bfcl["component_id"]
+    assert veto["fallback_component_id"] == qwen_bfcl["component_id"]
+    assert veto["routing_policy"]["resolution"] == "fallback-vetoes-primary-tool-call"
+    assert replacement["routing_policy"]["resolution"] == "fallback-replaces-primary"
+    assert veto["measurement_conditions"]["co_resident"] is True
+
 
 def test_frontier_recipes_keep_primitive_and_complete_system_claims_separate() -> None:
     config = load_config(EXAMPLE / "frontiers.yaml")
 
-    assert len(config.frontiers) == 10
+    assert len(config.frontiers) == 12
     assert config.frontiers["decision-quality-vs-latency"].eligibility.required_capabilities == (
         "structured-decisions",
     )
@@ -182,6 +207,79 @@ def test_frontier_recipes_keep_primitive_and_complete_system_claims_separate() -
     assert config.frontiers[
         "compound-routing-quality-vs-heavy-demand"
     ].eligibility.required_capabilities == ("compound-system", "structured-decisions")
+    assert config.frontiers[
+        "single-turn-tool-outcome-vs-heavy-demand"
+    ].eligibility.required_capabilities == ("tools",)
+
+
+def test_bfcl_single_turn_catalog_and_frontiers_publish_the_matched_tradeoff() -> None:
+    generated = EXAMPLE / "generated"
+    catalog = load_catalog(generated / "bfcl-single-turn-r3-composed-catalog.json")
+    assert catalog.workload.id == "bfcl-v4-offline-single-turn-40"
+    assert catalog.workload.unit == "tool-case"
+    assert len(catalog.offerings) == 3
+
+    expected = {
+        "compound/granite4-3b-primary+qwen3.8-27b-no-call-veto"
+        "@m5-64gb-omlx-coresident-v1",
+        "local/granite4-micro-3b-8bit@m5-64gb-omlx-bfcl-prompt-warm",
+    }
+    for filename in (
+        "bfcl-single-turn-r3-outcome-latency-frontier.json",
+        "bfcl-single-turn-r3-outcome-heavy-demand-frontier.json",
+    ):
+        snapshot = load_frontier_snapshot(generated / filename)
+        assert {member.offering.offering_id for member in snapshot.members} == expected
+        assert len(snapshot.evaluated) == 3
+
+
+def test_bfcl_contract_validation_rejects_unknown_or_incomplete_calls() -> None:
+    runner = _bfcl_runner_module()
+    functions = [
+        {
+            "name": "lookup",
+            "parameters": {
+                "type": "object",
+                "properties": {"city": {"type": "string"}},
+                "required": ["city"],
+            },
+        }
+    ]
+
+    assert runner._contract_valid([{"lookup": {"city": "Boston"}}], functions)
+    assert not runner._contract_valid([{"lookup": {}}], functions)
+    assert not runner._contract_valid([{"delete": {"city": "Boston"}}], functions)
+
+
+def test_bfcl_no_call_veto_can_only_remove_a_valid_primary_call() -> None:
+    runner = _bfcl_runner_module()
+    primary = [{"lookup": {"city": "Boston"}}]
+    competing_call = [{"lookup": {"city": "Cambridge"}}]
+
+    assert runner._resolve_fallback(
+        primary,
+        primary_schema_valid=True,
+        primary_contract_valid=True,
+        fallback_decoded=[],
+        fallback_schema_valid=True,
+        resolution="fallback-vetoes-primary-tool-call",
+    ) == ([], True)
+    assert runner._resolve_fallback(
+        primary,
+        primary_schema_valid=True,
+        primary_contract_valid=True,
+        fallback_decoded=competing_call,
+        fallback_schema_valid=True,
+        resolution="fallback-vetoes-primary-tool-call",
+    ) == (primary, True)
+    assert runner._resolve_fallback(
+        primary,
+        primary_schema_valid=True,
+        primary_contract_valid=False,
+        fallback_decoded=competing_call,
+        fallback_schema_valid=True,
+        resolution="fallback-vetoes-primary-tool-call",
+    ) == (competing_call, True)
 
 
 def test_normalized_multiclass_brier_rejects_invalid_probabilities() -> None:

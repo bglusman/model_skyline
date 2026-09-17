@@ -85,6 +85,7 @@
             "always",
             "router_selected",
             "confidence_fallback",
+            "policy_trigger",
             "post_action",
             "on_failure"
           ],
@@ -467,6 +468,18 @@
           ],
           "default": null,
           "title": "Brier Score"
+        },
+        "primary_success": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Primary Success"
         },
         "router_decision_correct": {
           "anyOf": [

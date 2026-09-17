@@ -1,0 +1,34 @@
+{
+  "backend": {
+    "kind": "openai-compatible-completions",
+    "bfcl_handler": "granite4",
+    "model": "granite4-micro-8bit",
+    "base_url": "http://127.0.0.1:8090/v1",
+    "max_context_tokens": 131072,
+    "temperature": 0.001
+  },
+  "offering": {
+    "offering_id": "local/granite4-micro-3b-8bit@m5-64gb-omlx-bfcl-prompt-warm",
+    "model_id": "ibm-granite/granite-4.0-micro",
+    "provider": "local-m5",
+    "endpoint": "http://127.0.0.1:8090/v1",
+    "billing_mode": "self-hosted",
+    "service_tier": "apple-m5-64gb-omlx-pool-warm",
+    "quantization": "mlx-8bit",
+    "reasoning_effort": "disabled",
+    "agent_harness": "bfcl-granite4-handler-pinned-6ea5797",
+    "capabilities": ["tools"]
+  },
+  "component_id": "granite4-worker",
+  "resource_class": "light",
+  "guidance": "Use the pinned BFCL Granite 4 tool-call template and parser.",
+  "routing_policy": "Use the model result directly; this single-model control has no fallback.",
+  "measurement_conditions": {
+    "model_residency": "omlx-dynamic-pool-warm",
+    "prefix_cache": "enabled",
+    "request_order": "category-then-case-major",
+    "concurrency": 1
+  },
+  "cost_basis": "unavailable",
+  "fixed_cost_usd_per_model_call": null
+}

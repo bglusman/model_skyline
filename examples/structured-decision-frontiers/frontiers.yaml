@@ -34,6 +34,24 @@ workloads:
       case_set_sha256: 2710ef03331608a0cb8294cfdf5a41c5258c8175a46d5abf7a5323443eb4181b
       source_revision: 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8
 
+  bfcl-v4-offline-single-turn-40:
+    unit: tool-case
+    version: structured-decision-sha256:0bcaebca79f8066d416ad67c63baab2ff1c393eb817d802835688ca3043b6f55
+    harness: model-skyline/bfcl-single-turn-panel@1
+    cohort: exact-40-case-panel-x-3-repetitions
+    benchmark: BFCL v4 repository offline single-turn calibration
+    description: >-
+      Forty pinned single-turn cases across simple, competing, parallel,
+      parallel+competing, and intentional no-call behavior, each run three
+      times. This is a local calibration panel, not an upstream BFCL score.
+    variables: {}
+    assumptions:
+      panel_manifest_sha256: 9f44666f8e518e367a87bba8df00621e43b5cb2d543ca5676bcdf84ab58562ae
+      case_set_sha256: 2232275651c311956309081e425c4bb40fcef1ee311572ea3b28233cd9b568e3
+      source_revision: 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8
+      distinct_cases: 40
+      repetitions_per_case: 3
+
 metrics:
   decision_accuracy:
     kind: signal
@@ -118,6 +136,21 @@ metrics:
   router_override_harm:
     kind: signal
     signal: structured_router_override_harm_percent
+    unit: percent
+    requirements: {minimum_samples: 1, max_age_hours: 720}
+  primary_success:
+    kind: signal
+    signal: structured_primary_success_percent
+    unit: percent
+    requirements: {minimum_samples: 1, max_age_hours: 720}
+  primary_error_rescue:
+    kind: signal
+    signal: structured_primary_error_rescue_percent
+    unit: percent
+    requirements: {minimum_samples: 1, max_age_hours: 720}
+  primary_override_harm:
+    kind: signal
+    signal: structured_primary_override_harm_percent
     unit: percent
     requirements: {minimum_samples: 1, max_age_hours: 720}
   tool_selection:
@@ -265,6 +298,30 @@ frontiers:
     order_by: final_success
     eligibility:
       required_capabilities: [compound-system, tools]
+      allow_unknown_age: false
+      minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, compound, component_count]
+
+  single-turn-tool-outcome-vs-latency:
+    workload: bfcl-v4-offline-single-turn-40
+    axes:
+      - {metric: final_success, goal: maximize}
+      - {metric: p95_latency, goal: minimize, epsilon_relative: 0.05}
+    order_by: final_success
+    eligibility:
+      required_capabilities: [tools]
+      allow_unknown_age: false
+      minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, compound, component_count]
+
+  single-turn-tool-outcome-vs-heavy-demand:
+    workload: bfcl-v4-offline-single-turn-40
+    axes:
+      - {metric: final_success, goal: maximize}
+      - {metric: heavy_calls, goal: minimize}
+    order_by: final_success
+    eligibility:
+      required_capabilities: [tools]
       allow_unknown_age: false
       minimum_gate_values: {schema_valid: 100}
     metadata_fields: [system_kind, compound, component_count]

@@ -1,0 +1,24 @@
+{
+  "observed_at": "2026-09-17T04:17:37Z",
+  "host": "macbook-m5max-64",
+  "runtime": "omlx",
+  "endpoint": "http://127.0.0.1:8185",
+  "status": "healthy",
+  "models": [
+    {
+      "id": "granite4-micro-8bit",
+      "status": "loaded"
+    },
+    {
+      "id": "qwen3.8-27b-oq4e-mtp:baseline-f16kv",
+      "status": "loaded"
+    }
+  ],
+  "engine_pool": {
+    "model_count": 6,
+    "loaded_count": 2,
+    "final_ceiling_bytes": 55662788608,
+    "current_model_memory_bytes": 20649357738
+  },
+  "interpretation": "Both measured components were simultaneously resident after the matched runs. The values are runtime-reported model-pool memory, not whole-system peak memory or a long-context capacity measurement."
+}
