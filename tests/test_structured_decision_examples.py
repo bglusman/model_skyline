@@ -220,8 +220,7 @@ def test_bfcl_single_turn_catalog_and_frontiers_publish_the_matched_tradeoff() -
     assert len(catalog.offerings) == 3
 
     expected = {
-        "compound/granite4-3b-primary+qwen3.8-27b-no-call-veto"
-        "@m5-64gb-omlx-coresident-v1",
+        "compound/granite4-3b-primary+qwen3.8-27b-no-call-veto@m5-64gb-omlx-coresident-v1",
         "local/granite4-micro-3b-8bit@m5-64gb-omlx-bfcl-prompt-warm",
     }
     for filename in (
