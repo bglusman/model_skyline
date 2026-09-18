@@ -44,7 +44,7 @@ On the same 18 routing cases repeated three times on the 64 GB M5:
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Qwen3.5 4B Q4 direct logits | 55.56% | 0.127 s | 0.1962 | 0 | 0 |
 | Qwen3.8 27B UD-Q4_K_M generated probabilities | 83.33% | 2.271 s | 0.0994 | 5.56% | 1.00 |
-| Real Jev 1.13 through OpenRouter | 83.33% | 0.558 s | **0.0658** | 0 | 0 |
+| Real Jev 1.13 through OpenRouter | 83.33% | 0.623 s | **0.0659** | 0 | 0 |
 | Qwen3.8 27B UD-Q4_K_M direct logits | **88.89%** | 0.541 s | 0.0830 | 0 | 1.00 |
 | Qwen3.5 light gate → Qwen3.8 direct worker | **88.89%** | 0.675 s | 0.0757 | 0 | **0.78** |
 

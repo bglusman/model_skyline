@@ -436,6 +436,10 @@ def test_openrouter_decisions_backend_preserves_reported_cost(monkeypatch) -> No
 
     assert response.choices["route"].choice == "heavy"
     assert response.usage.cost == Decimal("0.0000126")
+    assert response.debug == {
+        "provider": "TypeSafe",
+        "resolved_model": "typesafe/jev-1.13-20260917",
+    }
     assert runner._response_cost(
         response,
         cost_basis="provider_reported",

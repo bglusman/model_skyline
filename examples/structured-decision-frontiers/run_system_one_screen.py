@@ -516,6 +516,8 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
     results: list[dict[str, Any]] = []
     input_tokens_total = 0
     output_tokens_total = 0
+    resolved_models: set[str] = set()
+    providers: set[str] = set()
     observed_at = datetime.now(UTC)
     questions = {
         question_name: {
@@ -559,6 +561,12 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                 response_input_tokens, response_output_tokens = _token_totals(response)
                 input_tokens_total += response_input_tokens
                 output_tokens_total += response_output_tokens
+                resolved_model = response.debug.get("resolved_model")
+                provider = response.debug.get("provider")
+                if isinstance(resolved_model, str) and resolved_model:
+                    resolved_models.add(resolved_model)
+                if isinstance(provider, str) and provider:
+                    providers.add(provider)
                 cost = _response_cost(
                     response,
                     cost_basis=cost_basis,
@@ -655,6 +663,16 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
             "measurement_conditions": candidate.get("measurement_conditions", {}),
             "input_tokens_total": input_tokens_total,
             "output_tokens_total": output_tokens_total,
+            **(
+                {
+                    "provider_observations": {
+                        "resolved_models": sorted(resolved_models),
+                        "providers": sorted(providers),
+                    }
+                }
+                if resolved_models or providers
+                else {}
+            ),
         },
     }
 
