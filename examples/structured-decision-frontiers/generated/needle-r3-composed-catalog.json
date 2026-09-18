@@ -1,0 +1,829 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "workload": {
+    "id": "cactus-needle-v3-home-media-64",
+    "version": "structured-decision-sha256:7faa69fb031bd914ac9fbc9a86bbb85e9605ac38a76268d72344c286d5b0c5b5",
+    "unit": "voice-style-tool-case"
+  },
+  "offerings": [
+    {
+      "offering": {
+        "offering_id": "cactus/needle3-3.0.1@m5-64gb-native-macos",
+        "model_id": "cactus-needle/needle3",
+        "provider": "local-m5",
+        "endpoint": "in-process-native-runtime",
+        "billing_mode": "self-hosted",
+        "region": null,
+        "service_tier": "apple-m5-64gb",
+        "quantization": "vendor-cact",
+        "reasoning_effort": null,
+        "agent_harness": "cactus-needle-python-3.0.1",
+        "capabilities": [
+          "home-automation",
+          "media-control",
+          "tools"
+        ]
+      },
+      "signals": {
+        "structured_decision_accuracy_percent": {
+          "value": "85.9375",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_final_success_percent": {
+          "value": "85.9375",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_schema_valid_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_autonomous_coverage_percent": {
+          "value": "75",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_autonomous_accuracy_percent": {
+          "value": "81.25",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 144,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_unsafe_action_percent": {
+          "value": "12.5",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_p95_latency_seconds": {
+          "value": "0.0811879852",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_mean_model_calls_per_case": {
+          "value": "1",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_mean_heavy_model_calls_per_case": {
+          "value": "0",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_tool_selection_accuracy_percent": {
+          "value": "87.5",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_tool_argument_accuracy_percent": {
+          "value": "85.9375",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_tool_policy_compliance_percent": {
+          "value": "87.5",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:32.256793Z",
+          "source": {
+            "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        }
+      },
+      "metadata": {
+        "adapter": {
+          "id": "model-skyline/structured-decision-run",
+          "version": "2"
+        },
+        "system": {
+          "kind": "single_model_system",
+          "routing_policy_sha256": "7f54b747a6ec97607cccf89ede8240308a5b85e00f25bd2ad0ecdc794a9c3d83",
+          "components": [
+            {
+              "component_id": "needle3-worker",
+              "role": "worker",
+              "resource_class": "light",
+              "activation": "always",
+              "offering": {
+                "offering_id": "cactus/needle3-3.0.1@m5-64gb-native-macos",
+                "model_id": "cactus-needle/needle3",
+                "provider": "local-m5",
+                "endpoint": "in-process-native-runtime",
+                "billing_mode": "self-hosted",
+                "region": null,
+                "service_tier": "apple-m5-64gb",
+                "quantization": "vendor-cact",
+                "reasoning_effort": null,
+                "agent_harness": "cactus-needle-python-3.0.1",
+                "capabilities": [
+                  "home-automation",
+                  "media-control",
+                  "tools"
+                ]
+              },
+              "guidance_sha256": "7f54b747a6ec97607cccf89ede8240308a5b85e00f25bd2ad0ecdc794a9c3d83"
+            }
+          ]
+        },
+        "system_kind": "single_model_system",
+        "compound": false,
+        "component_count": 1,
+        "cost_basis": "unavailable",
+        "workload_identity": {
+          "suite_id": "cactus-needle-v3-home-media",
+          "suite_version": "cactus-needle==3.0.1",
+          "case_manifest_sha256": "c969de37b13fb84645e13d997725a111543fab8e409eefb7775004de15548eb9",
+          "case_set_sha256": "ae35c4c82565c57a539b746c5af9b7e911781e63eef70ea99931fa5bb5c54bff",
+          "case_count": 64,
+          "harness_id": "model-skyline/needle-home-media-panel",
+          "harness_version": "1",
+          "scorer_version": "exact-unordered-tool-calls-after-vendor-validation-filter-v1",
+          "oracle_kind": "deterministic",
+          "repetitions_per_case": 3,
+          "concurrency": 1
+        },
+        "benchmark_source": {
+          "id": "cactus-needle-v3-home-media",
+          "version": "cactus-needle==3.0.1",
+          "url": "https://github.com/cactus-compute/needle",
+          "terms_url": null,
+          "license": "Apache-2.0",
+          "methodology": "The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+          "raw_sha256": "c969de37b13fb84645e13d997725a111543fab8e409eefb7775004de15548eb9",
+          "retrieved_at": "2026-09-18T19:48:10Z"
+        },
+        "case_count": 64,
+        "result_count": 192,
+        "contains_prompt_or_response_text": false,
+        "run_metadata": {
+          "measurement_conditions": {
+            "automatic_date_fact": false,
+            "concurrency": 1,
+            "confidence_threshold": "0",
+            "machine": "Apple M5 64 GB",
+            "os": "macOS",
+            "package": "cactus-needle==3.0.1",
+            "telemetry_disabled": true
+          },
+          "needle_candidate_configuration_sha256": "167a038831700bc45d8d2654d44dd170cc1e6fbe9638550dbffcd5b6fe24a28e",
+          "runner_sha256": "96b264fb529e130b506919f75b7d7ad75c5f50e0af0ec1930b736a8c18b2e5da",
+          "source_revision": "366b43cd8593fb520695c1bb89b9c3080762961b",
+          "suite_license": "Apache-2.0",
+          "suite_methodology": "The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+          "weights_sha256": "c9d915eca282ed42d1a09b143b592adb4cc6744ffe2d294adf5cfc5548170c38"
+        }
+      },
+      "default_source": {
+        "id": "structured-decision-run:sha256:7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+        "version": "model-skyline/structured-decision-run/v1alpha1",
+        "url": "https://github.com/cactus-compute/needle",
+        "terms_url": null,
+        "license": "Apache-2.0",
+        "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+        "raw_sha256": "7f40419d5774a43a0674f90dc9a16b9d2635f88690e5bf8d35f1a23a87e179d5",
+        "retrieved_at": "2026-09-18T20:01:24Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "compound/needle3-3.0.1+jev-1.13-exact-call-guard@m5-openrouter-v1",
+        "model_id": "compound/cactus-needle3+typesafe-jev-1.13",
+        "provider": "local-m5+openrouter",
+        "endpoint": "in-process-native-runtime+https://openrouter.ai/api/alpha/decisions",
+        "billing_mode": "hybrid",
+        "region": null,
+        "service_tier": "apple-m5-64gb+openrouter-default",
+        "quantization": "needle-vendor-cact+hosted",
+        "reasoning_effort": null,
+        "agent_harness": "needle-proposal-jev-exact-call-guard-v1",
+        "capabilities": [
+          "compound-system",
+          "home-automation",
+          "media-control",
+          "tools"
+        ]
+      },
+      "signals": {
+        "structured_decision_accuracy_percent": {
+          "value": "95.3125",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_final_success_percent": {
+          "value": "95.3125",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_schema_valid_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_autonomous_coverage_percent": {
+          "value": "64.0625",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_autonomous_accuracy_percent": {
+          "value": "95.12195121951219512195121951219512",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 123,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_unsafe_action_percent": {
+          "value": "3.125",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_p95_latency_seconds": {
+          "value": "0.48015119825",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_mean_model_calls_per_case": {
+          "value": "1.75",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_mean_heavy_model_calls_per_case": {
+          "value": "0",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_mean_cost_usd_per_case": {
+          "value": "0.0000359454375",
+          "unit": "USD/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_cost_usd_per_success": {
+          "value": "0.00003771324590163934426229508196721311",
+          "unit": "USD/success",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_primary_success_percent": {
+          "value": "85.9375",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_primary_error_rescue_percent": {
+          "value": "66.66666666666666666666666666666667",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 27,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_primary_override_harm_percent": {
+          "value": "0",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 165,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_tool_selection_accuracy_percent": {
+          "value": "95.3125",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_tool_argument_accuracy_percent": {
+          "value": "95.3125",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        },
+        "structured_tool_policy_compliance_percent": {
+          "value": "96.875",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 192,
+          "observed_at": "2026-09-18T19:59:43.671789Z",
+          "source": {
+            "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/cactus-compute/needle",
+            "terms_url": null,
+            "license": "Apache-2.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+            "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+            "retrieved_at": "2026-09-18T20:01:24Z"
+          }
+        }
+      },
+      "metadata": {
+        "adapter": {
+          "id": "model-skyline/structured-decision-run",
+          "version": "2"
+        },
+        "system": {
+          "kind": "compound_model_system",
+          "routing_policy_sha256": "56dfd41719f7428670467805804d9899059dc39505a929d6a6bd9a9e31353dd9",
+          "components": [
+            {
+              "component_id": "needle3-worker",
+              "role": "worker",
+              "resource_class": "light",
+              "activation": "always",
+              "offering": {
+                "offering_id": "cactus/needle3-3.0.1@m5-64gb-native-macos",
+                "model_id": "cactus-needle/needle3",
+                "provider": "local-m5",
+                "endpoint": "in-process-native-runtime",
+                "billing_mode": "self-hosted",
+                "region": null,
+                "service_tier": "apple-m5-64gb",
+                "quantization": "vendor-cact",
+                "reasoning_effort": null,
+                "agent_harness": "cactus-needle-python-3.0.1",
+                "capabilities": [
+                  "home-automation",
+                  "media-control",
+                  "tools"
+                ]
+              },
+              "guidance_sha256": "7f54b747a6ec97607cccf89ede8240308a5b85e00f25bd2ad0ecdc794a9c3d83"
+            },
+            {
+              "component_id": "jev-exact-call-guard",
+              "role": "guardrail",
+              "resource_class": "light",
+              "activation": "policy_trigger",
+              "offering": {
+                "offering_id": "openrouter/typesafe-jev-1.13@decisions-default",
+                "model_id": "typesafe/jev-1.13",
+                "provider": "openrouter",
+                "endpoint": "https://openrouter.ai/api/alpha/decisions",
+                "billing_mode": "api",
+                "region": null,
+                "service_tier": "default",
+                "quantization": null,
+                "reasoning_effort": null,
+                "agent_harness": null,
+                "capabilities": [
+                  "structured-decisions"
+                ]
+              },
+              "guidance_sha256": "27f8e5320586d0974b18f454cb63505e450287bf8313687ef3d97a0e608be9f4"
+            }
+          ]
+        },
+        "system_kind": "compound_model_system",
+        "compound": true,
+        "component_count": 2,
+        "cost_basis": "reconstructed",
+        "workload_identity": {
+          "suite_id": "cactus-needle-v3-home-media",
+          "suite_version": "cactus-needle==3.0.1",
+          "case_manifest_sha256": "c969de37b13fb84645e13d997725a111543fab8e409eefb7775004de15548eb9",
+          "case_set_sha256": "ae35c4c82565c57a539b746c5af9b7e911781e63eef70ea99931fa5bb5c54bff",
+          "case_count": 64,
+          "harness_id": "model-skyline/needle-home-media-panel",
+          "harness_version": "1",
+          "scorer_version": "exact-unordered-tool-calls-after-vendor-validation-filter-v1",
+          "oracle_kind": "deterministic",
+          "repetitions_per_case": 3,
+          "concurrency": 1
+        },
+        "benchmark_source": {
+          "id": "cactus-needle-v3-home-media",
+          "version": "cactus-needle==3.0.1",
+          "url": "https://github.com/cactus-compute/needle",
+          "terms_url": null,
+          "license": "Apache-2.0",
+          "methodology": "The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+          "raw_sha256": "c969de37b13fb84645e13d997725a111543fab8e409eefb7775004de15548eb9",
+          "retrieved_at": "2026-09-18T19:48:10Z"
+        },
+        "case_count": 64,
+        "result_count": 192,
+        "contains_prompt_or_response_text": false,
+        "run_metadata": {
+          "compound_candidate_configuration_sha256": "243bf0500c36e204bc3b3c4bc2681ec549eb507f9e5a8e434427c7a0b6d7fdab",
+          "cost_scope": "OpenRouter guard charges only; local electricity and capital excluded",
+          "guard_calls": 144,
+          "guard_correct_calls": 138,
+          "guard_decisions": {
+            "approve": 123,
+            "reject": 21
+          },
+          "guard_input_tokens": 164322,
+          "guard_mean_brier_score": "0.020337500000",
+          "guard_output_tokens": 4608,
+          "measurement_conditions": {
+            "concurrency": 1,
+            "local_component_cost_accounting": "zero API charge; electricity and capital cost excluded",
+            "machine": "Apple M5 64 GB",
+            "os": "macOS",
+            "request_order": "environment-then-case-then-repetition"
+          },
+          "needle_candidate_configuration_sha256": "167a038831700bc45d8d2654d44dd170cc1e6fbe9638550dbffcd5b6fe24a28e",
+          "provider_observations": {
+            "providers": [
+              "TypeSafe"
+            ],
+            "resolved_models": [
+              "typesafe/jev-1.13-20260917"
+            ]
+          },
+          "runner_sha256": "96b264fb529e130b506919f75b7d7ad75c5f50e0af0ec1930b736a8c18b2e5da",
+          "source_revision": "366b43cd8593fb520695c1bb89b9c3080762961b",
+          "suite_license": "Apache-2.0",
+          "suite_methodology": "The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+          "weights_sha256": "c9d915eca282ed42d1a09b143b592adb4cc6744ffe2d294adf5cfc5548170c38"
+        }
+      },
+      "default_source": {
+        "id": "structured-decision-run:sha256:cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+        "version": "model-skyline/structured-decision-run/v1alpha1",
+        "url": "https://github.com/cactus-compute/needle",
+        "terms_url": null,
+        "license": "Apache-2.0",
+        "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+        "raw_sha256": "cbdac4090d30388e85041b78532e5cd401d4141c416356368c95248aed385b34",
+        "retrieved_at": "2026-09-18T20:01:24Z"
+      }
+    }
+  ]
+}

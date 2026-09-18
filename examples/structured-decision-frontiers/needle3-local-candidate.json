@@ -1,0 +1,25 @@
+{
+  "offering": {
+    "offering_id": "cactus/needle3-3.0.1@m5-64gb-native-macos",
+    "model_id": "cactus-needle/needle3",
+    "provider": "local-m5",
+    "endpoint": "in-process-native-runtime",
+    "billing_mode": "self-hosted",
+    "service_tier": "apple-m5-64gb",
+    "quantization": "vendor-cact",
+    "agent_harness": "cactus-needle-python-3.0.1",
+    "capabilities": ["tools", "home-automation", "media-control"]
+  },
+  "component_id": "needle3-worker",
+  "guidance": "Use the environment's frozen system instruction and tool schemas. Apply the vendor validation filter: discard calls marked ungrounded or negated. Do not apply a confidence threshold.",
+  "measurement_conditions": {
+    "machine": "Apple M5 64 GB",
+    "os": "macOS",
+    "package": "cactus-needle==3.0.1",
+    "automatic_date_fact": false,
+    "concurrency": 1,
+    "confidence_threshold": 0.0,
+    "telemetry_disabled": true
+  },
+  "cost_basis": "unavailable"
+}

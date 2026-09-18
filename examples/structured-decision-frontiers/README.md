@@ -62,6 +62,29 @@ was rejected rather than published as the candidate. See
 [`status-2026-09-18.md`](status-2026-09-18.md) for exact limits and frontier
 membership.
 
+### Voice, media, and home automation: Needle + Jev
+
+[Cactus Needle 3](https://github.com/cactus-compute/needle) is an open, tiny
+specialist that maps short requests to declared tool calls; it is not a chat
+model. On the 64 smart-home and media-player cases shipped with version 3.0.1,
+repeated three times on the 64 GB M5, it creates a clear speed/quality tradeoff:
+
+| Complete system | Exact success | Tool-policy compliance | p95 |
+| --- | ---: | ---: | ---: |
+| Needle 3 alone | 85.9375% | 87.500% | **0.0812 s** |
+| Needle 3 + Jev exact-call guard | **95.3125%** | **96.875%** | 0.4802 s |
+
+Both systems are on the two corresponding frontiers: local Needle is the speed
+choice, while the guarded pair is the quality choice. The guard reviews only a
+nonempty Needle proposal and can approve it unchanged or reject it. It does not
+repair arguments. The guarded system still made 6 unsafe calls in 192
+observations, so this is evidence for the architecture, not approval for direct
+control of real devices.
+
+See
+[`status-2026-09-18-needle-home-automation.md`](status-2026-09-18-needle-home-automation.md)
+for the deployment design, cost, limitations, and next Home Assistant holdout.
+
 ## Other pairs worth measuring
 
 The useful pattern is complementary roles, not merely “two models.” The next
@@ -123,7 +146,7 @@ costs do not sum to total cost.
 
 ## Frontier definitions
 
-[`frontiers.yaml`](frontiers.yaml) contains thirteen ordinary two-axis frontiers:
+[`frontiers.yaml`](frontiers.yaml) contains fifteen ordinary two-axis frontiers:
 
 | Frontier | First axis | Second axis | What it tells us |
 | --- | --- | --- | --- |
@@ -140,6 +163,8 @@ costs do not sum to total cost.
 | compound outcome vs heavy demand | complete case success | heavy calls per case | whether routing actually avoids expensive work without losing outcomes |
 | single-turn tool outcome vs latency | correct BFCL case | p95 wall time | whether a specialist or pair earns the speed/quality tradeoff |
 | single-turn tool outcome vs heavy demand | correct BFCL case | heavy calls per case | whether added heavy-model work buys an outcome improvement |
+| voice command outcome vs latency | exact final tool-call result | p95 wall time | whether a guard's quality gain earns its voice-loop delay |
+| voice command policy vs latency | calls that obey the declared tool contract | p95 wall time | whether safer automation earns its voice-loop delay |
 
 Tool selection, argument correctness, sequence correctness, policy compliance,
 side-effect correctness, schema validity, and unsafe-action rate remain separate
@@ -210,6 +235,11 @@ its end-to-end outcomes are measured.
 - [`generated/routing-r3-composed-catalog.json`](generated/routing-r3-composed-catalog.json)
   contains the five matched direct-decision offerings. The adjacent
   `routing-r3-*-frontier.json` files are the result-of-record views.
+- [`needle-environments-v3.0.1-manifest.json`](needle-environments-v3.0.1-manifest.json),
+  [`needle3-local-candidate.json`](needle3-local-candidate.json), and
+  [`needle3-jev-exact-call-guard.json`](needle3-jev-exact-call-guard.json) pin the
+  voice-style home/media comparison. The `generated/needle-r3-*` artifacts are
+  its normalized catalogs and two frontier snapshots.
 
 The BFCL panel covers single, competing, parallel, parallel+competing,
 intentional no-call, multi-turn, missing-function, and missing-parameter cases.
@@ -322,6 +352,31 @@ uv run python examples/structured-decision-frontiers/run_bfcl_single_turn_panel.
 Run each single-model candidate without the two compound flags. Normalize each
 run, compose the three catalogs, and evaluate the two `single-turn-*`
 frontiers. The committed generated artifacts demonstrate that complete path.
+
+## Run the Needle home/media calibration
+
+Install the pinned Needle package and run the local control:
+
+```console
+uv sync --extra needle-pilot
+NEEDLE_TELEMETRY=0 DO_NOT_TRACK=1 uv run python \
+  examples/structured-decision-frontiers/run_needle_home_media_panel.py \
+  examples/structured-decision-frontiers/needle-environments-v3.0.1-manifest.json \
+  examples/structured-decision-frontiers/needle3-local-candidate.json \
+  --repetitions 3 --output needle-run.json
+```
+
+Add the measured Jev exact-call guard:
+
+```console
+OPENROUTER_API_KEY=... NEEDLE_TELEMETRY=0 DO_NOT_TRACK=1 uv run python \
+  examples/structured-decision-frontiers/run_needle_home_media_panel.py \
+  examples/structured-decision-frontiers/needle-environments-v3.0.1-manifest.json \
+  examples/structured-decision-frontiers/needle3-local-candidate.json \
+  --compound-candidate \
+    examples/structured-decision-frontiers/needle3-jev-exact-call-guard.json \
+  --repetitions 3 --output needle-jev-run.json
+```
 
 ## Current status
 
