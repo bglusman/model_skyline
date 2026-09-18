@@ -52,6 +52,25 @@ workloads:
       distinct_cases: 40
       repetitions_per_case: 3
 
+  cactus-needle-v3-home-media-64:
+    unit: voice-style-tool-case
+    version: structured-decision-sha256:7faa69fb031bd914ac9fbc9a86bbb85e9605ac38a76268d72344c286d5b0c5b5
+    harness: model-skyline/needle-home-media-panel@1
+    cohort: 64-vendor-cases-x-3-repetitions
+    benchmark: Cactus Needle 3 smart-home and media-player calibration
+    description: >-
+      The 32 smart-home and 32 media-player acceptance cases shipped with
+      cactus-needle 3.0.1, each repeated three times. This is a vendor-authored
+      voice-style tool calibration, not an independent benchmark or a
+      state-verifying Home Assistant evaluation.
+    variables: {}
+    assumptions:
+      package: cactus-needle==3.0.1
+      distinct_cases: 64
+      repetitions_per_case: 3
+      scorer: exact-unordered-tool-calls-after-vendor-validation-filter-v1
+      local_machine: Apple M5 64 GB
+
 metrics:
   decision_accuracy:
     kind: signal
@@ -336,6 +355,30 @@ frontiers:
       required_capabilities: [tools]
       allow_unknown_age: false
       minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, compound, component_count]
+
+  voice-command-outcome-vs-latency:
+    workload: cactus-needle-v3-home-media-64
+    axes:
+      - {metric: final_success, goal: maximize}
+      - {metric: p95_latency, goal: minimize, epsilon_relative: 0.05}
+    order_by: final_success
+    eligibility:
+      required_capabilities: [tools]
+      allow_unknown_age: false
+      minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, compound, component_count]
+
+  voice-command-policy-vs-latency:
+    workload: cactus-needle-v3-home-media-64
+    axes:
+      - {metric: tool_policy, goal: maximize}
+      - {metric: p95_latency, goal: minimize, epsilon_relative: 0.05}
+    order_by: tool_policy
+    eligibility:
+      required_capabilities: [tools]
+      allow_unknown_age: false
+      minimum_gate_values: {final_success: 80, schema_valid: 100}
     metadata_fields: [system_kind, compound, component_count]
 
 selections: {}

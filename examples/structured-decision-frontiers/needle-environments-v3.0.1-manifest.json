@@ -1,0 +1,31 @@
+{
+  "schema_version": "model-skyline/needle-environment-manifest/v1alpha1",
+  "suite_id": "cactus-needle-v3-home-media",
+  "suite_version": "cactus-needle==3.0.1",
+  "license": "Apache-2.0",
+  "methodology": "The two acceptance environments shipped in cactus-needle 3.0.1: 32 smart-home and 32 media-player utterances with deterministic expected call lists. ModelSkyline disables the runtime's changing automatic date fact, applies the vendor validation filter, then performs exact unordered call-set scoring. This is a small vendor-authored calibration panel, not an independent benchmark or a state-verifying home-automation evaluation.",
+  "source": {
+    "url": "https://github.com/cactus-compute/needle",
+    "repository_revision": "366b43cd8593fb520695c1bb89b9c3080762961b",
+    "pypi_url": "https://pypi.org/project/cactus-needle/3.0.1/",
+    "wheel_sha256": "d990c623ecc69f7c7692d31678e88a799caced87780d7fed31c55b6961d75c82",
+    "retrieved_at": "2026-09-18T19:48:10Z"
+  },
+  "installed_artifacts": {
+    "weights_bytes": 35335380,
+    "weights_sha256": "c9d915eca282ed42d1a09b143b592adb4cc6744ffe2d294adf5cfc5548170c38",
+    "macos_runtime_bytes": 788224,
+    "macos_runtime_sha256": "7bb45104eab667111e1571c9b1d7d3024bf221bc12ad4e5d56a3b83240f97f35"
+  },
+  "environments": {
+    "smart_home": {
+      "case_count": 32,
+      "module_sha256": "6d4d2d459b9e134802c0c70143ec1a5594f3e4c7d304b84b36579effef144708"
+    },
+    "media_player": {
+      "case_count": 32,
+      "module_sha256": "362e0d89d61775069129092dc62ed2806849e35fb153ba6c05ad95dd94704732"
+    }
+  },
+  "vendor_harness_sha256": "0064de77adbdc2a7ef67e6b8b8a0a0cbb7bf00c76e057d7006dbd3452bfbacae"
+}

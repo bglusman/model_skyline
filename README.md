@@ -62,6 +62,12 @@ Qwen3.8 worker retains the 27B model's 88.89% route accuracy while reducing
 heavy-model calls from 1.00 to 0.78 per case. This is narrow calibration
 evidence, not a general recommendation.
 
+The same example now contains a measured voice/home-automation pilot:
+[Needle 3 alone versus a Needle + Jev exact-call guard](examples/structured-decision-frontiers/status-2026-09-18-needle-home-automation.md).
+It publishes two simple frontiers—exact tool outcome versus latency and tool
+policy compliance versus latency—and explains why the result is promising but
+not yet safe for direct control of real devices.
+
 The first repeated local tool screen has two clear residents: Granite
 4 Micro is the speed-first choice at 95% success and 1.42 seconds p95; a
 co-resident Granite→Qwen no-call verifier raises success to 96.67% at 11.94

@@ -231,11 +231,38 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
     assert direct_compound["routing_policy"]["preserve_choices_without_review"] == ["light"]
     assert direct_compound["measurement_conditions"]["co_resident"] is True
 
+    needle = _object(EXAMPLE / "needle3-local-candidate.json")
+    needle_guard = _object(EXAMPLE / "needle3-jev-exact-call-guard.json")
+    assert OfferingKey.model_validate(needle["offering"]).capabilities == (
+        "home-automation",
+        "media-control",
+        "tools",
+    )
+    assert OfferingKey.model_validate(needle_guard["offering"]).capabilities == (
+        "compound-system",
+        "home-automation",
+        "media-control",
+        "tools",
+    )
+    assert needle_guard["worker_component_id"] == needle["component_id"]
+    assert needle_guard["routing_policy"]["repair_behavior"].startswith("none")
+
+
+def test_needle_manifest_pins_open_runtime_and_exact_environment_sources() -> None:
+    manifest = _object(EXAMPLE / "needle-environments-v3.0.1-manifest.json")
+
+    assert manifest["license"] == "Apache-2.0"
+    assert manifest["suite_version"] == "cactus-needle==3.0.1"
+    assert manifest["source"]["repository_revision"] == ("366b43cd8593fb520695c1bb89b9c3080762961b")
+    assert sum(environment["case_count"] for environment in manifest["environments"].values()) == 64
+    assert manifest["installed_artifacts"]["weights_bytes"] == 35_335_380
+    assert len(manifest["installed_artifacts"]["weights_sha256"]) == 64
+
 
 def test_frontier_recipes_keep_primitive_and_complete_system_claims_separate() -> None:
     config = load_config(EXAMPLE / "frontiers.yaml")
 
-    assert len(config.frontiers) == 13
+    assert len(config.frontiers) == 15
     assert config.frontiers["decision-quality-vs-latency"].eligibility.required_capabilities == (
         "structured-decisions",
     )
@@ -254,6 +281,10 @@ def test_frontier_recipes_keep_primitive_and_complete_system_claims_separate() -
     assert config.frontiers[
         "single-turn-tool-outcome-vs-heavy-demand"
     ].eligibility.required_capabilities == ("tools",)
+    assert config.frontiers[
+        "voice-command-outcome-vs-latency"
+    ].eligibility.required_capabilities == ("tools",)
+    assert config.frontiers["voice-command-policy-vs-latency"].axes[0].metric == "tool_policy"
 
 
 def test_bfcl_single_turn_catalog_and_frontiers_publish_the_matched_tradeoff() -> None:
@@ -323,6 +354,26 @@ def test_semif_and_jev_routing_catalog_publishes_distinct_frontiers() -> None:
         snapshot = load_frontier_snapshot(generated / filename)
         assert {member.offering.offering_id for member in snapshot.members} == expected
         assert len(snapshot.evaluated) == evaluated_count
+
+
+def test_needle_and_jev_publish_a_real_speed_quality_tradeoff() -> None:
+    generated = EXAMPLE / "generated"
+    catalog = load_catalog(generated / "needle-r3-composed-catalog.json")
+    assert catalog.workload.id == "cactus-needle-v3-home-media-64"
+    assert catalog.workload.unit == "voice-style-tool-case"
+    assert len(catalog.offerings) == 2
+
+    expected = {
+        "cactus/needle3-3.0.1@m5-64gb-native-macos",
+        "compound/needle3-3.0.1+jev-1.13-exact-call-guard@m5-openrouter-v1",
+    }
+    for filename in (
+        "needle-r3-outcome-latency-frontier.json",
+        "needle-r3-policy-latency-frontier.json",
+    ):
+        snapshot = load_frontier_snapshot(generated / filename)
+        assert {member.offering.offering_id for member in snapshot.members} == expected
+        assert len(snapshot.evaluated) == 2
 
 
 def test_direct_option_logits_backend_reads_declared_label_probabilities(monkeypatch) -> None:

@@ -1,0 +1,46 @@
+{
+  "offering": {
+    "offering_id": "compound/needle3-3.0.1+jev-1.13-exact-call-guard@m5-openrouter-v1",
+    "model_id": "compound/cactus-needle3+typesafe-jev-1.13",
+    "provider": "local-m5+openrouter",
+    "endpoint": "in-process-native-runtime+https://openrouter.ai/api/alpha/decisions",
+    "billing_mode": "hybrid",
+    "service_tier": "apple-m5-64gb+openrouter-default",
+    "quantization": "needle-vendor-cact+hosted",
+    "agent_harness": "needle-proposal-jev-exact-call-guard-v1",
+    "capabilities": ["compound-system", "tools", "home-automation", "media-control"]
+  },
+  "worker_component_id": "needle3-worker",
+  "guard_component_id": "jev-exact-call-guard",
+  "guard_backend": {
+    "model": "typesafe/jev-1.13",
+    "endpoint": "https://openrouter.ai/api/alpha/decisions",
+    "api_key_env": "OPENROUTER_API_KEY",
+    "timeout_seconds": 30
+  },
+  "guard_offering": {
+    "offering_id": "openrouter/typesafe-jev-1.13@decisions-default",
+    "model_id": "typesafe/jev-1.13",
+    "provider": "openrouter",
+    "endpoint": "https://openrouter.ai/api/alpha/decisions",
+    "billing_mode": "api",
+    "service_tier": "default",
+    "capabilities": ["structured-decisions"]
+  },
+  "routing_policy": {
+    "policy_id": "review-every-nonempty-needle-proposal-v1",
+    "invoke_guard_when": "needle proposes at least one call",
+    "approve_effect": "execute the Needle call list unchanged",
+    "reject_effect": "execute no call",
+    "repair_behavior": "none; a separate tool-capable worker is required for repair"
+  },
+  "guard_guidance": "Approve only when every proposed call is explicitly requested, supported, complete, valid, grounded, not negated, and the proposal covers all requested supported actions with no extra action. Otherwise reject. Review the proposal; do not invent a replacement call.",
+  "measurement_conditions": {
+    "machine": "Apple M5 64 GB",
+    "os": "macOS",
+    "request_order": "environment-then-case-then-repetition",
+    "concurrency": 1,
+    "local_component_cost_accounting": "zero API charge; electricity and capital cost excluded"
+  },
+  "cost_basis": "reconstructed"
+}
