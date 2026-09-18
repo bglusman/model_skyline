@@ -1,0 +1,40 @@
+{
+  "offering": {
+    "offering_id": "compound/qwen3.5-4b-semif-light-gate+qwen3.8-27b-semif-worker@m5-64gb-coresident-v1",
+    "model_id": "compound/qwen3.5-4b+qwen3.8-27b",
+    "provider": "local-m5",
+    "endpoint": "http://127.0.0.1:8090+8191/v1",
+    "billing_mode": "self-hosted",
+    "service_tier": "apple-m5-64gb-coresident",
+    "quantization": "qwen35-gguf-q4-k-m+qwen38-gguf-ud-q4-k-m",
+    "reasoning_effort": "disabled",
+    "agent_harness": "semif-direct-options-v1-light-gate-worker-replacement",
+    "capabilities": [
+      "compound-system",
+      "structured-decisions"
+    ]
+  },
+  "router_component_id": "qwen35-direct-router",
+  "worker_component_id": "qwen38-direct-readout",
+  "routing_policy": {
+    "policy_id": "light-only-bypass-v1",
+    "invoke_worker_on_choices": [
+      "heavy",
+      "abstain"
+    ],
+    "invoke_worker_below_max_probability": null,
+    "preserve_choices_without_review": [
+      "light"
+    ],
+    "resolution": "worker_replaces_router",
+    "maximum_worker_calls_per_case": 1
+  },
+  "measurement_conditions": {
+    "co_resident": true,
+    "router_endpoint": "http://127.0.0.1:8191/v1",
+    "worker_endpoint": "http://127.0.0.1:8090/v1",
+    "request_order": "case-major",
+    "concurrency": 1
+  },
+  "cost_basis": "unavailable"
+}

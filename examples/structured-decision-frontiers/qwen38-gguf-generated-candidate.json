@@ -1,0 +1,42 @@
+{
+  "backend": {
+    "kind": "openai-compatible",
+    "model": "qwen3.8-27b-gguf-q4km",
+    "base_url": "http://127.0.0.1:8090/v1",
+    "api_key_env": null,
+    "structured_outputs": false,
+    "max_tokens": 512,
+    "temperature": 0,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "offering": {
+    "offering_id": "local/qwen3.8-27b-ud-q4km@m5-64gb-llamacpp-generated-probabilities",
+    "model_id": "qwen/qwen3.8-27b",
+    "provider": "local-m5",
+    "endpoint": "http://127.0.0.1:8090/v1",
+    "billing_mode": "self-hosted",
+    "service_tier": "apple-m5-64gb-warm",
+    "quantization": "gguf-ud-q4-k-m",
+    "reasoning_effort": "disabled",
+    "agent_harness": "system-one-adapter-generated-probabilities-warm-max512",
+    "capabilities": [
+      "structured-decisions"
+    ]
+  },
+  "component_id": "qwen38-generated",
+  "resource_class": "heavy",
+  "guidance": "Answer the suite's named Choice exactly once. Do not invent a fourth route.",
+  "routing_policy": "Use the returned route directly; this primitive screen has no fallback.",
+  "measurement_conditions": {
+    "model_residency": "warm",
+    "prefix_cache": "enabled",
+    "request_order": "case-major",
+    "concurrency": 1,
+    "model_artifact_sha256": "322e194ff79741c7baa497c240f677f54b201b0efab44ca8e50f122b39123482",
+    "model_source_revision": "4ca720788d1e01f1bff70c033e0d0028fd02e502"
+  },
+  "cost_basis": "unavailable",
+  "fixed_cost_usd_per_model_call": null
+}

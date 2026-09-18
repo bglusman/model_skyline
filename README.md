@@ -54,10 +54,15 @@ without confusing a power ceiling with measured draw.
 
 The [structured-decision and compound-system
 experiment](examples/structured-decision-frontiers/README.md) adds separate
-frontiers for typed routing decisions and complete tool-using systems. It can
-compare Jev with general LLMs on the same decision contract after TypeSafe
-waitlist access, then compare single models and multi-model policies end to
-end. The first repeated local tool screen now has two clear residents: Granite
+frontiers for typed routing decisions and complete tool-using systems. The
+matched routing screen now compares real Jev 1.13 through OpenRouter, generated
+LLM probabilities, and [SemIf](https://github.com/TheoLeeCJ/SemIf)-style direct
+option logits from local open models. A co-resident Qwen3.5 4B light gate plus
+Qwen3.8 worker retains the 27B model's 88.89% route accuracy while reducing
+heavy-model calls from 1.00 to 0.78 per case. This is narrow calibration
+evidence, not a general recommendation.
+
+The first repeated local tool screen has two clear residents: Granite
 4 Micro is the speed-first choice at 95% success and 1.42 seconds p95; a
 co-resident Granite→Qwen no-call verifier raises success to 96.67% at 11.94
 seconds p95 and 0.45 Qwen calls per case. Qwen alone is dominated on this narrow

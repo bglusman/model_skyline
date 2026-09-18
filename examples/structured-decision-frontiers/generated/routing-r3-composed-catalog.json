@@ -1,0 +1,1699 @@
+{
+  "schema_version": "model-skyline/v1alpha1",
+  "workload": {
+    "id": "structured-routing-screen-v1",
+    "version": "structured-decision-sha256:00e9c82ddeb2053e2ae549b93139b2016376202842f2af3a403150d9437ff3a6",
+    "unit": "decision"
+  },
+  "offerings": [
+    {
+      "offering": {
+        "offering_id": "compound/qwen3.5-4b-semif-light-gate+qwen3.8-27b-semif-worker@m5-64gb-coresident-v1",
+        "model_id": "compound/qwen3.5-4b+qwen3.8-27b",
+        "provider": "local-m5",
+        "endpoint": "http://127.0.0.1:8090+8191/v1",
+        "billing_mode": "self-hosted",
+        "region": null,
+        "service_tier": "apple-m5-64gb-coresident",
+        "quantization": "qwen35-gguf-q4-k-m+qwen38-gguf-ud-q4-k-m",
+        "reasoning_effort": "disabled",
+        "agent_harness": "semif-direct-options-v1-light-gate-worker-replacement",
+        "capabilities": [
+          "compound-system",
+          "structured-decisions"
+        ]
+      },
+      "signals": {
+        "structured_decision_accuracy_percent": {
+          "value": "88.88888888888888888888888888888889",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_final_success_percent": {
+          "value": "88.88888888888888888888888888888889",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_schema_valid_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_autonomous_coverage_percent": {
+          "value": "66.66666666666666666666666666666667",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_autonomous_accuracy_percent": {
+          "value": "83.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 36,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_unsafe_action_percent": {
+          "value": "0",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_p95_latency_seconds": {
+          "value": "0.67542542455",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_model_calls_per_case": {
+          "value": "1.777777777777777777777777777777778",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_heavy_model_calls_per_case": {
+          "value": "0.7777777777777777777777777777777778",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_brier_score": {
+          "value": "0.07571817174144444444444444444444444",
+          "unit": "score",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_router_decision_accuracy_percent": {
+          "value": "55.55555555555555555555555555555556",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_router_autonomous_coverage_percent": {
+          "value": "27.77777777777777777777777777777778",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_router_mean_max_probability": {
+          "value": "0.7818202621516111111111111111111111",
+          "unit": "probability",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_router_mean_brier_score": {
+          "value": "0.1962460388816111111111111111111111",
+          "unit": "score",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_router_error_rescue_percent": {
+          "value": "75",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 24,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_router_override_harm_percent": {
+          "value": "0",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 30,
+          "observed_at": "2026-09-18T15:41:25.224843Z",
+          "source": {
+            "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        }
+      },
+      "metadata": {
+        "adapter": {
+          "id": "model-skyline/structured-decision-run",
+          "version": "2"
+        },
+        "system": {
+          "kind": "compound_model_system",
+          "routing_policy_sha256": "0378fcbc61512acbba4f01eedf5341189db4615cbe4e0bdb8413f7110a87c9a2",
+          "components": [
+            {
+              "component_id": "qwen35-direct-router",
+              "role": "router",
+              "resource_class": "light",
+              "activation": "always",
+              "offering": {
+                "offering_id": "local/qwen3.5-4b-q4km@m5-64gb-llamacpp-semif-direct-coresident-v1",
+                "model_id": "qwen/qwen3.5-4b",
+                "provider": "local-m5",
+                "endpoint": "http://127.0.0.1:8191/v1",
+                "billing_mode": "self-hosted",
+                "region": null,
+                "service_tier": "apple-m5-64gb-warm-coresident",
+                "quantization": "gguf-q4-k-m",
+                "reasoning_effort": "disabled",
+                "agent_harness": "semif-direct-options-v1-via-llamacpp",
+                "capabilities": [
+                  "structured-decisions"
+                ]
+              },
+              "guidance_sha256": "ca9b8cf7a215cd50390410d87dc30e56563b33c0ada48ae1474bd20d05d4cd10"
+            },
+            {
+              "component_id": "qwen38-direct-readout",
+              "role": "worker",
+              "resource_class": "heavy",
+              "activation": "confidence_fallback",
+              "offering": {
+                "offering_id": "local/qwen3.8-27b-ud-q4km@m5-64gb-llamacpp-semif-direct-v1",
+                "model_id": "qwen/qwen3.8-27b",
+                "provider": "local-m5",
+                "endpoint": "http://127.0.0.1:8090/v1",
+                "billing_mode": "self-hosted",
+                "region": null,
+                "service_tier": "apple-m5-64gb-warm",
+                "quantization": "gguf-ud-q4-k-m",
+                "reasoning_effort": "disabled",
+                "agent_harness": "semif-direct-options-v1-via-llamacpp",
+                "capabilities": [
+                  "structured-decisions"
+                ]
+              },
+              "guidance_sha256": "ca9b8cf7a215cd50390410d87dc30e56563b33c0ada48ae1474bd20d05d4cd10"
+            }
+          ]
+        },
+        "system_kind": "compound_model_system",
+        "compound": true,
+        "component_count": 2,
+        "cost_basis": "unavailable",
+        "workload_identity": {
+          "suite_id": "model-skyline/structured-routing-screen",
+          "suite_version": "1",
+          "case_manifest_sha256": "a32151761c15bed516f72dbf7b3383b12c444950bc310ed99ca395c13b65a25e",
+          "case_set_sha256": "9056ff862caef984b5a6a2a670868a77d0ba8fe8b6c603c91c561cde44a2522b",
+          "case_count": 18,
+          "harness_id": "model-skyline/system-one-screen",
+          "harness_version": "1",
+          "scorer_version": "normalized-multiclass-brier-v1",
+          "oracle_kind": "deterministic",
+          "repetitions_per_case": 3,
+          "concurrency": 1
+        },
+        "benchmark_source": {
+          "id": "model-skyline/structured-routing-screen",
+          "version": "1",
+          "url": "https://github.com/bglusman/model_skyline",
+          "terms_url": null,
+          "license": "CC0-1.0",
+          "methodology": "Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+          "raw_sha256": "a32151761c15bed516f72dbf7b3383b12c444950bc310ed99ca395c13b65a25e",
+          "retrieved_at": "2026-09-18T15:41:25.224843Z"
+        },
+        "case_count": 18,
+        "result_count": 54,
+        "contains_prompt_or_response_text": false,
+        "run_metadata": {
+          "suite_license": "CC0-1.0",
+          "suite_methodology": "Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+          "component_backend_kinds": {
+            "qwen35-direct-router": "direct-option-logits",
+            "qwen38-direct-readout": "direct-option-logits"
+          },
+          "candidate_configuration_sha256": "cda5082fcf16f91e309b63d22a579977f305dfe86686d3bd26aeefd36ce7009b",
+          "router_candidate_configuration_sha256": "5005f20796feb5f1c9fe5e0c6f08d03aa3927632b5d59a2801d5ce49a0e82625",
+          "worker_candidate_configuration_sha256": "0e6842fb102927ed32f268038de222f1de6559a929889bd21a595ce3c6359d45",
+          "measurement_conditions": {
+            "co_resident": true,
+            "router_endpoint": "http://127.0.0.1:8191/v1",
+            "worker_endpoint": "http://127.0.0.1:8090/v1",
+            "request_order": "case-major",
+            "concurrency": 1
+          },
+          "input_tokens_total": 19326,
+          "output_tokens_total": 96,
+          "component_input_tokens": {
+            "qwen35-direct-router": 10881,
+            "qwen38-direct-readout": 8445
+          },
+          "component_output_tokens": {
+            "qwen35-direct-router": 54,
+            "qwen38-direct-readout": 42
+          }
+        }
+      },
+      "default_source": {
+        "id": "structured-decision-run:sha256:c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+        "version": "model-skyline/structured-decision-run/v1alpha1",
+        "url": "https://github.com/bglusman/model_skyline",
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+        "raw_sha256": "c1d761a4a92799e91d210f92ca5febf6e7df18cc14158f9028584aff3a45e76d",
+        "retrieved_at": "2026-09-18T15:27:51Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "local/qwen3.5-4b-q4km@m5-64gb-llamacpp-semif-direct-coresident-v1",
+        "model_id": "qwen/qwen3.5-4b",
+        "provider": "local-m5",
+        "endpoint": "http://127.0.0.1:8191/v1",
+        "billing_mode": "self-hosted",
+        "region": null,
+        "service_tier": "apple-m5-64gb-warm-coresident",
+        "quantization": "gguf-q4-k-m",
+        "reasoning_effort": "disabled",
+        "agent_harness": "semif-direct-options-v1-via-llamacpp",
+        "capabilities": [
+          "structured-decisions"
+        ]
+      },
+      "signals": {
+        "structured_decision_accuracy_percent": {
+          "value": "55.55555555555555555555555555555556",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:27:14.387657Z",
+          "source": {
+            "id": "structured-decision-run:sha256:9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_final_success_percent": {
+          "value": "55.55555555555555555555555555555556",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:27:14.387657Z",
+          "source": {
+            "id": "structured-decision-run:sha256:9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_schema_valid_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:27:14.387657Z",
+          "source": {
+            "id": "structured-decision-run:sha256:9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_autonomous_coverage_percent": {
+          "value": "27.77777777777777777777777777777778",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:27:14.387657Z",
+          "source": {
+            "id": "structured-decision-run:sha256:9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_autonomous_accuracy_percent": {
+          "value": "80",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 15,
+          "observed_at": "2026-09-18T15:27:14.387657Z",
+          "source": {
+            "id": "structured-decision-run:sha256:9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_unsafe_action_percent": {
+          "value": "0",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:27:14.387657Z",
+          "source": {
+            "id": "structured-decision-run:sha256:9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_p95_latency_seconds": {
+          "value": "0.12740493345",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:27:14.387657Z",
+          "source": {
+            "id": "structured-decision-run:sha256:9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_model_calls_per_case": {
+          "value": "1",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:27:14.387657Z",
+          "source": {
+            "id": "structured-decision-run:sha256:9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_heavy_model_calls_per_case": {
+          "value": "0",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:27:14.387657Z",
+          "source": {
+            "id": "structured-decision-run:sha256:9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_brier_score": {
+          "value": "0.1962460388816111111111111111111111",
+          "unit": "score",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:27:14.387657Z",
+          "source": {
+            "id": "structured-decision-run:sha256:9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        }
+      },
+      "metadata": {
+        "adapter": {
+          "id": "model-skyline/structured-decision-run",
+          "version": "2"
+        },
+        "system": {
+          "kind": "decision_component",
+          "routing_policy_sha256": "e8660ea0abddb6e35fd67d8723b9d542b6c030fd23c1d488b03fb1d6e5623221",
+          "components": [
+            {
+              "component_id": "qwen35-direct-router",
+              "role": "decision",
+              "resource_class": "light",
+              "activation": "always",
+              "offering": {
+                "offering_id": "local/qwen3.5-4b-q4km@m5-64gb-llamacpp-semif-direct-coresident-v1",
+                "model_id": "qwen/qwen3.5-4b",
+                "provider": "local-m5",
+                "endpoint": "http://127.0.0.1:8191/v1",
+                "billing_mode": "self-hosted",
+                "region": null,
+                "service_tier": "apple-m5-64gb-warm-coresident",
+                "quantization": "gguf-q4-k-m",
+                "reasoning_effort": "disabled",
+                "agent_harness": "semif-direct-options-v1-via-llamacpp",
+                "capabilities": [
+                  "structured-decisions"
+                ]
+              },
+              "guidance_sha256": "ca9b8cf7a215cd50390410d87dc30e56563b33c0ada48ae1474bd20d05d4cd10"
+            }
+          ]
+        },
+        "system_kind": "decision_component",
+        "compound": false,
+        "component_count": 1,
+        "cost_basis": "unavailable",
+        "workload_identity": {
+          "suite_id": "model-skyline/structured-routing-screen",
+          "suite_version": "1",
+          "case_manifest_sha256": "a32151761c15bed516f72dbf7b3383b12c444950bc310ed99ca395c13b65a25e",
+          "case_set_sha256": "9056ff862caef984b5a6a2a670868a77d0ba8fe8b6c603c91c561cde44a2522b",
+          "case_count": 18,
+          "harness_id": "model-skyline/system-one-screen",
+          "harness_version": "1",
+          "scorer_version": "normalized-multiclass-brier-v1",
+          "oracle_kind": "deterministic",
+          "repetitions_per_case": 3,
+          "concurrency": 1
+        },
+        "benchmark_source": {
+          "id": "model-skyline/structured-routing-screen",
+          "version": "1",
+          "url": "https://github.com/bglusman/model_skyline",
+          "terms_url": null,
+          "license": "CC0-1.0",
+          "methodology": "Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+          "raw_sha256": "a32151761c15bed516f72dbf7b3383b12c444950bc310ed99ca395c13b65a25e",
+          "retrieved_at": "2026-09-18T15:27:14.387657Z"
+        },
+        "case_count": 18,
+        "result_count": 54,
+        "contains_prompt_or_response_text": false,
+        "run_metadata": {
+          "suite_license": "CC0-1.0",
+          "suite_methodology": "Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+          "backend_kind": "direct-option-logits",
+          "candidate_configuration_sha256": "5005f20796feb5f1c9fe5e0c6f08d03aa3927632b5d59a2801d5ce49a0e82625",
+          "measurement_conditions": {
+            "model_residency": "warm-co-resident",
+            "prefix_cache": "enabled",
+            "request_order": "case-major",
+            "concurrency": 1,
+            "model_artifact_sha256": "13c16f426047e2de38cd075bdade4a7bcbc8c774384876f677740cda65f8a983",
+            "model_source_revision": "4168f45a16a1290d65a4ec0fa312ae917a4c15d6",
+            "probability_semantics": "conditional option score; uncalibrated as decision confidence"
+          },
+          "input_tokens_total": 10881,
+          "output_tokens_total": 54
+        }
+      },
+      "default_source": {
+        "id": "structured-decision-run:sha256:9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+        "version": "model-skyline/structured-decision-run/v1alpha1",
+        "url": "https://github.com/bglusman/model_skyline",
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+        "raw_sha256": "9b38e8ebb169903f8ed7b18c5ea3ca20f27d85132473c97a0b32bec263178928",
+        "retrieved_at": "2026-09-18T15:27:51Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "local/qwen3.8-27b-ud-q4km@m5-64gb-llamacpp-generated-probabilities",
+        "model_id": "qwen/qwen3.8-27b",
+        "provider": "local-m5",
+        "endpoint": "http://127.0.0.1:8090/v1",
+        "billing_mode": "self-hosted",
+        "region": null,
+        "service_tier": "apple-m5-64gb-warm",
+        "quantization": "gguf-ud-q4-k-m",
+        "reasoning_effort": "disabled",
+        "agent_harness": "system-one-adapter-generated-probabilities-warm-max512",
+        "capabilities": [
+          "structured-decisions"
+        ]
+      },
+      "signals": {
+        "structured_decision_accuracy_percent": {
+          "value": "83.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:51.050204Z",
+          "source": {
+            "id": "structured-decision-run:sha256:bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_final_success_percent": {
+          "value": "83.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:51.050204Z",
+          "source": {
+            "id": "structured-decision-run:sha256:bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_schema_valid_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:51.050204Z",
+          "source": {
+            "id": "structured-decision-run:sha256:bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_autonomous_coverage_percent": {
+          "value": "66.66666666666666666666666666666667",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:51.050204Z",
+          "source": {
+            "id": "structured-decision-run:sha256:bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_autonomous_accuracy_percent": {
+          "value": "83.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 36,
+          "observed_at": "2026-09-18T15:37:51.050204Z",
+          "source": {
+            "id": "structured-decision-run:sha256:bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_unsafe_action_percent": {
+          "value": "5.555555555555555555555555555555556",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:51.050204Z",
+          "source": {
+            "id": "structured-decision-run:sha256:bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_p95_latency_seconds": {
+          "value": "2.27128333935",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:51.050204Z",
+          "source": {
+            "id": "structured-decision-run:sha256:bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_model_calls_per_case": {
+          "value": "1",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:51.050204Z",
+          "source": {
+            "id": "structured-decision-run:sha256:bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_heavy_model_calls_per_case": {
+          "value": "1",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:51.050204Z",
+          "source": {
+            "id": "structured-decision-run:sha256:bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_brier_score": {
+          "value": "0.09944444444455555555555555555555556",
+          "unit": "score",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:51.050204Z",
+          "source": {
+            "id": "structured-decision-run:sha256:bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        }
+      },
+      "metadata": {
+        "adapter": {
+          "id": "model-skyline/structured-decision-run",
+          "version": "2"
+        },
+        "system": {
+          "kind": "decision_component",
+          "routing_policy_sha256": "e8660ea0abddb6e35fd67d8723b9d542b6c030fd23c1d488b03fb1d6e5623221",
+          "components": [
+            {
+              "component_id": "qwen38-generated",
+              "role": "decision",
+              "resource_class": "heavy",
+              "activation": "always",
+              "offering": {
+                "offering_id": "local/qwen3.8-27b-ud-q4km@m5-64gb-llamacpp-generated-probabilities",
+                "model_id": "qwen/qwen3.8-27b",
+                "provider": "local-m5",
+                "endpoint": "http://127.0.0.1:8090/v1",
+                "billing_mode": "self-hosted",
+                "region": null,
+                "service_tier": "apple-m5-64gb-warm",
+                "quantization": "gguf-ud-q4-k-m",
+                "reasoning_effort": "disabled",
+                "agent_harness": "system-one-adapter-generated-probabilities-warm-max512",
+                "capabilities": [
+                  "structured-decisions"
+                ]
+              },
+              "guidance_sha256": "ca9b8cf7a215cd50390410d87dc30e56563b33c0ada48ae1474bd20d05d4cd10"
+            }
+          ]
+        },
+        "system_kind": "decision_component",
+        "compound": false,
+        "component_count": 1,
+        "cost_basis": "unavailable",
+        "workload_identity": {
+          "suite_id": "model-skyline/structured-routing-screen",
+          "suite_version": "1",
+          "case_manifest_sha256": "a32151761c15bed516f72dbf7b3383b12c444950bc310ed99ca395c13b65a25e",
+          "case_set_sha256": "9056ff862caef984b5a6a2a670868a77d0ba8fe8b6c603c91c561cde44a2522b",
+          "case_count": 18,
+          "harness_id": "model-skyline/system-one-screen",
+          "harness_version": "1",
+          "scorer_version": "normalized-multiclass-brier-v1",
+          "oracle_kind": "deterministic",
+          "repetitions_per_case": 3,
+          "concurrency": 1
+        },
+        "benchmark_source": {
+          "id": "model-skyline/structured-routing-screen",
+          "version": "1",
+          "url": "https://github.com/bglusman/model_skyline",
+          "terms_url": null,
+          "license": "CC0-1.0",
+          "methodology": "Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+          "raw_sha256": "a32151761c15bed516f72dbf7b3383b12c444950bc310ed99ca395c13b65a25e",
+          "retrieved_at": "2026-09-18T15:37:51.050204Z"
+        },
+        "case_count": 18,
+        "result_count": 54,
+        "contains_prompt_or_response_text": false,
+        "run_metadata": {
+          "suite_license": "CC0-1.0",
+          "suite_methodology": "Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+          "backend_kind": "openai-compatible",
+          "candidate_configuration_sha256": "07566034b6f1d931c4dead0b0416a3c430d1a15b01328bbe033eba21843e1122",
+          "measurement_conditions": {
+            "model_residency": "warm",
+            "prefix_cache": "enabled",
+            "request_order": "case-major",
+            "concurrency": 1,
+            "model_artifact_sha256": "322e194ff79741c7baa497c240f677f54b201b0efab44ca8e50f122b39123482",
+            "model_source_revision": "4ca720788d1e01f1bff70c033e0d0028fd02e502"
+          },
+          "input_tokens_total": 25245,
+          "output_tokens_total": 2805
+        }
+      },
+      "default_source": {
+        "id": "structured-decision-run:sha256:bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+        "version": "model-skyline/structured-decision-run/v1alpha1",
+        "url": "https://github.com/bglusman/model_skyline",
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+        "raw_sha256": "bcaff994105a916857488330c293c550724cfaf6764509340b832a02f810ec46",
+        "retrieved_at": "2026-09-18T15:27:51Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "local/qwen3.8-27b-ud-q4km@m5-64gb-llamacpp-semif-direct-v1",
+        "model_id": "qwen/qwen3.8-27b",
+        "provider": "local-m5",
+        "endpoint": "http://127.0.0.1:8090/v1",
+        "billing_mode": "self-hosted",
+        "region": null,
+        "service_tier": "apple-m5-64gb-warm",
+        "quantization": "gguf-ud-q4-k-m",
+        "reasoning_effort": "disabled",
+        "agent_harness": "semif-direct-options-v1-via-llamacpp",
+        "capabilities": [
+          "structured-decisions"
+        ]
+      },
+      "signals": {
+        "structured_decision_accuracy_percent": {
+          "value": "88.88888888888888888888888888888889",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:40.996649Z",
+          "source": {
+            "id": "structured-decision-run:sha256:f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_final_success_percent": {
+          "value": "88.88888888888888888888888888888889",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:40.996649Z",
+          "source": {
+            "id": "structured-decision-run:sha256:f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_schema_valid_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:40.996649Z",
+          "source": {
+            "id": "structured-decision-run:sha256:f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_autonomous_coverage_percent": {
+          "value": "66.66666666666666666666666666666667",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:40.996649Z",
+          "source": {
+            "id": "structured-decision-run:sha256:f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_autonomous_accuracy_percent": {
+          "value": "83.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 36,
+          "observed_at": "2026-09-18T15:37:40.996649Z",
+          "source": {
+            "id": "structured-decision-run:sha256:f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_unsafe_action_percent": {
+          "value": "0",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:40.996649Z",
+          "source": {
+            "id": "structured-decision-run:sha256:f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_p95_latency_seconds": {
+          "value": "0.54147480275",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:40.996649Z",
+          "source": {
+            "id": "structured-decision-run:sha256:f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_model_calls_per_case": {
+          "value": "1",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:40.996649Z",
+          "source": {
+            "id": "structured-decision-run:sha256:f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_heavy_model_calls_per_case": {
+          "value": "1",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:40.996649Z",
+          "source": {
+            "id": "structured-decision-run:sha256:f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_brier_score": {
+          "value": "0.08300308545788888888888888888888889",
+          "unit": "score",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:37:40.996649Z",
+          "source": {
+            "id": "structured-decision-run:sha256:f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        }
+      },
+      "metadata": {
+        "adapter": {
+          "id": "model-skyline/structured-decision-run",
+          "version": "2"
+        },
+        "system": {
+          "kind": "decision_component",
+          "routing_policy_sha256": "e8660ea0abddb6e35fd67d8723b9d542b6c030fd23c1d488b03fb1d6e5623221",
+          "components": [
+            {
+              "component_id": "qwen38-direct-readout",
+              "role": "decision",
+              "resource_class": "heavy",
+              "activation": "always",
+              "offering": {
+                "offering_id": "local/qwen3.8-27b-ud-q4km@m5-64gb-llamacpp-semif-direct-v1",
+                "model_id": "qwen/qwen3.8-27b",
+                "provider": "local-m5",
+                "endpoint": "http://127.0.0.1:8090/v1",
+                "billing_mode": "self-hosted",
+                "region": null,
+                "service_tier": "apple-m5-64gb-warm",
+                "quantization": "gguf-ud-q4-k-m",
+                "reasoning_effort": "disabled",
+                "agent_harness": "semif-direct-options-v1-via-llamacpp",
+                "capabilities": [
+                  "structured-decisions"
+                ]
+              },
+              "guidance_sha256": "ca9b8cf7a215cd50390410d87dc30e56563b33c0ada48ae1474bd20d05d4cd10"
+            }
+          ]
+        },
+        "system_kind": "decision_component",
+        "compound": false,
+        "component_count": 1,
+        "cost_basis": "unavailable",
+        "workload_identity": {
+          "suite_id": "model-skyline/structured-routing-screen",
+          "suite_version": "1",
+          "case_manifest_sha256": "a32151761c15bed516f72dbf7b3383b12c444950bc310ed99ca395c13b65a25e",
+          "case_set_sha256": "9056ff862caef984b5a6a2a670868a77d0ba8fe8b6c603c91c561cde44a2522b",
+          "case_count": 18,
+          "harness_id": "model-skyline/system-one-screen",
+          "harness_version": "1",
+          "scorer_version": "normalized-multiclass-brier-v1",
+          "oracle_kind": "deterministic",
+          "repetitions_per_case": 3,
+          "concurrency": 1
+        },
+        "benchmark_source": {
+          "id": "model-skyline/structured-routing-screen",
+          "version": "1",
+          "url": "https://github.com/bglusman/model_skyline",
+          "terms_url": null,
+          "license": "CC0-1.0",
+          "methodology": "Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+          "raw_sha256": "a32151761c15bed516f72dbf7b3383b12c444950bc310ed99ca395c13b65a25e",
+          "retrieved_at": "2026-09-18T15:37:40.996649Z"
+        },
+        "case_count": 18,
+        "result_count": 54,
+        "contains_prompt_or_response_text": false,
+        "run_metadata": {
+          "suite_license": "CC0-1.0",
+          "suite_methodology": "Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+          "backend_kind": "direct-option-logits",
+          "candidate_configuration_sha256": "0e6842fb102927ed32f268038de222f1de6559a929889bd21a595ce3c6359d45",
+          "measurement_conditions": {
+            "model_residency": "warm",
+            "prefix_cache": "enabled",
+            "request_order": "case-major",
+            "concurrency": 1,
+            "model_artifact_sha256": "322e194ff79741c7baa497c240f677f54b201b0efab44ca8e50f122b39123482",
+            "model_source_revision": "4ca720788d1e01f1bff70c033e0d0028fd02e502",
+            "probability_semantics": "conditional option score; uncalibrated as decision confidence"
+          },
+          "input_tokens_total": 10881,
+          "output_tokens_total": 54
+        }
+      },
+      "default_source": {
+        "id": "structured-decision-run:sha256:f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+        "version": "model-skyline/structured-decision-run/v1alpha1",
+        "url": "https://github.com/bglusman/model_skyline",
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+        "raw_sha256": "f608c23247f5581c350eca4ac67f9bde0284377a123012246b142d97d51c0ff0",
+        "retrieved_at": "2026-09-18T15:27:51Z"
+      }
+    },
+    {
+      "offering": {
+        "offering_id": "openrouter/typesafe-jev-1.13@decisions-default",
+        "model_id": "typesafe/jev-1.13",
+        "provider": "openrouter",
+        "endpoint": "https://openrouter.ai/api/alpha/decisions",
+        "billing_mode": "api",
+        "region": null,
+        "service_tier": "default",
+        "quantization": null,
+        "reasoning_effort": null,
+        "agent_harness": null,
+        "capabilities": [
+          "structured-decisions"
+        ]
+      },
+      "signals": {
+        "structured_decision_accuracy_percent": {
+          "value": "83.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_final_success_percent": {
+          "value": "83.33333333333333333333333333333333",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_schema_valid_percent": {
+          "value": "100",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_autonomous_coverage_percent": {
+          "value": "61.11111111111111111111111111111111",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_autonomous_accuracy_percent": {
+          "value": "81.81818181818181818181818181818182",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 33,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_unsafe_action_percent": {
+          "value": "0",
+          "unit": "percent",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_p95_latency_seconds": {
+          "value": "0.6228571648",
+          "unit": "s",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_model_calls_per_case": {
+          "value": "1",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_heavy_model_calls_per_case": {
+          "value": "0",
+          "unit": "call/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_cost_usd_per_case": {
+          "value": "0.00001916833333333333333333333333333333",
+          "unit": "USD/case",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_cost_usd_per_success": {
+          "value": "0.000023002",
+          "unit": "USD/success",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        },
+        "structured_mean_brier_score": {
+          "value": "0.06590617283974074074074074074074074",
+          "unit": "score",
+          "evidence_tier": "measured",
+          "lower": null,
+          "upper": null,
+          "sample_count": 54,
+          "observed_at": "2026-09-18T15:47:42.045989Z",
+          "source": {
+            "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "version": "model-skyline/structured-decision-run/v1alpha1",
+            "url": "https://github.com/bglusman/model_skyline",
+            "terms_url": null,
+            "license": "CC0-1.0",
+            "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+            "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+            "retrieved_at": "2026-09-18T15:27:51Z"
+          }
+        }
+      },
+      "metadata": {
+        "adapter": {
+          "id": "model-skyline/structured-decision-run",
+          "version": "2"
+        },
+        "system": {
+          "kind": "decision_component",
+          "routing_policy_sha256": "e8660ea0abddb6e35fd67d8723b9d542b6c030fd23c1d488b03fb1d6e5623221",
+          "components": [
+            {
+              "component_id": "jev-decision",
+              "role": "decision",
+              "resource_class": "light",
+              "activation": "always",
+              "offering": {
+                "offering_id": "openrouter/typesafe-jev-1.13@decisions-default",
+                "model_id": "typesafe/jev-1.13",
+                "provider": "openrouter",
+                "endpoint": "https://openrouter.ai/api/alpha/decisions",
+                "billing_mode": "api",
+                "region": null,
+                "service_tier": "default",
+                "quantization": null,
+                "reasoning_effort": null,
+                "agent_harness": null,
+                "capabilities": [
+                  "structured-decisions"
+                ]
+              },
+              "guidance_sha256": "ca9b8cf7a215cd50390410d87dc30e56563b33c0ada48ae1474bd20d05d4cd10"
+            }
+          ]
+        },
+        "system_kind": "decision_component",
+        "compound": false,
+        "component_count": 1,
+        "cost_basis": "provider_reported",
+        "workload_identity": {
+          "suite_id": "model-skyline/structured-routing-screen",
+          "suite_version": "1",
+          "case_manifest_sha256": "a32151761c15bed516f72dbf7b3383b12c444950bc310ed99ca395c13b65a25e",
+          "case_set_sha256": "9056ff862caef984b5a6a2a670868a77d0ba8fe8b6c603c91c561cde44a2522b",
+          "case_count": 18,
+          "harness_id": "model-skyline/system-one-screen",
+          "harness_version": "1",
+          "scorer_version": "normalized-multiclass-brier-v1",
+          "oracle_kind": "deterministic",
+          "repetitions_per_case": 3,
+          "concurrency": 1
+        },
+        "benchmark_source": {
+          "id": "model-skyline/structured-routing-screen",
+          "version": "1",
+          "url": "https://github.com/bglusman/model_skyline",
+          "terms_url": null,
+          "license": "CC0-1.0",
+          "methodology": "Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+          "raw_sha256": "a32151761c15bed516f72dbf7b3383b12c444950bc310ed99ca395c13b65a25e",
+          "retrieved_at": "2026-09-18T15:47:42.045989Z"
+        },
+        "case_count": 18,
+        "result_count": 54,
+        "contains_prompt_or_response_text": false,
+        "run_metadata": {
+          "suite_license": "CC0-1.0",
+          "suite_methodology": "Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+          "backend_kind": "openrouter-decisions",
+          "candidate_configuration_sha256": "4375414677a87c566c709eb9302a8a02a3fab2b6be00d5d179f16e63727c4e78",
+          "measurement_conditions": {
+            "request_order": "case-major",
+            "concurrency": 1,
+            "provider_route": "TypeSafe through OpenRouter Decisions alpha"
+          },
+          "input_tokens_total": 24645,
+          "output_tokens_total": 2202,
+          "provider_observations": {
+            "resolved_models": [
+              "typesafe/jev-1.13-20260917"
+            ],
+            "providers": [
+              "TypeSafe"
+            ]
+          }
+        }
+      },
+      "default_source": {
+        "id": "structured-decision-run:sha256:4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+        "version": "model-skyline/structured-decision-run/v1alpha1",
+        "url": "https://github.com/bglusman/model_skyline",
+        "terms_url": null,
+        "license": "CC0-1.0",
+        "methodology": "Prompt-free per-case structured-decision outcomes normalized by model-skyline/structured-decision-run@2; all model calls, fallback calls, latency, and declared cost belong to the exact routable offering. Benchmark methodology: Small deterministic calibration screen authored for ModelSkyline. It is not a general intelligence benchmark or a substitute for an end-to-end agent evaluation.",
+        "raw_sha256": "4144a80ebf52e3fcd781ce447493014f2c002717c37dfead173fd27b2bc64b9b",
+        "retrieved_at": "2026-09-18T15:27:51Z"
+      }
+    }
+  ]
+}

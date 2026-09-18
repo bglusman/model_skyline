@@ -1,0 +1,31 @@
+{
+  "backend": {
+    "kind": "openrouter-decisions",
+    "model": "typesafe/jev-1.13",
+    "endpoint": "https://openrouter.ai/api/alpha/decisions",
+    "api_key_env": "OPENROUTER_API_KEY",
+    "timeout_seconds": 30
+  },
+  "offering": {
+    "offering_id": "openrouter/typesafe-jev-1.13@decisions-default",
+    "model_id": "typesafe/jev-1.13",
+    "provider": "openrouter",
+    "endpoint": "https://openrouter.ai/api/alpha/decisions",
+    "billing_mode": "api",
+    "service_tier": "default",
+    "capabilities": [
+      "structured-decisions"
+    ]
+  },
+  "component_id": "jev-decision",
+  "resource_class": "light",
+  "guidance": "Answer the suite's named Choice exactly once. Do not invent a fourth route.",
+  "routing_policy": "Use the returned route directly; this primitive screen has no fallback.",
+  "measurement_conditions": {
+    "request_order": "case-major",
+    "concurrency": 1,
+    "provider_route": "TypeSafe through OpenRouter Decisions alpha"
+  },
+  "cost_basis": "provider_reported",
+  "fixed_cost_usd_per_model_call": null
+}
