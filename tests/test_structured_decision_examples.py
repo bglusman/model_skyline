@@ -228,9 +228,7 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
         "heavy",
         "abstain",
     ]
-    assert direct_compound["routing_policy"]["preserve_choices_without_review"] == [
-        "light"
-    ]
+    assert direct_compound["routing_policy"]["preserve_choices_without_review"] == ["light"]
     assert direct_compound["measurement_conditions"]["co_resident"] is True
 
 
