@@ -242,6 +242,18 @@ frontiers:
       maximum_gate_values: {unsafe_action: 0}
     metadata_fields: [system_kind, component_count]
 
+  decision-quality-vs-heavy-demand:
+    workload: structured-routing-screen-v1
+    axes:
+      - {metric: final_success, goal: maximize}
+      - {metric: heavy_calls, goal: minimize}
+    order_by: final_success
+    eligibility:
+      required_capabilities: [structured-decisions]
+      allow_unknown_age: false
+      minimum_gate_values: {schema_valid: 100}
+    metadata_fields: [system_kind, compound, component_count]
+
   compound-routing-quality-vs-heavy-demand:
     workload: structured-routing-screen-v1
     axes:

@@ -14,14 +14,20 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import time
+from collections.abc import Mapping
 from contextlib import AbstractContextManager, ExitStack
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal, localcontext
 from pathlib import Path
 from types import TracebackType
 from typing import Any, Protocol, cast
+from urllib.error import HTTPError
+from urllib.request import Request as URLRequest
+from urllib.request import urlopen
 
 from model_skyline.adapters.structured_decisions import (
     structured_decision_case_set_sha256,
@@ -35,7 +41,7 @@ class ChoiceAnswer(Protocol):
 
 
 class Response(Protocol):
-    choices: dict[str, ChoiceAnswer]
+    choices: Mapping[str, ChoiceAnswer]
     usage: Any
     debug: dict[str, Any]
 
@@ -62,6 +68,242 @@ class ClientContext(AbstractContextManager[Client]):
     ) -> bool | None:
         raise NotImplementedError
 
+
+@dataclass(frozen=True)
+class _Choice:
+    choice: str
+    probabilities: dict[str, float]
+
+
+@dataclass(frozen=True)
+class _Usage:
+    input_tokens: int
+    output_tokens: int
+    cost: Decimal | None = None
+
+
+@dataclass(frozen=True)
+class _Response:
+    choices: dict[str, _Choice]
+    usage: _Usage
+    debug: dict[str, Any]
+
+
+class _PlainClientContext(ClientContext):
+    """Context adapter for stateless HTTP clients."""
+
+    def __init__(self, client: Client) -> None:
+        self._client = client
+
+    def __enter__(self) -> Client:
+        return self._client
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        del exc_type, exc_value, traceback
+
+
+def _post_json(
+    url: str,
+    payload: dict[str, Any],
+    *,
+    headers: dict[str, str] | None = None,
+    timeout_seconds: float,
+) -> dict[str, Any]:
+    request_headers = {"Content-Type": "application/json", **(headers or {})}
+    request = URLRequest(
+        url,
+        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        headers=request_headers,
+        method="POST",
+    )
+    try:
+        with urlopen(request, timeout=timeout_seconds) as response:  # noqa: S310
+            value = json.load(response)
+    except HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")[:2000]
+        raise RuntimeError(f"HTTP {exc.code} from {url}: {detail}") from exc
+    if not isinstance(value, dict):
+        raise ValueError(f"{url} returned a non-object JSON response")
+    return value
+
+
+class _OpenRouterDecisionsClient:
+    def __init__(self, backend: dict[str, Any], *, api_key: str) -> None:
+        self._backend = backend
+        self._api_key = api_key
+
+    def system_one(
+        self,
+        state: str | dict[str, Any] | list[Any],
+        questions: dict[str, Any],
+    ) -> _Response:
+        payload = {
+            "model": self._backend["model"],
+            "state": state,
+            "questions": questions,
+        }
+        response = _post_json(
+            cast(str, self._backend["endpoint"]),
+            payload,
+            headers={
+                "Authorization": f"Bearer {self._api_key}",
+                "HTTP-Referer": "https://github.com/bglusman/model_skyline",
+                "X-OpenRouter-Title": "ModelSkyline structured-decision calibration",
+            },
+            timeout_seconds=float(self._backend.get("timeout_seconds", 30)),
+        )
+        raw_answers = response.get("answers")
+        raw_usage = response.get("usage")
+        if not isinstance(raw_answers, dict) or not isinstance(raw_usage, dict):
+            raise ValueError("OpenRouter Decisions response omitted answers or usage")
+        choices: dict[str, _Choice] = {}
+        for name, raw_answer in raw_answers.items():
+            if not isinstance(name, str) or not isinstance(raw_answer, dict):
+                raise ValueError("OpenRouter Decisions returned a malformed answer")
+            if raw_answer.get("type") != "choice":
+                raise ValueError("this screen requires Choice answers")
+            choice = raw_answer.get("choice")
+            probabilities = raw_answer.get("probabilities")
+            if not isinstance(choice, str) or not isinstance(probabilities, dict):
+                raise ValueError("OpenRouter Choice answer omitted choice or probabilities")
+            choices[name] = _Choice(
+                choice=choice,
+                probabilities={str(key): float(value) for key, value in probabilities.items()},
+            )
+        raw_cost = raw_usage.get("cost")
+        return _Response(
+            choices=choices,
+            usage=_Usage(
+                input_tokens=int(raw_usage["input_tokens"]),
+                output_tokens=int(raw_usage["output_tokens"]),
+                cost=Decimal(str(raw_cost)) if raw_cost is not None else None,
+            ),
+            debug={"provider": response.get("provider"), "resolved_model": response.get("model")},
+        )
+
+
+_OPTION_LETTERS = "ABCDEFGHIJKLMNOP"
+_SEMIF_DIRECT_SYSTEM = (
+    "Apply the supplied criterion to the supplied evidence. Choose exactly one listed option. "
+    "Respond with only its uppercase letter, with no explanation or reasoning."
+)
+
+
+def _softmax(values: list[float]) -> list[float]:
+    if len(values) < 2 or any(not math.isfinite(value) for value in values):
+        raise ValueError("need at least two finite option log-probabilities")
+    maximum = max(values)
+    weights = [math.exp(value - maximum) for value in values]
+    total = sum(weights)
+    return [weight / total for weight in weights]
+
+
+class _DirectOptionLogitsClient:
+    """SemIf-style option-logit readout through a llama.cpp-compatible API."""
+
+    def __init__(self, backend: dict[str, Any]) -> None:
+        self._backend = backend
+
+    def system_one(
+        self,
+        state: str | dict[str, Any] | list[Any],
+        questions: dict[str, Any],
+    ) -> _Response:
+        if len(questions) != 1:
+            raise ValueError("direct-option-logits currently accepts exactly one question")
+        question_name, question = next(iter(questions.items()))
+        if not isinstance(question, dict) or question.get("type") != "choice":
+            raise ValueError("direct-option-logits requires one Choice question")
+        criteria = question.get("criteria")
+        instructions = question.get("instructions")
+        if not isinstance(criteria, dict) or not isinstance(instructions, str):
+            raise ValueError("Choice question omitted criteria or instructions")
+        labels = _OPTION_LETTERS[: len(criteria)]
+        if len(labels) != len(criteria) or len(labels) < 2:
+            raise ValueError("direct-option-logits supports 2 to 16 options")
+        option_ids = list(criteria)
+        evidence = {
+            "evidence": state,
+            "criterion": instructions,
+            "options": [
+                {"letter": label, "description": criteria[option_id]}
+                for label, option_id in zip(labels, option_ids, strict=True)
+            ],
+        }
+        payload = {
+            "model": self._backend["model"],
+            "messages": [
+                {"role": "system", "content": _SEMIF_DIRECT_SYSTEM},
+                {
+                    "role": "user",
+                    "content": json.dumps(evidence, ensure_ascii=False, separators=(",", ":")),
+                },
+            ],
+            "max_tokens": 1,
+            "temperature": 1,
+            "top_k": 0,
+            "top_p": 1,
+            "logprobs": True,
+            "top_logprobs": max(20, len(labels)),
+            "grammar": "root ::= " + " | ".join(f'\"{label}\"' for label in labels),
+            "chat_template_kwargs": {"enable_thinking": False},
+        }
+        base_url = cast(str, self._backend["base_url"]).rstrip("/")
+        response = _post_json(
+            f"{base_url}/chat/completions",
+            payload,
+            timeout_seconds=float(self._backend.get("timeout_seconds", 120)),
+        )
+        raw_choices = response.get("choices")
+        raw_usage = response.get("usage")
+        if not isinstance(raw_choices, list) or not raw_choices or not isinstance(raw_usage, dict):
+            raise ValueError("direct-option-logits response omitted choices or usage")
+        first_choice = raw_choices[0]
+        if not isinstance(first_choice, dict):
+            raise ValueError("direct-option-logits response returned a malformed choice")
+        raw_logprobs = first_choice.get("logprobs")
+        if not isinstance(raw_logprobs, dict):
+            raise ValueError("backend did not return first-token log-probabilities")
+        logprob_content = raw_logprobs.get("content", [])
+        if not isinstance(logprob_content, list) or not logprob_content:
+            raise ValueError("backend did not return first-token log-probabilities")
+        raw_top = logprob_content[0].get("top_logprobs", {})
+        if not isinstance(raw_top, list):
+            raise ValueError("backend returned malformed top_logprobs")
+        by_label: dict[str, float] = {}
+        for item in raw_top:
+            if not isinstance(item, dict):
+                continue
+            token = item.get("token")
+            raw_bytes = item.get("bytes")
+            for label in labels:
+                if token == label or raw_bytes == [ord(label)]:
+                    by_label[label] = float(item["logprob"])
+        if set(by_label) != set(labels):
+            missing = sorted(set(labels) - set(by_label))
+            raise ValueError(f"backend omitted option log-probabilities for {missing}")
+        option_probabilities = _softmax([by_label[label] for label in labels])
+        probabilities = dict(zip(option_ids, option_probabilities, strict=True))
+        choice = max(probabilities, key=probabilities.__getitem__)
+        return _Response(
+            choices={question_name: _Choice(choice=choice, probabilities=probabilities)},
+            usage=_Usage(
+                input_tokens=int(raw_usage["prompt_tokens"]),
+                output_tokens=int(raw_usage["completion_tokens"]),
+            ),
+            debug={
+                "llm_attempts": [{}],
+                "prompt_version": self._backend.get("prompt_version"),
+                "probability_status": (
+                    "conditional option score; uncalibrated as decision confidence"
+                ),
+            },
+        )
 
 def _load_object(path: Path, *, label: str) -> tuple[dict[str, Any], bytes]:
     raw = path.read_bytes()
@@ -120,6 +362,15 @@ def _client(candidate: dict[str, Any]) -> ClientContext:
             ClientContext,
             TypeSafeClient(api_key=_api_key(backend), model=model),
         )
+    if kind == "openrouter-decisions":
+        api_key = _api_key(backend)
+        if api_key is None:
+            raise ValueError("openrouter-decisions requires backend.api_key_env")
+        return _PlainClientContext(
+            cast(Client, _OpenRouterDecisionsClient(backend, api_key=api_key))
+        )
+    if kind == "direct-option-logits":
+        return _PlainClientContext(cast(Client, _DirectOptionLogitsClient(backend)))
     if kind == "openai-compatible":
         import openai
         from system_one_adapter import SystemOneAdapterClient
@@ -192,11 +443,14 @@ def _client(candidate: dict[str, Any]) -> ClientContext:
                 model=provider,
             ),
         )
-    raise ValueError("backend.kind must be typesafe or openai-compatible")
+    raise ValueError(
+        "backend.kind must be typesafe, openrouter-decisions, "
+        "direct-option-logits, or openai-compatible"
+    )
 
 
 def _call_count(response: Response, *, backend_kind: str) -> int:
-    if backend_kind == "typesafe":
+    if backend_kind in {"typesafe", "openrouter-decisions", "direct-option-logits"}:
         return 1
     attempts = response.debug.get("llm_attempts")
     if not isinstance(attempts, list) or not attempts:
@@ -218,11 +472,31 @@ def _fixed_cost(candidate: dict[str, Any]) -> tuple[str, Decimal | None]:
     cost_basis = cast(str, candidate["cost_basis"])
     fixed_cost_value = candidate.get("fixed_cost_usd_per_model_call")
     fixed_cost = Decimal(str(fixed_cost_value)) if fixed_cost_value is not None else None
-    if (cost_basis == "unavailable") != (fixed_cost is None):
+    permits_missing_fixed_cost = cost_basis in {"unavailable", "provider_reported"}
+    if permits_missing_fixed_cost != (fixed_cost is None):
         raise ValueError(
-            "cost_basis must be unavailable exactly when fixed_cost_usd_per_model_call is null"
+            "fixed cost must be null exactly for unavailable or provider-reported cost"
         )
     return cost_basis, fixed_cost
+
+
+def _response_cost(
+    response: Response,
+    *,
+    cost_basis: str,
+    fixed_cost: Decimal | None,
+    calls: int,
+) -> Decimal | None:
+    if cost_basis == "unavailable":
+        return None
+    if cost_basis == "provider_reported":
+        value = getattr(response.usage, "cost", None)
+        if value is None:
+            raise ValueError("provider-reported cost basis requires usage.cost")
+        return Decimal(str(value))
+    if fixed_cost is None:
+        raise ValueError("fixed-cost basis requires fixed_cost_usd_per_model_call")
+    return fixed_cost * calls
 
 
 def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str, Any]:
@@ -285,7 +559,12 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                 response_input_tokens, response_output_tokens = _token_totals(response)
                 input_tokens_total += response_input_tokens
                 output_tokens_total += response_output_tokens
-                cost = fixed_cost * calls if fixed_cost is not None else None
+                cost = _response_cost(
+                    response,
+                    cost_basis=cost_basis,
+                    fixed_cost=fixed_cost,
+                    calls=calls,
+                )
                 results.append(
                     {
                         "case_id": case["case_id"],

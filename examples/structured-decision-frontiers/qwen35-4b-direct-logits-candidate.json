@@ -1,0 +1,40 @@
+{
+  "backend": {
+    "kind": "direct-option-logits",
+    "model": "qwen3.5-4b-q4km",
+    "base_url": "http://127.0.0.1:8090/v1",
+    "timeout_seconds": 120,
+    "prompt_version": "semif/direct-options-v1",
+    "source_url": "https://github.com/TheoLeeCJ/SemIf",
+    "source_revision": "92cbedcd3f9255286c741c5fe0935ecd8c6fc9e6"
+  },
+  "offering": {
+    "offering_id": "local/qwen3.5-4b-q4km@m5-64gb-llamacpp-semif-direct-v1",
+    "model_id": "qwen/qwen3.5-4b",
+    "provider": "local-m5",
+    "endpoint": "http://127.0.0.1:8090/v1",
+    "billing_mode": "self-hosted",
+    "service_tier": "apple-m5-64gb-warm",
+    "quantization": "gguf-q4-k-m",
+    "reasoning_effort": "disabled",
+    "agent_harness": "semif-direct-options-v1-via-llamacpp",
+    "capabilities": [
+      "structured-decisions"
+    ]
+  },
+  "component_id": "qwen35-direct-router",
+  "resource_class": "light",
+  "guidance": "Answer the suite's named Choice exactly once. Do not invent a fourth route.",
+  "routing_policy": "Use the returned route directly; this primitive screen has no fallback.",
+  "measurement_conditions": {
+    "model_residency": "warm",
+    "prefix_cache": "enabled",
+    "request_order": "case-major",
+    "concurrency": 1,
+    "model_artifact_sha256": "13c16f426047e2de38cd075bdade4a7bcbc8c774384876f677740cda65f8a983",
+    "model_source_revision": "4168f45a16a1290d65a4ec0fa312ae917a4c15d6",
+    "probability_semantics": "conditional option score; uncalibrated as decision confidence"
+  },
+  "cost_basis": "unavailable",
+  "fixed_cost_usd_per_model_call": null
+}

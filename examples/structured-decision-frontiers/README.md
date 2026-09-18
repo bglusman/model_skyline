@@ -29,6 +29,39 @@ distinct cases, and both rescues were repetitions of one no-call case. The
 result justifies keeping compound candidates in the framework; it does not yet
 justify a default production cascade.
 
+### Direct decisions: SemIf, real Jev, and a local compound
+
+[SemIf](https://github.com/TheoLeeCJ/SemIf) is not Jev and does not contain an
+open Jev model. It wraps an ordinary open model with a useful readout: ask for
+one option letter, read that next token's logits for every allowed letter, and
+normalize only those scores. This avoids generating and parsing a probability
+object. ModelSkyline records the model, quantization, prompt/readout version,
+runtime, and source revision as part of the offering.
+
+On the same 18 routing cases repeated three times on the 64 GB M5:
+
+| Candidate | Correct routes | p95 | Mean Brier error | Unsafe routes | Heavy calls/case |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Qwen3.5 4B Q4 direct logits | 55.56% | 0.127 s | 0.1962 | 0 | 0 |
+| Qwen3.8 27B UD-Q4_K_M generated probabilities | 83.33% | 2.271 s | 0.0994 | 5.56% | 1.00 |
+| Real Jev 1.13 through OpenRouter | 83.33% | 0.558 s | **0.0658** | 0 | 0 |
+| Qwen3.8 27B UD-Q4_K_M direct logits | **88.89%** | 0.541 s | 0.0830 | 0 | 1.00 |
+| Qwen3.5 light gate → Qwen3.8 direct worker | **88.89%** | 0.675 s | 0.0757 | 0 | **0.78** |
+
+The controlled Qwen3.8 comparison uses the same GGUF, llama.cpp runtime, cases,
+and repetition order. Direct readout is both more accurate here and about 4.2×
+faster at p95 than generated probabilities. That is evidence for this readout
+on this screen, not evidence that direct logits always improve a model.
+
+The 4B model is too inaccurate to act alone. It is nevertheless useful as a
+conservative gate: it handles only cases it calls `light`; both `heavy` and
+`abstain` go to the 27B worker. The pair matches the 27B worker's final accuracy
+with 22.22% fewer heavy calls. A more aggressive prompt raised the router's
+top-1 accuracy to 77.78% but produced 9 unsafe routes in 54 observations, so it
+was rejected rather than published as the candidate. See
+[`status-2026-09-18.md`](status-2026-09-18.md) for exact limits and frontier
+membership.
+
 ## Other pairs worth measuring
 
 The useful pattern is complementary roles, not merely “two models.” The next
@@ -61,11 +94,11 @@ same question:
    belong here, provided every call is counted.
 
 Jev is a hosted, non-generative structured-decision model, not a drop-in general
-LLM. TypeSafe has not published weights or a self-hosting commitment, and access
-is currently waitlisted. It may still improve a general agent as a router,
-guardrail, or verifier after access becomes available. The compound-system
-measurements test that claim instead of transferring a router score to its
-worker.
+LLM. TypeSafe has not published weights or a self-hosting commitment. Jev 1.13
+is now available through the TypeSafe API, OpenRouter Decisions, and Vercel AI
+Gateway; the committed result uses OpenRouter and retains its provider-reported
+cost. The compound-system measurements test router usefulness instead of
+transferring a router score to its worker.
 
 ## The three candidate types
 
@@ -90,7 +123,7 @@ costs do not sum to total cost.
 
 ## Frontier definitions
 
-[`frontiers.yaml`](frontiers.yaml) contains twelve ordinary two-axis frontiers:
+[`frontiers.yaml`](frontiers.yaml) contains thirteen ordinary two-axis frontiers:
 
 | Frontier | First axis | Second axis | What it tells us |
 | --- | --- | --- | --- |
@@ -99,6 +132,7 @@ costs do not sum to total cost.
 | decision quality vs calibration | correct route | normalized Brier error | whether confidence is useful, not merely whether top-1 wins |
 | safe automation vs cost | non-abstained share | mean cost | most work handled under 95% autonomous accuracy and zero unsafe actions |
 | safe automation vs latency | non-abstained share | p95 response time | local/self-hosted version when a defensible dollar cost is unavailable |
+| decision quality vs heavy demand | final route accuracy | heavy calls per case | whether a pair saves heavy calls when competing directly with single components |
 | compound routing quality vs heavy demand | final route accuracy | heavy calls per case | whether a routing cascade improves decisions without simply calling the heavy model every time |
 | tool outcome vs latency | complete case success | p95 wall time | fastest complete tool system |
 | tool outcome vs cost | complete case success | cost per success | cheapest complete tool system |
@@ -140,9 +174,17 @@ its end-to-end outcomes are measured.
 - [`routing-screen-v1.json`](routing-screen-v1.json) is an 18-case public
   calibration screen for `light / heavy / abstain`. It is small on purpose and
   must not be reported as general intelligence.
-- [`jev-candidate.json`](jev-candidate.json) configures the TypeSafe API route.
+- [`jev-candidate.json`](jev-candidate.json) configures the direct TypeSafe API
+  route; [`jev-openrouter-candidate.json`](jev-openrouter-candidate.json)
+  configures the measured OpenRouter Decisions route.
 - [`qwen38-local-candidate.json`](qwen38-local-candidate.json) configures the
   current llama-swap OpenAI-compatible route.
+- [`qwen38-direct-logits-candidate.json`](qwen38-direct-logits-candidate.json)
+  and [`qwen38-gguf-generated-candidate.json`](qwen38-gguf-generated-candidate.json)
+  isolate direct readout versus generated probabilities on one exact GGUF.
+- [`qwen35-4b-direct-logits-coresident-candidate.json`](qwen35-4b-direct-logits-coresident-candidate.json)
+  and [`qwen35-qwen38-direct-light-gate-cascade.json`](qwen35-qwen38-direct-light-gate-cascade.json)
+  pin the local light gate and compound policy.
 - [`gpt-oss-20b-local-candidate.json`](gpt-oss-20b-local-candidate.json)
   configures the lighter local GPT-OSS control.
 - [`gpt-oss-qwen38-review-cascade.json`](gpt-oss-qwen38-review-cascade.json)
@@ -165,6 +207,9 @@ its end-to-end outcomes are measured.
 - [`generated/bfcl-single-turn-r3-composed-catalog.json`](generated/bfcl-single-turn-r3-composed-catalog.json)
   contains the three normalized offerings. The two adjacent frontier snapshots
   are the result-of-record views.
+- [`generated/routing-r3-composed-catalog.json`](generated/routing-r3-composed-catalog.json)
+  contains the five matched direct-decision offerings. The adjacent
+  `routing-r3-*-frontier.json` files are the result-of-record views.
 
 The BFCL panel covers single, competing, parallel, parallel+competing,
 intentional no-call, multi-turn, missing-function, and missing-parameter cases.
@@ -180,7 +225,7 @@ Install the optional official TypeSafe comparison adapter:
 uv sync --extra structured-decisions
 ```
 
-Run Jev after placing its key in the environment:
+Run Jev directly after placing a TypeSafe key in the environment:
 
 ```console
 TYPESAFE_API_KEY=... uv run python \
@@ -188,6 +233,27 @@ TYPESAFE_API_KEY=... uv run python \
   examples/structured-decision-frontiers/routing-screen-v1.json \
   examples/structured-decision-frontiers/jev-candidate.json \
   --repetitions 3 --output jev-run.json
+```
+
+Or run the measured OpenRouter Decisions offering:
+
+```console
+OPENROUTER_API_KEY=... uv run python \
+  examples/structured-decision-frontiers/run_system_one_screen.py \
+  examples/structured-decision-frontiers/routing-screen-v1.json \
+  examples/structured-decision-frontiers/jev-openrouter-candidate.json \
+  --repetitions 3 --output jev-openrouter-run.json
+```
+
+Run SemIf-style direct logits through a llama.cpp-compatible endpoint that
+supports first-token `top_logprobs`:
+
+```console
+uv run python \
+  examples/structured-decision-frontiers/run_system_one_screen.py \
+  examples/structured-decision-frontiers/routing-screen-v1.json \
+  examples/structured-decision-frontiers/qwen38-direct-logits-candidate.json \
+  --repetitions 3 --output qwen38-direct-run.json
 ```
 
 Run the same typed questions through the local OpenAI-compatible endpoint:
@@ -214,9 +280,11 @@ uv run python \
   --repetitions 3 --output cascade-run.json
 ```
 
-The runner uses TypeSafe's official
+The generated-probability runner uses TypeSafe's official
 [`system-one-adapter`](https://github.com/typesafe-ai/system-one-adapter-python)
-so Jev and a general LLM receive the same `Choice` contract. It emits no prompt,
+so a general LLM receives the same `Choice` contract. Direct Jev uses its typed
+API; SemIf-style local runs use the same state, question, and declared options
+but read option logits rather than generated JSON. Every path emits no prompt,
 state, expected answer, or model response in the result artifact.
 
 Normalize a completed run into a normal ModelSkyline observation catalog:
@@ -259,13 +327,12 @@ frontiers. The committed generated artifacts demonstrate that complete path.
 
 The schema, normalizer, exact routing screen, BFCL manifest, BFCL runner,
 cascade runner, and frontier policies are implemented. See
-[`status-2026-09-17.md`](status-2026-09-17.md) for the matched Granite, Qwen,
-and compound results, plus the earlier negative results and their limits.
-
-No Jev result exists because the account is on TypeSafe's early-access
-waitlist. That is an access prerequisite, not evidence for or against Jev.
+[`status-2026-09-18.md`](status-2026-09-18.md) for the matched SemIf-style,
+Jev, and local compound result, and [`status-2026-09-17.md`](status-2026-09-17.md)
+for the Granite/Qwen tool result.
 
 The next result-of-record step is a holdout no-call/tool-policy panel and a
 small state-verifying workload. Granite Guardian or Qwen3Guard are sensible
-guardrail-pair candidates after that harness exists. Jev remains queued for the
-same decision screen when API access becomes available.
+guardrail-pair candidates after that harness exists. Real Jev is measured on
+the routing screen above and remains queued for that later state-verifying
+workload beside the local candidates.

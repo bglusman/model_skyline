@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add a SemIf-style direct option-logit backend and an OpenRouter Decisions
+  backend for real Jev. Publish the matched Qwen3.5 4B, Qwen3.8 27B generated
+  and direct-readout, Jev 1.13, and co-resident 4B→27B routing results. Add a
+  shared decision-quality × heavy-demand frontier so a compound candidate must
+  compete directly with its single-component controls rather than winning a
+  compound-only category by default.
 - Add prompt-free structured-decision and compound-system evidence with exact
   case-set, component, policy, call, cost, provenance, and repetition binding.
   Add decision, safe-automation, tool-use, and heavy-demand frontier recipes;

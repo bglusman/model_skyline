@@ -3,10 +3,13 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import sys
 from decimal import Decimal
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import Any
+
+import pytest
 
 from model_skyline.adapters.structured_decisions import (
     StructuredDecisionRun,
@@ -33,6 +36,7 @@ def _runner_module() -> ModuleType:
     spec = importlib.util.spec_from_file_location("structured_decision_runner", path)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     return module
 
@@ -136,23 +140,39 @@ def test_bfcl_manifest_is_exact_balanced_and_matches_workload() -> None:
 
 def test_candidate_configs_have_complete_distinct_offerings() -> None:
     jev = _object(EXAMPLE / "jev-candidate.json")
+    jev_openrouter = _object(EXAMPLE / "jev-openrouter-candidate.json")
     qwen = _object(EXAMPLE / "qwen38-local-candidate.json")
+    qwen_direct = _object(EXAMPLE / "qwen38-direct-logits-candidate.json")
+    qwen35_direct = _object(EXAMPLE / "qwen35-4b-direct-logits-candidate.json")
     gpt_oss = _object(EXAMPLE / "gpt-oss-20b-local-candidate.json")
     jev_offering = OfferingKey.model_validate(jev["offering"])
+    jev_openrouter_offering = OfferingKey.model_validate(jev_openrouter["offering"])
     qwen_offering = OfferingKey.model_validate(qwen["offering"])
+    qwen_direct_offering = OfferingKey.model_validate(qwen_direct["offering"])
+    qwen35_direct_offering = OfferingKey.model_validate(qwen35_direct["offering"])
     gpt_oss_offering = OfferingKey.model_validate(gpt_oss["offering"])
 
     assert (
         len(
             {
                 jev_offering.offering_id,
+                jev_openrouter_offering.offering_id,
                 qwen_offering.offering_id,
+                qwen_direct_offering.offering_id,
+                qwen35_direct_offering.offering_id,
                 gpt_oss_offering.offering_id,
             }
         )
-        == 3
+        == 6
     )
-    assert jev_offering.capabilities == qwen_offering.capabilities == ("structured-decisions",)
+    assert (
+        jev_offering.capabilities
+        == jev_openrouter_offering.capabilities
+        == qwen_offering.capabilities
+        == qwen_direct_offering.capabilities
+        == qwen35_direct_offering.capabilities
+        == ("structured-decisions",)
+    )
     assert gpt_oss_offering.capabilities == ("structured-decisions",)
     assert gpt_oss["resource_class"] == "light"
     assert gpt_oss["backend"]["reasoning_effort"] == "low"
@@ -160,6 +180,14 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
     assert qwen["backend"]["max_tokens"] == 512
     assert qwen["backend"]["chat_template_kwargs"] == {"enable_thinking": False}
     assert qwen["measurement_conditions"]["model_residency"] == "warm"
+    assert jev_openrouter["backend"]["kind"] == "openrouter-decisions"
+    assert jev_openrouter["cost_basis"] == "provider_reported"
+    assert qwen_direct["backend"]["prompt_version"] == "semif/direct-options-v1"
+    assert len(qwen_direct["backend"]["source_revision"]) == 40
+    assert qwen_direct["offering"]["quantization"] == "gguf-ud-q4-k-m"
+    assert len(qwen_direct["measurement_conditions"]["model_artifact_sha256"]) == 64
+    assert qwen35_direct["resource_class"] == "light"
+    assert len(qwen35_direct["measurement_conditions"]["model_artifact_sha256"]) == 64
 
     compound = _object(EXAMPLE / "gpt-oss-qwen38-review-cascade.json")
     compound_offering = OfferingKey.model_validate(compound["offering"])
@@ -190,11 +218,26 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
     assert replacement["routing_policy"]["resolution"] == "fallback-replaces-primary"
     assert veto["measurement_conditions"]["co_resident"] is True
 
+    direct_compound = _object(EXAMPLE / "qwen35-qwen38-direct-light-gate-cascade.json")
+    direct_compound_offering = OfferingKey.model_validate(direct_compound["offering"])
+    assert direct_compound_offering.capabilities == (
+        "compound-system",
+        "structured-decisions",
+    )
+    assert direct_compound["routing_policy"]["invoke_worker_on_choices"] == [
+        "heavy",
+        "abstain",
+    ]
+    assert direct_compound["routing_policy"]["preserve_choices_without_review"] == [
+        "light"
+    ]
+    assert direct_compound["measurement_conditions"]["co_resident"] is True
+
 
 def test_frontier_recipes_keep_primitive_and_complete_system_claims_separate() -> None:
     config = load_config(EXAMPLE / "frontiers.yaml")
 
-    assert len(config.frontiers) == 12
+    assert len(config.frontiers) == 13
     assert config.frontiers["decision-quality-vs-latency"].eligibility.required_capabilities == (
         "structured-decisions",
     )
@@ -207,6 +250,9 @@ def test_frontier_recipes_keep_primitive_and_complete_system_claims_separate() -
     assert config.frontiers[
         "compound-routing-quality-vs-heavy-demand"
     ].eligibility.required_capabilities == ("compound-system", "structured-decisions")
+    assert config.frontiers[
+        "decision-quality-vs-heavy-demand"
+    ].eligibility.required_capabilities == ("structured-decisions",)
     assert config.frontiers[
         "single-turn-tool-outcome-vs-heavy-demand"
     ].eligibility.required_capabilities == ("tools",)
@@ -230,6 +276,174 @@ def test_bfcl_single_turn_catalog_and_frontiers_publish_the_matched_tradeoff() -
         snapshot = load_frontier_snapshot(generated / filename)
         assert {member.offering.offering_id for member in snapshot.members} == expected
         assert len(snapshot.evaluated) == 3
+
+
+def test_semif_and_jev_routing_catalog_publishes_distinct_frontiers() -> None:
+    generated = EXAMPLE / "generated"
+    catalog = load_catalog(generated / "routing-r3-composed-catalog.json")
+    assert catalog.workload.id == "structured-routing-screen-v1"
+    assert catalog.workload.unit == "decision"
+    assert len(catalog.offerings) == 5
+
+    expected_by_frontier = {
+        "routing-r3-decision-quality-vs-latency-frontier.json": (
+            {
+                "local/qwen3.5-4b-q4km@m5-64gb-llamacpp-semif-direct-coresident-v1",
+                "local/qwen3.8-27b-ud-q4km@m5-64gb-llamacpp-semif-direct-v1",
+            },
+            5,
+        ),
+        "routing-r3-decision-quality-vs-calibration-frontier.json": (
+            {
+                "compound/qwen3.5-4b-semif-light-gate+qwen3.8-27b-semif-worker@"
+                "m5-64gb-coresident-v1",
+                "openrouter/typesafe-jev-1.13@decisions-default",
+            },
+            5,
+        ),
+        "routing-r3-decision-quality-vs-cost-frontier.json": (
+            {"openrouter/typesafe-jev-1.13@decisions-default"},
+            1,
+        ),
+        "routing-r3-decision-quality-vs-heavy-demand-frontier.json": (
+            {
+                "compound/qwen3.5-4b-semif-light-gate+qwen3.8-27b-semif-worker@"
+                "m5-64gb-coresident-v1",
+                "openrouter/typesafe-jev-1.13@decisions-default",
+            },
+            5,
+        ),
+        "routing-r3-compound-routing-quality-vs-heavy-demand-frontier.json": (
+            {
+                "compound/qwen3.5-4b-semif-light-gate+qwen3.8-27b-semif-worker@"
+                "m5-64gb-coresident-v1",
+            },
+            1,
+        ),
+    }
+    for filename, (expected, evaluated_count) in expected_by_frontier.items():
+        snapshot = load_frontier_snapshot(generated / filename)
+        assert {member.offering.offering_id for member in snapshot.members} == expected
+        assert len(snapshot.evaluated) == evaluated_count
+
+
+def test_direct_option_logits_backend_reads_declared_label_probabilities(monkeypatch) -> None:
+    runner = _runner_module()
+    captured: dict[str, Any] = {}
+
+    def fake_post_json(url, payload, *, headers=None, timeout_seconds):
+        captured.update(
+            url=url,
+            payload=payload,
+            headers=headers,
+            timeout_seconds=timeout_seconds,
+        )
+        return {
+            "choices": [
+                {
+                    "message": {"role": "assistant", "content": "A"},
+                    "logprobs": {
+                        "content": [
+                            {
+                                "top_logprobs": [
+                                    {"token": "A", "bytes": [65], "logprob": -1.0},
+                                    {"token": "B", "bytes": [66], "logprob": -2.0},
+                                    {"token": "C", "bytes": [67], "logprob": -3.0},
+                                ]
+                            }
+                        ]
+                    },
+                }
+            ],
+            "usage": {"prompt_tokens": 42, "completion_tokens": 1},
+        }
+
+    monkeypatch.setattr(runner, "_post_json", fake_post_json)
+    client = runner._DirectOptionLogitsClient(
+        {
+            "model": "test-model",
+            "base_url": "http://127.0.0.1:8080/v1",
+            "prompt_version": "semif/direct-options-v1",
+        }
+    )
+    response = client.system_one(
+        {"request": "route me"},
+        {
+            "route": {
+                "type": "choice",
+                "instructions": "Choose a route.",
+                "criteria": {"light": "Small", "heavy": "Large", "abstain": "Stop"},
+            }
+        },
+    )
+
+    assert captured["url"] == "http://127.0.0.1:8080/v1/chat/completions"
+    payload = captured["payload"]
+    assert payload["max_tokens"] == 1
+    assert payload["temperature"] == 1
+    assert payload["logprobs"] is True
+    assert payload["grammar"] == 'root ::= "A" | "B" | "C"'
+    assert payload["chat_template_kwargs"] == {"enable_thinking": False}
+    evidence = json.loads(payload["messages"][1]["content"])
+    assert evidence["options"] == [
+        {"letter": "A", "description": "Small"},
+        {"letter": "B", "description": "Large"},
+        {"letter": "C", "description": "Stop"},
+    ]
+    answer = response.choices["route"]
+    assert answer.choice == "light"
+    assert set(answer.probabilities) == {"light", "heavy", "abstain"}
+    assert sum(answer.probabilities.values()) == pytest.approx(1.0)
+    assert response.usage.input_tokens == 42
+    assert response.usage.output_tokens == 1
+
+
+def test_openrouter_decisions_backend_preserves_reported_cost(monkeypatch) -> None:
+    runner = _runner_module()
+
+    def fake_post_json(url, payload, *, headers=None, timeout_seconds):
+        del url, payload, headers, timeout_seconds
+        return {
+            "model": "typesafe/jev-1.13-20260917",
+            "provider": "TypeSafe",
+            "answers": {
+                "route": {
+                    "type": "choice",
+                    "choice": "heavy",
+                    "probabilities": {"light": 0.1, "heavy": 0.8, "abstain": 0.1},
+                    "confidence": 0.7,
+                }
+            },
+            "usage": {"input_tokens": 300, "output_tokens": 40, "cost": 0.0000126},
+        }
+
+    monkeypatch.setattr(runner, "_post_json", fake_post_json)
+    client = runner._OpenRouterDecisionsClient(
+        {
+            "model": "typesafe/jev-1.13",
+            "endpoint": "https://openrouter.ai/api/alpha/decisions",
+        },
+        api_key="test-key",
+    )
+    response = client.system_one(
+        "state",
+        {
+            "route": {
+                "type": "choice",
+                "instructions": "Choose.",
+                "criteria": {"light": None, "heavy": None, "abstain": None},
+            }
+        },
+    )
+
+    assert response.choices["route"].choice == "heavy"
+    assert response.usage.cost == Decimal("0.0000126")
+    assert runner._response_cost(
+        response,
+        cost_basis="provider_reported",
+        fixed_cost=None,
+        calls=1,
+    ) == Decimal("0.0000126")
 
 
 def test_bfcl_contract_validation_rejects_unknown_or_incomplete_calls() -> None:
