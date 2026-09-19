@@ -85,15 +85,22 @@ metadata-repair candidates after exact-ID and file-shape checks have run.
   lists 24 GB minimum for both NVFP4 variants, and
   [OpenJev](https://github.com/razorback16/openjev) documents the same minimum.
   That rules out the CUDA image on the RTX 5060 Ti, but it does **not** rule out
-  the model locally: the Apple M5 Max machine has 64 GB unified memory and an
-  installed `llama-diffusion-cli`, enough capacity for the roughly 18 GB
-  quantized weights.
+  the model locally. Unsloth publishes DiffusionGemma GGUFs from roughly 16 GB
+  (Q4_K_M) through 25 GB (Q8_0), and the llama.cpp DiffusionGemma pull request
+  documents running them with the dedicated `llama-diffusion-cli`. Both the M5
+  Max MacBook and M1 Max Mac Studio have 64 GB unified memory, so Q4 through Q8
+  have ample weight-fit headroom. A real load test is still required to measure
+  context/KV overhead and useful throughput on each machine.
 - **Apple capacity is not Apple readout support.** The currently installed
   MLX-LM 0.31.3 rejects the `diffusion_gemma` model type, vLLM-Metal does not
-  list DiffusionGemma among its supported families, and llama.cpp's diffusion
-  CLI exposes ordinary denoising generation but not OpenJev's seeded-canvas,
-  read-only-step probability contract. The 64 GB Mac is therefore a credible
-  port/prototype host, not a drop-in OpenJev host today.
+  list DiffusionGemma among its supported families, and the GGUF route currently
+  depends on the draft
+  [llama.cpp DiffusionGemma pull request](https://github.com/ggml-org/llama.cpp/pull/24423)
+  plus its dedicated CLI. The normal `llama-cli`/`llama-server` path cannot yet
+  generate from these GGUFs, and `llama-diffusion-cli` does not expose OpenJev's
+  seeded-canvas, fixed-slot, read-only-step probability contract. The Macs are
+  therefore credible local generation and port/prototype hosts, not drop-in
+  OpenJev hosts today.
 - The enabling [vLLM structured-readout pull request](https://github.com/vllm-project/vllm/pull/57250)
   was open, blocked, and had a failing pre-commit check when this result was
   captured. OpenJev therefore pins a fork and provisional request fields. Treat
@@ -111,8 +118,9 @@ the observed class balance and include contrast pairs where exactly one fact
 changes. Measure review-order precision and recall—not autonomous write rate—at
 three budgets: top 5%, top 20%, and all flagged items. Run the same packets
 through hosted Jev, Laya (raw and media-fine-tuned as distinct offerings), and
-a co-resident small local direct-logit model. Evaluate DiffusionGemma either via
-OpenJev on a documented NVIDIA >=24 GB host or by implementing the missing
-structured-readout contract on the 64 GB Apple host. Promote a model only if it
-improves reviewer yield over deterministic ranking without hiding any hard
-contradiction.
+a co-resident small local direct-logit model. First smoke-test the 16 GB Q4_K_M
+GGUF with `llama-diffusion-cli` on the M5 Max, then evaluate DiffusionGemma either
+via OpenJev on a documented NVIDIA >=24 GB host or by implementing the missing
+structured-readout contract on llama.cpp for the two 64 GB Apple hosts. Promote
+a model only if it improves reviewer yield over deterministic ranking without
+hiding any hard contradiction.
