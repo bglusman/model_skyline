@@ -1,0 +1,45 @@
+{
+  "schema_version": "model-skyline/media-sync-shadow-summary/v1",
+  "observed_at": "2026-09-19T14:36:39.814376Z",
+  "suite": {
+    "suite_id": "model-skyline/media-sync-safety-screen",
+    "suite_version": "1",
+    "workload_id": "media-sync-safety-screen-v1",
+    "workload_unit": "proposed_pair",
+    "case_count": 24,
+    "case_manifest_sha256": "bb99d40db2bf338d667c923e07f32ab41a5d9ddce2caba051ce34784fa651597",
+    "case_set_sha256": "4d836b8c33abf9ddb78e7bdaf2942efe7bee1238a48aa23f910f9e5297c330dc"
+  },
+  "laya": {
+    "offering_id": "local/apple-m5-max-cpu/convaiinnovations-laya-typed-decisions@0.3.3",
+    "model_revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+    "model_artifact_sha256": "4fa56de72383a9d3efa9cfa78955733c81b9fc8067a587ca4beb82c78107a24e",
+    "runtime_wheel_sha256": "0f0fed09d04e0b9e05a54643e77c6bebb9e881bf3c8e0a5c536b58c71d6659fb",
+    "candidate_configuration_sha256": "7e1e64365aa783b76860bbd867ba1a123505ec4717f55dfc6d83a4795f3fabb6",
+    "harness_sha256": "cf9ecbd6202dd2067db813c17012b6ca7259d733197e9e6f4767ba009c6b833c",
+    "repetitions_per_case": 6,
+    "observations": 144,
+    "correct": 54,
+    "accuracy": "0.375000000000",
+    "handled_share": "0.958333333333",
+    "unsafe_count": 72,
+    "unsafe_rate": "0.500000000000",
+    "mean_brier_score": "0.218164297154",
+    "p50_latency_seconds": "0.231183416",
+    "p95_latency_seconds": "0.256150667",
+    "provider_reported_total_cost_usd": null,
+    "input_tokens": 40788,
+    "output_tokens": 0,
+    "deterministic_across_repetitions": true,
+    "interpretation": "The typed-decisions checkpoint is easy to host locally but does not transfer zero-shot to media identity. Its probabilities were near-uniform, and its default route almost never abstained."
+  },
+  "confidence_threshold_projection": [
+    {"minimum_confidence": "0.000000000000", "accuracy": "0.375000000000", "handled_share": "0.958333333333", "unsafe_count": 72},
+    {"minimum_confidence": "0.350000000000", "accuracy": "0.458333333333", "handled_share": "0.791666666667", "unsafe_count": 54},
+    {"minimum_confidence": "0.380000000000", "accuracy": "0.458333333333", "handled_share": "0.500000000000", "unsafe_count": 30},
+    {"minimum_confidence": "0.400000000000", "accuracy": "0.500000000000", "handled_share": "0.333333333333", "unsafe_count": 18},
+    {"minimum_confidence": "0.420000000000", "accuracy": "0.500000000000", "handled_share": "0.250000000000", "unsafe_count": 12},
+    {"minimum_confidence": "0.450000000000", "accuracy": "0.416666666667", "handled_share": "0.041666666667", "unsafe_count": 0},
+    {"minimum_confidence": "0.500000000000", "accuracy": "0.416666666667", "handled_share": "0.000000000000", "unsafe_count": 0}
+  ]
+}

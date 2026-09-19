@@ -137,6 +137,15 @@ def test_media_sync_screen_has_a_safe_deterministic_control() -> None:
     assert summary["jev"]["observations"] == 144
     assert summary["jev"]["unsafe_count"] == 18
 
+    laya_summary = _object(EXAMPLE / "media-sync-laya-r6-summary.json")
+    assert (
+        laya_summary["suite"]["case_manifest_sha256"]
+        == hashlib.sha256(path.read_bytes()).hexdigest()
+    )
+    assert laya_summary["laya"]["observations"] == 144
+    assert laya_summary["laya"]["unsafe_count"] == 72
+    assert laya_summary["laya"]["deterministic_across_repetitions"] is True
+
 
 def test_single_runner_retains_probability_diagnostics_and_suite_workload() -> None:
     runner = _runner_module()
@@ -239,12 +248,14 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
     qwen_direct = _object(EXAMPLE / "qwen38-direct-logits-candidate.json")
     qwen35_direct = _object(EXAMPLE / "qwen35-4b-direct-logits-candidate.json")
     gpt_oss = _object(EXAMPLE / "gpt-oss-20b-local-candidate.json")
+    laya = _object(EXAMPLE / "laya-typed-media-cpu-candidate.json")
     jev_offering = OfferingKey.model_validate(jev["offering"])
     jev_openrouter_offering = OfferingKey.model_validate(jev_openrouter["offering"])
     qwen_offering = OfferingKey.model_validate(qwen["offering"])
     qwen_direct_offering = OfferingKey.model_validate(qwen_direct["offering"])
     qwen35_direct_offering = OfferingKey.model_validate(qwen35_direct["offering"])
     gpt_oss_offering = OfferingKey.model_validate(gpt_oss["offering"])
+    laya_offering = OfferingKey.model_validate(laya["offering"])
 
     assert (
         len(
@@ -255,9 +266,10 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
                 qwen_direct_offering.offering_id,
                 qwen35_direct_offering.offering_id,
                 gpt_oss_offering.offering_id,
+                laya_offering.offering_id,
             }
         )
-        == 6
+        == 7
     )
     assert (
         jev_offering.capabilities
@@ -268,6 +280,8 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
         == ("structured-decisions",)
     )
     assert gpt_oss_offering.capabilities == ("structured-decisions",)
+    assert laya_offering.capabilities == ("structured-decisions",)
+    assert laya["backend"]["revision"] == "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2"
     assert gpt_oss["resource_class"] == "light"
     assert gpt_oss["backend"]["reasoning_effort"] == "low"
     assert gpt_oss["backend"]["structured_outputs"] is False

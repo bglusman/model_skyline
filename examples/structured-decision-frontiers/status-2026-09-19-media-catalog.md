@@ -2,7 +2,7 @@
 
 ## Result
 
-Do not put Jev, OpenJev, or a SemIf-style local readout in the write path for
+Do not put Jev, Laya, OpenJev, or a SemIf-style local readout in the write path for
 BookLore, Audiobookshelf, Bookshelf, or Biblioaudio yet. The useful architecture
 is deterministic evidence first, model-assisted review second.
 
@@ -18,6 +18,8 @@ private catalog records and makes no writes.
 | Deterministic hard gate | 100% | 58.33% | 0/24 | local code | unavailable |
 | Jev 1.13, six repetitions | 79.17% | 61.11% | 18/144 | 0.433 s | $0.003517 |
 | Jev with 0.80 confidence fallback | 77.08% | 35.42% | 0/144 | same calls | same cost |
+| Laya typed-decisions 0.3.3, six repetitions | 37.50% | 95.83% | 72/144 | 0.256 s | self-hosted |
+| Laya with 0.45 confidence fallback | 41.67% | 4.17% | 0/144 | same calls | self-hosted |
 
 The deterministic result is implementation agreement on a rule-derived oracle,
 not evidence that the rules generalize to every library. It is still the right
@@ -28,9 +30,11 @@ gate. The persistent errors were exactly the cases where catalog automation has
 historically caused damage: missing metadata that still *looks* like a match,
 conflicting work IDs, language conflict, and same-title collisions.
 
-The prompt-free result summary is
-[`media-sync-jev-r6-summary.json`](media-sync-jev-r6-summary.json). The source
-screen is [`media-sync-safety-screen-v1.json`](media-sync-safety-screen-v1.json),
+The prompt-free result summaries are
+[`media-sync-jev-r6-summary.json`](media-sync-jev-r6-summary.json) for Jev and
+[`media-sync-laya-r6-summary.json`](media-sync-laya-r6-summary.json) for local
+Laya. The source screen is
+[`media-sync-safety-screen-v1.json`](media-sync-safety-screen-v1.json),
 and [`run_media_sync_baseline.py`](run_media_sync_baseline.py) is the transparent
 control.
 
@@ -62,6 +66,14 @@ metadata-repair candidates after exact-ID and file-shape checks have run.
 
 ## Local alternatives
 
+- **Laya is hostable but not a zero-shot media advisor.** The pinned 421M
+  typed-decisions checkpoint ran entirely on an Apple M5 Max CPU at 0.256 s
+  p95, but scored 37.50% with 72/144 unsafe decisions. All six repetitions were
+  identical. A confidence fallback reached zero observed unsafe decisions only
+  by handling one case out of 24. Its own benchmark report says the base models
+  are near chance on typed decisions and the stronger checkpoint is fine-tuned
+  on four synthetic workflows; a media-specific fine-tune is research, not a
+  deployable default.
 - **SemIf-style direct option logits** remain the first practical local control.
   They run on ordinary llama.cpp models, but the probabilities are conditional
   over the displayed options and are not calibrated confidence. The attempted
@@ -89,6 +101,7 @@ Build a review-only holdout from already-adjudicated catalog incidents. Preserve
 the observed class balance and include contrast pairs where exactly one fact
 changes. Measure review-order precision and recall—not autonomous write rate—at
 three budgets: top 5%, top 20%, and all flagged items. Run the same packets
-through hosted Jev, a co-resident small local direct-logit model, and OpenJev on
-a documented >=24 GB host. Promote a model only if it improves reviewer yield
-over deterministic ranking without hiding any hard contradiction.
+through hosted Jev, Laya (raw and media-fine-tuned as distinct offerings), a
+co-resident small local direct-logit model, and OpenJev on a documented >=24 GB
+host. Promote a model only if it improves reviewer yield over deterministic
+ranking without hiding any hard contradiction.

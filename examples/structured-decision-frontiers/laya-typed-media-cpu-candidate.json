@@ -1,0 +1,34 @@
+{
+  "backend": {
+    "kind": "laya",
+    "model": "convaiinnovations/laya-typed-decisions",
+    "revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+    "device": "cpu"
+  },
+  "offering": {
+    "offering_id": "local/apple-m5-max-cpu/convaiinnovations-laya-typed-decisions@0.3.3",
+    "model_id": "convaiinnovations/laya-typed-decisions",
+    "provider": "local",
+    "endpoint": "in-process",
+    "billing_mode": "self-hosted",
+    "service_tier": "cpu-fp32",
+    "agent_harness": "laya-0.3.3-in-process",
+    "capabilities": ["structured-decisions"]
+  },
+  "component_id": "laya-typed-decision",
+  "resource_class": "light",
+  "guidance": "Apply the evidence hierarchy literally. Never infer that similar title strings alone prove identity. Abstain for human review when metadata defects or compatibility facts are missing, even when the pair looks likely.",
+  "routing_policy": "Advisory shadow mode only. Record the route and probabilities; never mutate a catalog or activate a Biblioaudio pair from this output.",
+  "measurement_conditions": {
+    "machine": "Apple M5 Max CPU",
+    "runtime_package": "laya==0.3.3",
+    "runtime_wheel_sha256": "0f0fed09d04e0b9e05a54643e77c6bebb9e881bf3c8e0a5c536b58c71d6659fb",
+    "model_revision": "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2",
+    "model_artifact_sha256": "4fa56de72383a9d3efa9cfa78955733c81b9fc8067a587ca4beb82c78107a24e",
+    "request_order": "case-major",
+    "concurrency": 1,
+    "calibration": "checkpoint-provided temperatures; no media-domain refit"
+  },
+  "cost_basis": "unavailable",
+  "fixed_cost_usd_per_model_call": null
+}
