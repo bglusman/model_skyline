@@ -80,11 +80,20 @@ metadata-repair candidates after exact-ID and file-shape checks have run.
   9B run did not produce a score because the inference host's embedding workload
   continuously owned the GPU; its exclusive-runner guard correctly refused to
   evict that workload.
-- **OpenJev on DiffusionGemma** is not currently a 16 GB-card deployment. The
+- **OpenJev as distributed** is not currently a 16 GB-card deployment. The
   [vLLM recipe](https://github.com/vllm-project/recipes/blob/main/models/Google/diffusiongemma-26B-A4B-it.yaml)
   lists 24 GB minimum for both NVFP4 variants, and
   [OpenJev](https://github.com/razorback16/openjev) documents the same minimum.
-  The available host has an RTX 5060 Ti with 16 GB VRAM and 10 GB system RAM.
+  That rules out the CUDA image on the RTX 5060 Ti, but it does **not** rule out
+  the model locally: the Apple M5 Max machine has 64 GB unified memory and an
+  installed `llama-diffusion-cli`, enough capacity for the roughly 18 GB
+  quantized weights.
+- **Apple capacity is not Apple readout support.** The currently installed
+  MLX-LM 0.31.3 rejects the `diffusion_gemma` model type, vLLM-Metal does not
+  list DiffusionGemma among its supported families, and llama.cpp's diffusion
+  CLI exposes ordinary denoising generation but not OpenJev's seeded-canvas,
+  read-only-step probability contract. The 64 GB Mac is therefore a credible
+  port/prototype host, not a drop-in OpenJev host today.
 - The enabling [vLLM structured-readout pull request](https://github.com/vllm-project/vllm/pull/57250)
   was open, blocked, and had a failing pre-commit check when this result was
   captured. OpenJev therefore pins a fork and provisional request fields. Treat
@@ -101,7 +110,9 @@ Build a review-only holdout from already-adjudicated catalog incidents. Preserve
 the observed class balance and include contrast pairs where exactly one fact
 changes. Measure review-order precision and recall—not autonomous write rate—at
 three budgets: top 5%, top 20%, and all flagged items. Run the same packets
-through hosted Jev, Laya (raw and media-fine-tuned as distinct offerings), a
-co-resident small local direct-logit model, and OpenJev on a documented >=24 GB
-host. Promote a model only if it improves reviewer yield over deterministic
-ranking without hiding any hard contradiction.
+through hosted Jev, Laya (raw and media-fine-tuned as distinct offerings), and
+a co-resident small local direct-logit model. Evaluate DiffusionGemma either via
+OpenJev on a documented NVIDIA >=24 GB host or by implementing the missing
+structured-readout contract on the 64 GB Apple host. Promote a model only if it
+improves reviewer yield over deterministic ranking without hiding any hard
+contradiction.
