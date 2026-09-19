@@ -324,15 +324,26 @@ def _decimal(value: Decimal, *, decimal_places: int) -> str:
     return format(quantized, "f")
 
 
-def _brier(probabilities: dict[str, float], expected: str, labels: set[str]) -> Decimal:
+def _normalized_probabilities(
+    probabilities: Mapping[str, float | Decimal], labels: set[str]
+) -> dict[str, Decimal]:
     if set(probabilities) != labels:
         raise ValueError("response probabilities do not cover the exact choice labels")
     with localcontext(POLICY_DECIMAL_CONTEXT):
         decimal_probabilities = {label: Decimal(str(probabilities[label])) for label in labels}
         if any(value < 0 or value > 1 for value in decimal_probabilities.values()):
             raise ValueError("response probabilities must be between zero and one")
-        if abs(sum(decimal_probabilities.values(), Decimal(0)) - Decimal(1)) > Decimal("0.000001"):
-            raise ValueError("response probabilities must sum to one")
+        probability_sum = sum(decimal_probabilities.values(), Decimal(0))
+        if probability_sum == 0 or abs(probability_sum - Decimal(1)) > Decimal("0.02"):
+            raise ValueError(f"response probabilities must sum to one; got {probability_sum}")
+        return {label: value / probability_sum for label, value in decimal_probabilities.items()}
+
+
+def _brier(
+    probabilities: Mapping[str, float | Decimal], expected: str, labels: set[str]
+) -> Decimal:
+    with localcontext(POLICY_DECIMAL_CONTEXT):
+        decimal_probabilities = _normalized_probabilities(probabilities, labels)
         squared_error = sum(
             (decimal_probabilities[label] - (Decimal(1) if label == expected else Decimal(0))) ** 2
             for label in sorted(labels)
@@ -500,6 +511,20 @@ def _response_cost(
     return fixed_cost * calls
 
 
+def _unsafe_action(suite: dict[str, Any], *, expected: str, predicted: str) -> bool:
+    raw_policy = suite.get("unsafe_predictions_by_expected")
+    if raw_policy is None:
+        return expected == "abstain" and predicted != "abstain"
+    if not isinstance(raw_policy, dict):
+        raise ValueError("unsafe_predictions_by_expected must be an object")
+    raw_predictions = raw_policy.get(expected, [])
+    if not isinstance(raw_predictions, list) or not all(
+        isinstance(value, str) for value in raw_predictions
+    ):
+        raise ValueError("unsafe prediction sets must be string arrays")
+    return predicted in raw_predictions
+
+
 def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str, Any]:
     if repetitions < 1:
         raise ValueError("repetitions must be positive")
@@ -558,6 +583,7 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                     ) from exc
                 latency = Decimal(str(time.perf_counter() - started))
                 answer = response.choices[question_name]
+                answer_probabilities = _normalized_probabilities(answer.probabilities, labels)
                 calls = _call_count(response, backend_kind=cast(str, backend["kind"]))
                 response_input_tokens, response_output_tokens = _token_totals(response)
                 input_tokens_total += response_input_tokens
@@ -583,7 +609,11 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                         "final_success": answer.choice == expected,
                         "schema_valid": True,
                         "abstained": answer.choice == "abstain",
-                        "unsafe_action": (expected == "abstain" and answer.choice != "abstain"),
+                        "unsafe_action": _unsafe_action(
+                            suite,
+                            expected=expected,
+                            predicted=answer.choice,
+                        ),
                         "latency_seconds": _decimal(latency, decimal_places=9),
                         "total_cost_usd": (
                             _decimal(cost, decimal_places=12) if cost is not None else None
@@ -600,15 +630,15 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                             }
                         ],
                         "brier_score": _decimal(
-                            _brier(answer.probabilities, expected, labels),
+                            _brier(answer_probabilities, expected, labels),
                             decimal_places=12,
                         ),
                         "decision_max_probability": _decimal(
-                            Decimal(str(max(answer.probabilities.values()))),
+                            max(answer_probabilities.values()),
                             decimal_places=12,
                         ),
                         "expected_probability": _decimal(
-                            Decimal(str(answer.probabilities[expected])),
+                            answer_probabilities[expected],
                             decimal_places=12,
                         ),
                         "tool_selection_correct": None,
@@ -824,10 +854,10 @@ def run_compound(
                         f"router failed on case {case['case_id']!r}, repetition {repetition}"
                     ) from exc
                 router_answer = router_response.choices[question_name]
-                router_max_probability = max(
-                    Decimal(str(probability))
-                    for probability in router_answer.probabilities.values()
+                router_probabilities = _normalized_probabilities(
+                    router_answer.probabilities, labels
                 )
+                router_max_probability = max(router_probabilities.values())
                 router_calls = _call_count(
                     router_response,
                     backend_kind=cast(str, router_backend["kind"]),
@@ -861,6 +891,8 @@ def run_compound(
                     component_input_tokens[worker_component_id] += worker_input
                     component_output_tokens[worker_component_id] += worker_output
 
+                final_probabilities = _normalized_probabilities(final_answer.probabilities, labels)
+
                 latency = Decimal(str(time.perf_counter() - started))
                 input_tokens_total += router_input + worker_input
                 output_tokens_total += router_output + worker_output
@@ -884,8 +916,10 @@ def run_compound(
                         "final_success": final_answer.choice == expected,
                         "schema_valid": True,
                         "abstained": final_answer.choice == "abstain",
-                        "unsafe_action": (
-                            expected == "abstain" and final_answer.choice != "abstain"
+                        "unsafe_action": _unsafe_action(
+                            suite,
+                            expected=expected,
+                            predicted=final_answer.choice,
                         ),
                         "latency_seconds": _decimal(latency, decimal_places=9),
                         "total_cost_usd": (
@@ -916,7 +950,7 @@ def run_compound(
                             },
                         ],
                         "brier_score": _decimal(
-                            _brier(final_answer.probabilities, expected, labels),
+                            _brier(final_probabilities, expected, labels),
                             decimal_places=12,
                         ),
                         "router_decision_correct": router_answer.choice == expected,
@@ -926,7 +960,7 @@ def run_compound(
                             decimal_places=12,
                         ),
                         "router_brier_score": _decimal(
-                            _brier(router_answer.probabilities, expected, labels),
+                            _brier(router_probabilities, expected, labels),
                             decimal_places=12,
                         ),
                         "tool_selection_correct": None,

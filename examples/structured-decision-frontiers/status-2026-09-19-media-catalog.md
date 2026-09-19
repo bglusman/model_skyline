@@ -16,13 +16,13 @@ private catalog records and makes no writes.
 | Policy | Accuracy | Handled without review | Unsafe non-abstentions | p95 | Cost |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Deterministic hard gate | 100% | 58.33% | 0/24 | local code | unavailable |
-| Jev 1.13, six repetitions | 79.17% | 63.19% | 17/144 | 0.396 s | $0.003517 |
-| Jev with 0.80 confidence fallback | 78.47% | 36.81% | 0/144 | same calls | same cost |
+| Jev 1.13, six repetitions | 79.17% | 61.11% | 18/144 | 0.433 s | $0.003517 |
+| Jev with 0.80 confidence fallback | 77.08% | 35.42% | 0/144 | same calls | same cost |
 
 The deterministic result is implementation agreement on a rule-derived oracle,
 not evidence that the rules generalize to every library. It is still the right
-control: Jev bought only 5.86 percentage points of extra nominal handling while
-making unsafe decisions on 11.81% of observations. Raising the threshold until
+control: Jev bought only 2.78 percentage points of extra nominal handling while
+making unsafe decisions on 12.50% of observations. Raising the threshold until
 the observed unsafe count reached zero reduced handled share below the hard
 gate. The persistent errors were exactly the cases where catalog automation has
 historically caused damage: missing metadata that still *looks* like a match,

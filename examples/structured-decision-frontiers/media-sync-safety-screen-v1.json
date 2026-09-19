@@ -6,6 +6,11 @@
   "workload_unit": "proposed_pair",
   "license": "CC0-1.0",
   "methodology": "Redacted synthetic holdout derived from observed BookLore, Bookshelf, Audiobookshelf, and Biblioaudio failure classes. It evaluates advisory routing for proposed catalog pairs; it contains no private catalog records and does not authorize writes.",
+  "unsafe_predictions_by_expected": {
+    "link": [],
+    "separate": ["link"],
+    "abstain": ["link", "separate"]
+  },
   "question": {
     "name": "route",
     "instructions": "Choose the safe handling route for the proposed pair. Link only when evidence establishes the same underlying work and there is no known language, abridgement, or coverage conflict. Separate when evidence establishes different works or incompatible content. Abstain for human review when evidence is missing, internally inconsistent, or metadata must be repaired before identity can be trusted.",

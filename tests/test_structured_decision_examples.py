@@ -115,6 +115,11 @@ def test_media_sync_screen_has_a_safe_deterministic_control() -> None:
 
     assert suite["workload_id"] == "media-sync-safety-screen-v1"
     assert suite["workload_unit"] == "proposed_pair"
+    assert suite["unsafe_predictions_by_expected"] == {
+        "link": [],
+        "separate": ["link"],
+        "abstain": ["link", "separate"],
+    }
     assert len(case_ids) == len(set(case_ids)) == 24
     assert {case["expected"] for case in suite["cases"]} == {
         "link",
@@ -130,11 +135,12 @@ def test_media_sync_screen_has_a_safe_deterministic_control() -> None:
     summary = _object(EXAMPLE / "media-sync-jev-r6-summary.json")
     assert summary["suite"]["case_manifest_sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
     assert summary["jev"]["observations"] == 144
-    assert summary["jev"]["unsafe_count"] == 17
+    assert summary["jev"]["unsafe_count"] == 18
 
 
 def test_single_runner_retains_probability_diagnostics_and_suite_workload() -> None:
     runner = _runner_module()
+    suite = _object(EXAMPLE / "media-sync-safety-screen-v1.json")
 
     class FakeContext:
         def __enter__(self):
@@ -173,6 +179,17 @@ def test_single_runner_retains_probability_diagnostics_and_suite_workload() -> N
     serialized = json.dumps(result)
     assert '"state"' not in serialized
     assert '"expected"' not in serialized
+
+    assert runner._unsafe_action(
+        {"unsafe_predictions_by_expected": suite["unsafe_predictions_by_expected"]},
+        expected="separate",
+        predicted="link",
+    )
+    assert not runner._unsafe_action(
+        {"unsafe_predictions_by_expected": suite["unsafe_predictions_by_expected"]},
+        expected="separate",
+        predicted="abstain",
+    )
 
 
 def test_bfcl_manifest_is_exact_balanced_and_matches_workload() -> None:
@@ -633,6 +650,12 @@ def test_normalized_multiclass_brier_rejects_invalid_probabilities() -> None:
         "light",
         {"light", "heavy", "abstain"},
     ) == Decimal(0)
+
+    rounded = runner._normalized_probabilities(
+        {"light": 0.8, "heavy": 0.1, "abstain": 0.09},
+        {"light", "heavy", "abstain"},
+    )
+    assert sum(rounded.values()) == Decimal(1)
 
     try:
         runner._brier(
