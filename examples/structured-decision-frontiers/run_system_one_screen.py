@@ -250,7 +250,7 @@ class _DirectOptionLogitsClient:
             "top_p": 1,
             "logprobs": True,
             "top_logprobs": max(20, len(labels)),
-            "grammar": "root ::= " + " | ".join(f'\"{label}\"' for label in labels),
+            "grammar": "root ::= " + " | ".join(f'"{label}"' for label in labels),
             "chat_template_kwargs": {"enable_thinking": False},
         }
         base_url = cast(str, self._backend["base_url"]).rstrip("/")
@@ -304,6 +304,7 @@ class _DirectOptionLogitsClient:
                 ),
             },
         )
+
 
 def _load_object(path: Path, *, label: str) -> tuple[dict[str, Any], bytes]:
     raw = path.read_bytes()
@@ -602,6 +603,14 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                             _brier(answer.probabilities, expected, labels),
                             decimal_places=12,
                         ),
+                        "decision_max_probability": _decimal(
+                            Decimal(str(max(answer.probabilities.values()))),
+                            decimal_places=12,
+                        ),
+                        "expected_probability": _decimal(
+                            Decimal(str(answer.probabilities[expected])),
+                            decimal_places=12,
+                        ),
                         "tool_selection_correct": None,
                         "tool_arguments_correct": None,
                         "tool_sequence_correct": None,
@@ -614,8 +623,8 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
     return {
         "schema_version": "model-skyline/structured-decision-run/v1alpha1",
         "observed_at": observed_at.isoformat().replace("+00:00", "Z"),
-        "workload_id": "structured-routing-screen-v1",
-        "workload_unit": "decision",
+        "workload_id": suite.get("workload_id", "structured-routing-screen-v1"),
+        "workload_unit": suite.get("workload_unit", "decision"),
         "workload": {
             "suite_id": suite["suite_id"],
             "suite_version": suite["suite_version"],

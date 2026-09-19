@@ -185,6 +185,12 @@ class StructuredDecisionCaseResult(FrozenModel):
     brier_score: CanonicalDecimal | None = Field(
         default=None, ge=0, le=1, max_digits=18, decimal_places=12
     )
+    decision_max_probability: CanonicalDecimal | None = Field(
+        default=None, ge=0, le=1, max_digits=18, decimal_places=12
+    )
+    expected_probability: CanonicalDecimal | None = Field(
+        default=None, ge=0, le=1, max_digits=18, decimal_places=12
+    )
     primary_success: bool | None = None
     router_decision_correct: bool | None = None
     router_abstained: bool | None = None

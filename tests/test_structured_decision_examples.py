@@ -50,6 +50,16 @@ def _bfcl_runner_module() -> ModuleType:
     return module
 
 
+def _media_baseline_module() -> ModuleType:
+    path = EXAMPLE / "run_media_sync_baseline.py"
+    spec = importlib.util.spec_from_file_location("media_sync_baseline", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_routing_suite_identity_matches_frontier_workload() -> None:
     path = EXAMPLE / "routing-screen-v1.json"
     suite = _object(path)
@@ -96,6 +106,73 @@ def test_routing_suite_identity_matches_frontier_workload() -> None:
     assert configured.version == structured_decision_workload_version(workload)
     assert configured.assumptions["case_manifest_sha256"] == manifest_sha256
     assert configured.assumptions["case_set_sha256"] == case_set_sha256
+
+
+def test_media_sync_screen_has_a_safe_deterministic_control() -> None:
+    path = EXAMPLE / "media-sync-safety-screen-v1.json"
+    suite = _object(path)
+    case_ids = [case["case_id"] for case in suite["cases"]]
+
+    assert suite["workload_id"] == "media-sync-safety-screen-v1"
+    assert suite["workload_unit"] == "proposed_pair"
+    assert len(case_ids) == len(set(case_ids)) == 24
+    assert {case["expected"] for case in suite["cases"]} == {
+        "link",
+        "separate",
+        "abstain",
+    }
+
+    result = _media_baseline_module().run(path)
+    assert result["correct_count"] == result["case_count"] == 24
+    assert result["handled_count"] == 14
+    assert result["unsafe_count"] == 0
+
+    summary = _object(EXAMPLE / "media-sync-jev-r6-summary.json")
+    assert summary["suite"]["case_manifest_sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert summary["jev"]["observations"] == 144
+    assert summary["jev"]["unsafe_count"] == 17
+
+
+def test_single_runner_retains_probability_diagnostics_and_suite_workload() -> None:
+    runner = _runner_module()
+
+    class FakeContext:
+        def __enter__(self):
+            class FakeClient:
+                def system_one(self, state: Any, questions: dict[str, Any]):
+                    del state
+                    question_name = next(iter(questions))
+                    return SimpleNamespace(
+                        choices={
+                            question_name: SimpleNamespace(
+                                choice="abstain",
+                                probabilities={"link": 0.2, "separate": 0.3, "abstain": 0.5},
+                            )
+                        },
+                        usage=SimpleNamespace(input_tokens=10, output_tokens=0),
+                        debug={},
+                    )
+
+            return FakeClient()
+
+        def __exit__(self, *args: Any) -> None:
+            del args
+
+    runner._client = lambda _candidate: FakeContext()
+    result = runner.run(
+        EXAMPLE / "media-sync-safety-screen-v1.json",
+        EXAMPLE / "qwen35-9b-5060ti-media-direct-candidate.json",
+        repetitions=1,
+    )
+    validated = StructuredDecisionRun.model_validate(result)
+
+    assert result["workload_id"] == "media-sync-safety-screen-v1"
+    assert result["workload_unit"] == "proposed_pair"
+    assert all(item.decision_max_probability == Decimal("0.5") for item in validated.results)
+    assert all(item.expected_probability is not None for item in validated.results)
+    serialized = json.dumps(result)
+    assert '"state"' not in serialized
+    assert '"expected"' not in serialized
 
 
 def test_bfcl_manifest_is_exact_balanced_and_matches_workload() -> None:
