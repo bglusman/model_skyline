@@ -36,7 +36,10 @@ The prompt-free result summaries are
 Laya. The source screen is
 [`media-sync-safety-screen-v1.json`](media-sync-safety-screen-v1.json),
 and [`run_media_sync_baseline.py`](run_media_sync_baseline.py) is the transparent
-control.
+control. A later link-by-link review found several additional, unrelated
+“OpenJev” projects; the source census, identity map, and revised experiment
+order are in
+[`jev-landscape-audit-2026-09-19.md`](jev-landscape-audit-2026-09-19.md).
 
 ## Correct deployment shape
 
@@ -80,6 +83,14 @@ metadata-repair candidates after exact-ID and file-shape checks have run.
   9B run did not produce a score because the inference host's embedding workload
   continuously owned the GPU; its exclusive-runner guard correctly refused to
   evict that workload.
+- **kev and Bespoke Nimble are now the first local trained-model candidates.**
+  Both appeared after the initial pass, run natively on Apple Silicon, and fit
+  either 64 GB Mac. `kev` provides a TypeSafe-compatible endpoint, an isolated
+  trained readout head, and unusually candid in/out-of-domain evidence. Nimble
+  provides a Qwen3.5-9B typed-decision LoRA and an MLX parallel scorer. Neither
+  has earned a media safety claim: kev's larger checkpoints are research
+  previews, and Nimble explicitly says its option probabilities are not
+  calibrated correctness.
 - **OpenJev as distributed** is not currently a 16 GB-card deployment. The
   [vLLM recipe](https://github.com/vllm-project/recipes/blob/main/models/Google/diffusiongemma-26B-A4B-it.yaml)
   lists 24 GB minimum for both NVFP4 variants, and
@@ -117,10 +128,9 @@ Build a review-only holdout from already-adjudicated catalog incidents. Preserve
 the observed class balance and include contrast pairs where exactly one fact
 changes. Measure review-order precision and recall—not autonomous write rate—at
 three budgets: top 5%, top 20%, and all flagged items. Run the same packets
-through hosted Jev, Laya (raw and media-fine-tuned as distinct offerings), and
-a co-resident small local direct-logit model. First smoke-test the 16 GB Q4_K_M
-GGUF with `llama-diffusion-cli` on the M5 Max, then evaluate DiffusionGemma either
-via OpenJev on a documented NVIDIA >=24 GB host or by implementing the missing
-structured-readout contract on llama.cpp for the two 64 GB Apple hosts. Promote
-a model only if it improves reviewer yield over deterministic ranking without
-hiding any hard contradiction.
+through hosted Jev, kev-4B, Bespoke Nimble 9B, and SemIf/Gemma direct-logit
+controls. Keep the completed Laya result as a negative baseline. Separately,
+smoke-test the 16 GB DiffusionGemma Q4_K_M GGUF with `llama-diffusion-cli` on the
+M5 Max; do not block the trained Mac-model comparison on implementing its
+missing structured-readout contract. Promote a model only if it improves
+reviewer yield over deterministic ranking without hiding any hard contradiction.
