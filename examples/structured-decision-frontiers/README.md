@@ -123,13 +123,27 @@ Gateway; the committed result uses OpenRouter and retains its provider-reported
 cost. The compound-system measurements test router usefulness instead of
 transferring a router score to its worker.
 
-## The three candidate types
+## System topology and specialization
 
 | Candidate type | What is measured | Fair comparisons |
 | --- | --- | --- |
 | `decision_component` | One typed decision such as `light / heavy / abstain` | Jev, a small local LLM, or a large LLM answering the same question |
 | `single_model_system` | One complete routable agent/tool system | Small-only, heavy-only, local, or remote complete systems |
 | `compound_model_system` | A versioned policy connecting two or more named components | Jev+worker, small-local+worker, router+worker+guardrail, or other model pairs |
+
+These three types describe system topology. Specialization is a separate axis,
+not a fourth type. A narrow scorer such as
+[CUA-S1-FORMS](https://huggingface.co/cua-ai/cua-s1-forms) is still a
+`decision_component`; its specialization scope, training provenance,
+out-of-scope policy, and exact artifact revision belong in run metadata and its
+workload identity. It may share a frontier with a general decision model only
+when both answer the same action contract on the same pinned cases.
+
+The local
+[`CUA-S1-FORMS` intake](cua-s1-specialist-intake-2026-09-19.md) reproduces the
+published 196-row demo result, explains why that is not media-domain evidence,
+and defines the selective-accuracy, safety, outcome, and fallback-demand axes
+needed before a media-specific specialist can enter an active frontier.
 
 A compound offering is not merely named “Jev + Qwen.” Its identity includes:
 

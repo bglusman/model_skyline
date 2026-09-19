@@ -40,6 +40,8 @@ control. A later link-by-link review found several additional, unrelated
 “OpenJev” projects; the source census, identity map, and revised experiment
 order are in
 [`jev-landscape-audit-2026-09-19.md`](jev-landscape-audit-2026-09-19.md).
+A later specialist-model intake and local checkpoint reproduction are in
+[`cua-s1-specialist-intake-2026-09-19.md`](cua-s1-specialist-intake-2026-09-19.md).
 
 ## Correct deployment shape
 
@@ -121,6 +123,14 @@ metadata-repair candidates after exact-ID and file-shape checks have run.
   but its published Gemma 4 E2B result trails Jev on its common subset and its
   current workflow is Modal-first. It is a candidate for an offline quality
   control, not yet the home deployment default.
+- **CUA-S1-FORMS validates the specialist pattern, not media transfer.** Its
+  published 706k-parameter checkpoint loaded successfully and reproduced
+  196/196 top-1 decisions on the publisher's real-demo rows, with 2.57 ms CPU
+  p95 on the M5 Max. That set has only 196 decisions, 150 of them `skip`, and
+  was published by the model author. The useful next move is a comparably tiny
+  media-specific option scorer trained on adjudicated incidents, with a
+  source- or work-family-disjoint holdout—not sending catalog cases to this
+  form model.
 
 ## Next experiment
 
@@ -134,3 +144,9 @@ smoke-test the 16 GB DiffusionGemma Q4_K_M GGUF with `llama-diffusion-cli` on th
 M5 Max; do not block the trained Mac-model comparison on implementing its
 missing structured-readout contract. Promote a model only if it improves
 reviewer yield over deterministic ranking without hiding any hard contradiction.
+
+If the adjudicated incident set becomes large enough for training, add one
+specialist track with a frozen action contract such as duplicate disposition
+or Biblioaudio compatibility. Split it by catalog source, work family, or
+incident lineage rather than random row; report out-of-scope abstention and
+verified reviewer outcomes separately from in-scope top-1 accuracy.

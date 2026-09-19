@@ -22,6 +22,13 @@ change the local-alternative decision received a source/README review. Vendor
 documentation, applications, generic background, and off-topic links were
 classified but were not treated as independent model evidence.
 
+A later [CUA-S1 Show HN](https://news.ycombinator.com/item?id=49767564)
+introduced a different category: a 706k-parameter form-action specialist built
+from the `jevlike` option-attention design. Its repository, model, dataset, and
+launch comments were reviewed separately; the pinned artifact reproduction is
+in
+[`cua-s1-specialist-intake-2026-09-19.md`](cua-s1-specialist-intake-2026-09-19.md).
+
 ## The name collision
 
 | Name | Actual project | Mechanism | Deployment implication |
@@ -64,6 +71,7 @@ general-decision model.
 | [daseinlabs/open-jev](https://github.com/daseinlabs/open-jev) | Gemma 3 4B via MLX on Apple Silicon | Ready local API and full-option continuation scoring, including multi-token options | The project's own Jev quick-start comparison exposes overconfidence and two serious judgment disagreements | Control/reference |
 | [system-one-open](https://github.com/mithalouni/system-one-open) | Modal-first Gemma 4 E2B/270M; weights were pending upload when reviewed | Trained decision model with demos and common-subset comparison | Not yet the cleanest reproducible home deployment | Later |
 | [razorback16/openjev](https://github.com/razorback16/openjev) | Current server path requires NVIDIA >=24 GB; DiffusionGemma GGUF generation fits the 64 GB Macs | Closest open implementation of the diffusion-canvas theory | No current Apple server/readout contract; patched vLLM dependency | Research track |
+| [CUA-S1-FORMS](https://huggingface.co/cua-ai/cua-s1-forms) | 706k parameters; reproduced on the M5 Max CPU and MPS | A trained, single-pass specialist for `fill/check/click/skip`; 196/196 on its published real-demo rows | Publisher-authored demo is small and skip-heavy; no media transfer claim; GitHub component docs contradict the current separate artifact release | Specialist pattern |
 
 ## Revised experiment order
 
@@ -82,6 +90,10 @@ prompt contract in this order:
    the deployment control.
 5. Run the DiffusionGemma GGUF generation smoke separately. Do not block the
    Mac-native decision-model comparison on a llama.cpp structured-readout port.
+6. Treat CUA-S1 as the precedent for a future media-specific scorer, not as a
+   zero-shot media candidate. If enough adjudicated incidents exist, train one
+   narrow action contract and compare it to every general candidate on the
+   same source-disjoint holdout.
 
 No candidate enters a write path from these screens. The useful first outcome
 is higher review yield at zero observed unsafe decisions on a larger,
