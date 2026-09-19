@@ -1,0 +1,265 @@
+{
+  "schema_version": "model-skyline/structured-choice-suite/v1alpha1",
+  "suite_id": "model-skyline/media-sync-safety-screen",
+  "suite_version": "1",
+  "workload_id": "media-sync-safety-screen-v1",
+  "workload_unit": "proposed_pair",
+  "license": "CC0-1.0",
+  "methodology": "Redacted synthetic holdout derived from observed BookLore, Bookshelf, Audiobookshelf, and Biblioaudio failure classes. It evaluates advisory routing for proposed catalog pairs; it contains no private catalog records and does not authorize writes.",
+  "unsafe_predictions_by_expected": {
+    "link": [],
+    "separate": ["link"],
+    "abstain": ["link", "separate"]
+  },
+  "question": {
+    "name": "route",
+    "instructions": "Choose the safe handling route for the proposed pair. Link only when evidence establishes the same underlying work and there is no known language, abridgement, or coverage conflict. Separate when evidence establishes different works or incompatible content. Abstain for human review when evidence is missing, internally inconsistent, or metadata must be repaired before identity can be trusted.",
+    "criteria": {
+      "link": "Treat the records as the same compatible work for advisory pairing; this does not itself mutate either catalog.",
+      "separate": "Treat the records as different or content-incompatible; do not pair them.",
+      "abstain": "Do not decide automatically; repair or obtain missing identity evidence and have a human review the pair."
+    }
+  },
+  "cases": [
+    {
+      "case_id": "matching-work-ids-clean",
+      "state": {
+        "record_a": {"title": "Orbit Fall", "authors": ["Mira Chen"], "work_id": "w101", "edition_id": "e501", "language": "en", "abridged": false},
+        "record_b": {"title": "Orbit Fall", "authors": ["Mira Chen"], "work_id": "w101", "edition_id": "e882", "language": "en", "abridged": false},
+        "known_metadata_defects": []
+      },
+      "expected": "link",
+      "stratum": "authoritative-identity"
+    },
+    {
+      "case_id": "matching-work-ids-punctuation-variant",
+      "state": {
+        "record_a": {"title": "The Glass Harbor", "authors": ["A. J. Vale"], "work_id": "w102", "language": "en", "abridged": false},
+        "record_b": {"title": "The Glass Harbor: A Novel", "authors": ["A.J. Vale"], "work_id": "w102", "language": "en", "abridged": false},
+        "known_metadata_defects": []
+      },
+      "expected": "link",
+      "stratum": "authoritative-identity"
+    },
+    {
+      "case_id": "matching-work-different-editions",
+      "state": {
+        "record_a": {"title": "North Meridian", "authors": ["Samir Holt"], "work_id": "w103", "edition_id": "ebook-10", "language": "en", "abridged": false},
+        "record_b": {"title": "North Meridian", "authors": ["Samir Holt"], "work_id": "w103", "edition_id": "audio-44", "language": "en", "abridged": false},
+        "known_metadata_defects": []
+      },
+      "expected": "link",
+      "stratum": "edition-variant"
+    },
+    {
+      "case_id": "exact-file-duplicate",
+      "state": {
+        "record_a": {"title": "Small Fires", "authors": ["Ruth Imani"], "file_sha256": "sha256:111", "format": "epub", "language": "en"},
+        "record_b": {"title": "Small Fires", "authors": ["Ruth Imani"], "file_sha256": "sha256:111", "format": "epub", "language": "en"},
+        "known_metadata_defects": []
+      },
+      "expected": "link",
+      "stratum": "file-identity"
+    },
+    {
+      "case_id": "matching-isbn-without-work-id",
+      "state": {
+        "record_a": {"title": "A Measure of Snow", "authors": ["Nora Diaz"], "isbn13": "9780000000101", "language": "en", "abridged": false},
+        "record_b": {"title": "A Measure of Snow", "authors": ["Nora Diaz"], "isbn13": "9780000000101", "language": "en", "abridged": false},
+        "known_metadata_defects": []
+      },
+      "expected": "link",
+      "stratum": "edition-identifier"
+    },
+    {
+      "case_id": "matching-work-id-subtitle-difference",
+      "state": {
+        "record_a": {"title": "Signal Garden", "subtitle": null, "authors": ["Leah Park"], "work_id": "w104", "language": "en", "abridged": false},
+        "record_b": {"title": "Signal Garden", "subtitle": "A Novel", "authors": ["Leah Park"], "work_id": "w104", "language": "en", "abridged": false},
+        "known_metadata_defects": []
+      },
+      "expected": "link",
+      "stratum": "authoritative-identity"
+    },
+    {
+      "case_id": "same-work-two-epub-encodings",
+      "state": {
+        "record_a": {"title": "After the Floodplain", "authors": ["P. N. Okafor"], "work_id": "w105", "format": "epub", "file_sha256": "sha256:201", "language": "en"},
+        "record_b": {"title": "After the Floodplain", "authors": ["P. N. Okafor"], "work_id": "w105", "format": "epub", "file_sha256": "sha256:202", "language": "en"},
+        "known_metadata_defects": []
+      },
+      "expected": "link",
+      "stratum": "duplicate-format"
+    },
+    {
+      "case_id": "conflicting-work-ids",
+      "state": {
+        "record_a": {"title": "The Quiet Engine", "authors": ["Ivo Grant"], "work_id": "w106", "language": "en"},
+        "record_b": {"title": "The Quiet Engine", "authors": ["Ivo Grant"], "work_id": "w991", "language": "en"},
+        "known_metadata_defects": []
+      },
+      "expected": "separate",
+      "stratum": "identity-conflict"
+    },
+    {
+      "case_id": "adjacent-series-volumes",
+      "state": {
+        "record_a": {"title": "Lantern Road", "authors": ["Kei Morris"], "series": "Lantern Cycle", "series_number": 1, "work_id": "w107"},
+        "record_b": {"title": "Lantern Road: Ashes", "authors": ["Kei Morris"], "series": "Lantern Cycle", "series_number": 2, "work_id": "w108"},
+        "known_metadata_defects": []
+      },
+      "expected": "separate",
+      "stratum": "series-neighbor"
+    },
+    {
+      "case_id": "same-title-different-author",
+      "state": {
+        "record_a": {"title": "Homecoming", "authors": ["Ava Bell"], "work_id": "w109"},
+        "record_b": {"title": "Homecoming", "authors": ["D. K. Stone"], "work_id": "w110"},
+        "known_metadata_defects": []
+      },
+      "expected": "separate",
+      "stratum": "title-collision"
+    },
+    {
+      "case_id": "language-conflict",
+      "state": {
+        "record_a": {"title": "The Long Winter", "authors": ["Elena Ruiz"], "work_id": "w111", "language": "en", "abridged": false},
+        "record_b": {"title": "El largo invierno", "authors": ["Elena Ruiz"], "work_id": "w111", "language": "es", "abridged": false},
+        "known_metadata_defects": []
+      },
+      "expected": "separate",
+      "stratum": "content-conflict"
+    },
+    {
+      "case_id": "abridgement-conflict",
+      "state": {
+        "record_a": {"title": "City of Threads", "authors": ["M. A. Noor"], "work_id": "w112", "language": "en", "abridged": false},
+        "record_b": {"title": "City of Threads", "authors": ["M. A. Noor"], "work_id": "w112", "language": "en", "abridged": true},
+        "known_metadata_defects": []
+      },
+      "expected": "separate",
+      "stratum": "content-conflict"
+    },
+    {
+      "case_id": "omnibus-versus-single-work",
+      "state": {
+        "record_a": {"title": "The River Trilogy", "authors": ["Jonas Reed"], "coverage": ["w113", "w114", "w115"], "language": "en"},
+        "record_b": {"title": "River at Dawn", "authors": ["Jonas Reed"], "work_id": "w113", "coverage": ["w113"], "language": "en"},
+        "known_metadata_defects": []
+      },
+      "expected": "separate",
+      "stratum": "coverage-conflict"
+    },
+    {
+      "case_id": "collection-versus-single-story",
+      "state": {
+        "record_a": {"title": "Collected Night Stories", "authors": ["Rhea Moss"], "coverage_kind": "collection", "language": "en"},
+        "record_b": {"title": "The Blue Door", "authors": ["Rhea Moss"], "coverage_kind": "single-story", "language": "en"},
+        "known_metadata_defects": []
+      },
+      "expected": "separate",
+      "stratum": "coverage-conflict"
+    },
+    {
+      "case_id": "title-author-swapped",
+      "state": {
+        "record_a": {"title": "Mara Venn", "authors": ["The Stone Orchard"], "filename": "Mara Venn - The Stone Orchard.epub", "work_id": null},
+        "record_b": {"title": "The Stone Orchard", "authors": ["Mara Venn"], "work_id": "w116"},
+        "known_metadata_defects": ["record_a_title_author_transposition"]
+      },
+      "expected": "abstain",
+      "stratum": "metadata-corruption"
+    },
+    {
+      "case_id": "author-name-as-title",
+      "state": {
+        "record_a": {"title": "Tomas Vale", "authors": ["Unknown"], "filename": "Tomas Vale - Walking North.epub", "work_id": null},
+        "record_b": {"title": "Walking North", "authors": ["Tomas Vale"], "work_id": "w117"},
+        "known_metadata_defects": ["record_a_title_is_probable_author"]
+      },
+      "expected": "abstain",
+      "stratum": "metadata-corruption"
+    },
+    {
+      "case_id": "normalized-title-author-only",
+      "state": {
+        "record_a": {"title": "A Clock of Birds", "authors": ["Ren Ito"], "work_id": null, "isbn13": null, "language": "en"},
+        "record_b": {"title": "A Clock of Birds", "authors": ["Ren Ito"], "work_id": null, "isbn13": null, "language": "en"},
+        "known_metadata_defects": []
+      },
+      "expected": "abstain",
+      "stratum": "weak-evidence"
+    },
+    {
+      "case_id": "filename-only-identity",
+      "state": {
+        "record_a": {"title": null, "authors": [], "filename": "Lena Cho - Inland Stars.epub", "work_id": null},
+        "record_b": {"title": "Inland Stars", "authors": ["Lena Cho"], "work_id": null},
+        "known_metadata_defects": ["record_a_missing_title", "record_a_missing_author"]
+      },
+      "expected": "abstain",
+      "stratum": "missing-metadata"
+    },
+    {
+      "case_id": "unknown-language",
+      "state": {
+        "record_a": {"title": "Under Cedar", "authors": ["Mina Lee"], "work_id": "w118", "language": "en", "abridged": false},
+        "record_b": {"title": "Under Cedar", "authors": ["Mina Lee"], "work_id": "w118", "language": null, "abridged": false},
+        "known_metadata_defects": ["record_b_language_unknown"]
+      },
+      "expected": "abstain",
+      "stratum": "missing-metadata"
+    },
+    {
+      "case_id": "one-row-spans-two-work-ids",
+      "state": {
+        "record_a": {"title": "Harbor Machine", "authors": ["Dev Rao"], "contained_work_ids": ["w119", "w120"], "formats": ["epub", "azw3"]},
+        "record_b": {"title": "Harbor Machine", "authors": ["Dev Rao"], "work_id": "w119"},
+        "known_metadata_defects": ["record_a_contains_multiple_works"]
+      },
+      "expected": "abstain",
+      "stratum": "row-shape-violation"
+    },
+    {
+      "case_id": "matching-id-but-title-conflict",
+      "state": {
+        "record_a": {"title": "A Person Name", "authors": ["Unknown"], "work_id": "w121", "language": "en"},
+        "record_b": {"title": "Machines at Noon", "authors": ["A Person Name"], "work_id": "w121", "language": "en"},
+        "known_metadata_defects": ["record_a_probable_title_pollution"]
+      },
+      "expected": "abstain",
+      "stratum": "metadata-corruption"
+    },
+    {
+      "case_id": "same-id-missing-title",
+      "state": {
+        "record_a": {"title": null, "authors": ["Ari Fox"], "work_id": "w122", "language": "en"},
+        "record_b": {"title": "The Last Index", "authors": ["Ari Fox"], "work_id": "w122", "language": "en"},
+        "known_metadata_defects": ["record_a_missing_title"]
+      },
+      "expected": "abstain",
+      "stratum": "missing-metadata"
+    },
+    {
+      "case_id": "same-id-abridgement-unknown",
+      "state": {
+        "record_a": {"title": "Wind Atlas", "authors": ["Farah Cole"], "work_id": "w123", "language": "en", "abridged": false},
+        "record_b": {"title": "Wind Atlas", "authors": ["Farah Cole"], "work_id": "w123", "language": "en", "abridged": null},
+        "known_metadata_defects": ["record_b_abridgement_unknown"]
+      },
+      "expected": "abstain",
+      "stratum": "missing-metadata"
+    },
+    {
+      "case_id": "same-id-author-conflict",
+      "state": {
+        "record_a": {"title": "Red Province", "authors": ["Nina Scott"], "work_id": "w124", "language": "en"},
+        "record_b": {"title": "Red Province", "authors": ["Owen Pike"], "work_id": "w124", "language": "en"},
+        "known_metadata_defects": ["author_conflict"]
+      },
+      "expected": "abstain",
+      "stratum": "identity-conflict"
+    }
+  ]
+}

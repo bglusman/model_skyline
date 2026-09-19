@@ -1,0 +1,65 @@
+{
+  "schema_version": "model-skyline/media-sync-shadow-summary/v1",
+  "observed_at": "2026-09-19T14:26:59.662329Z",
+  "suite": {
+    "suite_id": "model-skyline/media-sync-safety-screen",
+    "suite_version": "1",
+    "workload_id": "media-sync-safety-screen-v1",
+    "workload_unit": "proposed_pair",
+    "case_count": 24,
+    "case_manifest_sha256": "bb99d40db2bf338d667c923e07f32ab41a5d9ddce2caba051ce34784fa651597",
+    "case_set_sha256": "4d836b8c33abf9ddb78e7bdaf2942efe7bee1238a48aa23f910f9e5297c330dc"
+  },
+  "deterministic_hard_gate": {
+    "policy_id": "media-sync-deterministic-hard-gate-v1",
+    "observations": 24,
+    "accuracy": "1.000000000000",
+    "handled_share": "0.583333333333",
+    "unsafe_count": 0,
+    "interpretation": "The oracle is rule-derived, so this proves implementation agreement on the authored screen, not generalization to unseen catalogs."
+  },
+  "jev": {
+    "offering_id": "openrouter/typesafe-jev-1.13@decisions-default",
+    "resolved_model": "typesafe/jev-1.13-20260917",
+    "candidate_configuration_sha256": "4375414677a87c566c709eb9302a8a02a3fab2b6be00d5d179f16e63727c4e78",
+    "harness_sha256": "dae58529ca2579067a2afbcfa74fac93d75551c91a4ee1cb380e1c4f6669d0cf",
+    "repetitions_per_case": 6,
+    "observations": 144,
+    "correct": 114,
+    "accuracy": "0.791666666667",
+    "handled_share": "0.611111111111",
+    "unsafe_count": 18,
+    "unsafe_rate": "0.125000000000",
+    "mean_brier_score": "0.093970370371",
+    "p50_latency_seconds": "0.265354500",
+    "p95_latency_seconds": "0.432993958",
+    "provider_reported_total_cost_usd": "0.003517164000",
+    "input_tokens": 83742,
+    "output_tokens": 6216,
+    "persistent_failure_cases": {
+      "conflicting-work-ids": {"correct": 0, "incorrect": 6, "unsafe": 0},
+      "filename-only-identity": {"correct": 2, "incorrect": 4, "unsafe": 4},
+      "language-conflict": {"correct": 4, "incorrect": 2, "unsafe": 2},
+      "normalized-title-author-only": {"correct": 0, "incorrect": 6, "unsafe": 6},
+      "same-id-missing-title": {"correct": 0, "incorrect": 6, "unsafe": 6},
+      "same-title-different-author": {"correct": 0, "incorrect": 6, "unsafe": 0}
+    }
+  },
+  "confidence_threshold_projection": [
+    {"minimum_confidence": "0.000000000000", "accuracy": "0.791666666667", "handled_share": "0.611111111111", "unsafe_count": 18},
+    {"minimum_confidence": "0.600000000000", "accuracy": "0.756944444444", "handled_share": "0.506944444444", "unsafe_count": 12},
+    {"minimum_confidence": "0.750000000000", "accuracy": "0.805555555556", "handled_share": "0.402777777778", "unsafe_count": 1},
+    {"minimum_confidence": "0.800000000000", "accuracy": "0.770833333333", "handled_share": "0.354166666667", "unsafe_count": 0},
+    {"minimum_confidence": "0.900000000000", "accuracy": "0.715277777778", "handled_share": "0.298611111111", "unsafe_count": 0}
+  ],
+  "blocked_local_measurements": [
+    {
+      "candidate": "Qwen3.5 9B Q6_K SemIf-style direct logits",
+      "reason": "The inference host's embedding workload continuously owned the GPU; the exclusive-runner guard refused a second CUDA process. No model result was recorded and no workload was evicted."
+    },
+    {
+      "candidate": "OpenJev on DiffusionGemma NVFP4",
+      "reason": "The available RTX 5060 Ti has 16 GB VRAM, while the current vLLM recipe and OpenJev documentation require at least 24 GB. The structured-readout vLLM pull request was still open and blocked, so no unsupported deployment was attempted."
+    }
+  ]
+}

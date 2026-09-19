@@ -1,0 +1,40 @@
+{
+  "backend": {
+    "kind": "direct-option-logits",
+    "model": "qwen35-9b-q6k-ctx128k-q8kv-load-none",
+    "base_url": "http://127.0.0.1:8090/v1",
+    "timeout_seconds": 600,
+    "prompt_version": "semif/direct-options-v1",
+    "source_url": "https://github.com/TheoLeeCJ/SemIf",
+    "source_revision": "92cbedcd3f9255286c741c5fe0935ecd8c6fc9e6"
+  },
+  "offering": {
+    "offering_id": "local/inference-vm-rtx5060ti16/Qwen3.5-9B@gguf-Q6_K-semif-direct-v1",
+    "model_id": "Qwen/Qwen3.5-9B",
+    "provider": "local-inference-vm-rtx5060ti16",
+    "endpoint": "http://127.0.0.1:8090/v1",
+    "billing_mode": "self-hosted",
+    "service_tier": "rtx5060ti16-warm-or-swapped",
+    "quantization": "gguf-Q6_K",
+    "reasoning_effort": "disabled",
+    "agent_harness": "semif-direct-options-v1-via-llamacpp",
+    "capabilities": ["structured-decisions"]
+  },
+  "component_id": "qwen35-media-advisor",
+  "resource_class": "light",
+  "guidance": "Apply the evidence hierarchy literally. Never infer that similar title strings alone prove identity. Abstain for human review when metadata defects or compatibility facts are missing, even when the pair looks likely.",
+  "routing_policy": "Advisory shadow mode only. Record the route and probabilities; never mutate a catalog or activate a Biblioaudio pair from this output.",
+  "measurement_conditions": {
+    "machine": "inference-vm RTX 5060 Ti 16 GB",
+    "model_residency": "llama-swap managed",
+    "prefix_cache": "enabled",
+    "request_order": "case-major",
+    "concurrency": 1,
+    "model_artifact_sha256": "b4fed2983efc25bdc63c74f76bc5dfe8f3a434dfa45e1ba17aadecf19eb3161b",
+    "model_source_revision": "6cf6f4e2055a0793b88db06dc8965e066db0e9eb",
+    "runtime_revision": "5266f24da",
+    "probability_semantics": "conditional option score; uncalibrated as decision confidence"
+  },
+  "cost_basis": "unavailable",
+  "fixed_cost_usd_per_model_call": null
+}

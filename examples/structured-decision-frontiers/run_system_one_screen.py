@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib
 import json
 import math
 import os
@@ -250,7 +251,7 @@ class _DirectOptionLogitsClient:
             "top_p": 1,
             "logprobs": True,
             "top_logprobs": max(20, len(labels)),
-            "grammar": "root ::= " + " | ".join(f'\"{label}\"' for label in labels),
+            "grammar": "root ::= " + " | ".join(f'"{label}"' for label in labels),
             "chat_template_kwargs": {"enable_thinking": False},
         }
         base_url = cast(str, self._backend["base_url"]).rstrip("/")
@@ -305,6 +306,55 @@ class _DirectOptionLogitsClient:
             },
         )
 
+
+class _LayaClient:
+    def __init__(self, backend: dict[str, Any]) -> None:
+        laya = importlib.import_module("laya")
+        huggingface_hub = importlib.import_module("huggingface_hub")
+
+        model = cast(str, backend["model"])
+        revision = cast(str, backend["revision"])
+        model_dir = huggingface_hub.snapshot_download(repo_id=model, revision=revision)
+        self._agent = laya.load(model_dir, device=cast(str, backend.get("device", "cpu")))
+        self._model = model
+        self._revision = revision
+
+    def system_one(
+        self,
+        state: str | dict[str, Any] | list[Any],
+        questions: dict[str, Any],
+    ) -> _Response:
+        response = self._agent.system_one(state, questions)
+        raw_answers = response.get("answers")
+        raw_usage = response.get("usage")
+        if not isinstance(raw_answers, dict) or not isinstance(raw_usage, dict):
+            raise ValueError("Laya response omitted answers or usage")
+        choices: dict[str, _Choice] = {}
+        for name, raw_answer in raw_answers.items():
+            if not isinstance(name, str) or not isinstance(raw_answer, dict):
+                raise ValueError("Laya returned a malformed answer")
+            choice = raw_answer.get("choice")
+            probabilities = raw_answer.get("probabilities")
+            if not isinstance(choice, str) or not isinstance(probabilities, dict):
+                raise ValueError("this screen requires Laya Choice answers")
+            choices[name] = _Choice(
+                choice=choice,
+                probabilities={str(key): float(value) for key, value in probabilities.items()},
+            )
+        return _Response(
+            choices=choices,
+            usage=_Usage(
+                input_tokens=int(raw_usage["input_tokens"]),
+                output_tokens=int(raw_usage["output_tokens"]),
+            ),
+            debug={
+                "resolved_model": self._model,
+                "provider": "local-laya",
+                "model_revision": self._revision,
+            },
+        )
+
+
 def _load_object(path: Path, *, label: str) -> tuple[dict[str, Any], bytes]:
     raw = path.read_bytes()
     value = json.loads(raw)
@@ -323,15 +373,26 @@ def _decimal(value: Decimal, *, decimal_places: int) -> str:
     return format(quantized, "f")
 
 
-def _brier(probabilities: dict[str, float], expected: str, labels: set[str]) -> Decimal:
+def _normalized_probabilities(
+    probabilities: Mapping[str, float | Decimal], labels: set[str]
+) -> dict[str, Decimal]:
     if set(probabilities) != labels:
         raise ValueError("response probabilities do not cover the exact choice labels")
     with localcontext(POLICY_DECIMAL_CONTEXT):
         decimal_probabilities = {label: Decimal(str(probabilities[label])) for label in labels}
         if any(value < 0 or value > 1 for value in decimal_probabilities.values()):
             raise ValueError("response probabilities must be between zero and one")
-        if abs(sum(decimal_probabilities.values(), Decimal(0)) - Decimal(1)) > Decimal("0.000001"):
-            raise ValueError("response probabilities must sum to one")
+        probability_sum = sum(decimal_probabilities.values(), Decimal(0))
+        if probability_sum == 0 or abs(probability_sum - Decimal(1)) > Decimal("0.02"):
+            raise ValueError(f"response probabilities must sum to one; got {probability_sum}")
+        return {label: value / probability_sum for label, value in decimal_probabilities.items()}
+
+
+def _brier(
+    probabilities: Mapping[str, float | Decimal], expected: str, labels: set[str]
+) -> Decimal:
+    with localcontext(POLICY_DECIMAL_CONTEXT):
+        decimal_probabilities = _normalized_probabilities(probabilities, labels)
         squared_error = sum(
             (decimal_probabilities[label] - (Decimal(1) if label == expected else Decimal(0))) ** 2
             for label in sorted(labels)
@@ -371,6 +432,8 @@ def _client(candidate: dict[str, Any]) -> ClientContext:
         )
     if kind == "direct-option-logits":
         return _PlainClientContext(cast(Client, _DirectOptionLogitsClient(backend)))
+    if kind == "laya":
+        return _PlainClientContext(cast(Client, _LayaClient(backend)))
     if kind == "openai-compatible":
         import openai
         from system_one_adapter import SystemOneAdapterClient
@@ -445,12 +508,12 @@ def _client(candidate: dict[str, Any]) -> ClientContext:
         )
     raise ValueError(
         "backend.kind must be typesafe, openrouter-decisions, "
-        "direct-option-logits, or openai-compatible"
+        "direct-option-logits, laya, or openai-compatible"
     )
 
 
 def _call_count(response: Response, *, backend_kind: str) -> int:
-    if backend_kind in {"typesafe", "openrouter-decisions", "direct-option-logits"}:
+    if backend_kind in {"typesafe", "openrouter-decisions", "direct-option-logits", "laya"}:
         return 1
     attempts = response.debug.get("llm_attempts")
     if not isinstance(attempts, list) or not attempts:
@@ -497,6 +560,20 @@ def _response_cost(
     if fixed_cost is None:
         raise ValueError("fixed-cost basis requires fixed_cost_usd_per_model_call")
     return fixed_cost * calls
+
+
+def _unsafe_action(suite: dict[str, Any], *, expected: str, predicted: str) -> bool:
+    raw_policy = suite.get("unsafe_predictions_by_expected")
+    if raw_policy is None:
+        return expected == "abstain" and predicted != "abstain"
+    if not isinstance(raw_policy, dict):
+        raise ValueError("unsafe_predictions_by_expected must be an object")
+    raw_predictions = raw_policy.get(expected, [])
+    if not isinstance(raw_predictions, list) or not all(
+        isinstance(value, str) for value in raw_predictions
+    ):
+        raise ValueError("unsafe prediction sets must be string arrays")
+    return predicted in raw_predictions
 
 
 def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str, Any]:
@@ -557,6 +634,7 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                     ) from exc
                 latency = Decimal(str(time.perf_counter() - started))
                 answer = response.choices[question_name]
+                answer_probabilities = _normalized_probabilities(answer.probabilities, labels)
                 calls = _call_count(response, backend_kind=cast(str, backend["kind"]))
                 response_input_tokens, response_output_tokens = _token_totals(response)
                 input_tokens_total += response_input_tokens
@@ -582,7 +660,11 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                         "final_success": answer.choice == expected,
                         "schema_valid": True,
                         "abstained": answer.choice == "abstain",
-                        "unsafe_action": (expected == "abstain" and answer.choice != "abstain"),
+                        "unsafe_action": _unsafe_action(
+                            suite,
+                            expected=expected,
+                            predicted=answer.choice,
+                        ),
                         "latency_seconds": _decimal(latency, decimal_places=9),
                         "total_cost_usd": (
                             _decimal(cost, decimal_places=12) if cost is not None else None
@@ -599,7 +681,15 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                             }
                         ],
                         "brier_score": _decimal(
-                            _brier(answer.probabilities, expected, labels),
+                            _brier(answer_probabilities, expected, labels),
+                            decimal_places=12,
+                        ),
+                        "decision_max_probability": _decimal(
+                            max(answer_probabilities.values()),
+                            decimal_places=12,
+                        ),
+                        "expected_probability": _decimal(
+                            answer_probabilities[expected],
                             decimal_places=12,
                         ),
                         "tool_selection_correct": None,
@@ -614,8 +704,8 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
     return {
         "schema_version": "model-skyline/structured-decision-run/v1alpha1",
         "observed_at": observed_at.isoformat().replace("+00:00", "Z"),
-        "workload_id": "structured-routing-screen-v1",
-        "workload_unit": "decision",
+        "workload_id": suite.get("workload_id", "structured-routing-screen-v1"),
+        "workload_unit": suite.get("workload_unit", "decision"),
         "workload": {
             "suite_id": suite["suite_id"],
             "suite_version": suite["suite_version"],
@@ -815,10 +905,10 @@ def run_compound(
                         f"router failed on case {case['case_id']!r}, repetition {repetition}"
                     ) from exc
                 router_answer = router_response.choices[question_name]
-                router_max_probability = max(
-                    Decimal(str(probability))
-                    for probability in router_answer.probabilities.values()
+                router_probabilities = _normalized_probabilities(
+                    router_answer.probabilities, labels
                 )
+                router_max_probability = max(router_probabilities.values())
                 router_calls = _call_count(
                     router_response,
                     backend_kind=cast(str, router_backend["kind"]),
@@ -852,6 +942,8 @@ def run_compound(
                     component_input_tokens[worker_component_id] += worker_input
                     component_output_tokens[worker_component_id] += worker_output
 
+                final_probabilities = _normalized_probabilities(final_answer.probabilities, labels)
+
                 latency = Decimal(str(time.perf_counter() - started))
                 input_tokens_total += router_input + worker_input
                 output_tokens_total += router_output + worker_output
@@ -875,8 +967,10 @@ def run_compound(
                         "final_success": final_answer.choice == expected,
                         "schema_valid": True,
                         "abstained": final_answer.choice == "abstain",
-                        "unsafe_action": (
-                            expected == "abstain" and final_answer.choice != "abstain"
+                        "unsafe_action": _unsafe_action(
+                            suite,
+                            expected=expected,
+                            predicted=final_answer.choice,
                         ),
                         "latency_seconds": _decimal(latency, decimal_places=9),
                         "total_cost_usd": (
@@ -907,7 +1001,7 @@ def run_compound(
                             },
                         ],
                         "brier_score": _decimal(
-                            _brier(final_answer.probabilities, expected, labels),
+                            _brier(final_probabilities, expected, labels),
                             decimal_places=12,
                         ),
                         "router_decision_correct": router_answer.choice == expected,
@@ -917,7 +1011,7 @@ def run_compound(
                             decimal_places=12,
                         ),
                         "router_brier_score": _decimal(
-                            _brier(router_answer.probabilities, expected, labels),
+                            _brier(router_probabilities, expected, labels),
                             decimal_places=12,
                         ),
                         "tool_selection_correct": None,
