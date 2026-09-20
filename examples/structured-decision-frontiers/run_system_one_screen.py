@@ -688,6 +688,7 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                             predicted=answer.choice,
                             case=case,
                         ),
+                        "decision_choice": answer.choice,
                         "latency_seconds": _decimal(latency, decimal_places=9),
                         "total_cost_usd": (
                             _decimal(cost, decimal_places=12) if cost is not None else None
@@ -988,6 +989,7 @@ def run_compound(
                             predicted=final_answer.choice,
                             case=case,
                         ),
+                        "decision_choice": final_answer.choice,
                         "latency_seconds": _decimal(latency, decimal_places=9),
                         "total_cost_usd": (
                             _decimal(total_cost, decimal_places=12)
@@ -1022,6 +1024,7 @@ def run_compound(
                         ),
                         "router_decision_correct": router_answer.choice == expected,
                         "router_abstained": router_answer.choice == "abstain",
+                        "router_choice": router_answer.choice,
                         "router_max_probability": _decimal(
                             router_max_probability,
                             decimal_places=12,

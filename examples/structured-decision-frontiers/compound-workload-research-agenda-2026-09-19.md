@@ -123,6 +123,7 @@ Every serious suite should include:
 Report the complete system and each relevant counterfactual:
 
 - final verified success, safe success, unsafe success, and abstention;
+- a prompt-free choice confusion matrix for every structured decision;
 - component error rescue and override harm;
 - router precision/recall for escalation plus oracle-router regret;
 - specialist in-scope accuracy, OOD recall, selective accuracy, and coverage;

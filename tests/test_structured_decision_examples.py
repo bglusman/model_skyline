@@ -263,6 +263,7 @@ def test_single_runner_accepts_compound_routing_stress_screen() -> None:
     assert validated.workload.case_count == 36
     assert len(validated.results) == 36
     assert not any(item.unsafe_action for item in validated.results)
+    assert {item.decision_choice for item in validated.results} == {"human_review"}
 
 
 def test_single_runner_retains_probability_diagnostics_and_suite_workload() -> None:
@@ -303,6 +304,7 @@ def test_single_runner_retains_probability_diagnostics_and_suite_workload() -> N
     assert result["workload_unit"] == "proposed_pair"
     assert all(item.decision_max_probability == Decimal("0.5") for item in validated.results)
     assert all(item.expected_probability is not None for item in validated.results)
+    assert {item.decision_choice for item in validated.results} == {"abstain"}
     serialized = json.dumps(result)
     assert '"state"' not in serialized
     assert '"expected"' not in serialized

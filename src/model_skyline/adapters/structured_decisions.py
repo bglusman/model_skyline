@@ -175,6 +175,7 @@ class StructuredDecisionCaseResult(FrozenModel):
     schema_valid: bool
     abstained: bool
     unsafe_action: bool
+    decision_choice: str | None = Field(default=None, min_length=1, max_length=256)
     latency_seconds: CanonicalDecimal = Field(ge=0, max_digits=38, decimal_places=9)
     total_cost_usd: CanonicalDecimal | None = Field(
         default=None, ge=0, max_digits=38, decimal_places=12
@@ -194,6 +195,7 @@ class StructuredDecisionCaseResult(FrozenModel):
     primary_success: bool | None = None
     router_decision_correct: bool | None = None
     router_abstained: bool | None = None
+    router_choice: str | None = Field(default=None, min_length=1, max_length=256)
     router_max_probability: CanonicalDecimal | None = Field(
         default=None, ge=0, le=1, max_digits=18, decimal_places=12
     )
