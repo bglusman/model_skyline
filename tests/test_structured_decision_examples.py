@@ -60,6 +60,16 @@ def _media_baseline_module() -> ModuleType:
     return module
 
 
+def _compound_routing_baseline_module() -> ModuleType:
+    path = EXAMPLE / "run_compound_routing_baseline.py"
+    spec = importlib.util.spec_from_file_location("compound_routing_baseline", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_routing_suite_identity_matches_frontier_workload() -> None:
     path = EXAMPLE / "routing-screen-v1.json"
     suite = _object(path)
@@ -145,6 +155,114 @@ def test_media_sync_screen_has_a_safe_deterministic_control() -> None:
     assert laya_summary["laya"]["observations"] == 144
     assert laya_summary["laya"]["unsafe_count"] == 72
     assert laya_summary["laya"]["deterministic_across_repetitions"] is True
+
+
+def test_compound_routing_stress_screen_is_balanced_and_contrastive() -> None:
+    path = EXAMPLE / "compound-routing-stress-screen-v2.json"
+    suite = _object(path)
+    cases = suite["cases"]
+    labels = set(suite["question"]["criteria"])
+
+    assert suite["workload_id"] == "compound-routing-stress-screen-v2"
+    assert suite["workload_unit"] == "routing_packet"
+    assert len(cases) == 36
+    assert len({case["case_id"] for case in cases}) == 36
+
+    by_route: dict[str, list[dict[str, Any]]] = {}
+    by_contrast: dict[str, list[dict[str, Any]]] = {}
+    for case in cases:
+        by_route.setdefault(case["expected"], []).append(case)
+        by_contrast.setdefault(case["contrast_set"], []).append(case)
+        assert case["expected"] in labels
+        assert set(case["unsafe_predictions"]).issubset(labels - {case["expected"]})
+
+    assert set(by_route) == labels
+    assert {route: len(rows) for route, rows in by_route.items()} == {
+        route: 6 for route in labels
+    }
+    assert len(by_contrast) == 18
+    for pair in by_contrast.values():
+        assert len(pair) == 2
+        assert pair[0]["expected"] != pair[1]["expected"]
+        changed_fields = {
+            field
+            for field in pair[0]["state"]
+            if pair[0]["state"][field] != pair[1]["state"][field]
+        }
+        assert len(changed_fields) == 1
+        assert pair[0]["state"].keys() == pair[1]["state"].keys()
+
+    result = _compound_routing_baseline_module().run(path)
+    assert result["case_count"] == result["correct_count"] == 36
+    assert result["contrast_set_count"] == 18
+    assert result["unsafe_count"] == 0
+
+
+def test_case_specific_unsafe_policy_overrides_suite_default() -> None:
+    runner = _runner_module()
+    suite = {"unsafe_predictions_by_expected": {"human_review": []}}
+    case = {"unsafe_predictions": ["remote_model"]}
+
+    assert runner._unsafe_action(
+        suite,
+        expected="human_review",
+        predicted="remote_model",
+        case=case,
+    )
+    assert not runner._unsafe_action(
+        suite,
+        expected="human_review",
+        predicted="local_general",
+        case=case,
+    )
+
+
+def test_single_runner_accepts_compound_routing_stress_screen() -> None:
+    runner = _runner_module()
+    labels = [
+        "deterministic",
+        "local_specialist",
+        "local_general",
+        "remote_model",
+        "model_plus_verifier",
+        "human_review",
+    ]
+
+    class FakeContext:
+        def __enter__(self):
+            class FakeClient:
+                def system_one(self, state: Any, questions: dict[str, Any]):
+                    del state
+                    question_name = next(iter(questions))
+                    return SimpleNamespace(
+                        choices={
+                            question_name: SimpleNamespace(
+                                choice="human_review",
+                                probabilities={label: 1 / len(labels) for label in labels},
+                            )
+                        },
+                        usage=SimpleNamespace(input_tokens=10, output_tokens=0),
+                        debug={},
+                    )
+
+            return FakeClient()
+
+        def __exit__(self, *args: Any) -> None:
+            del args
+
+    runner._client = lambda _candidate: FakeContext()
+    result = runner.run(
+        EXAMPLE / "compound-routing-stress-screen-v2.json",
+        EXAMPLE / "qwen35-9b-5060ti-media-direct-candidate.json",
+        repetitions=1,
+    )
+    validated = StructuredDecisionRun.model_validate(result)
+
+    assert result["workload_id"] == "compound-routing-stress-screen-v2"
+    assert result["workload_unit"] == "routing_packet"
+    assert validated.workload.case_count == 36
+    assert len(validated.results) == 36
+    assert not any(item.unsafe_action for item in validated.results)
 
 
 def test_single_runner_retains_probability_diagnostics_and_suite_workload() -> None:

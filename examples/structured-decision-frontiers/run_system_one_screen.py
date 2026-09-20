@@ -562,7 +562,21 @@ def _response_cost(
     return fixed_cost * calls
 
 
-def _unsafe_action(suite: dict[str, Any], *, expected: str, predicted: str) -> bool:
+def _unsafe_action(
+    suite: dict[str, Any],
+    *,
+    expected: str,
+    predicted: str,
+    case: dict[str, Any] | None = None,
+) -> bool:
+    raw_policy = case.get("unsafe_predictions") if case is not None else None
+    if raw_policy is not None:
+        if not isinstance(raw_policy, list) or not all(
+            isinstance(value, str) for value in raw_policy
+        ):
+            raise ValueError("case unsafe_predictions must be a string array")
+        return predicted in raw_policy
+
     raw_policy = suite.get("unsafe_predictions_by_expected")
     if raw_policy is None:
         return expected == "abstain" and predicted != "abstain"
@@ -574,6 +588,22 @@ def _unsafe_action(suite: dict[str, Any], *, expected: str, predicted: str) -> b
     ):
         raise ValueError("unsafe prediction sets must be string arrays")
     return predicted in raw_predictions
+
+
+def _case_identity(case: dict[str, Any], question: dict[str, Any]) -> dict[str, Any]:
+    """Bind optional scoring metadata without changing legacy case digests."""
+
+    identity = {
+        "case_id": case["case_id"],
+        "state": case["state"],
+        "expected": case["expected"],
+        "stratum": case["stratum"],
+        "question": question,
+    }
+    for field in ("contrast_set", "unsafe_predictions"):
+        if field in case:
+            identity[field] = case[field]
+    return identity
 
 
 def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str, Any]:
@@ -609,15 +639,7 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
         case_id = cast(str, case["case_id"])
         if case_id in case_sha256_by_id:
             raise ValueError(f"suite repeats case_id {case_id!r}")
-        case_sha256_by_id[case_id] = _digest(
-            {
-                "case_id": case_id,
-                "state": case["state"],
-                "expected": case["expected"],
-                "stratum": case["stratum"],
-                "question": question,
-            }
-        )
+        case_sha256_by_id[case_id] = _digest(_case_identity(case, question))
     with _client(candidate) as client:
         for case in cases:
             expected = cast(str, case["expected"])
@@ -664,6 +686,7 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                             suite,
                             expected=expected,
                             predicted=answer.choice,
+                            case=case,
                         ),
                         "latency_seconds": _decimal(latency, decimal_places=9),
                         "total_cost_usd": (
@@ -869,15 +892,7 @@ def run_compound(
         case_id = cast(str, case["case_id"])
         if case_id in case_sha256_by_id:
             raise ValueError(f"suite repeats case_id {case_id!r}")
-        case_sha256_by_id[case_id] = _digest(
-            {
-                "case_id": case_id,
-                "state": case["state"],
-                "expected": case["expected"],
-                "stratum": case["stratum"],
-                "question": question,
-            }
-        )
+        case_sha256_by_id[case_id] = _digest(_case_identity(case, question))
 
     results: list[dict[str, Any]] = []
     input_tokens_total = 0
@@ -971,6 +986,7 @@ def run_compound(
                             suite,
                             expected=expected,
                             predicted=final_answer.choice,
+                            case=case,
                         ),
                         "latency_seconds": _decimal(latency, decimal_places=9),
                         "total_cost_usd": (
@@ -1028,8 +1044,8 @@ def run_compound(
     return {
         "schema_version": "model-skyline/structured-decision-run/v1alpha1",
         "observed_at": observed_at.isoformat().replace("+00:00", "Z"),
-        "workload_id": "structured-routing-screen-v1",
-        "workload_unit": "decision",
+        "workload_id": suite.get("workload_id", "structured-routing-screen-v1"),
+        "workload_unit": suite.get("workload_unit", "decision"),
         "workload": {
             "suite_id": suite["suite_id"],
             "suite_version": suite["suite_version"],

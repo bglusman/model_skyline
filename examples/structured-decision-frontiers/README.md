@@ -145,6 +145,17 @@ published 196-row demo result, explains why that is not media-domain evidence,
 and defines the selective-accuracy, safety, outcome, and fallback-demand axes
 needed before a media-specific specialist can enter an active frontier.
 
+The follow-on
+[`compound-system workload research agenda`](compound-workload-research-agenda-2026-09-19.md)
+separates topology, component role and kind, contract, placement, authority,
+state semantics, activation, adaptation, and recovery. Its first executable
+artifact is
+[`compound-routing-stress-screen-v2.json`](compound-routing-stress-screen-v2.json):
+36 balanced packets in 18 one-field contrast sets spanning deterministic,
+local-specialist, local-general, remote, model-plus-verifier, and human-review
+routes. Case-specific unsafe-route definitions distinguish a merely expensive
+choice from a privacy or action-safety violation.
+
 A compound offering is not merely named “Jev + Qwen.” Its identity includes:
 
 - each exact component offering, including provider or local runtime details;
