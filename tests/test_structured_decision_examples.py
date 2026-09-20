@@ -178,9 +178,7 @@ def test_compound_routing_stress_screen_is_balanced_and_contrastive() -> None:
         assert set(case["unsafe_predictions"]).issubset(labels - {case["expected"]})
 
     assert set(by_route) == labels
-    assert {route: len(rows) for route, rows in by_route.items()} == {
-        route: 6 for route in labels
-    }
+    assert {route: len(rows) for route, rows in by_route.items()} == {route: 6 for route in labels}
     assert len(by_contrast) == 18
     for pair in by_contrast.values():
         assert len(pair) == 2
@@ -206,9 +204,10 @@ def test_compound_routing_stress_screen_is_balanced_and_contrastive() -> None:
     assert summary["jev"]["observations"] == 108
     assert summary["jev"]["correct"] == 79
     assert summary["jev"]["unsafe_count"] == 29
-    assert summary["jev"]["harness_sha256"] == hashlib.sha256(
-        (EXAMPLE / "run_system_one_screen.py").read_bytes()
-    ).hexdigest()
+    assert (
+        summary["jev"]["harness_sha256"]
+        == hashlib.sha256((EXAMPLE / "run_system_one_screen.py").read_bytes()).hexdigest()
+    )
     assert sum(row["observations"] for row in summary["by_expected_route"].values()) == 108
     assert sum(row["unsafe"] for row in summary["by_expected_route"].values()) == 29
 
