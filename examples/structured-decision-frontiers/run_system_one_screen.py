@@ -606,6 +606,18 @@ def _case_identity(case: dict[str, Any], question: dict[str, Any]) -> dict[str, 
     return identity
 
 
+def _abstain_choices(suite: dict[str, Any], labels: set[str]) -> set[str]:
+    raw_choices = suite.get("abstain_choices", ["abstain"])
+    if not isinstance(raw_choices, list) or not all(
+        isinstance(value, str) for value in raw_choices
+    ):
+        raise ValueError("abstain_choices must be a string array")
+    choices = set(raw_choices)
+    if not choices.issubset(labels):
+        raise ValueError("abstain_choices names a choice absent from the suite")
+    return choices
+
+
 def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str, Any]:
     if repetitions < 1:
         raise ValueError("repetitions must be positive")
@@ -615,6 +627,7 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
     question_name = cast(str, question["name"])
     criteria = cast(dict[str, Any], question["criteria"])
     labels = set(criteria)
+    abstain_choices = _abstain_choices(suite, labels)
     backend = cast(dict[str, Any], candidate["backend"])
     component_id = cast(str, candidate["component_id"])
     resource_class = cast(str, candidate["resource_class"])
@@ -681,7 +694,7 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                         "decision_correct": answer.choice == expected,
                         "final_success": answer.choice == expected,
                         "schema_valid": True,
-                        "abstained": answer.choice == "abstain",
+                        "abstained": answer.choice in abstain_choices,
                         "unsafe_action": _unsafe_action(
                             suite,
                             expected=expected,
@@ -821,6 +834,7 @@ def run_compound(
     question_name = cast(str, question["name"])
     criteria = cast(dict[str, Any], question["criteria"])
     labels = set(criteria)
+    abstain_choices = _abstain_choices(suite, labels)
     policy = cast(dict[str, Any], compound["routing_policy"])
     expected_policy_keys = {
         "policy_id",
@@ -982,7 +996,7 @@ def run_compound(
                         "decision_correct": final_answer.choice == expected,
                         "final_success": final_answer.choice == expected,
                         "schema_valid": True,
-                        "abstained": final_answer.choice == "abstain",
+                        "abstained": final_answer.choice in abstain_choices,
                         "unsafe_action": _unsafe_action(
                             suite,
                             expected=expected,
@@ -1023,7 +1037,7 @@ def run_compound(
                             decimal_places=12,
                         ),
                         "router_decision_correct": router_answer.choice == expected,
-                        "router_abstained": router_answer.choice == "abstain",
+                        "router_abstained": router_answer.choice in abstain_choices,
                         "router_choice": router_answer.choice,
                         "router_max_probability": _decimal(
                             router_max_probability,

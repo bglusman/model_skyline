@@ -165,6 +165,7 @@ def test_compound_routing_stress_screen_is_balanced_and_contrastive() -> None:
 
     assert suite["workload_id"] == "compound-routing-stress-screen-v2"
     assert suite["workload_unit"] == "routing_packet"
+    assert suite["abstain_choices"] == ["human_review"]
     assert len(cases) == 36
     assert len({case["case_id"] for case in cases}) == 36
 
@@ -264,6 +265,7 @@ def test_single_runner_accepts_compound_routing_stress_screen() -> None:
     assert len(validated.results) == 36
     assert not any(item.unsafe_action for item in validated.results)
     assert {item.decision_choice for item in validated.results} == {"human_review"}
+    assert all(item.abstained for item in validated.results)
 
 
 def test_single_runner_retains_probability_diagnostics_and_suite_workload() -> None:
