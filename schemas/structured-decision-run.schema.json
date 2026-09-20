@@ -385,6 +385,20 @@
           "title": "Unsafe Action",
           "type": "boolean"
         },
+        "decision_choice": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decision Choice"
+        },
         "latency_seconds": {
           "anyOf": [
             {
@@ -554,6 +568,20 @@
           ],
           "default": null,
           "title": "Router Abstained"
+        },
+        "router_choice": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Router Choice"
         },
         "router_max_probability": {
           "anyOf": [

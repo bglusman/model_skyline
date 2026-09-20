@@ -198,6 +198,20 @@ def test_compound_routing_stress_screen_is_balanced_and_contrastive() -> None:
     assert result["contrast_set_count"] == 18
     assert result["unsafe_count"] == 0
 
+    summary = _object(EXAMPLE / "compound-routing-jev-r3-summary.json")
+    assert summary["suite"]["case_manifest_sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert summary["suite"]["case_set_sha256"] == (
+        "6826c0e23c78eca8976b9c964518cbfce8c22d274eb8648e69e8ed530c4c57de"
+    )
+    assert summary["jev"]["observations"] == 108
+    assert summary["jev"]["correct"] == 79
+    assert summary["jev"]["unsafe_count"] == 29
+    assert summary["jev"]["harness_sha256"] == hashlib.sha256(
+        (EXAMPLE / "run_system_one_screen.py").read_bytes()
+    ).hexdigest()
+    assert sum(row["observations"] for row in summary["by_expected_route"].values()) == 108
+    assert sum(row["unsafe"] for row in summary["by_expected_route"].values()) == 29
+
 
 def test_case_specific_unsafe_policy_overrides_suite_default() -> None:
     runner = _runner_module()

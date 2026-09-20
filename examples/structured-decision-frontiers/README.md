@@ -156,6 +156,13 @@ local-specialist, local-general, remote, model-plus-verifier, and human-review
 routes. Case-specific unsafe-route definitions distinguish a merely expensive
 choice from a privacy or action-safety violation.
 
+The first frozen run is reported in
+[`status-2026-09-20-compound-workloads.md`](status-2026-09-20-compound-workloads.md).
+Hosted Jev reached 73.15% exact-route accuracy but selected 29 unsafe routes in
+108 observations; it chose `human_review` correctly only 3 of 18 times. Those
+failures support the contrast-set and case-specific safety design and reject
+using aggregate route accuracy as the deployment criterion.
+
 A compound offering is not merely named “Jev + Qwen.” Its identity includes:
 
 - each exact component offering, including provider or local runtime details;
