@@ -129,13 +129,13 @@ state. The raw per-case artifacts retain it; the aggregate p95 values above do
 not make a cold-start claim. Self-hosted dollar cost and energy were not
 measured, so these points do not enter an active cost frontier.
 
-The result-of-record files are:
-
-- [`compound-routing-kev4b-qwen35-r3-result.json`](compound-routing-kev4b-qwen35-r3-result.json)
-  and [`media-sync-kev4b-qwen35-r6-result.json`](media-sync-kev4b-qwen35-r6-result.json);
-- [`compound-routing-opendecision-r3-result.json`](compound-routing-opendecision-r3-result.json)
-  and [`media-sync-opendecision-r6-result.json`](media-sync-opendecision-r6-result.json); and
-- the exact candidate configurations
+The compact
+[`result-of-record summary`](jev-hn-local-followup-summary-2026-09-21.json)
+retains the aggregate outcomes, confidence projections, source revisions,
+candidate and suite hashes, and raw artifact digests. The four prompt-free
+per-repetition artifacts remain recoverable at its pinned measurement commit;
+they are not duplicated at repository HEAD. The exact candidate configurations
+are
   [`kev-4b-qwen35-mps-candidate.json`](kev-4b-qwen35-mps-candidate.json) and
   [`opendecision-modernbert-large-mps-candidate.json`](opendecision-modernbert-large-mps-candidate.json).
 

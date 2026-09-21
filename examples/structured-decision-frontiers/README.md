@@ -245,7 +245,7 @@ its end-to-end outcomes are measured.
 - [`kev-4b-qwen35-mps-candidate.json`](kev-4b-qwen35-mps-candidate.json) and
   [`opendecision-modernbert-large-mps-candidate.json`](opendecision-modernbert-large-mps-candidate.json)
   pin two TypeSafe-compatible local servers measured on the unchanged media and
-  compound-routing screens. Their prompt-free result files are linked from the
+  compound-routing screens. Their compact result-of-record summary is linked from the
   [landscape audit](jev-landscape-audit-2026-09-19.md#frozen-local-follow-up--2026-09-21).
 - [`gpt-oss-20b-local-candidate.json`](gpt-oss-20b-local-candidate.json)
   configures the lighter local GPT-OSS control.

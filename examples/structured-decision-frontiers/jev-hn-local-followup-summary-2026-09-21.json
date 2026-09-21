@@ -1,0 +1,147 @@
+{
+  "schema_version": "model-skyline/jev-hn-local-followup-summary/v1",
+  "measurement_commit": "697a9423691eb7761e94b05e74bb174b9536f522",
+  "candidates": {
+    "kev-4b-qwen35": {
+      "offering_id": "local/apple-m5-max-mps/jaredpalmer-kev-4b@485ace8703592fcf405488b262449990824cfed1",
+      "runtime_revision": "8cb29871864a4e71573b6f385a787f12ddc52f6c",
+      "adapter_revision": "485ace8703592fcf405488b262449990824cfed1",
+      "base_model_revision": "1001bb4d826a52d1f399e183466143f4da7b741b",
+      "candidate_file": "kev-4b-qwen35-mps-candidate.json",
+      "candidate_configuration_sha256": "4533dcf6ef0e697d56722e85a214794e1a2336b0cc3cc4b6573161cf90ad9410",
+      "source_url": "https://github.com/jaredpalmer/kev",
+      "license": "Apache-2.0"
+    },
+    "opendecision-modernbert-large": {
+      "offering_id": "local/apple-m5-max-mps/opendecision-modernbert-large@20b2a78f9822130322125c0345976a12a87c76a4",
+      "runtime_revision": "20b2a78f9822130322125c0345976a12a87c76a4",
+      "model_revision": "a51e07b524299e309dd2b88d48b0cfa2bd9ec598",
+      "candidate_file": "opendecision-modernbert-large-mps-candidate.json",
+      "candidate_configuration_sha256": "9add30728daa5daedc7599f3e11fff81fffe94967eeb5ec4c293b777088b8fbb",
+      "source_url": "https://github.com/deepanwadhwa/OpenDecision",
+      "license": "Apache-2.0"
+    }
+  },
+  "workloads": {
+    "compound-routing-stress-screen-v2": {
+      "case_count": 36,
+      "case_manifest_sha256": "7826245bc23304368f8e3ac06c9f775896edfd08fb498219b27b25699c36374f",
+      "case_set_sha256": "6826c0e23c78eca8976b9c964518cbfce8c22d274eb8648e69e8ed530c4c57de"
+    },
+    "media-sync-safety-screen-v1": {
+      "case_count": 24,
+      "case_manifest_sha256": "bb99d40db2bf338d667c923e07f32ab41a5d9ddce2caba051ce34784fa651597",
+      "case_set_sha256": "4d836b8c33abf9ddb78e7bdaf2942efe7bee1238a48aa23f910f9e5297c330dc"
+    }
+  },
+  "results": {
+    "compound-routing-stress-screen-v2": {
+      "kev-4b-qwen35": {
+        "observed_at": "2026-09-21T19:07:10.539700Z",
+        "repetitions_per_case": 3,
+        "observations": 108,
+        "correct": 60,
+        "accuracy": "0.555555555556",
+        "handled_share": "1.000000000000",
+        "unsafe_count": 36,
+        "unsafe_rate": "0.333333333333",
+        "mean_brier_score": "0.098712426110",
+        "p95_latency_seconds": "0.620242723",
+        "input_tokens": 39846,
+        "output_tokens": 10098,
+        "deterministic_across_repetitions": true,
+        "confidence_fallback_projection": [
+          {"minimum_confidence": "0.000000000000", "accuracy": "0.555555555556", "handled_share": "1.000000000000", "unsafe_count": 36},
+          {"minimum_confidence": "0.800000000000", "accuracy": "0.305555555556", "handled_share": "0.194444444444", "unsafe_count": 3},
+          {"minimum_confidence": "0.900000000000", "accuracy": "0.166666666667", "handled_share": "0.000000000000", "unsafe_count": 0}
+        ],
+        "raw_result": {
+          "path_at_measurement_commit": "examples/structured-decision-frontiers/compound-routing-kev4b-qwen35-r3-result.json",
+          "sha256": "3497c26250f021ba46b9ba8aaa82b426c8e0e416c79ae3c0621a3acd8823e71a"
+        }
+      },
+      "opendecision-modernbert-large": {
+        "observed_at": "2026-09-21T19:14:39.180811Z",
+        "repetitions_per_case": 3,
+        "observations": 108,
+        "correct": 33,
+        "accuracy": "0.305555555556",
+        "handled_share": "0.527777777778",
+        "unsafe_count": 33,
+        "unsafe_rate": "0.305555555556",
+        "mean_brier_score": "0.146749294891",
+        "p95_latency_seconds": "0.115265861",
+        "input_tokens": 51048,
+        "output_tokens": 0,
+        "deterministic_across_repetitions": true,
+        "confidence_fallback_projection": [
+          {"minimum_confidence": "0.000000000000", "accuracy": "0.305555555556", "handled_share": "0.527777777778", "unsafe_count": 33},
+          {"minimum_confidence": "0.500000000000", "accuracy": "0.194444444444", "handled_share": "0.055555555556", "unsafe_count": 3},
+          {"minimum_confidence": "0.900000000000", "accuracy": "0.166666666667", "handled_share": "0.000000000000", "unsafe_count": 0}
+        ],
+        "raw_result": {
+          "path_at_measurement_commit": "examples/structured-decision-frontiers/compound-routing-opendecision-r3-result.json",
+          "sha256": "20b03ab352aa3320f97982b902a7b0ace2d95ea7ce64f8fc90bf4420d639ed2d"
+        }
+      }
+    },
+    "media-sync-safety-screen-v1": {
+      "kev-4b-qwen35": {
+        "observed_at": "2026-09-21T19:09:07.421823Z",
+        "repetitions_per_case": 6,
+        "observations": 144,
+        "correct": 60,
+        "accuracy": "0.416666666667",
+        "handled_share": "1.000000000000",
+        "unsafe_count": 84,
+        "unsafe_rate": "0.583333333333",
+        "mean_brier_score": "0.257747568680",
+        "p95_latency_seconds": "0.516404992",
+        "input_tokens": 35496,
+        "output_tokens": 8334,
+        "deterministic_across_repetitions": true,
+        "confidence_fallback_projection": [
+          {"minimum_confidence": "0.000000000000", "accuracy": "0.416666666667", "handled_share": "1.000000000000", "unsafe_count": 84},
+          {"minimum_confidence": "0.900000000000", "accuracy": "0.625000000000", "handled_share": "0.416666666667", "unsafe_count": 18},
+          {"minimum_confidence": "0.950000000000", "accuracy": "0.541666666667", "handled_share": "0.125000000000", "unsafe_count": 0}
+        ],
+        "raw_result": {
+          "path_at_measurement_commit": "examples/structured-decision-frontiers/media-sync-kev4b-qwen35-r6-result.json",
+          "sha256": "907265d8903a390ee91336805c7bdc75d33ee6be8ce4c2669c944b5db8e64126"
+        }
+      },
+      "opendecision-modernbert-large": {
+        "observed_at": "2026-09-21T19:14:59.771451Z",
+        "repetitions_per_case": 6,
+        "observations": 144,
+        "correct": 24,
+        "accuracy": "0.166666666667",
+        "handled_share": "0.958333333333",
+        "unsafe_count": 84,
+        "unsafe_rate": "0.583333333333",
+        "mean_brier_score": "0.330229629490",
+        "p95_latency_seconds": "0.066334179",
+        "input_tokens": 43506,
+        "output_tokens": 0,
+        "deterministic_across_repetitions": true,
+        "confidence_fallback_projection": [
+          {"minimum_confidence": "0.000000000000", "accuracy": "0.166666666667", "handled_share": "0.958333333333", "unsafe_count": 84},
+          {"minimum_confidence": "0.700000000000", "accuracy": "0.291666666667", "handled_share": "0.250000000000", "unsafe_count": 18},
+          {"minimum_confidence": "0.800000000000", "accuracy": "0.416666666667", "handled_share": "0.000000000000", "unsafe_count": 0}
+        ],
+        "raw_result": {
+          "path_at_measurement_commit": "examples/structured-decision-frontiers/media-sync-opendecision-r6-result.json",
+          "sha256": "f3403d6bd4132e4f2da5c6f81e548e63bccfae24d71e66f057eb0ac577aa6390"
+        }
+      }
+    }
+  },
+  "cost_basis": "unavailable",
+  "limitations": [
+    "Both workloads are synthetic authored screens, not real-catalog generalization evidence.",
+    "The confidence projections reuse the same observations and are not calibrated holdout results.",
+    "Self-hosted dollar cost, energy, and process-cold latency were not measured.",
+    "The bulky prompt-free per-case artifacts remain recoverable at measurement_commit but are not retained at repository HEAD."
+  ],
+  "decision": "Reject both local candidates for these workloads. Build a real adjudicated holdout and compare a tiny supervised domain classifier before evaluating more launch-week general decision models."
+}

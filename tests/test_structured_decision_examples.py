@@ -865,49 +865,45 @@ def test_result_artifacts_do_not_retain_local_model_paths() -> None:
     assert runner._public_model_identifier(r"C:\\models\\checkpoint") is None
 
 
-@pytest.mark.parametrize(
-    ("filename", "observations", "correct", "unsafe"),
-    [
-        ("compound-routing-kev4b-qwen35-r3-result.json", 108, 60, 36),
-        ("media-sync-kev4b-qwen35-r6-result.json", 144, 60, 84),
-        ("compound-routing-opendecision-r3-result.json", 108, 33, 33),
-        ("media-sync-opendecision-r6-result.json", 144, 24, 84),
-    ],
-)
-def test_new_local_decision_results_are_valid_and_prompt_free(
-    filename: str,
-    observations: int,
-    correct: int,
-    unsafe: int,
-) -> None:
-    raw = _object(EXAMPLE / filename)
-    run = StructuredDecisionRun.model_validate(raw)
+def test_local_decision_followup_summary_binds_inputs_and_raw_archive() -> None:
+    summary = _object(EXAMPLE / "jev-hn-local-followup-summary-2026-09-21.json")
+    candidates = summary["candidates"]
+    workloads = summary["workloads"]
+    results = summary["results"]
 
-    assert len(run.results) == observations
-    assert sum(result.decision_correct for result in run.results) == correct
-    assert sum(result.unsafe_action for result in run.results) == unsafe
-    candidate_filename = (
-        "kev-4b-qwen35-mps-candidate.json"
-        if "kev4b" in filename
-        else "opendecision-modernbert-large-mps-candidate.json"
-    )
-    suite_filename = (
-        "compound-routing-stress-screen-v2.json"
-        if filename.startswith("compound-routing")
-        else "media-sync-safety-screen-v1.json"
+    for candidate in candidates.values():
+        assert (
+            candidate["candidate_configuration_sha256"]
+            == hashlib.sha256((EXAMPLE / candidate["candidate_file"]).read_bytes()).hexdigest()
+        )
+        assert len(candidate["runtime_revision"]) == 40
+
+    assert (
+        workloads["compound-routing-stress-screen-v2"]["case_manifest_sha256"]
+        == hashlib.sha256(
+            (EXAMPLE / "compound-routing-stress-screen-v2.json").read_bytes()
+        ).hexdigest()
     )
     assert (
-        raw["metadata"]["candidate_configuration_sha256"]
-        == hashlib.sha256((EXAMPLE / candidate_filename).read_bytes()).hexdigest()
+        workloads["media-sync-safety-screen-v1"]["case_manifest_sha256"]
+        == hashlib.sha256((EXAMPLE / "media-sync-safety-screen-v1.json").read_bytes()).hexdigest()
     )
+
+    assert results["compound-routing-stress-screen-v2"]["kev-4b-qwen35"]["correct"] == 60
     assert (
-        raw["workload"]["case_manifest_sha256"]
-        == hashlib.sha256((EXAMPLE / suite_filename).read_bytes()).hexdigest()
+        results["compound-routing-stress-screen-v2"]["opendecision-modernbert-large"][
+            "unsafe_count"
+        ]
+        == 33
     )
-    serialized = json.dumps(raw)
-    assert '"state"' not in serialized
-    assert '"expected"' not in serialized
-    assert "/Users/" not in serialized
+    assert results["media-sync-safety-screen-v1"]["kev-4b-qwen35"]["unsafe_count"] == 84
+    assert results["media-sync-safety-screen-v1"]["opendecision-modernbert-large"]["correct"] == 24
+
+    assert len(summary["measurement_commit"]) == 40
+    for workload_results in results.values():
+        for result in workload_results.values():
+            assert len(result["raw_result"]["sha256"]) == 64
+            assert result["deterministic_across_repetitions"] is True
 
 
 def test_compound_runner_counts_both_components_without_emitting_inputs() -> None:
