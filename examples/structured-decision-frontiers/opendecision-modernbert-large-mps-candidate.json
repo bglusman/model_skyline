@@ -1,0 +1,34 @@
+{
+  "backend": {
+    "kind": "typesafe",
+    "model": "modernbert-large-zeroshot-v2",
+    "base_url": "http://127.0.0.1:8010",
+    "api_key_env": "OPENDECISION_API_KEY"
+  },
+  "offering": {
+    "offering_id": "local/apple-m5-max-mps/opendecision-modernbert-large@20b2a78f9822130322125c0345976a12a87c76a4",
+    "model_id": "MoritzLaurer/ModernBERT-large-zeroshot-v2.0",
+    "provider": "local",
+    "endpoint": "http://127.0.0.1:8010",
+    "billing_mode": "self-hosted",
+    "service_tier": "mps-fp32",
+    "agent_harness": "opendecision-20b2a78f9822130322125c0345976a12a87c76a4-typesafe-api",
+    "capabilities": ["structured-decisions"]
+  },
+  "component_id": "opendecision-modernbert-large",
+  "resource_class": "light",
+  "guidance": "Answer the suite's named Choice exactly once. Do not invent a fourth route.",
+  "routing_policy": "Use the returned route directly; this primitive screen has no fallback.",
+  "measurement_conditions": {
+    "machine": "Apple M5 Max, 64 GB unified memory",
+    "runtime": "OpenDecision 0.1.1 on PyTorch 2.14.0 MPS",
+    "runtime_revision": "20b2a78f9822130322125c0345976a12a87c76a4",
+    "model_revision": "a51e07b524299e309dd2b88d48b0cfa2bd9ec598",
+    "dtype": "fp32",
+    "calibration": "none; project documents the returned scores as uncalibrated",
+    "request_order": "case-major",
+    "concurrency": 1
+  },
+  "cost_basis": "unavailable",
+  "fixed_cost_usd_per_model_call": null
+}

@@ -242,6 +242,11 @@ its end-to-end outcomes are measured.
 - [`qwen35-4b-direct-logits-coresident-candidate.json`](qwen35-4b-direct-logits-coresident-candidate.json)
   and [`qwen35-qwen38-direct-light-gate-cascade.json`](qwen35-qwen38-direct-light-gate-cascade.json)
   pin the local light gate and compound policy.
+- [`kev-4b-qwen35-mps-candidate.json`](kev-4b-qwen35-mps-candidate.json) and
+  [`opendecision-modernbert-large-mps-candidate.json`](opendecision-modernbert-large-mps-candidate.json)
+  pin two TypeSafe-compatible local servers measured on the unchanged media and
+  compound-routing screens. Their prompt-free result files are linked from the
+  [landscape audit](jev-landscape-audit-2026-09-19.md#frozen-local-follow-up--2026-09-21).
 - [`gpt-oss-20b-local-candidate.json`](gpt-oss-20b-local-candidate.json)
   configures the lighter local GPT-OSS control.
 - [`gpt-oss-qwen38-review-cascade.json`](gpt-oss-qwen38-review-cascade.json)
@@ -417,6 +422,15 @@ cascade runner, and frontier policies are implemented. See
 [`status-2026-09-18.md`](status-2026-09-18.md) for the matched SemIf-style,
 Jev, and local compound result, and [`status-2026-09-17.md`](status-2026-09-17.md)
 for the Granite/Qwen tool result.
+
+The 2026-09-21 Kev-thread follow-up measured Kev 4B and OpenDecision locally on
+the frozen media and compound-routing screens. Both were fast enough for local
+use, but both produced too many unsafe boundary decisions; neither is a
+deployment candidate for these workloads. See the
+[updated landscape audit](jev-landscape-audit-2026-09-19.md#frozen-local-follow-up--2026-09-21)
+for exact figures, artifacts, and why the next useful comparison is a real
+adjudicated holdout plus a tiny supervised domain baseline rather than another
+launch-week clone.
 
 The next result-of-record step is a holdout no-call/tool-policy panel and a
 small state-verifying workload. Granite Guardian or Qwen3Guard are sensible

@@ -204,9 +204,8 @@ def test_compound_routing_stress_screen_is_balanced_and_contrastive() -> None:
     assert summary["jev"]["observations"] == 108
     assert summary["jev"]["correct"] == 79
     assert summary["jev"]["unsafe_count"] == 29
-    assert (
-        summary["jev"]["harness_sha256"]
-        == hashlib.sha256((EXAMPLE / "run_system_one_screen.py").read_bytes()).hexdigest()
+    assert summary["jev"]["harness_sha256"] == (
+        "feb01a6465082ff5950738b2fa1603c280f242198b58da5edde3d1031c8947af"
     )
     assert sum(row["observations"] for row in summary["by_expected_route"].values()) == 108
     assert sum(row["unsafe"] for row in summary["by_expected_route"].values()) == 29
@@ -384,6 +383,8 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
     qwen35_direct = _object(EXAMPLE / "qwen35-4b-direct-logits-candidate.json")
     gpt_oss = _object(EXAMPLE / "gpt-oss-20b-local-candidate.json")
     laya = _object(EXAMPLE / "laya-typed-media-cpu-candidate.json")
+    kev = _object(EXAMPLE / "kev-4b-qwen35-mps-candidate.json")
+    open_decision = _object(EXAMPLE / "opendecision-modernbert-large-mps-candidate.json")
     jev_offering = OfferingKey.model_validate(jev["offering"])
     jev_openrouter_offering = OfferingKey.model_validate(jev_openrouter["offering"])
     qwen_offering = OfferingKey.model_validate(qwen["offering"])
@@ -391,6 +392,8 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
     qwen35_direct_offering = OfferingKey.model_validate(qwen35_direct["offering"])
     gpt_oss_offering = OfferingKey.model_validate(gpt_oss["offering"])
     laya_offering = OfferingKey.model_validate(laya["offering"])
+    kev_offering = OfferingKey.model_validate(kev["offering"])
+    open_decision_offering = OfferingKey.model_validate(open_decision["offering"])
 
     assert (
         len(
@@ -402,9 +405,11 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
                 qwen35_direct_offering.offering_id,
                 gpt_oss_offering.offering_id,
                 laya_offering.offering_id,
+                kev_offering.offering_id,
+                open_decision_offering.offering_id,
             }
         )
-        == 7
+        == 9
     )
     assert (
         jev_offering.capabilities
@@ -416,6 +421,8 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
     )
     assert gpt_oss_offering.capabilities == ("structured-decisions",)
     assert laya_offering.capabilities == ("structured-decisions",)
+    assert kev_offering.capabilities == ("structured-decisions",)
+    assert open_decision_offering.capabilities == ("structured-decisions",)
     assert laya["backend"]["revision"] == "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2"
     assert gpt_oss["resource_class"] == "light"
     assert gpt_oss["backend"]["reasoning_effort"] == "low"
@@ -431,6 +438,10 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
     assert len(qwen_direct["measurement_conditions"]["model_artifact_sha256"]) == 64
     assert qwen35_direct["resource_class"] == "light"
     assert len(qwen35_direct["measurement_conditions"]["model_artifact_sha256"]) == 64
+    assert kev["backend"]["base_url"] == "http://127.0.0.1:8009"
+    assert len(kev["measurement_conditions"]["adapter_revision"]) == 40
+    assert open_decision["backend"]["base_url"] == "http://127.0.0.1:8010"
+    assert len(open_decision["measurement_conditions"]["model_revision"]) == 40
 
     compound = _object(EXAMPLE / "gpt-oss-qwen38-review-cascade.json")
     compound_offering = OfferingKey.model_validate(compound["offering"])
@@ -816,6 +827,87 @@ def test_normalized_multiclass_brier_rejects_invalid_probabilities() -> None:
         assert "sum to one" in str(exc)
     else:  # pragma: no cover - assertion aid
         raise AssertionError("invalid probability distribution was accepted")
+
+
+def test_typesafe_backend_accepts_local_base_url(monkeypatch) -> None:
+    runner = _runner_module()
+    captured: dict[str, Any] = {}
+    fake_module = ModuleType("typesafe_sdk")
+
+    def fake_client(**kwargs: Any) -> object:
+        captured.update(kwargs)
+        return object()
+
+    fake_module.TypeSafeClient = fake_client  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "typesafe_sdk", fake_module)
+    candidate = {
+        "backend": {
+            "kind": "typesafe",
+            "model": "local-decision-model",
+            "base_url": "http://127.0.0.1:8009",
+        }
+    }
+
+    assert runner._client(candidate) is not None
+    assert captured == {
+        "api_key": None,
+        "model": "local-decision-model",
+        "base_url": "http://127.0.0.1:8009",
+    }
+
+
+def test_result_artifacts_do_not_retain_local_model_paths() -> None:
+    runner = _runner_module()
+
+    assert runner._public_model_identifier("typesafe/jev-1.13") == "typesafe/jev-1.13"
+    assert runner._public_model_identifier("org/local-model") == "org/local-model"
+    assert runner._public_model_identifier("/Users/example/model") is None
+    assert runner._public_model_identifier(r"C:\\models\\checkpoint") is None
+
+
+@pytest.mark.parametrize(
+    ("filename", "observations", "correct", "unsafe"),
+    [
+        ("compound-routing-kev4b-qwen35-r3-result.json", 108, 60, 36),
+        ("media-sync-kev4b-qwen35-r6-result.json", 144, 60, 84),
+        ("compound-routing-opendecision-r3-result.json", 108, 33, 33),
+        ("media-sync-opendecision-r6-result.json", 144, 24, 84),
+    ],
+)
+def test_new_local_decision_results_are_valid_and_prompt_free(
+    filename: str,
+    observations: int,
+    correct: int,
+    unsafe: int,
+) -> None:
+    raw = _object(EXAMPLE / filename)
+    run = StructuredDecisionRun.model_validate(raw)
+
+    assert len(run.results) == observations
+    assert sum(result.decision_correct for result in run.results) == correct
+    assert sum(result.unsafe_action for result in run.results) == unsafe
+    candidate_filename = (
+        "kev-4b-qwen35-mps-candidate.json"
+        if "kev4b" in filename
+        else "opendecision-modernbert-large-mps-candidate.json"
+    )
+    suite_filename = (
+        "compound-routing-stress-screen-v2.json"
+        if filename.startswith("compound-routing")
+        else "media-sync-safety-screen-v1.json"
+    )
+    assert (
+        raw["metadata"]["candidate_configuration_sha256"]
+        == hashlib.sha256((EXAMPLE / candidate_filename).read_bytes()).hexdigest()
+    )
+    assert (
+        raw["workload"]["case_manifest_sha256"]
+        == hashlib.sha256((EXAMPLE / suite_filename).read_bytes()).hexdigest()
+    )
+    serialized = json.dumps(raw)
+    assert '"state"' not in serialized
+    assert '"expected"' not in serialized
+    assert "/Users/" not in serialized
 
 
 def test_compound_runner_counts_both_components_without_emitting_inputs() -> None:

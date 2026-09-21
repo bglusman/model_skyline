@@ -23,7 +23,7 @@ from contextlib import AbstractContextManager, ExitStack
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal, localcontext
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from types import TracebackType
 from typing import Any, Protocol, cast
 from urllib.error import HTTPError
@@ -412,6 +412,15 @@ def _api_key(backend: dict[str, Any]) -> str | None:
     return value
 
 
+def _public_model_identifier(value: Any) -> str | None:
+    """Keep provider model ids while preventing local paths from entering artifacts."""
+    if not isinstance(value, str) or not value:
+        return None
+    if Path(value).is_absolute() or PureWindowsPath(value).is_absolute():
+        return None
+    return value
+
+
 def _client(candidate: dict[str, Any]) -> ClientContext:
     backend = cast(dict[str, Any], candidate["backend"])
     kind = backend["kind"]
@@ -419,9 +428,12 @@ def _client(candidate: dict[str, Any]) -> ClientContext:
     if kind == "typesafe":
         from typesafe_sdk import TypeSafeClient
 
+        base_url = backend.get("base_url")
+        if base_url is not None and (not isinstance(base_url, str) or not base_url):
+            raise ValueError("typesafe backend.base_url must be a nonempty string")
         return cast(
             ClientContext,
-            TypeSafeClient(api_key=_api_key(backend), model=model),
+            TypeSafeClient(api_key=_api_key(backend), model=model, base_url=base_url),
         )
     if kind == "openrouter-decisions":
         api_key = _api_key(backend)
@@ -674,8 +686,13 @@ def run(suite_path: Path, candidate_path: Path, *, repetitions: int) -> dict[str
                 response_input_tokens, response_output_tokens = _token_totals(response)
                 input_tokens_total += response_input_tokens
                 output_tokens_total += response_output_tokens
-                resolved_model = response.debug.get("resolved_model")
-                provider = response.debug.get("provider")
+                response_debug = getattr(response, "debug", {})
+                if not isinstance(response_debug, Mapping):
+                    response_debug = {}
+                resolved_model = _public_model_identifier(
+                    response_debug.get("resolved_model") or getattr(response, "model", None)
+                )
+                provider = response_debug.get("provider")
                 if isinstance(resolved_model, str) and resolved_model:
                     resolved_models.add(resolved_model)
                 if isinstance(provider, str) and provider:
