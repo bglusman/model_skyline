@@ -50,6 +50,26 @@ def _bfcl_runner_module() -> ModuleType:
     return module
 
 
+def _media_baseline_module() -> ModuleType:
+    path = EXAMPLE / "run_media_sync_baseline.py"
+    spec = importlib.util.spec_from_file_location("media_sync_baseline", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _compound_routing_baseline_module() -> ModuleType:
+    path = EXAMPLE / "run_compound_routing_baseline.py"
+    spec = importlib.util.spec_from_file_location("compound_routing_baseline", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_routing_suite_identity_matches_frontier_workload() -> None:
     path = EXAMPLE / "routing-screen-v1.json"
     suite = _object(path)
@@ -96,6 +116,223 @@ def test_routing_suite_identity_matches_frontier_workload() -> None:
     assert configured.version == structured_decision_workload_version(workload)
     assert configured.assumptions["case_manifest_sha256"] == manifest_sha256
     assert configured.assumptions["case_set_sha256"] == case_set_sha256
+
+
+def test_media_sync_screen_has_a_safe_deterministic_control() -> None:
+    path = EXAMPLE / "media-sync-safety-screen-v1.json"
+    suite = _object(path)
+    case_ids = [case["case_id"] for case in suite["cases"]]
+
+    assert suite["workload_id"] == "media-sync-safety-screen-v1"
+    assert suite["workload_unit"] == "proposed_pair"
+    assert suite["unsafe_predictions_by_expected"] == {
+        "link": [],
+        "separate": ["link"],
+        "abstain": ["link", "separate"],
+    }
+    assert len(case_ids) == len(set(case_ids)) == 24
+    assert {case["expected"] for case in suite["cases"]} == {
+        "link",
+        "separate",
+        "abstain",
+    }
+
+    result = _media_baseline_module().run(path)
+    assert result["correct_count"] == result["case_count"] == 24
+    assert result["handled_count"] == 14
+    assert result["unsafe_count"] == 0
+
+    summary = _object(EXAMPLE / "media-sync-jev-r6-summary.json")
+    assert summary["suite"]["case_manifest_sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert summary["jev"]["observations"] == 144
+    assert summary["jev"]["unsafe_count"] == 18
+
+    laya_summary = _object(EXAMPLE / "media-sync-laya-r6-summary.json")
+    assert (
+        laya_summary["suite"]["case_manifest_sha256"]
+        == hashlib.sha256(path.read_bytes()).hexdigest()
+    )
+    assert laya_summary["laya"]["observations"] == 144
+    assert laya_summary["laya"]["unsafe_count"] == 72
+    assert laya_summary["laya"]["deterministic_across_repetitions"] is True
+
+
+def test_compound_routing_stress_screen_is_balanced_and_contrastive() -> None:
+    path = EXAMPLE / "compound-routing-stress-screen-v2.json"
+    suite = _object(path)
+    cases = suite["cases"]
+    labels = set(suite["question"]["criteria"])
+
+    assert suite["workload_id"] == "compound-routing-stress-screen-v2"
+    assert suite["workload_unit"] == "routing_packet"
+    assert suite["abstain_choices"] == ["human_review"]
+    assert len(cases) == 36
+    assert len({case["case_id"] for case in cases}) == 36
+
+    by_route: dict[str, list[dict[str, Any]]] = {}
+    by_contrast: dict[str, list[dict[str, Any]]] = {}
+    for case in cases:
+        by_route.setdefault(case["expected"], []).append(case)
+        by_contrast.setdefault(case["contrast_set"], []).append(case)
+        assert case["expected"] in labels
+        assert set(case["unsafe_predictions"]).issubset(labels - {case["expected"]})
+
+    assert set(by_route) == labels
+    assert {route: len(rows) for route, rows in by_route.items()} == {route: 6 for route in labels}
+    assert len(by_contrast) == 18
+    for pair in by_contrast.values():
+        assert len(pair) == 2
+        assert pair[0]["expected"] != pair[1]["expected"]
+        changed_fields = {
+            field
+            for field in pair[0]["state"]
+            if pair[0]["state"][field] != pair[1]["state"][field]
+        }
+        assert len(changed_fields) == 1
+        assert pair[0]["state"].keys() == pair[1]["state"].keys()
+
+    result = _compound_routing_baseline_module().run(path)
+    assert result["case_count"] == result["correct_count"] == 36
+    assert result["contrast_set_count"] == 18
+    assert result["unsafe_count"] == 0
+
+    summary = _object(EXAMPLE / "compound-routing-jev-r3-summary.json")
+    assert summary["suite"]["case_manifest_sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert summary["suite"]["case_set_sha256"] == (
+        "6826c0e23c78eca8976b9c964518cbfce8c22d274eb8648e69e8ed530c4c57de"
+    )
+    assert summary["jev"]["observations"] == 108
+    assert summary["jev"]["correct"] == 79
+    assert summary["jev"]["unsafe_count"] == 29
+    assert summary["jev"]["harness_sha256"] == (
+        "feb01a6465082ff5950738b2fa1603c280f242198b58da5edde3d1031c8947af"
+    )
+    assert sum(row["observations"] for row in summary["by_expected_route"].values()) == 108
+    assert sum(row["unsafe"] for row in summary["by_expected_route"].values()) == 29
+
+
+def test_case_specific_unsafe_policy_overrides_suite_default() -> None:
+    runner = _runner_module()
+    suite = {"unsafe_predictions_by_expected": {"human_review": []}}
+    case = {"unsafe_predictions": ["remote_model"]}
+
+    assert runner._unsafe_action(
+        suite,
+        expected="human_review",
+        predicted="remote_model",
+        case=case,
+    )
+    assert not runner._unsafe_action(
+        suite,
+        expected="human_review",
+        predicted="local_general",
+        case=case,
+    )
+
+
+def test_single_runner_accepts_compound_routing_stress_screen() -> None:
+    runner = _runner_module()
+    labels = [
+        "deterministic",
+        "local_specialist",
+        "local_general",
+        "remote_model",
+        "model_plus_verifier",
+        "human_review",
+    ]
+
+    class FakeContext:
+        def __enter__(self):
+            class FakeClient:
+                def system_one(self, state: Any, questions: dict[str, Any]):
+                    del state
+                    question_name = next(iter(questions))
+                    return SimpleNamespace(
+                        choices={
+                            question_name: SimpleNamespace(
+                                choice="human_review",
+                                probabilities={label: 1 / len(labels) for label in labels},
+                            )
+                        },
+                        usage=SimpleNamespace(input_tokens=10, output_tokens=0),
+                        debug={},
+                    )
+
+            return FakeClient()
+
+        def __exit__(self, *args: Any) -> None:
+            del args
+
+    runner._client = lambda _candidate: FakeContext()
+    result = runner.run(
+        EXAMPLE / "compound-routing-stress-screen-v2.json",
+        EXAMPLE / "qwen35-9b-5060ti-media-direct-candidate.json",
+        repetitions=1,
+    )
+    validated = StructuredDecisionRun.model_validate(result)
+
+    assert result["workload_id"] == "compound-routing-stress-screen-v2"
+    assert result["workload_unit"] == "routing_packet"
+    assert validated.workload.case_count == 36
+    assert len(validated.results) == 36
+    assert not any(item.unsafe_action for item in validated.results)
+    assert {item.decision_choice for item in validated.results} == {"human_review"}
+    assert all(item.abstained for item in validated.results)
+
+
+def test_single_runner_retains_probability_diagnostics_and_suite_workload() -> None:
+    runner = _runner_module()
+    suite = _object(EXAMPLE / "media-sync-safety-screen-v1.json")
+
+    class FakeContext:
+        def __enter__(self):
+            class FakeClient:
+                def system_one(self, state: Any, questions: dict[str, Any]):
+                    del state
+                    question_name = next(iter(questions))
+                    return SimpleNamespace(
+                        choices={
+                            question_name: SimpleNamespace(
+                                choice="abstain",
+                                probabilities={"link": 0.2, "separate": 0.3, "abstain": 0.5},
+                            )
+                        },
+                        usage=SimpleNamespace(input_tokens=10, output_tokens=0),
+                        debug={},
+                    )
+
+            return FakeClient()
+
+        def __exit__(self, *args: Any) -> None:
+            del args
+
+    runner._client = lambda _candidate: FakeContext()
+    result = runner.run(
+        EXAMPLE / "media-sync-safety-screen-v1.json",
+        EXAMPLE / "qwen35-9b-5060ti-media-direct-candidate.json",
+        repetitions=1,
+    )
+    validated = StructuredDecisionRun.model_validate(result)
+
+    assert result["workload_id"] == "media-sync-safety-screen-v1"
+    assert result["workload_unit"] == "proposed_pair"
+    assert all(item.decision_max_probability == Decimal("0.5") for item in validated.results)
+    assert all(item.expected_probability is not None for item in validated.results)
+    assert {item.decision_choice for item in validated.results} == {"abstain"}
+    serialized = json.dumps(result)
+    assert '"state"' not in serialized
+    assert '"expected"' not in serialized
+
+    assert runner._unsafe_action(
+        {"unsafe_predictions_by_expected": suite["unsafe_predictions_by_expected"]},
+        expected="separate",
+        predicted="link",
+    )
+    assert not runner._unsafe_action(
+        {"unsafe_predictions_by_expected": suite["unsafe_predictions_by_expected"]},
+        expected="separate",
+        predicted="abstain",
+    )
 
 
 def test_bfcl_manifest_is_exact_balanced_and_matches_workload() -> None:
@@ -145,12 +382,18 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
     qwen_direct = _object(EXAMPLE / "qwen38-direct-logits-candidate.json")
     qwen35_direct = _object(EXAMPLE / "qwen35-4b-direct-logits-candidate.json")
     gpt_oss = _object(EXAMPLE / "gpt-oss-20b-local-candidate.json")
+    laya = _object(EXAMPLE / "laya-typed-media-cpu-candidate.json")
+    kev = _object(EXAMPLE / "kev-4b-qwen35-mps-candidate.json")
+    open_decision = _object(EXAMPLE / "opendecision-modernbert-large-mps-candidate.json")
     jev_offering = OfferingKey.model_validate(jev["offering"])
     jev_openrouter_offering = OfferingKey.model_validate(jev_openrouter["offering"])
     qwen_offering = OfferingKey.model_validate(qwen["offering"])
     qwen_direct_offering = OfferingKey.model_validate(qwen_direct["offering"])
     qwen35_direct_offering = OfferingKey.model_validate(qwen35_direct["offering"])
     gpt_oss_offering = OfferingKey.model_validate(gpt_oss["offering"])
+    laya_offering = OfferingKey.model_validate(laya["offering"])
+    kev_offering = OfferingKey.model_validate(kev["offering"])
+    open_decision_offering = OfferingKey.model_validate(open_decision["offering"])
 
     assert (
         len(
@@ -161,9 +404,12 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
                 qwen_direct_offering.offering_id,
                 qwen35_direct_offering.offering_id,
                 gpt_oss_offering.offering_id,
+                laya_offering.offering_id,
+                kev_offering.offering_id,
+                open_decision_offering.offering_id,
             }
         )
-        == 6
+        == 9
     )
     assert (
         jev_offering.capabilities
@@ -174,6 +420,10 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
         == ("structured-decisions",)
     )
     assert gpt_oss_offering.capabilities == ("structured-decisions",)
+    assert laya_offering.capabilities == ("structured-decisions",)
+    assert kev_offering.capabilities == ("structured-decisions",)
+    assert open_decision_offering.capabilities == ("structured-decisions",)
+    assert laya["backend"]["revision"] == "f9ab0b228f0fc0f14d873dbc99038f135c2da1b2"
     assert gpt_oss["resource_class"] == "light"
     assert gpt_oss["backend"]["reasoning_effort"] == "low"
     assert gpt_oss["backend"]["structured_outputs"] is False
@@ -188,6 +438,10 @@ def test_candidate_configs_have_complete_distinct_offerings() -> None:
     assert len(qwen_direct["measurement_conditions"]["model_artifact_sha256"]) == 64
     assert qwen35_direct["resource_class"] == "light"
     assert len(qwen35_direct["measurement_conditions"]["model_artifact_sha256"]) == 64
+    assert kev["backend"]["base_url"] == "http://127.0.0.1:8009"
+    assert len(kev["measurement_conditions"]["adapter_revision"]) == 40
+    assert open_decision["backend"]["base_url"] == "http://127.0.0.1:8010"
+    assert len(open_decision["measurement_conditions"]["model_revision"]) == 40
 
     compound = _object(EXAMPLE / "gpt-oss-qwen38-review-cascade.json")
     compound_offering = OfferingKey.model_validate(compound["offering"])
@@ -557,6 +811,12 @@ def test_normalized_multiclass_brier_rejects_invalid_probabilities() -> None:
         {"light", "heavy", "abstain"},
     ) == Decimal(0)
 
+    rounded = runner._normalized_probabilities(
+        {"light": 0.8, "heavy": 0.1, "abstain": 0.09},
+        {"light", "heavy", "abstain"},
+    )
+    assert sum(rounded.values()) == Decimal(1)
+
     try:
         runner._brier(
             {"light": 0.8, "heavy": 0.8, "abstain": 0.0},
@@ -567,6 +827,83 @@ def test_normalized_multiclass_brier_rejects_invalid_probabilities() -> None:
         assert "sum to one" in str(exc)
     else:  # pragma: no cover - assertion aid
         raise AssertionError("invalid probability distribution was accepted")
+
+
+def test_typesafe_backend_accepts_local_base_url(monkeypatch) -> None:
+    runner = _runner_module()
+    captured: dict[str, Any] = {}
+    fake_module = ModuleType("typesafe_sdk")
+
+    def fake_client(**kwargs: Any) -> object:
+        captured.update(kwargs)
+        return object()
+
+    fake_module.TypeSafeClient = fake_client  # type: ignore[attr-defined]
+    monkeypatch.setitem(sys.modules, "typesafe_sdk", fake_module)
+    candidate = {
+        "backend": {
+            "kind": "typesafe",
+            "model": "local-decision-model",
+            "base_url": "http://127.0.0.1:8009",
+        }
+    }
+
+    assert runner._client(candidate) is not None
+    assert captured == {
+        "api_key": None,
+        "model": "local-decision-model",
+        "base_url": "http://127.0.0.1:8009",
+    }
+
+
+def test_result_artifacts_do_not_retain_local_model_paths() -> None:
+    runner = _runner_module()
+
+    assert runner._public_model_identifier("typesafe/jev-1.13") == "typesafe/jev-1.13"
+    assert runner._public_model_identifier("org/local-model") == "org/local-model"
+    assert runner._public_model_identifier("/Users/example/model") is None
+    assert runner._public_model_identifier(r"C:\\models\\checkpoint") is None
+
+
+def test_local_decision_followup_summary_binds_inputs_and_raw_archive() -> None:
+    summary = _object(EXAMPLE / "jev-hn-local-followup-summary-2026-09-21.json")
+    candidates = summary["candidates"]
+    workloads = summary["workloads"]
+    results = summary["results"]
+
+    for candidate in candidates.values():
+        assert (
+            candidate["candidate_configuration_sha256"]
+            == hashlib.sha256((EXAMPLE / candidate["candidate_file"]).read_bytes()).hexdigest()
+        )
+        assert len(candidate["runtime_revision"]) == 40
+
+    assert (
+        workloads["compound-routing-stress-screen-v2"]["case_manifest_sha256"]
+        == hashlib.sha256(
+            (EXAMPLE / "compound-routing-stress-screen-v2.json").read_bytes()
+        ).hexdigest()
+    )
+    assert (
+        workloads["media-sync-safety-screen-v1"]["case_manifest_sha256"]
+        == hashlib.sha256((EXAMPLE / "media-sync-safety-screen-v1.json").read_bytes()).hexdigest()
+    )
+
+    assert results["compound-routing-stress-screen-v2"]["kev-4b-qwen35"]["correct"] == 60
+    assert (
+        results["compound-routing-stress-screen-v2"]["opendecision-modernbert-large"][
+            "unsafe_count"
+        ]
+        == 33
+    )
+    assert results["media-sync-safety-screen-v1"]["kev-4b-qwen35"]["unsafe_count"] == 84
+    assert results["media-sync-safety-screen-v1"]["opendecision-modernbert-large"]["correct"] == 24
+
+    assert len(summary["measurement_commit"]) == 40
+    for workload_results in results.values():
+        for result in workload_results.values():
+            assert len(result["raw_result"]["sha256"]) == 64
+            assert result["deterministic_across_repetitions"] is True
 
 
 def test_compound_runner_counts_both_components_without_emitting_inputs() -> None:

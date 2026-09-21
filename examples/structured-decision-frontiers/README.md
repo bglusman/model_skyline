@@ -123,13 +123,45 @@ Gateway; the committed result uses OpenRouter and retains its provider-reported
 cost. The compound-system measurements test router usefulness instead of
 transferring a router score to its worker.
 
-## The three candidate types
+## System topology and specialization
 
 | Candidate type | What is measured | Fair comparisons |
 | --- | --- | --- |
 | `decision_component` | One typed decision such as `light / heavy / abstain` | Jev, a small local LLM, or a large LLM answering the same question |
 | `single_model_system` | One complete routable agent/tool system | Small-only, heavy-only, local, or remote complete systems |
 | `compound_model_system` | A versioned policy connecting two or more named components | Jev+worker, small-local+worker, router+worker+guardrail, or other model pairs |
+
+These three types describe system topology. Specialization is a separate axis,
+not a fourth type. A narrow scorer such as
+[CUA-S1-FORMS](https://huggingface.co/cua-ai/cua-s1-forms) is still a
+`decision_component`; its specialization scope, training provenance,
+out-of-scope policy, and exact artifact revision belong in run metadata and its
+workload identity. It may share a frontier with a general decision model only
+when both answer the same action contract on the same pinned cases.
+
+The local
+[`CUA-S1-FORMS` intake](cua-s1-specialist-intake-2026-09-19.md) reproduces the
+published 196-row demo result, explains why that is not media-domain evidence,
+and defines the selective-accuracy, safety, outcome, and fallback-demand axes
+needed before a media-specific specialist can enter an active frontier.
+
+The follow-on
+[`compound-system workload research agenda`](compound-workload-research-agenda-2026-09-19.md)
+separates topology, component role and kind, contract, placement, authority,
+state semantics, activation, adaptation, and recovery. Its first executable
+artifact is
+[`compound-routing-stress-screen-v2.json`](compound-routing-stress-screen-v2.json):
+36 balanced packets in 18 one-field contrast sets spanning deterministic,
+local-specialist, local-general, remote, model-plus-verifier, and human-review
+routes. Case-specific unsafe-route definitions distinguish a merely expensive
+choice from a privacy or action-safety violation.
+
+The first frozen run is reported in
+[`status-2026-09-20-compound-workloads.md`](status-2026-09-20-compound-workloads.md).
+Hosted Jev reached 73.15% exact-route accuracy but selected 29 unsafe routes in
+108 observations; it chose `human_review` correctly only 3 of 18 times. Those
+failures support the contrast-set and case-specific safety design and reject
+using aggregate route accuracy as the deployment criterion.
 
 A compound offering is not merely named “Jev + Qwen.” Its identity includes:
 
@@ -210,6 +242,11 @@ its end-to-end outcomes are measured.
 - [`qwen35-4b-direct-logits-coresident-candidate.json`](qwen35-4b-direct-logits-coresident-candidate.json)
   and [`qwen35-qwen38-direct-light-gate-cascade.json`](qwen35-qwen38-direct-light-gate-cascade.json)
   pin the local light gate and compound policy.
+- [`kev-4b-qwen35-mps-candidate.json`](kev-4b-qwen35-mps-candidate.json) and
+  [`opendecision-modernbert-large-mps-candidate.json`](opendecision-modernbert-large-mps-candidate.json)
+  pin two TypeSafe-compatible local servers measured on the unchanged media and
+  compound-routing screens. Their compact result-of-record summary is linked from the
+  [landscape audit](jev-landscape-audit-2026-09-19.md#frozen-local-follow-up--2026-09-21).
 - [`gpt-oss-20b-local-candidate.json`](gpt-oss-20b-local-candidate.json)
   configures the lighter local GPT-OSS control.
 - [`gpt-oss-qwen38-review-cascade.json`](gpt-oss-qwen38-review-cascade.json)
@@ -385,6 +422,15 @@ cascade runner, and frontier policies are implemented. See
 [`status-2026-09-18.md`](status-2026-09-18.md) for the matched SemIf-style,
 Jev, and local compound result, and [`status-2026-09-17.md`](status-2026-09-17.md)
 for the Granite/Qwen tool result.
+
+The 2026-09-21 Kev-thread follow-up measured Kev 4B and OpenDecision locally on
+the frozen media and compound-routing screens. Both were fast enough for local
+use, but both produced too many unsafe boundary decisions; neither is a
+deployment candidate for these workloads. See the
+[updated landscape audit](jev-landscape-audit-2026-09-19.md#frozen-local-follow-up--2026-09-21)
+for exact figures, artifacts, and why the next useful comparison is a real
+adjudicated holdout plus a tiny supervised domain baseline rather than another
+launch-week clone.
 
 The next result-of-record step is a holdout no-call/tool-policy panel and a
 small state-verifying workload. Granite Guardian or Qwen3Guard are sensible

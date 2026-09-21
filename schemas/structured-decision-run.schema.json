@@ -385,6 +385,20 @@
           "title": "Unsafe Action",
           "type": "boolean"
         },
+        "decision_choice": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decision Choice"
+        },
         "latency_seconds": {
           "anyOf": [
             {
@@ -469,6 +483,56 @@
           "default": null,
           "title": "Brier Score"
         },
+        "decision_max_probability": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "pattern": "^(?!-)(?=[+]?(?:0*(?:\\.\\d*)?|0*1(?:\\.0*)?)$)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                  "type": "string",
+                  "maxLength": 1024
+                }
+              ],
+              "decimal_places": 12,
+              "max_digits": 18
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decision Max Probability"
+        },
+        "expected_probability": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                {
+                  "pattern": "^(?!-)(?=[+]?(?:0*(?:\\.\\d*)?|0*1(?:\\.0*)?)$)(?:(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*)$",
+                  "type": "string",
+                  "maxLength": 1024
+                }
+              ],
+              "decimal_places": 12,
+              "max_digits": 18
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Probability"
+        },
         "primary_success": {
           "anyOf": [
             {
@@ -504,6 +568,20 @@
           ],
           "default": null,
           "title": "Router Abstained"
+        },
+        "router_choice": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Router Choice"
         },
         "router_max_probability": {
           "anyOf": [

@@ -1,0 +1,39 @@
+{
+  "backend": {
+    "kind": "typesafe",
+    "model": "kev-latest",
+    "base_url": "http://127.0.0.1:8009",
+    "api_key_env": "KEV_API_KEY"
+  },
+  "offering": {
+    "offering_id": "local/apple-m5-max-mps/jaredpalmer-kev-4b@485ace8703592fcf405488b262449990824cfed1",
+    "model_id": "jaredpalmer/kev-4b",
+    "provider": "local",
+    "endpoint": "http://127.0.0.1:8009",
+    "billing_mode": "self-hosted",
+    "service_tier": "mps-bf16",
+    "agent_harness": "kev-8cb29871864a4e71573b6f385a787f12ddc52f6c-typesafe-api",
+    "capabilities": ["structured-decisions"]
+  },
+  "component_id": "kev-4b-qwen35",
+  "resource_class": "light",
+  "guidance": "Answer the suite's named Choice exactly once. Do not invent a fourth route.",
+  "routing_policy": "Use the returned route directly; this primitive screen has no fallback.",
+  "measurement_conditions": {
+    "machine": "Apple M5 Max, 64 GB unified memory",
+    "runtime": "Kev TypeSafe-compatible server on PyTorch 2.8.0 MPS",
+    "runtime_revision": "8cb29871864a4e71573b6f385a787f12ddc52f6c",
+    "adapter_revision": "485ace8703592fcf405488b262449990824cfed1",
+    "base_model": "Qwen/Qwen3.5-4B-Base",
+    "base_revision": "1001bb4d826a52d1f399e183466143f4da7b741b",
+    "dtype": "bf16",
+    "checkpoint_temperature": 2.1435469250725863,
+    "date_facts": false,
+    "prefix_cache_size": 4,
+    "prefix_cache_min_state_tokens": 384,
+    "request_order": "case-major",
+    "concurrency": 1
+  },
+  "cost_basis": "unavailable",
+  "fixed_cost_usd_per_model_call": null
+}
