@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "96dab02722a864dd2e9b8f5a1a4470fd9a8ad80896c628686bd38b45a7225aba",
+  "snapshot_id": "b802069ebcddc74a7e7b342517c809507b63600a2eaa9e5153838ef3f2854940",
   "config_hash": "d88f78b5586dd22a3744ce6a92c96738a3cc363a6117dc62824513296fa7e082",
-  "catalog_hash": "e6fc79093274f43fa3f91137eb3087e5f71bd9f09dee3b077a35f3fb95bc1eca",
+  "catalog_hash": "74308f4e1b02b02e17786791510902ce18d1522ad5817e691fe62f0787749d3f",
   "engine_version": "0.9.0",
-  "generated_at": "2026-10-10T13:43:37.558612Z",
+  "generated_at": "2026-10-11T14:03:37.869753Z",
   "frontier_id": "price-snapshot-cost-per-solved-vs-solve-rate",
   "workload": {
     "id": "aider-polyglot",
@@ -71,16 +71,6 @@
           ],
           "sources": [
             {
-              "id": "aider-polyglot-leaderboard",
-              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-              "license": "Apache-2.0",
-              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
-            },
-            {
               "id": "models-dev-selected-cache-disabled-prices",
               "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
               "url": "https://models.dev/api.json",
@@ -88,7 +78,17 @@
               "license": "MIT",
               "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
               "raw_sha256": null,
-              "retrieved_at": "2026-10-10T13:43:36.507072Z"
+              "retrieved_at": "2026-10-11T14:03:36.816010Z"
+            },
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -117,7 +117,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -173,16 +173,6 @@
           ],
           "sources": [
             {
-              "id": "aider-polyglot-leaderboard",
-              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-              "license": "Apache-2.0",
-              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
-            },
-            {
               "id": "models-dev-selected-cache-disabled-prices",
               "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
               "url": "https://models.dev/api.json",
@@ -190,7 +180,17 @@
               "license": "MIT",
               "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
               "raw_sha256": null,
-              "retrieved_at": "2026-10-10T13:43:36.507072Z"
+              "retrieved_at": "2026-10-11T14:03:36.816010Z"
+            },
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -219,7 +219,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -275,16 +275,6 @@
           ],
           "sources": [
             {
-              "id": "aider-polyglot-leaderboard",
-              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-              "license": "Apache-2.0",
-              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
-            },
-            {
               "id": "models-dev-selected-cache-disabled-prices",
               "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
               "url": "https://models.dev/api.json",
@@ -292,7 +282,17 @@
               "license": "MIT",
               "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
               "raw_sha256": null,
-              "retrieved_at": "2026-10-10T13:43:36.507072Z"
+              "retrieved_at": "2026-10-11T14:03:36.816010Z"
+            },
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -321,7 +321,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -379,16 +379,6 @@
           ],
           "sources": [
             {
-              "id": "aider-polyglot-leaderboard",
-              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-              "license": "Apache-2.0",
-              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
-            },
-            {
               "id": "models-dev-selected-cache-disabled-prices",
               "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
               "url": "https://models.dev/api.json",
@@ -396,7 +386,17 @@
               "license": "MIT",
               "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
               "raw_sha256": null,
-              "retrieved_at": "2026-10-10T13:43:36.507072Z"
+              "retrieved_at": "2026-10-11T14:03:36.816010Z"
+            },
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -425,7 +425,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -481,16 +481,6 @@
           ],
           "sources": [
             {
-              "id": "aider-polyglot-leaderboard",
-              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-              "license": "Apache-2.0",
-              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
-            },
-            {
               "id": "models-dev-selected-cache-disabled-prices",
               "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
               "url": "https://models.dev/api.json",
@@ -498,7 +488,17 @@
               "license": "MIT",
               "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
               "raw_sha256": null,
-              "retrieved_at": "2026-10-10T13:43:36.507072Z"
+              "retrieved_at": "2026-10-11T14:03:36.816010Z"
+            },
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -527,7 +527,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -584,16 +584,6 @@
           ],
           "sources": [
             {
-              "id": "aider-polyglot-leaderboard",
-              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-              "license": "Apache-2.0",
-              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
-            },
-            {
               "id": "models-dev-selected-cache-disabled-prices",
               "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
               "url": "https://models.dev/api.json",
@@ -601,7 +591,17 @@
               "license": "MIT",
               "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
               "raw_sha256": null,
-              "retrieved_at": "2026-10-10T13:43:36.507072Z"
+              "retrieved_at": "2026-10-11T14:03:36.816010Z"
+            },
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -630,7 +630,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -686,16 +686,6 @@
           ],
           "sources": [
             {
-              "id": "aider-polyglot-leaderboard",
-              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-              "license": "Apache-2.0",
-              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
-            },
-            {
               "id": "models-dev-selected-cache-disabled-prices",
               "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
               "url": "https://models.dev/api.json",
@@ -703,7 +693,17 @@
               "license": "MIT",
               "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
               "raw_sha256": null,
-              "retrieved_at": "2026-10-10T13:43:36.507072Z"
+              "retrieved_at": "2026-10-11T14:03:36.816010Z"
+            },
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -732,7 +732,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -791,16 +791,6 @@
           ],
           "sources": [
             {
-              "id": "aider-polyglot-leaderboard",
-              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-              "license": "Apache-2.0",
-              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
-            },
-            {
               "id": "models-dev-selected-cache-disabled-prices",
               "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
               "url": "https://models.dev/api.json",
@@ -808,7 +798,17 @@
               "license": "MIT",
               "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
               "raw_sha256": null,
-              "retrieved_at": "2026-10-10T13:43:36.507072Z"
+              "retrieved_at": "2026-10-11T14:03:36.816010Z"
+            },
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -837,7 +837,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -893,16 +893,6 @@
           ],
           "sources": [
             {
-              "id": "aider-polyglot-leaderboard",
-              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-              "license": "Apache-2.0",
-              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
-            },
-            {
               "id": "models-dev-selected-cache-disabled-prices",
               "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
               "url": "https://models.dev/api.json",
@@ -910,7 +900,17 @@
               "license": "MIT",
               "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
               "raw_sha256": null,
-              "retrieved_at": "2026-10-10T13:43:36.507072Z"
+              "retrieved_at": "2026-10-11T14:03:36.816010Z"
+            },
+            {
+              "id": "aider-polyglot-leaderboard",
+              "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+              "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+              "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+              "license": "Apache-2.0",
+              "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+              "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-06-28T00:00:00Z",
@@ -939,7 +939,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-10T13:43:36.108748Z"
+              "retrieved_at": "2026-10-11T14:03:36.430384Z"
             }
           ],
           "oldest_observed_at": "2025-06-28T00:00:00Z",
@@ -966,8 +966,8 @@
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
     "config_hash": "d88f78b5586dd22a3744ce6a92c96738a3cc363a6117dc62824513296fa7e082",
-    "catalog_hash": "e6fc79093274f43fa3f91137eb3087e5f71bd9f09dee3b077a35f3fb95bc1eca",
-    "generated_at": "2026-10-10T13:43:37.558612Z",
+    "catalog_hash": "74308f4e1b02b02e17786791510902ce18d1522ad5817e691fe62f0787749d3f",
+    "generated_at": "2026-10-11T14:03:37.869753Z",
     "workload": {
       "id": "aider-polyglot",
       "version": "sha256:bb92c4555c1341c52f386c8c8b1ba7c5b3c56cec60a5f9129ecf8ee99a8cc2a8",
@@ -1030,16 +1030,6 @@
             ],
             "sources": [
               {
-                "id": "aider-polyglot-leaderboard",
-                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-                "license": "Apache-2.0",
-                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
-              },
-              {
                 "id": "models-dev-selected-cache-disabled-prices",
                 "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
                 "url": "https://models.dev/api.json",
@@ -1047,7 +1037,17 @@
                 "license": "MIT",
                 "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
                 "raw_sha256": null,
-                "retrieved_at": "2026-10-10T13:43:36.507072Z"
+                "retrieved_at": "2026-10-11T14:03:36.816010Z"
+              },
+              {
+                "id": "aider-polyglot-leaderboard",
+                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+                "license": "Apache-2.0",
+                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -1076,7 +1076,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -1123,16 +1123,6 @@
             ],
             "sources": [
               {
-                "id": "aider-polyglot-leaderboard",
-                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-                "license": "Apache-2.0",
-                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
-              },
-              {
                 "id": "models-dev-selected-cache-disabled-prices",
                 "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
                 "url": "https://models.dev/api.json",
@@ -1140,7 +1130,17 @@
                 "license": "MIT",
                 "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
                 "raw_sha256": null,
-                "retrieved_at": "2026-10-10T13:43:36.507072Z"
+                "retrieved_at": "2026-10-11T14:03:36.816010Z"
+              },
+              {
+                "id": "aider-polyglot-leaderboard",
+                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+                "license": "Apache-2.0",
+                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -1169,7 +1169,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -1216,16 +1216,6 @@
             ],
             "sources": [
               {
-                "id": "aider-polyglot-leaderboard",
-                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-                "license": "Apache-2.0",
-                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
-              },
-              {
                 "id": "models-dev-selected-cache-disabled-prices",
                 "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
                 "url": "https://models.dev/api.json",
@@ -1233,7 +1223,17 @@
                 "license": "MIT",
                 "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
                 "raw_sha256": null,
-                "retrieved_at": "2026-10-10T13:43:36.507072Z"
+                "retrieved_at": "2026-10-11T14:03:36.816010Z"
+              },
+              {
+                "id": "aider-polyglot-leaderboard",
+                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+                "license": "Apache-2.0",
+                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -1262,7 +1262,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -1309,16 +1309,6 @@
             ],
             "sources": [
               {
-                "id": "aider-polyglot-leaderboard",
-                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-                "license": "Apache-2.0",
-                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
-              },
-              {
                 "id": "models-dev-selected-cache-disabled-prices",
                 "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
                 "url": "https://models.dev/api.json",
@@ -1326,7 +1316,17 @@
                 "license": "MIT",
                 "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
                 "raw_sha256": null,
-                "retrieved_at": "2026-10-10T13:43:36.507072Z"
+                "retrieved_at": "2026-10-11T14:03:36.816010Z"
+              },
+              {
+                "id": "aider-polyglot-leaderboard",
+                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+                "license": "Apache-2.0",
+                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -1355,7 +1355,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -1402,16 +1402,6 @@
             ],
             "sources": [
               {
-                "id": "aider-polyglot-leaderboard",
-                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-                "license": "Apache-2.0",
-                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
-              },
-              {
                 "id": "models-dev-selected-cache-disabled-prices",
                 "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
                 "url": "https://models.dev/api.json",
@@ -1419,7 +1409,17 @@
                 "license": "MIT",
                 "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
                 "raw_sha256": null,
-                "retrieved_at": "2026-10-10T13:43:36.507072Z"
+                "retrieved_at": "2026-10-11T14:03:36.816010Z"
+              },
+              {
+                "id": "aider-polyglot-leaderboard",
+                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+                "license": "Apache-2.0",
+                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -1448,7 +1448,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -1495,16 +1495,6 @@
             ],
             "sources": [
               {
-                "id": "aider-polyglot-leaderboard",
-                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-                "license": "Apache-2.0",
-                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
-              },
-              {
                 "id": "models-dev-selected-cache-disabled-prices",
                 "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
                 "url": "https://models.dev/api.json",
@@ -1512,7 +1502,17 @@
                 "license": "MIT",
                 "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
                 "raw_sha256": null,
-                "retrieved_at": "2026-10-10T13:43:36.507072Z"
+                "retrieved_at": "2026-10-11T14:03:36.816010Z"
+              },
+              {
+                "id": "aider-polyglot-leaderboard",
+                "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+                "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+                "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+                "license": "Apache-2.0",
+                "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+                "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-06-28T00:00:00Z",
@@ -1541,7 +1541,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-10T13:43:36.108748Z"
+                "retrieved_at": "2026-10-11T14:03:36.430384Z"
               }
             ],
             "oldest_observed_at": "2025-06-28T00:00:00Z",
@@ -1550,20 +1550,10 @@
         }
       }
     ],
-    "inventory_id": "89beb0184dbd2de9c3a98886d25b1a8b797fc9b7ec22721b6bf6ea16aeffa861"
+    "inventory_id": "3471cb1314dab44984c237d57a343f4b745345144fa433630074157a24cf1470"
   },
   "public_release_blocked": false,
   "sources": [
-    {
-      "id": "aider-polyglot-leaderboard",
-      "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
-      "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
-      "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
-      "license": "Apache-2.0",
-      "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
-      "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-      "retrieved_at": "2026-10-10T13:43:36.108748Z"
-    },
     {
       "id": "models-dev-selected-cache-disabled-prices",
       "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
@@ -1572,11 +1562,21 @@
       "license": "MIT",
       "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
       "raw_sha256": null,
-      "retrieved_at": "2026-10-10T13:43:36.507072Z"
+      "retrieved_at": "2026-10-11T14:03:36.816010Z"
+    },
+    {
+      "id": "aider-polyglot-leaderboard",
+      "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
+      "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
+      "terms_url": "https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/LICENSE.txt",
+      "license": "Apache-2.0",
+      "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
+      "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
+      "retrieved_at": "2026-10-11T14:03:36.430384Z"
     }
   ],
   "source_watermarks": {
     "aider-polyglot-leaderboard": "2025-08-25T00:00:00Z",
-    "models-dev-selected-cache-disabled-prices": "2026-10-10T13:43:36.507072Z"
+    "models-dev-selected-cache-disabled-prices": "2026-10-11T14:03:36.816010Z"
   }
 }
