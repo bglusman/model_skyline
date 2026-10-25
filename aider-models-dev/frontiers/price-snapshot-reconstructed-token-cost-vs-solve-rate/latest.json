@@ -2,11 +2,11 @@
   "schema_version": "model-skyline/v1alpha1",
   "kind": "frontier",
   "hash_algorithm": "sha256-rfc8785-v1",
-  "snapshot_id": "3e4e8251598f71d1b0ba3751ad86ced0e84beea2fce121836304246cf13a4e7d",
+  "snapshot_id": "baa033d9dd2042e0c05af3b480d1078b854b9326a44314d0d0505225d1899a60",
   "config_hash": "f5ae663e150e31274cd5e4ee022374ec40f55b426266ddcdc8090f17794f7169",
-  "catalog_hash": "1478bc9e42d283d08a5e7f0f8279172f472df8bfb1c1b316d5871ced35cc4234",
+  "catalog_hash": "cfe65ef8d93dff13583315219251f11c5a47f2401195906b24c24d024ff22f4e",
   "engine_version": "0.9.0",
-  "generated_at": "2026-10-24T12:00:53.235424Z",
+  "generated_at": "2026-10-25T12:34:25.011536Z",
   "frontier_id": "price-snapshot-reconstructed-token-cost-vs-solve-rate",
   "workload": {
     "id": "aider-polyglot",
@@ -70,16 +70,6 @@
           ],
           "sources": [
             {
-              "id": "models-dev-selected-cache-disabled-prices",
-              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-              "url": "https://models.dev/api.json",
-              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-              "license": "MIT",
-              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-              "raw_sha256": null,
-              "retrieved_at": "2026-10-24T12:00:52.116724Z"
-            },
-            {
               "id": "aider-polyglot-leaderboard",
               "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
               "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -87,7 +77,17 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
+            },
+            {
+              "id": "models-dev-selected-cache-disabled-prices",
+              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+              "url": "https://models.dev/api.json",
+              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+              "license": "MIT",
+              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+              "raw_sha256": null,
+              "retrieved_at": "2026-10-25T12:34:23.899032Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -116,7 +116,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -171,16 +171,6 @@
           ],
           "sources": [
             {
-              "id": "models-dev-selected-cache-disabled-prices",
-              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-              "url": "https://models.dev/api.json",
-              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-              "license": "MIT",
-              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-              "raw_sha256": null,
-              "retrieved_at": "2026-10-24T12:00:52.116724Z"
-            },
-            {
               "id": "aider-polyglot-leaderboard",
               "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
               "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -188,7 +178,17 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
+            },
+            {
+              "id": "models-dev-selected-cache-disabled-prices",
+              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+              "url": "https://models.dev/api.json",
+              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+              "license": "MIT",
+              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+              "raw_sha256": null,
+              "retrieved_at": "2026-10-25T12:34:23.899032Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -217,7 +217,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -272,16 +272,6 @@
           ],
           "sources": [
             {
-              "id": "models-dev-selected-cache-disabled-prices",
-              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-              "url": "https://models.dev/api.json",
-              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-              "license": "MIT",
-              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-              "raw_sha256": null,
-              "retrieved_at": "2026-10-24T12:00:52.116724Z"
-            },
-            {
               "id": "aider-polyglot-leaderboard",
               "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
               "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -289,7 +279,17 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
+            },
+            {
+              "id": "models-dev-selected-cache-disabled-prices",
+              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+              "url": "https://models.dev/api.json",
+              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+              "license": "MIT",
+              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+              "raw_sha256": null,
+              "retrieved_at": "2026-10-25T12:34:23.899032Z"
             }
           ],
           "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -318,7 +318,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
             }
           ],
           "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -375,16 +375,6 @@
           ],
           "sources": [
             {
-              "id": "models-dev-selected-cache-disabled-prices",
-              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-              "url": "https://models.dev/api.json",
-              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-              "license": "MIT",
-              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-              "raw_sha256": null,
-              "retrieved_at": "2026-10-24T12:00:52.116724Z"
-            },
-            {
               "id": "aider-polyglot-leaderboard",
               "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
               "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -392,7 +382,17 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
+            },
+            {
+              "id": "models-dev-selected-cache-disabled-prices",
+              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+              "url": "https://models.dev/api.json",
+              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+              "license": "MIT",
+              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+              "raw_sha256": null,
+              "retrieved_at": "2026-10-25T12:34:23.899032Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -421,7 +421,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -476,16 +476,6 @@
           ],
           "sources": [
             {
-              "id": "models-dev-selected-cache-disabled-prices",
-              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-              "url": "https://models.dev/api.json",
-              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-              "license": "MIT",
-              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-              "raw_sha256": null,
-              "retrieved_at": "2026-10-24T12:00:52.116724Z"
-            },
-            {
               "id": "aider-polyglot-leaderboard",
               "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
               "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -493,7 +483,17 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
+            },
+            {
+              "id": "models-dev-selected-cache-disabled-prices",
+              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+              "url": "https://models.dev/api.json",
+              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+              "license": "MIT",
+              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+              "raw_sha256": null,
+              "retrieved_at": "2026-10-25T12:34:23.899032Z"
             }
           ],
           "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -522,7 +522,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
             }
           ],
           "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -578,16 +578,6 @@
           ],
           "sources": [
             {
-              "id": "models-dev-selected-cache-disabled-prices",
-              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-              "url": "https://models.dev/api.json",
-              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-              "license": "MIT",
-              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-              "raw_sha256": null,
-              "retrieved_at": "2026-10-24T12:00:52.116724Z"
-            },
-            {
               "id": "aider-polyglot-leaderboard",
               "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
               "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -595,7 +585,17 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
+            },
+            {
+              "id": "models-dev-selected-cache-disabled-prices",
+              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+              "url": "https://models.dev/api.json",
+              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+              "license": "MIT",
+              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+              "raw_sha256": null,
+              "retrieved_at": "2026-10-25T12:34:23.899032Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -624,7 +624,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
             }
           ],
           "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -679,16 +679,6 @@
           ],
           "sources": [
             {
-              "id": "models-dev-selected-cache-disabled-prices",
-              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-              "url": "https://models.dev/api.json",
-              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-              "license": "MIT",
-              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-              "raw_sha256": null,
-              "retrieved_at": "2026-10-24T12:00:52.116724Z"
-            },
-            {
               "id": "aider-polyglot-leaderboard",
               "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
               "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -696,7 +686,17 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
+            },
+            {
+              "id": "models-dev-selected-cache-disabled-prices",
+              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+              "url": "https://models.dev/api.json",
+              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+              "license": "MIT",
+              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+              "raw_sha256": null,
+              "retrieved_at": "2026-10-25T12:34:23.899032Z"
             }
           ],
           "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -725,7 +725,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
             }
           ],
           "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -783,16 +783,6 @@
           ],
           "sources": [
             {
-              "id": "models-dev-selected-cache-disabled-prices",
-              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-              "url": "https://models.dev/api.json",
-              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-              "license": "MIT",
-              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-              "raw_sha256": null,
-              "retrieved_at": "2026-10-24T12:00:52.116724Z"
-            },
-            {
               "id": "aider-polyglot-leaderboard",
               "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
               "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -800,7 +790,17 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
+            },
+            {
+              "id": "models-dev-selected-cache-disabled-prices",
+              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+              "url": "https://models.dev/api.json",
+              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+              "license": "MIT",
+              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+              "raw_sha256": null,
+              "retrieved_at": "2026-10-25T12:34:23.899032Z"
             }
           ],
           "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -829,7 +829,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
             }
           ],
           "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -884,16 +884,6 @@
           ],
           "sources": [
             {
-              "id": "models-dev-selected-cache-disabled-prices",
-              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-              "url": "https://models.dev/api.json",
-              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-              "license": "MIT",
-              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-              "raw_sha256": null,
-              "retrieved_at": "2026-10-24T12:00:52.116724Z"
-            },
-            {
               "id": "aider-polyglot-leaderboard",
               "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
               "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -901,7 +891,17 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
+            },
+            {
+              "id": "models-dev-selected-cache-disabled-prices",
+              "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+              "url": "https://models.dev/api.json",
+              "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+              "license": "MIT",
+              "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+              "raw_sha256": null,
+              "retrieved_at": "2026-10-25T12:34:23.899032Z"
             }
           ],
           "oldest_observed_at": "2025-06-28T00:00:00Z",
@@ -930,7 +930,7 @@
               "license": "Apache-2.0",
               "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
               "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-              "retrieved_at": "2026-10-24T12:00:51.841356Z"
+              "retrieved_at": "2026-10-25T12:34:23.541757Z"
             }
           ],
           "oldest_observed_at": "2025-06-28T00:00:00Z",
@@ -957,8 +957,8 @@
     "kind": "axis-evidence-inventory",
     "hash_algorithm": "sha256-rfc8785-v1",
     "config_hash": "f5ae663e150e31274cd5e4ee022374ec40f55b426266ddcdc8090f17794f7169",
-    "catalog_hash": "1478bc9e42d283d08a5e7f0f8279172f472df8bfb1c1b316d5871ced35cc4234",
-    "generated_at": "2026-10-24T12:00:53.235424Z",
+    "catalog_hash": "cfe65ef8d93dff13583315219251f11c5a47f2401195906b24c24d024ff22f4e",
+    "generated_at": "2026-10-25T12:34:25.011536Z",
     "workload": {
       "id": "aider-polyglot",
       "version": "sha256:bb92c4555c1341c52f386c8c8b1ba7c5b3c56cec60a5f9129ecf8ee99a8cc2a8",
@@ -1020,16 +1020,6 @@
             ],
             "sources": [
               {
-                "id": "models-dev-selected-cache-disabled-prices",
-                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-                "url": "https://models.dev/api.json",
-                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-                "license": "MIT",
-                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-                "raw_sha256": null,
-                "retrieved_at": "2026-10-24T12:00:52.116724Z"
-              },
-              {
                 "id": "aider-polyglot-leaderboard",
                 "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
                 "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -1037,7 +1027,17 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
+              },
+              {
+                "id": "models-dev-selected-cache-disabled-prices",
+                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+                "url": "https://models.dev/api.json",
+                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+                "license": "MIT",
+                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+                "raw_sha256": null,
+                "retrieved_at": "2026-10-25T12:34:23.899032Z"
               }
             ],
             "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -1066,7 +1066,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
               }
             ],
             "oldest_observed_at": "2025-08-23T00:00:00Z",
@@ -1112,16 +1112,6 @@
             ],
             "sources": [
               {
-                "id": "models-dev-selected-cache-disabled-prices",
-                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-                "url": "https://models.dev/api.json",
-                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-                "license": "MIT",
-                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-                "raw_sha256": null,
-                "retrieved_at": "2026-10-24T12:00:52.116724Z"
-              },
-              {
                 "id": "aider-polyglot-leaderboard",
                 "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
                 "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -1129,7 +1119,17 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
+              },
+              {
+                "id": "models-dev-selected-cache-disabled-prices",
+                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+                "url": "https://models.dev/api.json",
+                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+                "license": "MIT",
+                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+                "raw_sha256": null,
+                "retrieved_at": "2026-10-25T12:34:23.899032Z"
               }
             ],
             "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -1158,7 +1158,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
               }
             ],
             "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -1204,16 +1204,6 @@
             ],
             "sources": [
               {
-                "id": "models-dev-selected-cache-disabled-prices",
-                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-                "url": "https://models.dev/api.json",
-                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-                "license": "MIT",
-                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-                "raw_sha256": null,
-                "retrieved_at": "2026-10-24T12:00:52.116724Z"
-              },
-              {
                 "id": "aider-polyglot-leaderboard",
                 "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
                 "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -1221,7 +1211,17 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
+              },
+              {
+                "id": "models-dev-selected-cache-disabled-prices",
+                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+                "url": "https://models.dev/api.json",
+                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+                "license": "MIT",
+                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+                "raw_sha256": null,
+                "retrieved_at": "2026-10-25T12:34:23.899032Z"
               }
             ],
             "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -1250,7 +1250,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
               }
             ],
             "oldest_observed_at": "2025-08-25T00:00:00Z",
@@ -1296,16 +1296,6 @@
             ],
             "sources": [
               {
-                "id": "models-dev-selected-cache-disabled-prices",
-                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-                "url": "https://models.dev/api.json",
-                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-                "license": "MIT",
-                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-                "raw_sha256": null,
-                "retrieved_at": "2026-10-24T12:00:52.116724Z"
-              },
-              {
                 "id": "aider-polyglot-leaderboard",
                 "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
                 "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -1313,7 +1303,17 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
+              },
+              {
+                "id": "models-dev-selected-cache-disabled-prices",
+                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+                "url": "https://models.dev/api.json",
+                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+                "license": "MIT",
+                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+                "raw_sha256": null,
+                "retrieved_at": "2026-10-25T12:34:23.899032Z"
               }
             ],
             "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -1342,7 +1342,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
               }
             ],
             "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -1388,16 +1388,6 @@
             ],
             "sources": [
               {
-                "id": "models-dev-selected-cache-disabled-prices",
-                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-                "url": "https://models.dev/api.json",
-                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-                "license": "MIT",
-                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-                "raw_sha256": null,
-                "retrieved_at": "2026-10-24T12:00:52.116724Z"
-              },
-              {
                 "id": "aider-polyglot-leaderboard",
                 "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
                 "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -1405,7 +1395,17 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
+              },
+              {
+                "id": "models-dev-selected-cache-disabled-prices",
+                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+                "url": "https://models.dev/api.json",
+                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+                "license": "MIT",
+                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+                "raw_sha256": null,
+                "retrieved_at": "2026-10-25T12:34:23.899032Z"
               }
             ],
             "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -1434,7 +1434,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
               }
             ],
             "oldest_observed_at": "2025-06-25T00:00:00Z",
@@ -1480,16 +1480,6 @@
             ],
             "sources": [
               {
-                "id": "models-dev-selected-cache-disabled-prices",
-                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-                "url": "https://models.dev/api.json",
-                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-                "license": "MIT",
-                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-                "raw_sha256": null,
-                "retrieved_at": "2026-10-24T12:00:52.116724Z"
-              },
-              {
                 "id": "aider-polyglot-leaderboard",
                 "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
                 "url": "https://raw.githubusercontent.com/Aider-AI/aider/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/aider/website/_data/polyglot_leaderboard.yml",
@@ -1497,7 +1487,17 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
+              },
+              {
+                "id": "models-dev-selected-cache-disabled-prices",
+                "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+                "url": "https://models.dev/api.json",
+                "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+                "license": "MIT",
+                "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+                "raw_sha256": null,
+                "retrieved_at": "2026-10-25T12:34:23.899032Z"
               }
             ],
             "oldest_observed_at": "2025-06-28T00:00:00Z",
@@ -1526,7 +1526,7 @@
                 "license": "Apache-2.0",
                 "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
                 "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-                "retrieved_at": "2026-10-24T12:00:51.841356Z"
+                "retrieved_at": "2026-10-25T12:34:23.541757Z"
               }
             ],
             "oldest_observed_at": "2025-06-28T00:00:00Z",
@@ -1535,20 +1535,10 @@
         }
       }
     ],
-    "inventory_id": "0b0c6ed07436306e59fb2914f1aff1bab3dfe4b2e1c0fe6ce180cfa32bc1cb27"
+    "inventory_id": "56516a79550b21a96a92cb4347764333924cd6bbf2fc450a765b00aa962ee035"
   },
   "public_release_blocked": false,
   "sources": [
-    {
-      "id": "models-dev-selected-cache-disabled-prices",
-      "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
-      "url": "https://models.dev/api.json",
-      "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
-      "license": "MIT",
-      "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
-      "raw_sha256": null,
-      "retrieved_at": "2026-10-24T12:00:52.116724Z"
-    },
     {
       "id": "aider-polyglot-leaderboard",
       "version": "cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a",
@@ -1557,11 +1547,21 @@
       "license": "Apache-2.0",
       "methodology": "Aider Polyglot benchmark leaderboard report. Exact integer pass counts are normalized by ModelSkyline; see https://github.com/Aider-AI/aider/blob/cb6a152e5ee27fbc77ac499d5e628ccd74a5fa2a/benchmark/README.md",
       "raw_sha256": "85a50b25953512d18ba4bb0c23c0b8e626fcf9a5b52d287644b8a0b44b9535de",
-      "retrieved_at": "2026-10-24T12:00:51.841356Z"
+      "retrieved_at": "2026-10-25T12:34:23.541757Z"
+    },
+    {
+      "id": "models-dev-selected-cache-disabled-prices",
+      "version": "selected-prices-sha256:43b7523beb0c3812cd036adf9c4ac77b1075aa7104479f5a47008b1a23738f71",
+      "url": "https://models.dev/api.json",
+      "terms_url": "https://github.com/anomalyco/models.dev/blob/4a3a072b45d6d79611b6d1ccddf23f22a7b4cfc2/LICENSE",
+      "license": "MIT",
+      "methodology": "Canonical reviewed models.dev provider/model/default-mode records selected for the cache-disabled projection. Identity covers provider and model IDs, ordinary input/output USD-per-million rates, status, and supported reasoning efforts. It intentionally excludes unused catalog records and optional cache, audio, and experimental-mode rates. The complete acquisition digest is preserved separately in projection.json and offering metadata; the exact canonical selected records are copied to selected-prices.json.",
+      "raw_sha256": null,
+      "retrieved_at": "2026-10-25T12:34:23.899032Z"
     }
   ],
   "source_watermarks": {
     "aider-polyglot-leaderboard": "2025-08-25T00:00:00Z",
-    "models-dev-selected-cache-disabled-prices": "2026-10-24T12:00:52.116724Z"
+    "models-dev-selected-cache-disabled-prices": "2026-10-25T12:34:23.899032Z"
   }
 }
