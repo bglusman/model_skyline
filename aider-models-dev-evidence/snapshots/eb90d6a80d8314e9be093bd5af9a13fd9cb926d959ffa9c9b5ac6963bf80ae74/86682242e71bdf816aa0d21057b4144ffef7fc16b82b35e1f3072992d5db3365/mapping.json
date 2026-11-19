@@ -1,0 +1,84 @@
+{
+  "schema_version": "model-skyline/aider-models-dev-mapping/v1alpha1",
+  "scenario": "cache_disabled",
+  "mappings": [
+    {
+      "source_offering_id": "aider-polyglot/2025-08-23-15-47-21--gpt-5-high",
+      "expected_source_model_id": "gpt-5 (high)",
+      "provider_id": "openai",
+      "model_id": "gpt-5",
+      "pricing_mode": "default",
+      "allow_deprecated": true,
+      "relationship": "same_provider_model_route",
+      "expected_reasoning_effort": "high",
+      "expected_command_sha256": "195235c1d69d9275a17397f754ff1771dda83bb0556d390991b401dde213779c",
+      "evidence": "The pinned Aider row command is `aider --model openai/gpt-5`; the row separately records reasoning_effort=high. OpenAI documents the alias as snapshot gpt-5-2025-08-07 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+      "reviewed_at": "2026-09-01T09:54:20Z"
+    },
+    {
+      "source_offering_id": "aider-polyglot/2025-08-25-13-23-27--gpt-5-medium",
+      "expected_source_model_id": "gpt-5 (medium)",
+      "provider_id": "openai",
+      "model_id": "gpt-5",
+      "pricing_mode": "default",
+      "allow_deprecated": true,
+      "relationship": "same_provider_model_route",
+      "expected_reasoning_effort": "medium",
+      "expected_command_sha256": "195235c1d69d9275a17397f754ff1771dda83bb0556d390991b401dde213779c",
+      "evidence": "The pinned Aider row command is `aider --model openai/gpt-5`; the row separately records reasoning_effort=medium. OpenAI documents the alias as snapshot gpt-5-2025-08-07 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+      "reviewed_at": "2026-09-01T09:54:20Z"
+    },
+    {
+      "source_offering_id": "aider-polyglot/2025-08-25-14-16-37--gpt-5-low",
+      "expected_source_model_id": "gpt-5 (low)",
+      "provider_id": "openai",
+      "model_id": "gpt-5",
+      "pricing_mode": "default",
+      "allow_deprecated": true,
+      "relationship": "same_provider_model_route",
+      "expected_reasoning_effort": "low",
+      "expected_command_sha256": "195235c1d69d9275a17397f754ff1771dda83bb0556d390991b401dde213779c",
+      "evidence": "The pinned Aider row command is `aider --model openai/gpt-5`; the row separately records reasoning_effort=low. OpenAI documents the alias as snapshot gpt-5-2025-08-07 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+      "reviewed_at": "2026-09-01T09:54:20Z"
+    },
+    {
+      "source_offering_id": "aider-polyglot/2025-06-25-21-04-24--o3-price-reduction-high",
+      "expected_source_model_id": "o3 (high)",
+      "provider_id": "openai",
+      "model_id": "o3",
+      "pricing_mode": "default",
+      "allow_deprecated": true,
+      "relationship": "same_provider_model_route",
+      "expected_reasoning_effort": "high",
+      "expected_command_sha256": "09bfddb170a0a91c8100279336cc5f70775354810830e9d849a2a8875956799a",
+      "evidence": "The pinned Aider row command is `aider --model o3 --reasoning-effort high`. Its Aider row commit pins LiteLLM 1.73.1; the reviewed sdist (SHA-256 33ad55ff051bf925419619ec37f32949decdc52a6109c8c0700cfb1209696590) classifies bare o3 as provider openai. OpenAI documents the alias as snapshot o3-2025-04-16 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+      "reviewed_at": "2026-09-01T09:54:20Z"
+    },
+    {
+      "source_offering_id": "aider-polyglot/2025-06-25-20-30-16--o3-price-reduction",
+      "expected_source_model_id": "o3",
+      "provider_id": "openai",
+      "model_id": "o3",
+      "pricing_mode": "default",
+      "allow_deprecated": true,
+      "relationship": "same_provider_model_route",
+      "expected_reasoning_effort": null,
+      "expected_command_sha256": "4bafdedd66af12405da769f64de4470f3b229632e1fe38151debd34d98bc872f",
+      "evidence": "The pinned Aider row command is `aider --model o3`. Its Aider row commit pins LiteLLM 1.73.1; the reviewed sdist (SHA-256 33ad55ff051bf925419619ec37f32949decdc52a6109c8c0700cfb1209696590) classifies bare o3 as provider openai. Reasoning effort was not explicitly configured. OpenAI documents the alias as snapshot o3-2025-04-16 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+      "reviewed_at": "2026-09-01T09:54:20Z"
+    },
+    {
+      "source_offering_id": "aider-polyglot/2025-06-28-00-38-18--o3-pro-high",
+      "expected_source_model_id": "o3-pro (high)",
+      "provider_id": "openai",
+      "model_id": "o3-pro",
+      "pricing_mode": "default",
+      "allow_deprecated": true,
+      "relationship": "same_provider_model_route",
+      "expected_reasoning_effort": "high",
+      "expected_command_sha256": "e243d017115f5c5b3866841145cf16386278d395f1e4adbe88a0f51953cacd77",
+      "evidence": "The pinned Aider row command is `aider --model o3-pro`; the row separately records reasoning_effort=high. Its Aider row commit pins LiteLLM 1.73.1; the reviewed sdist (SHA-256 33ad55ff051bf925419619ec37f32949decdc52a6109c8c0700cfb1209696590) classifies bare o3-pro as provider openai. OpenAI documents the alias as snapshot o3-pro-2025-06-10 and schedules that snapshot for API shutdown on 2026-12-11; this historical projection intentionally opts in. See https://developers.openai.com/api/docs/deprecations#2026-06-11-gpt-5-and-o3-model-deprecations.",
+      "reviewed_at": "2026-09-01T09:54:20Z"
+    }
+  ]
+}
